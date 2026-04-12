@@ -1,0 +1,485 @@
+<mat-sidenav-container class="student-shell">
+  <mat-sidenav mode="side" opened class="student-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="student-main-shell">
+    <header class="student-toolbar">
+      <button mat-icon-button type="button" class="student-toolbar__menu" aria-label="Abrir navegacion">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <label class="student-toolbar__search" aria-label="Buscar en el portal del alumno">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Buscar..."
+          [value]="studentSearch()"
+          (input)="studentSearch.set(($any($event.target).value ?? '').toString())"
+        />
+      </label>
+
+      <div class="student-toolbar__actions">
+        <button
+          mat-button
+          type="button"
+          class="student-toolbar__profile"
+          [matMenuTriggerFor]="studentProfileMenu"
+          aria-label="Abrir menu de perfil del alumno"
+        >
+          <span class="student-toolbar__avatar">{{ welcomeName().charAt(0) | uppercase }}</span>
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <mat-menu #studentProfileMenu="matMenu" xPosition="before">
+      <button mat-menu-item type="button" disabled>
+        <mat-icon>person</mat-icon>
+        <span>Mi perfil</span>
+      </button>
+      <button mat-menu-item type="button" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesion</span>
+      </button>
+    </mat-menu>
+
+    <main class="student-content">
+      <div class="student-content__inner">
+
+      @if (isLoading()) {
+        <section class="loading-state">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Cargando informacion del alumno...</p>
+        </section>
+      } @else if (dashboard(); as dashboard) {
+        @if (activeSection() === 'overview') {
+          <section class="overview-hero">
+            <div class="overview-hero__copy">
+              <h1>Hola, {{ welcomeName() }}</h1>
+              <p>Aqui tienes un resumen de tu actividad academica.</p>
+            </div>
+
+            <div class="overview-hero__meta">
+              <mat-chip>{{ currentCourseLabel() }}</mat-chip>
+              <span class="hero-year">{{ currentYearLabel() }}</span>
+            </div>
+          </section>
+
+          <section class="stats-grid">
+            @for (card of cards(); track card.title) {
+              <mat-card appearance="outlined" class="stat-card" [class]="'tone-' + card.tone">
+                <mat-card-header class="stat-header">
+                  <mat-card-title>{{ card.title }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <strong>{{ card.value }}</strong>
+                  <span>{{ card.caption }}</span>
+                </mat-card-content>
+              </mat-card>
+            }
+          </section>
+
+          <section class="overview-panels">
+            <mat-card appearance="outlined" class="panel-card overview-panel">
+              <div class="panel-header">
+                <mat-card-title>Mis asignaturas</mat-card-title>
+                <button mat-button type="button" disabled>Ver todos</button>
+              </div>
+
+              <mat-card-content class="overview-list">
+                @if (overviewSubjects().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>school</mat-icon>
+                    <span>No hay asignaturas visibles para este alumno.</span>
+                  </section>
+                } @else {
+                  @for (subject of overviewSubjects(); track subject.subjectName + subject.courseName) {
+                    <article class="overview-row overview-row--clickable" (click)="openSubjectDocuments(subject.subjectId)">
+                      <div class="overview-row__icon" [class]="'tone-' + subject.tone">
+                        <mat-icon>{{ subject.icon }}</mat-icon>
+                      </div>
+                      <div class="overview-row__copy">
+                        <strong>{{ subject.subjectName }}</strong>
+                        <span>{{ subject.courseName }}</span>
+                      </div>
+                      <div class="overview-row__score" [class.has-score]="subject.average !== null">
+                        {{ subject.average ?? subject.weeklyBlocks }}
+                      </div>
+                    </article>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card appearance="outlined" class="panel-card overview-panel">
+              <div class="panel-header">
+                <mat-card-title>Proximas actividades</mat-card-title>
+                <button mat-button type="button" disabled>Ver calendario</button>
+              </div>
+
+              <mat-card-content class="overview-list">
+                @if (overviewActivities().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>event_busy</mat-icon>
+                    <span>No hay actividades proximas por ahora.</span>
+                  </section>
+                } @else {
+                  @for (activity of overviewActivities(); track activity.id) {
+                    <article class="overview-row overview-row--activity">
+                      <div class="overview-row__icon tone-sky">
+                        <mat-icon>event</mat-icon>
+                      </div>
+                      <div class="overview-row__copy">
+                        <strong>{{ activity.title }}</strong>
+                        <span>{{ activity.activityTypeName }}</span>
+                      </div>
+                      <div class="overview-row__meta">
+                        <strong>{{ activity.date }}</strong>
+                        <span>{{ activity.location }}</span>
+                      </div>
+                    </article>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </section>
+        } @else if (isSectionActive('courses') || isSectionActive('subjects')) {
+          <section class="courses-browser">
+            <div class="courses-browser__header">
+              <div>
+                <h2>Mis asignaturas</h2>
+                <p>Asignaturas activas y bloques semanales de tu carga academica.</p>
+              </div>
+              <mat-chip>{{ currentCourseLabel() }}</mat-chip>
+            </div>
+
+            @if (subjectCards().length === 0) {
+              <section class="empty-inline">
+                <mat-icon>school</mat-icon>
+                <span>No hay asignaturas visibles para este alumno.</span>
+              </section>
+            } @else {
+              <div class="subjects-card-grid">
+                @for (subject of subjectCards(); track subject.subjectName + subject.courseName) {
+                  <article class="subject-card subject-card--clickable" (click)="openSubjectDocuments(subject.subjectId)">
+                    <div class="subject-card__icon" [class]="'tone-' + subject.tone">
+                      <mat-icon>{{ subject.icon }}</mat-icon>
+                    </div>
+
+                    <div class="subject-card__copy">
+                      <strong>{{ subject.subjectName }}</strong>
+                      <span>{{ subject.courseName }}</span>
+                      <small>{{ subject.weeklyBlocks }} bloque(s) semanales</small>
+                      <small>{{ subject.teacherName }}</small>
+                    </div>
+
+                    <div class="subject-card__footer">
+                      <span class="subject-card__score" [class.has-score]="subject.average !== null">
+                        {{ subject.average ?? subject.weeklyBlocks }}
+                      </span>
+                      <button mat-stroked-button type="button" (click)="$event.stopPropagation(); openSubjectDocuments(subject.subjectId)">
+                        Ver detalle
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        } @else if (isSectionActive('schedule')) {
+          <section class="schedule-browser">
+            <div class="schedule-browser__header">
+              <div class="schedule-title">
+                <div class="schedule-title__icon">
+                  <mat-icon>calendar_month</mat-icon>
+                </div>
+                <div>
+                  <h2>Horario semanal</h2>
+                </div>
+              </div>
+            </div>
+
+            @if (scheduleWeekDays().length === 0) {
+              <section class="empty-inline">
+                <mat-icon>event_available</mat-icon>
+                <span>No hay bloques de horario asignados.</span>
+              </section>
+            } @else {
+              <section class="schedule-board">
+                <div class="schedule-grid schedule-grid--header">
+                  <div class="schedule-grid__time-head"></div>
+                  @for (day of scheduleWeekDays(); track day.key) {
+                    <div class="schedule-grid__day-head">
+                      <strong>{{ day.shortLabel }}</strong>
+                    </div>
+                  }
+                </div>
+
+                @for (row of scheduleRows(); track row.startTime) {
+                  <div class="schedule-grid schedule-grid--row">
+                    <div class="schedule-grid__time-cell">{{ row.startTime }}</div>
+                    @for (cell of row.blocks; track cell.dayKey + '-' + $index) {
+                      <div class="schedule-grid__cell">
+                        @if (cell.item; as item) {
+                          <article class="schedule-grid__event" [class]="cell.tone">
+                            <strong>{{ item.subjectName }}</strong>
+                            <span>{{ item.room || 'Sala por definir' }}</span>
+                          </article>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+            }
+          </section>
+        } @else if (isSectionActive('grades')) {
+          <section class="grades-browser">
+            <div class="grades-browser__header">
+              <div class="grades-title">
+                <div class="grades-title__icon">
+                  <mat-icon>bar_chart</mat-icon>
+                </div>
+                <div>
+                  <h2>Calificaciones</h2>
+                  <p>Revisa tus notas por asignatura, evaluaciones registradas y promedio academico.</p>
+                </div>
+              </div>
+              <span class="hero-year">{{ currentYearLabel() }}</span>
+            </div>
+
+            <section class="grades-summary-row">
+              <article class="grades-summary-card tone-brand-soft">
+                <span>Asignaturas evaluadas</span>
+                <strong>{{ gradeSubjects().length }}</strong>
+              </article>
+              <article class="grades-summary-card tone-success-soft">
+                <span>Evaluaciones registradas</span>
+                <strong>{{ totalEvaluationsCount() }}</strong>
+              </article>
+              <article class="grades-summary-card tone-violet-soft">
+                <span>Promedio general</span>
+                <strong>{{ gradesOverallAverage() }}</strong>
+              </article>
+            </section>
+
+            <section class="grades-table-card" [style.--grade-column-count]="gradeColumns().length">
+              <div class="grades-table grades-table--header">
+                <div>Asignatura</div>
+                @for (column of gradeColumns(); track column) {
+                  <div>Nota {{ column + 1 }}</div>
+                }
+                <div>Promedio</div>
+                <div>Ultima nota</div>
+              </div>
+
+              @if (gradeSubjects().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>grading</mat-icon>
+                  <span>No hay calificaciones registradas todavia.</span>
+                </section>
+              } @else {
+                @for (subject of gradeSubjects(); track subject.subjectName) {
+                  <article class="grades-table grades-table--row">
+                    <div class="grades-subject-cell">
+                      <div class="grades-subject-cell__icon" [class]="subject.tone">
+                        <mat-icon>{{ subject.icon }}</mat-icon>
+                      </div>
+                      <div class="grades-subject-copy">
+                        <strong>{{ subject.subjectName }}</strong>
+                        <span>{{ subject.evaluations.length }} evaluacion(es)</span>
+                      </div>
+                    </div>
+
+                    @for (evaluation of subject.visibleEvaluations; track $index) {
+                      <div class="grades-score-cell">
+                        @if (evaluation?.score !== null && evaluation?.score !== undefined) {
+                          <span class="grades-score-cell__value">{{ evaluation?.score?.toFixed(1) }}</span>
+                          <small class="grades-score-cell__label">
+                            {{ evaluation?.evaluationName || ('Evaluacion ' + ($index + 1)) }}
+                          </small>
+                        } @else {
+                          <span class="grades-score-cell--empty">-</span>
+                          <small class="grades-score-cell__label">Sin nota</small>
+                        }
+                      </div>
+                    }
+
+                    <div class="grades-score-cell">
+                      <span class="grades-pill">{{ subject.average?.toFixed(1) ?? '-' }}</span>
+                    </div>
+
+                    <div class="grades-score-cell">
+                      <span class="grades-pill is-latest">{{ subject.latestScore?.toFixed(1) ?? '-' }}</span>
+                    </div>
+                  </article>
+                }
+              }
+            </section>
+
+            <section class="grades-bottom-grid">
+              <mat-card appearance="outlined" class="panel-card grades-history-card">
+                <mat-card-title>Historial de evaluaciones</mat-card-title>
+                <mat-divider></mat-divider>
+                <mat-card-content class="grades-history-list">
+                  @if (recentGradeHistory().length === 0) {
+                    <section class="empty-inline">
+                      <mat-icon>history</mat-icon>
+                      <span>No hay evaluaciones recientes.</span>
+                    </section>
+                  } @else {
+                    @for (grade of recentGradeHistory(); track grade.subjectName + grade.evaluationName + grade.recordedAt) {
+                      <article class="grade-history-row">
+                        <div>
+                          <strong>{{ grade.evaluationName }}</strong>
+                        <span>{{ grade.subjectName }} - {{ grade.recordedAt }}</span>
+                        </div>
+                        <span class="grades-pill">{{ grade.score?.toFixed(1) ?? '-' }}</span>
+                      </article>
+                    }
+                  }
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="grades-average-card">
+                <div class="grades-average-card__icon">
+                  <mat-icon>emoji_events</mat-icon>
+                </div>
+                <span>Promedio general</span>
+                <strong>{{ gradesOverallAverage() }}</strong>
+                <p>Tu avance academico consolidado en las asignaturas con notas.</p>
+              </mat-card>
+            </section>
+          </section>
+        } @else {
+          <section class="dashboard-grid">
+            <mat-card appearance="outlined" class="panel-card" [class.is-highlighted]="isSectionActive('courses')">
+              <mat-card-title>Mis cursos</mat-card-title>
+              <mat-card-content class="course-list">
+                @if (dashboard.enrolledCourses.length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>school</mat-icon>
+                    <span>No hay cursos matriculados actualmente.</span>
+                  </section>
+                } @else {
+                  @for (course of dashboard.enrolledCourses; track course.id) {
+                    <article class="course-item">
+                      <div>
+                        <strong>{{ course.courseName }}</strong>
+                        <span>{{ course.courseCode }}</span>
+                      </div>
+                      <mat-chip>{{ course.status }}</mat-chip>
+                    </article>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card appearance="outlined" class="panel-card" [class.is-highlighted]="isSectionActive('attendance')">
+              <mat-card-title>Asistencia</mat-card-title>
+              <mat-card-content class="attendance-summary">
+                <div class="attendance-percentage">{{ dashboard.attendanceSummary.percentage }}%</div>
+                <div class="attendance-breakdown">
+                  <span>Presentes: {{ dashboard.attendanceSummary.presentCount }}</span>
+                  <span>Atrasos: {{ dashboard.attendanceSummary.lateCount }}</span>
+                  <span>Ausencias: {{ dashboard.attendanceSummary.absentCount }}</span>
+                  <span>Registros: {{ dashboard.attendanceSummary.totalRecords }}</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </section>
+
+          <section class="dashboard-grid lower-grid">
+            <mat-card appearance="outlined" class="panel-card" [class.is-highlighted]="isSectionActive('schedule')">
+              <mat-card-title>Horario</mat-card-title>
+              <mat-divider></mat-divider>
+              <mat-card-content class="schedule-list">
+                @if (dashboard.weeklySchedule.length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>event_available</mat-icon>
+                    <span>No hay bloques de horario asignados.</span>
+                  </section>
+                } @else {
+                  @for (item of dashboard.weeklySchedule; track item.dayOfWeek + item.startTime + item.subjectName) {
+                    <article class="schedule-item">
+                      <div>
+                        <strong>{{ item.dayOfWeek }}</strong>
+                        <span>{{ item.startTime }} - {{ item.endTime }}</span>
+                      </div>
+                      <div>
+                        <strong>{{ item.subjectName }}</strong>
+                        <span>{{ item.courseName }} · {{ item.room }}</span>
+                      </div>
+                    </article>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card appearance="outlined" class="panel-card" [class.is-highlighted]="isSectionActive('grades')">
+              <mat-card-title>Ultimas calificaciones</mat-card-title>
+              <mat-divider></mat-divider>
+              <mat-card-content class="grades-list">
+                @if (dashboard.latestGrades.length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>grading</mat-icon>
+                    <span>No hay calificaciones registradas todavia.</span>
+                  </section>
+                } @else {
+                  @for (grade of dashboard.latestGrades; track grade.subjectName + grade.evaluationName + grade.recordedAt) {
+                    <article class="grade-item">
+                      <div>
+                        <strong>{{ grade.subjectName }}</strong>
+                        <span>{{ grade.evaluationName }} - {{ grade.periodName }}</span>
+                      </div>
+                      <div class="grade-score">
+                        <span>{{ grade.score ?? '-' }}</span>
+                        <small>{{ grade.recordedAt }}</small>
+                      </div>
+                    </article>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </section>
+
+          <section class="activities-panel">
+            <mat-card appearance="outlined" class="panel-card" [class.is-highlighted]="isSectionActive('activities')">
+              <mat-card-title>Proximas actividades</mat-card-title>
+              <mat-divider></mat-divider>
+              <mat-card-content class="activities-list">
+                @if (dashboard.upcomingActivities.length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>event_busy</mat-icon>
+                    <span>No hay actividades proximas por ahora.</span>
+                  </section>
+                } @else {
+                  @for (activity of dashboard.upcomingActivities; track activity.id) {
+                    <article class="activity-item">
+                      <div>
+                        <strong>{{ activity.title }}</strong>
+                        <span>{{ activity.activityTypeName }}</span>
+                      </div>
+                      <div>
+                        <strong>{{ activity.date }}</strong>
+                        <span>{{ activity.location }}</span>
+                      </div>
+                    </article>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </section>
+        }
+      } @else {
+        <section class="empty-dashboard">
+          <mat-icon>school</mat-icon>
+          <strong>No se encontro informacion del alumno autenticado.</strong>
+          <p>Revisa si el usuario tiene RUN vinculado a un alumno activo del sistema.</p>
+        </section>
+      }
+      </div>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

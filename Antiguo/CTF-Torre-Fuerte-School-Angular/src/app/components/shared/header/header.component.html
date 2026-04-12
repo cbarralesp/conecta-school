@@ -1,0 +1,51 @@
+<header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+  <!-- Barra de Búsqueda -->
+  <div class="flex items-center bg-gray-100 rounded-lg px-4 py-2 w-1/2">
+    <svg class="w-5 h-5 text-gray-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+    </svg>
+    <input 
+      type="text" 
+      placeholder="Buscar estudiantes, cursos, actividades..." 
+      [(ngModel)]="searchQuery"
+      (input)="onSearch($event)"
+      class="bg-transparent outline-none w-full text-sm">
+  </div>
+
+  <!-- Acciones del Usuario -->
+  <div class="flex items-center space-x-4">
+    <!-- Notificaciones -->
+    <button 
+      (click)="onNotificationClick()"
+      class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+      </svg>
+      <span 
+        *ngIf="hasNotifications" 
+        class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+    </button>
+
+    <!-- Perfil de Usuario -->
+    <div class="relative group">
+      <div class="flex items-center space-x-3 cursor-pointer" (click)="onProfileClick()">
+        <img [src]="userAvatar" [alt]="userName" class="w-10 h-10 rounded-full">
+        <div>
+          <p class="text-sm font-semibold">{{ userName }}</p>
+          <p class="text-xs text-gray-500">Ver perfil</p>
+        </div>
+        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+
+      <!-- Dropdown Menu (opcional) -->
+      <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50">
+        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</a>
+        <hr class="my-2">
+        <a (click)="onLogout()" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer">Cerrar Sesión</a>
+      </div>
+    </div>
+  </div>
+</header>

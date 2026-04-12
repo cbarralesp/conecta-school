@@ -1,0 +1,223 @@
+<mat-sidenav-container class="student-shell">
+  <mat-sidenav mode="side" opened class="student-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="student-main-shell">
+    <header class="student-toolbar">
+      <div class="student-toolbar__breadcrumbs">
+        <a routerLink="/alumno/asignaturas">Mis Asignaturas</a>
+        <mat-icon>chevron_right</mat-icon>
+        <span>{{ documentsView()?.subject?.subjectName || 'Documentos' }}</span>
+      </div>
+
+      <button mat-button type="button" class="student-toolbar__logout" (click)="logout()">
+        Cerrar sesion
+      </button>
+    </header>
+
+    <main class="student-content">
+      @if (isLoading()) {
+        <section class="loading-state">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Cargando documentos de la asignatura...</p>
+        </section>
+      } @else if (documentsView(); as view) {
+        <section class="subject-hero">
+          <div class="subject-hero__icon">
+            <mat-icon>palette</mat-icon>
+          </div>
+
+          <div class="subject-hero__copy">
+            <div class="subject-hero__breadcrumb">
+              <a routerLink="/alumno/asignaturas">Mis Asignaturas</a>
+              <mat-icon>chevron_right</mat-icon>
+              <span>{{ view.subject.subjectName }}</span>
+              <mat-icon>chevron_right</mat-icon>
+              <strong>Documentos</strong>
+            </div>
+            <h1>{{ view.subject.subjectName }}</h1>
+            <p>
+              {{ view.subject.semesterLabel }} &middot; {{ view.subject.teacherName }} &middot;
+              {{ view.subject.weeklyBlocks }} bloque / semana
+            </p>
+          </div>
+        </section>
+
+        <section class="metrics-grid">
+          <mat-card appearance="outlined" class="metric-card tone-brand">
+            <div class="metric-card__icon">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div>
+              <strong>{{ view.metrics.totalDocuments }}</strong>
+              <span>Documentos totales</span>
+            </div>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="metric-card tone-success">
+            <div class="metric-card__icon">
+              <mat-icon>visibility</mat-icon>
+            </div>
+            <div>
+              <strong>{{ view.metrics.reviewedDocuments }}</strong>
+              <span>Documentos revisados</span>
+            </div>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="metric-card tone-warning">
+            <div class="metric-card__icon">
+              <mat-icon>fiber_new</mat-icon>
+            </div>
+            <div>
+              <strong>{{ view.metrics.newDocuments }}</strong>
+              <span>Nuevos para ver</span>
+            </div>
+          </mat-card>
+        </section>
+
+        <section class="toolbar-panel">
+          <div class="filter-chips">
+            @for (filter of view.filters; track filter.code) {
+              <button
+                mat-stroked-button
+                type="button"
+                class="filter-chip"
+                [class.is-active]="activeFilter() === filter.code"
+                (click)="setFilter(filter.code)"
+              >
+                <mat-icon>
+                  {{
+                    filter.code === 'PDF'
+                      ? 'picture_as_pdf'
+                      : filter.code === 'WORD'
+                        ? 'description'
+                        : filter.code === 'PPT'
+                          ? 'slideshow'
+                          : filter.code === 'IMAGEN'
+                            ? 'image'
+                            : 'layers'
+                  }}
+                </mat-icon>
+                <span>{{ filter.label }}</span>
+                <span class="filter-chip__count">{{ filter.count }}</span>
+              </button>
+            }
+          </div>
+
+          <mat-form-field appearance="outline" class="toolbar-search">
+            <mat-label>Buscar documento</mat-label>
+            <input
+              matInput
+              [value]="searchTerm()"
+              (input)="searchTerm.set(($any($event.target).value ?? '').toString())"
+              placeholder="Nombre, tipo o material"
+            />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </section>
+
+        @if (visibleUnits().length === 0) {
+          <section class="empty-state">
+            <mat-icon>folder_open</mat-icon>
+            <strong>No hay documentos para mostrar con este filtro</strong>
+            <p>Ajusta el filtro o la b&uacute;squeda para ver otros materiales.</p>
+          </section>
+        } @else {
+          <section class="units-stack">
+            @for (unit of visibleUnits(); track trackUnit($index, unit)) {
+              <mat-card appearance="outlined" class="unit-card">
+                <header class="unit-card__header">
+                  <div class="unit-card__lead">
+                    <div class="unit-card__badge">{{ unit.unitNumber }}</div>
+                    <div class="unit-card__copy">
+                      <h2>{{ unit.unitName }}</h2>
+                      <div class="unit-card__meta">
+                        <span><mat-icon>view_agenda</mat-icon>{{ unit.totalClasses }} clases</span>
+                        <span><mat-icon>description</mat-icon>{{ unit.totalDocuments }} documentos</span>
+                        <span><mat-icon>schedule</mat-icon>{{ unit.durationWeeks }} semanas</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="unit-card__progress">
+                    <strong>{{ unit.progressPercent }}% completado</strong>
+                    <mat-progress-bar mode="determinate" [value]="unit.progressPercent"></mat-progress-bar>
+                  </div>
+                </header>
+
+                <section class="classes-stack">
+                  @for (subjectClass of unit.classes; track trackClass($index, subjectClass)) {
+                    <mat-expansion-panel class="class-panel" [expanded]="subjectClass.hasNewDocuments">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <span class="class-panel__dot" [class.is-new]="subjectClass.hasNewDocuments"></span>
+                          <span class="class-panel__title">{{ subjectClass.classTitle }}</span>
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          @if (subjectClass.hasNewDocuments) {
+                            <span class="class-panel__badge">Nuevo</span>
+                          }
+                          <span class="class-panel__date">{{ subjectClass.classDate }}</span>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+
+                      <div class="documents-stack">
+                        @for (document of subjectClass.documents; track trackDocument($index, document)) {
+                          <article class="document-card">
+                            <div class="document-card__type" [class]="'is-' + document.fileType.toLowerCase()">
+                              <mat-icon>
+                                {{
+                                  document.fileType === 'PDF'
+                                    ? 'picture_as_pdf'
+                                    : document.fileType === 'WORD'
+                                      ? 'description'
+                                      : document.fileType === 'PPT'
+                                        ? 'slideshow'
+                                        : document.fileType === 'IMAGEN'
+                                          ? 'image'
+                                          : 'insert_drive_file'
+                                }}
+                              </mat-icon>
+                            </div>
+
+                            <div class="document-card__copy">
+                              <strong>{{ document.fileName }}</strong>
+                              <div class="document-card__meta">
+                                <span>{{ document.fileSizeLabel }}</span>
+                                <span>{{ document.metaLabel }}</span>
+                                <span>{{ document.publishedAt }}</span>
+                              </div>
+                            </div>
+
+                            <div class="document-card__status">
+                              <span class="status-badge" [class.is-new]="document.isNew" [class.is-reviewed]="document.reviewed">
+                                {{ document.reviewed ? 'Revisado' : 'Nuevo' }}
+                              </span>
+                            </div>
+
+                            <div class="document-card__actions">
+                              <button mat-stroked-button type="button" (click)="openDocument(document)">Ver</button>
+                              <button mat-icon-button type="button" (click)="downloadDocument(document)" aria-label="Descargar documento">
+                                <mat-icon>download</mat-icon>
+                              </button>
+                            </div>
+                          </article>
+                        }
+                      </div>
+                    </mat-expansion-panel>
+                  }
+                </section>
+              </mat-card>
+            }
+          </section>
+        }
+      } @else {
+        <section class="empty-state">
+          <mat-icon>school</mat-icon>
+          <strong>No fue posible cargar esta asignatura</strong>
+        </section>
+      }
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

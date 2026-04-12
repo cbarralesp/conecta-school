@@ -1,0 +1,308 @@
+<div class="flex-1 p-8 overflow-y-auto bg-gray-50">
+  <!-- ENCABEZADO -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">📊 Libro de Clases - Asistencia</h1>
+    <p class="text-gray-600">Gestiona y analiza la asistencia de tus cursos</p>
+  </div>
+
+  <!-- OPCIONES DE NAVEGACIÓN -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div
+      *ngFor="let option of attendanceOptions"
+      (click)="navigateTo(option.route)"
+      class="attendance-option-card bg-white p-6 rounded-lg shadow-sm border-2 transition-all cursor-pointer"
+      [ngClass]="{
+        'border-blue-500': option.color === 'blue' && !option.active,
+        'border-green-500': option.color === 'green' && !option.active,
+        'border-yellow-500': option.color === 'yellow' && !option.active,
+        'border-purple-500': option.color === 'purple' && !option.active,
+        'border-purple-600 bg-purple-50': option.active
+      }">
+      <div class="flex items-start justify-between mb-4">
+        <div
+          class="p-3 rounded-full"
+          [ngClass]="{
+            'bg-blue-100': option.color === 'blue',
+            'bg-green-100': option.color === 'green',
+            'bg-yellow-100': option.color === 'yellow',
+            'bg-purple-100': option.color === 'purple'
+          }">
+          <!-- Icono Clipboard -->
+          <svg *ngIf="option.icon === 'clipboard'" class="w-6 h-6"
+            [ngClass]="{
+              'text-blue-600': option.color === 'blue',
+              'text-green-600': option.color === 'green',
+              'text-yellow-600': option.color === 'yellow',
+              'text-purple-600': option.color === 'purple'
+            }"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100 4h2a1 1 0 100 2 2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"></path>
+          </svg>
+
+          <!-- Icono Check -->
+          <svg *ngIf="option.icon === 'check'" class="w-6 h-6"
+            [ngClass]="{
+              'text-blue-600': option.color === 'blue',
+              'text-green-600': option.color === 'green',
+              'text-yellow-600': option.color === 'yellow',
+              'text-purple-600': option.color === 'purple'
+            }"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+          </svg>
+
+          <!-- Icono Chart -->
+          <svg *ngIf="option.icon === 'chart'" class="w-6 h-6"
+            [ngClass]="{
+              'text-blue-600': option.color === 'blue',
+              'text-green-600': option.color === 'green',
+              'text-yellow-600': option.color === 'yellow',
+              'text-purple-600': option.color === 'purple'
+            }"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.293a1 1 0 00-1.414 0L10 10.586 8.707 9.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 11.414l1.293 1.293a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+          </svg>
+
+          <!-- Icono Users -->
+          <svg *ngIf="option.icon === 'users'" class="w-6 h-6"
+            [ngClass]="{
+              'text-blue-600': option.color === 'blue',
+              'text-green-600': option.color === 'green',
+              'text-yellow-600': option.color === 'yellow',
+              'text-purple-600': option.color === 'purple'
+            }"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+          </svg>
+        </div>
+
+        <div class="text-right">
+          <p class="text-3xl font-bold"
+            [ngClass]="{
+              'text-blue-600': option.color === 'blue',
+              'text-green-600': option.color === 'green',
+              'text-yellow-600': option.color === 'yellow',
+              'text-purple-600': option.color === 'purple'
+            }">
+            {{ option.count }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">{{ option.label }}</p>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-semibold text-gray-800 mb-1">{{ option.title }}</h3>
+      <p class="text-sm text-gray-600">{{ option.description }}</p>
+    </div>
+  </div>
+
+  <!-- PANEL DE ESTADÍSTICAS -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+      <div class="flex items-center">
+        <div class="p-3 bg-blue-100 rounded-full mr-4">
+          <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-gray-800">{{ stats.totalClasses }}</p>
+          <p class="text-sm text-gray-500">Clases Totales</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+      <div class="flex items-center">
+        <div class="p-3 bg-green-100 rounded-full mr-4">
+          <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-gray-800">{{ stats.averageAttendance }}%</p>
+          <p class="text-sm text-gray-500">Asistencia Promedio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-500">
+      <div class="flex items-center">
+        <div class="p-3 bg-yellow-100 rounded-full mr-4">
+          <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-gray-800">{{ stats.averageLate }}%</p>
+          <p class="text-sm text-gray-500">Retardos Promedio</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
+      <div class="flex items-center">
+        <div class="p-3 bg-red-100 rounded-full mr-4">
+          <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-2xl font-bold text-gray-800">{{ stats.averageAbsent }}%</p>
+          <p class="text-sm text-gray-500">Ausencias Promedio</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTROS Y CALENDARIO -->
+  <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+      <div class="flex flex-col md:flex-row gap-4 flex-1">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
+          <select [(ngModel)]="selectedCourse" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="">Todos los cursos</option>
+            <option value="1">7° Básico B - Matemáticas</option>
+            <option value="2">8° Básico A - Lenguaje</option>
+            <option value="3">9° Básico C - Historia</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Mes</label>
+          <input type="month" [(ngModel)]="selectedMonth" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button (click)="applyFilters()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+          Aplicar Filtros
+        </button>
+        <button (click)="resetFilters()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+          Restablecer
+        </button>
+      </div>
+    </div>
+
+    <!-- Mini Calendario -->
+    <div class="grid grid-cols-7 gap-2 mb-4">
+      <div *ngFor="let day of ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']" class="text-center text-xs font-semibold text-gray-600 py-2">
+        {{ day }}
+      </div>
+
+      <div
+        *ngFor="let date of getDaysInMonth()"
+        (click)="showDayDetails(formatDate(date))"
+        class="calendar-day text-center py-3 text-sm cursor-pointer"
+        [ngClass]="getAttendanceClass(formatDate(date))">
+        {{ date.getDate() }}
+        <div *ngIf="attendanceData[formatDate(date)]" class="text-xs mt-1">
+          {{ getAttendancePercentage(formatDate(date)) }}%
+        </div>
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center">
+          <div class="w-4 h-4 attendance-high rounded mr-2"></div>
+          <span class="text-sm text-gray-600">Alta (>90%)</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 attendance-medium rounded mr-2"></div>
+          <span class="text-sm text-gray-600">Media (70-90%)</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 attendance-low rounded mr-2"></div>
+          <span class="text-sm text-gray-600">Baja (<70%)</span>
+        </div>
+      </div>
+      <button (click)="exportAttendance()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        Exportar
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLA DE AUSENTISMO -->
+  <div class="bg-white p-6 rounded-lg shadow-sm">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">⚠️ Alumnos con Mayor Ausentismo</h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Estudiante</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total Clases</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ausencias</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Porcentaje</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let student of absenteeStudents" class="student-row">
+            <td class="px-4 py-3 whitespace-nowrap">
+              <div class="flex items-center">
+                <img [src]="student.avatar" [alt]="student.name" class="h-8 w-8 rounded-full mr-3">
+                <span class="text-sm font-medium text-gray-900">{{ student.name }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ student.totalClasses }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-red-600">{{ student.absences }}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium"
+              [ngClass]="{
+                'text-red-600': student.absencePercentage >= 20,
+                'text-yellow-600': student.absencePercentage >= 10 && student.absencePercentage < 20,
+                'text-green-600': student.absencePercentage < 10
+              }">
+              {{ student.absencePercentage.toFixed(1) }}%
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE DETALLES DEL DÍA -->
+<div *ngIf="showDayModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="closeDayModal()">
+  <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-gray-800">Detalles de Asistencia</h3>
+      <button (click)="closeDayModal()" class="text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div *ngIf="selectedDay" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="text-sm text-gray-600">Fecha</p>
+          <p class="font-medium">{{ selectedDay.date }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Asistencia</p>
+          <p class="font-medium" [ngClass]="{
+            'text-green-600': selectedDay.percentage >= 90,
+            'text-yellow-600': selectedDay.percentage >= 70 && selectedDay.percentage < 90,
+            'text-red-600': selectedDay.percentage < 70
+          }">{{ selectedDay.percentage }}%</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-green-50 p-3 rounded">
+          <p class="text-sm text-green-600">Presentes</p>
+          <p class="text-2xl font-bold text-green-800">{{ selectedDay.present }}</p>
+        </div>
+        <div class="bg-yellow-50 p-3 rounded">
+          <p class="text-sm text-yellow-600">Tardes</p>
+          <p class="text-2xl font-bold text-yellow-800">{{ selectedDay.late }}</p>
+        </div>
+        <div class="bg-red-50 p-3 rounded">
+          <p class="text-sm text-red-600">Ausentes</p>
+          <p class="text-2xl font-bold text-red-800">{{ selectedDay.absent }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

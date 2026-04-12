@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Servicio - Infraestructura</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #2c3e50;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header::before {
+            content: "🌐";
+            font-size: 24px;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            color: #95a5a6;
+        }
+
+        .nav-item:hover {
+            background: rgba(52, 73, 94, 0.5);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #1abc9c;
+            border-left-color: #16a085;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .top-bar h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-top: 15px;
+            border-bottom: 2px solid #ecf0f1;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #1abc9c;
+        }
+
+        .tab.active {
+            color: #1abc9c;
+            border-bottom-color: #1abc9c;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1abc9c;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        thead {
+            background: #3498db;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-master {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-worker {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-service {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .link {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .table-subtitle {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+
+        .code {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">Ambientes</div>
+        <div class="nav-item active" data-env="produccion">Producción</div>
+        <div class="nav-item" data-env="pre-produccion">Pre-Producción</div>
+        <div class="nav-item" data-env="qa">QA</div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <h1 id="env-title">Producción</h1>
+            <div class="tabs">
+                <button class="tab active" data-tab="exportaciones">Exportaciones</button>
+                <button class="tab" data-tab="importaciones">Importaciones</button>
+                <button class="tab" data-tab="rabbitmq">RabbitMQ</button>
+                <button class="tab" data-tab="jenkins">Jenkins</button>
+                <button class="tab" data-tab="k8s">K8s Dashboards</button>
+                <button class="tab" data-tab="keycloak">Keycloak</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- EXPORTACIONES -->
+            <div class="content-section active" id="exportaciones">
+                <h2 class="section-title">Máquinas de Exportaciones - <span id="exp-env">Producción</span></h2>
+                <table id="table-exportaciones">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>IP</th>
+                            <th>Nombre de Máquina</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-exportaciones"></tbody>
+                </table>
+            </div>
+
+            <!-- IMPORTACIONES -->
+            <div class="content-section" id="importaciones">
+                <h2 class="section-title">Máquinas de Importaciones - <span id="imp-env">Producción</span></h2>
+                <table id="table-importaciones">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>IP</th>
+                            <th>Nombre de Máquina</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-importaciones"></tbody>
+                </table>
+            </div>
+
+            <!-- RABBITMQ -->
+            <div class="content-section" id="rabbitmq">
+                <h2 class="section-title">RabbitMQ - <span id="rabbitmq-env">Producción</span></h2>
+
+                <div class="table-subtitle">Nodos RabbitMQ</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nodo</th>
+                            <th>IP</th>
+                            <th>URL</th>
+                            <th>Credenciales</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-rabbitmq"></tbody>
+                </table>
+            </div>
+
+            <!-- JENKINS -->
+            <div class="content-section" id="jenkins">
+                <h2 class="section-title">Jenkins - <span id="jenkins-env">Producción</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th>IP</th>
+                            <th>URL</th>
+                            <th>Credenciales</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-jenkins"></tbody>
+                </table>
+            </div>
+
+            <!-- K8S DASHBOARDS -->
+            <div class="content-section" id="k8s">
+                <h2 class="section-title">K8s Dashboards - <span id="k8s-env">Producción</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ambiente</th>
+                            <th>IP del Dashboard</th>
+                            <th>URL de Acceso</th>
+                            <th>Token Generado en</th>
+                            <th>Comando</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-k8s"></tbody>
+                </table>
+            </div>
+
+            <!-- KEYCLOAK -->
+            <div class="content-section" id="keycloak">
+                <h2 class="section-title">Keycloak - <span id="keycloak-env">Producción</span></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ambiente</th>
+                            <th>IP del Dashboard</th>
+                            <th>Link</th>
+                            <th>Credenciales</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-keycloak"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const data = {
+            produccion: {
+                exportaciones: [
+                    { rol: 'MASTER 1 KUBERNETES', ip: '10.10.42.150', nombre: 'master-node-1-k8' },
+                    { rol: 'MASTER 2 KUBERNETES', ip: '10.10.42.151', nombre: 'master-node-2-k8' },
+                    { rol: 'MASTER 3 KUBERNETES', ip: '10.10.42.152', nombre: 'master-node-3-k8' },
+                    { rol: 'WORKER 1 KUBERNETES', ip: '10.10.42.133', nombre: 'worker-node-1-k8' },
+                    { rol: 'WORKER 2 KUBERNETES', ip: '10.10.42.134', nombre: 'worker-node-2-k8' },
+                    { rol: 'WORKER 3 KUBERNETES', ip: '10.10.42.135', nombre: 'worker-node-3-k8' },
+                    { rol: 'NFS', ip: '10.10.42.83', nombre: 'scxfsprod1' },
+                    { rol: 'HAPROXY', ip: '10.10.42.142', nombre: 'pp_pr_1' },
+                    { rol: 'RABBITMQ NODE 1', ip: '10.10.42.136', nombre: 'pp_tf_br_1' },
+                    { rol: 'RABBITMQ NODE 2', ip: '10.10.42.137', nombre: 'pp_tf_br_2' },
+                    { rol: 'RABBITMQ NODE 3', ip: '10.10.42.153', nombre: 'pp_tf_br_3' },
+                    { rol: 'NFS (para logs y archivos)', ip: '10.10.42.83', nombre: '-' }
+                ],
+                importaciones: [
+                    { rol: 'MASTER 1 KUBERNETES', ip: '10.10.42.171', nombre: 'master-imp-node-1-k8' },
+                    { rol: 'MASTER 2 KUBERNETES', ip: '10.10.42.172', nombre: 'master-imp-node-2-k8' },
+                    { rol: 'MASTER 3 KUBERNETES', ip: '10.10.42.173', nombre: 'master-imp-node-3-k8' },
+                    { rol: 'WORKER 1 KUBERNETES', ip: '10.10.42.174', nombre: 'worker-node-1-k8' },
+                    { rol: 'WORKER 2 KUBERNETES', ip: '10.10.42.175', nombre: 'worker-node-2-k8' },
+                    { rol: 'WORKER 3 KUBERNETES', ip: '10.10.42.176', nombre: 'worker-node-3-k8' },
+                    { rol: 'NFS', ip: '10.10.42.85', nombre: 'scxfsprod1' },
+                    { rol: 'HAPROXY', ip: '10.10.42.170', nombre: 'pp_pr_1' },
+                    { rol: 'RABBITMQ NODE 1', ip: '10.10.42.177', nombre: 'pp_tf_br_1' },
+                    { rol: 'RABBITMQ NODE 2', ip: '10.10.42.178', nombre: 'pp_tf_br_2' },
+                    { rol: 'RABBITMQ NODE 3', ip: '10.10.42.179', nombre: 'pp_tf_br_3' },
+                    { rol: 'NFS (para logs y archivos)', ip: '10.10.42.84', nombre: '-' }
+                ],
+                rabbitmq: [
+                    { nodo: 'RABBITMQ NODE 1', ip: '10.10.42.136', url: 'http://10.10.42.136:15672/#/queues', user: 'sicexadmin', pass: 'sicex2023' },
+                    { nodo: 'RABBITMQ NODE 2', ip: '10.10.42.137', url: 'http://10.10.42.136:15672/#/queues', user: 'sicexadmin', pass: 'sicex2023' },
+                    { nodo: 'RABBITMQ NODE 3', ip: '10.10.42.153', url: 'http://10.10.42.136:15672/#/queues', user: 'sicexadmin', pass: 'sicex2023' }
+                ],
+                jenkins: [
+                    { descripcion: 'Enpoint', ip: '10.10.42.139', url: 'http://10.10.42.139:8080/', user: 'sicexadmin', pass: 'sicex2023' }
+                ],
+                k8s: [
+                    { ambiente: 'Producción (Importaciones)', ip: '10.10.42.170', url: 'https://10.10.42.170:30248/#/login', token: '10.10.42.171 o 10.10.42.150', comando: 'kubectl -n kubernetes-dashboard create token admin-user' },
+                    { ambiente: 'Producción (Exportaciones)', ip: '10.10.42.142', url: 'https://10.10.42.142:30793', token: '', comando: '' }
+                ],
+                keycloak: [
+                    { ambiente: 'Producción', ip: '10.10.42.139:8443', link: 'https://10.10.42.139:8443', user: 'admin', pass: 'sicex2024' }
+                ]
+            },
+            'pre-produccion': {
+                exportaciones: [
+                    { rol: 'MASTER 1 KUBERNETES', ip: '', nombre: 'master-node-1-k8' },
+                    { rol: 'MASTER 2 KUBERNETES', ip: '', nombre: 'master-node-2-k8' },
+                    { rol: 'MASTER 3 KUBERNETES', ip: '', nombre: 'master-node-3-k8' },
+                    { rol: 'WORKER 1 KUBERNETES', ip: '', nombre: 'worker-node-1-k8' },
+                    { rol: 'WORKER 2 KUBERNETES', ip: '', nombre: 'worker-node-2-k8' },
+                    { rol: 'WORKER 3 KUBERNETES', ip: '', nombre: 'worker-node-3-k8' },
+                    { rol: 'NFS', ip: '', nombre: 'scxfsprod1' },
+                    { rol: 'HAPROXY', ip: '', nombre: 'pp_pr_1' },
+                    { rol: 'RABBITMQ NODE 1', ip: '10.10.44.82', nombre: 'pp_tf_br_1' },
+                    { rol: 'RABBITMQ NODE 2', ip: '', nombre: 'pp_tf_br_2' },
+                    { rol: 'RABBITMQ NODE 3', ip: '', nombre: 'pp_tf_br_3' },
+                    { rol: 'NFS (para logs y archivos)', ip: '', nombre: '-' }
+                ],
+                importaciones: [
+                    { rol: 'MASTER 1 KUBERNETES', ip: '', nombre: 'master-imp-node-1-k8' },
+                    { rol: 'MASTER 2 KUBERNETES', ip: '', nombre: 'master-imp-node-2-k8' },
+                    { rol: 'MASTER 3 KUBERNETES', ip: '', nombre: 'master-imp-node-3-k8' },
+                    { rol: 'WORKER 1 KUBERNETES', ip: '', nombre: 'worker-node-1-k8' },
+                    { rol: 'WORKER 2 KUBERNETES', ip: '', nombre: 'worker-node-2-k8' },
+                    { rol: 'WORKER 3 KUBERNETES', ip: '', nombre: 'worker-node-3-k8' },
+                    { rol: 'NFS', ip: '', nombre: 'scxfsprod1' },
+                    { rol: 'HAPROXY', ip: '', nombre: 'pp_pr_1' },
+                    { rol: 'RABBITMQ NODE 1', ip: '', nombre: 'pp_tf_br_1' },
+                    { rol: 'RABBITMQ NODE 2', ip: '', nombre: 'pp_tf_br_2' },
+                    { rol: 'RABBITMQ NODE 3', ip: '', nombre: 'pp_tf_br_3' },
+                    { rol: 'NFS (para logs y archivos)', ip: '', nombre: '-' }
+                ],
+                rabbitmq: [
+                    { nodo: 'NFS (para logs y archivos)', ip: '10.10.44.76', url: '', user: '', pass: '' },
+                    { nodo: 'RABBITMQ', ip: '10.10.44.83', url: 'http://10.10.44.83:15672/#/', user: 'sicexadmin', pass: 'sicex2023' }
+                ],
+                jenkins: [
+                    { descripcion: 'endpoint', ip: '10.10.44.120:8080', url: 'http://10.10.44.120:8080/', user: 'sicexadmin', pass: 'sicex2023' }
+                ],
+                k8s: [
+                    { ambiente: 'Pre-Producción', ip: '10.10.44.122', url: 'https://10.10.44.122:30652/#/login', token: '10.10.44.80', comando: 'kubectl -n kubernetes-dashboard create token admin-user' }
+                ],
+                keycloak: [
+                    { ambiente: 'PRE-Producción', ip: '10.10.44.120:8443', link: 'https://10.10.44.120:8443/admin/master/console/#/sicex/clients', user: 'admin', pass: 'sicex2024' }
+                ]
+            },
+            qa: {
+                exportaciones: [
+                    { rol: 'MASTER 1 KUBERNETES', ip: '10.10.44.150', nombre: 'master-qa-1-k8' },
+                    { rol: 'WORKER 1 KUBERNETES', ip: '10.10.44.133', nombre: 'worker-qa-1-k8' }
+                ],
+                importaciones: [
+                    { rol: 'MASTER 1 KUBERNETES', ip: '10.10.44.160', nombre: 'master-imp-qa-1-k8' }
+                ],
+                rabbitmq: [],
+                jenkins: [],
+                k8s: [],
+                keycloak: []
+            }
+        };
+
+        let currentEnv = 'produccion';
+        let currentTab = 'exportaciones';
+
+        function getBadgeClass(rol) {
+            if (rol.includes('MASTER')) return 'badge-master';
+            if (rol.includes('WORKER')) return 'badge-worker';
+            return 'badge-service';
+        }
+
+        function renderExportaciones(env) {
+            const tbody = document.getElementById('tbody-exportaciones');
+            tbody.innerHTML = '';
+            const items = data[env].exportaciones || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge ${getBadgeClass(item.rol)}">${item.rol}</span></td>
+                    <td>${item.ip || '-'}</td>
+                    <td>${item.nombre}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderImportaciones(env) {
+            const tbody = document.getElementById('tbody-importaciones');
+            tbody.innerHTML = '';
+            const items = data[env].importaciones || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge ${getBadgeClass(item.rol)}">${item.rol}</span></td>
+                    <td>${item.ip || '-'}</td>
+                    <td>${item.nombre}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderRabbitMQ(env) {
+            const tbody = document.getElementById('tbody-rabbitmq');
+            tbody.innerHTML = '';
+            const items = data[env].rabbitmq || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nodo}</td>
+                    <td>${item.ip}</td>
+                    <td>${item.url ? `<a href="${item.url}" target="_blank" class="link">${item.url}</a>` : '-'}</td>
+                    <td>${item.user ? `user: ${item.user}<br>pass: ${item.pass}` : '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderJenkins(env) {
+            const tbody = document.getElementById('tbody-jenkins');
+            tbody.innerHTML = '';
+            const items = data[env].jenkins || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.descripcion}</td>
+                    <td>${item.ip}</td>
+                    <td><a href="${item.url}" target="_blank" class="link">${item.url}</a></td>
+                    <td>${item.user ? `user: ${item.user}<br>pass: ${item.pass}` : '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderK8s(env) {
+            const tbody = document.getElementById('tbody-k8s');
+            tbody.innerHTML = '';
+            const items = data[env].k8s || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.ambiente}</td>
+                    <td>${item.ip}</td>
+                    <td><a href="${item.url}" target="_blank" class="link">${item.url}</a></td>
+                    <td>${item.token || '-'}</td>
+                    <td>${item.comando ? `<div class="code">${item.comando}</div>` : '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderKeycloak(env) {
+            const tbody = document.getElementById('tbody-keycloak');
+            tbody.innerHTML = '';
+            const items = data[env].keycloak || [];
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.ambiente}</td>
+                    <td>${item.ip}</td>
+                    <td><a href="${item.link}" target="_blank" class="link">${item.link}</a></td>
+                    <td>user: ${item.user}<br>pass: ${item.pass}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderCurrentTab() {
+            switch(currentTab) {
+                case 'exportaciones':
+                    renderExportaciones(currentEnv);
+                    break;
+                case 'importaciones':
+                    renderImportaciones(currentEnv);
+                    break;
+                case 'rabbitmq':
+                    renderRabbitMQ(currentEnv);
+                    break;
+                case 'jenkins':
+                    renderJenkins(currentEnv);
+                    break;
+                case 'k8s':
+                    renderK8s(currentEnv);
+                    break;
+                case 'keycloak':
+                    renderKeycloak(currentEnv);
+                    break;
+            }
+        }
+
+        function updateEnvTitle() {
+            const envNames = {
+                'produccion': 'Producción',
+                'pre-produccion': 'Pre-Producción',
+                'qa': 'QA'
+            };
+            document.getElementById('env-title').textContent = envNames[currentEnv];
+            document.getElementById('exp-env').textContent = envNames[currentEnv];
+            document.getElementById('imp-env').textContent = envNames[currentEnv];
+            document.getElementById('rabbitmq-env').textContent = envNames[currentEnv];
+            document.getElementById('jenkins-env').textContent = envNames[currentEnv];
+            document.getElementById('k8s-env').textContent = envNames[currentEnv];
+            document.getElementById('keycloak-env').textContent = envNames[currentEnv];
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                currentEnv = this.dataset.env;
+                updateEnvTitle();
+                renderCurrentTab();
+            });
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+
+                this.classList.add('active');
+                currentTab = this.dataset.tab;
+                document.getElementById(currentTab).classList.add('active');
+
+                renderCurrentTab();
+            });
+        });
+
+        // Inicializar
+        renderExportaciones('produccion');
+    </script>
+</body>
+</html>

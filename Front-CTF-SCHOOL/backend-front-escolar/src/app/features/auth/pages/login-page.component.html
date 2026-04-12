@@ -1,0 +1,105 @@
+<div class="login-shell">
+
+  <aside class="showcase-panel">
+    <div class="showcase-overlay"></div>
+    <div class="showcase-content">
+      <div class="brand-mark">
+        <img src="/tfs-shield-light.svg" alt="Torre Fuerte School" />
+      </div>
+      <div class="showcase-copy">
+        <h1>Torre Fuerte School</h1>
+        <p>Plataforma escolar institucional para gestión académica, seguimiento docente y operación diaria.</p>
+      </div>
+    </div>
+
+    <svg class="showcase-wave" viewBox="0 0 700 100" preserveAspectRatio="none">
+      <path d="M0 0 C100 80, 200 100, 350 55 C500 10, 600 70, 700 50 L700 100 L0 100 Z" fill="#1e40af" />
+    </svg>
+
+    <div class="feature-cards">
+      <div class="feature-card">
+        <div class="fc-icon"><mat-icon>school</mat-icon></div>
+        <strong>Gestión académica</strong>
+        <span>Cursos y progreso.</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><mat-icon>show_chart</mat-icon></div>
+        <strong>Seguimiento</strong>
+        <span>Planificación docente.</span>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><mat-icon>security</mat-icon></div>
+        <strong>Seguro</strong>
+        <span>Datos protegidos.</span>
+      </div>
+    </div>
+
+    <div class="showcase-footer">
+      <mat-icon>emoji_events</mat-icon>
+      <strong>Crecimiento sin límites</strong>
+      <span>© 2026</span>
+      <a href="#">Privacidad</a>
+    </div>
+  </aside>
+
+  <section class="form-panel">
+    <mat-card class="login-card">
+      <div class="heading-block">
+        <h2>Bienvenido de nuevo 👋</h2>
+        <p>Ingresa para continuar</p>
+      </div>
+
+      <div class="info-banner">
+        <mat-icon class="info-icon">info</mat-icon>
+        <span><strong>Prueba:</strong> nramirez / nramirez123</span>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Usuario o email</mat-label>
+          <mat-icon matPrefix>person_outline</mat-icon>
+          <input matInput formControlName="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
+          <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button">
+            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="helper-row">
+          <mat-checkbox [checked]="rememberMe()" (change)="rememberMe.set($event.checked)">Recordarme</mat-checkbox>
+          <a class="forgot-link" href="#">¿Olvidaste la clave?</a>
+        </div>
+
+        <button mat-flat-button type="submit" class="submit-button" [disabled]="isLoading()">
+          @if (isLoading()) {
+          <mat-spinner diameter="22"></mat-spinner>
+          } @else {
+          <ng-container>
+            <span>Iniciar sesión</span>
+          </ng-container>
+          }
+        </button>
+
+        <mat-divider style="margin: 1rem 0 !important;"></mat-divider>
+
+        <button mat-stroked-button type="button" class="google-button" disabled>
+          <span>Continuar con Google</span>
+          <span class="prox-badge">Pronto</span>
+        </button>
+      </form>
+
+      <div class="security-banner">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="sec-check-icon"><mat-icon>check</mat-icon></div>
+          <span>Información protegida con cifrado SSL.</span>
+        </div>
+        <mat-icon class="sec-shield-icon">shield</mat-icon>
+      </div>
+    </mat-card>
+  </section>
+</div>

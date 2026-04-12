@@ -1,0 +1,18 @@
+<app-administration-shell activeTab="roles" toolbarTitle="Administracion">
+  <app-administration-hero
+    tag="Roles y permisos"
+    title="Definicion de roles"
+    description="Cada rol define que modulos puede ver y que acciones puede realizar cada tipo de usuario."
+  />
+
+  <section class="roles-grid">
+    @for (role of overview()?.roles ?? []; track role.code) {
+      <app-administration-role-card
+        [role]="role"
+        [icon]="roleIcon(role.code)"
+        (viewDetail)="openRoleDetail($event)"
+      />
+    }
+  </section>
+</app-administration-shell>
+

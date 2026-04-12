@@ -1,0 +1,201 @@
+<mat-sidenav-container class="planning-shell">
+  <mat-sidenav mode="side" opened class="planning-sidenav">
+    <app-teacher-side-menu />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="planning-content">
+    <mat-toolbar class="planning-toolbar">
+      <div class="planning-toolbar__title">
+        <span class="planning-toolbar__eyebrow">Planificacion</span>
+        <h1>Nueva unidad</h1>
+      </div>
+
+      <button mat-stroked-button routerLink="/dashboard/planificacion">
+        <mat-icon>arrow_back</mat-icon>
+        Volver a planificacion
+      </button>
+    </mat-toolbar>
+
+    <div class="planning-page">
+      @if (isLoading()) {
+        <mat-card class="loading-card">
+          <div class="loading-card__content">
+            <mat-icon>hourglass_top</mat-icon>
+            <p>Cargando catalogos para la nueva unidad...</p>
+          </div>
+        </mat-card>
+      } @else {
+        <form class="planning-form" [formGroup]="form">
+          <mat-card class="planning-section">
+            <div class="section-header">
+              <div class="section-icon tone-primary">
+                <mat-icon>edit_calendar</mat-icon>
+              </div>
+              <div>
+                <h2>Datos de la unidad</h2>
+                <p>Selecciona la asignatura, el curso y completa la informacion general de la unidad.</p>
+              </div>
+            </div>
+
+            <div class="form-grid grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>Asignatura</mat-label>
+                <mat-select formControlName="subjectId">
+                  @for (assignment of availableSubjects(); track assignment.subjectId) {
+                    <mat-option [value]="assignment.subjectId">{{ assignment.subjectName }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.subjectId.hasError('required') && form.controls.subjectId.touched) {
+                  <mat-error>Selecciona una asignatura</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Numero de unidad</mat-label>
+                <mat-select formControlName="unitNumber">
+                  @for (item of catalogs()?.unitNumbers ?? []; track item.code) {
+                    <mat-option [value]="item.code">{{ item.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.unitNumber.hasError('required') && form.controls.unitNumber.touched) {
+                  <mat-error>Selecciona la unidad</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Nivel / Curso</mat-label>
+                <mat-select formControlName="courseId">
+                  @for (assignment of availableCourses(); track assignment.courseId) {
+                    <mat-option [value]="assignment.courseId">{{ assignment.courseName }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.courseId.hasError('required') && form.controls.courseId.touched) {
+                  <mat-error>Selecciona un curso</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre de la unidad</mat-label>
+                <input matInput formControlName="name" />
+                @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+                  <mat-error>Ingresa el nombre de la unidad</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid grid-4">
+              <mat-form-field appearance="outline">
+                <mat-label>Semana</mat-label>
+                <mat-select formControlName="startWeek">
+                  @for (item of catalogs()?.weekOptions ?? []; track item.code) {
+                    <mat-option [value]="+item.code">{{ item.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Fecha inicio</mat-label>
+                <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" />
+                <mat-datepicker-toggle matIconSuffix [for]="startDatePicker" />
+                <mat-datepicker #startDatePicker />
+                @if (form.controls.startDate.hasError('required') && form.controls.startDate.touched) {
+                  <mat-error>Selecciona la fecha de inicio</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Fecha termino</mat-label>
+                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" />
+                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker" />
+                <mat-datepicker #endDatePicker />
+                @if (form.controls.endDate.hasError('required') && form.controls.endDate.touched) {
+                  <mat-error>Selecciona la fecha de termino</mat-error>
+                }
+                @if (form.hasError('invalidDateRange')) {
+                  <mat-error>La fecha de termino debe ser mayor o igual a la de inicio</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Semanas estimadas</mat-label>
+                <input matInput type="number" formControlName="estimatedWeeks" min="1" />
+                @if (form.controls.estimatedWeeks.hasError('min')) {
+                  <mat-error>Minimo 1 semana</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid grid-2">
+              <mat-form-field appearance="outline">
+                <mat-label>Clases planificadas</mat-label>
+                <input matInput type="number" formControlName="plannedClasses" min="0" />
+                @if (form.controls.plannedClasses.hasError('min')) {
+                  <mat-error>No puede ser menor a 0</mat-error>
+                }
+              </mat-form-field>
+
+              @if (selectedAssignment(); as assignment) {
+                <div class="assignment-pill">
+                  <span class="assignment-pill__label">Carga docente seleccionada</span>
+                  <strong>{{ assignment.subjectName }} · {{ assignment.courseName }}</strong>
+                  <small>Año {{ assignment.schoolYear }}</small>
+                </div>
+              }
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Descripcion general</mat-label>
+                <textarea matInput rows="4" formControlName="generalDescription"></textarea>
+              </mat-form-field>
+            </div>
+          </mat-card>
+
+          <mat-card class="planning-section">
+            <div class="section-header">
+              <div class="section-icon tone-success">
+                <mat-icon>track_changes</mat-icon>
+              </div>
+              <div>
+                <h2>Objetivos de aprendizaje</h2>
+                <p>Registra el OA base de la unidad y los indicadores que guiaran la evaluacion.</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>OA que cubre esta unidad</mat-label>
+                <textarea matInput rows="4" formControlName="learningObjectives"></textarea>
+                @if (form.controls.learningObjectives.hasError('required') && form.controls.learningObjectives.touched) {
+                  <mat-error>Ingresa los objetivos de aprendizaje</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Indicadores de logro de la unidad</mat-label>
+                <textarea matInput rows="4" formControlName="achievementIndicators"></textarea>
+                @if (form.controls.achievementIndicators.hasError('required') && form.controls.achievementIndicators.touched) {
+                  <mat-error>Ingresa los indicadores de logro</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </mat-card>
+
+          <div class="planning-actions">
+            <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+            <button mat-stroked-button color="primary" type="button" [disabled]="isSaving()" (click)="saveDraft()">
+              Guardar borrador
+            </button>
+            <button mat-flat-button color="primary" type="button" [disabled]="isSaving()" (click)="createUnit()">
+              Crear unidad
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

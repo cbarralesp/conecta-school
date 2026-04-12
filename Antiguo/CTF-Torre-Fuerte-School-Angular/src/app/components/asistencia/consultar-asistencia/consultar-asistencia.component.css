@@ -1,0 +1,279 @@
+/* Tarjetas de opciones de navegación */
+.attendance-option-card {
+  transition: all 0.3s ease;
+}
+
+.attendance-option-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.attendance-option-card.border-purple-600 {
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+}
+
+/* Tarjetas de estadísticas */
+.stat-card {
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendario */
+.calendar-day {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 4px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day:hover {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Clases de asistencia para calendario - Paleta Profesional */
+.attendance-high {
+  background-color: #3B82F6 !important;
+  color: white !important;
+  border: 2px solid #2563EB !important;
+  font-weight: 600;
+}
+
+.attendance-medium {
+  background-color: #10B981 !important;
+  color: white !important;
+  border: 2px solid #059669 !important;
+  font-weight: 600;
+}
+
+.attendance-low {
+  background-color: #F59E0B !important;
+  color: white !important;
+  border: 2px solid #D97706 !important;
+  font-weight: 600;
+}
+
+.attendance-none {
+  background-color: #F3F4F6 !important;
+  color: #6B7280 !important;
+  border: 1px solid #E5E7EB !important;
+  font-weight: 500;
+}
+
+/* Filas de estudiantes */
+.student-row {
+  transition: all 0.2s ease;
+}
+
+.student-row:hover {
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* Inputs y selects */
+input[type="text"],
+input[type="month"],
+select {
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="month"]:focus,
+select:focus {
+  border-color: rgb(147, 51, 234);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+/* Botones */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Modal */
+.fixed {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fixed > div {
+  animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Scrollbar personalizado */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgb(147, 51, 234);
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgb(126, 34, 206);
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: rgb(147, 51, 234);
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: rgb(126, 34, 206);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .calendar-day {
+    min-height: 50px;
+    font-size: 0.75rem;
+  }
+
+  .attendance-option-card {
+    padding: 1rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-cols-7 {
+    font-size: 0.7rem;
+  }
+
+  .calendar-day {
+    min-height: 40px;
+    padding: 0.25rem;
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.stat-card:hover svg {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Tooltip */
+.calendar-day[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+/* Efectos de sombra mejorados */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-sm:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Mejoras visuales para la tabla */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background-color: #F9FAFB;
+  z-index: 10;
+}
+
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: rgba(139, 92, 246, 0.03);
+}
+
+/* Efectos de badge */
+.text-red-600,
+.text-yellow-600,
+.text-green-600 {
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+/* Loader (opcional para futuras implementaciones) */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

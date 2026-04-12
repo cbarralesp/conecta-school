@@ -1,0 +1,12 @@
+SELECT p."ID", pe."NOMBRES" || ' ' || pe."APELLIDOS" AS profesor,
+       COUNT(DISTINCT pa."ASIGNATURA_ID") AS asignaturas_resumen,
+       COUNT(DISTINCT cd."ASIGNATURA_ID") AS asignaturas_carga,
+       COUNT(DISTINCT cd."CURSO_ID") AS cursos_carga,
+       COUNT(DISTINCT hc."ID") AS bloques_horario
+FROM "PROFESORES" p
+JOIN "PERSONAS" pe ON pe."ID" = p."PERSONA_ID"
+LEFT JOIN "PROFESOR_ASIGNATURAS" pa ON pa."PROFESOR_ID" = p."ID" AND COALESCE(pa."ACTIVO", TRUE) = TRUE
+LEFT JOIN "CARGAS_DOCENTES" cd ON cd."PROFESOR_ID" = p."ID" AND COALESCE(cd."ACTIVA", TRUE) = TRUE
+LEFT JOIN "HORARIOS_CARGAS" hc ON hc."CARGA_DOCENTE_ID" = cd."ID"
+GROUP BY p."ID", pe."NOMBRES", pe."APELLIDOS"
+ORDER BY profesor;

@@ -1,0 +1,35 @@
+.matrix-card {
+  border-radius: var(--app-radius-panel);
+  background: var(--app-surface-strong);
+  box-shadow: none;
+  padding: 0.1rem;
+}
+
+.table-shell {
+  overflow-x: auto;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.matrix-table th,
+.matrix-table td {
+  padding: 0.95rem 0.8rem;
+  border-bottom: 1px solid rgba(42, 78, 126, 0.08);
+  text-align: center;
+}
+
+.matrix-table thead th {
+  color: #526780;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.matrix-table tbody > tr > th {
+  text-align: left;
+  color: #1d2f45;
+  font-weight: 700;
+}
+

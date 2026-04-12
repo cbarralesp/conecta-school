@@ -1,0 +1,343 @@
+.teacher-detail-shell {
+  min-height: 100vh;
+}
+
+.teacher-detail-sidenav {
+  width: var(--app-shell-sidebar-width);
+  padding: var(--app-shell-sidebar-padding);
+  background: var(--app-gradient-shell);
+  border-right: 1px solid var(--app-border-color);
+}
+
+.teacher-detail-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 0.85rem;
+  min-height: var(--app-toolbar-height);
+  padding: 0 1.1rem;
+  background: var(--app-toolbar-background);
+  border-bottom: 1px solid rgba(17, 38, 71, 0.06);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 20px rgba(17, 47, 94, 0.05);
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.teacher-detail-toolbar > span:first-child {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #24364f;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.toolbar-switcher {
+  display: inline-flex;
+  gap: 0.65rem;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 0.2rem;
+}
+
+.toolbar-switcher a[mat-stroked-button],
+.toolbar-switcher button[mat-stroked-button] {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  font-size: 0.92rem;
+  justify-content: center;
+  white-space: nowrap;
+  border-radius: 18px !important;
+  border-color: rgba(20, 56, 103, 0.18) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #173553 !important;
+}
+
+.toolbar-switcher .active-tab {
+  background: rgba(25, 83, 150, 0.12) !important;
+  border-color: rgba(25, 83, 150, 0.3) !important;
+  color: #0f5bb4 !important;
+  box-shadow: inset 0 0 0 1px rgba(15, 91, 180, 0.06);
+}
+
+.teacher-detail-content {
+  width: min(100%, var(--app-page-max-width));
+  margin: 0 auto;
+  padding: var(--app-page-padding-y) var(--app-page-padding-x) 2rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.teacher-detail-hero {
+  border-radius: var(--app-radius-hero);
+  padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
+  background: var(--app-gradient-hero);
+  color: #fff;
+  box-shadow: var(--app-shadow-md);
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--app-hero-tag-padding-y) var(--app-hero-tag-padding-x);
+  margin-bottom: 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: var(--app-font-size-overline);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.teacher-detail-hero h1 {
+  margin: var(--app-hero-title-margin-top) 0 var(--app-hero-title-margin-bottom);
+  font-size: var(--app-hero-title-size);
+}
+
+.teacher-detail-hero p {
+  margin: 0;
+  max-width: var(--app-hero-copy-max-width);
+  font-size: var(--app-hero-copy-size);
+  line-height: var(--app-line-height-body);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.empty-state {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #67809e;
+}
+
+.profile-card {
+  border-radius: 28px;
+  border: 1px solid rgba(42, 78, 126, 0.08);
+  box-shadow: none;
+  padding: 1.5rem;
+}
+
+.profile-head,
+.profile-identity,
+.profile-actions,
+.profile-badges,
+.chip-stack {
+  display: flex;
+}
+
+.profile-head {
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid rgba(42, 78, 126, 0.08);
+}
+
+.profile-identity {
+  gap: 1rem;
+  align-items: center;
+}
+
+.avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #e4eefc;
+  color: #174b84;
+  font-weight: 800;
+  font-size: 1.32rem;
+}
+
+.profile-identity h2 {
+  margin: 0;
+  font-size: 1.9rem;
+  line-height: 1.05;
+  color: #1d2b3e;
+}
+
+.profile-identity p {
+  margin: 0.35rem 0 0;
+  color: #617a96;
+}
+
+.profile-badges {
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.status-pill,
+.meta-pill,
+.subject-chip,
+.course-chip,
+.schedule-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.status-pill {
+  background: #edf8dd;
+  color: #5e8a13;
+}
+
+.meta-pill {
+  background: #e8f0ff;
+  color: #265fa0;
+}
+
+.profile-actions {
+  gap: 0.75rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.detail-panel {
+  padding: 1rem;
+  border-radius: 20px;
+  background: #fbfdff;
+  border: 1px solid rgba(42, 78, 126, 0.08);
+}
+
+.detail-panel--full {
+  grid-column: 1 / -1;
+}
+
+.detail-panel h3,
+.subheading {
+  margin: 0 0 0.9rem;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #22344c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.subheading {
+  margin-top: 1rem;
+}
+
+dl {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+dl div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+dt {
+  color: #6a809a;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+dd {
+  margin: 0;
+  color: #1d2b3e;
+  font-weight: 600;
+}
+
+.chip-stack {
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.course-chip {
+  background: #edf7f4;
+  color: #2f7c63;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.schedule-day {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.schedule-day strong {
+  color: #647c98;
+  font-size: 0.83rem;
+  text-transform: uppercase;
+}
+
+.schedule-chip {
+  justify-content: center;
+  text-align: center;
+  background: #edf4ff;
+  color: #2d5f99;
+  padding-inline: 0.55rem;
+}
+
+.schedule-empty {
+  color: #93a3b6;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1080px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-panel--full {
+    grid-column: auto;
+  }
+
+  .schedule-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-detail-content {
+    padding: 1rem;
+  }
+
+  .teacher-detail-toolbar {
+    flex-wrap: wrap;
+    align-items: stretch;
+    row-gap: 0.55rem;
+    padding-block: 0.75rem;
+  }
+
+  .toolbar-switcher {
+    justify-content: flex-start;
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+  }
+
+  .profile-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-actions {
+    justify-content: flex-end;
+  }
+
+  .schedule-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -1,0 +1,106 @@
+<app-administration-shell activeTab="users" toolbarTitle="Administracion">
+  <app-administration-hero
+    tag="Administracion"
+    title="Usuarios del sistema"
+    description="Torre Fuerte School - Solo el Superadmin puede gestionar usuarios, roles y permisos del sistema."
+    actionLabel="Nuevo usuario"
+    actionIcon="person_add"
+    (action)="goToCreate()"
+  />
+
+  <app-administration-kpi-grid [items]="summary()" />
+
+  <mat-card appearance="outlined" class="listing-card">
+    <mat-card-content>
+      <form [formGroup]="filtersForm" class="filters-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar</mat-label>
+          <input matInput formControlName="search" placeholder="Usuario por nombre o email..." />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Rol</mat-label>
+          <mat-select formControlName="roleCode">
+            <mat-option value="">Todos los roles</mat-option>
+            @for (role of roleOptions(); track role.code) {
+              <mat-option [value]="role.code">{{ role.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="">Todos los estados</mat-option>
+            <mat-option value="Activo">Activo</mat-option>
+            <mat-option value="Bloqueado">Bloqueado</mat-option>
+            <mat-option value="Inactivo">Inactivo</mat-option>
+            <mat-option value="Pendiente">Pendiente</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
+
+      @if (isLoading()) {
+        <section class="empty-state">
+          <mat-icon>hourglass_top</mat-icon>
+          <strong>Cargando usuarios</strong>
+        </section>
+      } @else if (users().length === 0) {
+        <section class="empty-state">
+          <mat-icon>manage_accounts</mat-icon>
+          <strong>No hay usuarios para mostrar</strong>
+          <p>Ajusta los filtros o registra el primer usuario administrativo.</p>
+        </section>
+      } @else {
+        <div class="table-shell">
+          <table mat-table [dataSource]="users()" class="users-table">
+            <ng-container matColumnDef="user">
+              <th mat-header-cell *matHeaderCellDef>Usuario</th>
+              <td mat-cell *matCellDef="let user">
+                <div class="identity-cell">
+                  <span class="avatar">{{ initials(user.fullName) }}</span>
+                  <div>
+                    <strong>{{ user.fullName }}</strong>
+                    <p>{{ user.username }}</p>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef>Rol</th>
+              <td mat-cell *matCellDef="let user">
+                <span class="role-pill">{{ user.roleName }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let user">
+                <app-administration-status-badge [userStatus]="user.status"></app-administration-status-badge>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let user" class="actions-cell">
+                <app-administration-action-buttons
+                  [actions]="rowActions(user)"
+                  (actionSelected)="handleAction(user, $event)"
+                />
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</app-administration-shell>

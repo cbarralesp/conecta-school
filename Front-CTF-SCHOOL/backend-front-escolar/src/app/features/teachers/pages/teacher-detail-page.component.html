@@ -1,0 +1,121 @@
+<mat-sidenav-container class="teacher-detail-shell">
+  <mat-sidenav mode="side" opened class="teacher-detail-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="teacher-detail-toolbar">
+      <span>Gestion de profesores</span>
+      <span class="toolbar-spacer"></span>
+      <section class="toolbar-switcher">
+        <a mat-stroked-button routerLink="/dashboard/profesores">Directorio de profesores</a>
+        <a mat-stroked-button routerLink="/dashboard/profesores/nuevo">Nuevo profesor</a>
+        <button mat-stroked-button type="button" class="active-tab" disabled>Ficha del profesor</button>
+      </section>
+      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="teacher-detail-content">
+      <section class="teacher-detail-hero">
+        <span class="hero-tag">Equipo docente</span>
+        <h1>Ficha del profesor</h1>
+        <p>Consulta el perfil, las asignaturas y la carga semanal del docente.</p>
+      </section>
+
+      @if (isLoading()) {
+        <section class="empty-state">
+          <mat-icon>hourglass_top</mat-icon>
+          <strong>Cargando ficha del profesor</strong>
+        </section>
+      } @else if (teacher(); as teacher) {
+        <mat-card appearance="outlined" class="profile-card">
+          <header class="profile-head">
+            <div class="profile-identity">
+              <span class="avatar">{{ initials(teacher.fullName) }}</span>
+              <div>
+                <h2>{{ teacher.fullName }}</h2>
+                <p>{{ teacher.run }}</p>
+                <div class="profile-badges">
+                  <span class="status-pill">{{ teacher.employmentStatus }}</span>
+                  <span class="meta-pill">{{ teacher.contractType }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <button mat-stroked-button type="button" (click)="editTeacher()">Editar</button>
+              <button mat-stroked-button color="warn" type="button" (click)="confirmDelete()">Eliminar</button>
+            </div>
+          </header>
+
+          <div class="detail-grid">
+            <section class="detail-panel">
+              <h3>Datos personales</h3>
+              <dl>
+                <div><dt>Fecha nacimiento</dt><dd>{{ teacher.birthDate }}</dd></div>
+                <div><dt>Genero</dt><dd>{{ teacher.gender }}</dd></div>
+                <div><dt>Telefono</dt><dd>{{ teacher.phone }}</dd></div>
+                <div><dt>Email</dt><dd>{{ teacher.institutionalEmail }}</dd></div>
+                <div><dt>Direccion</dt><dd>{{ teacher.address }}</dd></div>
+              </dl>
+            </section>
+
+            <section class="detail-panel">
+              <h3>Informacion docente</h3>
+              <dl>
+                <div><dt>Titulo</dt><dd>{{ teacher.professionalTitle }}</dd></div>
+                <div><dt>Jornada</dt><dd>{{ teacher.contractType }}</dd></div>
+                <div><dt>Horas semanales</dt><dd>{{ teacher.weeklyHours }} hrs</dd></div>
+                <div><dt>Ingreso</dt><dd>{{ teacher.startDate }}</dd></div>
+              </dl>
+            </section>
+
+            <section class="detail-panel">
+              <h3>Asignaturas</h3>
+              <div class="chip-stack">
+                @for (subject of teacher.subjects; track subject.id) {
+                  <span class="subject-chip" [style.background]="subject.colorHex + '22'" [style.color]="subject.colorHex">
+                    {{ subject.name }}
+                  </span>
+                }
+              </div>
+
+                <h3 class="subheading">Cursos asignados</h3>
+              <div class="chip-stack">
+                @for (course of teacher.assignedCourses; track course.id + '-' + course.subjectName) {
+                  <span class="course-chip">{{ course.courseName }}</span>
+                }
+              </div>
+            </section>
+
+            <section class="detail-panel">
+              <h3>Horario semanal</h3>
+              <div class="schedule-grid">
+                @for (day of scheduleByDay(); track day.day) {
+                  <div class="schedule-day">
+                    <strong>{{ day.day.slice(0, 3) }}</strong>
+                    @if (day.items.length === 0) {
+                      <span class="schedule-empty">Sin bloques</span>
+                    } @else {
+                      @for (item of day.items; track item.dayOfWeek + item.startTime + item.courseName) {
+                        <span class="schedule-chip">{{ item.subjectName }} {{ item.courseName }}</span>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+            </section>
+
+            <section class="detail-panel detail-panel--full">
+              <h3>Contacto de emergencia</h3>
+              <dl>
+                <div><dt>Nombre</dt><dd>{{ teacher.emergencyContact.fullName }}</dd></div>
+                <div><dt>Relacion</dt><dd>{{ teacher.emergencyContact.relation }}</dd></div>
+                <div><dt>Telefono</dt><dd>{{ teacher.emergencyContact.phone }}</dd></div>
+              </dl>
+            </section>
+          </div>
+        </mat-card>
+      }
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

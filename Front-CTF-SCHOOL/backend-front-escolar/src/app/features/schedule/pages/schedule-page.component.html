@@ -1,0 +1,164 @@
+<mat-sidenav-container class="schedule-shell">
+  <mat-sidenav mode="side" opened class="schedule-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="schedule-toolbar">
+      <span>Horario de clases</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-stroked-button type="button" (click)="downloadSchedulePdf()" [disabled]="isExportingPdf() || !selectedCourse()">
+        <mat-icon>download</mat-icon>
+        {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
+      </button>
+      <button mat-flat-button (click)="openCreateDialog()">Nuevo horario</button>
+      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="schedule-content">
+      <section class="schedule-hero">
+        <span class="hero-tag">Agenda semanal</span>
+        <div class="hero-copy">
+          <h1>Horario de clases</h1>
+          <p>
+            Torre Fuerte School - Año academico {{ selectedCourse()?.schoolYear ?? '2026' }} -
+            Selecciona el curso para ver y administrar su horario semanal.
+          </p>
+        </div>
+      </section>
+
+      <section class="course-switcher">
+        <span class="switcher-label">Curso:</span>
+        <mat-chip-listbox aria-label="Seleccion de curso">
+          @for (course of orderedCourses(); track course.id) {
+            <mat-chip-option
+              [selected]="selectedCourseId() === course.id"
+              (click)="selectCourse(course.id)">
+              {{ course.name }}
+            </mat-chip-option>
+          }
+        </mat-chip-listbox>
+      </section>
+
+      <mat-card appearance="outlined" class="schedule-board">
+        <div class="board-head">
+          <div class="day-label time-head"></div>
+          @for (day of days; track day) {
+            <div class="day-label">{{ day }}</div>
+          }
+        </div>
+
+        <div class="board-body">
+          @for (row of gridRows(); track row.order) {
+            <div class="time-cell">{{ row.startTime }} - {{ row.endTime }}</div>
+
+            @if (row.blockType === 'RECREO') {
+              <div class="break-cell">Recreo</div>
+            } @else {
+              @for (day of days; track day) {
+                @let block = blockFor(day, row.order);
+                @let entry = entryFor(day, row.order);
+                <div class="slot-cell">
+                  @if (entry) {
+                    <button class="slot-pill slot-filled" type="button" [ngStyle]="slotStyles(entry)" (click)="openEditDialog(entry)">
+                      <strong>{{ entry.subjectName }}</strong>
+                      <span>{{ entry.teacherFullName }}</span>
+                      <small>{{ entry.room || 'Sala por definir' }}</small>
+                    </button>
+                  } @else if (block) {
+                    <button class="slot-pill slot-empty" type="button" (click)="openCreateDialog(block.id)">
+                      <mat-icon>add</mat-icon>
+                      <span>Agregar</span>
+                    </button>
+                  }
+                </div>
+              }
+            }
+          }
+        </div>
+      </mat-card>
+
+      <section class="schedule-foot">
+        <mat-card appearance="outlined" class="foot-card">
+          <mat-card-title>Asignaturas cargadas</mat-card-title>
+          <mat-card-content>
+            <div class="badge-grid">
+              @for (subject of subjectSummaries(); track subject.name) {
+                <article class="summary-badge">
+                  <span class="badge-dot" [style.background]="subject.colorHex"></span>
+                  <strong>{{ subject.name }}</strong>
+                  <small>{{ subject.blocks }} bloque{{ subject.blocks === 1 ? '' : 's' }}</small>
+                </article>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="foot-card">
+          <mat-card-title>Equipo docente</mat-card-title>
+          <mat-card-content>
+            <div class="badge-grid">
+              @for (teacher of teacherSummaries(); track teacher.name) {
+                <article class="summary-badge teacher-badge">
+                  <strong>{{ teacher.name }}</strong>
+                  <small>{{ teacher.specialty || 'Docencia general' }}</small>
+                </article>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+
+      @if (selectedCourse(); as course) {
+        <section class="pdf-export-shell" aria-hidden="true">
+          <article #pdfSchedule class="pdf-export-card">
+            <header class="pdf-export-header">
+              <div class="pdf-export-brand">
+                <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
+                <div>
+                  <span>Horario escolar</span>
+                  <strong>{{ course.name }}</strong>
+                  <small>Año academico {{ course.schoolYear }} · Torre Fuerte School</small>
+                </div>
+              </div>
+            </header>
+
+            <section class="pdf-export-board">
+              <div class="pdf-export-head">
+                <div class="pdf-export-label time-head"></div>
+                @for (day of days; track day) {
+                  <div class="pdf-export-label">{{ day }}</div>
+                }
+              </div>
+
+              <div class="pdf-export-body">
+                @for (row of gridRows(); track row.order) {
+                  <div class="pdf-export-time">{{ row.startTime }} - {{ row.endTime }}</div>
+
+                  @if (row.blockType === 'RECREO') {
+                    <div class="pdf-export-break">Recreo</div>
+                  } @else {
+                    @for (day of days; track day) {
+                      @let entry = entryFor(day, row.order);
+                      <div class="pdf-export-slot">
+                        @if (entry) {
+                          <div
+                            class="pdf-export-pill"
+                            [style.background]="toRgba(entry.subjectColorHex, 0.95)">
+                            <strong>{{ entry.subjectName }}</strong>
+                            <span>{{ entry.teacherFullName }}</span>
+                            <small>{{ entry.room || 'Sala por definir' }}</small>
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                }
+              </div>
+            </section>
+          </article>
+        </section>
+      }
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

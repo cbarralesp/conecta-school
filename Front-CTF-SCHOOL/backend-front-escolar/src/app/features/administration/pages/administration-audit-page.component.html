@@ -1,0 +1,55 @@
+<app-administration-shell activeTab="audit" toolbarTitle="Administracion">
+  <app-administration-hero
+    tag="Auditoria"
+    title="Log de actividad del sistema"
+    description="Registro inmutable de acciones criticas realizadas por usuarios con acceso administrativo."
+    actionLabel="Exportar log"
+    actionIcon="download"
+    (action)="exportLogs()"
+  />
+
+  <mat-card appearance="outlined" class="audit-card">
+    <mat-card-content>
+      <form [formGroup]="filtersForm" class="filters-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de accion</mat-label>
+          <mat-select formControlName="type">
+            @for (option of view()?.actionOptions ?? []; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Usuario</mat-label>
+          <mat-select formControlName="user">
+            @for (option of view()?.userOptions ?? []; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="date" placeholder="03-04-2026" />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </form>
+
+      <div class="audit-list">
+        @for (item of view()?.items ?? []; track item.id) {
+          <article class="audit-item">
+            <span class="audit-time">{{ item.occurredLabel }}</span>
+            <span class="audit-dot" [class]="eventClass(item.type)"></span>
+            <div class="audit-body">
+              <strong>{{ item.userDisplay }} {{ item.actionLabel }}</strong>
+              <p>{{ item.context }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</app-administration-shell>
+

@@ -1,0 +1,425 @@
+<!-- Encabezado -->
+<section class="mb-6 flex justify-between items-center">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800">Libro de Clases</h1>
+    <p class="text-gray-600">Gestiona la asistencia, notas y seguimiento académico de tus cursos.</p>
+  </div>
+  <button
+    (click)="navegarAGestionCursos()"
+    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+    </svg>
+    Gestionar Cursos
+  </button>
+</section>
+
+<!-- Estadísticas Generales -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  <div class="card">
+    <div class="flex items-center">
+      <div class="p-3 bg-blue-100 rounded-lg mr-4">
+        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+          <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100 4h2a1 1 0 100 2 2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-gray-800">{{ totalClases }}</p>
+        <p class="text-sm text-gray-500">Clases Registradas</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center">
+      <div class="p-3 bg-green-100 rounded-lg mr-4">
+        <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-gray-800">{{ totalAsistencias }}</p>
+        <p class="text-sm text-gray-500">Asistencias Totales</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center">
+      <div class="p-3 bg-yellow-100 rounded-lg mr-4">
+        <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+          <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 100 4h2a2 2 0 100 4h2a1 1 0 100 2 2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-gray-800">{{ totalNotas }}</p>
+        <p class="text-sm text-gray-500">Notas Registradas</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center">
+      <div class="p-3 bg-purple-100 rounded-lg mr-4">
+        <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="text-2xl font-bold text-gray-800">{{ cursos.length }}</p>
+        <p class="text-sm text-gray-500">Cursos Activos</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lista de Cursos en Tabla -->
+<section class="bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-purple-600 text-white">
+        <tr>
+          <th class="px-6 py-4 text-left text-sm font-semibold w-64">Curso</th>
+          <th class="px-6 py-4 text-left text-sm font-semibold">Asignatura</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">N° Alumnos</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">Registros de Asistencia</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">Evaluaciones Registradas</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">Último Tema</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">Registrar Asistencia</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">Registrar Notas</th>
+          <th class="px-6 py-4 text-center text-sm font-semibold">Ver Detalles</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let curso of cursos" class="hover:bg-purple-50 transition-colors">
+          <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ curso.name }}</td>
+          <td class="px-6 py-4 text-sm text-gray-700">{{ curso.subject }}</td>
+          <td class="px-6 py-4 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+              {{ curso.studentIds.length }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600">
+              {{ getAttendanceCount(curso.id) }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600">
+              {{ getGradesCount(curso.id) }}
+            </span>
+          </td>
+          <td class="px-6 py-4 text-sm text-gray-600 text-center">
+            {{ curso.lastTopic || 'N/A' }}
+          </td>
+          <td class="px-6 py-4 text-center">
+            <button
+              (click)="abrirModalAsistencia(curso.id)"
+              class="inline-flex flex-col items-center justify-center p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+              title="Registrar Asistencia">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+              </svg>
+            </button>
+          </td>
+          <td class="px-6 py-4 text-center">
+            <button
+              (click)="abrirModalNotas(curso.id)"
+              class="inline-flex flex-col items-center justify-center p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+              title="Registrar Notas">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+              </svg>
+            </button>
+          </td>
+          <td class="px-6 py-4 text-center">
+            <button
+              (click)="verDetallesCurso(curso.id)"
+              class="inline-flex flex-col items-center justify-center p-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+              title="Ver Detalles">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+              </svg>
+            </button>
+          </td>
+        </tr>
+
+        <!-- Mensaje si no hay cursos -->
+        <tr *ngIf="cursos.length === 0">
+          <td colspan="9" class="px-6 py-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg mb-4">No hay cursos disponibles</p>
+            <button
+              (click)="navegarAGestionCursos()"
+              class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+              Crear tu primer curso
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODAL DE ASISTENCIA -->
+<div
+  *ngIf="showAsistenciaModal"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+  <div class="relative mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+    <div class="mt-3">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Registro de Asistencia</h3>
+        <button (click)="cerrarModalAsistencia()" class="text-gray-400 hover:text-gray-500">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="mt-2 px-7 py-3">
+        <form class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
+              <select
+                [(ngModel)]="asistenciaForm.courseId"
+                (ngModelChange)="onCursoAsistenciaChange()"
+                name="courseId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <option [value]="0">Seleccionar curso</option>
+                <option *ngFor="let curso of cursos" [value]="curso.id">
+                  {{ curso.name }} - {{ curso.subject }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+              <input
+                type="date"
+                [(ngModel)]="asistenciaForm.date"
+                name="date"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Lista de Estudiantes</label>
+            <div class="space-y-2 max-h-96 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+              <div
+                *ngFor="let estudiante of asistenciaForm.estudiantes"
+                class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                <span class="font-medium">{{ estudiante.name }}</span>
+                <div class="flex items-center space-x-2">
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      [(ngModel)]="estudiante.status"
+                      [name]="'status-' + estudiante.id"
+                      value="present"
+                      class="mr-1">
+                    <span class="text-xs text-green-600">Presente</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      [(ngModel)]="estudiante.status"
+                      [name]="'status-' + estudiante.id"
+                      value="late"
+                      class="mr-1">
+                    <span class="text-xs text-yellow-600">Tarde</span>
+                  </label>
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      [(ngModel)]="estudiante.status"
+                      [name]="'status-' + estudiante.id"
+                      value="absent"
+                      class="mr-1">
+                    <span class="text-xs text-red-600">Ausente</span>
+                  </label>
+                </div>
+              </div>
+
+              <p *ngIf="asistenciaForm.estudiantes.length === 0" class="text-center text-gray-500 py-4">
+                Selecciona un curso para ver la lista de estudiantes
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones Generales</label>
+            <textarea
+              [(ngModel)]="asistenciaForm.observations"
+              name="observations"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Observaciones sobre la clase..."></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="items-center px-4 py-3 border-t border-gray-200 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          (click)="guardarAsistencia()"
+          type="button"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Guardar Asistencia
+        </button>
+        <button
+          (click)="cerrarModalAsistencia()"
+          type="button"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE NOTAS -->
+<div
+  *ngIf="showNotasModal"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+  <div class="relative mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
+    <div class="mt-3">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Registro de Notas</h3>
+        <button (click)="cerrarModalNotas()" class="text-gray-400 hover:text-gray-500">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="mt-2 px-7 py-3">
+        <form class="space-y-4">
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
+              <select
+                [(ngModel)]="notasForm.courseId"
+                (ngModelChange)="onCursoNotasChange()"
+                name="courseId"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <option [value]="0">Seleccionar curso</option>
+                <option *ngFor="let curso of cursos" [value]="curso.id">
+                  {{ curso.name }} - {{ curso.subject }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Evaluación</label>
+              <select
+                [(ngModel)]="notasForm.type"
+                name="type"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <option value="">Seleccionar tipo</option>
+                <option value="Prueba">Prueba</option>
+                <option value="Tarea">Tarea</option>
+                <option value="Proyecto">Proyecto</option>
+                <option value="Participación">Participación</option>
+                <option value="Examen">Examen</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+              <input
+                type="date"
+                [(ngModel)]="notasForm.date"
+                name="date"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <input
+              type="text"
+              [(ngModel)]="notasForm.description"
+              name="description"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Ej: Prueba de matemáticas unidad 1">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Puntaje Máximo</label>
+            <input
+              type="number"
+              [(ngModel)]="notasForm.maxGrade"
+              name="maxGrade"
+              required
+              min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Ej: 100">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Notas de Estudiantes</label>
+            <div class="space-y-2 max-h-96 overflow-y-auto border rounded-lg p-4 bg-gray-50">
+              <div
+                *ngFor="let estudiante of notasForm.estudiantes"
+                class="flex items-center justify-between p-3 bg-white rounded-lg border">
+                <label class="font-medium">{{ estudiante.name }}</label>
+                <div class="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    [(ngModel)]="estudiante.score"
+                    [name]="'score-' + estudiante.id"
+                    [disabled]="estudiante.exempt"
+                    min="0"
+                    [max]="notasForm.maxGrade"
+                    step="0.1"
+                    placeholder="Nota"
+                    class="w-20 px-2 py-1 border rounded text-sm disabled:bg-gray-100">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="estudiante.exempt"
+                    [name]="'exempt-' + estudiante.id"
+                    class="mr-1">
+                  <label class="text-xs text-gray-600">Exento</label>
+                </div>
+              </div>
+
+              <p *ngIf="notasForm.estudiantes.length === 0" class="text-center text-gray-500 py-4">
+                Selecciona un curso para ver la lista de estudiantes
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="items-center px-4 py-3 border-t border-gray-200 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          (click)="guardarNotas()"
+          type="button"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm">
+          Guardar Notas
+        </button>
+        <button
+          (click)="cerrarModalNotas()"
+          type="button"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

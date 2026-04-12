@@ -1,0 +1,237 @@
+<mat-sidenav-container class="teachers-shell">
+  <mat-sidenav mode="side" opened class="teachers-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="teachers-toolbar">
+      <span>Gestion de profesores</span>
+      <span class="toolbar-spacer"></span>
+      <section class="toolbar-switcher">
+        <a mat-stroked-button routerLink="/dashboard/profesores" class="active-tab">Directorio de profesores</a>
+        <a mat-stroked-button routerLink="/dashboard/profesores/nuevo">Nuevo profesor</a>
+        <button mat-stroked-button type="button" disabled>Ficha del profesor</button>
+      </section>
+      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="teachers-content">
+      <section class="teachers-hero">
+        <div class="hero-head">
+          <div class="hero-copy">
+            <span class="hero-tag">Equipo docente</span>
+            <h1>Gestion de profesores</h1>
+            <p>Torre Fuerte School - Administra el directorio completo del cuerpo docente.</p>
+          </div>
+          <button mat-stroked-button type="button" class="hero-action" (click)="goToCreate()">Nuevo profesor</button>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <mat-card appearance="outlined" class="summary-card">
+          <span>Total docentes</span>
+          <strong>{{ summary().totalTeachers }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="summary-card">
+          <span>Activos</span>
+          <strong>{{ summary().activeTeachers }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="summary-card">
+          <span>Asignaturas</span>
+          <strong>{{ summary().subjectCount }}</strong>
+        </mat-card>
+        <mat-card appearance="outlined" class="summary-card">
+          <span>Con jornada completa</span>
+          <strong>{{ summary().fullTimeTeachers }}</strong>
+        </mat-card>
+      </section>
+
+      <mat-card appearance="outlined" class="listing-card">
+        <mat-card-content>
+          <form [formGroup]="filtersForm" class="filters-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Buscar</mat-label>
+              <input matInput formControlName="search" placeholder="Nombre, RUN o asignatura" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Asignatura</mat-label>
+              <mat-select formControlName="subjectId">
+                <mat-option [value]="0">Todas las asignaturas</mat-option>
+                @for (subject of subjectOptions(); track subject.id) {
+                  <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="">Todos los estados</mat-option>
+                <mat-option value="ACTIVO">Activo</mat-option>
+                <mat-option value="LICENCIA">Licencia</mat-option>
+                <mat-option value="INACTIVO">Inactivo</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </form>
+
+          <div class="view-actions">
+            <div class="view-switcher">
+              <button
+                mat-icon-button
+                type="button"
+                [class.is-active]="viewMode() === 'cards'"
+                (click)="changeView('cards')"
+                matTooltip="Vista cards"
+                aria-label="Cambiar a vista cards"
+              >
+                <mat-icon>grid_view</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                [class.is-active]="viewMode() === 'table'"
+                (click)="changeView('table')"
+                matTooltip="Vista tabla"
+                aria-label="Cambiar a vista tabla"
+              >
+                <mat-icon>table_rows</mat-icon>
+              </button>
+            </div>
+
+            <button mat-stroked-button type="button" (click)="goToCreate()">+ Nuevo profesor</button>
+          </div>
+
+          @if (isLoading()) {
+            <section class="empty-state">
+              <mat-icon>hourglass_top</mat-icon>
+              <strong>Cargando profesores</strong>
+            </section>
+          } @else if (teachers().length === 0) {
+            <section class="empty-state">
+              <mat-icon>groups</mat-icon>
+              <strong>No hay profesores para mostrar</strong>
+              <p>Ajusta los filtros o registra el primer docente.</p>
+            </section>
+          } @else if (viewMode() === 'cards') {
+            <section class="teachers-grid">
+              @for (teacher of teachers(); track teacher.id) {
+                <article class="teacher-card">
+                  <header class="teacher-card__head">
+                    <div class="teacher-card__identity">
+                      <span class="avatar">{{ initials(teacher.fullName) }}</span>
+                      <div>
+                        <h3>{{ teacher.fullName }}</h3>
+                        <p>{{ teacher.run }}</p>
+                      </div>
+                    </div>
+                    <span class="status-pill" [class.inactive]="!teacher.active">{{ teacher.employmentStatus }}</span>
+                  </header>
+
+                  <div class="teacher-card__meta">
+                    <span class="meta-chip">{{ teacher.professionalTitle }}</span>
+                    <span class="meta-chip neutral">{{ workdayLabel(teacher) }}</span>
+                  </div>
+
+                  <div class="chip-stack">
+                    @for (subject of teacher.subjects; track subject.id) {
+                      <span class="subject-chip" [style.background]="subject.colorHex + '22'" [style.color]="subject.colorHex">
+                        {{ subject.name }}
+                      </span>
+                    }
+                  </div>
+
+                  <div class="course-stack">
+                    @for (course of teacher.assignedCourses; track course) {
+                      <span class="course-chip">{{ course }}</span>
+                    }
+                  </div>
+
+                  <footer class="teacher-card__actions">
+                    <button mat-icon-button type="button" (click)="goToDetail(teacher.id)" matTooltip="Ver ficha" aria-label="Ver ficha">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" (click)="goToEdit(teacher.id)" matTooltip="Editar profesor" aria-label="Editar profesor">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" type="button" (click)="confirmDelete(teacher)" matTooltip="Eliminar profesor" aria-label="Eliminar profesor">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </footer>
+                </article>
+              }
+            </section>
+          } @else {
+            <div class="table-shell">
+              <table mat-table [dataSource]="teachers()" class="teachers-table">
+                <ng-container matColumnDef="teacher">
+                  <th mat-header-cell *matHeaderCellDef>Profesor</th>
+                  <td mat-cell *matCellDef="let teacher">
+                    <div class="teacher-cell">
+                      <span class="avatar">{{ initials(teacher.fullName) }}</span>
+                      <div>
+                        <strong>{{ teacher.fullName }}</strong>
+                        <p>{{ teacher.professionalTitle }}</p>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="run">
+                  <th mat-header-cell *matHeaderCellDef>RUN</th>
+                  <td mat-cell *matCellDef="let teacher">{{ teacher.run }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="subjects">
+                  <th mat-header-cell *matHeaderCellDef>Asignaturas</th>
+                  <td mat-cell *matCellDef="let teacher">
+                    <div class="chip-stack compact">
+                      @for (subject of teacher.subjects; track subject.id) {
+                        <span class="subject-chip" [style.background]="subject.colorHex + '22'" [style.color]="subject.colorHex">
+                          {{ subject.name }}
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="workday">
+                  <th mat-header-cell *matHeaderCellDef>Jornada</th>
+                  <td mat-cell *matCellDef="let teacher">{{ workdayLabel(teacher) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Estado</th>
+                  <td mat-cell *matCellDef="let teacher">
+                    <span class="status-pill" [class.inactive]="!teacher.active">{{ teacher.employmentStatus }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let teacher" class="actions-cell">
+                    <div class="actions-group">
+                      <button mat-icon-button type="button" (click)="goToDetail(teacher.id)" matTooltip="Ver ficha" aria-label="Ver ficha">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button mat-icon-button type="button" (click)="goToEdit(teacher.id)" matTooltip="Editar profesor" aria-label="Editar profesor">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" type="button" (click)="confirmDelete(teacher)" matTooltip="Eliminar profesor" aria-label="Eliminar profesor">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+

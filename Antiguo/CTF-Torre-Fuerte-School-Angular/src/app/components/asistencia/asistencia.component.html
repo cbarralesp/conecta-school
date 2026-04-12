@@ -1,0 +1,241 @@
+<div class="flex-1 p-8 overflow-y-auto bg-gray-50">
+  <!-- ENCABEZADO -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">📝 Registrar Asistencia</h1>
+    <p class="text-gray-600">Registra la asistencia diaria de tus cursos de manera rápida y eficiente</p>
+  </div>
+
+  <!-- PANEL DE CONFIGURACIÓN -->
+  <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Curso</label>
+        <select [(ngModel)]="selectedCourse" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <option value="1">7° Básico B - Matemáticas</option>
+          <option value="2">8° Básico A - Lenguaje</option>
+          <option value="3">9° Básico C - Historia</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+        <input type="date" [(ngModel)]="selectedDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Hora de Inicio</label>
+        <input type="time" [(ngModel)]="startTime" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Estado por Defecto</label>
+        <select [(ngModel)]="defaultStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <option value="present">Presente</option>
+          <option value="late">Tarde</option>
+          <option value="absent">Ausente</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCIONES RÁPIDAS -->
+  <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">⚡ Acciones Rápidas</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <button (click)="markAllPresent()" class="quick-action-btn px-4 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 flex items-center justify-center transition-all">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        Marcar Todos Presentes
+      </button>
+      <button (click)="markAllAbsent()" class="quick-action-btn px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center justify-center transition-all">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        Marcar Todos Ausentes
+      </button>
+      <button (click)="loadPreviousAttendance()" class="quick-action-btn px-4 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 flex items-center justify-center transition-all">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+        </svg>
+        Cargar Día Anterior
+      </button>
+      <button (click)="clearAllSelections()" class="quick-action-btn px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center justify-center transition-all">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 100 2h2a1 1 0 100-2h-1a3 3 0 01-3-3V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H13a1 1 0 100-2h-1a3 3 0 01-3-3V4a1 1 0 10-2 0v6a1 1 0 00.008.057z" clip-rule="evenodd"></path>
+        </svg>
+        Limpiar Selección
+      </button>
+    </div>
+  </div>
+
+  <!-- RESUMEN DE ASISTENCIA -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="attendance-summary-card bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-green-600 font-medium">Presentes</p>
+          <p class="text-2xl font-bold text-green-800">{{ attendanceSummary.present }}</p>
+        </div>
+        <div class="text-3xl text-green-500">✅</div>
+      </div>
+    </div>
+    <div class="attendance-summary-card bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-yellow-600 font-medium">Tardes</p>
+          <p class="text-2xl font-bold text-yellow-800">{{ attendanceSummary.late }}</p>
+        </div>
+        <div class="text-3xl text-yellow-500">⏰</div>
+      </div>
+    </div>
+    <div class="attendance-summary-card bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-red-600 font-medium">Ausentes</p>
+          <p class="text-2xl font-bold text-red-800">{{ attendanceSummary.absent }}</p>
+        </div>
+        <div class="text-3xl text-red-500">❌</div>
+      </div>
+    </div>
+    <div class="attendance-summary-card bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-purple-600 font-medium">Total</p>
+          <p class="text-2xl font-bold text-purple-800">{{ attendanceSummary.total }}</p>
+        </div>
+        <div class="text-3xl text-purple-500">👥</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA DE ESTUDIANTES -->
+  <div class="bg-white rounded-lg shadow-sm">
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">📋 Lista de Estudiantes</h3>
+        <div class="flex items-center space-x-2">
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar estudiante..." class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+          <select [(ngModel)]="filterStatus" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+            <option value="">Todos los estados</option>
+            <option value="present">Presentes</option>
+            <option value="late">Tardes</option>
+            <option value="absent">Ausentes</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estudiante</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presente</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Tarde</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ausente</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Observaciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let student of filteredStudents" class="student-row">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <img class="h-8 w-8 rounded-full mr-3" [src]="student.avatar" [alt]="student.name">
+                <div>
+                  <div class="text-sm font-medium text-gray-900">{{ student.name }}</div>
+                  <div class="text-xs" [ngClass]="getAttendanceTrend(student).color">
+                    {{ getAttendanceTrend(student).icon }} Últimos 3 días
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <div
+                (click)="selectAttendance(student, 'present')"
+                class="status-label inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-600 cursor-pointer"
+                [ngClass]="{'present-selected selected status-animation': isStatusSelected(student, 'present')}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 13.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <div
+                (click)="selectAttendance(student, 'late')"
+                class="status-label inline-flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 cursor-pointer"
+                [ngClass]="{'late-selected selected status-animation': isStatusSelected(student, 'late')}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <div
+                (click)="selectAttendance(student, 'absent')"
+                class="status-label inline-flex items-center justify-center w-10 h-10 rounded-full bg-red-100 text-red-600 cursor-pointer"
+                [ngClass]="{'absent-selected selected status-animation': isStatusSelected(student, 'absent')}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <input
+                type="text"
+                [(ngModel)]="student.observation"
+                class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="Añadir observación...">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- OBSERVACIONES GENERALES Y PLANTILLAS -->
+  <div class="bg-white p-6 rounded-lg shadow-sm mt-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">📝 Observaciones Generales</h3>
+
+    <!-- Plantillas Rápidas -->
+    <div class="mb-4">
+      <p class="text-sm text-gray-600 mb-2">Plantillas rápidas:</p>
+      <div class="flex flex-wrap gap-2">
+        <button
+          *ngFor="let template of observationTemplates"
+          (click)="addObservationTemplate(template.text)"
+          class="template-tag px-3 py-1 rounded-full text-sm transition-all"
+          [ngClass]="'bg-' + template.color + '-100 text-' + template.color + '-700 hover:bg-' + template.color + '-200'">
+          {{ template.text }}
+        </button>
+      </div>
+    </div>
+
+    <textarea
+      [(ngModel)]="generalObservations"
+      rows="4"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+      placeholder="Añade observaciones generales sobre la clase..."></textarea>
+  </div>
+
+  <!-- BOTONES DE ACCIÓN -->
+  <div class="flex justify-between items-center mt-6">
+    <div class="text-sm" [ngClass]="saveStatus.includes('exitosamente') ? 'text-green-600' : 'text-yellow-600'">
+      <span>{{ saveStatus }}</span>
+    </div>
+    <div class="flex space-x-3">
+      <button (click)="exportAttendance()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        Exportar
+      </button>
+      <button (click)="saveAsDraft()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+        Guardar Borrador
+      </button>
+      <button (click)="saveAttendance()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"></path>
+        </svg>
+        Guardar Asistencia
+      </button>
+    </div>
+  </div>
+</div>

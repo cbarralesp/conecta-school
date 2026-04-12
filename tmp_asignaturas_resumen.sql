@@ -1,0 +1,8 @@
+SELECT pe."NOMBRES" || ' ' || pe."APELLIDOS" AS profesor,
+       string_agg(DISTINCT a."NOMBRE", ', ' ORDER BY a."NOMBRE") AS asignaturas_resumen
+FROM "PROFESORES" p
+JOIN "PERSONAS" pe ON pe."ID" = p."PERSONA_ID"
+LEFT JOIN "PROFESOR_ASIGNATURAS" pa ON pa."PROFESOR_ID" = p."ID" AND COALESCE(pa."ACTIVO", TRUE) = TRUE
+LEFT JOIN "ASIGNATURAS" a ON a."ID" = pa."ASIGNATURA_ID"
+GROUP BY pe."NOMBRES", pe."APELLIDOS"
+ORDER BY profesor;

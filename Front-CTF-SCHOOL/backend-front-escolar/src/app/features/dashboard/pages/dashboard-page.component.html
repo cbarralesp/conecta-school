@@ -1,0 +1,148 @@
+<mat-sidenav-container class="dashboard-shell">
+  <mat-sidenav mode="side" opened class="dashboard-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="dashboard-toolbar">
+      <span>Dashboard profesor</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-flat-button (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="dashboard-content">
+      @if (isLoading()) {
+        <section class="loading-state">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Cargando informacion del profesor...</p>
+        </section>
+      } @else if (dashboard(); as dashboard) {
+        <section class="hero-card">
+          <span class="hero-tag">{{ dashboard.teacherCode }}</span>
+          <h1>{{ dashboard.teacherName }}</h1>
+          <p>{{ dashboard.specialty }}</p>
+        </section>
+
+        <section class="stats-grid">
+          @for (card of cards(); track card.title) {
+            <mat-card appearance="outlined" class="stat-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar>{{ card.icon }}</mat-icon>
+                <mat-card-title>{{ card.title }}</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <strong>{{ card.value }}</strong>
+              </mat-card-content>
+            </mat-card>
+          }
+        </section>
+
+        <section class="dashboard-grid">
+          <mat-card appearance="outlined" class="panel-card">
+            <mat-card-title>Horario de hoy</mat-card-title>
+            <mat-card-content class="schedule-list">
+              <div class="panel-caption">{{ todayScheduleCaption() }}</div>
+              @if (todaySchedulePreview().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>event_available</mat-icon>
+                  <span>No tienes clases asignadas para hoy.</span>
+                </section>
+              } @else {
+                @for (item of todaySchedulePreview(); track item.dayOfWeek + item.startTime + item.courseName) {
+                  <article class="schedule-item daily-item">
+                    <div>
+                      <strong>{{ item.startTime }} - {{ item.endTime }}</strong>
+                      <span>{{ item.courseName }}</span>
+                    </div>
+                    <div>
+                      <strong>{{ item.subjectName }}</strong>
+                      <span>{{ item.room }}</span>
+                    </div>
+                  </article>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="panel-card">
+            <mat-card-title>Accesos rapidos</mat-card-title>
+            <mat-card-content class="quick-actions">
+              <a mat-stroked-button routerLink="/dashboard/horario">Ver horario completo</a>
+              <a mat-stroked-button routerLink="/dashboard/cursos">Ir a cursos</a>
+              <a mat-stroked-button routerLink="/dashboard/actividades">Calendario institucional</a>
+              <a mat-stroked-button routerLink="/dashboard/asignaturas">Gestionar asignaturas</a>
+            </mat-card-content>
+          </mat-card>
+        </section>
+
+        <section class="planning-grid">
+          <mat-card appearance="outlined" class="panel-card planning-card">
+            <mat-card-title>Proximas planificaciones</mat-card-title>
+            <mat-divider></mat-divider>
+            <mat-card-content class="planning-detail-list">
+              @if (nextPlanningItems().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>assignment_turned_in</mat-icon>
+                  <span>No hay planificaciones pendientes por ahora.</span>
+                </section>
+              } @else {
+              @for (planning of nextPlanningItems(); track planning.id) {
+                <article class="planning-detail-item">
+                  <div class="planning-head">
+                    <div>
+                      <strong>{{ planning.title }}</strong>
+                      <span>{{ planning.courseName }} - {{ planning.subjectName }}</span>
+                    </div>
+                    <div class="planning-meta">
+                      <span>{{ planning.classDate }}</span>
+                      <mat-chip>{{ statusLabel(planning.status) }}</mat-chip>
+                    </div>
+                  </div>
+
+                  <div class="planning-body">
+                    <p><strong>Unidad:</strong> {{ planning.unit }}</p>
+                    <p><strong>Objetivo:</strong> {{ planning.learningObjective }}</p>
+                    <p><strong>Actividades:</strong> {{ planning.activities }}</p>
+                    <a [routerLink]="['/dashboard/planning', planning.id]" class="planning-link">
+                      Abrir detalle
+                    </a>
+                  </div>
+                </article>
+              }
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="panel-card planning-card">
+            <mat-card-title>Pendientes del profesor</mat-card-title>
+            <mat-divider></mat-divider>
+            <mat-card-content class="planning-list">
+              @for (planning of dashboard.planningItems.slice(0, 5); track planning.id) {
+                <article class="planning-item">
+                <div>
+                  <strong>{{ planning.title }}</strong>
+                  <span>{{ planning.courseName }} - {{ planning.subjectName }}</span>
+                  <small>{{ planning.unit }}</small>
+                </div>
+                <div class="planning-meta">
+                  <span>{{ planning.classDate }}</span>
+                  <mat-chip>{{ statusLabel(planning.status) }}</mat-chip>
+                  <a [routerLink]="['/dashboard/planning', planning.id]" class="planning-link">
+                    Ver
+                  </a>
+                </div>
+              </article>
+            }
+          </mat-card-content>
+        </mat-card>
+        </section>
+      } @else {
+        <section class="empty-dashboard">
+          <mat-icon>school</mat-icon>
+          <strong>No se encontro informacion del resumen docente.</strong>
+          <p>Revisa si el backend esta entregando el dashboard del profesor autenticado.</p>
+        </section>
+      }
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

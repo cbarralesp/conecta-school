@@ -1,0 +1,37 @@
+<app-administration-shell activeTab="matrix" toolbarTitle="Administracion">
+  <app-administration-hero
+    tag="Matriz de acceso"
+    title="Permisos por modulo"
+    description="Referencia rapida de que puede hacer cada rol en cada modulo del sistema."
+  />
+
+  <mat-card appearance="outlined" class="matrix-card">
+    <div class="table-shell">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Modulo</th>
+            @for (role of roles(); track role.code) {
+              <th>{{ role.name }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of matrix()?.rows ?? []; track row.moduleName) {
+            <tr>
+              <th>{{ row.moduleName }}</th>
+              @for (role of roles(); track role.code) {
+                <td>
+                  <app-administration-status-badge [accessLevel]="accessLevel(row, role.code)"></app-administration-status-badge>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </mat-card>
+
+  <app-administration-permission-legend />
+</app-administration-shell>
+

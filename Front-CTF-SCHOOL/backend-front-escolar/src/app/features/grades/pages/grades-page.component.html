@@ -1,0 +1,330 @@
+<mat-sidenav-container class="grades-shell">
+  <mat-sidenav mode="side" opened class="grades-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="grades-toolbar">
+      <span>Calificaciones</span>
+      <span class="toolbar-spacer"></span>
+      <section class="toolbar-tabs">
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Libro de notas</button>
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Ficha por alumno</button>
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informes de notas</button>
+      </section>
+      <button mat-stroked-button type="button" (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="grades-content">
+      @if (activeTab() === 'book') {
+        <section class="hero-box">
+          <div class="hero-copy">
+            <span class="hero-tag">Calificaciones</span>
+            <h1>Libro de notas</h1>
+            <p>Torre Fuerte School · Ingresa y consulta calificaciones por asignatura, curso y periodo.</p>
+          </div>
+        </section>
+
+        <section class="metric-grid">
+          <article class="metric-card"><span>Promedio curso</span><strong>{{ formatScore(gradeBookSummary()?.courseAverage) }}</strong></article>
+          <article class="metric-card"><span>Sobre nota mín.</span><strong class="metric-success">{{ gradeBookSummary()?.aboveMinimumCount ?? 0 }}</strong></article>
+          <article class="metric-card"><span>Bajo nota mín.</span><strong class="metric-danger">{{ gradeBookSummary()?.belowMinimumCount ?? 0 }}</strong></article>
+          <article class="metric-card"><span>Sin calificar</span><strong class="metric-warning">{{ gradeBookSummary()?.ungradedCount ?? 0 }}</strong></article>
+        </section>
+
+        <mat-card appearance="outlined" class="panel-card">
+          <div class="filters-grid report-filters-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Curso</mat-label>
+              <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+                @for (course of courses(); track course.id) {
+                  <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Periodo</mat-label>
+              <mat-select [value]="selectedPeriodId()" (valueChange)="updatePeriod($event)">
+                @for (period of periods(); track period.id) {
+                  <mat-option [value]="period.id">{{ period.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="top-actions">
+            <div class="subject-tabs">
+              @for (subject of subjectTabs(); track subject.id) {
+                <button type="button" class="subject-chip" [class.is-selected]="subject.id === selectedSubjectId()" [style.--subject-color]="subject.colorHex" (click)="selectSubject(subject.id)">
+                  {{ subject.name }}
+                </button>
+              }
+            </div>
+
+            <div class="actions-row">
+              <button mat-stroked-button type="button" (click)="exportGradeBook()">Exportar Excel</button>
+              <button mat-flat-button type="button" class="save-button" (click)="saveGradeBook()" [disabled]="isSaving()">
+                {{ isSaving() ? 'Guardando...' : 'Guardar notas' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="gradebook-table-shell">
+            <table class="gradebook-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Alumno</th>
+                  @for (evaluation of gradeBook()?.evaluations ?? []; track evaluation.id) {
+                    <th>{{ evaluation.code }}</th>
+                  }
+                  <th>Promedio</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of gradeBook()?.students ?? []; track trackStudent($index, student)) {
+                  <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>
+                      <div class="student-cell compact">
+                        <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                        <div class="student-copy">
+                          <strong>{{ student.fullName }}</strong>
+                        </div>
+                      </div>
+                    </td>
+                    @for (score of student.scores; track score.evaluationId) {
+                      <td class="score-cell">
+                        <input type="number" min="1" max="7" step="0.1" [value]="score.score ?? ''" (change)="updateScore(student.studentId, score.evaluationId, $any($event.target).value)" />
+                      </td>
+                    }
+                    <td><span class="average-pill">{{ formatScore(student.average) }}</span></td>
+                    <td><span class="status-badge" [ngClass]="badgeClass(student.status)">{{ student.status }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+      }
+
+      @if (activeTab() === 'profile') {
+        <section class="hero-box">
+          <div class="hero-copy">
+            <span class="hero-tag">Ficha alumno</span>
+            <h1>Rendimiento individual</h1>
+            <p>Consulta el historial de calificaciones y el promedio por asignatura de cada alumno.</p>
+          </div>
+        </section>
+
+        <section class="metric-grid">
+          <article class="metric-card"><span>Promedio general</span><strong>{{ formatScore(profileSummary().overallAverage) }}</strong></article>
+          <article class="metric-card"><span>Destacados</span><strong class="metric-success">{{ profileSummary().outstanding }}</strong></article>
+          <article class="metric-card"><span>En riesgo</span><strong class="metric-danger">{{ profileSummary().atRisk }}</strong></article>
+          <article class="metric-card"><span>Sin notas</span><strong class="metric-warning">{{ profileSummary().ungraded }}</strong></article>
+        </section>
+
+        <mat-card appearance="outlined" class="panel-card">
+          <div class="filters-grid report-filters-layout">
+            <mat-form-field appearance="outline">
+              <mat-label>Curso</mat-label>
+              <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+                @for (course of courses(); track course.id) {
+                  <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Periodo</mat-label>
+              <mat-select [value]="selectedPeriodId()" (valueChange)="updatePeriod($event)">
+                @for (period of periods(); track period.id) {
+                  <mat-option [value]="period.id">{{ period.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Alumno</mat-label>
+              <mat-select [value]="selectedProfileStudentId()" (valueChange)="updateProfileStudent($event)">
+                <mat-option [value]="null">Todos los alumnos</mat-option>
+                @for (student of profileStudentOptions(); track student.studentId) {
+                  <mat-option [value]="student.studentId">{{ student.fullName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Buscar por RUN</mat-label>
+              <input
+                matInput
+                [value]="profileRunSearchTerm()"
+                (input)="updateProfileRunSearch($any($event.target).value)"
+                placeholder="12.345.678-9"
+              />
+            </mat-form-field>
+          </div>
+
+          <section class="profile-grid">
+            @for (student of filteredProfileStudents(); track trackStudent($index, student)) {
+              <article class="profile-card">
+                <div class="profile-head">
+                  <div class="student-cell">
+                    <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                    <div class="student-copy">
+                      <strong>{{ student.fullName }}</strong>
+                      <small>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }}</small>
+                    </div>
+                  </div>
+                  <div class="profile-summary">
+                    <strong>{{ formatScore(student.overallAverage) }}</strong>
+                    <span class="status-badge" [ngClass]="badgeClass(student.status)">{{ student.status }}</span>
+                  </div>
+                </div>
+
+                <div class="progress-group">
+                  @for (subject of student.subjects; track subject.subjectId) {
+                    <div class="progress-row">
+                      <span>{{ subject.subjectName }}</span>
+                      <div class="progress-track">
+                        <span class="progress-bar" [style.width.%]="((subject.average ?? 1) / 7) * 100" [style.background]="subject.colorHex"></span>
+                      </div>
+                      <strong>{{ formatScore(subject.average) }}</strong>
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          </section>
+        </mat-card>
+      }
+
+      @if (activeTab() === 'reports') {
+        <section class="hero-box">
+          <div class="hero-head">
+            <div class="hero-copy">
+              <span class="hero-tag">Informes</span>
+              <h1>Informe de notas por alumno</h1>
+              <p>Vista consolidada de todas las asignaturas para entrega a apoderados.</p>
+            </div>
+            <button mat-flat-button type="button" class="hero-action-button" (click)="exportMassivePdf()" [disabled]="isExporting()">
+              {{ isExporting() ? 'Exportando...' : 'Descargar PDF masivo' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="metric-grid">
+          <article class="metric-card"><span>Promedio curso</span><strong>{{ formatScore(reportSummary().overallAverage) }}</strong></article>
+          <article class="metric-card"><span>Destacados</span><strong class="metric-success">{{ reportSummary().outstanding }}</strong></article>
+          <article class="metric-card"><span>En riesgo</span><strong class="metric-danger">{{ reportSummary().atRisk }}</strong></article>
+          <article class="metric-card"><span>Sin notas</span><strong class="metric-warning">{{ reportSummary().ungraded }}</strong></article>
+        </section>
+
+          <mat-card appearance="outlined" class="panel-card">
+            <div class="filters-grid report-filters-layout">
+              <mat-form-field appearance="outline">
+                <mat-label>Curso</mat-label>
+                <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+                  @for (course of courses(); track course.id) {
+                    <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Periodo</mat-label>
+                <mat-select [value]="selectedPeriodId()" (valueChange)="updatePeriod($event)">
+                  @for (period of periods(); track period.id) {
+                    <mat-option [value]="period.id">{{ period.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Alumno</mat-label>
+                <mat-select [value]="selectedProfileStudentId()" (valueChange)="updateProfileStudent($event)">
+                  <mat-option [value]="null">Todos los alumnos</mat-option>
+                  @for (student of profileStudentOptions(); track student.studentId) {
+                    <mat-option [value]="student.studentId">{{ student.fullName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Buscar por RUN</mat-label>
+                <input
+                  matInput
+                  [value]="profileRunSearchTerm()"
+                  (input)="updateProfileRunSearch($any($event.target).value)"
+                  placeholder="12.345.678-9"
+                />
+              </mat-form-field>
+            </div>
+
+          <section class="reports-grid">
+            @for (student of displayedReports(); track trackStudent($index, student)) {
+              <article class="report-card">
+                <div class="report-head">
+                  <div class="student-cell">
+                    <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                    <div class="student-copy">
+                      <strong>{{ student.fullName }}</strong>
+                      <small>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }}</small>
+                    </div>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="exportStudentPdf(student)">Descargar PDF</button>
+                </div>
+
+                <div class="report-subject-grid">
+                  @for (subject of student.subjects; track subject.subjectId) {
+                    <div class="subject-report-card">
+                      <span>{{ subject.subjectName }}</span>
+                      <strong class="score-chip" [ngClass]="scoreToneClass(subject.average)">{{ formatScore(subject.average) }}</strong>
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+            @if (displayedReports().length === 0) {
+              <article class="empty-state-card">
+                <strong>No se encontraron alumnos</strong>
+                <span>Ajusta el filtro para ver informes de notas disponibles.</span>
+              </article>
+            }
+          </section>
+        </mat-card>
+
+        <section class="pdf-export-shell" aria-hidden="true">
+          <article #reportPdfTemplate class="pdf-report-card">
+            @if (pdfStudent(); as student) {
+              <header class="pdf-report-header">
+                <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
+                <div>
+                  <span>Informe de notas</span>
+                  <strong>{{ student.fullName }}</strong>
+                  <small>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }}</small>
+                </div>
+              </header>
+
+              <section class="pdf-report-summary">
+                <div><span>Promedio general</span><strong>{{ formatScore(student.overallAverage) }}</strong></div>
+                <div><span>Estado</span><strong>{{ student.status }}</strong></div>
+              </section>
+
+              <section class="pdf-report-subjects">
+                @for (subject of student.subjects; track subject.subjectId) {
+                  <article class="pdf-report-subject">
+                    <span>{{ subject.subjectName }}</span>
+                    <strong>{{ formatScore(subject.average) }}</strong>
+                  </article>
+                }
+              </section>
+            }
+          </article>
+        </section>
+      }
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+

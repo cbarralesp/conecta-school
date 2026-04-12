@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 640" role="img" aria-labelledby="title desc">
+  <title id="title">Torre Fuerte School</title>
+  <desc id="desc">Logo claro de Torre Fuerte School</desc>
+  <defs>
+    <style>
+      .light { fill: #ffffff; }
+      .stroke-light { stroke: #ffffff; stroke-width: 10; }
+      .wordmark { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; letter-spacing: 2px; }
+      .tagline { font-family: Arial, Helvetica, sans-serif; font-weight: 600; letter-spacing: 1.4px; }
+    </style>
+  </defs>
+
+  <g transform="translate(95 32)">
+    <g transform="translate(86 0)">
+      <rect x="0" y="0" width="198" height="56" fill="none" class="stroke-light" />
+      <text x="99" y="38" text-anchor="middle" class="light wordmark" font-size="34">TFS</text>
+    </g>
+
+    <path d="M186 72 L322 72 L322 288 C322 357 266 412 186 438 C106 412 50 357 50 288 L50 72 Z" fill="none" class="stroke-light"/>
+    <rect x="186" y="72" width="136" height="108" fill="none" class="stroke-light"/>
+    <line x1="186" y1="180" x2="322" y2="180" class="stroke-light"/>
+
+    <g transform="translate(78 96)">
+      <rect x="0" y="0" width="14" height="224" rx="4" class="light"/>
+      <rect x="20" y="0" width="14" height="224" rx="4" class="light"/>
+      <rect x="40" y="0" width="14" height="224" rx="4" class="light"/>
+      <rect x="60" y="0" width="14" height="224" rx="4" class="light"/>
+      <rect x="-8" y="-10" width="90" height="16" rx="5" class="light"/>
+    </g>
+
+    <g transform="translate(240 112)" class="light">
+      <circle cx="0" cy="12" r="10"/>
+      <circle cx="20" cy="2" r="8"/>
+      <circle cx="40" cy="12" r="10"/>
+      <path d="M-8 34c0-12 8-18 16-18s16 6 16 18v18c0 4-3 7-7 7h-2c-4 0-7-3-7-7V34Z"/>
+      <path d="M10 26c0-10 6-15 10-15s10 5 10 15v22c0 4-3 7-7 7h-6c-4 0-7-3-7-7V26Z"/>
+      <path d="M24 34c0-12 8-18 16-18s16 6 16 18v18c0 4-3 7-7 7h-2c-4 0-7-3-7-7V34Z"/>
+    </g>
+
+    <g transform="translate(246 232)" class="light">
+      <rect x="16" y="-8" width="6" height="40" rx="3"/>
+      <rect x="0" y="6" width="38" height="6" rx="3"/>
+      <path d="M0 44c14-20 26-20 38 0c-6-4-12-6-19-6s-13 2-19 6Z"/>
+      <path d="M2 44c2-18 12-28 17-32c6 4 16 14 18 32c-5-4-12-7-18-7s-12 2-17 7Z"/>
+      <path d="M18 18c-9 3-20 13-24 24h48c-4-11-15-21-24-24Z"/>
+    </g>
+
+    <g transform="translate(186 478)">
+      <ellipse cx="0" cy="0" rx="42" ry="26" fill="none" class="stroke-light"/>
+      <text x="0" y="10" text-anchor="middle" class="light tagline" font-size="20">2024</text>
+    </g>
+
+    <g class="light">
+      <g transform="translate(62 356) rotate(-28)">
+        <ellipse cx="0" cy="0" rx="11" ry="24"/>
+        <ellipse cx="24" cy="16" rx="11" ry="24"/>
+        <ellipse cx="48" cy="34" rx="11" ry="24"/>
+        <ellipse cx="72" cy="54" rx="11" ry="24"/>
+        <ellipse cx="96" cy="74" rx="11" ry="24"/>
+        <ellipse cx="120" cy="96" rx="11" ry="24"/>
+        <ellipse cx="144" cy="118" rx="11" ry="24"/>
+        <ellipse cx="168" cy="138" rx="11" ry="24"/>
+      </g>
+      <g transform="translate(308 356) scale(-1,1) rotate(-28)">
+        <ellipse cx="0" cy="0" rx="11" ry="24"/>
+        <ellipse cx="24" cy="16" rx="11" ry="24"/>
+        <ellipse cx="48" cy="34" rx="11" ry="24"/>
+        <ellipse cx="72" cy="54" rx="11" ry="24"/>
+        <ellipse cx="96" cy="74" rx="11" ry="24"/>
+        <ellipse cx="120" cy="96" rx="11" ry="24"/>
+        <ellipse cx="144" cy="118" rx="11" ry="24"/>
+        <ellipse cx="168" cy="138" rx="11" ry="24"/>
+      </g>
+    </g>
+  </g>
+
+  <text x="280" y="560" text-anchor="middle" class="light wordmark" font-size="60">TORRE FUERTE</text>
+  <text x="280" y="622" text-anchor="middle" class="light wordmark" font-size="60">SCHOOL</text>
+</svg>

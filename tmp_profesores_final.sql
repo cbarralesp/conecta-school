@@ -1,0 +1,4 @@
+SELECT p."ID" AS profesor_id, pe."RUN", pe."NOMBRES", pe."APELLIDOS", pe."CORREO_ELECTRONICO"
+FROM "PROFESORES" p
+JOIN "PERSONAS" pe ON pe."ID" = p."PERSONA_ID"
+ORDER BY p."ID";

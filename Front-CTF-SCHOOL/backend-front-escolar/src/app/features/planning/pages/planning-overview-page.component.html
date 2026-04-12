@@ -1,0 +1,115 @@
+<mat-sidenav-container class="planning-shell">
+  <mat-sidenav mode="side" opened class="planning-sidenav">
+    <app-teacher-side-menu />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="planning-content">
+    <mat-toolbar class="planning-toolbar">
+      <div class="planning-toolbar__title">
+        <span class="planning-toolbar__eyebrow">Planificacion</span>
+        <h1>Planificación</h1>
+      </div>
+
+      <div class="toolbar-actions">
+        <button mat-stroked-button routerLink="/dashboard/planificacion/documentos">
+          <mat-icon>folder_open</mat-icon>
+          Ver documentos
+        </button>
+        <button mat-stroked-button routerLink="/dashboard/planificacion/nueva-unidad">
+          <mat-icon>add_circle</mat-icon>
+          Nueva unidad
+        </button>
+        <button mat-flat-button color="primary" routerLink="/dashboard/planificacion/nueva-clase">
+          <mat-icon>library_add</mat-icon>
+          Nueva clase
+        </button>
+      </div>
+    </mat-toolbar>
+
+    <div class="planning-page">
+      @if (isLoading()) {
+        <mat-card class="planning-loading-card">
+          <mat-spinner diameter="44" />
+          <p>Cargando resumen semestral de planificación...</p>
+        </mat-card>
+      } @else {
+        <section class="planning-cards">
+          @for (card of metricCards(); track card.label) {
+            <mat-card class="metric-card" [class]="'tone-' + card.tone">
+              <span>{{ card.label }}</span>
+              <strong>{{ card.value }}</strong>
+              <small>{{ card.detail }}</small>
+            </mat-card>
+          }
+        </section>
+
+        <section class="filters-row">
+          <div class="filters-row__chips">
+            <button
+              mat-stroked-button
+              [class.is-active]="activeSubjectId() === null"
+              (click)="selectSubject(null)"
+            >
+              Todas las asignaturas
+            </button>
+
+            @for (subject of subjectFilters(); track subject.id) {
+              <button
+                mat-stroked-button
+                [class.is-active]="activeSubjectId() === subject.id"
+                (click)="selectSubject(subject.id)"
+              >
+                {{ subject.name }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <mat-card class="planning-list-card">
+          <div class="planning-list-card__header">
+            <div>
+              <h3>Unidades del semestre</h3>
+              <p>Vista consolidada de progreso por unidad, clases y documentos.</p>
+            </div>
+          </div>
+
+          @if (units().length === 0) {
+            <div class="planning-empty">
+              <mat-icon>playlist_add_check</mat-icon>
+              <p>No hay unidades para los filtros seleccionados.</p>
+            </div>
+          } @else {
+            <div class="planning-list">
+              @for (unit of units(); track unit.id) {
+                <article class="planning-list__item">
+                  <div class="planning-list__pill">{{ unit.code }}</div>
+
+                  <div class="planning-list__copy">
+                    <h4>{{ unit.name }}</h4>
+                    <p>{{ unit.subjectName }} · {{ unit.courseName }}</p>
+
+                    <div class="planning-list__stats">
+                      <span>{{ unit.totalClasses }} clases</span>
+                      <span>{{ unit.totalDocuments }} docs</span>
+                      <span>Semanas {{ unit.weekRange }}</span>
+                    </div>
+                  </div>
+
+                  <div class="planning-list__progress">
+                    <div class="planning-list__progress-meta">
+                      <span>{{ unit.progressPercent }}%</span>
+                      <mat-chip [class]="statusClass(unit.status)">
+                        {{ statusLabel(unit.status) }}
+                      </mat-chip>
+                    </div>
+                    <mat-progress-bar mode="determinate" [value]="unit.progressPercent" />
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </mat-card>
+      }
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

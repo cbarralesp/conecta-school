@@ -1,0 +1,85 @@
+<nav [class.bg-white]="isScrolled" [class.shadow-lg]="isScrolled"
+     class="fixed w-full top-0 z-50 transition-all duration-300 bg-transparent">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-20">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3">
+        <img src="assets/logo.png" alt="Torre Fuerte School" class="h-12 w-12">
+        <span class="font-display font-bold text-xl"
+              [class.text-primary]="isScrolled"
+              [class.text-white]="!isScrolled">
+          Torre Fuerte School
+        </span>
+      </div>
+
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a (click)="scrollToSection('nosotros')"
+           class="cursor-pointer hover:text-secondary transition-colors"
+           [class.text-primary]="isScrolled"
+           [class.text-white]="!isScrolled">
+          Nosotros
+        </a>
+        <a (click)="scrollToSection('niveles')"
+           class="cursor-pointer hover:text-secondary transition-colors"
+           [class.text-primary]="isScrolled"
+           [class.text-white]="!isScrolled">
+          Niveles
+        </a>
+        <a (click)="scrollToSection('ventajas')"
+           class="cursor-pointer hover:text-secondary transition-colors"
+           [class.text-primary]="isScrolled"
+           [class.text-white]="!isScrolled">
+          Ventajas
+        </a>
+        <a (click)="scrollToSection('testimonios')"
+           class="cursor-pointer hover:text-secondary transition-colors"
+           [class.text-primary]="isScrolled"
+           [class.text-white]="!isScrolled">
+          Testimonios
+        </a>
+        <a (click)="scrollToSection('contacto')"
+           class="cursor-pointer hover:text-secondary transition-colors"
+           [class.text-primary]="isScrolled"
+           [class.text-white]="!isScrolled">
+          Contacto
+        </a>
+        <button (click)="scrollToSection('contacto')"
+                class="bg-secondary hover:bg-accent text-primary px-6 py-2 rounded-full font-semibold transition-all duration-300 hover:scale-105">
+          Admisión
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button (click)="toggleMobileMenu()" class="md:hidden"
+              [class.text-primary]="isScrolled"
+              [class.text-white]="!isScrolled">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path *ngIf="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path *ngIf="isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round"
+                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div *ngIf="isMobileMenuOpen"
+         class="md:hidden bg-white shadow-lg rounded-lg p-4 mb-4 animate-fade-in">
+      <a (click)="scrollToSection('nosotros')"
+         class="block py-2 text-primary hover:text-secondary cursor-pointer">Nosotros</a>
+      <a (click)="scrollToSection('niveles')"
+         class="block py-2 text-primary hover:text-secondary cursor-pointer">Niveles</a>
+      <a (click)="scrollToSection('ventajas')"
+         class="block py-2 text-primary hover:text-secondary cursor-pointer">Ventajas</a>
+      <a (click)="scrollToSection('testimonios')"
+         class="block py-2 text-primary hover:text-secondary cursor-pointer">Testimonios</a>
+      <a (click)="scrollToSection('contacto')"
+         class="block py-2 text-primary hover:text-secondary cursor-pointer">Contacto</a>
+      <button (click)="scrollToSection('contacto')"
+              class="w-full mt-4 bg-secondary hover:bg-accent text-primary px-6 py-2 rounded-full font-semibold">
+        Admisión
+      </button>
+    </div>
+  </div>
+</nav>

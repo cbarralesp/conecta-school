@@ -1,0 +1,101 @@
+<mat-sidenav-container class="subjects-shell">
+  <mat-sidenav mode="side" opened class="subjects-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="subjects-toolbar">
+      <span>Gestion de asignaturas</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="subjects-content">
+      <section class="subjects-hero">
+        <div class="hero-head">
+          <div class="hero-copy">
+            <span class="hero-tag">Catalogo curricular</span>
+            <h1>Asignaturas del sistema</h1>
+            <p>
+              Gestiona las asignaturas base del establecimiento y mantenlas listas para horarios, planificaciones y carga docente.
+            </p>
+          </div>
+          <button mat-stroked-button type="button" class="hero-action" (click)="openCreateDialog()">
+            Crear asignatura
+          </button>
+        </div>
+      </section>
+
+      <mat-card appearance="outlined" class="subjects-card">
+        <mat-card-title>Asignaturas activas</mat-card-title>
+        <mat-card-content>
+          @if (subjects().length === 0) {
+            <section class="empty-state">
+              <mat-icon>library_books</mat-icon>
+              <strong>No hay asignaturas registradas</strong>
+              <p>Crea la primera asignatura del catalogo academico.</p>
+            </section>
+          } @else {
+            <div class="table-shell">
+              <table mat-table [dataSource]="subjects()" class="subjects-table">
+                <ng-container matColumnDef="code">
+                  <th mat-header-cell *matHeaderCellDef>Codigo</th>
+                  <td mat-cell *matCellDef="let subject"><span class="code-pill">{{ subject.code }}</span></td>
+                </ng-container>
+
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Asignatura</th>
+                  <td mat-cell *matCellDef="let subject">
+                    <div class="subject-name-cell">
+                      <strong>{{ subject.name }}</strong>
+                      <small>{{ subject.description }}</small>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="area">
+                  <th mat-header-cell *matHeaderCellDef>Area</th>
+                  <td mat-cell *matCellDef="let subject">{{ subject.area }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="referenceLevel">
+                  <th mat-header-cell *matHeaderCellDef>Nivel</th>
+                  <td mat-cell *matCellDef="let subject">
+                    <span class="soft-badge">{{ subject.referenceLevel }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="suggestedHours">
+                  <th mat-header-cell *matHeaderCellDef>Horas</th>
+                  <td mat-cell *matCellDef="let subject">{{ subject.suggestedHours }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="colorHex">
+                  <th mat-header-cell *matHeaderCellDef>Color</th>
+                  <td mat-cell *matCellDef="let subject">
+                    <span class="color-chip" [style.background]="subject.colorHex"></span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let subject" class="actions-cell">
+                    <button mat-icon-button (click)="openEditDialog(subject)" aria-label="Editar asignatura">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="confirmDelete(subject)" aria-label="Eliminar asignatura">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

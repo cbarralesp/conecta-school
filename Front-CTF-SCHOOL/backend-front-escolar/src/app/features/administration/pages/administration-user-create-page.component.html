@@ -1,0 +1,154 @@
+<app-administration-shell activeTab="new-user" toolbarTitle="Administracion">
+  <button mat-stroked-button type="button" class="back-button" routerLink="/dashboard/administracion/usuarios">
+    <mat-icon>arrow_back</mat-icon>
+    Volver a usuarios
+  </button>
+
+  <form [formGroup]="form" class="form-layout" (ngSubmit)="submit()">
+    <mat-card appearance="outlined" class="form-card">
+      <header class="section-head">
+        <mat-icon>person</mat-icon>
+        <div>
+          <strong>Datos del usuario</strong>
+          <span>{{ title() }}</span>
+        </div>
+      </header>
+
+      <div class="form-grid three">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="firstName" placeholder="Nombre(s)" />
+          @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+            <mat-error>Ingresa el nombre del usuario.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Apellido paterno</mat-label>
+          <input matInput formControlName="paternalLastName" placeholder="Apellido" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Apellido materno</mat-label>
+          <input matInput formControlName="maternalLastName" placeholder="Apellido" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-grid two">
+        <mat-form-field appearance="outline">
+          <mat-label>Email institucional</mat-label>
+          <input matInput formControlName="email" placeholder="usuario@tfs.cl" />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <mat-error>Ingresa un email institucional valido.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>RUN</mat-label>
+          <input matInput formControlName="run" placeholder="12.345.678-9" />
+          @if (form.controls.run.invalid && form.controls.run.touched) {
+            <mat-error>Usa formato 12.345.678-9.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="form-grid two">
+        <mat-form-field appearance="outline">
+          <mat-label>Telefono</mat-label>
+          <input matInput formControlName="phone" placeholder="+56 9 1234 5678" />
+          @if (form.controls.phone.invalid && form.controls.phone.touched) {
+            <mat-error>Usa formato +56 9 1234 5678.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Estado inicial</mat-label>
+          <mat-select formControlName="initialStatus">
+            <mat-option value="Activo">Activo</mat-option>
+            <mat-option value="Pendiente">Pendiente</mat-option>
+            <mat-option value="Inactivo">Inactivo</mat-option>
+            <mat-option value="Bloqueado">Bloqueado</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="form-card">
+      <header class="section-head">
+        <mat-icon>shield_person</mat-icon>
+        <div>
+          <strong>Asignacion de rol</strong>
+          <span>Selecciona el perfil que tendra este usuario.</span>
+        </div>
+      </header>
+
+      <div class="role-selector">
+        @for (role of roleOptions(); track role.code) {
+          <button
+            mat-stroked-button
+            type="button"
+            [class.is-selected]="roleButtonClass(role.code)"
+            (click)="selectRole(role.code)"
+          >
+            {{ role.name }}
+          </button>
+        }
+      </div>
+
+      <div class="role-description">
+        <strong>Rol seleccionado:</strong>
+        <span>{{ roleOptions().find(role => role.code === form.controls.roleCode.value)?.name }} — {{ selectedRoleDescription() }}</span>
+      </div>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="form-card">
+      <header class="section-head">
+        <mat-icon>vpn_key</mat-icon>
+        <div>
+          <strong>Configuracion de acceso</strong>
+          <span>Define el ingreso inicial y las restricciones de seguridad.</span>
+        </div>
+      </header>
+
+      <div class="form-grid two">
+        <mat-form-field appearance="outline">
+          <mat-label>Contrasena temporal</mat-label>
+          <input matInput formControlName="temporaryPassword" placeholder="Se enviara por email si se deja vacio" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Vigencia de cuenta</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="accountExpiresAt" placeholder="Sin vencimiento" />
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="form-grid two">
+        <mat-form-field appearance="outline">
+          <mat-label>Forzar cambio de contrasena</mat-label>
+          <mat-select [value]="form.controls.forcePasswordChange.value" (valueChange)="form.controls.forcePasswordChange.setValue($event)">
+            <mat-option [value]="true">Si, en primer acceso</mat-option>
+            <mat-option [value]="false">No forzar cambio</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Autenticacion 2 factores</mat-label>
+          <mat-select [value]="form.controls.twoFactorRequired.value" (valueChange)="form.controls.twoFactorRequired.setValue($event)">
+            <mat-option [value]="true">Requerida</mat-option>
+            <mat-option [value]="false">Opcional</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <footer class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
+        {{ editingUserId() ? 'Guardar cambios' : 'Crear usuario' }}
+      </button>
+    </footer>
+  </form>
+</app-administration-shell>
+

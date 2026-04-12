@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* Animación de rotación para la flecha */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Transición suave para la flecha */
+.transition-transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Transición para el dropdown */
+.transition-all {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Efecto hover mejorado */
+a:hover {
+  background-color: rgba(126, 34, 206, 0.8);
+}
+
+/* Estilo para items activos */
+.bg-purple-700 {
+  background-color: rgb(126, 34, 206);
+  border-left: 4px solid white;
+}
+
+.bg-purple-600 {
+  background-color: rgb(147, 51, 234);
+  border-left: 4px solid rgba(255, 255, 255, 0.7);
+}

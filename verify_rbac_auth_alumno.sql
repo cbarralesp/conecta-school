@@ -1,0 +1,15 @@
+SELECT r."CODIGO", r."NOMBRE", r."NIVEL_LABEL"
+FROM "ADMIN_ROLES" r
+WHERE r."CODIGO" = 'ALUMNO';
+
+SELECT
+    u."USUARIO",
+    p."CORREO_ELECTRONICO",
+    p."RUN",
+    r."CODIGO" AS role_code,
+    aus."ESTADO"
+FROM "USUARIOS" u
+JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+WHERE u."USUARIO" = 'bprueba';

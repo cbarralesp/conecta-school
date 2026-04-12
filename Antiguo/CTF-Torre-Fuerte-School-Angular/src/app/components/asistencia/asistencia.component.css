@@ -1,0 +1,168 @@
+/* Estilos generales */
+.student-row {
+  transition: all 0.2s ease;
+}
+
+.student-row:hover {
+  background-color: rgba(139, 92, 246, 0.05);
+}
+
+/* Estilos para los botones de estado */
+.status-label {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.status-label:hover {
+  transform: scale(1.05);
+}
+
+.status-label.selected {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.status-label.present-selected {
+  background-color: rgb(34, 197, 94) !important;
+  color: white !important;
+  border-color: rgb(34, 197, 94);
+}
+
+.status-label.late-selected {
+  background-color: rgb(245, 158, 11) !important;
+  color: white !important;
+  border-color: rgb(245, 158, 11);
+}
+
+.status-label.absent-selected {
+  background-color: rgb(239, 68, 68) !important;
+  color: white !important;
+  border-color: rgb(239, 68, 68);
+}
+
+/* Botones de acción rápida */
+.quick-action-btn {
+  transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tarjetas de resumen */
+.attendance-summary-card {
+  transition: all 0.3s ease;
+}
+
+.attendance-summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Plantillas de observaciones */
+.template-tag {
+  transition: all 0.2s ease;
+}
+
+.template-tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animación de selección de estado */
+.status-animation {
+  animation: statusPulse 0.3s ease-in-out;
+}
+
+@keyframes statusPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+/* Estilos para inputs */
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+select:focus,
+textarea:focus {
+  border-color: rgb(147, 51, 234);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+/* Scrollbar personalizado */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: rgb(147, 51, 234);
+  border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: rgb(126, 34, 206);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flex.space-x-3 {
+    flex-direction: column;
+  }
+
+  .flex.space-x-3 > * {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Animación de carga */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.student-row {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Estilos para estados de guardado */
+.text-green-600 {
+  color: rgb(22, 163, 74);
+  font-weight: 500;
+}
+
+.text-yellow-600 {
+  color: rgb(202, 138, 4);
+  font-weight: 500;
+}

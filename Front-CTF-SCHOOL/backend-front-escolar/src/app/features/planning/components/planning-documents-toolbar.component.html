@@ -1,0 +1,59 @@
+<div class="toolbar-grid">
+  <div class="toolbar-grid__row toolbar-grid__row--filters">
+    <mat-form-field appearance="outline">
+      <mat-label>Asignatura</mat-label>
+      <mat-select [ngModel]="selectedSubjectId" (ngModelChange)="selectedSubjectIdChange.emit($event)">
+        <mat-option value="ALL">Todas las asignaturas</mat-option>
+        @for (subject of subjectOptions; track subject.id) {
+          <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Semestre</mat-label>
+      <mat-select [ngModel]="selectedSemester" (ngModelChange)="selectedSemesterChange.emit($event)">
+        <mat-option value="ALL">Todos</mat-option>
+        @for (semester of semesterOptions; track semester) {
+          <mat-option [value]="semester">{{ semester }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="toolbar-grid__search">
+      <mat-label>Buscar documento</mat-label>
+      <input matInput [ngModel]="searchTerm" (ngModelChange)="searchTermChange.emit($event)" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="toolbar-grid__row toolbar-grid__row--secondary">
+    <mat-chip-listbox [multiple]="false">
+      @for (chip of typeChips; track chip.code) {
+        <mat-chip-option [selected]="activeType === chip.code" (click)="activeTypeChange.emit(chip.code)">
+          {{ chip.label }} ({{ chip.count }})
+        </mat-chip-option>
+      }
+    </mat-chip-listbox>
+
+    <div class="toolbar-grid__actions">
+      <mat-button-toggle-group
+        [value]="viewMode"
+        (change)="viewModeChange.emit($event.value)"
+        hideSingleSelectionIndicator
+      >
+        <mat-button-toggle value="grid">
+          <mat-icon>grid_view</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="list">
+          <mat-icon>view_list</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <button mat-flat-button color="primary" type="button" (click)="uploadRequested.emit()">
+        <mat-icon>upload_file</mat-icon>
+        Subir archivo
+      </button>
+    </div>
+  </div>
+</div>

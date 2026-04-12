@@ -1,0 +1,235 @@
+<mat-sidenav-container class="planning-shell">
+  <mat-sidenav mode="side" opened class="planning-sidenav">
+    <app-teacher-side-menu />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="planning-content">
+    <mat-toolbar class="planning-toolbar">
+      <div class="planning-toolbar__title">
+        <span class="planning-toolbar__eyebrow">Planificacion</span>
+        <h1>Nueva clase</h1>
+      </div>
+
+      <button mat-stroked-button routerLink="/dashboard/planificacion">
+        <mat-icon>arrow_back</mat-icon>
+        Volver a planificacion
+      </button>
+    </mat-toolbar>
+
+    <div class="planning-page">
+      @if (isLoading()) {
+        <mat-card class="loading-card">
+          <div class="loading-card__content">
+            <mat-icon>hourglass_top</mat-icon>
+            <p>Cargando catalogos para la nueva clase...</p>
+          </div>
+        </mat-card>
+      } @else {
+        <form class="planning-form" [formGroup]="form">
+          <mat-card class="planning-section">
+            <div class="section-header">
+              <div class="section-icon tone-primary">
+                <mat-icon>assignment</mat-icon>
+              </div>
+              <div>
+                <h2>Informacion de la clase</h2>
+                <p>Selecciona la unidad y define el OA, duracion y tipo de evaluacion de esta clase.</p>
+              </div>
+            </div>
+
+            <div class="form-grid grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>Unidad</mat-label>
+                <mat-select formControlName="unitId">
+                  @for (unit of catalogs()?.units ?? []; track unit.unitId) {
+                    <mat-option [value]="unit.unitId">
+                      {{ unit.unitNumberLabel }} · {{ unit.unitName }}
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.unitId.hasError('required') && form.controls.unitId.touched) {
+                  <mat-error>Selecciona una unidad</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Duracion</mat-label>
+                <mat-select formControlName="durationCode">
+                  @for (item of catalogs()?.durationOptions ?? []; track item.code) {
+                    <mat-option [value]="item.code">{{ item.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.durationCode.hasError('required') && form.controls.durationCode.touched) {
+                  <mat-error>Selecciona una duracion</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Fecha planificada</mat-label>
+                <input matInput [matDatepicker]="plannedDatePicker" formControlName="plannedDate" />
+                <mat-datepicker-toggle matIconSuffix [for]="plannedDatePicker" />
+                <mat-datepicker #plannedDatePicker />
+                @if (form.controls.plannedDate.hasError('required') && form.controls.plannedDate.touched) {
+                  <mat-error>Selecciona la fecha</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Titulo de la clase</mat-label>
+                <input matInput formControlName="title" />
+                @if (form.controls.title.hasError('required') && form.controls.title.touched) {
+                  <mat-error>Ingresa el titulo de la clase</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid grid-2">
+              <mat-form-field appearance="outline">
+                <mat-label>OA de esta clase</mat-label>
+                <mat-select formControlName="objectiveCode">
+                  @for (objective of objectiveOptions(); track objective.code) {
+                    <mat-option [value]="objective.code">{{ objective.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.objectiveCode.hasError('required') && form.controls.objectiveCode.touched) {
+                  <mat-error>Selecciona un OA</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo de evaluacion</mat-label>
+                <mat-select formControlName="evaluationType">
+                  @for (item of catalogs()?.evaluationTypes ?? []; track item.code) {
+                    <mat-option [value]="item.code">{{ item.label }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.evaluationType.hasError('required') && form.controls.evaluationType.touched) {
+                  <mat-error>Selecciona el tipo de evaluacion</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            @if (selectedObjective(); as objective) {
+              <div class="info-box tone-info">
+                <strong>{{ objective.label }}</strong>
+                <p>{{ objective.description }}</p>
+              </div>
+            }
+
+            @if (selectedUnit(); as unit) {
+              <div class="info-box tone-ai">
+                <strong>Sugerencia IA — Apoyo visual</strong>
+                <p>
+                  Puedes conectar esta clase con la unidad
+                  <strong>{{ unit.unitNumberLabel }}</strong>
+                  y reforzar el curso {{ unit.courseName }} usando ejemplos cercanos al contexto del estudiante.
+                </p>
+              </div>
+            }
+          </mat-card>
+
+          <mat-card class="planning-section">
+            <div class="section-header">
+              <div class="section-icon tone-success">
+                <mat-icon>view_stream</mat-icon>
+              </div>
+              <div>
+                <h2>Estructura de la clase</h2>
+                <p>Define activacion, desarrollo y cierre con lenguaje claro y accionable.</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Inicio (activacion)</mat-label>
+                <textarea matInput rows="4" formControlName="startActivity"></textarea>
+                @if (form.controls.startActivity.hasError('required') && form.controls.startActivity.touched) {
+                  <mat-error>Ingresa el inicio de la clase</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Desarrollo (actividad central)</mat-label>
+                <textarea matInput rows="5" formControlName="developmentActivity"></textarea>
+                @if (form.controls.developmentActivity.hasError('required') && form.controls.developmentActivity.touched) {
+                  <mat-error>Ingresa el desarrollo de la clase</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Cierre (sintesis)</mat-label>
+                <textarea matInput rows="4" formControlName="closingActivity"></textarea>
+                @if (form.controls.closingActivity.hasError('required') && form.controls.closingActivity.touched) {
+                  <mat-error>Ingresa el cierre de la clase</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </mat-card>
+
+          <mat-card class="planning-section">
+            <div class="section-header">
+              <div class="section-icon tone-warning">
+                <mat-icon>folder</mat-icon>
+              </div>
+              <div>
+                <h2>Documentos adjuntos a esta clase</h2>
+                <p>Formatos permitidos: PDF, DOCX y PPTX. Maximo 20 MB por archivo.</p>
+              </div>
+            </div>
+
+            <label class="upload-dropzone">
+              <input type="file" hidden multiple accept=".pdf,.docx,.pptx" (change)="addDocuments($event)" />
+              <mat-icon>upload_file</mat-icon>
+              <strong>Arrastra o selecciona tus archivos</strong>
+        <span>.docx · .pdf · .pptx</span>
+            </label>
+
+            @if (pendingDocuments().length > 0) {
+              <div class="documents-list">
+                @for (document of pendingDocuments(); track document.file.name + $index) {
+                  <article class="document-item">
+                    <div class="document-item__copy">
+                      <mat-icon>description</mat-icon>
+                      <div>
+                        <strong>{{ document.file.name }}</strong>
+                        <p>{{ document.file.type || 'Documento' }} · {{ (document.file.size / 1024) | number:'1.0-0' }} KB</p>
+                      </div>
+                    </div>
+
+                    <div class="document-item__actions">
+                      <mat-checkbox
+                        [checked]="document.visibleToStudents"
+                        (change)="toggleDocumentVisibility($index, $event.checked)"
+                      >
+                        Visible a alumnos
+                      </mat-checkbox>
+                      <button mat-stroked-button color="warn" type="button" (click)="removePendingDocument($index)">
+                        Quitar
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </mat-card>
+
+          <div class="planning-actions">
+            <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+            <button mat-stroked-button color="primary" type="button" [disabled]="isSaving()" (click)="saveDraft()">
+              Guardar borrador
+            </button>
+            <button mat-flat-button color="primary" type="button" [disabled]="isSaving()" (click)="publishToStudents()">
+              Publicar a alumnos
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

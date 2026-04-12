@@ -1,0 +1,102 @@
+<mat-sidenav-container class="courses-shell">
+  <mat-sidenav mode="side" opened class="courses-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="courses-toolbar">
+      <span>Gestion de cursos</span>
+      <span class="toolbar-spacer"></span>
+      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="courses-content">
+      <section class="courses-hero">
+        <div class="hero-copy">
+          <span class="hero-tag">Gestion academica</span>
+          <h1>Cursos del establecimiento</h1>
+          <p>
+            Administra la estructura de cursos, actualiza su configuracion base y manten ordenada la
+            oferta academica del año escolar.
+          </p>
+        </div>
+        <button mat-flat-button class="hero-action-button" routerLink="/dashboard/cursos/nuevo">
+          Crear curso
+        </button>
+      </section>
+
+      <mat-card appearance="outlined" class="courses-card">
+        <mat-card-title>Cursos activos</mat-card-title>
+        <mat-card-content>
+          @if (courses().length === 0) {
+            <section class="empty-state">
+              <mat-icon>school</mat-icon>
+              <strong>No hay cursos registrados</strong>
+              <p>Crea el primer curso del sistema o carga uno desde el maestro academico.</p>
+            </section>
+          } @else {
+            <div class="table-shell">
+              <table mat-table [dataSource]="courses()" class="courses-table">
+                <ng-container matColumnDef="code">
+                  <th mat-header-cell *matHeaderCellDef>Codigo</th>
+                  <td mat-cell *matCellDef="let course">
+                    <span class="code-pill">{{ course.code }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Curso</th>
+                  <td mat-cell *matCellDef="let course">
+                    <div class="course-name-cell">
+                      <strong>{{ course.name }}</strong>
+                      <small>{{ course.level }} {{ course.letter }}</small>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="level">
+                  <th mat-header-cell *matHeaderCellDef>Nivel</th>
+                  <td mat-cell *matCellDef="let course">
+                    <span class="soft-badge">{{ course.level }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="letter">
+                  <th mat-header-cell *matHeaderCellDef>Paralelo</th>
+                  <td mat-cell *matCellDef="let course">{{ course.letter }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="schoolYear">
+                  <th mat-header-cell *matHeaderCellDef>Año</th>
+                  <td mat-cell *matCellDef="let course">{{ course.schoolYear }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="scheduleType">
+                  <th mat-header-cell *matHeaderCellDef>Jornada</th>
+                  <td mat-cell *matCellDef="let course">
+                    <span class="schedule-badge">{{ course.scheduleType }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let course" class="actions-cell">
+                    <button mat-icon-button (click)="openEditDialog(course)" aria-label="Editar curso">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="confirmDelete(course)" aria-label="Eliminar curso">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

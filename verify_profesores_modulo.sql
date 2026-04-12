@@ -1,0 +1,33 @@
+SELECT
+    pr."ID",
+    pr."CODIGO",
+    pe."RUN",
+    pe."NOMBRES",
+    pe."APELLIDOS",
+    pr."TITULO_PROFESIONAL",
+    pr."TIPO_CONTRATO",
+    pr."HORAS_SEMANALES",
+    pr."ESTADO_DOCENTE",
+    pr."ACTIVO"
+FROM "PROFESORES" pr
+JOIN "PERSONAS" pe ON pe."ID" = pr."PERSONA_ID"
+ORDER BY pe."NOMBRES", pe."APELLIDOS";
+
+SELECT
+    pr."CODIGO" AS profesor,
+    a."NOMBRE" AS asignatura
+FROM "PROFESOR_ASIGNATURAS" pa
+JOIN "PROFESORES" pr ON pr."ID" = pa."PROFESOR_ID"
+JOIN "ASIGNATURAS" a ON a."ID" = pa."ASIGNATURA_ID"
+WHERE pa."ACTIVO" = TRUE
+ORDER BY pr."CODIGO", a."NOMBRE";
+
+SELECT
+    pr."CODIGO" AS profesor,
+    pce."NOMBRE_COMPLETO",
+    pce."RELACION",
+    pce."TELEFONO"
+FROM "PROFESOR_CONTACTOS_EMERGENCIA" pce
+JOIN "PROFESORES" pr ON pr."ID" = pce."PROFESOR_ID"
+WHERE pce."ACTIVO" = TRUE
+ORDER BY pr."CODIGO";

@@ -1,0 +1,280 @@
+$blue-primary : #2563eb;
+$blue-dark    : #1d4ed8;
+$blue-panel   : #1e40af;
+$text-dark    : #111827;
+$text-mid     : #374151;
+$text-muted   : #6b7280;
+$border       : #e5e7eb;
+$bg-page      : #eef0f6;
+
+// Aplicar reset global para evitar que paddings sumen al tamaño
+* {
+  box-sizing: border-box;
+}
+
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.login-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+// ── Panel izquierdo ──────────────────────────
+.showcase-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background-image:
+    linear-gradient(
+      175deg,
+      rgba(10, 30, 100, 0.50)  0%,
+      rgba(20, 60, 200, 0.44) 38%,
+      rgba(15, 45, 175, 0.68) 68%,
+      rgba(18, 52, 205, 0.90) 100%
+    ),
+    url('/login-school.png');
+  background-position: center 20%, center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.showcase-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='1'%3E%3Cpath d='M0 104h520M0 260h520M0 416h520M104 0v520M260 0v520M416 0v520'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.showcase-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-height: 0;
+  padding: 1.8rem 2rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: #fff;
+}
+
+.brand-mark {
+  width: min(100px, 16vw);
+  flex-shrink: 0;
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.28));
+  }
+}
+
+.showcase-copy {
+  margin-top: auto;
+  h1 {
+    font-size: clamp(1.45rem, 1.9vw, 2.05rem);
+    font-weight: 700;
+    line-height: 1.12;
+    margin: 0 0 0.45rem;
+  }
+  p {
+    font-size: 0.82rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 21rem;
+    margin: 0;
+  }
+}
+
+.showcase-wave {
+  display: block;
+  width: 100%;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  padding: 0 1.4rem 0.85rem;
+  background: $blue-panel;
+  flex-shrink: 0;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 9px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: #fff;
+  .fc-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.17);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 4px;
+    mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  }
+  strong { font-size: 0.7rem; font-weight: 600; }
+  span { font-size: 0.62rem; font-weight: 300; color: rgba(255,255,255,0.62); }
+}
+
+.showcase-footer {
+  background: $blue-panel;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.4rem 0.65rem;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.64rem;
+  flex-shrink: 0;
+  mat-icon { font-size: 13px; width: 13px; height: 13px; }
+  a { color: inherit; text-decoration: none; }
+}
+
+// ── Panel derecho (ELIMINACIÓN DE SCROLLBAR) ────────────────
+.form-panel {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.2rem clamp(1.3rem, 3.8vw, 2.6rem);
+  
+  // Ocultar barra de scroll pero permitir desplazamiento si es necesario
+  overflow-y: auto;
+  scrollbar-width: none; // Firefox
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Edge
+  }
+  
+  min-height: 0;
+}
+
+.locale-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.8rem;
+  flex-shrink: 0;
+}
+
+.locale-btn {
+  background: #f4f5f8 !important;
+  border: 0.5px solid $border !important;
+  border-radius: 8px !important;
+  padding: 5px 10px !important;
+  font-size: 0.75rem !important;
+  color: $text-mid !important;
+  height: 32px !important;
+}
+
+.flag-cl {
+  width: 23px; height: 16px;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, #D52B1E 50%, #fff 50%);
+  position: relative;
+  &::before { content: ''; position: absolute; top: 0; left: 0; width: 10px; height: 50%; background: #002D62; }
+  &::after { content: '★'; position: absolute; top: 0; left: 0; width: 10px; height: 50%; display: flex; align-items: center; justify-content: center; font-size: 6px; color: #fff; }
+}
+
+.login-card {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  flex-shrink: 0;
+}
+
+.heading-block {
+  margin-bottom: 0.6rem;
+  h2 { font-size: 1.5rem; font-weight: 700; color: $text-dark; margin: 0; }
+  p { margin: 0; font-size: 0.8rem; color: $text-muted; }
+}
+
+.info-banner {
+  display: flex;
+  gap: 8px;
+  background: #eff6ff;
+  border: 0.5px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 8px 11px;
+  margin-bottom: 0.8rem;
+  font-size: 0.72rem;
+  color: #1d4ed8;
+  .info-icon { font-size: 14px; width: 14px; height: 14px; color: #3b82f6; }
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0; // Reducido para evitar crecimiento excesivo
+}
+
+.full-width { width: 100%; }
+
+.helper-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.2rem 0 0.8rem;
+  font-size: 0.78rem;
+}
+
+.submit-button {
+  width: 100% !important;
+  min-height: 46px !important;
+  border-radius: 10px !important;
+  background: $blue-primary !important;
+  font-weight: 600 !important;
+}
+
+.google-button {
+  width: 100% !important;
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  border: 1px solid $border !important;
+  .prox-badge { background: #f3f4f6; padding: 2px 6px; font-size: 0.6rem; border-radius: 4px; margin-left: 8px; }
+}
+
+.security-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0fdf4;
+  border: 0.5px solid #bbf7d0;
+  border-radius: 9px;
+  padding: 8px 12px;
+  margin-top: 1rem;
+  font-size: 0.7rem;
+  color: #15803d;
+  .sec-check-icon { width: 18px; height: 18px; border-radius: 50%; background: #22c55e; display: flex; align-items: center; justify-content: center; mat-icon { font-size: 11px; color: #fff; width: 11px; height: 11px; } }
+  .sec-shield-icon { color: #86efac; font-size: 24px; opacity: 0.5; }
+}
+
+// ── Responsive ─────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .login-shell { grid-template-columns: 1fr; overflow-y: auto; }
+  .showcase-panel { min-height: 300px; }
+  .form-panel { justify-content: flex-start; padding-top: 2rem; }
+}

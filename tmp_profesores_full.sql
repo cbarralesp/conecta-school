@@ -1,0 +1,4 @@
+SELECT p."ID" AS profesor_id, p."CODIGO", pe."ID" AS persona_id, pe."RUN", pe."NOMBRES", pe."APELLIDOS", p."ACTIVO", p."ESTADO_DOCENTE", p."TIPO_CONTRATO", p."HORAS_SEMANALES"
+FROM "PROFESORES" p
+JOIN "PERSONAS" pe ON pe."ID" = p."PERSONA_ID"
+ORDER BY UPPER(pe."NOMBRES"), UPPER(pe."APELLIDOS"), p."ID";

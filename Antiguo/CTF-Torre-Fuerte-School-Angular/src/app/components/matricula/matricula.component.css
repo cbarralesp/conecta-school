@@ -1,0 +1,35 @@
+/* Animación para la notificación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Estilos para el modal */
+.modal-backdrop {
+  backdrop-filter: blur(2px);
+}
+
+/* Hover en las filas de la tabla */
+tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Estilos para los badges de estado */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

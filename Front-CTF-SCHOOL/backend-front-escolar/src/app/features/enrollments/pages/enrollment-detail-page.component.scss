@@ -1,0 +1,249 @@
+.enrollment-detail-shell {
+  min-height: 100vh;
+}
+
+.enrollment-detail-sidenav {
+  width: var(--app-shell-sidebar-width);
+  padding: var(--app-shell-sidebar-padding);
+  background: var(--app-gradient-shell);
+  border-right: 1px solid var(--app-border-color);
+}
+
+.enrollment-detail-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: var(--app-toolbar-height);
+  height: auto;
+  padding: 0 1.1rem;
+  gap: 0.85rem;
+  background: var(--app-toolbar-background);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(17, 38, 71, 0.06);
+  font-size: 0.9rem;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.toolbar-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: nowrap;
+}
+
+.toolbar-switcher :is(.mat-mdc-outlined-button) {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 18px;
+  border-color: rgba(20, 56, 103, 0.18) !important;
+  background: rgba(255, 255, 255, 0.8);
+  color: #173553 !important;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.toolbar-switcher .active-tab {
+  background: rgba(25, 83, 150, 0.12) !important;
+  border-color: rgba(25, 83, 150, 0.3) !important;
+  color: #0f5bb4 !important;
+}
+
+.enrollment-detail-content {
+  width: min(100%, var(--app-page-max-width));
+  margin: 0 auto;
+  padding: var(--app-page-padding-y) var(--app-page-padding-x) 2rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.detail-hero {
+  padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
+  border-radius: var(--app-radius-hero);
+  background: var(--app-gradient-hero);
+  color: #fff;
+  box-shadow: var(--app-shadow-md);
+}
+
+.hero-copy h1 {
+  margin: var(--app-hero-title-margin-top) 0 var(--app-hero-title-margin-bottom);
+  font-size: var(--app-hero-title-size);
+  line-height: var(--app-line-height-tight);
+}
+
+.hero-copy p {
+  margin: 0;
+  max-width: var(--app-hero-copy-max-width);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: var(--app-hero-copy-size);
+}
+
+.hero-tag {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--app-hero-tag-padding-y) var(--app-hero-tag-padding-x);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: var(--app-font-size-overline);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.detail-card {
+  border-radius: var(--app-radius-panel);
+  background: var(--app-surface-strong);
+}
+
+.detail-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.student-identity {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: #e7f0ff;
+  color: var(--app-brand-strong);
+  font-weight: 700;
+}
+
+.student-identity h1,
+.section-head h2 {
+  margin: 0;
+}
+
+.student-identity h1 {
+  font-size: 1.28rem;
+}
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.course-pill,
+.status-pill {
+  display: inline-flex;
+  padding: 0.18rem 0.56rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.course-pill {
+  background: #e9f2ff;
+  color: var(--app-brand-strong);
+}
+
+.status-pill {
+  background: #eaf6df;
+  color: #476d17;
+}
+
+.status-pill.pending {
+  background: #fff1d8;
+  color: #9c6515;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.data-grid.compact {
+  margin-top: 0.65rem;
+}
+
+.data-item {
+  padding: 0.72rem 0.9rem;
+  border-radius: 18px;
+  background: var(--app-surface-soft);
+}
+
+.data-item span {
+  display: block;
+  color: var(--app-text-muted);
+  font-size: 0.74rem;
+}
+
+.data-item strong {
+  display: block;
+  margin-top: 0.16rem;
+  font-size: 0.88rem;
+}
+
+.section-block {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.section-head {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.contact-card {
+  padding: 0.85rem;
+  border-radius: 20px;
+  border: 1px solid var(--app-border-color);
+  background: var(--app-surface);
+}
+
+.contact-main small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+}
+
+.pickup-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+@media (max-width: 1120px) {
+  .enrollment-detail-toolbar {
+    flex-wrap: wrap;
+    row-gap: 0.55rem;
+    padding-block: 0.75rem;
+  }
+
+  .toolbar-switcher {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+  }
+}

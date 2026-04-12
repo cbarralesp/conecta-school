@@ -1,0 +1,356 @@
+<mat-sidenav-container class="attendance-shell">
+  <mat-sidenav mode="side" opened class="attendance-sidenav">
+    <app-teacher-side-menu></app-teacher-side-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="attendance-toolbar">
+      <span>Libro de clases</span>
+      <span class="toolbar-spacer"></span>
+      <section class="toolbar-tabs">
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'daily'" (click)="setTab('daily')">
+          Pase de lista
+        </button>
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'weekly'" (click)="setTab('weekly')">
+          Historial semanal
+        </button>
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'monthly'" (click)="setTab('monthly')">
+          Resumen mensual
+        </button>
+      </section>
+      <button mat-stroked-button type="button" (click)="logout()">Cerrar sesion</button>
+    </mat-toolbar>
+
+    <main class="attendance-content">
+      @if (activeTab() === 'daily') {
+        <section class="hero-box">
+          <div class="hero-copy">
+            <span class="hero-tag">Libro de clases</span>
+            <h1>Pase de lista diario</h1>
+            <p>Torre Fuerte School · Registra asistencia en tiempo real por curso y fecha.</p>
+          </div>
+        </section>
+
+        <section class="metric-grid">
+          <article class="metric-card">
+            <span>Total alumnos</span>
+            <strong>{{ dailyCounters().total }}</strong>
+          </article>
+          <article class="metric-card">
+            <span>Presentes</span>
+            <strong class="metric-success">{{ dailyCounters().present }}</strong>
+          </article>
+          <article class="metric-card">
+            <span>Ausentes</span>
+            <strong class="metric-danger">{{ dailyCounters().absent }}</strong>
+          </article>
+          <article class="metric-card">
+            <span>Atrasados</span>
+            <strong class="metric-warning">{{ dailyCounters().late }}</strong>
+          </article>
+        </section>
+
+        <mat-card appearance="outlined" class="panel-card">
+          <div class="filters-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Curso</mat-label>
+              <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+                @for (course of orderedCourses(); track course.id) {
+                  <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha</mat-label>
+              <input
+                matInput
+                [matDatepicker]="dailyDatepicker"
+                [value]="selectedDateAsDate()"
+                (dateChange)="updateDateFromPicker($event.value)"
+              />
+              <mat-datepicker-toggle matIconSuffix [for]="dailyDatepicker"></mat-datepicker-toggle>
+              <mat-datepicker #dailyDatepicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="top-actions">
+            <div class="bulk-row">
+              <span>Marcar seleccion:</span>
+              <button mat-stroked-button type="button" (click)="markAll('PRESENTE')">Todos presentes</button>
+              <button mat-stroked-button type="button" (click)="markAll('AUSENTE')">Todos ausentes</button>
+              <button mat-stroked-button type="button" (click)="markAll('ATRASADO')">Todos atrasados</button>
+            </div>
+
+            <button mat-flat-button type="button" class="save-button" (click)="saveDailyAttendance()" [disabled]="isSaving()">
+              {{ isSaving() ? 'Guardando...' : 'Guardar registro' }}
+            </button>
+          </div>
+
+          <div class="attendance-list">
+            <div class="attendance-head">
+              <span>#</span>
+              <span>Alumno</span>
+              <span>Estado</span>
+              <span>Hora llegada</span>
+              <span>Observacion</span>
+            </div>
+
+            @for (student of dailyView()?.students ?? []; track trackStudent($index, student)) {
+              <article class="attendance-row">
+                <span class="row-index">{{ $index + 1 }}</span>
+
+                <div class="student-cell">
+                  <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                  <div class="student-copy">
+                    <strong>{{ student.fullName }}</strong>
+                    <small>{{ student.run }}</small>
+                  </div>
+                </div>
+
+                <div class="status-actions">
+                  <button mat-stroked-button type="button" class="status-button" [class.is-selected]="student.status === 'PRESENTE'" (click)="setStudentStatus(student.studentId, 'PRESENTE')">
+                    P
+                  </button>
+                  <button mat-stroked-button type="button" class="status-button" [class.is-selected]="student.status === 'AUSENTE'" (click)="setStudentStatus(student.studentId, 'AUSENTE')">
+                    A
+                  </button>
+                  <button mat-stroked-button type="button" class="status-button" [class.is-selected]="student.status === 'ATRASADO'" (click)="setStudentStatus(student.studentId, 'ATRASADO')">
+                    T
+                  </button>
+                  <span class="status-badge" [ngClass]="badgeClass(student.status)">{{ statusLabel(student.status) }}</span>
+                </div>
+
+                <div class="arrival-cell">
+                  @if (student.status === 'ATRASADO') {
+                    <input type="time" [value]="student.arrivalTime ?? ''" (change)="updateArrivalTime(student.studentId, $any($event.target).value)" />
+                  } @else {
+                    <span>—</span>
+                  }
+                </div>
+
+                <span class="note-cell">{{ student.note || 'Sin observacion' }}</span>
+              </article>
+            }
+          </div>
+        </mat-card>
+      }
+
+      @if (activeTab() === 'weekly') {
+        <section class="hero-box">
+          <div class="hero-copy">
+            <span class="hero-tag">Historial</span>
+            <h1>Asistencia semanal</h1>
+            <p>Visualiza el comportamiento de asistencia de la semana por curso.</p>
+          </div>
+        </section>
+
+        <mat-card appearance="outlined" class="panel-card">
+          <div class="filters-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Curso</mat-label>
+              <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+                @for (course of orderedCourses(); track course.id) {
+                  <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Semana</mat-label>
+              <input matInput type="date" [value]="selectedWeekStart()" (change)="updateWeekStart($any($event.target).value)" />
+            </mat-form-field>
+          </div>
+
+          <div class="week-label">{{ weeklyView()?.weekLabel }}</div>
+
+          <div class="weekly-table-shell">
+            <table class="weekly-table">
+              <thead>
+                <tr>
+                  <th>Alumno</th>
+                  <th>Lun</th>
+                  <th>Mar</th>
+                  <th>Mie</th>
+                  <th>Jue</th>
+                  <th>Vie</th>
+                  <th>% Asist.</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (student of weeklyView()?.students ?? []; track trackStudent($index, student)) {
+                  <tr>
+                    <td>
+                      <div class="student-cell compact">
+                        <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                        <div class="student-copy">
+                          <strong>{{ student.fullName }}</strong>
+                          <small>{{ student.run }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    @for (day of student.days; track day.date) {
+                      <td class="status-dot-cell">
+                        <span class="status-dot" [ngClass]="dotClass(day.status)"></span>
+                      </td>
+                    }
+                    <td>{{ student.attendancePercentage }}%</td>
+                    <td>
+                      <span class="status-badge" [ngClass]="badgeClass(student.statusBadge)">{{ student.statusBadge }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="panel-card">
+          <mat-card-title>Alertas automaticas</mat-card-title>
+          <mat-card-content class="alerts-list">
+            @for (alert of weeklyView()?.alerts ?? []; track $index) {
+              <article class="alert-row">
+                <div class="alert-icon" [ngClass]="badgeClass(alert.level)">
+                  <mat-icon>{{ alert.level === 'CRITICO' ? 'warning' : 'info' }}</mat-icon>
+                </div>
+                <div class="alert-copy">
+                  <strong>{{ alert.studentName }}</strong>
+                  <span>{{ alert.message }}</span>
+                </div>
+                <span class="status-badge" [ngClass]="badgeClass(alert.level)">{{ alert.level }}</span>
+              </article>
+            }
+            @if ((weeklyView()?.alerts?.length ?? 0) === 0) {
+              <p class="empty-copy">No hay alertas para esta semana.</p>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (activeTab() === 'monthly') {
+        <section class="hero-box">
+          <div class="hero-copy">
+            <span class="hero-tag">Resumen mensual</span>
+            <h1>{{ monthlyView()?.monthLabel ?? 'Resumen mensual' }}</h1>
+            <p>Estadisticas de asistencia mensual por alumno y curso.</p>
+          </div>
+        </section>
+
+        <section class="metric-grid">
+          <article class="metric-card">
+            <span>Dias habiles</span>
+            <strong>{{ monthlyView()?.schoolDays ?? 0 }}</strong>
+          </article>
+          <article class="metric-card">
+            <span>Promedio asistencia</span>
+            <strong class="metric-success">{{ monthlyView()?.averageAttendance ?? 0 }}%</strong>
+          </article>
+          <article class="metric-card">
+            <span>Alumnos en riesgo</span>
+            <strong class="metric-danger">{{ monthlyView()?.studentsAtRisk ?? 0 }}</strong>
+          </article>
+          <article class="metric-card">
+            <span>Total atrasos</span>
+            <strong class="metric-warning">{{ monthlyView()?.totalLate ?? 0 }}</strong>
+          </article>
+        </section>
+
+        <mat-card appearance="outlined" class="panel-card">
+          <div class="filters-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Curso</mat-label>
+              <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+                @for (course of orderedCourses(); track course.id) {
+                  <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Mes</mat-label>
+              <input matInput type="month" [value]="selectedMonth()" (change)="updateMonth($any($event.target).value)" />
+            </mat-form-field>
+          </div>
+
+          <div class="export-row">
+            <button mat-stroked-button type="button" (click)="exportMonthlyReport()" [disabled]="isExporting()">
+              {{ isExporting() ? 'Exportando...' : 'Exportar reporte' }}
+            </button>
+          </div>
+
+          <section class="monthly-grid">
+            @for (student of monthlyView()?.students ?? []; track trackStudent($index, student)) {
+              <article class="monthly-card">
+                <div class="monthly-head">
+                  <div class="student-cell compact">
+                    <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                    <div class="student-copy">
+                      <strong>{{ student.fullName }}</strong>
+                      <small>{{ student.run }}</small>
+                    </div>
+                  </div>
+                  <span class="status-badge" [ngClass]="badgeClass(student.riskStatus)">{{ student.riskStatus }}</span>
+                </div>
+
+                <div class="progress-group">
+                  <div class="progress-row">
+                    <span>Presentes</span>
+                    <div class="progress-track"><span class="progress-bar success" [style.width.%]="student.presentPercentage"></span></div>
+                    <strong>{{ student.presentPercentage }}%</strong>
+                  </div>
+                  <div class="progress-row">
+                    <span>Ausentes</span>
+                    <div class="progress-track"><span class="progress-bar danger" [style.width.%]="student.absentPercentage"></span></div>
+                    <strong>{{ student.absentPercentage }}%</strong>
+                  </div>
+                  <div class="progress-row">
+                    <span>Atrasos</span>
+                    <div class="progress-track"><span class="progress-bar warning" [style.width.%]="student.latePercentage"></span></div>
+                    <strong>{{ student.latePercentage }}%</strong>
+                  </div>
+                </div>
+              </article>
+            }
+          </section>
+        </mat-card>
+
+        @if (monthlyView(); as monthlyReport) {
+          <section class="pdf-export-shell" aria-hidden="true">
+            <article #monthlyPdfReport class="pdf-export-card">
+              <header class="pdf-export-header">
+                <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
+                <div>
+                  <span>Reporte mensual de asistencia</span>
+                  <strong>{{ monthlyReport.monthLabel }}</strong>
+                  <small>{{ selectedCourse()?.name }}</small>
+                </div>
+              </header>
+
+              <section class="pdf-summary-grid">
+                <div><span>Dias habiles</span><strong>{{ monthlyReport.schoolDays }}</strong></div>
+                <div><span>Promedio</span><strong>{{ monthlyReport.averageAttendance }}%</strong></div>
+                <div><span>Riesgo</span><strong>{{ monthlyReport.studentsAtRisk }}</strong></div>
+                <div><span>Atrasos</span><strong>{{ monthlyReport.totalLate }}</strong></div>
+              </section>
+
+              <section class="pdf-students">
+                @for (student of monthlyReport.students; track student.studentId) {
+                  <article class="pdf-student">
+                    <div class="pdf-student-head">
+                      <strong>{{ student.fullName }}</strong>
+                      <span>{{ student.riskStatus }}</span>
+                    </div>
+                    <div class="pdf-progress-row"><span>Presentes</span><strong>{{ student.presentPercentage }}%</strong></div>
+                    <div class="pdf-progress-row"><span>Ausentes</span><strong>{{ student.absentPercentage }}%</strong></div>
+                    <div class="pdf-progress-row"><span>Atrasos</span><strong>{{ student.latePercentage }}%</strong></div>
+                  </article>
+                }
+              </section>
+            </article>
+          </section>
+        }
+      }
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

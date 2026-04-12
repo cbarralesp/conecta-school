@@ -1,0 +1,134 @@
+<!-- Encabezado -->
+<section class="mb-6 flex justify-between items-center">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800">Gestión de Asignaturas</h1>
+    <p class="text-gray-600">Administra las materias de tu institución</p>
+  </div>
+  <div class="flex space-x-3">
+    <button
+      (click)="volverHorario()"
+      class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+      </svg>
+      Volver al Horario
+    </button>
+    <button
+      (click)="abrirModalCrear()"
+      class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+      </svg>
+      Nueva Asignatura
+    </button>
+  </div>
+</section>
+
+<!-- Lista de Asignaturas -->
+<div class="bg-white p-6 rounded-xl shadow-md">
+  <div class="space-y-3" *ngIf="asignaturas.length > 0; else sinAsignaturas">
+    <div
+      *ngFor="let asignatura of asignaturas"
+      class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+      <div class="flex items-center space-x-3">
+        <div class="w-3 h-3 bg-purple-600 rounded-full"></div>
+        <span class="font-medium text-gray-800 text-lg">{{ asignatura }}</span>
+      </div>
+      <div class="flex space-x-2">
+        <button
+          (click)="abrirModalEditar(asignatura)"
+          class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+          title="Editar">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+          </svg>
+        </button>
+        <button
+          (click)="eliminarAsignatura(asignatura)"
+          class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          title="Eliminar">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #sinAsignaturas>
+    <div class="text-center py-12">
+      <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+      </svg>
+      <p class="text-gray-500 text-lg mb-4">No hay asignaturas registradas</p>
+      <button
+        (click)="abrirModalCrear()"
+        class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+        Crear primera asignatura
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<!-- Modal para Crear/Editar Asignatura -->
+<div
+  *ngIf="showModal"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+  <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="mt-3">
+      <!-- Header del Modal -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          {{ modoEdicion ? 'Editar Asignatura' : 'Nueva Asignatura' }}
+        </h3>
+        <button
+          (click)="cerrarModal()"
+          class="text-gray-400 hover:text-gray-500">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido del Modal -->
+      <div class="mt-2 px-7 py-3">
+        <form class="space-y-4" (submit)="guardarAsignatura(); $event.preventDefault()">
+          <div>
+            <label for="nombre-asignatura" class="block text-sm font-medium text-gray-700 mb-1">
+              Nombre de la Asignatura
+            </label>
+            <input
+              type="text"
+              id="nombre-asignatura"
+              [(ngModel)]="asignaturaNueva"
+              name="asignaturaNueva"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Ej: Física, Química, Arte...">
+
+            <!-- Mensaje de error -->
+            <p *ngIf="mensajeError" class="mt-2 text-sm text-red-600">
+              {{ mensajeError }}
+            </p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer del Modal -->
+      <div class="items-center px-4 py-3 border-t border-gray-200 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          (click)="guardarAsignatura()"
+          type="button"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm">
+          {{ modoEdicion ? 'Actualizar' : 'Crear' }} Asignatura
+        </button>
+        <button
+          (click)="cerrarModal()"
+          type="button"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

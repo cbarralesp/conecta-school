@@ -1,0 +1,313 @@
+.enrollments-shell {
+  min-height: 100vh;
+}
+
+.enrollments-sidenav {
+  width: var(--app-shell-sidebar-width);
+  padding: var(--app-shell-sidebar-padding);
+  background: var(--app-gradient-shell);
+  border-right: 1px solid var(--app-border-color);
+}
+
+.enrollments-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: var(--app-toolbar-height);
+  padding: 0 1.1rem;
+  display: flex;
+  align-items: center;
+  background: var(--app-toolbar-background);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(17, 38, 71, 0.06);
+  box-shadow: 0 8px 20px rgba(17, 47, 94, 0.05);
+  gap: 0.85rem;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.toolbar-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-right: 0.2rem;
+  flex-wrap: nowrap;
+}
+
+.toolbar-switcher :is(.mat-mdc-outlined-button) {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  border-radius: 18px !important;
+  border-color: rgba(20, 56, 103, 0.18) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #173553 !important;
+}
+
+.enrollments-content {
+  width: min(100%, var(--app-page-max-width));
+  margin: 0 auto;
+  padding: var(--app-page-padding-y) var(--app-page-padding-x) 2rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.toolbar-switcher .active-tab.mat-mdc-outlined-button,
+.toolbar-switcher .active-tab.mat-mdc-button-base {
+  background: rgba(25, 83, 150, 0.12) !important;
+  border-color: rgba(25, 83, 150, 0.3) !important;
+  color: #0f5bb4 !important;
+  box-shadow: inset 0 0 0 1px rgba(15, 91, 180, 0.06);
+}
+
+.toolbar-switcher :is(.mat-mdc-outlined-button):not(.active-tab):not([disabled]) {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #173553 !important;
+}
+
+.toolbar-switcher :is(.mat-mdc-outlined-button)[disabled] {
+  background: rgba(246, 249, 253, 0.92) !important;
+  border-color: rgba(20, 56, 103, 0.1) !important;
+  color: rgba(20, 56, 103, 0.38) !important;
+}
+
+.enrollments-hero {
+  padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
+  border-radius: var(--app-radius-hero);
+  background: var(--app-gradient-hero);
+  color: #fff;
+  box-shadow: var(--app-shadow-md);
+}
+
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero-tag {
+  display: inline-flex;
+  padding: var(--app-hero-tag-padding-y) var(--app-hero-tag-padding-x);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: var(--app-font-size-overline);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  margin: var(--app-hero-title-margin-top) 0 var(--app-hero-title-margin-bottom);
+  font-size: var(--app-hero-title-size);
+  line-height: var(--app-line-height-tight);
+}
+
+.hero-copy p {
+  margin: 0;
+  max-width: var(--app-hero-copy-max-width);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--app-hero-copy-size);
+  line-height: var(--app-line-height-body);
+}
+
+.hero-action {
+  flex-shrink: 0;
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  background: #fff !important;
+  color: var(--app-brand-strong) !important;
+  box-shadow: 0 14px 28px rgba(5, 36, 74, 0.18);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.summary-card {
+  padding: 0.1rem;
+}
+
+.summary-card span {
+  display: block;
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 1.45rem;
+  color: var(--app-brand-strong);
+}
+
+.listing-card {
+  border-radius: var(--app-radius-panel);
+  background: var(--app-surface-strong);
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr;
+  gap: 0.7rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.filters-row :is(.mat-mdc-form-field) {
+  font-size: 0.84rem;
+}
+
+.filters-row :is(.mat-mdc-text-field-wrapper) {
+  min-height: 46px;
+}
+
+.table-shell {
+  overflow-x: auto;
+}
+
+.enrollments-table {
+  width: 100%;
+  font-size: 0.84rem;
+}
+
+.mat-column-student {
+  flex: 1.45 1 0;
+}
+
+.mat-column-course {
+  flex: 0.8 0 150px;
+}
+
+.mat-column-guardian {
+  flex: 1.1 1 0;
+}
+
+.mat-column-status {
+  flex: 0.7 0 140px;
+}
+
+.mat-column-actions {
+  flex: 0 0 124px;
+  padding-inline: 0.35rem;
+  text-align: center;
+}
+
+.student-cell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.student-cell small {
+  color: var(--app-text-muted);
+  font-size: 0.74rem;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--app-brand-strong);
+  background: #e7f0ff;
+}
+
+.course-pill,
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.56rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.course-pill {
+  background: #e9f2ff;
+  color: var(--app-brand-strong);
+}
+
+.status-pill {
+  background: #eaf6df;
+  color: #476d17;
+}
+
+.status-pill.pending {
+  background: #fff1d8;
+  color: #9c6515;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.actions-group {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.actions-group :is(.mat-mdc-icon-button) {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: 1px solid var(--app-border-color);
+  background: #fff;
+}
+
+.empty-state {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  color: var(--app-text-muted);
+  font-size: 0.84rem;
+}
+
+.empty-state mat-icon {
+  color: var(--app-brand);
+}
+
+@media (max-width: 1120px) {
+  .summary-grid,
+  .filters-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .enrollments-toolbar {
+    flex-wrap: wrap;
+    row-gap: 0.55rem;
+    padding-block: 0.75rem;
+  }
+
+  .toolbar-switcher {
+    order: 3;
+    width: 100%;
+    margin-right: 0;
+    overflow-x: auto;
+    padding-bottom: 0.1rem;
+  }
+
+  .hero-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-action {
+    align-self: flex-start;
+  }
+}

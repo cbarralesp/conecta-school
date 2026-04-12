@@ -1,0 +1,126 @@
+.planning-shell {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(180deg, #f4f8fc 0%, #edf3fa 100%);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.planning-topbar {
+  display: flex;
+  align-items: center;
+}
+
+.planning-loading {
+  min-height: 50vh;
+  display: grid;
+  place-items: center;
+  gap: 1rem;
+  color: #556882;
+}
+
+.planning-header {
+  display: grid;
+  grid-template-columns: 1.3fr 0.8fr;
+  gap: 1rem;
+  padding: 2rem;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #0f4c81 0%, #1b77b0 100%);
+  color: #fff;
+}
+
+.planning-header h1 {
+  margin: 0.6rem 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.planning-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.planning-tag {
+  display: inline-flex;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.planning-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.planning-summary mat-card {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.planning-summary strong,
+.planning-summary span {
+  display: block;
+}
+
+.planning-summary strong {
+  font-size: 1.2rem;
+}
+
+.planning-summary span {
+  margin-top: 0.4rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.editor-card {
+  border-radius: 24px;
+}
+
+.editor-card mat-card-title {
+  padding: 1.25rem 1.25rem 0;
+}
+
+.planning-form {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.planning-form mat-form-field {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.actions-row .mat-mdc-progress-spinner {
+  margin-inline: auto;
+}
+
+@media (max-width: 900px) {
+  .planning-shell {
+    padding: 1rem;
+  }
+
+  .planning-header,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-row {
+    flex-direction: column;
+  }
+}

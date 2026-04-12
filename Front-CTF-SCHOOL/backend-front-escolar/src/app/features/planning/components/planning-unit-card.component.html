@@ -1,0 +1,41 @@
+<section class="unit-card" [class.unit-card--list]="viewMode === 'list'">
+  <div class="unit-card__header">
+    <div>
+      <span class="unit-card__eyebrow">{{ unit.unitCode }}</span>
+      <h4>{{ unit.unitName }}</h4>
+      <p>{{ unit.courseName }}</p>
+    </div>
+
+    <div class="unit-card__summary">
+      <span>{{ unit.totalDocuments }} archivos</span>
+      <span>{{ unit.visibleDocuments }} disponibles</span>
+    </div>
+  </div>
+
+  <div class="unit-card__progress">
+    <div class="unit-card__progress-copy">
+      <span>Progreso documental</span>
+      <strong>{{ unit.progressPercent }}%</strong>
+    </div>
+    <mat-progress-bar mode="determinate" [value]="unit.progressPercent"></mat-progress-bar>
+  </div>
+
+  <div class="unit-card__documents">
+    @for (document of visibleDocuments(); track document.id) {
+      <app-planning-document-card
+        [document]="document"
+        [compact]="viewMode === 'list'"
+        [deleting]="deletingDocumentId === document.id"
+        (downloadDocument)="downloadDocument.emit($event)"
+        (deleteDocument)="deleteDocument.emit($event)"
+      />
+    }
+  </div>
+
+  @if (remainingDocuments() > 0 || expanded()) {
+    <button mat-button type="button" class="unit-card__toggle" (click)="toggleExpanded()">
+      {{ expanded() ? 'Ver menos' : 'Ver ' + remainingDocuments() + ' archivos mas' }}
+      <mat-icon>{{ expanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+  }
+</section>

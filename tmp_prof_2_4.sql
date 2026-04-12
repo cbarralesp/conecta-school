@@ -1,0 +1,4 @@
+SELECT p."ID" AS profesor_id, p."PERSONA_ID", pe."RUN", pe."NOMBRES", pe."APELLIDOS"
+FROM "PROFESORES" p
+JOIN "PERSONAS" pe ON pe."ID" = p."PERSONA_ID"
+WHERE p."ID" IN (2,4);

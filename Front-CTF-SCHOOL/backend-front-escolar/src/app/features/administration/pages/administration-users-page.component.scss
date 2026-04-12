@@ -1,0 +1,155 @@
+.listing-card {
+  border-radius: var(--app-radius-panel);
+  background: var(--app-surface-strong);
+  box-shadow: none;
+  width: 100%;
+  min-width: 0;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+  margin-bottom: 0.85rem;
+  align-items: center;
+}
+
+.filters-row :is(.mat-mdc-text-field-wrapper) {
+  min-height: 46px;
+}
+
+.table-shell {
+  overflow-x: auto;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(42, 78, 126, 0.08);
+  border-radius: 20px;
+}
+
+.users-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.users-table .mat-mdc-header-row,
+.users-table .mat-mdc-row {
+  height: 78px;
+}
+
+.identity-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.identity-cell strong {
+  display: block;
+  color: #1c2d42;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.identity-cell p {
+  margin: 0.18rem 0 0;
+  color: #6a809a;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: #fbe8e7;
+  color: #bf4e4a;
+  font-weight: 800;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.28rem 0.72rem;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #5d58b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.actions-cell {
+  width: 210px;
+  text-align: center;
+  overflow: visible;
+}
+
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-inline: 10px;
+}
+
+.mat-column-user {
+  width: 29%;
+}
+
+.mat-column-email {
+  width: 23%;
+}
+
+.mat-column-role {
+  width: 14%;
+}
+
+.mat-column-status {
+  width: 12%;
+}
+
+.mat-column-actions {
+  width: 16%;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.mat-column-role,
+.mat-column-status {
+  padding-right: 6px;
+}
+
+.mat-column-status {
+  padding-left: 6px;
+}
+
+.empty-state {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 0.45rem;
+  color: #6a809a;
+}
+
+.empty-state mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: #4f8fd6;
+}
+
+@media (max-width: 1080px) {
+  .filters-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-row {
+    grid-template-columns: 1fr;
+  }
+}

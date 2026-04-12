@@ -1,0 +1,207 @@
+.subjects-shell {
+  min-height: 100vh;
+}
+
+.subjects-sidenav {
+  width: var(--app-shell-sidebar-width);
+  padding: var(--app-shell-sidebar-padding);
+  border-right: 1px solid var(--app-border-color);
+  background: var(--app-gradient-shell);
+}
+
+.subjects-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 0 1.1rem;
+  background: var(--app-toolbar-background);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(17, 38, 71, 0.06);
+  box-shadow: 0 8px 20px rgba(17, 47, 94, 0.05);
+  gap: 0.75rem;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.subjects-content {
+  width: min(100%, var(--app-page-max-width));
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: var(--app-page-padding-y) var(--app-page-padding-x) 2rem;
+  display: grid;
+  gap: 1.05rem;
+}
+
+.subjects-hero {
+  display: grid;
+  gap: var(--app-hero-gap);
+  padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
+  border-radius: var(--app-radius-hero);
+  background: var(--app-gradient-hero);
+  color: #fff;
+  box-shadow: var(--app-shadow-md);
+}
+
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero-tag {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--app-hero-tag-padding-y) var(--app-hero-tag-padding-x);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: var(--app-font-size-overline);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  margin: var(--app-hero-title-margin-top) 0 var(--app-hero-title-margin-bottom);
+  font-size: var(--app-hero-title-size);
+  font-weight: 500;
+  line-height: var(--app-line-height-tight);
+}
+
+.hero-copy p {
+  margin: 0;
+  max-width: var(--app-hero-copy-max-width);
+  color: rgba(255, 255, 255, 0.84);
+  font-size: var(--app-hero-copy-size);
+  line-height: var(--app-line-height-body);
+}
+
+.hero-action {
+  flex-shrink: 0;
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  background: #fff !important;
+  color: var(--app-brand-strong) !important;
+  box-shadow: 0 14px 28px rgba(5, 36, 74, 0.18);
+}
+
+.subjects-card {
+  border-radius: var(--app-radius-panel);
+  background: var(--app-surface);
+}
+
+.subjects-card mat-card-title {
+  padding: 1.15rem 1.15rem 0;
+  font-size: var(--app-font-size-title-lg);
+  font-weight: 500;
+}
+
+.table-shell {
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+
+.subjects-table {
+  width: 100%;
+}
+
+.subjects-table th {
+  color: #5f7090;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.subjects-table td {
+  border-bottom-color: rgba(23, 53, 83, 0.08);
+}
+
+.code-pill,
+.soft-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.42rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.code-pill {
+  background: var(--app-brand-soft);
+  color: #174976;
+}
+
+.soft-badge {
+  background: var(--app-surface-soft);
+  color: #51647e;
+}
+
+.color-chip {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(23, 53, 83, 0.08);
+  vertical-align: middle;
+}
+
+.subject-name-cell {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.subject-name-cell strong {
+  color: #173553;
+}
+
+.subject-name-cell small {
+  color: #6d7f98;
+  font-size: var(--app-font-size-body-sm);
+  line-height: 1.45;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.empty-state {
+  padding: 2rem 1.5rem;
+  display: grid;
+  place-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  color: #61728d;
+}
+
+.empty-state mat-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+  color: #2e6fca;
+}
+
+@media (max-width: 960px) {
+  .subjects-sidenav {
+    display: none;
+  }
+
+  .subjects-content {
+    padding: 1rem;
+  }
+
+  .subjects-hero {
+    padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
+  }
+
+  .hero-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-action {
+    align-self: flex-start;
+  }
+}

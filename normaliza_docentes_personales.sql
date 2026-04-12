@@ -1,0 +1,10 @@
+BEGIN;
+
+UPDATE "PERSONAS"
+SET "CORREO_ELECTRONICO" = 'nicole.ramirez.docente@tfs.cl'
+WHERE "ID" = 1
+  AND UPPER("NOMBRES") = 'NICOLE'
+  AND UPPER("APELLIDOS") = 'RAMIREZ'
+  AND "CORREO_ELECTRONICO" = 'juan.perez@escuela.cl';
+
+COMMIT;
