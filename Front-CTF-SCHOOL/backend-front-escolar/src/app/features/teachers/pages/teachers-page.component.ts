@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,23 +10,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TeacherApiService } from '../../../core/services/teacher-api.service';
 import { Subject } from '../../../core/models/subject.models';
 import { TeacherListItem, TeacherOverview, TeacherSummary } from '../../../core/models/teacher.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { TeacherDeleteDialogComponent } from '../components/teacher-delete-dialog.component';
 
 @Component({
   selector: 'app-teachers-page',
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     MatButtonModule,
     MatCardModule,
     MatDialogModule,
@@ -34,12 +31,10 @@ import { TeacherDeleteDialogComponent } from '../components/teacher-delete-dialo
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
     MatTableModule,
-    MatToolbarModule,
     MatTooltipModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './teachers-page.component.html',
   styleUrl: './teachers-page.component.scss',
@@ -53,10 +48,11 @@ export class TeachersPageComponent {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly displayedColumns = ['teacher', 'run', 'subjects', 'workday', 'status', 'actions'];
   readonly overview = signal<TeacherOverview | null>(null);
   readonly isLoading = signal(true);
-  readonly viewMode = signal<'cards' | 'table'>('cards');
+  readonly viewMode = signal<'cards' | 'table'>('table');
   readonly filtersForm = this.formBuilder.nonNullable.group({
     search: [''],
     subjectId: [0],

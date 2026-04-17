@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgStyle } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,13 +8,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
 import { ScheduleBlock, ScheduleCatalog, ScheduleEntry } from '../../../core/models/schedule.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { ScheduleDialogComponent } from '../components/schedule-dialog.component';
 
 type DayKey = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES';
@@ -36,10 +33,8 @@ interface GridRow {
     MatChipsModule,
     MatDialogModule,
     MatIconModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './schedule-page.component.html',
   styleUrl: './schedule-page.component.scss',
@@ -52,13 +47,14 @@ export class SchedulePageComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
 
   readonly days: DayKey[] = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
+  readonly user = this.authStateService.user;
   readonly catalog = signal<ScheduleCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
   readonly scheduleEntries = signal<ScheduleEntry[]>([]);
   readonly isExportingPdf = signal(false);
+  readonly headingDate = this.formatTodayHeader();
 
   readonly selectedCourse = computed(() =>
     this.catalog()?.courses.find((course) => course.id === this.selectedCourseId()) ?? null
@@ -119,11 +115,6 @@ export class SchedulePageComponent {
 
   constructor() {
     this.loadCatalog();
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   selectCourse(courseId: number): void {
@@ -322,6 +313,30 @@ export class SchedulePageComponent {
 
   private buildPdfFileName(courseName: string, schoolYear: number): string {
     return `horario-${courseName.toLowerCase().replaceAll(' ', '-').replaceAll('°', '').replaceAll('/', '-')}-${schoolYear}.pdf`;
+  }
+
+  private formatTodayHeader(): string {
+    const formatter = new Intl.DateTimeFormat('es-CL', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
+    const parts = formatter.formatToParts(new Date());
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value])) as Record<string, string>;
+    const weekday = this.capitalizeWord(values['weekday'] ?? '');
+    const month = values['month'] ?? '';
+
+    return `${weekday}, ${values['day'] ?? ''} de ${month} de ${values['year'] ?? ''}`.trim();
+  }
+
+  private capitalizeWord(value: string): string {
+    if (!value) {
+      return value;
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
   private courseSortWeight(name: string): number {

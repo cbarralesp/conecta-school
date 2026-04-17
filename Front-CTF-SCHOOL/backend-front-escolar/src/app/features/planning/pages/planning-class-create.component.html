@@ -207,7 +207,7 @@
                         [checked]="document.visibleToStudents"
                         (change)="toggleDocumentVisibility($index, $event.checked)"
                       >
-                        Visible a alumnos
+                  Visible a estudiantes
                       </mat-checkbox>
                       <button mat-stroked-button color="warn" type="button" (click)="removePendingDocument($index)">
                         Quitar
@@ -225,7 +225,7 @@
               Guardar borrador
             </button>
             <button mat-flat-button color="primary" type="button" [disabled]="isSaving()" (click)="publishToStudents()">
-              Publicar a alumnos
+                    Publicar a estudiantes
             </button>
           </div>
         </form>

@@ -1,121 +1,125 @@
-<mat-sidenav-container class="teacher-detail-shell">
-  <mat-sidenav mode="side" opened class="teacher-detail-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <mat-toolbar class="teacher-detail-toolbar">
-      <span>Gestion de profesores</span>
-      <span class="toolbar-spacer"></span>
-      <section class="toolbar-switcher">
-        <a mat-stroked-button routerLink="/dashboard/profesores">Directorio de profesores</a>
-        <a mat-stroked-button routerLink="/dashboard/profesores/nuevo">Nuevo profesor</a>
-        <button mat-stroked-button type="button" class="active-tab" disabled>Ficha del profesor</button>
+<app-teacher-modern-layout
+  title=""
+  activeItem="teachers"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="teacher-detail-content">
+    @if (isLoading()) {
+      <section class="empty-state">
+        <mat-icon>hourglass_top</mat-icon>
+        <strong>Cargando ficha del profesor</strong>
       </section>
-      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
-    </mat-toolbar>
+    } @else if (teacher(); as teacher) {
+      <section class="teacher-profile-shell">
+        <header class="profile-header">
+          <div class="profile-identity">
+            <span class="avatar">{{ initials(teacher.fullName) }}</span>
 
-    <main class="teacher-detail-content">
-      <section class="teacher-detail-hero">
-        <span class="hero-tag">Equipo docente</span>
-        <h1>Ficha del profesor</h1>
-        <p>Consulta el perfil, las asignaturas y la carga semanal del docente.</p>
-      </section>
+            <div class="profile-copy">
+              <h1>{{ teacher.fullName }}</h1>
+              <p>{{ teacher.professionalTitle }}</p>
 
-      @if (isLoading()) {
-        <section class="empty-state">
-          <mat-icon>hourglass_top</mat-icon>
-          <strong>Cargando ficha del profesor</strong>
-        </section>
-      } @else if (teacher(); as teacher) {
-        <mat-card appearance="outlined" class="profile-card">
-          <header class="profile-head">
-            <div class="profile-identity">
-              <span class="avatar">{{ initials(teacher.fullName) }}</span>
-              <div>
-                <h2>{{ teacher.fullName }}</h2>
-                <p>{{ teacher.run }}</p>
-                <div class="profile-badges">
-                  <span class="status-pill">{{ teacher.employmentStatus }}</span>
-                  <span class="meta-pill">{{ teacher.contractType }}</span>
-                </div>
+              <div class="profile-badges">
+                <span class="status-pill">{{ teacher.employmentStatus }}</span>
+                <span class="meta-pill">{{ teacher.contractType }} — {{ teacher.weeklyHours }}h</span>
               </div>
             </div>
-            <div class="profile-actions">
-              <button mat-stroked-button type="button" (click)="editTeacher()">Editar</button>
-              <button mat-stroked-button color="warn" type="button" (click)="confirmDelete()">Eliminar</button>
+          </div>
+
+          <div class="profile-actions">
+            <button mat-stroked-button type="button" (click)="editTeacher()">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+            <button mat-stroked-button color="warn" type="button" (click)="confirmDelete()">
+              <mat-icon>delete_outline</mat-icon>
+              Eliminar
+            </button>
+          </div>
+        </header>
+
+        <nav class="profile-tabs" aria-label="Secciones de la ficha">
+          <button type="button" class="profile-tab" [class.is-active]="activeTab() === 'personal'" (click)="setActiveTab('personal')">
+            <mat-icon>person_outline</mat-icon>
+            Datos personales
+          </button>
+          <button type="button" class="profile-tab" [class.is-active]="activeTab() === 'teaching'" (click)="setActiveTab('teaching')">
+            <mat-icon>work</mat-icon>
+            Información docente
+          </button>
+          <button type="button" class="profile-tab" [class.is-active]="activeTab() === 'schedule'" (click)="setActiveTab('schedule')">
+            <mat-icon>calendar_month</mat-icon>
+            Horario semanal
+          </button>
+          <button type="button" class="profile-tab" [class.is-active]="activeTab() === 'emergency'" (click)="setActiveTab('emergency')">
+            <mat-icon>contact_phone</mat-icon>
+            Emergencia
+          </button>
+        </nav>
+
+        @if (activeTab() === 'personal') {
+          <section class="profile-panel">
+            <div class="data-grid">
+              <div class="data-row"><span class="data-label">RUN</span><strong class="data-value">{{ teacher.run }}</strong></div>
+              <div class="data-row"><span class="data-label">Fecha de nacimiento</span><strong class="data-value">{{ teacher.birthDate }}</strong></div>
+              <div class="data-row"><span class="data-label">Género</span><strong class="data-value">{{ teacher.gender }}</strong></div>
+              <div class="data-row"><span class="data-label">Teléfono</span><strong class="data-value">{{ teacher.phone }}</strong></div>
+              <div class="data-row"><span class="data-label">Email institucional</span><strong class="data-value">{{ teacher.institutionalEmail }}</strong></div>
+              <div class="data-row"><span class="data-label">Dirección</span><strong class="data-value">{{ teacher.address }}</strong></div>
             </div>
-          </header>
+          </section>
+        }
 
-          <div class="detail-grid">
-            <section class="detail-panel">
-              <h3>Datos personales</h3>
-              <dl>
-                <div><dt>Fecha nacimiento</dt><dd>{{ teacher.birthDate }}</dd></div>
-                <div><dt>Genero</dt><dd>{{ teacher.gender }}</dd></div>
-                <div><dt>Telefono</dt><dd>{{ teacher.phone }}</dd></div>
-                <div><dt>Email</dt><dd>{{ teacher.institutionalEmail }}</dd></div>
-                <div><dt>Direccion</dt><dd>{{ teacher.address }}</dd></div>
-              </dl>
-            </section>
+        @if (activeTab() === 'teaching') {
+          <section class="profile-panel">
+            <div class="data-grid">
+              <div class="data-row"><span class="data-label">Título profesional</span><strong class="data-value">{{ teacher.professionalTitle }}</strong></div>
+              <div class="data-row"><span class="data-label">Tipo de contrato</span><strong class="data-value">{{ teacher.contractType }}</strong></div>
+              <div class="data-row"><span class="data-label">Jornada</span><strong class="data-value">{{ teacher.contractType }}</strong></div>
+              <div class="data-row"><span class="data-label">Horas semanales</span><strong class="data-value">{{ teacher.weeklyHours }}h</strong></div>
+              <div class="data-row"><span class="data-label">Fecha de ingreso</span><strong class="data-value">{{ teacher.startDate }}</strong></div>
+              <div class="data-row"><span class="data-label">Asignaturas</span><strong class="data-value">{{ teacher.subjects.map(subject => subject.name).join(', ') }}</strong></div>
+              <div class="data-row data-row--full"><span class="data-label">Cursos asignados</span><strong class="data-value">{{ teacher.assignedCourses.length }}</strong></div>
+            </div>
+          </section>
+        }
 
-            <section class="detail-panel">
-              <h3>Informacion docente</h3>
-              <dl>
-                <div><dt>Titulo</dt><dd>{{ teacher.professionalTitle }}</dd></div>
-                <div><dt>Jornada</dt><dd>{{ teacher.contractType }}</dd></div>
-                <div><dt>Horas semanales</dt><dd>{{ teacher.weeklyHours }} hrs</dd></div>
-                <div><dt>Ingreso</dt><dd>{{ teacher.startDate }}</dd></div>
-              </dl>
-            </section>
+        @if (activeTab() === 'schedule') {
+          <section class="profile-panel">
+            <div class="schedule-table">
+              <div class="schedule-header"></div>
+              @for (day of scheduleGrid().days; track day.key) {
+                <div class="schedule-header">{{ day.label }}</div>
+              }
 
-            <section class="detail-panel">
-              <h3>Asignaturas</h3>
-              <div class="chip-stack">
-                @for (subject of teacher.subjects; track subject.id) {
-                  <span class="subject-chip" [style.background]="subject.colorHex + '22'" [style.color]="subject.colorHex">
-                    {{ subject.name }}
-                  </span>
-                }
-              </div>
-
-                <h3 class="subheading">Cursos asignados</h3>
-              <div class="chip-stack">
-                @for (course of teacher.assignedCourses; track course.id + '-' + course.subjectName) {
-                  <span class="course-chip">{{ course.courseName }}</span>
-                }
-              </div>
-            </section>
-
-            <section class="detail-panel">
-              <h3>Horario semanal</h3>
-              <div class="schedule-grid">
-                @for (day of scheduleByDay(); track day.day) {
-                  <div class="schedule-day">
-                    <strong>{{ day.day.slice(0, 3) }}</strong>
-                    @if (day.items.length === 0) {
-                      <span class="schedule-empty">Sin bloques</span>
+              @for (slot of scheduleGrid().slots; track slot.key) {
+                <div class="schedule-time">{{ slot.label }}</div>
+                @for (item of slot.values; track $index) {
+                  <div class="schedule-cell">
+                    @if (item) {
+                      <span class="schedule-subject">{{ item.subjectName }}</span>
+                      <small>{{ item.courseName }} · {{ item.room }}</small>
                     } @else {
-                      @for (item of day.items; track item.dayOfWeek + item.startTime + item.courseName) {
-                        <span class="schedule-chip">{{ item.subjectName }} {{ item.courseName }}</span>
-                      }
+                      <span class="schedule-empty">—</span>
                     }
                   </div>
                 }
-              </div>
-            </section>
+              }
+            </div>
+          </section>
+        }
 
-            <section class="detail-panel detail-panel--full">
-              <h3>Contacto de emergencia</h3>
-              <dl>
-                <div><dt>Nombre</dt><dd>{{ teacher.emergencyContact.fullName }}</dd></div>
-                <div><dt>Relacion</dt><dd>{{ teacher.emergencyContact.relation }}</dd></div>
-                <div><dt>Telefono</dt><dd>{{ teacher.emergencyContact.phone }}</dd></div>
-              </dl>
-            </section>
-          </div>
-        </mat-card>
-      }
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+        @if (activeTab() === 'emergency') {
+          <section class="profile-panel">
+            <div class="data-grid">
+              <div class="data-row"><span class="data-label">Nombre</span><strong class="data-value">{{ teacher.emergencyContact.fullName }}</strong></div>
+              <div class="data-row"><span class="data-label">Relación</span><strong class="data-value">{{ teacher.emergencyContact.relation }}</strong></div>
+              <div class="data-row data-row--full"><span class="data-label">Teléfono</span><strong class="data-value">{{ teacher.emergencyContact.phone }}</strong></div>
+            </div>
+          </section>
+        }
+      </section>
+    }
+  </main>
+</app-teacher-modern-layout>

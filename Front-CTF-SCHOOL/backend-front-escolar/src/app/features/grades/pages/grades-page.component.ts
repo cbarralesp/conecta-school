@@ -197,7 +197,7 @@ export class GradesPageComponent {
       return;
     }
 
-    const headers = ['Alumno', ...gradeBook.evaluations.map((evaluation) => evaluation.code), 'Promedio', 'Estado'];
+    const headers = ['Estudiante', ...gradeBook.evaluations.map((evaluation) => evaluation.code), 'Promedio', 'Estado'];
     const rows = gradeBook.students.map((student) => [
       student.fullName,
       ...student.scores.map((score) => this.exportScore(score.score)),
@@ -341,7 +341,7 @@ export class GradesPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar la ficha por alumno');
+      this.showError(error, 'No fue posible cargar la ficha por estudiante');
       }
     });
   }

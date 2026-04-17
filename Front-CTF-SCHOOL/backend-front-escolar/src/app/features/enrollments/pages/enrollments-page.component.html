@@ -1,79 +1,89 @@
-<mat-sidenav-container class="enrollments-shell">
-  <mat-sidenav mode="side" opened class="enrollments-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <mat-toolbar class="enrollments-toolbar">
-      <span>Gestion de matriculas</span>
-      <span class="toolbar-spacer"></span>
-      <section class="toolbar-switcher">
-        <a mat-stroked-button routerLink="/dashboard/matriculas" class="active-tab">Listado de alumnos</a>
-        <a mat-stroked-button routerLink="/dashboard/matriculas/nueva">Nueva matricula</a>
-        <button mat-stroked-button type="button" disabled>Ficha alumno</button>
-      </section>
-      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
-    </mat-toolbar>
-
-    <main class="enrollments-content">
-      <section class="enrollments-hero">
-        <div class="hero-head">
-          <div class="hero-copy">
-            <span class="hero-tag">Matriculas 2026</span>
-            <h1>Gestion de matriculas</h1>
-            <p>Administra alumnos, apoderados y responsables de retiro del establecimiento.</p>
-          </div>
-          <button mat-stroked-button type="button" class="hero-action" (click)="goToCreate()">
-            Nueva matricula
+<app-teacher-modern-layout
+  title="Gestión de matrículas"
+  searchPlaceholder="Buscar estudiantes, cursos o apoderados..."
+  activeItem="enrollments"
+  dashboardRoute="/dashboard"
+>
+  <main class="enrollments-content">
+      <section class="page-header">
+        <div class="page-header__left">
+          <h1 class="page-header__title">Matrículas del sistema</h1>
+          <p class="page-header__subtitle">Administra las matrículas, datos de estudiantes y apoderados.</p>
+        </div>
+        <div class="page-header__actions">
+          <button mat-flat-button type="button" class="create-button create-button--header" (click)="goToCreate()">
+            <mat-icon>add</mat-icon>
+            Nueva matrícula
           </button>
         </div>
       </section>
 
-      <section class="summary-grid">
-        <mat-card appearance="outlined" class="summary-card">
-          <span>Total matriculados</span>
-          <strong>{{ summary().total }}</strong>
+      <section class="stats-row">
+        <mat-card appearance="outlined" class="stat-card sc-blue">
+          <div class="stat-card__icon"><mat-icon>how_to_reg</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Total matriculados</span>
+            <strong class="stat-card__value">{{ summary().total }}</strong>
+          </div>
         </mat-card>
-        <mat-card appearance="outlined" class="summary-card">
-          <span>Activos</span>
-          <strong>{{ summary().active }}</strong>
+        <mat-card appearance="outlined" class="stat-card sc-green">
+          <div class="stat-card__icon"><mat-icon>check_circle</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Activos</span>
+            <strong class="stat-card__value">{{ summary().active }}</strong>
+          </div>
         </mat-card>
-        <mat-card appearance="outlined" class="summary-card">
-          <span>Pendientes docs</span>
-          <strong>{{ summary().pending }}</strong>
+        <mat-card appearance="outlined" class="stat-card sc-amber">
+          <div class="stat-card__icon"><mat-icon>description</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Pendientes docs</span>
+            <strong class="stat-card__value">{{ summary().pending }}</strong>
+          </div>
         </mat-card>
-        <mat-card appearance="outlined" class="summary-card">
-          <span>Cursos</span>
-          <strong>{{ summary().courses }}</strong>
+        <mat-card appearance="outlined" class="stat-card sc-purple">
+          <div class="stat-card__icon"><mat-icon>class</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Cursos</span>
+            <strong class="stat-card__value">{{ summary().courses }}</strong>
+          </div>
         </mat-card>
       </section>
 
       <mat-card appearance="outlined" class="listing-card">
         <mat-card-content>
-          <form [formGroup]="filtersForm" class="filters-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Buscar alumno o apoderado</mat-label>
-              <input matInput formControlName="search" placeholder="RUN, nombre o apoderado" />
-            </mat-form-field>
+          <form [formGroup]="filtersForm" class="list-toolbar">
+            <div class="list-toolbar__left">
+              <div class="view-toggle">
+                <button class="view-toggle__btn is-active" type="button" aria-label="Vista de lista">
+                  <mat-icon>view_list</mat-icon>
+                </button>
+              </div>
+              <span class="list-toolbar__title">Estudiantes matriculados</span>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Curso</mat-label>
-              <mat-select formControlName="courseId">
-                <mat-option [value]="0">Todos los cursos</mat-option>
-                @for (course of courses(); track course.id) {
-                  <mat-option [value]="course.id">{{ course.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <div class="list-toolbar__right">
+              <label class="search-box" aria-label="Buscar estudiante o apoderado">
+                <mat-icon>search</mat-icon>
+                <input formControlName="search" placeholder="Buscar estudiante o apoderado..." />
+              </label>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Estado</mat-label>
-              <mat-select formControlName="status">
-                <mat-option value="">Todos los estados</mat-option>
-                <mat-option value="ACTIVO">Activo</mat-option>
-                <mat-option value="PENDIENTE">Pendiente</mat-option>
-              </mat-select>
-            </mat-form-field>
+              <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="filtersForm.controls.status.value === ''"
+                (click)="filtersForm.controls.status.setValue('')">
+                Todos
+              </button>
+              <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="filtersForm.controls.status.value === 'ACTIVO'"
+                (click)="filtersForm.controls.status.setValue('ACTIVO')">
+                Activos
+              </button>
+              <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="filtersForm.controls.status.value === 'PENDIENTE'"
+                (click)="filtersForm.controls.status.setValue('PENDIENTE')">
+                Pendientes
+              </button>
+              <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="filtersForm.controls.status.value === 'INACTIVO'"
+                (click)="filtersForm.controls.status.setValue('INACTIVO')">
+                Inactivos
+              </button>
+            </div>
           </form>
 
           @if (isLoading()) {
@@ -89,14 +99,15 @@
             </section>
           } @else {
             <div class="table-shell">
-              <table mat-table [dataSource]="enrollments()" class="enrollments-table">
+              <table mat-table [dataSource]="pagedEnrollments()" class="enrollments-table">
                 <ng-container matColumnDef="student">
-                  <th mat-header-cell *matHeaderCellDef>Alumno</th>
+                  <th mat-header-cell *matHeaderCellDef>Estudiante</th>
                   <td mat-cell *matCellDef="let item">
                     <div class="student-cell">
                       <span class="avatar">{{ initials(item) }}</span>
                       <div>
                         <strong>{{ item.fullName }}</strong>
+                        <small>{{ item.studentRun }}</small>
                       </div>
                     </div>
                   </td>
@@ -109,7 +120,12 @@
 
                 <ng-container matColumnDef="guardian">
                   <th mat-header-cell *matHeaderCellDef>Apoderado</th>
-                  <td mat-cell *matCellDef="let item">{{ item.guardianFullName }}</td>
+                  <td mat-cell *matCellDef="let item">
+                    <div class="guardian-cell">
+                      <strong>{{ item.guardianFullName }}</strong>
+                      <small>Apoderado principal</small>
+                    </div>
+                  </td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">
@@ -140,9 +156,21 @@
                 <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
               </table>
             </div>
+
+            @if (shouldShowPaginator()) {
+              <mat-paginator
+                class="enrollments-paginator"
+                [length]="totalItems()"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="[pageSize]"
+                [hidePageSize]="true"
+                [showFirstLastButtons]="false"
+                [pageIndex]="pageIndex()"
+                (page)="handlePageChange($event)"
+              />
+            }
           }
         </mat-card-content>
       </mat-card>
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+</app-teacher-modern-layout>

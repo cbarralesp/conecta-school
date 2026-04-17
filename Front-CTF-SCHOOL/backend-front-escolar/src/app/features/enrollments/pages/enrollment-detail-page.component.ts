@@ -4,13 +4,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import { EnrollmentDetail } from '../../../core/models/enrollment.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-enrollment-detail-page',
@@ -19,10 +16,8 @@ import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.comp
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './enrollment-detail-page.component.html',
   styleUrl: './enrollment-detail-page.component.scss',
@@ -32,7 +27,6 @@ export class EnrollmentDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
-  private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly enrollmentId = Number(this.route.snapshot.paramMap.get('id'));
@@ -48,11 +42,6 @@ export class EnrollmentDetailPageComponent {
 
   constructor() {
     this.loadDetail();
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   goToEdit(): void {
@@ -87,7 +76,7 @@ export class EnrollmentDetailPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar la ficha del alumno');
+      this.showError(error, 'No fue posible cargar la ficha del estudiante');
       }
     });
   }

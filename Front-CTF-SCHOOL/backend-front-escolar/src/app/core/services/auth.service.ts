@@ -54,10 +54,11 @@ export class AuthService {
       case 'STUDENT':
         return '/alumno';
       case 'TEACHER':
-        return '/profesor';
+        return '/dashboard';
       case 'ADMIN':
+        return '/dashboard';
       default:
-        return '/administracion';
+        return '/dashboard';
     }
   }
 }

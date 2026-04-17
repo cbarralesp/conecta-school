@@ -32,32 +32,66 @@
 
 .planning-toolbar {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 84px;
-  padding: 1rem 1.75rem;
-  background: rgba(255, 255, 255, 0.92);
+  align-items: center;
+  gap: var(--app-toolbar-gap);
+  min-height: var(--app-toolbar-height);
+  padding: 0 var(--app-toolbar-padding-x);
+  background: var(--app-toolbar-background);
   border-bottom: 1px solid rgba(27, 58, 111, 0.08);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 20px rgba(17, 47, 94, 0.05);
 }
 
-.planning-toolbar__title h1 {
-  margin: 0.2rem 0 0;
-  font-size: 2rem;
-  color: #163658;
+.toolbar-spacer {
+  flex: 1;
 }
 
-.planning-toolbar__eyebrow {
-  color: #5074a2;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.toolbar-actions {
+.toolbar-tabs {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar-tabs button {
+  min-height: 44px;
+  border-radius: 18px !important;
+}
+
+.planning-hero {
+  display: grid;
+  gap: var(--app-hero-gap);
+  min-height: var(--app-banner-min-height);
+  padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
+  border-radius: var(--app-radius-hero);
+  background: var(--app-gradient-hero);
+  color: #fff;
+  box-shadow: var(--app-shadow-md);
+}
+
+.planning-hero .hero-tag {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--app-hero-tag-padding-y) var(--app-hero-tag-padding-x);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.planning-hero .hero-copy h1 {
+  margin: var(--app-hero-title-margin-top) 0 var(--app-hero-title-margin-bottom);
+  color: #fff;
+  font-size: var(--app-hero-title-size);
+  font-weight: 500;
+  line-height: var(--app-line-height-tight);
+}
+
+.planning-hero .hero-copy p {
+  margin: 0;
+  max-width: var(--app-hero-copy-max-width);
+  color: rgba(255, 255, 255, 0.84);
+  font-size: var(--app-hero-copy-size);
+  line-height: var(--app-line-height-body);
 }
 
 .planning-page {
@@ -285,8 +319,23 @@
     display: none !important;
   }
 
-  .toolbar-actions {
-    flex-direction: column;
+  .planning-toolbar {
+    flex-wrap: wrap;
     align-items: stretch;
+    padding-block: 0.75rem;
+  }
+
+  .toolbar-spacer {
+    display: none;
+  }
+
+  .toolbar-tabs {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .toolbar-tabs button {
+    flex: 0 0 auto;
   }
 }

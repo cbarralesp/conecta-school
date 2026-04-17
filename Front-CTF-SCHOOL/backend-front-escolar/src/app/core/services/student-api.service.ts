@@ -3,6 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_CONFIG } from '../constants/api.config';
 import {
+  StudentAttendanceDetail,
   StudentDashboard,
   StudentPortalSubject,
   StudentSubjectDocumentsResponse,
@@ -66,6 +67,37 @@ export class StudentApiService {
           }))
         }))
       );
+  }
+
+  getStudentAttendance(): Observable<StudentAttendanceDetail> {
+    return this.http.get<StudentAttendanceDetail>(`${API_CONFIG.baseUrl}/student/attendance`).pipe(
+      map((response) => ({
+        header: {
+          ...response.header,
+          studentName: normalizeDashboardText(response.header.studentName),
+          courseName: normalizeDashboardText(response.header.courseName),
+          periodLabel: normalizeDashboardText(response.header.periodLabel)
+        },
+        summary: response.summary,
+        currentMonth: {
+          ...response.currentMonth,
+          monthLabel: normalizeDashboardText(response.currentMonth.monthLabel)
+        },
+        currentWeek: response.currentWeek.map((day) => ({
+          ...day,
+          date: normalizeDashboardText(day.date),
+          dayLabel: normalizeDashboardText(day.dayLabel),
+          status: normalizeDashboardText(day.status)
+        })),
+        recentRecords: response.recentRecords.map((record) => ({
+          ...record,
+          date: normalizeDashboardText(record.date),
+          status: normalizeDashboardText(record.status),
+          note: normalizeDashboardText(record.note),
+          timeLabel: normalizeDashboardText(record.timeLabel)
+        }))
+      }))
+    );
   }
 
   markDocumentReviewed(documentId: number): Observable<void> {

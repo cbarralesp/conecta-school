@@ -13,9 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import {
@@ -23,7 +21,7 @@ import {
   StudentCatalogItem,
   TeacherCatalogItem
 } from '../../../core/models/course.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-create-course-page',
@@ -36,11 +34,9 @@ import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.comp
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
     RouterLink,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './create-course-page.component.html',
   styleUrl: './create-course-page.component.scss',
@@ -53,6 +49,7 @@ export class CreateCoursePageComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly masterCourses = signal<MasterCourse[]>([]);
   readonly selectedMasterCourse = signal<MasterCourse | null>(null);
   readonly teachers = signal<TeacherCatalogItem[]>([]);
@@ -267,11 +264,6 @@ export class CreateCoursePageComponent {
           );
         }
       });
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   toggleAvailableStudent(studentId: number, checked: boolean): void {

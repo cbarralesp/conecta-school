@@ -1,92 +1,50 @@
-.create-course-shell {
-  min-height: 100vh;
-}
-
-.create-course-sidenav {
-  width: var(--app-shell-sidebar-width);
-  padding: var(--app-shell-sidebar-padding);
-  border-right: 1px solid var(--app-border-color);
-  background: var(--app-gradient-shell);
-}
-
-.create-course-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 0 1.1rem;
-  background: var(--app-toolbar-background);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(17, 38, 71, 0.06);
-  box-shadow: 0 8px 20px rgba(17, 47, 94, 0.05);
-}
-
-.toolbar-spacer {
-  flex: 1;
-}
-
-.create-course-content {
-  width: min(100%, var(--app-page-max-width));
-  margin: 0 auto;
-  box-sizing: border-box;
-  padding: var(--app-page-padding-y) var(--app-page-padding-x) 2rem;
+.create-course-page {
   display: grid;
-  gap: 1.05rem;
+  gap: 1rem;
 }
 
-.hero-box {
-  padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
-  border-radius: var(--app-radius-hero);
-  background: var(--app-gradient-hero);
-  color: #fff;
+.create-course-page__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+
+.create-course-page__heading-copy {
   display: grid;
-  gap: var(--app-hero-gap);
-  box-shadow: var(--app-shadow-md);
+  gap: 0.15rem;
 }
 
-.hero-tag {
-  display: inline-flex;
-  width: fit-content;
-  justify-self: start;
-  padding: var(--app-hero-tag-padding-y) var(--app-hero-tag-padding-x);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  font-size: var(--app-font-size-overline);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.hero-box h1 {
-  margin: var(--app-hero-title-margin-top) 0 var(--app-hero-title-margin-bottom);
-  font-size: var(--app-hero-title-size);
-  line-height: var(--app-line-height-tight);
-  font-weight: 500;
-  max-width: 15ch;
-}
-
-.hero-box p {
+.create-course-page__heading-copy h1 {
   margin: 0;
-  color: rgba(255, 255, 255, 0.84);
-  max-width: var(--app-hero-copy-max-width);
-  font-size: var(--app-hero-copy-size);
-  line-height: var(--app-line-height-body);
+  color: #12233d;
+  font-size: 2.05rem;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-.hero-copy {
-  display: grid;
-  align-content: start;
-  max-width: var(--app-hero-copy-max-width);
+.create-course-page__heading-copy p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  max-width: 68ch;
 }
 
 .create-course-card {
-  border-radius: var(--app-radius-panel);
-  background: var(--app-surface);
+  border-radius: 1.35rem;
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 }
 
 .create-course-card mat-card-title {
   padding: 1.25rem 1.25rem 0;
-  font-size: var(--app-font-size-title-lg);
-  font-weight: 500;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .form-section-heading {
@@ -104,14 +62,14 @@
 .form-section-heading h3 {
   margin: 0 0 0.3rem;
   color: #173553;
-  font-size: var(--app-font-size-title-md);
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .form-section-heading p {
   margin: 0;
   color: #64738d;
-  font-size: var(--app-font-size-body-sm);
+  font-size: 0.82rem;
 }
 
 .create-course-form {
@@ -128,10 +86,7 @@
   gap: 1rem;
 }
 
-.create-course-form mat-form-field {
-  width: 100%;
-}
-
+.create-course-form mat-form-field,
 .teacher-form-row mat-form-field {
   width: 100%;
 }
@@ -139,20 +94,25 @@
 .preview-box {
   margin-top: 1.5rem;
   padding: 1rem 1.25rem;
-  border-radius: 18px;
-  background: var(--app-surface-soft);
+  border-radius: 1rem;
+  background: #f8fbff;
   display: grid;
   gap: 0.35rem;
+  border: 1px solid #e3edf8;
 }
 
 .preview-box span {
   color: #64738d;
-  font-size: var(--app-font-size-body-sm);
+  font-size: 0.82rem;
 }
 
 .preview-box strong {
   font-size: 1.25rem;
   color: #173553;
+}
+
+.preview-box small {
+  color: #64738d;
 }
 
 .students-section {
@@ -170,20 +130,23 @@
 
 .students-header h3 {
   margin: 0 0 0.35rem;
+  color: #173553;
+  font-size: 0.95rem;
 }
 
 .students-header p,
 .helper-copy {
   margin: 0;
   color: #64738d;
-  font-size: var(--app-font-size-body-sm);
+  font-size: 0.82rem;
 }
 
 .students-summary {
   min-width: 150px;
   padding: 1rem 1.2rem;
-  border-radius: 18px;
-  background: var(--app-surface-soft);
+  border-radius: 1rem;
+  background: #f8fbff;
+  border: 1px solid #e3edf8;
   display: grid;
   gap: 0.25rem;
   text-align: center;
@@ -208,16 +171,18 @@
 .students-list-card {
   min-height: 360px;
   padding: 1rem;
-  border-radius: 22px;
-  background: var(--app-surface-soft);
+  border-radius: 1.25rem;
+  background: #f8fafc;
   display: grid;
   gap: 0.75rem;
+  border: 1px solid #e7edf5;
 }
 
 .students-list-card h4 {
   margin: 0;
-  font-size: var(--app-font-size-title-md);
-  font-weight: 500;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #173553;
 }
 
 .students-scroll {
@@ -232,14 +197,20 @@
   gap: 0.75rem;
   align-items: flex-start;
   padding: 0.8rem;
-  border-radius: 16px;
+  border-radius: 1rem;
   background: #fff;
+  border: 1px solid #edf2f8;
+}
+
+.student-row strong,
+.universe-row strong {
+  color: #173553;
 }
 
 .student-row span,
 .universe-row span {
   color: #64738d;
-  font-size: var(--app-font-size-body-sm);
+  font-size: 0.82rem;
 }
 
 .students-actions {
@@ -247,12 +218,18 @@
   gap: 0.75rem;
 }
 
+.students-actions button {
+  border-radius: 0.95rem;
+  min-height: 2.7rem;
+}
+
 .not-found-box {
   padding: 1rem 1.2rem;
-  border-radius: 20px;
+  border-radius: 1.1rem;
   background: #fff7ec;
   display: grid;
   gap: 0.75rem;
+  border: 1px solid rgba(245, 158, 11, 0.15);
 }
 
 .not-found-box p {
@@ -275,8 +252,9 @@
   gap: 1rem;
   align-items: center;
   padding: 0.9rem 1rem;
-  border-radius: 16px;
+  border-radius: 1rem;
   background: #fff;
+  border: 1px solid rgba(245, 158, 11, 0.12);
 }
 
 .actions-row {
@@ -286,19 +264,14 @@
   gap: 0.75rem;
 }
 
+.actions-row button {
+  min-height: 2.7rem;
+  border-radius: 0.95rem;
+  padding-inline: 1rem;
+  font-weight: 700;
+}
+
 @media (max-width: 960px) {
-  .create-course-sidenav {
-    display: none;
-  }
-
-  .create-course-content {
-    padding: 1rem;
-  }
-
-  .hero-box {
-    padding: var(--app-hero-padding-y) var(--app-hero-padding-x);
-  }
-
   .create-course-form {
     grid-template-columns: 1fr;
   }
@@ -317,5 +290,11 @@
 
   .actions-row {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .create-course-page__heading-copy h1 {
+    font-size: 1.7rem;
   }
 }

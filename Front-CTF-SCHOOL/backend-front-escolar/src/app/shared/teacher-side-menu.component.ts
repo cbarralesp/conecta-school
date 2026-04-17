@@ -24,10 +24,9 @@ type NavigationSection = {
   template: `
     <div class="brand-block">
       <div class="brand-mark">
-        <img src="/tfs-shield.svg" alt="Escudo Torre Fuerte School" />
+        <img src="/Logo-toolbar.png" alt="Logo Torre Fuerte School" />
       </div>
       <div class="brand-copy">
-        <span class="brand-overline">Torre Fuerte</span>
         <h2>Torre Fuerte School</h2>
         <p>{{ subtitle() }}</p>
       </div>
@@ -91,18 +90,19 @@ type NavigationSection = {
       box-shadow: inset 0 0 0 1px rgba(17, 38, 71, 0.05);
     }
     .brand-mark {
-      width: 46px;
-      height: 46px;
+      width: 52px;
+      height: 52px;
       border-radius: 12px;
       display: grid;
       place-items: center;
-      padding: 0.08rem;
+      padding: 0.3rem;
+      overflow: hidden;
       background: rgba(255, 255, 255, 0.96);
       box-shadow: 0 6px 14px rgba(24, 86, 151, 0.08);
     }
     .brand-mark img {
-      width: 100%;
-      height: 100%;
+      width: 92%;
+      height: 92%;
       object-fit: contain;
       display: block;
     }
@@ -110,15 +110,6 @@ type NavigationSection = {
       min-width: 0;
       display: grid;
       align-content: center;
-    }
-    .brand-overline {
-      display: inline-block;
-      margin-bottom: 0.12rem;
-      color: #527194;
-      font-size: 0.66rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
     }
     .brand-block h2 {
       margin: 0;
@@ -323,7 +314,7 @@ export class TeacherSideMenuComponent {
   protected readonly footerTitle = computed(() => {
     switch (this.currentRole()) {
       case 'STUDENT':
-        return 'Portal alumno';
+        return 'Portal estudiante';
       case 'ADMIN':
         return 'Acceso total';
       case 'TEACHER':

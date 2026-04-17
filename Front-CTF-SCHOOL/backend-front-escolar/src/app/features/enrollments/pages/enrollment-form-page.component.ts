@@ -9,13 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import { EnrollmentCourseOption, EnrollmentDetail, EnrollmentPayload } from '../../../core/models/enrollment.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-enrollment-form-page',
@@ -29,10 +26,8 @@ import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.comp
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './enrollment-form-page.component.html',
   styleUrl: './enrollment-form-page.component.scss',
@@ -41,7 +36,6 @@ import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.comp
 export class EnrollmentFormPageComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
-  private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -52,7 +46,7 @@ export class EnrollmentFormPageComponent {
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly courses = signal<EnrollmentCourseOption[]>([]);
-  readonly title = computed(() => this.isEditMode ? 'Editar matricula' : 'Nueva matricula');
+  readonly title = computed(() => this.isEditMode ? 'Editar matrícula' : 'Nueva matrícula');
 
   readonly form = this.formBuilder.nonNullable.group({
     studentRun: ['', [Validators.required]],
@@ -85,11 +79,6 @@ export class EnrollmentFormPageComponent {
     return this.form.controls.pickupContacts;
   }
 
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
-  }
-
   addPickupContact(): void {
     this.pickupContacts.push(this.createPickupContactGroup());
   }
@@ -117,7 +106,7 @@ export class EnrollmentFormPageComponent {
       next: (detail) => {
         this.isSaving.set(false);
         this.snackBar.open(
-          this.isEditMode ? 'Matricula actualizada correctamente' : 'Matricula creada correctamente',
+          this.isEditMode ? 'Matrícula actualizada correctamente' : 'Matrícula creada correctamente',
           'Cerrar',
           { duration: 2500 }
         );
@@ -125,7 +114,7 @@ export class EnrollmentFormPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
-        this.showError(error, 'No fue posible guardar la matricula');
+        this.showError(error, 'No fue posible guardar la matrícula');
       }
     });
   }
@@ -155,7 +144,7 @@ export class EnrollmentFormPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar la matricula');
+        this.showError(error, 'No fue posible cargar la matrícula');
       }
     });
   }

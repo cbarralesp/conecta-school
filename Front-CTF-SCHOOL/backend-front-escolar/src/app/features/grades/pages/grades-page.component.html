@@ -9,7 +9,7 @@
       <span class="toolbar-spacer"></span>
       <section class="toolbar-tabs">
         <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Libro de notas</button>
-        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Ficha por alumno</button>
+        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Ficha por estudiante</button>
         <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informes de notas</button>
       </section>
       <button mat-stroked-button type="button" (click)="logout()">Cerrar sesion</button>
@@ -75,7 +75,7 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Alumno</th>
+                  <th>Estudiante</th>
                   @for (evaluation of gradeBook()?.evaluations ?? []; track evaluation.id) {
                     <th>{{ evaluation.code }}</th>
                   }
@@ -113,9 +113,9 @@
       @if (activeTab() === 'profile') {
         <section class="hero-box">
           <div class="hero-copy">
-            <span class="hero-tag">Ficha alumno</span>
+            <span class="hero-tag">Ficha estudiante</span>
             <h1>Rendimiento individual</h1>
-            <p>Consulta el historial de calificaciones y el promedio por asignatura de cada alumno.</p>
+            <p>Consulta el historial de calificaciones y el promedio por asignatura de cada estudiante.</p>
           </div>
         </section>
 
@@ -146,9 +146,9 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Alumno</mat-label>
+              <mat-label>Estudiante</mat-label>
               <mat-select [value]="selectedProfileStudentId()" (valueChange)="updateProfileStudent($event)">
-                <mat-option [value]="null">Todos los alumnos</mat-option>
+                <mat-option [value]="null">Todos los estudiantes</mat-option>
                 @for (student of profileStudentOptions(); track student.studentId) {
                   <mat-option [value]="student.studentId">{{ student.fullName }}</mat-option>
                 }
@@ -205,7 +205,7 @@
           <div class="hero-head">
             <div class="hero-copy">
               <span class="hero-tag">Informes</span>
-              <h1>Informe de notas por alumno</h1>
+              <h1>Informe de notas por estudiante</h1>
               <p>Vista consolidada de todas las asignaturas para entrega a apoderados.</p>
             </div>
             <button mat-flat-button type="button" class="hero-action-button" (click)="exportMassivePdf()" [disabled]="isExporting()">
@@ -242,9 +242,9 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline">
-                <mat-label>Alumno</mat-label>
+                <mat-label>Estudiante</mat-label>
                 <mat-select [value]="selectedProfileStudentId()" (valueChange)="updateProfileStudent($event)">
-                  <mat-option [value]="null">Todos los alumnos</mat-option>
+                  <mat-option [value]="null">Todos los estudiantes</mat-option>
                   @for (student of profileStudentOptions(); track student.studentId) {
                     <mat-option [value]="student.studentId">{{ student.fullName }}</mat-option>
                   }
@@ -288,7 +288,7 @@
             }
             @if (displayedReports().length === 0) {
               <article class="empty-state-card">
-                <strong>No se encontraron alumnos</strong>
+                <strong>No se encontraron estudiantes</strong>
                 <span>Ajusta el filtro para ver informes de notas disponibles.</span>
               </article>
             }

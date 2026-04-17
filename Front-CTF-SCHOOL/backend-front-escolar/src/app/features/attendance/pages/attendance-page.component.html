@@ -33,7 +33,7 @@
 
         <section class="metric-grid">
           <article class="metric-card">
-            <span>Total alumnos</span>
+              <span>Total estudiantes</span>
             <strong>{{ dailyCounters().total }}</strong>
           </article>
           <article class="metric-card">
@@ -90,7 +90,7 @@
           <div class="attendance-list">
             <div class="attendance-head">
               <span>#</span>
-              <span>Alumno</span>
+                    <span>Estudiante</span>
               <span>Estado</span>
               <span>Hora llegada</span>
               <span>Observacion</span>
@@ -168,7 +168,7 @@
             <table class="weekly-table">
               <thead>
                 <tr>
-                  <th>Alumno</th>
+                  <th>Estudiante</th>
                   <th>Lun</th>
                   <th>Mar</th>
                   <th>Mie</th>
@@ -233,7 +233,7 @@
           <div class="hero-copy">
             <span class="hero-tag">Resumen mensual</span>
             <h1>{{ monthlyView()?.monthLabel ?? 'Resumen mensual' }}</h1>
-            <p>Estadisticas de asistencia mensual por alumno y curso.</p>
+                <p>Estadisticas de asistencia mensual por estudiante y curso.</p>
           </div>
         </section>
 
@@ -247,7 +247,7 @@
             <strong class="metric-success">{{ monthlyView()?.averageAttendance ?? 0 }}%</strong>
           </article>
           <article class="metric-card">
-            <span>Alumnos en riesgo</span>
+              <span>Estudiantes en riesgo</span>
             <strong class="metric-danger">{{ monthlyView()?.studentsAtRisk ?? 0 }}</strong>
           </article>
           <article class="metric-card">

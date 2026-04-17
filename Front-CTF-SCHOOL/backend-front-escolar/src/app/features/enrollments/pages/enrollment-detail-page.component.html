@@ -1,25 +1,20 @@
-<mat-sidenav-container class="enrollment-detail-shell">
-  <mat-sidenav mode="side" opened class="enrollment-detail-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <mat-toolbar class="enrollment-detail-toolbar">
-      <span>Gestion de matriculas</span>
-      <span class="toolbar-spacer"></span>
-      <section class="toolbar-switcher">
-        <a mat-stroked-button routerLink="/dashboard/matriculas">Listado de alumnos</a>
+<app-teacher-modern-layout
+  title="Gestion de matriculas"
+  searchPlaceholder="Buscar estudiantes, cursos o apoderados..."
+  activeItem="enrollments"
+  dashboardRoute="/dashboard"
+>
+  <main class="enrollment-detail-content">
+      <section class="module-nav">
+        <a mat-stroked-button routerLink="/dashboard/matriculas">Listado de estudiantes</a>
         <a mat-stroked-button routerLink="/dashboard/matriculas/nueva">Nueva matricula</a>
-        <button mat-stroked-button type="button" class="active-tab" disabled>Ficha alumno</button>
+        <button mat-stroked-button type="button" class="active-tab" disabled>Ficha estudiante</button>
       </section>
-      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
-    </mat-toolbar>
 
-    <main class="enrollment-detail-content">
       <section class="detail-hero">
         <div class="hero-copy">
           <span class="hero-tag">Matriculas 2026</span>
-          <h1>Ficha alumno</h1>
+          <h1>Ficha estudiante</h1>
           <p>Consulta la informacion del estudiante, apoderado principal y responsables de retiro.</p>
         </div>
       </section>
@@ -125,5 +120,4 @@
         </mat-card>
       }
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+</app-teacher-modern-layout>

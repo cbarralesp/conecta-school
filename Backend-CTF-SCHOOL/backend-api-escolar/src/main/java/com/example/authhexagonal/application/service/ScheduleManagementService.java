@@ -97,16 +97,16 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
 
     private void validateBlock(ScheduleBlock block) {
         if (!"CLASE".equalsIgnoreCase(block.blockType())) {
-            throw new IllegalArgumentException("Only class blocks can be assigned");
+            throw new IllegalArgumentException("Solo se pueden asignar bloques de clase");
         }
     }
 
     private void validateConflicts(Long courseId, Long teacherId, Long blockId, Long scheduleId) {
         if (manageSchedulesPort.hasCourseConflict(courseId, blockId, scheduleId)) {
-            throw new IllegalArgumentException("The course already has a class assigned in that block");
+            throw new IllegalArgumentException("El curso ya tiene una clase asignada en ese bloque");
         }
         if (manageSchedulesPort.hasTeacherConflict(teacherId, blockId, scheduleId)) {
-            throw new IllegalArgumentException("The teacher already has another class in that block");
+            throw new IllegalArgumentException("El profesor ya tiene otra clase asignada en ese bloque");
         }
     }
 

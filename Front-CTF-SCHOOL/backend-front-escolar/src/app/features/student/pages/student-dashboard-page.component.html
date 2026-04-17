@@ -9,7 +9,7 @@
         <mat-icon>menu</mat-icon>
       </button>
 
-      <label class="student-toolbar__search" aria-label="Buscar en el portal del alumno">
+      <label class="student-toolbar__search" aria-label="Buscar en el portal del estudiante">
         <mat-icon>search</mat-icon>
         <input
           type="text"
@@ -25,7 +25,7 @@
           type="button"
           class="student-toolbar__profile"
           [matMenuTriggerFor]="studentProfileMenu"
-          aria-label="Abrir menu de perfil del alumno"
+          aria-label="Abrir menu de perfil del estudiante"
         >
           <span class="student-toolbar__avatar">{{ welcomeName().charAt(0) | uppercase }}</span>
           <mat-icon>expand_more</mat-icon>
@@ -50,7 +50,7 @@
       @if (isLoading()) {
         <section class="loading-state">
           <mat-spinner diameter="48"></mat-spinner>
-          <p>Cargando informacion del alumno...</p>
+          <p>Cargando informacion del estudiante...</p>
         </section>
       } @else if (dashboard(); as dashboard) {
         @if (activeSection() === 'overview') {
@@ -91,7 +91,7 @@
                 @if (overviewSubjects().length === 0) {
                   <section class="empty-inline">
                     <mat-icon>school</mat-icon>
-                    <span>No hay asignaturas visibles para este alumno.</span>
+                    <span>No hay asignaturas visibles para este estudiante.</span>
                   </section>
                 } @else {
                   @for (subject of overviewSubjects(); track subject.subjectName + subject.courseName) {
@@ -157,7 +157,7 @@
             @if (subjectCards().length === 0) {
               <section class="empty-inline">
                 <mat-icon>school</mat-icon>
-                <span>No hay asignaturas visibles para este alumno.</span>
+                <span>No hay asignaturas visibles para este estudiante.</span>
               </section>
             } @else {
               <div class="subjects-card-grid">
@@ -475,8 +475,8 @@
       } @else {
         <section class="empty-dashboard">
           <mat-icon>school</mat-icon>
-          <strong>No se encontro informacion del alumno autenticado.</strong>
-          <p>Revisa si el usuario tiene RUN vinculado a un alumno activo del sistema.</p>
+          <strong>No se encontro informacion del estudiante autenticado.</strong>
+          <p>Revisa si el usuario tiene RUN vinculado a un estudiante activo del sistema.</p>
         </section>
       }
       </div>

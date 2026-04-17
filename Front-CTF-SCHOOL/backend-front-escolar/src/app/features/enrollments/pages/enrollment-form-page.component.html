@@ -1,26 +1,20 @@
-<mat-sidenav-container class="enrollment-form-shell">
-  <mat-sidenav mode="side" opened class="enrollment-form-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <mat-toolbar class="enrollment-form-toolbar">
-      <span>{{ title() }}</span>
-      <span class="toolbar-spacer"></span>
-      <section class="toolbar-switcher">
-        <a mat-stroked-button routerLink="/dashboard/matriculas">Listado de alumnos</a>
-        <a mat-stroked-button routerLink="/dashboard/matriculas/nueva" class="active-tab">Nueva matricula</a>
-        <button mat-stroked-button type="button" disabled>Ficha alumno</button>
-      </section>
-      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
-    </mat-toolbar>
-
-    <main class="enrollment-form-content">
-      <section class="hero-box">
-        <div class="hero-copy">
-          <span class="hero-tag">Gestion de matriculas</span>
-          <h1>{{ title() }}</h1>
-          <p>Registra datos del alumno, apoderado principal y responsables de retiro en un solo flujo.</p>
+<app-teacher-modern-layout
+  title="Gestión de matrículas"
+  searchPlaceholder="Buscar estudiantes, cursos o apoderados..."
+  activeItem="enrollments"
+  dashboardRoute="/dashboard"
+>
+  <main class="enrollment-form-content">
+      <section class="page-header">
+        <div class="page-header__left">
+          <h1 class="page-header__title">{{ title() }}</h1>
+          <p class="page-header__subtitle">Registra datos del estudiante, apoderado principal y responsables de retiro en un solo flujo.</p>
+        </div>
+        <div class="page-header__actions">
+          <button mat-flat-button type="button" class="back-button" routerLink="/dashboard/matriculas">
+            <mat-icon>arrow_back</mat-icon>
+            Volver al listado
+          </button>
         </div>
       </section>
 
@@ -30,14 +24,12 @@
         </mat-card>
       } @else {
         <form [formGroup]="form" class="enrollment-form-grid">
-          <mat-card appearance="outlined" class="section-card">
-            <mat-card-title>
-              <span class="section-title">
-                <mat-icon>person_outline</mat-icon>
-                Datos del alumno
-              </span>
-            </mat-card-title>
-            <mat-card-content class="section-grid">
+          <mat-card appearance="outlined" class="form-card">
+            <div class="form-card__header">
+              <span class="form-card__step">1</span>
+              <span class="form-card__title">Datos del estudiante</span>
+            </div>
+            <mat-card-content class="form-card__body section-grid">
               <mat-form-field appearance="outline">
                 <mat-label>RUN</mat-label>
                 <input matInput formControlName="studentRun" />
@@ -92,14 +84,12 @@
             </mat-card-content>
           </mat-card>
 
-          <mat-card appearance="outlined" class="section-card" [formGroup]="form.controls.guardian">
-            <mat-card-title>
-              <span class="section-title">
-                <mat-icon>supervisor_account</mat-icon>
-                Apoderado principal
-              </span>
-            </mat-card-title>
-            <mat-card-content class="section-grid">
+          <mat-card appearance="outlined" class="form-card" [formGroup]="form.controls.guardian">
+            <div class="form-card__header">
+              <span class="form-card__step">2</span>
+              <span class="form-card__title">Apoderado principal</span>
+            </div>
+            <mat-card-content class="form-card__body section-grid">
               <mat-form-field appearance="outline">
                 <mat-label>RUN</mat-label>
                 <input matInput formControlName="run" />
@@ -128,14 +118,13 @@
             </mat-card-content>
           </mat-card>
 
-          <mat-card appearance="outlined" class="section-card">
-            <mat-card-title>
-              <span class="section-title">
-                <mat-icon>groups</mat-icon>
-                Responsables de retiro
-              </span>
-            </mat-card-title>
-            <mat-card-content class="pickup-stack" formArrayName="pickupContacts">
+          <mat-card appearance="outlined" class="form-card">
+            <div class="form-card__header">
+              <span class="form-card__step">3</span>
+              <span class="form-card__title">Responsables de retiro</span>
+            </div>
+            <mat-card-content class="form-card__body pickup-stack" formArrayName="pickupContacts">
+              <p class="section-help">Agrega personas adicionales autorizadas para retirar al estudiante además del apoderado principal.</p>
               @for (contact of pickupContacts.controls; track $index) {
                 <div class="pickup-card" [formGroupName]="$index">
                   <div class="pickup-head">
@@ -185,5 +174,4 @@
         </form>
       }
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+</app-teacher-modern-layout>

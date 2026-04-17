@@ -1,141 +1,451 @@
-<mat-sidenav-container class="activities-shell">
-  <mat-sidenav mode="side" opened class="activities-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
+@if (isReadOnly()) {
+  <mat-sidenav-container class="activities-shell student-shell">
+    <mat-sidenav mode="side" opened class="activities-sidenav student-sidenav">
+      <app-teacher-side-menu></app-teacher-side-menu>
+    </mat-sidenav>
 
-  <mat-sidenav-content>
-    <mat-toolbar class="activities-toolbar">
-      <span>Calendario de actividades</span>
-      <span class="toolbar-spacer"></span>
-      <button mat-stroked-button type="button" (click)="logout()">Cerrar sesion</button>
-    </mat-toolbar>
-
-    <main class="activities-content">
-      <section class="hero-box">
-        <div class="hero-copy">
-          <span class="hero-tag">Calendario escolar</span>
-          <h1>Calendario de actividades</h1>
-          <p>Organiza y visualiza todas las actividades del mes, con acceso directo a proximas fechas y tipos de evento.</p>
-        </div>
-        <button mat-flat-button type="button" class="new-activity-button" (click)="openNewActivityDialog()">
-          <mat-icon>add</mat-icon>
-          Nueva actividad
+    <mat-sidenav-content class="student-main-shell">
+      <header class="student-toolbar">
+        <button mat-icon-button type="button" class="student-toolbar__menu" aria-label="Abrir navegacion">
+          <mat-icon>menu</mat-icon>
         </button>
+
+        <label class="student-toolbar__search" aria-label="Buscar en el portal del estudiante">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            [value]="studentSearch()"
+            (input)="studentSearch.set(($any($event.target).value ?? '').toString())"
+          />
+        </label>
+
+        <div class="student-toolbar__actions">
+          <button
+            mat-button
+            type="button"
+            class="student-toolbar__profile"
+            [matMenuTriggerFor]="studentProfileMenu"
+            aria-label="Abrir menu de perfil del estudiante"
+          >
+            <span class="student-toolbar__avatar">{{ studentDisplayName().charAt(0) | uppercase }}</span>
+            <mat-icon>expand_more</mat-icon>
+          </button>
+        </div>
+      </header>
+
+      <mat-menu #studentProfileMenu="matMenu" xPosition="before">
+        <button mat-menu-item type="button" disabled>
+          <mat-icon>person</mat-icon>
+          <span>{{ studentDisplayName() }}</span>
+        </button>
+        <button mat-menu-item type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar sesion</span>
+        </button>
+      </mat-menu>
+
+      <main class="activities-content student-content">
+        <div class="student-content__inner">
+          <section class="page-heading page-heading--student">
+            <div class="page-heading__copy">
+              <span class="page-heading__eyebrow">Calendario academico</span>
+              <h1>{{ pageTitle() }}</h1>
+              <p>{{ pageDescription() }}</p>
+            </div>
+          </section>
+
+          <mat-card appearance="outlined" class="calendar-card">
+            <section class="calendar-controls">
+              <div class="calendar-nav">
+                <button mat-stroked-button type="button" (click)="goToPreviousMonth()">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+                <button mat-stroked-button type="button" (click)="goToToday()">Hoy</button>
+                <button mat-stroked-button type="button" (click)="goToNextMonth()">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </div>
+
+              <div class="month-label">
+                <strong>{{ monthLabel() }}</strong>
+                <mat-icon>calendar_month</mat-icon>
+              </div>
+
+              <button
+                mat-stroked-button
+                type="button"
+                class="download-button"
+                (click)="downloadCurrentMonthPdf()"
+                [disabled]="isExportingPdf()"
+              >
+                <mat-icon>download</mat-icon>
+                {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
+              </button>
+            </section>
+
+            <section class="calendar-grid">
+              <div class="weekdays-row">
+                @for (weekDay of weekDays; track weekDay) {
+                  <span>{{ weekDay }}</span>
+                }
+              </div>
+
+              @if (isLoading()) {
+                <div class="loading-copy">Cargando actividades del calendario...</div>
+              } @else {
+                @for (week of monthGrid(); track $index) {
+                  <div class="calendar-week">
+                    @for (day of week; track day.isoDate) {
+                      <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
+                        <header class="day-header">
+                          <span class="day-number" [class.today]="day.isToday">{{ day.date.getDate() }}</span>
+                        </header>
+
+                        <div class="day-events">
+                          @for (activity of day.activities; track activity.id) {
+                            <article
+                              class="activity-pill activity-pill--readonly"
+                              [style.background]="activity.backgroundColor"
+                              [style.color]="activity.textColor"
+                            >
+                              <strong>{{ activity.title }}</strong>
+                              <span>{{ formatTime(activity.time) }}</span>
+                            </article>
+                          }
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
+              }
+            </section>
+          </mat-card>
+        </div>
+
+        @if (calendar(); as exportCalendar) {
+          <section class="pdf-export-shell" aria-hidden="true">
+            <article #pdfCalendar class="pdf-export-card">
+              <header class="pdf-export-header">
+                <div class="pdf-export-brand">
+                  <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
+                  <div>
+                    <span>Calendario escolar</span>
+                    <strong>Torre Fuerte School</strong>
+                    <small>Vista mensual para impresion institucional</small>
+                  </div>
+                </div>
+                <div class="pdf-export-month">{{ exportCalendar.monthLabel }}</div>
+              </header>
+
+              <section class="pdf-export-grid">
+                <div class="pdf-export-weekdays">
+                  @for (weekDay of weekDays; track weekDay) {
+                    <span>{{ weekDay }}</span>
+                  }
+                </div>
+
+                @for (week of monthGrid(); track $index) {
+                  <div class="pdf-export-week">
+                    @for (day of week; track day.isoDate) {
+                      <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
+                        <header>{{ day.date.getDate() }}</header>
+                        <div class="pdf-export-events">
+                          @for (activity of day.activities; track activity.id) {
+                            <div
+                              class="pdf-export-activity"
+                              [style.background]="activity.backgroundColor"
+                              [style.color]="activity.textColor"
+                            >
+                              <strong>{{ activity.title }}</strong>
+                              <span>{{ formatTime(activity.time) }}</span>
+                            </div>
+                          }
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+            </article>
+          </section>
+        }
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <app-teacher-modern-layout
+    title=""
+    activeItem="activities"
+    dashboardRoute="/dashboard"
+    [userName]="user()?.nombre ?? 'Docente'"
+    userRole="Docente">
+    <main class="activities-page">
+      <section class="page-header">
+        <div class="page-header__left">
+          <span class="page-header__overline">Gestión escolar</span>
+          <h1 class="page-header__title">Calendario de actividades</h1>
+          <p class="page-header__subtitle">{{ pageDescription() }}</p>
+        </div>
+
+        <div class="page-header__actions">
+          <button
+            mat-stroked-button
+            type="button"
+            class="page-header__button"
+            (click)="downloadCurrentMonthPdf()"
+            [disabled]="isExportingPdf()"
+          >
+            <mat-icon>download</mat-icon>
+            {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
+          </button>
+        </div>
       </section>
 
-      <mat-card appearance="outlined" class="calendar-card">
-        <section class="calendar-controls">
-          <div class="calendar-nav">
-            <button mat-stroked-button type="button" (click)="goToPreviousMonth()">
+      <section class="stats-row">
+        <mat-card appearance="outlined" class="stat-card stat-card--blue">
+          <div class="stat-card__icon"><mat-icon>event_note</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Total actividades</span>
+            <span class="stat-card__value">{{ stats().total }}</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="stat-card stat-card--green">
+          <div class="stat-card__icon"><mat-icon>today</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Este mes</span>
+            <span class="stat-card__value">{{ stats().thisMonth }}</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="stat-card stat-card--amber">
+          <div class="stat-card__icon"><mat-icon>upcoming</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Próximas</span>
+            <span class="stat-card__value">{{ stats().upcoming }}</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="stat-card stat-card--slate">
+          <div class="stat-card__icon"><mat-icon>check_circle</mat-icon></div>
+          <div class="stat-card__copy">
+            <span class="stat-card__label">Finalizadas</span>
+            <span class="stat-card__value">{{ stats().completed }}</span>
+          </div>
+        </mat-card>
+      </section>
+
+      <section class="calendar-layout">
+        <mat-card appearance="outlined" class="calendar-card calendar-card--modern">
+          <div class="calendar-card__nav">
+            <button mat-icon-button type="button" class="cal-nav__btn" (click)="goToPreviousMonth()">
               <mat-icon>chevron_left</mat-icon>
             </button>
-            <button mat-stroked-button type="button" (click)="goToToday()">Hoy</button>
-            <button mat-stroked-button type="button" (click)="goToNextMonth()">
+            <div class="cal-nav__center">
+              <span class="cal-nav__label">{{ monthLabel() }}</span>
+              <button mat-stroked-button type="button" class="cal-nav__today" (click)="goToToday()">Hoy</button>
+            </div>
+            <button mat-icon-button type="button" class="cal-nav__btn" (click)="goToNextMonth()">
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
 
-          <div class="month-label">
-            <strong>{{ calendar()?.monthLabel ?? 'Cargando...' }}</strong>
-            <mat-icon>calendar_month</mat-icon>
-          </div>
-
-          <button mat-stroked-button type="button" class="download-button" (click)="downloadCurrentMonthPdf()" [disabled]="isExportingPdf()">
-            <mat-icon>download</mat-icon>
-            {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
-          </button>
-        </section>
-
-        <section class="calendar-grid">
-          <div class="weekdays-row">
-            @for (weekDay of weekDays; track weekDay) {
-              <span>{{ weekDay }}</span>
-            }
-          </div>
-
           @if (isLoading()) {
-            <div class="loading-copy">Cargando actividades del calendario...</div>
+            <div class="loading-copy loading-copy--modern">Cargando actividades del calendario...</div>
           } @else {
-            @for (week of monthGrid(); track $index) {
-              <div class="calendar-week">
-                @for (day of week; track day.isoDate) {
-                  <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
-                    <header class="day-header">
-                      <span class="day-number" [class.today]="day.isToday">{{ day.date.getDate() }}</span>
-                      @if (day.inCurrentMonth) {
-                        <button mat-icon-button type="button" class="mini-add" (click)="openNewActivityDialog(day.isoDate)">
-                          <mat-icon>add</mat-icon>
-                        </button>
-                      }
-                    </header>
-
-                    <div class="day-events">
-                      @for (activity of day.activities; track activity.id) {
-                        <article
-                          class="activity-pill"
-                          role="button"
-                          tabindex="0"
-                          (click)="openEditActivityDialog(activity)"
-                          [style.background]="activity.backgroundColor"
-                          [style.color]="activity.textColor">
-                          <strong>{{ activity.title }}</strong>
-                          <span>{{ formatTime(activity.time) }}</span>
-                        </article>
-                      }
-                    </div>
-                  </article>
+            <section class="calendar-board">
+              <div class="calendar-board__weekdays">
+                @for (day of weekDays; track day; let i = $index) {
+                  <span class="calendar-board__weekday" [class.calendar-board__weekday--weekend]="i >= 5">{{ day }}</span>
                 }
               </div>
-            }
+
+              @for (week of monthGrid(); track $index) {
+                <div class="calendar-board__week">
+                  @for (day of week; track day.isoDate; let dayIndex = $index) {
+                    <article
+                      class="calendar-board__day"
+                      [class.calendar-board__day--selected]="selectedDate() === day.isoDate"
+                      [class.calendar-board__day--today]="day.isToday"
+                      [class.calendar-board__day--other]="!day.inCurrentMonth"
+                      [class.calendar-board__day--weekend]="dayIndex >= 5"
+                      (click)="selectDate(day.isoDate)"
+                    >
+                      <header class="calendar-board__day-header">
+                        <span class="calendar-board__number">{{ day.date.getDate() }}</span>
+                      </header>
+
+                      <div class="calendar-board__events">
+                        @for (activity of day.activities.slice(0, 1); track activity.id) {
+                          <button
+                            type="button"
+                            class="calendar-board__event-pill"
+                            [style.background]="activity.backgroundColor"
+                            [style.color]="activity.textColor"
+                            (click)="$event.stopPropagation(); openActivityDetails(activity)"
+                          >
+                            {{ activity.title }}
+                          </button>
+                        }
+
+                        @if (day.activities.length > 1) {
+                          <button type="button" class="calendar-board__event-more" (click)="$event.stopPropagation(); openSelectedDayDetails()">
+                            +{{ day.activities.length - 1 }}
+                          </button>
+                        }
+                      </div>
+                    </article>
+                  }
+                </div>
+              }
+            </section>
           }
-        </section>
-      </mat-card>
-
-      <section class="bottom-grid">
-        <mat-card appearance="outlined" class="panel-card">
-          <mat-card-title>Proximas actividades</mat-card-title>
-          <mat-card-content class="upcoming-list">
-            @for (activity of calendar()?.upcomingActivities ?? []; track activity.id) {
-              <article class="upcoming-item">
-                <div class="date-chip" [style.background]="activity.backgroundColor" [style.color]="activity.textColor">
-                  <strong>{{ formatShortDate(activity.date).split(' ')[0] }}</strong>
-                  <span>{{ formatShortDate(activity.date).split(' ').slice(1).join(' ') }}</span>
-                </div>
-                <div class="upcoming-copy">
-                  <strong>{{ activity.title }}</strong>
-                  <span>{{ formatTime(activity.time) }} · {{ activity.location || 'Ubicacion por confirmar' }}</span>
-                  <small>{{ activity.activityTypeName }}</small>
-                </div>
-                <div class="upcoming-actions">
-                  <button mat-icon-button type="button" aria-label="Editar actividad" (click)="openEditActivityDialog(activity)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button type="button" aria-label="Eliminar actividad" (click)="deleteActivity(activity)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              </article>
-            }
-          </mat-card-content>
         </mat-card>
 
-        <mat-card appearance="outlined" class="panel-card">
-          <mat-card-title>Tipos de actividad</mat-card-title>
-          <mat-card-content class="types-list">
-            @for (type of calendar()?.activityTypes ?? []; track type.id) {
-              <article class="type-item">
-                <div class="type-icon" [style.background]="type.backgroundColor" [style.color]="type.textColor">
-                  <mat-icon>{{ type.icon }}</mat-icon>
-                </div>
-                <div class="type-copy">
-                  <strong>{{ type.name }}</strong>
-                  <span>{{ type.description }}</span>
-                </div>
-              </article>
+        <aside class="activity-sidebar">
+          <div class="activity-sidebar__header">
+            <span class="activity-sidebar__date">{{ selectedDateLabel() }}</span>
+            <div class="activity-sidebar__header-actions">
+              <button
+                mat-stroked-button
+                type="button"
+                class="activity-sidebar__detail"
+                (click)="openSelectedDayDetails()"
+              >
+                <mat-icon>visibility</mat-icon>
+                Ver detalle
+              </button>
+              <button mat-icon-button type="button" class="activity-sidebar__add" (click)="openNewActivityDialog(selectedDate())">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="activity-sidebar__list">
+            @if (selectedDayActivities().length === 0) {
+              <div class="activity-empty">
+                <mat-icon>event_available</mat-icon>
+                <strong>Sin actividades</strong>
+                <span>No hay eventos para este día.</span>
+              </div>
+            } @else {
+              @for (act of selectedDayActivities(); track act.id) {
+                <article class="activity-card" [style.--activity-accent]="act.colorHex">
+                  <span class="activity-card__bar" [style.background]="act.colorHex"></span>
+                  <div class="activity-card__body">
+                    <strong class="activity-card__title">{{ act.title }}</strong>
+                    <span class="activity-card__type">{{ act.typeLabel }}</span>
+                  </div>
+                  <div class="activity-card__actions">
+                    <div class="activity-card__topline">
+                      @if (act.status === 'UPCOMING') {
+                        <span class="activity-card__status activity-card__status--upcoming">Próxima</span>
+                      } @else if (act.status === 'IN_PROGRESS') {
+                        <span class="activity-card__status activity-card__status--active">En curso</span>
+                      } @else {
+                        <span class="activity-card__status activity-card__status--done">Finalizada</span>
+                      }
+                    </div>
+                    <div class="activity-card__tools">
+                      <button mat-icon-button type="button" class="activity-card__btn" (click)="openActivityDetails(act.activity)" aria-label="Ver detalle de la actividad">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button mat-icon-button type="button" class="activity-card__btn" (click)="openEditActivityDialog(act.activity)" aria-label="Editar actividad">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button type="button" class="activity-card__btn activity-card__btn--del" (click)="deleteActivity(act.activity)" aria-label="Eliminar actividad">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              }
             }
-          </mat-card-content>
-        </mat-card>
+          </div>
+
+          <div class="upcoming-section">
+            <span class="upcoming-section__title">Próximas actividades</span>
+            <div class="upcoming-list-modern">
+              @for (act of upcomingItems(); track act.id) {
+                <button class="upcoming-row" type="button" (click)="selectDate(act.dateStr)">
+                  <span class="upcoming-row__dot" [style.background]="act.colorHex"></span>
+                  <div class="upcoming-row__copy">
+                    <strong>{{ act.title }}</strong>
+                    <span>{{ act.shortDate }}</span>
+                  </div>
+                  <mat-icon class="upcoming-row__arrow">chevron_right</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </aside>
       </section>
+
+      <ng-template #monthDetailDialog>
+        <section class="month-detail-dialog">
+          <header class="month-detail-dialog__header">
+            <div class="month-detail-dialog__heading">
+              <span class="month-detail-dialog__eyebrow">Calendario de actividades</span>
+            </div>
+
+            <div class="month-detail-dialog__nav">
+              <button mat-stroked-button type="button" (click)="goToPreviousMonth()">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button mat-stroked-button type="button" (click)="goToToday()">Hoy</button>
+              <button mat-stroked-button type="button" (click)="goToNextMonth()">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+
+            <div class="month-detail-dialog__title">
+              <strong>{{ monthLabel() }}</strong>
+              <mat-icon>calendar_month</mat-icon>
+            </div>
+
+            <div class="month-detail-dialog__actions"></div>
+          </header>
+
+          <section class="month-detail-dialog__calendar">
+            <div class="weekdays-row">
+              @for (weekDay of weekDays; track weekDay) {
+                <span>{{ weekDay }}</span>
+              }
+            </div>
+
+            @if (isLoading()) {
+              <div class="loading-copy">Cargando actividades del calendario...</div>
+            } @else {
+              @for (week of monthGrid(); track $index) {
+                <div class="calendar-week">
+                  @for (day of week; track day.isoDate) {
+                    <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
+                      <header class="day-header">
+                        <span class="day-number" [class.today]="day.isToday">{{ day.date.getDate() }}</span>
+                      </header>
+
+                      <div class="day-events">
+                        @for (activity of day.activities; track activity.id) {
+                          <article
+                            class="activity-pill"
+                            [style.background]="activity.backgroundColor"
+                            [style.color]="activity.textColor"
+                            (click)="openActivityDetails(activity)"
+                          >
+                            <strong>{{ activity.title }}</strong>
+                            <span>{{ formatTime(activity.time) }}</span>
+                          </article>
+                        }
+                      </div>
+                    </article>
+                  }
+                </div>
+              }
+            }
+          </section>
+        </section>
+      </ng-template>
 
       @if (calendar(); as exportCalendar) {
         <section class="pdf-export-shell" aria-hidden="true">
@@ -169,7 +479,8 @@
                           <div
                             class="pdf-export-activity"
                             [style.background]="activity.backgroundColor"
-                            [style.color]="activity.textColor">
+                            [style.color]="activity.textColor"
+                          >
                             <strong>{{ activity.title }}</strong>
                             <span>{{ formatTime(activity.time) }}</span>
                           </div>
@@ -184,5 +495,5 @@
         </section>
       }
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </app-teacher-modern-layout>
+}

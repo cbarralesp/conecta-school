@@ -91,23 +91,32 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: studentOnly, section: 'attendance' },
     loadComponent: () =>
-      import('./features/student/pages/student-dashboard-page.component').then(
-        (m) => m.StudentDashboardPageComponent
+      import('./features/student/pages/student-attendance-page.component').then(
+        (m) => m.StudentAttendancePageComponent
       )
   },
   {
     path: 'alumno/actividades',
     canActivate: [authGuard, roleGuard],
-    data: { roles: studentOnly, section: 'activities' },
+    data: { roles: studentOnly, section: 'activities', readOnly: true },
     loadComponent: () =>
-      import('./features/student/pages/student-dashboard-page.component').then(
-        (m) => m.StudentDashboardPageComponent
+      import('./features/activities/pages/activities-calendar-page.component').then(
+        (m) => m.ActivitiesCalendarPageComponent
       )
   },
   {
     path: 'dashboard',
     canActivate: [authGuard, roleGuard],
     data: { roles: teacherOrAdmin },
+    loadComponent: () =>
+      import('./features/dashboard/pages/dashboard-page.component').then(
+        (m) => m.DashboardPageComponent
+      )
+  },
+  {
+    path: 'dashboard/moderno',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: teacherOrAdmin, layoutVariant: 'modern-teacher' },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(
         (m) => m.DashboardPageComponent
@@ -263,7 +272,7 @@ export const routes: Routes = [
   {
     path: 'dashboard/actividades',
     canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    data: { roles: teacherOrAdmin, readOnly: false },
     loadComponent: () =>
       import('./features/activities/pages/activities-calendar-page.component').then(
         (m) => m.ActivitiesCalendarPageComponent

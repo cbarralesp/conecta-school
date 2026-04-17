@@ -62,7 +62,7 @@ export class StudentDashboardPageComponent {
   readonly studentSearch = signal('');
 
   readonly welcomeName = computed(() => this.dashboard()?.studentName.split(' ')[0] ?? 'estudiante');
-  readonly fullStudentName = computed(() => this.dashboard()?.studentName ?? 'Alumno');
+  readonly fullStudentName = computed(() => this.dashboard()?.studentName ?? 'Estudiante');
   readonly currentCourseLabel = computed(
     () => this.dashboard()?.enrolledCourses[0]?.courseName ?? 'Sin curso asignado'
   );
@@ -314,7 +314,7 @@ export class StudentDashboardPageComponent {
         this.snackBar.open(
           typeof error.error?.message === 'string'
             ? error.error.message
-            : 'No fue posible cargar el resumen del alumno',
+      : 'No fue posible cargar el resumen del estudiante',
           'Cerrar',
           { duration: 3500 }
         );

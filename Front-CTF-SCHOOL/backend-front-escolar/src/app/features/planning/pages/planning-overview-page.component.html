@@ -5,12 +5,10 @@
 
   <mat-sidenav-content class="planning-content">
     <mat-toolbar class="planning-toolbar">
-      <div class="planning-toolbar__title">
-        <span class="planning-toolbar__eyebrow">Planificacion</span>
-        <h1>Planificación</h1>
-      </div>
+      <span>Planificacion</span>
+      <span class="toolbar-spacer"></span>
 
-      <div class="toolbar-actions">
+      <section class="toolbar-tabs">
         <button mat-stroked-button routerLink="/dashboard/planificacion/documentos">
           <mat-icon>folder_open</mat-icon>
           Ver documentos
@@ -23,10 +21,18 @@
           <mat-icon>library_add</mat-icon>
           Nueva clase
         </button>
-      </div>
+      </section>
     </mat-toolbar>
 
     <div class="planning-page">
+      <section class="hero-box planning-hero">
+        <div class="hero-copy">
+          <span class="hero-tag">Planificacion docente</span>
+          <h1>Planificación</h1>
+          <p>Revisa el avance del semestre, organiza unidades y mantén el material del curso alineado en un solo lugar.</p>
+        </div>
+      </section>
+
       @if (isLoading()) {
         <mat-card class="planning-loading-card">
           <mat-spinner diameter="44" />

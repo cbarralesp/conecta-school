@@ -1,206 +1,170 @@
-<mat-sidenav-container class="create-course-shell">
-  <mat-sidenav mode="side" opened class="create-course-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
-
-  <mat-sidenav-content>
-    <mat-toolbar class="create-course-toolbar">
-      <span>Crear curso desde maestro</span>
-      <span class="toolbar-spacer"></span>
-      <button mat-stroked-button (click)="logout()">Cerrar sesion</button>
-    </mat-toolbar>
-
-    <main class="create-course-content">
-      <section class="hero-box">
-        <div class="hero-copy">
-          <span class="hero-tag">Datos maestros</span>
+<app-teacher-modern-layout
+  title=""
+  activeItem="courses"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="create-course-page">
+    <section class="create-course-page__heading">
+      <div class="create-course-page__heading-copy">
         <h1>Crear curso</h1>
-          <p>
-          Selecciona el curso base desde el catalogo maestro, define el año escolar y la jornada.
-            El sistema generara el codigo del curso automaticamente.
-          </p>
+        <p>Configura el curso desde el maestro, asigna al equipo docente y agrega estudiantes sin salir del flujo actual.</p>
+      </div>
+    </section>
+
+    <mat-card appearance="outlined" class="create-course-card">
+      <mat-card-title>Configuracion principal</mat-card-title>
+      <mat-card-content>
+        <div class="form-section-heading">
+          <div>
+            <h3>Base del curso</h3>
+            <p>Define el origen academico, el año y la jornada con la que se construira el curso.</p>
+          </div>
         </div>
-      </section>
 
-      <mat-card appearance="outlined" class="create-course-card">
-        <mat-card-title>Configuracion principal</mat-card-title>
-        <mat-card-content>
-          <div class="form-section-heading">
-            <div>
-              <h3>Base del curso</h3>
-          <p>Define el origen academico, el año y la jornada con la que se construira el curso.</p>
-            </div>
-          </div>
-          <form [formGroup]="form" class="create-course-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Curso a crear</mat-label>
-              <input
-                type="text"
-                matInput
-                formControlName="courseSearch"
-                [matAutocomplete]="courseAuto" />
-              @if (selectedMasterCourse()) {
-                <button mat-icon-button matSuffix type="button" (click)="clearMasterCourse()">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }
-              <mat-autocomplete
-                #courseAuto="matAutocomplete"
-                [displayWith]="displayCourse.bind(this)"
-                (optionSelected)="selectMasterCourse($event)">
-                @for (course of masterCourses(); track course.id) {
-                  <mat-option [value]="course">
-                    {{ course.code }} - {{ course.description }}
-                  </mat-option>
-                }
-              </mat-autocomplete>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Año escolar</mat-label>
-              <input matInput type="number" formControlName="schoolYear" />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Jornada</mat-label>
-              <input matInput formControlName="scheduleType" />
-            </mat-form-field>
-          </form>
-
-          <div class="form-section-heading compact">
-            <div>
-              <h3>Equipo docente</h3>
-              <p>Asigna profesor principal y apoyo academico del curso.</p>
-            </div>
-          </div>
-          <form [formGroup]="form" class="teacher-form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Profesor</mat-label>
-              <input
-                type="text"
-                matInput
-                formControlName="teacherSearch"
-                [matAutocomplete]="teacherAuto" />
-              @if (selectedTeacher()) {
-                <button mat-icon-button matSuffix type="button" (click)="clearTeacher()">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }
-              <mat-autocomplete
-                #teacherAuto="matAutocomplete"
-                [displayWith]="displayTeacher.bind(this)"
-                (optionSelected)="selectTeacher($event)">
-                @for (teacher of teachers(); track teacher.id) {
-                  <mat-option [value]="teacher">
-                    {{ teacher.fullName }} - {{ teacher.rud }}
-                  </mat-option>
-                }
-              </mat-autocomplete>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Asistente</mat-label>
-              <input
-                type="text"
-                matInput
-                formControlName="assistantSearch"
-                [matAutocomplete]="assistantAuto" />
-              @if (selectedAssistant()) {
-                <button mat-icon-button matSuffix type="button" (click)="clearAssistant()">
-                  <mat-icon>close</mat-icon>
-                </button>
-              }
-              <mat-autocomplete
-                #assistantAuto="matAutocomplete"
-                [displayWith]="displayTeacher.bind(this)"
-                (optionSelected)="selectAssistant($event)">
-                @for (assistant of assistants(); track assistant.id) {
-                  <mat-option [value]="assistant">
-                    {{ assistant.fullName }} - {{ assistant.rud }}
-                  </mat-option>
-                }
-              </mat-autocomplete>
-            </mat-form-field>
-          </form>
-
-          <div class="preview-box">
-            <span>Codigo generado</span>
-            <strong>{{ generatedCodePreview() }}</strong>
-            @if (isSearching()) {
-              <small>Buscando cursos maestros...</small>
-            } @else {
-              <small>{{ masterCourses().length }} coincidencias encontradas</small>
+        <form [formGroup]="form" class="create-course-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Curso a crear</mat-label>
+            <input
+              type="text"
+              matInput
+              formControlName="courseSearch"
+              [matAutocomplete]="courseAuto" />
+            @if (selectedMasterCourse()) {
+              <button mat-icon-button matSuffix type="button" (click)="clearMasterCourse()">
+                <mat-icon>close</mat-icon>
+              </button>
             }
+            <mat-autocomplete
+              #courseAuto="matAutocomplete"
+              [displayWith]="displayCourse.bind(this)"
+              (optionSelected)="selectMasterCourse($event)">
+              @for (course of masterCourses(); track course.id) {
+                <mat-option [value]="course">
+                  {{ course.code }} - {{ course.description }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Año escolar</mat-label>
+            <input matInput type="number" formControlName="schoolYear" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Jornada</mat-label>
+            <input matInput formControlName="scheduleType" />
+          </mat-form-field>
+        </form>
+
+        <div class="form-section-heading compact">
+          <div>
+            <h3>Equipo docente</h3>
+            <p>Asigna profesor principal y apoyo academico del curso.</p>
+          </div>
+        </div>
+
+        <form [formGroup]="form" class="teacher-form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Profesor</mat-label>
+            <input
+              type="text"
+              matInput
+              formControlName="teacherSearch"
+              [matAutocomplete]="teacherAuto" />
             @if (selectedTeacher()) {
-              <small>Profesor: {{ selectedTeacher()?.fullName }} | Asignaturas: {{ selectedTeacher()?.subjects?.join(', ') }}</small>
+              <button mat-icon-button matSuffix type="button" (click)="clearTeacher()">
+                <mat-icon>close</mat-icon>
+              </button>
             }
+            <mat-autocomplete
+              #teacherAuto="matAutocomplete"
+              [displayWith]="displayTeacher.bind(this)"
+              (optionSelected)="selectTeacher($event)">
+              @for (teacher of teachers(); track teacher.id) {
+                <mat-option [value]="teacher">
+                  {{ teacher.fullName }} - {{ teacher.rud }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Asistente</mat-label>
+            <input
+              type="text"
+              matInput
+              formControlName="assistantSearch"
+              [matAutocomplete]="assistantAuto" />
             @if (selectedAssistant()) {
-              <small>Asistente: {{ selectedAssistant()?.fullName }}</small>
+              <button mat-icon-button matSuffix type="button" (click)="clearAssistant()">
+                <mat-icon>close</mat-icon>
+              </button>
             }
+            <mat-autocomplete
+              #assistantAuto="matAutocomplete"
+              [displayWith]="displayTeacher.bind(this)"
+              (optionSelected)="selectAssistant($event)">
+              @for (assistant of assistants(); track assistant.id) {
+                <mat-option [value]="assistant">
+                  {{ assistant.fullName }} - {{ assistant.rud }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </form>
+
+        <div class="preview-box">
+          <span>Codigo generado</span>
+          <strong>{{ generatedCodePreview() }}</strong>
+          @if (isSearching()) {
+            <small>Buscando cursos maestros...</small>
+          } @else {
+            <small>{{ masterCourses().length }} coincidencias encontradas</small>
+          }
+          @if (selectedTeacher()) {
+            <small>Profesor: {{ selectedTeacher()?.fullName }} | Asignaturas: {{ selectedTeacher()?.subjects?.join(', ') }}</small>
+          }
+          @if (selectedAssistant()) {
+            <small>Asistente: {{ selectedAssistant()?.fullName }}</small>
+          }
+        </div>
+
+        <section class="students-section">
+          <div class="students-header">
+            <div>
+              <h3>Asignacion de estudiantes</h3>
+              <p>Los estudiantes disponibles se filtran por rango etario segun el curso maestro seleccionado.</p>
+            </div>
+            <div class="students-summary">
+              <strong>{{ selectedStudents().length }}</strong>
+              <span>estudiantes seleccionados</span>
+            </div>
           </div>
 
-          <section class="students-section">
-            <div class="students-header">
-              <div>
-                <h3>Asignacion de alumnos</h3>
-                <p>Los alumnos disponibles se filtran por rango etario segun el curso maestro seleccionado.</p>
-              </div>
-              <div class="students-summary">
-                <strong>{{ selectedStudents().length }}</strong>
-                <span>alumnos seleccionados</span>
-              </div>
-            </div>
+          <div class="students-filter">
+            <mat-form-field appearance="outline">
+              <mat-label>Buscar estudiante por nombre</mat-label>
+              <input
+                matInput
+                [value]="availableStudentFilter()"
+                (input)="setAvailableStudentFilter(($any($event.target).value))" />
+            </mat-form-field>
+          </div>
 
-            <div class="students-filter">
-              <mat-form-field appearance="outline">
-                <mat-label>Buscar alumno por nombre</mat-label>
-                <input
-                  matInput
-                  [value]="availableStudentFilter()"
-                  (input)="setAvailableStudentFilter(($any($event.target).value))" />
-              </mat-form-field>
-            </div>
-
-            <div class="students-picker">
-              <div class="students-list-card">
-                <h4>Disponibles para el curso</h4>
-                @if (isSearchingStudents()) {
-                  <p class="helper-copy">Cargando alumnos disponibles...</p>
-                } @else {
-                  <div class="students-scroll">
-                    @for (student of filteredAvailableStudents(); track student.id) {
-                      <label class="student-row">
-                        <mat-checkbox
-                          [checked]="checkedAvailableIds().includes(student.id)"
-                          (change)="toggleAvailableStudent(student.id, $event.checked)">
-                        </mat-checkbox>
-                        <div>
-                          <strong>{{ student.fullName }}</strong>
-                          <span>{{ student.run }} - {{ student.age }} años</span>
-                        </div>
-                      </label>
-                    }
-                  </div>
-                }
-              </div>
-
-              <div class="students-actions">
-                <button mat-flat-button type="button" (click)="moveSelectedStudents()">
-                  Agregar >>
-                </button>
-                <button mat-stroked-button type="button" (click)="removeSelectedStudents()">
-                  << Quitar
-                </button>
-              </div>
-
-              <div class="students-list-card">
-                <h4>Seleccionados para asignar</h4>
+          <div class="students-picker">
+            <div class="students-list-card">
+              <h4>Disponibles para el curso</h4>
+              @if (isSearchingStudents()) {
+                <p class="helper-copy">Cargando estudiantes disponibles...</p>
+              } @else {
                 <div class="students-scroll">
-                  @for (student of selectedStudents(); track student.id) {
+                  @for (student of filteredAvailableStudents(); track student.id) {
                     <label class="student-row">
                       <mat-checkbox
-                        [checked]="checkedSelectedIds().includes(student.id)"
-                        (change)="toggleSelectedStudent(student.id, $event.checked)">
+                        [checked]="checkedAvailableIds().includes(student.id)"
+                        (change)="toggleAvailableStudent(student.id, $event.checked)">
                       </mat-checkbox>
                       <div>
                         <strong>{{ student.fullName }}</strong>
@@ -209,52 +173,79 @@
                     </label>
                   }
                 </div>
-              </div>
+              }
             </div>
 
-            @if (availableStudentFilter().trim() && filteredAvailableStudents().length === 0) {
-              <div class="not-found-box">
-                <p>No encontro el alumno en la lista disponible para este curso.</p>
-                <mat-form-field appearance="outline">
-                  <mat-label>Buscar en todo el universo de alumnos</mat-label>
-                  <input
-                    matInput
-                    [value]="universeStudentFilter()"
-                    (input)="setUniverseStudentFilter(($any($event.target).value))" />
-                </mat-form-field>
+            <div class="students-actions">
+              <button mat-flat-button type="button" (click)="moveSelectedStudents()">
+                Agregar >>
+              </button>
+              <button mat-stroked-button type="button" (click)="removeSelectedStudents()">
+                << Quitar
+              </button>
+            </div>
 
-                @if (isSearchingUniverseStudents()) {
-                  <p class="helper-copy">Buscando en el universo de alumnos...</p>
-                } @else {
-                  <div class="universe-list">
-                    @for (student of visibleUniverseStudents(); track student.id) {
-                      <article class="universe-row">
-                        <div>
-                          <strong>{{ student.fullName }}</strong>
-                        <span>{{ student.run }} - {{ student.age }} años</span>
-                        </div>
-                        <button mat-stroked-button type="button" (click)="addStudentFromUniverse(student)">
-                          Agregar
-                        </button>
-                      </article>
-                    }
-                    @if (visibleUniverseStudents().length === 0) {
-                      <p class="helper-copy">No hay alumnos disponibles con ese criterio de busqueda.</p>
-                    }
-                  </div>
+            <div class="students-list-card">
+              <h4>Seleccionados para asignar</h4>
+              <div class="students-scroll">
+                @for (student of selectedStudents(); track student.id) {
+                  <label class="student-row">
+                    <mat-checkbox
+                      [checked]="checkedSelectedIds().includes(student.id)"
+                      (change)="toggleSelectedStudent(student.id, $event.checked)">
+                    </mat-checkbox>
+                    <div>
+                      <strong>{{ student.fullName }}</strong>
+                      <span>{{ student.run }} - {{ student.age }} años</span>
+                    </div>
+                  </label>
                 }
               </div>
-            }
-          </section>
-
-          <div class="actions-row">
-            <button mat-stroked-button type="button" routerLink="/dashboard/cursos">Cancelar</button>
-            <button mat-flat-button type="button" (click)="createCourse()" [disabled]="isSaving()">
-              Crear curso
-            </button>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+
+          @if (availableStudentFilter().trim() && filteredAvailableStudents().length === 0) {
+            <div class="not-found-box">
+              <p>No encontro el estudiante en la lista disponible para este curso.</p>
+              <mat-form-field appearance="outline">
+                <mat-label>Buscar en todo el universo de estudiantes</mat-label>
+                <input
+                  matInput
+                  [value]="universeStudentFilter()"
+                  (input)="setUniverseStudentFilter(($any($event.target).value))" />
+              </mat-form-field>
+
+              @if (isSearchingUniverseStudents()) {
+                <p class="helper-copy">Buscando en el universo de estudiantes...</p>
+              } @else {
+                <div class="universe-list">
+                  @for (student of visibleUniverseStudents(); track student.id) {
+                    <article class="universe-row">
+                      <div>
+                        <strong>{{ student.fullName }}</strong>
+                        <span>{{ student.run }} - {{ student.age }} años</span>
+                      </div>
+                      <button mat-stroked-button type="button" (click)="addStudentFromUniverse(student)">
+                        Agregar
+                      </button>
+                    </article>
+                  }
+                  @if (visibleUniverseStudents().length === 0) {
+                    <p class="helper-copy">No hay estudiantes disponibles con ese criterio de busqueda.</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </section>
+
+        <div class="actions-row">
+          <button mat-stroked-button type="button" routerLink="/dashboard/cursos">Cancelar</button>
+          <button mat-flat-button type="button" (click)="createCourse()" [disabled]="isSaving()">
+            Crear curso
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </main>
+</app-teacher-modern-layout>

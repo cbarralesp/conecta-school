@@ -6,13 +6,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { Course, CoursePayload } from '../../../core/models/course.models';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { CourseDialogComponent } from '../components/course-dialog.component';
 
 @Component({
@@ -22,12 +20,10 @@ import { CourseDialogComponent } from '../components/course-dialog.component';
     MatCardModule,
     MatDialogModule,
     MatIconModule,
-    MatSidenavModule,
     MatSnackBarModule,
     MatTableModule,
-    MatToolbarModule,
     RouterLink,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './courses-page.component.html',
   styleUrl: './courses-page.component.scss',
@@ -40,6 +36,7 @@ export class CoursesPageComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly displayedColumns = ['code', 'name', 'level', 'letter', 'schoolYear', 'scheduleType', 'actions'];
   readonly courses = signal<Course[]>([]);
   readonly summaryCards = computed(() => {
@@ -49,28 +46,29 @@ export class CoursesPageComponent {
       {
         label: 'Cursos activos',
         value: courses.length,
-        hint: 'Disponibles para gestion'
+        hint: '',
+        icon: 'school',
+        tone: 'primary'
       },
       {
         label: 'Año principal',
         value: schoolYears[0] ?? '-',
-        hint: 'Periodo mas reciente'
+        hint: '',
+        icon: 'calendar_month',
+        tone: 'success'
       },
       {
         label: 'Jornadas',
         value: Array.from(new Set(courses.map((course) => course.scheduleType))).length,
-        hint: 'Manana, tarde o mixta'
+        hint: '',
+        icon: 'wb_sunny',
+        tone: 'warning'
       }
     ];
   });
 
   constructor() {
     this.loadCourses();
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   openCreateDialog(): void {

@@ -96,13 +96,32 @@ interface ScheduleDialogData {
     </div>
   `,
   styles: `
+    .dialog-shell {
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 20px;
+    }
     h2[mat-dialog-title] {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
       margin: 0;
-      padding: 1.15rem 1.35rem 0.85rem;
+      padding: 1.15rem 1.35rem 0.95rem;
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 100%);
+      border-bottom: 1px solid #e3edf8;
+    }
+    h2[mat-dialog-title] span {
+      color: #16324f;
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    h2[mat-dialog-title] button {
+      color: #5d7697;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: inset 0 0 0 1px rgba(93, 118, 151, 0.12);
     }
     .dialog-copy {
       margin: 0 0 1rem;
@@ -119,11 +138,24 @@ interface ScheduleDialogData {
       gap: 0.85rem;
       min-width: min(40rem, 100%);
     }
+    .dialog-form mat-form-field {
+      --mdc-outlined-text-field-container-shape: 14px;
+    }
     .span-2 {
       grid-column: span 2;
     }
     mat-dialog-actions {
       padding: 0.8rem 1.35rem 1.2rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+      background: rgba(255, 255, 255, 0.78);
+    }
+    mat-dialog-actions button[mat-flat-button] {
+      border-radius: 12px;
+      padding-inline: 1rem;
+      box-shadow: none;
+    }
+    mat-dialog-actions button[mat-stroked-button] {
+      border-radius: 12px;
     }
     @media (max-width: 720px) {
       .dialog-form {

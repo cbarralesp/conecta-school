@@ -73,7 +73,7 @@ export class PlanningOverviewPageComponent {
     {
       label: 'Documentos subidos',
       value: this.metrics().totalDocuments,
-      detail: `${this.metrics().visibleDocuments} visibles a alumnos`,
+      detail: `${this.metrics().visibleDocuments} visibles a estudiantes`,
       tone: 'accent'
     },
     {

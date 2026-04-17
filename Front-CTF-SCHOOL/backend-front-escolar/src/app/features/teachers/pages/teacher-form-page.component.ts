@@ -11,14 +11,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TeacherApiService } from '../../../core/services/teacher-api.service';
 import { Subject } from '../../../core/models/subject.models';
 import { TeacherAssignedCourse, TeacherDetail, TeacherPayload } from '../../../core/models/teacher.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 class ChileDateAdapter extends NativeDateAdapter {
   override getFirstDayOfWeek(): number {
@@ -40,10 +38,8 @@ class ChileDateAdapter extends NativeDateAdapter {
     MatInputModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'es-CL' },
@@ -62,6 +58,7 @@ export class TeacherFormPageComponent {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly teacherId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly user = this.authStateService.user;
   readonly isEditMode = Number.isFinite(this.teacherId) && this.teacherId > 0;
   readonly isLoading = signal(false);
   readonly subjectOptions = signal<Subject[]>([]);

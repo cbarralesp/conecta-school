@@ -1,31 +1,26 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TeacherApiService } from '../../../core/services/teacher-api.service';
 import { TeacherDetail } from '../../../core/models/teacher.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { TeacherDeleteDialogComponent } from '../components/teacher-delete-dialog.component';
 
 @Component({
   selector: 'app-teacher-detail-page',
   imports: [
-    RouterLink,
     MatButtonModule,
     MatCardModule,
     MatDialogModule,
     MatIconModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './teacher-detail-page.component.html',
   styleUrl: './teacher-detail-page.component.scss',
@@ -40,15 +35,33 @@ export class TeacherDetailPageComponent {
   private readonly router = inject(Router);
 
   readonly teacherId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly user = this.authStateService.user;
   readonly teacher = signal<TeacherDetail | null>(null);
   readonly isLoading = signal(true);
-  readonly scheduleByDay = computed(() => {
-    const days = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
-    const entries = this.teacher()?.weeklySchedule ?? [];
-    return days.map((day) => ({
-      day,
-      items: entries.filter((item) => item.dayOfWeek === day)
-    }));
+  readonly activeTab = signal<'personal' | 'teaching' | 'schedule' | 'emergency'>('personal');
+  readonly scheduleGrid = computed(() => {
+    const dayMap = [
+      { key: 'LUNES', label: 'Lun' },
+      { key: 'MARTES', label: 'Mar' },
+      { key: 'MIERCOLES', label: 'Mié' },
+      { key: 'JUEVES', label: 'Jue' },
+      { key: 'VIERNES', label: 'Vie' }
+    ];
+    const schedule = this.teacher()?.weeklySchedule ?? [];
+    const slots = Array.from(
+      new Map(schedule.map((item) => [`${item.startTime}-${item.endTime}`, `${item.startTime} - ${item.endTime}`])).entries()
+    ).map(([key, label]) => ({ key, label }));
+
+    const orderedSlots = slots.sort((a, b) => a.key.localeCompare(b.key));
+    return {
+      days: dayMap,
+      slots: orderedSlots.map((slot) => ({
+        ...slot,
+        values: dayMap.map((day) =>
+          schedule.find((item) => `${item.startTime}-${item.endTime}` === slot.key && item.dayOfWeek === day.key) ?? null
+        )
+      }))
+    };
   });
 
   constructor() {
@@ -62,6 +75,10 @@ export class TeacherDetailPageComponent {
 
   editTeacher(): void {
     void this.router.navigate(['/dashboard/profesores', this.teacherId, 'editar']);
+  }
+
+  setActiveTab(tab: 'personal' | 'teaching' | 'schedule' | 'emergency'): void {
+    this.activeTab.set(tab);
   }
 
   confirmDelete(): void {

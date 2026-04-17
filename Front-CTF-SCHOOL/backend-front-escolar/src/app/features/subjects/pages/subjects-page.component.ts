@@ -1,18 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SubjectApiService } from '../../../core/services/subject-api.service';
 import { Subject, SubjectPayload } from '../../../core/models/subject.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { SubjectDialogComponent } from '../components/subject-dialog.component';
 
 @Component({
@@ -22,11 +19,9 @@ import { SubjectDialogComponent } from '../components/subject-dialog.component';
     MatCardModule,
     MatDialogModule,
     MatIconModule,
-    MatSidenavModule,
     MatSnackBarModule,
     MatTableModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './subjects-page.component.html',
   styleUrl: './subjects-page.component.scss',
@@ -37,18 +32,70 @@ export class SubjectsPageComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly displayedColumns = ['code', 'name', 'area', 'referenceLevel', 'suggestedHours', 'colorHex', 'actions'];
   readonly subjects = signal<Subject[]>([]);
+  readonly searchTerm = signal('');
+  readonly levelFilter = signal<'all' | 'basic' | 'media'>('all');
+  readonly summaryCards = computed(() => {
+    const subjects = this.subjects();
+    return [
+      {
+        label: 'Asignaturas activas',
+        value: subjects.length,
+        hint: '',
+        icon: 'library_books',
+        tone: 'primary'
+      },
+      {
+        label: 'Areas curriculares',
+        value: Array.from(new Set(subjects.map((subject) => subject.area))).length,
+        hint: '',
+        icon: 'category',
+        tone: 'success'
+      },
+      {
+        label: 'Niveles de referencia',
+        value: Array.from(new Set(subjects.map((subject) => subject.referenceLevel))).length,
+        hint: '',
+        icon: 'layers',
+        tone: 'warning'
+      }
+    ];
+  });
+  readonly filteredSubjects = computed(() => {
+    const search = this.searchTerm().trim().toLowerCase();
+    const level = this.levelFilter();
+
+    return this.subjects().filter((subject) => {
+      const matchesLevel =
+        level === 'all'
+          ? true
+          : level === 'basic'
+            ? this.resolveLevelGroup(subject.referenceLevel) === 'basic'
+            : this.resolveLevelGroup(subject.referenceLevel) === 'media';
+
+      if (!matchesLevel) {
+        return false;
+      }
+
+      if (!search) {
+        return true;
+      }
+
+      return [
+        subject.code,
+        subject.name,
+        subject.area,
+        subject.referenceLevel,
+        subject.description
+      ].some((value) => value.toLowerCase().includes(search));
+    });
+  });
 
   constructor() {
     this.loadSubjects();
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   openCreateDialog(): void {
@@ -109,6 +156,14 @@ export class SubjectsPageComponent {
     });
   }
 
+  updateSearchTerm(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  setLevelFilter(level: 'all' | 'basic' | 'media'): void {
+    this.levelFilter.set(level);
+  }
+
   private loadSubjects(): void {
     this.subjectApiService.findAll().subscribe({
       next: (subjects) => this.subjects.set(subjects),
@@ -121,5 +176,18 @@ export class SubjectsPageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private resolveLevelGroup(referenceLevel: string): 'basic' | 'media' | 'other' {
+    const normalized = referenceLevel.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+    if (normalized.includes('basica')) {
+      return 'basic';
+    }
+
+    if (normalized.includes('media')) {
+      return 'media';
+    }
+
+    return 'other';
   }
 }

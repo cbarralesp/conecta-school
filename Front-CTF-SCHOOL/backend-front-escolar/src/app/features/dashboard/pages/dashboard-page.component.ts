@@ -1,36 +1,27 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
-import { TeacherDashboardApiService } from '../../../core/services/teacher-dashboard-api.service';
 import { TeacherDashboard } from '../../../core/models/teacher-dashboard.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherDashboardApiService } from '../../../core/services/teacher-dashboard-api.service';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-dashboard-page',
+  standalone: true,
   imports: [
+    RouterLink,
     MatButtonModule,
     MatCardModule,
-    MatChipsModule,
-    MatDividerModule,
     MatIconModule,
-    MatListModule,
     MatProgressSpinnerModule,
-    RouterLink,
     MatSnackBarModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.scss',
@@ -39,29 +30,32 @@ import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.comp
 export class DashboardPageComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly teacherDashboardApiService = inject(TeacherDashboardApiService);
-  private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly dashboard = signal<TeacherDashboard | null>(null);
   readonly todayName = this.resolveTodayName();
+  readonly todayHeaderLabel = this.formatTodayHeader();
 
-  readonly cards = computed(() => [
+  readonly modernCards = computed(() => [
     {
       title: 'Cursos asignados',
       value: this.dashboard()?.assignedCoursesCount ?? 0,
-      icon: 'school'
+      icon: 'school',
+      tone: 'primary'
     },
     {
       title: 'Clases planificadas',
       value: this.dashboard()?.plannedClassesCount ?? 0,
-      icon: 'calendar_month'
+      icon: 'calendar_month',
+      tone: 'success'
     },
     {
       title: 'Pendientes',
       value: this.dashboard()?.pendingPlanningCount ?? 0,
-      icon: 'assignment_late'
+      icon: 'assignment_late',
+      tone: 'warning'
     }
   ]);
 
@@ -94,31 +88,74 @@ export class DashboardPageComponent {
     return items.slice(-2);
   });
 
-  readonly nextPlanningItems = computed(() => (this.dashboard()?.planningItems ?? []).slice(0, 4));
+  readonly quickLinks = computed(() => [
+    {
+      title: 'Ver horario completo',
+      detail: 'Semana actual',
+      icon: 'calendar_month',
+      tone: 'primary',
+      route: '/dashboard/horario'
+    },
+    {
+      title: 'Registrar asistencia',
+      detail: 'Clase en curso',
+      icon: 'fact_check',
+      tone: 'success',
+      route: '/dashboard/asistencia'
+    },
+    {
+      title: 'Ingresar calificaciones',
+      detail: `${this.dashboard()?.pendingPlanningCount ?? 0} pendientes`,
+      icon: 'grading',
+      tone: 'warning',
+      route: '/dashboard/calificaciones'
+    },
+    {
+      title: 'Planificacion',
+      detail: 'Crear clase',
+      icon: 'description',
+      tone: 'accent',
+      route: '/dashboard/planificacion'
+    },
+    {
+      title: 'Subir documentos',
+      detail: 'Materiales de clase',
+      icon: 'upload_file',
+      tone: 'rose',
+      route: '/dashboard/planificacion/documentos'
+    }
+  ]);
+
+  readonly teacherInitials = computed(() => {
+    const source = this.dashboard()?.teacherName ?? this.user()?.nombre ?? 'Docente';
+
+    return source
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((chunk) => chunk.charAt(0).toUpperCase())
+      .join('');
+  });
 
   constructor() {
     this.loadDashboard();
   }
 
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
-  }
-
-  statusLabel(status: string): string {
-    switch (status) {
-      case 'PLANIFICADA':
-        return 'Planificada';
-      case 'EN_REVISION':
-        return 'En revision';
-      case 'COMPLETADA':
-        return 'Completada';
-      default:
-        return status;
+  todayScheduleCaption(): string {
+    if (this.todaySchedule().length === 0) {
+      return `${this.todayLabel()} · Sin clases asignadas para la jornada actual`;
     }
+
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const hasUpcoming = this.todaySchedule().some((item) => item.endTime >= currentTime);
+
+    return hasUpcoming
+      ? `${this.todayLabel()} · Proximas 2 clases del dia`
+      : `${this.todayLabel()} · Ultimas 2 clases del dia`;
   }
 
-  todayLabel(): string {
+  private todayLabel(): string {
     switch (this.todayName) {
       case 'LUNES':
         return 'Lunes';
@@ -133,20 +170,6 @@ export class DashboardPageComponent {
       default:
         return 'Hoy';
     }
-  }
-
-  todayScheduleCaption(): string {
-    if (this.todaySchedule().length === 0) {
-      return `${this.todayLabel()} - Sin clases asignadas para la jornada actual`;
-    }
-
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const hasUpcoming = this.todaySchedule().some((item) => item.endTime >= currentTime);
-
-    return hasUpcoming
-      ? `${this.todayLabel()} - Proximas 2 clases`
-      : `${this.todayLabel()} - Ultimas 2 clases del dia`;
   }
 
   private resolveTodayName(): string {
@@ -165,6 +188,30 @@ export class DashboardPageComponent {
       default:
         return 'LUNES';
     }
+  }
+
+  private formatTodayHeader(): string {
+    const formatter = new Intl.DateTimeFormat('es-CL', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
+    const parts = formatter.formatToParts(new Date());
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value])) as Record<string, string>;
+    const weekday = this.capitalizeWord(values['weekday'] ?? '');
+    const month = values['month'] ?? '';
+
+    return `${weekday}, ${values['day'] ?? ''} de ${month} de ${values['year'] ?? ''}`.trim();
+  }
+
+  private capitalizeWord(value: string): string {
+    if (!value) {
+      return value;
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
   private loadDashboard(): void {

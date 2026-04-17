@@ -1,57 +1,49 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
-import { EnrollmentCourseOption, EnrollmentListItem, EnrollmentOverview, EnrollmentSummary } from '../../../core/models/enrollment.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { EnrollmentListItem, EnrollmentOverview, EnrollmentSummary } from '../../../core/models/enrollment.models';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-enrollments-page',
   imports: [
     ReactiveFormsModule,
-    RouterLink,
+    RouterModule,
     MatButtonModule,
     MatCardModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSidenavModule,
+    MatPaginatorModule,
     MatSnackBarModule,
     MatTableModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './enrollments-page.component.html',
   styleUrl: './enrollments-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EnrollmentsPageComponent {
+  private static readonly PAGE_SIZE = 10;
+
   private readonly formBuilder = inject(FormBuilder);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
-  private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
   readonly displayedColumns = ['student', 'course', 'guardian', 'status', 'actions'];
   readonly overview = signal<EnrollmentOverview | null>(null);
   readonly isLoading = signal(true);
+  readonly pageIndex = signal(0);
   readonly filtersForm = this.formBuilder.nonNullable.group({
     search: [''],
-    courseId: [0],
     status: ['']
   });
 
@@ -61,19 +53,31 @@ export class EnrollmentsPageComponent {
     pending: 0,
     courses: 0
   });
-  readonly courses = computed<EnrollmentCourseOption[]>(() => this.overview()?.courses ?? []);
   readonly enrollments = computed<EnrollmentListItem[]>(() => this.overview()?.enrollments ?? []);
+  readonly pageSize = EnrollmentsPageComponent.PAGE_SIZE;
+  readonly totalItems = computed(() => this.enrollments().length);
+  readonly pagedEnrollments = computed(() => {
+    const start = this.pageIndex() * this.pageSize;
+    return this.enrollments().slice(start, start + this.pageSize);
+  });
+  readonly shouldShowPaginator = computed(() => this.totalItems() > this.pageSize);
 
   constructor() {
     this.loadOverview();
     this.filtersForm.valueChanges
       .pipe(debounceTime(250), distinctUntilChanged())
-      .subscribe(() => this.loadOverview());
-  }
+      .subscribe(() => {
+        this.pageIndex.set(0);
+        this.loadOverview();
+      });
 
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
+    effect(() => {
+      const total = this.totalItems();
+      const maxPageIndex = Math.max(Math.ceil(total / this.pageSize) - 1, 0);
+      if (this.pageIndex() > maxPageIndex) {
+        this.pageIndex.set(maxPageIndex);
+      }
+    });
   }
 
   goToCreate(): void {
@@ -107,11 +111,14 @@ export class EnrollmentsPageComponent {
     return `${item.studentName.charAt(0)}${item.studentLastName.charAt(0)}`.toUpperCase();
   }
 
+  handlePageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+  }
+
   private loadOverview(): void {
     this.isLoading.set(true);
     this.enrollmentApiService.getOverview({
       search: this.filtersForm.controls.search.value,
-      courseId: this.filtersForm.controls.courseId.value || null,
       status: this.filtersForm.controls.status.value || null
     }).subscribe({
       next: (overview) => {

@@ -121,6 +121,44 @@ export interface StudentAttendanceSummary {
   totalRecords: number;
 }
 
+export interface StudentAttendanceHeader {
+  studentId: number;
+  studentName: string;
+  courseName: string;
+  periodLabel: string;
+}
+
+export interface StudentAttendanceMonthSummary {
+  monthLabel: string;
+  attendancePercentage: number;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  recordedDays: number;
+}
+
+export interface StudentAttendanceWeekDay {
+  date: string;
+  dayLabel: string;
+  status: string;
+  today: boolean;
+}
+
+export interface StudentAttendanceRecord {
+  date: string;
+  status: string;
+  timeLabel: string;
+  note: string;
+}
+
+export interface StudentAttendanceDetail {
+  header: StudentAttendanceHeader;
+  summary: StudentAttendanceSummary;
+  currentMonth: StudentAttendanceMonthSummary;
+  currentWeek: StudentAttendanceWeekDay[];
+  recentRecords: StudentAttendanceRecord[];
+}
+
 export interface StudentUpcomingActivity {
   id: number;
   title: string;
