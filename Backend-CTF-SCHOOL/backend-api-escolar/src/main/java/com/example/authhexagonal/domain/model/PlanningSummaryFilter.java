@@ -5,6 +5,11 @@ package com.example.authhexagonal.domain.model;
  */
 public record PlanningSummaryFilter(
         Long subjectId,
-        Integer year
+        Integer year,
+        Long courseId,
+        Integer semester,
+        Integer month,
+        PlanningClassStatus status,
+        PlanningDocumentFileType documentType
 ) {
 }

@@ -4,7 +4,9 @@ import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentOverview;
+import com.example.authhexagonal.domain.model.EnrollmentPagination;
 import com.example.authhexagonal.domain.model.EnrollmentPickupContact;
+import com.example.authhexagonal.domain.model.EnrollmentSummary;
 import com.example.authhexagonal.domain.port.in.ManageEnrollmentsUseCase;
 import com.example.authhexagonal.domain.port.out.ManageEnrollmentsPort;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentPickupContactRequest;
@@ -24,11 +26,22 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
     }
 
     @Override
-    public EnrollmentOverview findOverview(String search, Long courseId, String status) {
+    public EnrollmentOverview findOverview(String search, Long courseId, String status, Integer page, Integer size) {
+        int normalizedPage = page == null ? 0 : Math.max(page, 0);
+        EnrollmentSummary summary = manageEnrollmentsPort.summarizeEnrollments(search, courseId, status);
+        int normalizedSize = size == null ? Math.max(summary.total(), 1) : Math.max(size, 1);
+        int totalPages = summary.total() == 0 ? 0 : (int) Math.ceil((double) summary.total() / normalizedSize);
+
         return new EnrollmentOverview(
-                manageEnrollmentsPort.summarizeEnrollments(search, courseId, status),
+                summary,
                 manageEnrollmentsPort.findActiveCourses(),
-                manageEnrollmentsPort.findEnrollments(search, courseId, status)
+                manageEnrollmentsPort.findEnrollments(search, courseId, status, normalizedPage, normalizedSize),
+                new EnrollmentPagination(
+                        normalizedPage,
+                        normalizedSize,
+                        summary.total(),
+                        totalPages
+                )
         );
     }
 

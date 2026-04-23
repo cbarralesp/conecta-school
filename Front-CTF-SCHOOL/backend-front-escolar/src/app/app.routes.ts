@@ -256,6 +256,24 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'dashboard/cursos/:id/editar',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: adminOnly },
+    loadComponent: () =>
+      import('./features/courses/pages/edit-course-page.component').then(
+        (m) => m.EditCoursePageComponent
+      )
+  },
+  {
+    path: 'dashboard/cursos/:id/alumnos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: teacherOrAdmin },
+    loadComponent: () =>
+      import('./features/courses/pages/course-students-page.component').then(
+        (m) => m.CourseStudentsPageComponent
+      )
+  },
+  {
     path: 'dashboard/horario',
     canActivate: [authGuard, roleGuard],
     data: { roles: teacherOrAdmin },
@@ -277,6 +295,13 @@ export const routes: Routes = [
       import('./features/activities/pages/activities-calendar-page.component').then(
         (m) => m.ActivitiesCalendarPageComponent
       )
+  },
+  {
+    path: 'dashboard/contenido',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: teacherOrAdmin },
+    loadComponent: () =>
+      import('./features/content/pages/content-page.component').then((m) => m.ContentPageComponent)
   },
   {
     path: 'dashboard/asistencia',

@@ -4,6 +4,8 @@ public record GradeEvaluationHeader(
         Long id,
         String code,
         String name,
-        int order
+        int order,
+        Double weight,
+        String evaluationDate
 ) {
 }

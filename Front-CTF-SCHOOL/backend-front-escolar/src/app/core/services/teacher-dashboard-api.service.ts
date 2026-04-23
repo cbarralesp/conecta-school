@@ -55,6 +55,13 @@ export class TeacherDashboardApiService {
         subjectName: normalizeDashboardText(item.subjectName),
         room: normalizeDashboardText(item.room)
       })),
+      todaySchedulePreview: (dashboard.todaySchedulePreview ?? []).map((item) => ({
+        ...item,
+        dayOfWeek: normalizeDashboardText(item.dayOfWeek),
+        courseName: normalizeDashboardText(item.courseName),
+        subjectName: normalizeDashboardText(item.subjectName),
+        room: normalizeDashboardText(item.room)
+      })),
       planningItems: dashboard.planningItems.map((item) => ({
         ...item,
         title: normalizeDashboardText(item.title),

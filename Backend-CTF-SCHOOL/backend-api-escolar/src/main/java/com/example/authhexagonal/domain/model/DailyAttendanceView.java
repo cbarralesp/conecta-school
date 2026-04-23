@@ -10,6 +10,7 @@ public record DailyAttendanceView(
         int presentCount,
         int absentCount,
         int lateCount,
+        DailyAttendanceSummary summary,
         List<DailyAttendanceItem> students
 ) {
 }

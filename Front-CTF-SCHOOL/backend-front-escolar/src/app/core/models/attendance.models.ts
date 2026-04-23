@@ -17,6 +17,14 @@ export interface DailyAttendanceStudent {
   note: string | null;
 }
 
+export interface DailyAttendanceSummary {
+  markedCount: number;
+  progressPercent: number;
+  presentPercentage: number;
+  absentPercentage: number;
+  latePercentage: number;
+}
+
 export interface DailyAttendanceView {
   courseId: number;
   courseName: string;
@@ -25,6 +33,7 @@ export interface DailyAttendanceView {
   presentCount: number;
   absentCount: number;
   lateCount: number;
+  summary: DailyAttendanceSummary;
   students: DailyAttendanceStudent[];
 }
 
@@ -63,11 +72,19 @@ export interface AttendanceAlert {
   message: string;
 }
 
+export interface WeeklyAttendanceSummary {
+  averageAttendance: number;
+  totalAbsences: number;
+  totalLate: number;
+  activeAlerts: number;
+}
+
 export interface WeeklyAttendanceView {
   courseId: number;
   courseName: string;
   weekLabel: string;
   dates: string[];
+  summary: WeeklyAttendanceSummary;
   students: WeeklyAttendanceStudent[];
   alerts: AttendanceAlert[];
 }
@@ -83,6 +100,26 @@ export interface MonthlyAttendanceStudent {
   presentCount: number;
   absentCount: number;
   lateCount: number;
+  days: MonthlyAttendanceStudentDay[];
+}
+
+export interface MonthlyAttendanceStudentDay {
+  date: string;
+  status: string;
+}
+
+export interface MonthlyAttendanceDistribution {
+  presentCount: number;
+  presentPercentage: number;
+  absentCount: number;
+  absentPercentage: number;
+  lateCount: number;
+  latePercentage: number;
+}
+
+export interface MonthlyAttendanceDaySummary {
+  dayLabel: string;
+  attendancePercentage: number;
 }
 
 export interface MonthlyAttendanceView {
@@ -93,5 +130,7 @@ export interface MonthlyAttendanceView {
   averageAttendance: number;
   studentsAtRisk: number;
   totalLate: number;
+  distribution: MonthlyAttendanceDistribution;
+  dailySummary: MonthlyAttendanceDaySummary[];
   students: MonthlyAttendanceStudent[];
 }

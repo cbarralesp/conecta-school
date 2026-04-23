@@ -20,22 +20,39 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { AttendanceApiService } from '../../../core/services/attendance-api.service';
 import {
   AttendanceCatalog,
   DailyAttendanceStudent,
   DailyAttendanceView,
+  MonthlyAttendanceStudent,
   MonthlyAttendanceView,
   WeeklyAttendanceView
 } from '../../../core/models/attendance.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type AttendanceTab = 'daily' | 'weekly' | 'monthly';
 type AttendanceStatus = 'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'SIN_MARCAR';
+type MonthlySelection = 'all' | number;
+
+interface MonthlyCalendarCell {
+  kind: 'empty' | 'day';
+  date?: string;
+  dayNumber?: number;
+  isWeekend?: boolean;
+  isFuture?: boolean;
+  isToday?: boolean;
+  globalPercentage?: number | null;
+  individualStatus?: string | null;
+}
+
+interface AttendanceNoteDialogState {
+  studentId: number;
+  studentName: string;
+  note: string;
+}
 
 class MondayFirstDateAdapter extends NativeDateAdapter {
   override getFirstDayOfWeek(): number {
@@ -55,10 +72,8 @@ class MondayFirstDateAdapter extends NativeDateAdapter {
     MatInputModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './attendance-page.component.html',
   styleUrl: './attendance-page.component.scss',
@@ -76,7 +91,12 @@ export class AttendancePageComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly activeTab = signal<AttendanceTab>('daily');
+  readonly dailySearch = signal('');
+  readonly noteDialog = signal<AttendanceNoteDialogState | null>(null);
+  readonly monthlySearch = signal('');
+  readonly selectedMonthlyStudentId = signal<MonthlySelection>('all');
   readonly catalog = signal<AttendanceCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
   readonly selectedDate = signal(this.toIsoDate(new Date()));
@@ -99,6 +119,148 @@ export class AttendancePageComponent {
     absent: this.dailyView()?.absentCount ?? 0,
     late: this.dailyView()?.lateCount ?? 0
   }));
+  readonly filteredDailyStudents = computed(() => {
+    const query = this.dailySearch().trim().toLowerCase();
+    const students = this.dailyView()?.students ?? [];
+    if (!query) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      student.fullName.toLowerCase().includes(query) || student.run.toLowerCase().includes(query)
+    );
+  });
+  readonly dailyProgress = computed(() => {
+    return {
+      marked: this.dailyView()?.summary.markedCount ?? 0,
+      total: this.dailyCounters().total,
+      percent: this.dailyView()?.summary.progressPercent ?? 0
+    };
+  });
+  readonly dailyPercentages = computed(() => {
+    return {
+      present: this.dailyView()?.summary.presentPercentage ?? 0,
+      absent: this.dailyView()?.summary.absentPercentage ?? 0,
+      late: this.dailyView()?.summary.latePercentage ?? 0
+    };
+  });
+  readonly weeklySummary = computed(() => {
+    return {
+      average: this.weeklyView()?.summary.averageAttendance ?? 0,
+      absences: this.weeklyView()?.summary.totalAbsences ?? 0,
+      late: this.weeklyView()?.summary.totalLate ?? 0,
+      alerts: this.weeklyView()?.summary.activeAlerts ?? 0
+    };
+  });
+  readonly monthlyDistribution = computed(() => {
+    return (
+      this.monthlyView()?.distribution ?? {
+        presentCount: 0,
+        presentPercentage: 0,
+        absentCount: 0,
+        absentPercentage: 0,
+        lateCount: 0,
+        latePercentage: 0
+      }
+    );
+  });
+  readonly monthlyDailySummary = computed(() => this.monthlyView()?.dailySummary ?? []);
+  readonly filteredMonthlyStudents = computed(() => {
+    const query = this.monthlySearch().trim().toLowerCase();
+    const students = this.monthlyView()?.students ?? [];
+    if (!query) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      student.fullName.toLowerCase().includes(query) || student.run.toLowerCase().includes(query)
+    );
+  });
+  readonly selectedMonthlyStudent = computed(() => {
+    const selected = this.selectedMonthlyStudentId();
+    if (selected === 'all') {
+      return null;
+    }
+    return this.monthlyView()?.students.find((student) => student.studentId === selected) ?? null;
+  });
+  readonly monthlyCalendarCells = computed<MonthlyCalendarCell[]>(() => {
+    const month = this.selectedMonth();
+    if (!month) {
+      return [];
+    }
+
+    const [year, monthNumber] = month.split('-').map(Number);
+    if (!year || !monthNumber) {
+      return [];
+    }
+
+    const firstDay = new Date(year, monthNumber - 1, 1);
+    const lastDay = new Date(year, monthNumber, 0);
+    const offset = (firstDay.getDay() + 6) % 7;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const cells: MonthlyCalendarCell[] = [];
+    for (let index = 0; index < offset; index++) {
+      cells.push({ kind: 'empty' });
+    }
+
+    const daySummary = new Map(
+      this.monthlyDailySummary().map((day) => [Number(day.dayLabel), day.attendancePercentage])
+    );
+    const selectedStudentDays = new Map(
+      (this.selectedMonthlyStudent()?.days ?? []).map((day) => [day.date, day.status])
+    );
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const current = new Date(year, monthNumber - 1, day);
+      current.setHours(0, 0, 0, 0);
+      const iso = this.toIsoDate(current);
+      const weekend = current.getDay() === 0 || current.getDay() === 6;
+      const isFuture = current.getTime() > today.getTime();
+      const isToday = current.getTime() === today.getTime();
+
+      cells.push({
+        kind: 'day',
+        date: iso,
+        dayNumber: day,
+        isWeekend: weekend,
+        isFuture,
+        isToday,
+        globalPercentage: daySummary.get(day) ?? null,
+        individualStatus: selectedStudentDays.get(iso) ?? null
+      });
+    }
+
+    return cells;
+  });
+  readonly monthlyCalendarTitle = computed(() => {
+    const selectedStudent = this.selectedMonthlyStudent();
+    return selectedStudent ? selectedStudent.fullName : this.monthlyView()?.monthLabel ?? 'Resumen mensual';
+  });
+  readonly monthlyCalendarSubtitle = computed(() => {
+    return this.selectedMonthlyStudent()
+      ? 'Historial individual de asistencia'
+      : 'Promedio de asistencia por día';
+  });
+  readonly monthlyStudentSummary = computed(() => {
+    const student = this.selectedMonthlyStudent();
+    if (!student) {
+      return {
+        present: this.monthlyDistribution().presentCount,
+        absent: this.monthlyDistribution().absentCount,
+        late: this.monthlyDistribution().lateCount,
+        percentage: this.monthlyView()?.averageAttendance ?? 0
+      };
+    }
+
+    return {
+      present: student.presentCount,
+      absent: student.absentCount,
+      late: student.lateCount,
+      percentage: Math.min(100, student.presentPercentage + student.latePercentage)
+    };
+  });
 
   constructor() {
     this.loadCatalog();
@@ -116,6 +278,7 @@ export class AttendancePageComponent {
 
   updateCourse(courseId: number | null): void {
     this.selectedCourseId.set(courseId);
+    this.selectedMonthlyStudentId.set('all');
     if (!courseId) {
       this.dailyView.set(null);
       this.weeklyView.set(null);
@@ -156,7 +319,60 @@ export class AttendancePageComponent {
 
   updateMonth(value: string): void {
     this.selectedMonth.set(value);
+    this.selectedMonthlyStudentId.set('all');
     this.loadMonthlyView();
+  }
+
+  updateDailySearch(value: string): void {
+    this.dailySearch.set(value);
+  }
+
+  updateMonthlySearch(value: string): void {
+    this.monthlySearch.set(value);
+  }
+
+  selectMonthlyStudent(studentId: MonthlySelection): void {
+    this.selectedMonthlyStudentId.set(studentId);
+  }
+
+  updateStudentNote(studentId: number, value: string): void {
+    this.dailyView.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const students = current.students.map((student) =>
+        student.studentId === studentId ? { ...student, note: value || null } : student
+      );
+
+      return { ...current, students };
+    });
+  }
+
+  openStudentNote(student: DailyAttendanceStudent): void {
+    this.noteDialog.set({
+      studentId: student.studentId,
+      studentName: student.fullName,
+      note: student.note ?? ''
+    });
+  }
+
+  updateNoteDraft(value: string): void {
+    this.noteDialog.update((current) => (current ? { ...current, note: value } : current));
+  }
+
+  closeStudentNote(): void {
+    this.noteDialog.set(null);
+  }
+
+  saveStudentNote(): void {
+    const dialog = this.noteDialog();
+    if (!dialog) {
+      return;
+    }
+
+    this.updateStudentNote(dialog.studentId, dialog.note.trim());
+    this.closeStudentNote();
   }
 
   setStudentStatus(studentId: number, status: AttendanceStatus): void {
@@ -210,6 +426,33 @@ export class AttendancePageComponent {
 
       return this.recalculateDaily(current, students);
     });
+  }
+
+  resetDailyAttendance(): void {
+    this.dailyView.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const students = current.students.map((student) => ({
+        ...student,
+        status: 'SIN_MARCAR',
+        arrivalTime: null
+      }));
+
+      return this.recalculateDaily(current, students);
+    });
+  }
+
+  moveDay(direction: -1 | 1): void {
+    const current = this.selectedDateAsDate();
+    if (!current) {
+      return;
+    }
+
+    const next = new Date(current);
+    next.setDate(next.getDate() + direction);
+    this.updateDate(this.toIsoDate(next));
   }
 
   saveDailyAttendance(): void {
@@ -279,7 +522,15 @@ export class AttendancePageComponent {
       const y = margin;
 
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, width, height, undefined, 'FAST');
-      pdf.save(`asistencia-${this.selectedMonth()}-${(this.selectedCourse()?.name ?? 'curso').replaceAll(' ', '-').toLowerCase()}.pdf`);
+      const studentToken = this.monthlySearch().trim()
+        ? `-${this.monthlySearch()
+            .trim()
+            .toLowerCase()
+            .replaceAll(' ', '-')}`
+        : '';
+      pdf.save(
+        `asistencia-${this.selectedMonth()}-${(this.selectedCourse()?.name ?? 'curso').replaceAll(' ', '-').toLowerCase()}${studentToken}.pdf`
+      );
       this.snackBar.open('Reporte mensual descargado', 'Cerrar', { duration: 2600 });
     } catch {
       this.snackBar.open('No fue posible exportar el reporte mensual', 'Cerrar', { duration: 3200 });
@@ -325,6 +576,82 @@ export class AttendancePageComponent {
         return 'dot-warning';
       default:
         return 'dot-empty';
+    }
+  }
+
+  monthlyBarClass(percentage: number): string {
+    if (percentage >= 80) {
+      return 'is-success';
+    }
+
+    if (percentage >= 60) {
+      return 'is-warning';
+    }
+
+    return 'is-danger';
+  }
+
+  monthlyPercentageClass(percentage: number): string {
+    if (percentage >= 80) {
+      return 'text-success';
+    }
+
+    if (percentage >= 60) {
+      return 'text-warning';
+    }
+
+    return 'text-danger';
+  }
+
+  monthlyDistributionLabel(): string {
+    return this.monthlySearch().trim() ? 'Distribución del estudiante' : 'Distribución del mes';
+  }
+
+  monthlyCalendarClass(percentage: number): string {
+    return percentage >= 80 ? 'is-success' : 'is-danger';
+  }
+
+  monthlyOverallPercentage(student: MonthlyAttendanceStudent): number {
+    return Math.min(100, student.presentPercentage + student.latePercentage);
+  }
+
+  monthlyCellClass(cell: MonthlyCalendarCell): string {
+    if (cell.kind !== 'day') {
+      return 'is-empty';
+    }
+
+    if (cell.isWeekend) {
+      return 'is-weekend';
+    }
+
+    if (cell.isFuture) {
+      return 'is-future';
+    }
+
+    const selectedStudent = this.selectedMonthlyStudent();
+    if (!selectedStudent) {
+      const percentage = cell.globalPercentage;
+      if (percentage == null) {
+        return 'is-none';
+      }
+      if (percentage >= 80) {
+        return 'is-global-good';
+      }
+      if (percentage >= 60) {
+        return 'is-global-mid';
+      }
+      return 'is-global-bad';
+    }
+
+    switch (cell.individualStatus) {
+      case 'PRESENTE':
+        return 'is-present';
+      case 'AUSENTE':
+        return 'is-absent';
+      case 'ATRASADO':
+        return 'is-late';
+      default:
+        return 'is-none';
     }
   }
 
@@ -441,12 +768,26 @@ export class AttendancePageComponent {
   }
 
   private recalculateDaily(view: DailyAttendanceView, students: DailyAttendanceStudent[]): DailyAttendanceView {
+    const presentCount = students.filter((student) => student.status === 'PRESENTE').length;
+    const absentCount = students.filter((student) => student.status === 'AUSENTE').length;
+    const lateCount = students.filter((student) => student.status === 'ATRASADO').length;
+    const totalStudents = students.length;
+    const markedCount = presentCount + absentCount + lateCount;
+
     return {
       ...view,
       students,
-      presentCount: students.filter((student) => student.status === 'PRESENTE').length,
-      absentCount: students.filter((student) => student.status === 'AUSENTE').length,
-      lateCount: students.filter((student) => student.status === 'ATRASADO').length
+      totalStudents,
+      presentCount,
+      absentCount,
+      lateCount,
+      summary: {
+        markedCount,
+        progressPercent: totalStudents > 0 ? Math.round((markedCount / totalStudents) * 100) : 0,
+        presentPercentage: totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0,
+        absentPercentage: totalStudents > 0 ? Math.round((absentCount / totalStudents) * 100) : 0,
+        latePercentage: totalStudents > 0 ? Math.round((lateCount / totalStudents) * 100) : 0
+      }
     };
   }
 

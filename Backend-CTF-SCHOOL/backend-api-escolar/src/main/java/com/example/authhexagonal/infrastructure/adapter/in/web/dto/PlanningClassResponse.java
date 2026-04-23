@@ -9,6 +9,10 @@ import java.util.List;
 public record PlanningClassResponse(
         Long id,
         Long unitId,
+        Long subjectId,
+        String subjectName,
+        Long courseId,
+        String courseName,
         String unitNumberLabel,
         String unitName,
         String title,
@@ -33,6 +37,10 @@ public record PlanningClassResponse(
         return new PlanningClassResponse(
                 planningClass.id(),
                 planningClass.unitId(),
+                planningClass.subjectId(),
+                planningClass.subjectName(),
+                planningClass.courseId(),
+                planningClass.courseName(),
                 planningClass.unitNumberLabel(),
                 planningClass.unitName(),
                 planningClass.title(),

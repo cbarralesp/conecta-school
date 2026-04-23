@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -112,8 +112,24 @@ type ActivityDialogResult =
     </div>
   `,
   styles: `
+    .activity-dialog-backdrop {
+      background: rgba(15, 23, 42, 0.34);
+      backdrop-filter: blur(6px);
+    }
+    .activity-dialog-panel .mat-mdc-dialog-surface {
+      border-radius: 22px !important;
+      background: transparent !important;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22) !important;
+      overflow: hidden !important;
+    }
     .dialog-shell {
       display: grid;
+      background:
+        radial-gradient(circle at top right, rgba(15, 157, 107, 0.1), transparent 32%),
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #e5ecf4;
+      border-radius: 22px;
     }
     h2[mat-dialog-title] {
       display: flex;
@@ -121,7 +137,21 @@ type ActivityDialogResult =
       justify-content: space-between;
       gap: 1rem;
       margin: 0;
-      padding: 1.4rem 1.5rem 1rem;
+      padding: 1.1rem 1.2rem 1rem;
+      background: linear-gradient(135deg, #ecfdf5 0%, #f8fbff 68%);
+      border-bottom: 1px solid #e7eef6;
+    }
+    h2[mat-dialog-title] span {
+      color: #18283f;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    h2[mat-dialog-title] button {
+      color: #6b7f98;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px rgba(107, 127, 152, 0.14);
     }
     .dialog-copy {
       margin-bottom: 1rem;
@@ -129,21 +159,29 @@ type ActivityDialogResult =
     .dialog-copy p {
       margin: 0;
       color: #62718a;
+      font-size: 0.82rem;
+      font-weight: 500;
       line-height: 1.6;
     }
     mat-dialog-content {
-      padding: 0 1.5rem 1rem;
+      padding: 0 1.2rem 1rem;
       overflow: auto;
     }
     .dialog-form {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
+      gap: 0.9rem;
       min-width: min(48rem, 100%);
     }
     .dialog-form mat-form-field,
     .full-width {
       width: 100%;
+    }
+    .dialog-form mat-form-field {
+      --mdc-outlined-text-field-outline-color: #dbe5f0;
+      --mdc-outlined-text-field-hover-outline-color: #c9d8e9;
+      --mdc-outlined-text-field-focus-outline-color: #0f9d6b;
+      --mdc-filled-text-field-container-color: #f8fbff;
     }
     .full-width {
       grid-column: 1 / -1;
@@ -161,12 +199,28 @@ type ActivityDialogResult =
       display: flex;
       gap: 0.75rem;
       margin: 0;
-      padding: 1rem 1.5rem 1.4rem;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, #fff 35%);
+      padding: 1rem 1.2rem 1.15rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
     }
     .delete-button {
       margin-right: auto;
       color: #b3261e;
+    }
+    mat-dialog-actions button[mat-flat-button] {
+      min-height: 42px;
+      border-radius: 14px;
+      padding-inline: 1.15rem;
+      background: #0f9d6b;
+      color: #ffffff;
+      box-shadow: 0 14px 24px rgba(15, 157, 107, 0.16);
+    }
+    mat-dialog-actions button[mat-stroked-button] {
+      min-height: 42px;
+      border-radius: 14px;
+      border-color: #d8e3ef;
+      color: #51667f;
     }
     @media (max-width: 720px) {
       .dialog-form {
@@ -180,9 +234,13 @@ type ActivityDialogResult =
       mat-dialog-actions {
         padding-inline: 1rem;
       }
+      mat-dialog-actions button:not(.delete-button) {
+        flex: 1 1 100%;
+      }
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class ActivityDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

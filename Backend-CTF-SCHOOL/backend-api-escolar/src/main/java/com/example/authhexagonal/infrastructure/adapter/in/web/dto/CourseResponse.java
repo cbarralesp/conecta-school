@@ -10,7 +10,8 @@ public record CourseResponse(
         String letter,
         int schoolYear,
         String scheduleType,
-        boolean active
+        boolean active,
+        int studentCount
 ) {
     public static CourseResponse fromDomain(Course course) {
         return new CourseResponse(
@@ -21,7 +22,8 @@ public record CourseResponse(
                 course.letter(),
                 course.schoolYear(),
                 course.scheduleType(),
-                course.active()
+                course.active(),
+                course.studentCount()
         );
     }
 }

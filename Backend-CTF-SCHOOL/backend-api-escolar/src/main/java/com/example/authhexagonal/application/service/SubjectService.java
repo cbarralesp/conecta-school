@@ -18,8 +18,8 @@ public class SubjectService implements ManageSubjectsUseCase {
     }
 
     @Override
-    public List<AcademicSubject> findAll() {
-        return manageSubjectsPort.findAllActiveSubjects();
+    public List<AcademicSubject> findAll(String search, String levelGroup) {
+        return manageSubjectsPort.findAllActiveSubjects(search, normalizeLevelGroup(levelGroup));
     }
 
     @Override
@@ -92,5 +92,18 @@ public class SubjectService implements ManageSubjectsUseCase {
         if (exists) {
             throw new IllegalArgumentException("Subject code already exists");
         }
+    }
+
+    private String normalizeLevelGroup(String levelGroup) {
+        if (levelGroup == null || levelGroup.isBlank() || "all".equalsIgnoreCase(levelGroup)) {
+            return null;
+        }
+
+        String normalized = levelGroup.trim().toLowerCase();
+        if (!"basic".equals(normalized) && !"media".equals(normalized)) {
+            throw new IllegalArgumentException("Invalid subject level filter");
+        }
+
+        return normalized;
     }
 }

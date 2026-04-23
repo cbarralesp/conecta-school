@@ -8,6 +8,7 @@ import com.example.authhexagonal.domain.model.PlanningClassCommand;
 import com.example.authhexagonal.domain.model.PlanningClassDocument;
 import com.example.authhexagonal.domain.model.PlanningClassDocumentUploadCommand;
 import com.example.authhexagonal.domain.model.PlanningClassDurationOption;
+import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
 import com.example.authhexagonal.domain.model.PlanningEvaluationType;
 import com.example.authhexagonal.domain.model.PlanningObjectiveOption;
@@ -15,9 +16,12 @@ import com.example.authhexagonal.domain.model.PlanningOptionItem;
 import com.example.authhexagonal.domain.model.StoredFileReference;
 import com.example.authhexagonal.domain.port.in.AttachPlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.CreatePlanningClassUseCase;
+import com.example.authhexagonal.domain.port.in.DeletePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassCatalogsUseCase;
+import com.example.authhexagonal.domain.port.in.ListPlanningClassesUseCase;
 import com.example.authhexagonal.domain.port.in.RemovePlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningClassDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningClassTitleUseCase;
 import com.example.authhexagonal.domain.port.out.FileStoragePort;
 import com.example.authhexagonal.domain.port.out.PlanningCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassCatalogRepositoryPort;
@@ -33,8 +37,11 @@ public class PlanningClassService implements
         CreatePlanningClassUseCase,
         SavePlanningClassDraftUseCase,
         GetPlanningClassCatalogsUseCase,
+        ListPlanningClassesUseCase,
+        DeletePlanningClassUseCase,
         AttachPlanningClassDocumentUseCase,
-        RemovePlanningClassDocumentUseCase {
+        RemovePlanningClassDocumentUseCase,
+        UpdatePlanningClassTitleUseCase {
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "docx", "pptx");
     private static final long MAX_FILE_SIZE_BYTES = 20L * 1024L * 1024L;
@@ -77,6 +84,21 @@ public class PlanningClassService implements
                 PlanningEvaluationType.asOptions(),
                 PlanningClassDurationOption.defaults()
         );
+    }
+
+    @Override
+    public List<PlanningClass> listClasses(
+            String username,
+            Long courseId,
+            Long subjectId,
+            Integer semester,
+            Integer month,
+            PlanningClassStatus status,
+            PlanningDocumentFileType documentType,
+            String search
+    ) {
+        validateMonth(month);
+        return planningClassRepositoryPort.findClasses(username, courseId, subjectId, semester, month, status, documentType, search);
     }
 
     @Override
@@ -128,6 +150,26 @@ public class PlanningClassService implements
 
         planningClassDocumentRepositoryPort.deleteDocument(documentId);
         fileStoragePort.delete(document.filePath());
+    }
+
+    @Override
+    public PlanningClass updateTitle(String username, Long classId, String title) {
+        PlanningClass planningClass = planningClassRepositoryPort.findAccessibleById(username, classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clase planificada no encontrada"));
+
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("El titulo de la clase es obligatorio");
+        }
+
+        return planningClassRepositoryPort.updateTitle(planningClass.id(), title.trim());
+    }
+
+    @Override
+    public void deleteClass(String username, Long classId) {
+        PlanningClass planningClass = planningClassRepositoryPort.findAccessibleById(username, classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clase planificada no encontrada"));
+
+        planningClassRepositoryPort.deleteClass(planningClass.id());
     }
 
     private PlanningClass save(
@@ -197,6 +239,12 @@ public class PlanningClassService implements
             if (command.closingActivity() == null || command.closingActivity().isBlank()) {
                 throw new IllegalArgumentException("El cierre de la clase es obligatorio");
             }
+        }
+    }
+
+    private void validateMonth(Integer month) {
+        if (month != null && (month < 1 || month > 12)) {
+            throw new IllegalArgumentException("El mes seleccionado no es valido");
         }
     }
 

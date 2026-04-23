@@ -24,10 +24,27 @@ export interface SchoolActivity {
   icon: string;
 }
 
+export interface ActivityCalendarSummary {
+  total: number;
+  thisMonth: number;
+  upcoming: number;
+  completed: number;
+}
+
+export interface ActivityCalendarDay {
+  isoDate: string;
+  dayOfMonth: number;
+  inCurrentMonth: boolean;
+  today: boolean;
+  activities: SchoolActivity[];
+}
+
 export interface ActivityCalendar {
   year: number;
   month: number;
   monthLabel: string;
+  summary: ActivityCalendarSummary;
+  days: ActivityCalendarDay[];
   monthlyActivities: SchoolActivity[];
   upcomingActivities: SchoolActivity[];
   activityTypes: ActivityType[];

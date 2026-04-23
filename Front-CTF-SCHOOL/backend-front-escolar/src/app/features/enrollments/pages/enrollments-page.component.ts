@@ -9,8 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
-import { EnrollmentListItem, EnrollmentOverview, EnrollmentSummary } from '../../../core/models/enrollment.models';
+import { EnrollmentListItem, EnrollmentOverview, EnrollmentPagination, EnrollmentSummary } from '../../../core/models/enrollment.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
@@ -35,9 +36,11 @@ export class EnrollmentsPageComponent {
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
+  private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly displayedColumns = ['student', 'course', 'guardian', 'status', 'actions'];
   readonly overview = signal<EnrollmentOverview | null>(null);
   readonly isLoading = signal(true);
@@ -53,13 +56,16 @@ export class EnrollmentsPageComponent {
     pending: 0,
     courses: 0
   });
+  readonly pagination = computed<EnrollmentPagination>(() => this.overview()?.pagination ?? {
+    page: 0,
+    size: this.pageSize,
+    totalItems: 0,
+    totalPages: 0
+  });
   readonly enrollments = computed<EnrollmentListItem[]>(() => this.overview()?.enrollments ?? []);
   readonly pageSize = EnrollmentsPageComponent.PAGE_SIZE;
-  readonly totalItems = computed(() => this.enrollments().length);
-  readonly pagedEnrollments = computed(() => {
-    const start = this.pageIndex() * this.pageSize;
-    return this.enrollments().slice(start, start + this.pageSize);
-  });
+  readonly totalItems = computed(() => this.pagination().totalItems);
+  readonly pagedEnrollments = computed(() => this.enrollments());
   readonly shouldShowPaginator = computed(() => this.totalItems() > this.pageSize);
 
   constructor() {
@@ -72,10 +78,13 @@ export class EnrollmentsPageComponent {
       });
 
     effect(() => {
-      const total = this.totalItems();
-      const maxPageIndex = Math.max(Math.ceil(total / this.pageSize) - 1, 0);
-      if (this.pageIndex() > maxPageIndex) {
+      const pagination = this.pagination();
+      const currentPage = this.pageIndex();
+      const maxPageIndex = Math.max(pagination.totalPages - 1, 0);
+
+      if (pagination.totalItems > 0 && currentPage > maxPageIndex) {
         this.pageIndex.set(maxPageIndex);
+        this.loadOverview();
       }
     });
   }
@@ -113,13 +122,16 @@ export class EnrollmentsPageComponent {
 
   handlePageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
+    this.loadOverview();
   }
 
   private loadOverview(): void {
     this.isLoading.set(true);
     this.enrollmentApiService.getOverview({
       search: this.filtersForm.controls.search.value,
-      status: this.filtersForm.controls.status.value || null
+      status: this.filtersForm.controls.status.value || null,
+      page: this.pageIndex(),
+      size: this.pageSize
     }).subscribe({
       next: (overview) => {
         this.overview.set(overview);

@@ -1,121 +1,280 @@
-<mat-sidenav-container class="planning-shell">
-  <mat-sidenav mode="side" opened class="planning-sidenav">
-    <app-teacher-side-menu />
-  </mat-sidenav>
+<app-teacher-modern-layout
+  title=""
+  activeItem="planning"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="planning-shell">
+    <section class="page-header">
+      <div class="page-title">
+        <span class="eyebrow">Planificacion docente</span>
+        <h1>Mis Planificaciones</h1>
+        <p>Historial y control de clases planificadas por semestre.</p>
+      </div>
 
-  <mat-sidenav-content class="planning-content">
-    <mat-toolbar class="planning-toolbar">
-      <span>Planificacion</span>
-      <span class="toolbar-spacer"></span>
+      <a class="btn-create" routerLink="/dashboard/planificacion/nueva-clase">
+        <mat-icon>add</mat-icon>
+        Nueva Planificacion
+      </a>
+    </section>
 
-      <section class="toolbar-tabs">
-        <button mat-stroked-button routerLink="/dashboard/planificacion/documentos">
-          <mat-icon>folder_open</mat-icon>
-          Ver documentos
-        </button>
-        <button mat-stroked-button routerLink="/dashboard/planificacion/nueva-unidad">
-          <mat-icon>add_circle</mat-icon>
-          Nueva unidad
-        </button>
-        <button mat-flat-button color="primary" routerLink="/dashboard/planificacion/nueva-clase">
-          <mat-icon>library_add</mat-icon>
-          Nueva clase
-        </button>
-      </section>
-    </mat-toolbar>
-
-    <div class="planning-page">
-      <section class="hero-box planning-hero">
-        <div class="hero-copy">
-          <span class="hero-tag">Planificacion docente</span>
-          <h1>Planificación</h1>
-          <p>Revisa el avance del semestre, organiza unidades y mantén el material del curso alineado en un solo lugar.</p>
+    <section class="summary-strip">
+      <article class="summary-card tone-blue">
+        <div class="summary-icon">
+          <mat-icon>view_module</mat-icon>
         </div>
-      </section>
+        <div>
+          <strong>{{ metrics().totalUnits }}</strong>
+          <span>Unidades</span>
+        </div>
+      </article>
+      <article class="summary-card tone-green">
+        <div class="summary-icon">
+          <mat-icon>event_note</mat-icon>
+        </div>
+        <div>
+          <strong>{{ metrics().totalClasses }}</strong>
+          <span>Clases</span>
+        </div>
+      </article>
+      <article class="summary-card tone-amber">
+        <div class="summary-icon">
+          <mat-icon>task_alt</mat-icon>
+        </div>
+        <div>
+          <strong>{{ metrics().publishedClasses }}</strong>
+          <span>Publicadas</span>
+        </div>
+      </article>
+      <article class="summary-card tone-purple">
+        <div class="summary-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div>
+          <strong>{{ metrics().semesterProgressPercent }}%</strong>
+          <span>Avance</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="filters-bar">
+      <label class="search-wrapper">
+        <mat-icon>search</mat-icon>
+        <input
+          type="search"
+          placeholder="Buscar por tema, asignatura, curso u OA..."
+          [value]="search()"
+          (input)="updateSearch($any($event.target).value)" />
+      </label>
+
+      <select class="filter-select" [value]="semester()" (change)="updateSemester($any($event.target).value)">
+        <option value="all">Todos los semestres</option>
+        <option value="1">Primer Semestre</option>
+        <option value="2">Segundo Semestre</option>
+      </select>
+
+      <select class="filter-select" [value]="month()" (change)="updateMonth($any($event.target).value)">
+        @for (item of months; track item.value) {
+          <option [value]="item.value">{{ item.label }}</option>
+        }
+      </select>
+
+      <select class="filter-select" [value]="subjectId()" (change)="updateSubject($any($event.target).value)">
+        <option value="all">Todas las Asignaturas</option>
+        @for (subject of subjects(); track subject.id) {
+          <option [value]="subject.id">{{ subject.name }}</option>
+        }
+      </select>
+    </section>
+
+    <section class="table-container">
+      <header class="table-heading">
+        <div>
+          <h2>Planificaciones</h2>
+          <p>{{ semesterLabel() }} · {{ classes().length }} clases encontradas</p>
+        </div>
+      </header>
 
       @if (isLoading()) {
-        <mat-card class="planning-loading-card">
-          <mat-spinner diameter="44" />
-          <p>Cargando resumen semestral de planificación...</p>
-        </mat-card>
+        <div class="empty-state">
+          <mat-icon>hourglass_top</mat-icon>
+          <strong>Cargando planificaciones...</strong>
+        </div>
+      } @else if (!hasClasses()) {
+        <div class="empty-state">
+          <mat-icon>event_note</mat-icon>
+          <strong>No hay planificaciones para mostrar</strong>
+          <p>Ajusta los filtros o crea una nueva planificacion.</p>
+        </div>
       } @else {
-        <section class="planning-cards">
-          @for (card of metricCards(); track card.label) {
-            <mat-card class="metric-card" [class]="'tone-' + card.tone">
-              <span>{{ card.label }}</span>
-              <strong>{{ card.value }}</strong>
-              <small>{{ card.detail }}</small>
-            </mat-card>
-          }
-        </section>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Asignatura / Clase</th>
+                <th>Fecha y duracion</th>
+                <th>OA asociados</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (planningClass of classes(); track planningClass.id) {
+                <tr>
+                  <td>
+                    <div class="class-info">
+                      <div class="class-subject">
+                        <mat-icon>{{ subjectIcon(planningClass.subjectName) }}</mat-icon>
+                        <span>{{ planningClass.subjectName }} ({{ planningClass.courseName }})</span>
+                      </div>
+                      <div class="class-details">
+                        Clase: {{ planningClass.title }}
+                      </div>
+                    </div>
+                  </td>
 
-        <section class="filters-row">
-          <div class="filters-row__chips">
-            <button
-              mat-stroked-button
-              [class.is-active]="activeSubjectId() === null"
-              (click)="selectSubject(null)"
-            >
-              Todas las asignaturas
-            </button>
+                  <td>
+                    <div class="date-main">{{ formatClassDate(planningClass.plannedDate) }}</div>
+                    <div class="class-details">{{ planningClass.durationLabel }}</div>
+                  </td>
 
-            @for (subject of subjectFilters(); track subject.id) {
-              <button
-                mat-stroked-button
-                [class.is-active]="activeSubjectId() === subject.id"
-                (click)="selectSubject(subject.id)"
-              >
-                {{ subject.name }}
+                  <td>
+                    <div class="oa-pill">{{ planningClass.objectiveCode || 'Sin OA' }}</div>
+                  </td>
+
+                  <td>
+                    <span class="status-pill" [class]="statusClass(planningClass.status)">
+                      {{ statusLabel(planningClass.status) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div class="actions">
+                      <button class="btn-icon" type="button" (click)="openView(planningClass)" title="Ver planificación">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button class="btn-icon" type="button" disabled title="Editar se migrará con formato de nueva planificación">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button class="btn-icon danger" type="button" (click)="deleteClass(planningClass)" title="Eliminar planificación">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    @if (selectedPlanningClass(); as planningClass) {
+      <section class="modal-overlay active" (click)="closeView()">
+        <article class="modal-paper" (click)="$event.stopPropagation()">
+          <button class="btn-close-floating" type="button" (click)="closeView()" title="Cerrar">
+            <mat-icon>close</mat-icon>
+          </button>
+
+          <header class="doc-header">
+            <div class="doc-title">
+              <h2>Planificación de Clase</h2>
+              <p>Asignatura de <strong>{{ planningClass.subjectName }}</strong></p>
+              <div class="doc-meta">
+                <span><mat-icon>event</mat-icon>{{ formatFullClassDate(planningClass.plannedDate) }}</span>
+                <span><mat-icon>schedule</mat-icon>{{ planningClass.durationLabel }}</span>
+                <span><mat-icon>school</mat-icon>{{ planningClass.courseName }}</span>
+              </div>
+            </div>
+
+            <div class="doc-actions">
+              <button type="button" (click)="printView()">
+                <mat-icon>print</mat-icon>
+                Imprimir
               </button>
-            }
-          </div>
-        </section>
-
-        <mat-card class="planning-list-card">
-          <div class="planning-list-card__header">
-            <div>
-              <h3>Unidades del semestre</h3>
-              <p>Vista consolidada de progreso por unidad, clases y documentos.</p>
             </div>
-          </div>
+          </header>
 
-          @if (units().length === 0) {
-            <div class="planning-empty">
-              <mat-icon>playlist_add_check</mat-icon>
-              <p>No hay unidades para los filtros seleccionados.</p>
-            </div>
-          } @else {
-            <div class="planning-list">
-              @for (unit of units(); track unit.id) {
-                <article class="planning-list__item">
-                  <div class="planning-list__pill">{{ unit.code }}</div>
+          <div class="doc-content">
+            <div class="doc-grid">
+              <div class="doc-main">
+                <div class="doc-section-title">
+                  <mat-icon>lightbulb</mat-icon>
+                  Tema de la Clase
+                </div>
+                <h3>{{ planningClass.title }}</h3>
 
-                  <div class="planning-list__copy">
-                    <h4>{{ unit.name }}</h4>
-                    <p>{{ unit.subjectName }} · {{ unit.courseName }}</p>
-
-                    <div class="planning-list__stats">
-                      <span>{{ unit.totalClasses }} clases</span>
-                      <span>{{ unit.totalDocuments }} docs</span>
-                      <span>Semanas {{ unit.weekRange }}</span>
-                    </div>
+                <div class="doc-phase">
+                  <div class="doc-phase-head">
+                    Inicio: Activación y Motivación
+                    <span class="doc-phase-time">Inicio</span>
                   </div>
+                  <div class="doc-phase-text">{{ planningClass.startActivity || 'Sin inicio registrado.' }}</div>
+                </div>
 
-                  <div class="planning-list__progress">
-                    <div class="planning-list__progress-meta">
-                      <span>{{ unit.progressPercent }}%</span>
-                      <mat-chip [class]="statusClass(unit.status)">
-                        {{ statusLabel(unit.status) }}
-                      </mat-chip>
-                    </div>
-                    <mat-progress-bar mode="determinate" [value]="unit.progressPercent" />
+                <div class="doc-phase">
+                  <div class="doc-phase-head">
+                    Desarrollo: Construcción del Aprendizaje
+                    <span class="doc-phase-time">Desarrollo</span>
+                  </div>
+                  <div class="doc-phase-text">{{ planningClass.developmentActivity || 'Sin desarrollo registrado.' }}</div>
+                </div>
+
+                <div class="doc-phase final">
+                  <div class="doc-phase-head">
+                    Cierre: Metacognición
+                    <span class="doc-phase-time">Cierre</span>
+                  </div>
+                  <div class="doc-phase-text">{{ planningClass.closingActivity || 'Sin cierre registrado.' }}</div>
+                </div>
+              </div>
+
+              <aside class="doc-sidebar">
+                <div class="doc-section-title">
+                  <mat-icon>link</mat-icon>
+                  Alineación Curricular
+                </div>
+
+                <article class="doc-card">
+                  <h4>OA ASOCIADO</h4>
+                  <div class="doc-oa-item">
+                    <strong>{{ planningClass.objectiveCode || 'Sin OA' }}</strong>
+                    <span>{{ planningClass.objectiveDescription || planningClass.objectiveTitle || 'Sin descripción registrada.' }}</span>
                   </div>
                 </article>
-              }
+
+                <article class="doc-card">
+                  <h4>UNIDAD</h4>
+                  <p>{{ planningClass.unitNumberLabel }} · {{ planningClass.unitName }}</p>
+                </article>
+
+                <article class="doc-card evaluation">
+                  <h4><mat-icon>fact_check</mat-icon> EVALUACIÓN</h4>
+                  <p>
+                    <strong>Instrumento:</strong> {{ planningClass.evaluationType || 'Sin evaluación registrada' }}
+                  </p>
+                </article>
+
+                <article class="doc-card">
+                  <h4>DOCUMENTOS</h4>
+                  @if (planningClass.documents.length === 0) {
+                    <p>No hay documentos adjuntos.</p>
+                  } @else {
+                    <div class="doc-files">
+                      @for (document of planningClass.documents; track document.id) {
+                        <span>
+                          <mat-icon>description</mat-icon>
+                          {{ document.originalName }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </article>
+              </aside>
             </div>
-          }
-        </mat-card>
-      }
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+          </div>
+        </article>
+      </section>
+    }
+  </main>
+</app-teacher-modern-layout>

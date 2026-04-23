@@ -242,7 +242,7 @@
                   <mat-icon>bar_chart</mat-icon>
                 </div>
                 <div>
-                  <h2>Calificaciones</h2>
+            <h2>Evaluaciones</h2>
                   <p>Revisa tus notas por asignatura, evaluaciones registradas y promedio academico.</p>
                 </div>
               </div>
@@ -277,7 +277,7 @@
               @if (gradeSubjects().length === 0) {
                 <section class="empty-inline">
                   <mat-icon>grading</mat-icon>
-                  <span>No hay calificaciones registradas todavia.</span>
+              <span>No hay notas registradas todavia.</span>
                 </section>
               } @else {
                 @for (subject of gradeSubjects(); track subject.subjectName) {
@@ -418,13 +418,13 @@
             </mat-card>
 
             <mat-card appearance="outlined" class="panel-card" [class.is-highlighted]="isSectionActive('grades')">
-              <mat-card-title>Ultimas calificaciones</mat-card-title>
+        <mat-card-title>Ultimas notas</mat-card-title>
               <mat-divider></mat-divider>
               <mat-card-content class="grades-list">
                 @if (dashboard.latestGrades.length === 0) {
                   <section class="empty-inline">
                     <mat-icon>grading</mat-icon>
-                    <span>No hay calificaciones registradas todavia.</span>
+              <span>No hay notas registradas todavia.</span>
                   </section>
                 } @else {
                   @for (grade of dashboard.latestGrades; track grade.subjectName + grade.evaluationName + grade.recordedAt) {

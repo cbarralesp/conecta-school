@@ -5,16 +5,20 @@ import com.example.authhexagonal.domain.port.in.CreatePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitsUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningUnitDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningUnitUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitCatalogsResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitCreateRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitDraftRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitSummaryResponse;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,17 +34,20 @@ public class PlanningUnitController {
     private final CreatePlanningUnitUseCase createPlanningUnitUseCase;
     private final SavePlanningUnitDraftUseCase savePlanningUnitDraftUseCase;
     private final GetPlanningUnitsUseCase getPlanningUnitsUseCase;
+    private final UpdatePlanningUnitUseCase updatePlanningUnitUseCase;
 
     public PlanningUnitController(
             GetPlanningUnitCatalogsUseCase getPlanningUnitCatalogsUseCase,
             CreatePlanningUnitUseCase createPlanningUnitUseCase,
             SavePlanningUnitDraftUseCase savePlanningUnitDraftUseCase,
-            GetPlanningUnitsUseCase getPlanningUnitsUseCase
+            GetPlanningUnitsUseCase getPlanningUnitsUseCase,
+            UpdatePlanningUnitUseCase updatePlanningUnitUseCase
     ) {
         this.getPlanningUnitCatalogsUseCase = getPlanningUnitCatalogsUseCase;
         this.createPlanningUnitUseCase = createPlanningUnitUseCase;
         this.savePlanningUnitDraftUseCase = savePlanningUnitDraftUseCase;
         this.getPlanningUnitsUseCase = getPlanningUnitsUseCase;
+        this.updatePlanningUnitUseCase = updatePlanningUnitUseCase;
     }
 
     @GetMapping("/catalogs")
@@ -76,6 +83,17 @@ public class PlanningUnitController {
     ) {
         return PlanningUnitResponse.fromDomain(
                 savePlanningUnitDraftUseCase.saveDraft(authentication.getName(), toCommand(request))
+        );
+    }
+
+    @PutMapping("/{unitId}")
+    public PlanningUnitResponse updateUnit(
+            Authentication authentication,
+            @PathVariable Long unitId,
+            @Valid @RequestBody PlanningUnitUpdateRequest request
+    ) {
+        return PlanningUnitResponse.fromDomain(
+                updatePlanningUnitUseCase.updateUnit(authentication.getName(), unitId, request.unitNumber(), request.name())
         );
     }
 

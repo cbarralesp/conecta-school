@@ -35,7 +35,6 @@ export class DashboardPageComponent {
   readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly dashboard = signal<TeacherDashboard | null>(null);
-  readonly todayName = this.resolveTodayName();
   readonly todayHeaderLabel = this.formatTodayHeader();
 
   readonly modernCards = computed(() => [
@@ -59,34 +58,7 @@ export class DashboardPageComponent {
     }
   ]);
 
-  readonly todaySchedule = computed(() =>
-    (this.dashboard()?.weeklySchedule ?? []).filter((item) => item.dayOfWeek === this.todayName)
-  );
-
-  readonly todaySchedulePreview = computed(() => {
-    const items = [...this.todaySchedule()].sort((left, right) =>
-      left.startTime.localeCompare(right.startTime)
-    );
-
-    if (items.length <= 2) {
-      return items;
-    }
-
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const upcoming = items.filter((item) => item.endTime >= currentTime);
-
-    if (upcoming.length >= 2) {
-      return upcoming.slice(0, 2);
-    }
-
-    if (upcoming.length === 1) {
-      const previous = items.filter((item) => item.endTime < currentTime).slice(-1);
-      return [...previous, ...upcoming];
-    }
-
-    return items.slice(-2);
-  });
+  readonly todaySchedulePreview = computed(() => this.dashboard()?.todaySchedulePreview ?? []);
 
   readonly quickLinks = computed(() => [
     {
@@ -104,7 +76,7 @@ export class DashboardPageComponent {
       route: '/dashboard/asistencia'
     },
     {
-      title: 'Ingresar calificaciones',
+      title: 'Abrir evaluaciones',
       detail: `${this.dashboard()?.pendingPlanningCount ?? 0} pendientes`,
       icon: 'grading',
       tone: 'warning',
@@ -139,55 +111,6 @@ export class DashboardPageComponent {
 
   constructor() {
     this.loadDashboard();
-  }
-
-  todayScheduleCaption(): string {
-    if (this.todaySchedule().length === 0) {
-      return `${this.todayLabel()} · Sin clases asignadas para la jornada actual`;
-    }
-
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const hasUpcoming = this.todaySchedule().some((item) => item.endTime >= currentTime);
-
-    return hasUpcoming
-      ? `${this.todayLabel()} · Proximas 2 clases del dia`
-      : `${this.todayLabel()} · Ultimas 2 clases del dia`;
-  }
-
-  private todayLabel(): string {
-    switch (this.todayName) {
-      case 'LUNES':
-        return 'Lunes';
-      case 'MARTES':
-        return 'Martes';
-      case 'MIERCOLES':
-        return 'Miercoles';
-      case 'JUEVES':
-        return 'Jueves';
-      case 'VIERNES':
-        return 'Viernes';
-      default:
-        return 'Hoy';
-    }
-  }
-
-  private resolveTodayName(): string {
-    const day = new Date().getDay();
-    switch (day) {
-      case 1:
-        return 'LUNES';
-      case 2:
-        return 'MARTES';
-      case 3:
-        return 'MIERCOLES';
-      case 4:
-        return 'JUEVES';
-      case 5:
-        return 'VIERNES';
-      default:
-        return 'LUNES';
-    }
   }
 
   private formatTodayHeader(): string {

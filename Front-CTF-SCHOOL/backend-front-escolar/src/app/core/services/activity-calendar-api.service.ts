@@ -41,6 +41,16 @@ export class ActivityCalendarApiService {
     return {
       ...calendar,
       monthLabel: normalizeDashboardText(calendar.monthLabel),
+      summary: {
+        total: calendar.summary?.total ?? calendar.monthlyActivities.length,
+        thisMonth: calendar.summary?.thisMonth ?? calendar.monthlyActivities.length,
+        upcoming: calendar.summary?.upcoming ?? calendar.upcomingActivities.length,
+        completed: calendar.summary?.completed ?? 0
+      },
+      days: (calendar.days ?? []).map((day) => ({
+        ...day,
+        activities: day.activities.map((activity) => this.normalizeActivity(activity))
+      })),
       monthlyActivities: calendar.monthlyActivities.map((activity) => this.normalizeActivity(activity)),
       upcomingActivities: calendar.upcomingActivities.map((activity) => this.normalizeActivity(activity)),
       activityTypes: calendar.activityTypes.map((type) => ({

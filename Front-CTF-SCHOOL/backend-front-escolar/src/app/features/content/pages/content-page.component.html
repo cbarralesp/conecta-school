@@ -1,0 +1,376 @@
+<app-teacher-modern-layout
+  title=""
+  activeItem="content"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="content-page">
+    <section class="page-header">
+      <div class="page-header__left">
+        <h1 class="page-header__title">Contenido</h1>
+        <p class="page-header__subtitle">Organiza unidades, clases y documentos usando la informacion real de planificacion del sistema.</p>
+      </div>
+    </section>
+
+    @if (isLoading()) {
+      <mat-card appearance="outlined" class="content-loading">
+        <mat-spinner diameter="42" />
+        <p>Cargando contenido academico...</p>
+      </mat-card>
+    } @else {
+      <section class="summary-grid">
+        @for (card of stats(); track card.label) {
+          <mat-card appearance="outlined" class="summary-card" [class]="'sc-' + card.tone">
+            <div class="summary-card__head">
+              <div class="summary-card__icon">
+                <mat-icon>{{ card.icon }}</mat-icon>
+              </div>
+              <div class="summary-card__ring">{{ card.value }}</div>
+            </div>
+
+            <div class="summary-card__copy">
+              <strong>{{ card.value }}</strong>
+              <span>{{ card.label }}</span>
+            </div>
+          </mat-card>
+        }
+      </section>
+
+      <section class="content-toolbar">
+        <div class="content-toolbar__filters">
+          <label class="inline-field">
+            <span class="inline-field__label">Curso</span>
+            <div class="inline-field__control inline-field__control--course">
+              <div class="inline-select">
+                <mat-icon>school</mat-icon>
+                <select [ngModel]="selectedCourse()" (ngModelChange)="setCourseFilter($event)">
+                  <option [ngValue]="'all'">Todos</option>
+                  @for (course of courseOptions(); track course.id) {
+                    <option [ngValue]="course.id">{{ course.name }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </label>
+
+          <div class="content-tabs">
+            @for (chip of filterChips(); track chip.key) {
+              <button type="button" class="content-tab" [class.is-active]="filter() === chip.key" (click)="setFilter(chip.key)">
+                <mat-icon>{{ chip.icon }}</mat-icon>
+                <span>{{ chip.label }}</span>
+                <small>{{ chip.count }}</small>
+              </button>
+            }
+          </div>
+
+          <div class="content-tabs content-tabs--semester">
+            @for (chip of semesterChips(); track chip.key) {
+              <button
+                type="button"
+                class="content-tab content-tab--semester"
+                [class.is-active]="selectedSemester() === chip.key"
+                (click)="setSemesterFilter(chip.key)">
+                <mat-icon>calendar_month</mat-icon>
+                <span>{{ chip.label }}</span>
+                <small>{{ chip.count }}</small>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="page-header__actions">
+          <button mat-flat-button type="button" class="header-button header-button--primary" (click)="openUnitDialog()">
+            <mat-icon>add</mat-icon>
+            Nueva Unidad
+          </button>
+        </div>
+      </section>
+
+      <section class="units-list">
+        @for (unit of visibleUnits(); track unit.id) {
+          <mat-card appearance="outlined" class="content-card">
+            <button type="button" class="content-card__header" (click)="toggleUnit(unit.id)">
+              <div class="content-card__number" [class]="'content-card__number--' + unit.color">{{ unit.numberLabel }}</div>
+
+              <div class="content-card__copy">
+                <div class="content-card__title-row">
+                  <h2>{{ unit.title }}</h2>
+                  <button type="button" class="edit-icon-button" aria-label="Editar unidad" (click)="openEditUnitDialog(unit, $event)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <div class="content-card__meta">
+                  <span><mat-icon>co_present</mat-icon>{{ unit.classes.length }} clases</span>
+                  <span><mat-icon>description</mat-icon>{{ unit.totalDocuments }} documentos</span>
+                  <span><mat-icon>schedule</mat-icon>Semanas {{ unit.weekLabel }}</span>
+                  <span><mat-icon>school</mat-icon>{{ unit.courseName }}</span>
+                </div>
+              </div>
+
+              <div class="content-card__progress">
+                <span>{{ unit.progress }}% completado</span>
+                <div class="content-card__progress-track">
+                  <div class="content-card__progress-fill" [style.width.%]="unit.progress" [class]="'content-card__progress-fill--' + unit.color"></div>
+                </div>
+              </div>
+
+              <mat-icon class="content-card__toggle" [class.is-open]="unit.expanded">expand_more</mat-icon>
+            </button>
+
+            @if (unit.expanded) {
+              <div class="content-card__body">
+                @if (visibleClasses(unit).length === 0) {
+                  <div class="content-card__empty">
+                    <mat-icon>folder_open</mat-icon>
+                    <p>No hay documentos para el filtro seleccionado en esta unidad.</p>
+                  </div>
+                } @else {
+                  @for (contentClass of visibleClasses(unit); track contentClass.id) {
+                    <article class="class-card">
+                      <div class="class-card__line"></div>
+
+                      <div class="class-card__head">
+                        <div class="class-card__copy">
+                          <div class="class-card__title-row">
+                            <h3>{{ contentClass.title }}</h3>
+                            <button type="button" class="edit-icon-button" aria-label="Editar clase" (click)="openEditClassDialog(contentClass, $event)">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="class-card__meta">
+                          <span class="class-card__badge" [class.class-card__badge--draft]="contentClass.statusTone === 'draft'">
+                            {{ contentClass.statusLabel }}
+                          </span>
+                          <span>{{ contentClass.dateLabel }}</span>
+                          <button type="button" class="class-card__toggle" (click)="toggleClass(unit.id, contentClass.id)">
+                            <mat-icon [class.is-open]="contentClass.expanded">expand_more</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      @if (contentClass.expanded && visibleDocuments(contentClass).length > 0) {
+                        <div class="documents-list">
+                          @for (document of visibleDocuments(contentClass); track document.id) {
+                            <article class="document-card">
+                              <div class="document-card__icon" [class]="'document-card__icon--' + toneForDocument(document.type)">
+                                <mat-icon>{{ iconForDocument(document.type) }}</mat-icon>
+                              </div>
+
+                              <div class="document-card__copy">
+                                <h4>{{ document.title }}</h4>
+                                <div class="document-card__meta">
+                                  <span><mat-icon>dns</mat-icon>{{ document.sizeLabel }}</span>
+                                  <span><mat-icon>visibility</mat-icon>{{ document.metaLabel }}</span>
+                                  <span><mat-icon>calendar_today</mat-icon>{{ document.dateLabel }}</span>
+                                </div>
+                              </div>
+
+                              <div class="document-card__actions">
+                                <span class="document-card__status">
+                                  <mat-icon>check_circle</mat-icon>
+                                  {{ document.visibilityLabel }}
+                                </span>
+                                <button type="button" class="document-card__action-btn" aria-label="Descargar documento" (click)="downloadDocument(document.id)">
+                                  <mat-icon>download</mat-icon>
+                                </button>
+                              </div>
+                            </article>
+                          }
+                        </div>
+                      }
+                    </article>
+                  }
+                }
+
+                <div class="content-card__footer">
+                  <button type="button" class="content-card__add-class" (click)="openClassDialog(unit.id)">
+                    <mat-icon>add_circle</mat-icon>
+                    Agregar Clase
+                  </button>
+                </div>
+              </div>
+            }
+          </mat-card>
+        }
+      </section>
+    }
+  </main>
+
+  @if (isUnitDialogOpen()) {
+    <div class="dialog-backdrop" (click)="closeDialogs()">
+      <section class="dialog-card" (click)="$event.stopPropagation()">
+        <header class="dialog-card__header">
+          <h2>Crear Nueva Unidad</h2>
+          <button type="button" class="dialog-card__close" (click)="closeDialogs()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="dialog-card__body">
+          <label class="dialog-field">
+            <span>Carga docente</span>
+            <select [ngModel]="unitAssignmentId()" (ngModelChange)="unitAssignmentId.set($event)">
+              @for (assignment of assignmentOptions(); track assignment.loadId) {
+                <option [ngValue]="assignment.loadId">{{ assignment.subjectName }} · {{ assignment.courseName }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="dialog-grid">
+            <label class="dialog-field">
+              <span>Numero de unidad</span>
+              <select [ngModel]="unitNumberDraft()" (ngModelChange)="unitNumberDraft.set($event)">
+                @for (item of unitNumberOptions(); track item.code) {
+                  <option [ngValue]="item.code">{{ item.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="dialog-field">
+              <span>Titulo de la Unidad</span>
+              <input
+                type="text"
+                [ngModel]="unitTitleDraft()"
+                (ngModelChange)="unitTitleDraft.set($event)"
+                placeholder="Ej: Historia del Arte Moderno" />
+            </label>
+          </div>
+        </div>
+
+        <footer class="dialog-card__footer">
+          <button mat-stroked-button type="button" (click)="closeDialogs()">Cancelar</button>
+          <button mat-flat-button type="button" (click)="createUnit()">Guardar Unidad</button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (isClassDialogOpen()) {
+    <div class="dialog-backdrop" (click)="closeDialogs()">
+      <section class="dialog-card dialog-card--wide" (click)="$event.stopPropagation()">
+        <header class="dialog-card__header">
+          <h2>Crear Nueva Clase</h2>
+          <button type="button" class="dialog-card__close" (click)="closeDialogs()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="dialog-card__body">
+          <label class="dialog-field">
+            <span>Titulo de la Clase</span>
+            <input
+              type="text"
+              [ngModel]="classTitleDraft()"
+              (ngModelChange)="classTitleDraft.set($event)"
+              placeholder="Ej: Introduccion al color" />
+          </label>
+
+          <div class="dialog-grid">
+            <label class="dialog-field">
+              <span>Duracion</span>
+              <select [ngModel]="classDurationDraft()" (ngModelChange)="classDurationDraft.set($event)">
+                @for (item of durationOptions(); track item.code) {
+                  <option [ngValue]="item.code">{{ item.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="dialog-field">
+              <span>Fecha planificada</span>
+              <input
+                type="date"
+                [ngModel]="classPlannedDateDraft()"
+                (ngModelChange)="classPlannedDateDraft.set($event)" />
+            </label>
+          </div>
+
+          <label class="dialog-upload">
+            <span>Documento de Soporte (Opcional)</span>
+            <div class="dialog-upload__box">
+              <input type="file" accept=".pdf,.docx,.pptx" (change)="onClassFileSelected($event)" />
+              <mat-icon>cloud_upload</mat-icon>
+              <strong>{{ selectedClassFileName() }}</strong>
+              <small>PDF, DOCX o PPTX</small>
+            </div>
+          </label>
+        </div>
+
+        <footer class="dialog-card__footer">
+          <button mat-stroked-button type="button" (click)="closeDialogs()">Cancelar</button>
+          <button mat-flat-button type="button" (click)="createClass()">Guardar Clase</button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (isEditUnitDialogOpen()) {
+    <div class="dialog-backdrop" (click)="closeDialogs()">
+      <section class="dialog-card" (click)="$event.stopPropagation()">
+        <header class="dialog-card__header">
+          <h2>Editar Unidad</h2>
+          <button type="button" class="dialog-card__close" (click)="closeDialogs()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="dialog-card__body">
+          <div class="dialog-grid">
+            <label class="dialog-field">
+              <span>Numero de unidad</span>
+              <select [ngModel]="editingUnitNumberDraft()" (ngModelChange)="editingUnitNumberDraft.set($event)">
+                @for (item of unitNumberOptions(); track item.code) {
+                  <option [ngValue]="item.code">{{ item.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="dialog-field">
+              <span>Titulo de la Unidad</span>
+              <input
+                type="text"
+                [ngModel]="editingUnitTitleDraft()"
+                (ngModelChange)="editingUnitTitleDraft.set($event)"
+                placeholder="Ej: El sistema solar y los movimientos de la Tierra" />
+            </label>
+          </div>
+        </div>
+
+        <footer class="dialog-card__footer">
+          <button mat-stroked-button type="button" (click)="closeDialogs()">Cancelar</button>
+          <button mat-flat-button type="button" (click)="updateUnit()">Guardar cambios</button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (isEditClassDialogOpen()) {
+    <div class="dialog-backdrop" (click)="closeDialogs()">
+      <section class="dialog-card" (click)="$event.stopPropagation()">
+        <header class="dialog-card__header">
+          <h2>Editar Clase</h2>
+          <button type="button" class="dialog-card__close" (click)="closeDialogs()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="dialog-card__body">
+          <label class="dialog-field">
+            <span>Titulo de la Clase</span>
+            <input
+              type="text"
+              [ngModel]="editingClassTitleDraft()"
+              (ngModelChange)="editingClassTitleDraft.set($event)"
+              placeholder="Ej: Clase 1: Introduccion al sistema solar" />
+          </label>
+        </div>
+
+        <footer class="dialog-card__footer">
+          <button mat-stroked-button type="button" (click)="closeDialogs()">Cancelar</button>
+          <button mat-flat-button type="button" (click)="updateClassTitle()">Guardar cambios</button>
+        </footer>
+      </section>
+    </div>
+  }
+</app-teacher-modern-layout>

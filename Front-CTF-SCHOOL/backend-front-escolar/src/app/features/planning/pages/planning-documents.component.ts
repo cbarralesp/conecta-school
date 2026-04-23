@@ -3,9 +3,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import {
   DocumentItem,
@@ -15,8 +13,9 @@ import {
   SubjectGroup,
   UnitGroup
 } from '../../../core/models/planning.models';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { PlanningDocumentsToolbarComponent } from '../components/planning-documents-toolbar.component';
 import { PlanningSubjectCardComponent } from '../components/planning-subject-card.component';
 
@@ -31,10 +30,8 @@ type DocumentViewMode = 'grid' | 'list';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent,
+    TeacherModernLayoutComponent,
     PlanningDocumentsToolbarComponent,
     PlanningSubjectCardComponent
   ],
@@ -44,9 +41,11 @@ type DocumentViewMode = 'grid' | 'list';
 })
 export class PlanningDocumentsComponent {
   private readonly planningApiService = inject(PlanningApiService);
+  private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly isDeleting = signal<number | null>(null);
   readonly documents = signal<PlanningDocument[]>([]);
@@ -150,7 +149,7 @@ export class PlanningDocumentsComponent {
   }
 
   delete(document: DocumentItem): void {
-    const confirmed = window.confirm(`¿Eliminar "${document.name}" del banco de documentos?`);
+    const confirmed = window.confirm(`Eliminar "${document.name}" del banco de documentos?`);
     if (!confirmed || this.isDeleting() === document.id) {
       return;
     }
@@ -304,7 +303,7 @@ export class PlanningDocumentsComponent {
 
   private resolveFileName(response: HttpResponse<Blob>, fallbackName: string): string {
     const header = response.headers.get('content-disposition');
-    const match = header?.match(/filename="?([^"]+)"?/i);
+    const match = header?.match(/filename=\"?([^\"]+)\"?/i);
     return match?.[1] ?? fallbackName;
   }
 }

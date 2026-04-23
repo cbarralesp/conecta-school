@@ -10,6 +10,8 @@ public record MonthlyAttendanceView(
         int averageAttendance,
         int studentsAtRisk,
         int totalLate,
+        MonthlyAttendanceDistribution distribution,
+        List<MonthlyAttendanceDaySummary> dailySummary,
         List<MonthlyAttendanceStudent> students
 ) {
 }

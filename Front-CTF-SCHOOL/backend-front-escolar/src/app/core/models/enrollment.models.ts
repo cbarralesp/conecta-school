@@ -65,10 +65,18 @@ export interface EnrollmentDetail {
   pickupContacts: EnrollmentPickupContact[];
 }
 
+export interface EnrollmentPagination {
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+}
+
 export interface EnrollmentOverview {
   summary: EnrollmentSummary;
   courses: EnrollmentCourseOption[];
   enrollments: EnrollmentListItem[];
+  pagination: EnrollmentPagination;
 }
 
 export interface EnrollmentPayload {

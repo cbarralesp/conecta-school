@@ -120,6 +120,7 @@ export interface PlanningClassDocument {
   mimeType: string;
   sizeBytes: number;
   filePath: string;
+  fileType: PlanningDocumentFileType;
   visibleToStudents: boolean;
   uploadedAt: string;
 }
@@ -127,6 +128,10 @@ export interface PlanningClassDocument {
 export interface PlanningClass {
   id: number;
   unitId: number;
+  subjectId: number;
+  subjectName: string;
+  courseId: number;
+  courseName: string;
   unitNumberLabel: string;
   unitName: string;
   title: string;
@@ -273,4 +278,9 @@ export interface PlanningSummary {
 export interface PlanningSummaryFilters {
   subjectId?: number;
   year?: number;
+  courseId?: number;
+  semester?: number;
+  month?: number;
+  status?: PlanningClass['status'];
+  documentType?: PlanningDocumentFileType;
 }

@@ -1,6 +1,8 @@
 package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.model.PlanningSummaryFilter;
+import com.example.authhexagonal.domain.model.PlanningClassStatus;
+import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.port.in.GetPlanningSummaryUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningSummaryResponse;
 import org.slf4j.Logger;
@@ -30,12 +32,34 @@ public class PlanningSummaryController {
     public PlanningSummaryResponse getSummary(
             Authentication authentication,
             @RequestParam(name = "subjectId", required = false) Long subjectId,
-            @RequestParam(name = "year", required = false) Integer year
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "courseId", required = false) Long courseId,
+            @RequestParam(name = "semester", required = false) Integer semester,
+            @RequestParam(name = "month", required = false) Integer month,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "documentType", required = false) String documentType
     ) {
-        LOGGER.info("Solicitando resumen semestral de planificacion usuario={} subjectId={} year={}",
-                authentication.getName(), subjectId, year);
+        LOGGER.info("Solicitando resumen semestral de planificacion usuario={} subjectId={} year={} courseId={} semester={} month={} status={} documentType={}",
+                authentication.getName(), subjectId, year, courseId, semester, month, status, documentType);
         return PlanningSummaryResponse.fromDomain(
-                getPlanningSummaryUseCase.getSummary(authentication.getName(), new PlanningSummaryFilter(subjectId, year))
+                getPlanningSummaryUseCase.getSummary(
+                        authentication.getName(),
+                        new PlanningSummaryFilter(subjectId, year, courseId, semester, month, parseStatus(status), parseDocumentType(documentType))
+                )
         );
+    }
+
+    private PlanningDocumentFileType parseDocumentType(String documentType) {
+        if (documentType == null || documentType.isBlank()) {
+            return null;
+        }
+        return PlanningDocumentFileType.valueOf(documentType.trim().toUpperCase());
+    }
+
+    private PlanningClassStatus parseStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        return PlanningClassStatus.valueOf(status.trim().toUpperCase());
     }
 }

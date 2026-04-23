@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_CONFIG } from '../constants/api.config';
 import { Subject, SubjectPayload } from '../models/subject.models';
@@ -9,9 +9,17 @@ import { normalizeDashboardText } from '../utils/text-normalizer';
 export class SubjectApiService {
   private readonly http = inject(HttpClient);
 
-  findAll(): Observable<Subject[]> {
+  findAll(filters?: { search?: string; level?: 'all' | 'basic' | 'media' }): Observable<Subject[]> {
+    let params = new HttpParams();
+    if (filters?.search?.trim()) {
+      params = params.set('search', filters.search.trim());
+    }
+    if (filters?.level && filters.level !== 'all') {
+      params = params.set('level', filters.level);
+    }
+
     return this.http
-      .get<Subject[]>(`${API_CONFIG.baseUrl}/asignaturas`)
+      .get<Subject[]>(`${API_CONFIG.baseUrl}/asignaturas`, { params })
       .pipe(map((subjects) => subjects.map((subject) => this.normalizeSubject(subject))));
   }
 

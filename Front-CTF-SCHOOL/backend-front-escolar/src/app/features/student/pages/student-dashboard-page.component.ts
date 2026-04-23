@@ -88,7 +88,7 @@ export class StudentDashboardPageComponent {
       icon: 'fact_check'
     },
     {
-      title: 'Calificaciones',
+      title: 'Evaluaciones',
       value: this.gradesOverallAverage(),
       caption: 'Promedio general',
       tone: 'violet',

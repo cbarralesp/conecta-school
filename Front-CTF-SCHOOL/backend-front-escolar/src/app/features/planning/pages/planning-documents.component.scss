@@ -1,70 +1,57 @@
-.planning-shell {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #f7faff 0%, #eef4ff 100%);
+.planning-page {
+  display: grid;
+  gap: 1.25rem;
 }
 
-.planning-sidenav {
-  width: var(--app-shell-sidebar-width);
-  padding: var(--app-shell-sidebar-padding);
-  background: #f8fbff;
-  border-right: 1px solid rgba(27, 58, 111, 0.08);
-}
-
-:host ::ng-deep .planning-shell > .mat-drawer.planning-sidenav,
-:host ::ng-deep .planning-shell > .mat-sidenav.planning-sidenav {
-  width: var(--app-shell-sidebar-width) !important;
-  min-width: var(--app-shell-sidebar-width) !important;
-  max-width: var(--app-shell-sidebar-width) !important;
-  padding: var(--app-shell-sidebar-padding);
-  border-right: 1px solid var(--app-border-color);
-  background: var(--app-gradient-shell);
-  box-sizing: border-box;
-}
-
-:host ::ng-deep .planning-shell > .mat-drawer.planning-sidenav .mat-drawer-inner-container,
-:host ::ng-deep .planning-shell > .mat-sidenav.planning-sidenav .mat-drawer-inner-container {
-  overflow-x: hidden;
-}
-
-.planning-content {
-  min-height: 100vh;
-}
-
-.planning-toolbar {
+.planning-page__heading {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 84px;
-  padding: 1rem 1.75rem;
-  background: rgba(255, 255, 255, 0.92);
-  border-bottom: 1px solid rgba(27, 58, 111, 0.08);
+  flex-wrap: wrap;
 }
 
-.planning-toolbar__title h1 {
-  margin: 0.2rem 0 0;
-  font-size: 2rem;
-  color: #163658;
+.planning-page__heading-copy {
+  display: grid;
+  gap: 0.16rem;
 }
 
-.planning-toolbar__eyebrow,
+.planning-page__heading-copy h1 {
+  margin: 0;
+  color: #12233d;
+  font-size: 1.55rem;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.planning-page__heading-copy p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.planning-page__heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.planning-page__heading-actions button {
+  min-height: 2.7rem;
+  border-radius: 0.95rem !important;
+  padding-inline: 1rem;
+  font-weight: 700;
+}
+
 .planning-hero__eyebrow {
   color: #5074a2;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.planning-page {
-  display: grid;
-  gap: 1.25rem;
-  padding: 1.5rem 1.75rem 2rem;
 }
 
 .planning-hero {
@@ -114,16 +101,12 @@
 }
 
 @media (max-width: 820px) {
-  .planning-sidenav {
-    display: none;
+  .planning-page__heading-actions {
+    width: 100%;
   }
 
-  :host ::ng-deep .planning-shell > .mat-drawer.planning-sidenav,
-  :host ::ng-deep .planning-shell > .mat-sidenav.planning-sidenav {
-    display: none !important;
-  }
-
-  .toolbar-actions {
-    flex-direction: column;
+  .planning-page__heading-actions button {
+    width: 100%;
+    justify-content: center;
   }
 }

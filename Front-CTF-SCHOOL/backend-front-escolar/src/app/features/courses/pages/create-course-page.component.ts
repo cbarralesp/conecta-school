@@ -2,18 +2,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent
-} from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import {
@@ -27,14 +21,12 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
   selector: 'app-create-course-page',
   imports: [
     ReactiveFormsModule,
-    MatAutocompleteModule,
     MatButtonModule,
     MatCardModule,
-    MatCheckboxModule,
     MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
     MatSnackBarModule,
+    MatSelectModule,
     RouterLink,
     TeacherModernLayoutComponent
   ],
@@ -62,16 +54,18 @@ export class CreateCoursePageComponent {
   readonly isSearching = signal(false);
   readonly isSearchingTeachers = signal(false);
   readonly isSearchingAssistants = signal(false);
-  readonly isSearchingStudents = signal(false);
-  readonly isSearchingUniverseStudents = signal(false);
-  readonly availableStudentFilter = signal('');
-  readonly universeStudentFilter = signal('');
-  readonly universeStudents = signal<StudentCatalogItem[]>([]);
+  readonly isLoadingStudents = signal(false);
+  readonly currentStep = signal<'configuration' | 'students'>('configuration');
   readonly checkedAvailableIds = signal<number[]>([]);
   readonly checkedSelectedIds = signal<number[]>([]);
+  readonly addAllArmed = signal(false);
+  readonly schoolYears = [2026, 2027, 2028];
+  readonly parallelOptions = ['A', 'B', 'C', 'D', 'E', 'F'];
+  readonly scheduleOptions = ['Manana', 'Tarde', 'Completa'];
 
   readonly form = this.formBuilder.nonNullable.group({
     courseSearch: ['' as string | MasterCourse, [Validators.required]],
+    parallel: ['A', [Validators.required]],
     schoolYear: [2026, [Validators.required, Validators.min(2020)]],
     scheduleType: ['Manana', [Validators.required]],
     teacherSearch: ['' as string | TeacherCatalogItem, [Validators.required]],
@@ -81,137 +75,74 @@ export class CreateCoursePageComponent {
   readonly generatedCodePreview = computed(() => {
     const master = this.selectedMasterCourse();
     const year = this.form.controls.schoolYear.value;
-    return master ? `${this.normalizeMasterCourseCode(master.code)}-${year}` : '-';
+    return master ? `${this.courseTokenFromDescription(master.description)}${this.parallelPreview()}-${year}` : '-';
   });
 
-  readonly filteredAvailableStudents = computed(() => {
-    const filter = this.availableStudentFilter().trim().toUpperCase();
-    const selectedIds = new Set(this.selectedStudents().map((student) => student.id));
-    return this.availableStudents()
-      .filter((student) => !selectedIds.has(student.id))
-      .filter((student) => {
-        if (!filter) {
-          return true;
-        }
-        const haystack = `${student.fullName} ${student.run}`.toUpperCase();
-        return haystack.includes(filter);
-      });
+  readonly parallelPreview = computed(() => {
+    return this.form.controls.parallel.value || 'A';
   });
 
-  readonly visibleUniverseStudents = computed(() => {
-    const selectedIds = new Set(this.selectedStudents().map((student) => student.id));
-    return this.universeStudents().filter((student) => !selectedIds.has(student.id));
+  readonly selectedCourseTitle = computed(() => {
+    const masterCourse = this.selectedMasterCourse();
+    if (!masterCourse) {
+      return 'Curso sin definir';
+    }
+
+    return `${this.formatMasterCourseLabel(masterCourse.description)} ${this.parallelPreview()}`;
   });
+
+  readonly masterCourseOptions = computed(() => {
+    const deduped = new Map<string, MasterCourse>();
+
+    for (const course of this.masterCourses()) {
+      const key = this.formatMasterCourseLabel(course.description).toUpperCase();
+      if (!deduped.has(key)) {
+        deduped.set(key, course);
+      }
+    }
+
+    return Array.from(deduped.values()).sort((left, right) =>
+      this.formatMasterCourseLabel(left.description).localeCompare(
+        this.formatMasterCourseLabel(right.description),
+        'es'
+      )
+    );
+  });
+
+  readonly availableCount = computed(() => this.availableStudents().length);
+  readonly selectedCount = computed(() => this.selectedStudents().length);
 
   constructor() {
-    this.form.controls.courseSearch.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged())
-      .subscribe((value) => {
-        if (typeof value !== 'string') {
-          this.selectedMasterCourse.set(value);
-          this.loadAvailableStudents();
-          return;
-        }
-
-        this.selectedMasterCourse.set(null);
-        this.availableStudents.set([]);
-        this.selectedStudents.set([]);
-        this.checkedAvailableIds.set([]);
-        this.checkedSelectedIds.set([]);
-        this.searchMasterCourses(value);
-      });
-
     this.searchMasterCourses('');
-
-    this.form.controls.teacherSearch.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged())
-      .subscribe((value) => {
-        if (typeof value !== 'string') {
-          this.selectedTeacher.set(value);
-          return;
-        }
-
-        this.selectedTeacher.set(null);
-        this.searchTeachers(value);
-      });
-
-    this.form.controls.assistantSearch.valueChanges
-      .pipe(debounceTime(250), distinctUntilChanged())
-      .subscribe((value) => {
-        if (typeof value !== 'string') {
-          this.selectedAssistant.set(value);
-          return;
-        }
-
-        this.selectedAssistant.set(null);
-        this.searchAssistants(value);
-      });
-
     this.searchTeachers('');
     this.searchAssistants('');
   }
 
-  displayCourse(masterCourse: MasterCourse | string | null): string {
-    if (!masterCourse) {
-      return '';
+  selectMasterCourse(masterCourse: MasterCourse | null): void {
+    if (this.selectedMasterCourse()?.id !== masterCourse?.id) {
+      this.availableStudents.set([]);
+      this.selectedStudents.set([]);
+      this.checkedAvailableIds.set([]);
+      this.checkedSelectedIds.set([]);
+      this.addAllArmed.set(false);
     }
-    return typeof masterCourse === 'string'
-      ? masterCourse
-      : `${masterCourse.code} - ${masterCourse.description}`;
-  }
-
-  selectMasterCourse(event: MatAutocompleteSelectedEvent): void {
-    const masterCourse = event.option.value as MasterCourse;
     this.selectedMasterCourse.set(masterCourse);
-    this.form.controls.courseSearch.setValue(masterCourse, { emitEvent: false });
-    this.loadAvailableStudents();
+    this.form.controls.courseSearch.setValue(masterCourse ?? '', { emitEvent: false });
   }
 
-  displayTeacher(teacher: TeacherCatalogItem | string | null): string {
-    if (!teacher) {
-      return '';
-    }
-    return typeof teacher === 'string' ? teacher : `${teacher.fullName} - ${teacher.rud}`;
-  }
-
-  selectTeacher(event: MatAutocompleteSelectedEvent): void {
-    const teacher = event.option.value as TeacherCatalogItem;
+  selectTeacher(teacher: TeacherCatalogItem | null): void {
     this.selectedTeacher.set(teacher);
-    this.form.controls.teacherSearch.setValue(teacher, { emitEvent: false });
+    this.form.controls.teacherSearch.setValue(teacher ?? '', { emitEvent: false });
   }
 
-  selectAssistant(event: MatAutocompleteSelectedEvent): void {
-    const assistant = event.option.value as TeacherCatalogItem;
+  selectAssistant(assistant: TeacherCatalogItem | null): void {
     this.selectedAssistant.set(assistant);
-    this.form.controls.assistantSearch.setValue(assistant, { emitEvent: false });
+    this.form.controls.assistantSearch.setValue(assistant ?? '', { emitEvent: false });
   }
 
-  clearMasterCourse(): void {
-    this.selectedMasterCourse.set(null);
-    this.availableStudents.set([]);
-    this.selectedStudents.set([]);
-    this.checkedAvailableIds.set([]);
-    this.checkedSelectedIds.set([]);
-    this.form.controls.courseSearch.setValue('', { emitEvent: true });
-  }
-
-  clearTeacher(): void {
-    this.selectedTeacher.set(null);
-    this.form.controls.teacherSearch.setValue('', { emitEvent: true });
-  }
-
-  clearAssistant(): void {
-    this.selectedAssistant.set(null);
-    this.form.controls.assistantSearch.setValue('', { emitEvent: true });
-  }
-
-  createCourse(): void {
+  goToAssignmentStep(): void {
     const masterCourse = this.selectedMasterCourse();
     const teacher = this.selectedTeacher();
-    const assistant = this.selectedAssistant();
-    if (this.isSaving()) {
-      return;
-    }
 
     if (!masterCourse) {
       this.form.controls.courseSearch.markAsTouched();
@@ -231,7 +162,84 @@ export class CreateCoursePageComponent {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.snackBar.open('Completa los datos obligatorios del formulario', 'Cerrar', {
+      this.snackBar.open('Completa los datos obligatorios para avanzar', 'Cerrar', {
+        duration: 3000
+      });
+      return;
+    }
+
+    this.loadAvailableStudents(masterCourse.id);
+  }
+
+  backToConfiguration(): void {
+    this.currentStep.set('configuration');
+    this.addAllArmed.set(false);
+  }
+
+  toggleAvailableStudent(studentId: number): void {
+    this.addAllArmed.set(false);
+    this.checkedAvailableIds.update((ids) =>
+      ids.includes(studentId) ? ids.filter((id) => id !== studentId) : [...ids, studentId]
+    );
+  }
+
+  toggleSelectedStudent(studentId: number): void {
+    this.checkedSelectedIds.update((ids) =>
+      ids.includes(studentId) ? ids.filter((id) => id !== studentId) : [...ids, studentId]
+    );
+  }
+
+  moveCheckedToSelected(): void {
+    const selectedIds = new Set(this.checkedAvailableIds());
+    if (selectedIds.size) {
+      const moving = this.availableStudents().filter((student) => selectedIds.has(student.id));
+      this.availableStudents.update((current) => current.filter((student) => !selectedIds.has(student.id)));
+      this.selectedStudents.update((current) => [...current, ...moving]);
+      this.checkedAvailableIds.set([]);
+      this.addAllArmed.set(false);
+      return;
+    }
+
+    if (this.availableStudents().length === 0) {
+      return;
+    }
+
+    if (!this.addAllArmed()) {
+      this.addAllArmed.set(true);
+      this.snackBar.open('Selecciona un alumno o presiona nuevamente para agregar todos', 'Cerrar', {
+        duration: 2200
+      });
+      return;
+    }
+
+    this.selectedStudents.update((current) => [...current, ...this.availableStudents()]);
+    this.availableStudents.set([]);
+    this.checkedAvailableIds.set([]);
+    this.addAllArmed.set(false);
+  }
+
+  moveCheckedToAvailable(): void {
+    const selectedIds = new Set(this.checkedSelectedIds());
+    if (!selectedIds.size) {
+      return;
+    }
+
+    const moving = this.selectedStudents().filter((student) => selectedIds.has(student.id));
+    this.selectedStudents.update((current) => current.filter((student) => !selectedIds.has(student.id)));
+    this.availableStudents.update((current) => [...current, ...moving]);
+    this.checkedSelectedIds.set([]);
+  }
+
+  createCourse(): void {
+    const masterCourse = this.selectedMasterCourse();
+    const teacher = this.selectedTeacher();
+    const assistant = this.selectedAssistant();
+    if (this.isSaving()) {
+      return;
+    }
+
+    if (!masterCourse || !teacher) {
+      this.snackBar.open('Vuelve al paso anterior y completa los datos del curso', 'Cerrar', {
         duration: 3000
       });
       return;
@@ -241,6 +249,7 @@ export class CreateCoursePageComponent {
     this.courseApiService
       .createFromMaster({
         masterCourseId: masterCourse.id,
+        parallel: this.form.controls.parallel.value,
         schoolYear: this.form.controls.schoolYear.value,
         scheduleType: this.form.controls.scheduleType.value,
         teacherId: teacher.id,
@@ -266,51 +275,34 @@ export class CreateCoursePageComponent {
       });
   }
 
-  toggleAvailableStudent(studentId: number, checked: boolean): void {
-    this.checkedAvailableIds.update((ids) =>
-      checked ? [...ids, studentId] : ids.filter((id) => id !== studentId)
-    );
-  }
-
-  toggleSelectedStudent(studentId: number, checked: boolean): void {
-    this.checkedSelectedIds.update((ids) =>
-      checked ? [...ids, studentId] : ids.filter((id) => id !== studentId)
-    );
-  }
-
-  moveSelectedStudents(): void {
-    const selectedIds = new Set(this.checkedAvailableIds());
-    const studentsToMove = this.filteredAvailableStudents().filter((student) => selectedIds.has(student.id));
-    this.selectedStudents.update((current) => [...current, ...studentsToMove.filter((student) => !current.some((item) => item.id === student.id))]);
-    this.checkedAvailableIds.set([]);
-  }
-
-  removeSelectedStudents(): void {
-    const selectedIds = new Set(this.checkedSelectedIds());
-    this.selectedStudents.update((current) => current.filter((student) => !selectedIds.has(student.id)));
-    this.checkedSelectedIds.set([]);
-  }
-
-  setAvailableStudentFilter(value: string): void {
-    this.availableStudentFilter.set(value);
-    if (value.trim()) {
-      this.searchUniverseStudents(value);
-    } else {
-      this.universeStudents.set([]);
-      this.universeStudentFilter.set('');
-    }
-  }
-
-  setUniverseStudentFilter(value: string): void {
-    this.universeStudentFilter.set(value);
-    this.searchUniverseStudents(value);
-  }
-
-  addStudentFromUniverse(student: StudentCatalogItem): void {
-    this.selectedStudents.update((current) =>
-      current.some((item) => item.id === student.id) ? current : [...current, student]
-    );
-    this.universeStudents.update((current) => current.filter((item) => item.id !== student.id));
+  private loadAvailableStudents(masterCourseId: number): void {
+    this.isLoadingStudents.set(true);
+    this.courseApiService.searchAvailableStudents(masterCourseId, '').subscribe({
+      next: (students) => {
+        this.availableStudents.set(students);
+        this.selectedStudents.set([]);
+        this.checkedAvailableIds.set([]);
+        this.checkedSelectedIds.set([]);
+        this.addAllArmed.set(false);
+        this.currentStep.set('students');
+        this.isLoadingStudents.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.availableStudents.set([]);
+        this.selectedStudents.set([]);
+        this.checkedAvailableIds.set([]);
+        this.checkedSelectedIds.set([]);
+        this.addAllArmed.set(false);
+        this.isLoadingStudents.set(false);
+        this.snackBar.open(
+          typeof error.error?.message === 'string'
+            ? error.error.message
+            : 'No fue posible cargar los alumnos disponibles',
+          'Cerrar',
+          { duration: 3500 }
+        );
+      }
+    });
   }
 
   private searchMasterCourses(search: string): void {
@@ -362,47 +354,41 @@ export class CreateCoursePageComponent {
     });
   }
 
-  private loadAvailableStudents(): void {
-    const masterCourse = this.selectedMasterCourse();
-    if (!masterCourse) {
-      return;
-    }
-
-    this.isSearchingStudents.set(true);
-    this.courseApiService.searchAvailableStudents(masterCourse.id, '').subscribe({
-      next: (students) => {
-        this.availableStudents.set(students);
-        this.selectedStudents.set([]);
-        this.checkedAvailableIds.set([]);
-        this.checkedSelectedIds.set([]);
-        this.availableStudentFilter.set('');
-        this.universeStudentFilter.set('');
-        this.universeStudents.set([]);
-        this.isSearchingStudents.set(false);
-      },
-      error: () => {
-        this.availableStudents.set([]);
-        this.isSearchingStudents.set(false);
-      }
-    });
-  }
-
-  private searchUniverseStudents(search: string): void {
-    this.isSearchingUniverseStudents.set(true);
-    this.courseApiService.searchAllUnassignedStudents(search).subscribe({
-      next: (students) => {
-        this.universeStudents.set(students);
-        this.isSearchingUniverseStudents.set(false);
-      },
-      error: () => {
-        this.universeStudents.set([]);
-        this.isSearchingUniverseStudents.set(false);
-      }
-    });
-  }
-
   private normalizeMasterCourseCode(code: string): string {
     const normalized = code.trim().toUpperCase();
     return normalized.startsWith('CUR-') ? normalized.slice(4) : normalized;
+  }
+
+  private courseTokenFromDescription(description: string): string {
+    const normalized = description.trim().toUpperCase();
+    if (normalized.startsWith('PRIMERO')) return '1';
+    if (normalized.startsWith('SEGUNDO')) return '2';
+    if (normalized.startsWith('TERCERO')) return '3';
+    if (normalized.startsWith('CUARTO')) return '4';
+    if (normalized.startsWith('QUINTO')) return '5';
+    if (normalized.startsWith('SEXTO')) return '6';
+    if (normalized.startsWith('SEPTIMO')) return '7';
+    if (normalized.startsWith('OCTAVO')) return '8';
+    if (normalized.startsWith('NOVENO')) return '9';
+    if (normalized.startsWith('DECIMO')) return '10';
+    return this.normalizeMasterCourseCode(description).replace(/[^0-9]/g, '') || '1';
+  }
+
+  formatMasterCourseLabel(description: string): string {
+    return description
+      .trim()
+      .replace(/\s+[A-Z]$/i, '')
+      .replace(/^PRIMERO\b/i, '1')
+      .replace(/^SEGUNDO\b/i, '2')
+      .replace(/^TERCERO\b/i, '3')
+      .replace(/^CUARTO\b/i, '4')
+      .replace(/^QUINTO\b/i, '5')
+      .replace(/^SEXTO\b/i, '6')
+      .replace(/^SEPTIMO\b/i, '7')
+      .replace(/^OCTAVO\b/i, '8')
+      .replace(/^NOVENO\b/i, '9')
+      .replace(/^DECIMO\b/i, '10')
+      .replace(/\bBASICO\b/gi, 'Básico')
+      .replace(/\bMEDIO\b/gi, 'Medio');
   }
 }

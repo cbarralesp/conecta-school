@@ -6,6 +6,7 @@ import com.example.authhexagonal.domain.model.GradeBookSummary;
 import com.example.authhexagonal.domain.model.GradeBookView;
 import com.example.authhexagonal.domain.model.GradeCatalog;
 import com.example.authhexagonal.domain.model.GradeCourseOption;
+import com.example.authhexagonal.domain.model.GradeEvaluationCommand;
 import com.example.authhexagonal.domain.model.GradeEvaluationHeader;
 import com.example.authhexagonal.domain.model.GradePeriodOption;
 import com.example.authhexagonal.domain.model.GradeReportView;
@@ -99,6 +100,41 @@ public class GradesService implements ManageGradesUseCase {
     }
 
     @Override
+    public GradeBookView createEvaluation(GradeEvaluationCommand command) {
+        GradeBookView current = getValidatedGradeBook(command);
+        int nextOrder = current.evaluations().stream()
+                .mapToInt(GradeEvaluationHeader::order)
+                .max()
+                .orElse(0) + 1;
+
+        manageGradesPort.createEvaluation(sanitizeEvaluationCommand(command), nextOrder);
+        return getGradeBook(command.courseId(), command.periodId(), command.subjectId());
+    }
+
+    @Override
+    public GradeBookView updateEvaluation(Long evaluationId, GradeEvaluationCommand command) {
+        getValidatedGradeBook(command);
+        boolean updated = manageGradesPort.updateEvaluation(evaluationId, sanitizeEvaluationCommand(command));
+        if (!updated) {
+            throw new ResourceNotFoundException("Evaluation not found");
+        }
+        return getGradeBook(command.courseId(), command.periodId(), command.subjectId());
+    }
+
+    @Override
+    public GradeBookView deleteEvaluation(Long evaluationId, Long courseId, Long periodId, Long subjectId) {
+        findCourse(courseId);
+        findPeriod(periodId);
+        resolveSubject(manageGradesPort.findSubjectsByCourseAndPeriod(courseId, periodId), subjectId);
+
+        boolean deleted = manageGradesPort.deactivateEvaluation(evaluationId, courseId, periodId, subjectId);
+        if (!deleted) {
+            throw new ResourceNotFoundException("Evaluation not found");
+        }
+        return getGradeBook(courseId, periodId, subjectId);
+    }
+
+    @Override
     public StudentGradeProfileView getStudentProfile(Long courseId, Long periodId) {
         GradeCourseOption course = findCourse(courseId);
         GradePeriodOption period = findPeriod(periodId);
@@ -147,6 +183,13 @@ public class GradesService implements ManageGradesUseCase {
                 .filter(subject -> subject.id().equals(subjectId))
                 .findFirst()
                 .orElse(subjects.getFirst());
+    }
+
+    private GradeBookView getValidatedGradeBook(GradeEvaluationCommand command) {
+        if (command.courseId() == null || command.periodId() == null || command.subjectId() == null) {
+            throw new IllegalArgumentException("Course, period and subject are required");
+        }
+        return getGradeBook(command.courseId(), command.periodId(), command.subjectId());
     }
 
     private Map<Long, Map<Long, Double>> indexScores(List<GradeScoreEntry> entries) {
@@ -235,6 +278,32 @@ public class GradesService implements ManageGradesUseCase {
                 command.studentId(),
                 command.evaluationId(),
                 round(score)
+        );
+    }
+
+    private GradeEvaluationCommand sanitizeEvaluationCommand(GradeEvaluationCommand command) {
+        String code = command.code() == null ? "" : command.code().trim();
+        String name = command.name() == null ? "" : command.name().trim();
+        if (code.isBlank() || name.isBlank()) {
+            throw new IllegalArgumentException("Evaluation code and name are required");
+        }
+
+        Double weight = command.weight();
+        if (weight != null) {
+            if (weight < 0.0 || weight > 100.0) {
+                throw new IllegalArgumentException("Evaluation weight must be between 0 and 100");
+            }
+            weight = Math.round(weight * 100.0) / 100.0;
+        }
+
+        return new GradeEvaluationCommand(
+                command.courseId(),
+                command.periodId(),
+                command.subjectId(),
+                code,
+                name,
+                weight,
+                command.evaluationDate()
         );
     }
 

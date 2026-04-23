@@ -1,5 +1,7 @@
 package com.example.authhexagonal.domain.model;
 
+import java.util.List;
+
 public record MonthlyAttendanceStudent(
         Long studentId,
         String run,
@@ -10,6 +12,7 @@ public record MonthlyAttendanceStudent(
         String riskStatus,
         int presentCount,
         int absentCount,
-        int lateCount
+        int lateCount,
+        List<MonthlyAttendanceStudentDay> days
 ) {
 }

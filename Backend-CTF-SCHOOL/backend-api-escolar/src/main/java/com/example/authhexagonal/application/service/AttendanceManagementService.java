@@ -6,13 +6,18 @@ import com.example.authhexagonal.domain.model.AttendanceCatalog;
 import com.example.authhexagonal.domain.model.AttendanceCourseOption;
 import com.example.authhexagonal.domain.model.AttendanceRecordEntry;
 import com.example.authhexagonal.domain.model.AttendanceStudentInfo;
+import com.example.authhexagonal.domain.model.DailyAttendanceSummary;
 import com.example.authhexagonal.domain.model.DailyAttendanceCommand;
 import com.example.authhexagonal.domain.model.DailyAttendanceItem;
 import com.example.authhexagonal.domain.model.DailyAttendanceView;
 import com.example.authhexagonal.domain.model.MonthlyAttendanceStudent;
+import com.example.authhexagonal.domain.model.MonthlyAttendanceStudentDay;
+import com.example.authhexagonal.domain.model.MonthlyAttendanceDaySummary;
+import com.example.authhexagonal.domain.model.MonthlyAttendanceDistribution;
 import com.example.authhexagonal.domain.model.MonthlyAttendanceView;
 import com.example.authhexagonal.domain.model.WeeklyAttendanceDay;
 import com.example.authhexagonal.domain.model.WeeklyAttendanceStudent;
+import com.example.authhexagonal.domain.model.WeeklyAttendanceSummary;
 import com.example.authhexagonal.domain.model.WeeklyAttendanceView;
 import com.example.authhexagonal.domain.port.in.ManageAttendanceUseCase;
 import com.example.authhexagonal.domain.port.out.ManageAttendancePort;
@@ -28,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Set;
 
 @Service
@@ -60,14 +66,27 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
                 .sorted(Comparator.comparing(DailyAttendanceItem::fullName))
                 .toList();
 
+        int presentCount = countByStatus(items, "PRESENTE");
+        int absentCount = countByStatus(items, "AUSENTE");
+        int lateCount = countByStatus(items, "ATRASADO");
+        int totalStudents = items.size();
+        int markedCount = presentCount + absentCount + lateCount;
+
         return new DailyAttendanceView(
                 course.id(),
                 course.name(),
                 targetDate.toString(),
-                items.size(),
-                countByStatus(items, "PRESENTE"),
-                countByStatus(items, "AUSENTE"),
-                countByStatus(items, "ATRASADO"),
+                totalStudents,
+                presentCount,
+                absentCount,
+                lateCount,
+                new DailyAttendanceSummary(
+                        markedCount,
+                        percentage(markedCount, totalStudents),
+                        percentage(presentCount, totalStudents),
+                        percentage(absentCount, totalStudents),
+                        percentage(lateCount, totalStudents)
+                ),
                 items
         );
     }
@@ -147,11 +166,23 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
 
         summaries.sort(Comparator.comparing(WeeklyAttendanceStudent::fullName));
 
+        WeeklyAttendanceSummary summary = new WeeklyAttendanceSummary(
+                summaries.isEmpty()
+                        ? 0
+                        : Math.round((float) summaries.stream()
+                                .mapToInt(WeeklyAttendanceStudent::attendancePercentage)
+                                .sum() / summaries.size()),
+                summaries.stream().mapToInt(WeeklyAttendanceStudent::absences).sum(),
+                summaries.stream().mapToInt(WeeklyAttendanceStudent::lateCount).sum(),
+                alerts.size()
+        );
+
         return new WeeklyAttendanceView(
                 course.id(),
                 course.name(),
                 buildWeekLabel(monday, friday),
                 dates,
+                summary,
                 summaries,
                 alerts
         );
@@ -179,6 +210,13 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
         int totalPresenceScore = 0;
         int totalLate = 0;
         int studentsAtRisk = 0;
+        int totalPresentCount = 0;
+        int totalAbsentCount = 0;
+        Map<LocalDate, List<AttendanceRecordEntry>> entriesByDate = new TreeMap<>();
+
+        for (AttendanceRecordEntry entry : monthEntries) {
+            entriesByDate.computeIfAbsent(entry.attendanceDate(), ignored -> new ArrayList<>()).add(entry);
+        }
 
         for (AttendanceStudentInfo student : students) {
             List<AttendanceRecordEntry> entries = entriesByStudent.getOrDefault(student.studentId(), List.of());
@@ -190,10 +228,19 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
             int absentPercentage = percentage(absentCount, schoolDays);
             int latePercentage = percentage(lateCount, schoolDays);
             String riskStatus = resolveMonthlyRisk(absentCount, lateCount);
+            List<MonthlyAttendanceStudentDay> studentDays = entries.stream()
+                    .sorted(Comparator.comparing(AttendanceRecordEntry::attendanceDate))
+                    .map(entry -> new MonthlyAttendanceStudentDay(
+                            entry.attendanceDate().toString(),
+                            normalizeStatus(entry.status())
+                    ))
+                    .toList();
 
             if (!"NORMAL".equals(riskStatus)) {
                 studentsAtRisk++;
             }
+            totalPresentCount += presentCount;
+            totalAbsentCount += absentCount;
             totalLate += lateCount;
             totalPresenceScore += percentage(presentCount + lateCount, schoolDays);
 
@@ -207,12 +254,34 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
                     riskStatus,
                     presentCount,
                     absentCount,
-                    lateCount
+                    lateCount,
+                    studentDays
             ));
         }
 
         studentSummaries.sort(Comparator.comparing(MonthlyAttendanceStudent::fullName));
         int averageAttendance = students.isEmpty() ? 0 : Math.round(totalPresenceScore / (float) students.size());
+        int totalTrackedEntries = totalPresentCount + totalAbsentCount + totalLate;
+        MonthlyAttendanceDistribution distribution = new MonthlyAttendanceDistribution(
+                totalPresentCount,
+                percentage(totalPresentCount, totalTrackedEntries),
+                totalAbsentCount,
+                percentage(totalAbsentCount, totalTrackedEntries),
+                totalLate,
+                percentage(totalLate, totalTrackedEntries)
+        );
+        List<MonthlyAttendanceDaySummary> dailySummary = entriesByDate.entrySet().stream()
+                .map(entry -> {
+                    int presentForDay = (int) entry.getValue().stream()
+                            .filter(item -> "PRESENTE".equals(normalizeStatus(item.status())) || "ATRASADO".equals(normalizeStatus(item.status())))
+                            .count();
+                    int totalForDay = entry.getValue().size();
+                    return new MonthlyAttendanceDaySummary(
+                            String.valueOf(entry.getKey().getDayOfMonth()),
+                            percentage(presentForDay, totalForDay)
+                    );
+                })
+                .toList();
 
         return new MonthlyAttendanceView(
                 course.id(),
@@ -222,6 +291,8 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
                 averageAttendance,
                 studentsAtRisk,
                 totalLate,
+                distribution,
+                dailySummary,
                 studentSummaries
         );
     }

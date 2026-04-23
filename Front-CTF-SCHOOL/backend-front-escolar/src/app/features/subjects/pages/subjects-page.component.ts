@@ -38,6 +38,7 @@ export class SubjectsPageComponent {
   readonly subjects = signal<Subject[]>([]);
   readonly searchTerm = signal('');
   readonly levelFilter = signal<'all' | 'basic' | 'media'>('all');
+  readonly hasActiveFilters = computed(() => this.searchTerm().trim().length > 0 || this.levelFilter() !== 'all');
   readonly summaryCards = computed(() => {
     const subjects = this.subjects();
     return [
@@ -64,35 +65,7 @@ export class SubjectsPageComponent {
       }
     ];
   });
-  readonly filteredSubjects = computed(() => {
-    const search = this.searchTerm().trim().toLowerCase();
-    const level = this.levelFilter();
-
-    return this.subjects().filter((subject) => {
-      const matchesLevel =
-        level === 'all'
-          ? true
-          : level === 'basic'
-            ? this.resolveLevelGroup(subject.referenceLevel) === 'basic'
-            : this.resolveLevelGroup(subject.referenceLevel) === 'media';
-
-      if (!matchesLevel) {
-        return false;
-      }
-
-      if (!search) {
-        return true;
-      }
-
-      return [
-        subject.code,
-        subject.name,
-        subject.area,
-        subject.referenceLevel,
-        subject.description
-      ].some((value) => value.toLowerCase().includes(search));
-    });
-  });
+  readonly filteredSubjects = computed(() => this.subjects());
 
   constructor() {
     this.loadSubjects();
@@ -102,7 +75,9 @@ export class SubjectsPageComponent {
     const dialogRef = this.dialog.open(SubjectDialogComponent, {
       width: '720px',
       maxWidth: 'calc(100vw - 32px)',
-      autoFocus: false
+      autoFocus: false,
+      panelClass: 'subject-dialog-panel',
+      backdropClass: 'subject-dialog-backdrop'
     });
     dialogRef.afterClosed().subscribe((payload?: SubjectPayload) => {
       if (!payload) {
@@ -124,6 +99,8 @@ export class SubjectsPageComponent {
       width: '720px',
       maxWidth: 'calc(100vw - 32px)',
       autoFocus: false,
+      panelClass: 'subject-dialog-panel',
+      backdropClass: 'subject-dialog-backdrop',
       data: { subject }
     });
     dialogRef.afterClosed().subscribe((payload?: SubjectPayload) => {
@@ -158,14 +135,19 @@ export class SubjectsPageComponent {
 
   updateSearchTerm(value: string): void {
     this.searchTerm.set(value);
+    this.loadSubjects();
   }
 
   setLevelFilter(level: 'all' | 'basic' | 'media'): void {
     this.levelFilter.set(level);
+    this.loadSubjects();
   }
 
   private loadSubjects(): void {
-    this.subjectApiService.findAll().subscribe({
+    this.subjectApiService.findAll({
+      search: this.searchTerm(),
+      level: this.levelFilter()
+    }).subscribe({
       next: (subjects) => this.subjects.set(subjects),
       error: (error: HttpErrorResponse) =>
         this.showError(error, 'No fue posible cargar las asignaturas')
@@ -176,18 +158,5 @@ export class SubjectsPageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
-  }
-
-  private resolveLevelGroup(referenceLevel: string): 'basic' | 'media' | 'other' {
-    const normalized = referenceLevel.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
-    if (normalized.includes('basica')) {
-      return 'basic';
-    }
-
-    if (normalized.includes('media')) {
-      return 'media';
-    }
-
-    return 'other';
   }
 }

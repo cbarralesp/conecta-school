@@ -17,18 +17,11 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
 import { ActivityCalendarApiService } from '../../../core/services/activity-calendar-api.service';
 import {
   ActivityCalendar,
+  ActivityCalendarDay,
   CreateSchoolActivityRequest,
   SchoolActivity
 } from '../../../core/models/activity-calendar.models';
 import { ActivityDialogComponent } from '../components/activity-dialog.component';
-
-interface CalendarDay {
-  isoDate: string;
-  date: Date;
-  inCurrentMonth: boolean;
-  isToday: boolean;
-  activities: SchoolActivity[];
-}
 
 interface ActivityStats {
   total: number;
@@ -103,47 +96,10 @@ export class ActivitiesCalendarPageComponent {
     if (!calendar) {
       return { total: 0, thisMonth: 0, upcoming: 0, completed: 0 };
     }
-
-    const todayIso = this.toIsoDate(this.today);
-    const monthPrefix = `${calendar.year}-${String(calendar.month).padStart(2, '0')}`;
-
-    return {
-      total: calendar.monthlyActivities.length,
-      thisMonth: calendar.monthlyActivities.filter((activity) => activity.date.startsWith(monthPrefix)).length,
-      upcoming: calendar.upcomingActivities.length,
-      completed: calendar.monthlyActivities.filter((activity) => this.resolveActivityStatus(activity, todayIso) === 'DONE').length
-    };
+    return calendar.summary;
   });
 
-  readonly calendarDays = computed(() => {
-    const calendar = this.calendar();
-    if (!calendar) {
-      return [] as CalendarDay[];
-    }
-
-    const monthIndex = calendar.month - 1;
-    const firstDay = new Date(calendar.year, monthIndex, 1);
-    const lastDay = new Date(calendar.year, monthIndex + 1, 0);
-    const startOffset = (firstDay.getDay() + 6) % 7;
-    const startDate = new Date(calendar.year, monthIndex, 1 - startOffset);
-    const endOffset = 6 - ((lastDay.getDay() + 6) % 7);
-    const endDate = new Date(calendar.year, monthIndex, lastDay.getDate() + endOffset);
-
-    const days: CalendarDay[] = [];
-    for (const cursor = new Date(startDate); cursor <= endDate; cursor.setDate(cursor.getDate() + 1)) {
-      const currentDate = new Date(cursor);
-      const isoDate = this.toIsoDate(currentDate);
-      days.push({
-        isoDate,
-        date: currentDate,
-        inCurrentMonth: currentDate.getMonth() === monthIndex,
-        isToday: isoDate === this.toIsoDate(this.today),
-        activities: calendar.monthlyActivities.filter((activity) => this.activityCoversDay(activity, isoDate))
-      });
-    }
-
-    return days;
-  });
+  readonly calendarDays = computed<ActivityCalendarDay[]>(() => this.calendar()?.days ?? []);
 
   readonly monthGrid = computed(() => {
     const days = this.calendarDays();
@@ -152,9 +108,9 @@ export class ActivitiesCalendarPageComponent {
   readonly calendarCells = computed(() =>
     this.calendarDays().map((day) => ({
       dateStr: day.isoDate,
-      day: day.date.getDate(),
+      day: day.dayOfMonth,
       isBlank: false,
-      isToday: day.isToday,
+      isToday: day.today,
       isSelected: this.selectedDate() === day.isoDate,
       isOtherMonth: !day.inCurrentMonth,
       dotColors: day.activities.slice(0, 3).map((activity) => activity.backgroundColor)
@@ -306,7 +262,8 @@ export class ActivitiesCalendarPageComponent {
       maxWidth: '84vw',
       maxHeight: '88vh',
       autoFocus: false,
-      panelClass: 'course-dialog-panel'
+      panelClass: 'activity-dialog-panel',
+      backdropClass: 'activity-dialog-backdrop'
     });
 
     dialogRef.afterClosed().subscribe((result?: { action: 'save'; payload: CreateSchoolActivityRequest } | { action: 'delete' }) => {
@@ -340,7 +297,8 @@ export class ActivitiesCalendarPageComponent {
       maxWidth: '84vw',
       maxHeight: '88vh',
       autoFocus: false,
-      panelClass: 'course-dialog-panel'
+      panelClass: 'activity-dialog-panel',
+      backdropClass: 'activity-dialog-backdrop'
     });
 
     dialogRef.afterClosed().subscribe((result?: { action: 'save'; payload: CreateSchoolActivityRequest } | { action: 'delete' }) => {
@@ -452,11 +410,6 @@ export class ActivitiesCalendarPageComponent {
         this.showError(error, 'No fue posible cargar el calendario de actividades');
       }
     });
-  }
-
-  private activityCoversDay(activity: SchoolActivity, isoDate: string): boolean {
-    const endDate = activity.endDate ?? activity.date;
-    return activity.date <= isoDate && endDate >= isoDate;
   }
 
   private toIsoDate(date: Date): string {

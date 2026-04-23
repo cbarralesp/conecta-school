@@ -5,23 +5,29 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
-import { ScheduleBlock, ScheduleCatalog, ScheduleEntry } from '../../../core/models/schedule.models';
+import { ScheduleBlock, ScheduleCatalog, ScheduleEntry, SchedulePeriodOption } from '../../../core/models/schedule.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
-import { ScheduleDialogComponent } from '../components/schedule-dialog.component';
+import {
+  ScheduleDialogCloseResult,
+  ScheduleDialogComponent,
+  ScheduleRowDraft
+} from '../components/schedule-dialog.component';
 
 type DayKey = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES';
 
-interface GridRow {
+interface ScheduleBoardRow {
+  rowKey: string;
   order: number;
-  blockType: string;
   startTime: string;
   endTime: string;
+  blockType: 'CLASE' | 'RECREO';
+  isCustom: boolean;
+  sourceOrder: number | null;
 }
 
 @Component({
@@ -30,7 +36,6 @@ interface GridRow {
     NgStyle,
     MatButtonModule,
     MatCardModule,
-    MatChipsModule,
     MatDialogModule,
     MatIconModule,
     MatSnackBarModule,
@@ -49,15 +54,22 @@ export class SchedulePageComponent {
   private readonly dialog = inject(MatDialog);
 
   readonly days: DayKey[] = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'];
+
   readonly user = this.authStateService.user;
   readonly catalog = signal<ScheduleCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
+  readonly selectedSemesterId = signal<number | null>(null);
   readonly scheduleEntries = signal<ScheduleEntry[]>([]);
   readonly isExportingPdf = signal(false);
-  readonly headingDate = this.formatTodayHeader();
 
   readonly selectedCourse = computed(() =>
     this.catalog()?.courses.find((course) => course.id === this.selectedCourseId()) ?? null
+  );
+
+  readonly periodOptions = computed<SchedulePeriodOption[]>(() => this.catalog()?.periods ?? []);
+
+  readonly selectedSemesterLabel = computed(
+    () => this.periodOptions().find((period) => period.id === this.selectedSemesterId())?.name ?? 'Periodo academico'
   );
 
   readonly orderedCourses = computed(() => {
@@ -65,69 +77,77 @@ export class SchedulePageComponent {
     return courses.sort((left, right) => this.courseSortWeight(left.name) - this.courseSortWeight(right.name));
   });
 
-  readonly gridRows = computed<GridRow[]>(() => {
+  readonly boardRows = computed<ScheduleBoardRow[]>(() => {
     const blocks = this.catalog()?.blocks ?? [];
-    const unique = new Map<number, GridRow>();
+    const baseRows = new Map<number, ScheduleBoardRow>();
     for (const block of blocks) {
-      if (!unique.has(block.order)) {
-        unique.set(block.order, {
+      if (!baseRows.has(block.order)) {
+        baseRows.set(block.order, {
+          rowKey: `base-${block.order}`,
           order: block.order,
-          blockType: block.blockType,
           startTime: block.startTime,
-          endTime: block.endTime
+          endTime: block.endTime,
+          blockType: block.blockType === 'RECREO' ? 'RECREO' : 'CLASE',
+          isCustom: false,
+          sourceOrder: block.order
         });
       }
     }
-    return Array.from(unique.values()).sort((left, right) => left.order - right.order);
+
+    return Array.from(baseRows.values()).sort((left, right) => left.order - right.order);
   });
 
-  readonly subjectSummaries = computed(() => {
-    const summaries = new Map<string, { name: string; colorHex: string; blocks: number }>();
-    for (const entry of this.scheduleEntries()) {
-      const current = summaries.get(entry.subjectCode);
-      if (current) {
-        current.blocks += 1;
-      } else {
-        summaries.set(entry.subjectCode, {
-          name: entry.subjectName,
-          colorHex: entry.subjectColorHex,
-          blocks: 1
-        });
-      }
-    }
+  readonly scheduledClassCount = computed(() => this.scheduleEntries().length);
 
-    return Array.from(summaries.values()).sort((left, right) => right.blocks - left.blocks);
+  readonly scheduledTeacherCount = computed(() => {
+    const unique = new Set(this.scheduleEntries().map((entry) => entry.teacherId));
+    return unique.size;
   });
 
-  readonly teacherSummaries = computed(() => {
-    const summaries = new Map<string, { name: string; specialty: string | undefined }>();
-    const teachers = new Map((this.catalog()?.teachers ?? []).map((teacher) => [teacher.id, teacher]));
-    for (const entry of this.scheduleEntries()) {
-      if (!summaries.has(entry.teacherCode)) {
-        summaries.set(entry.teacherCode, {
-          name: entry.teacherFullName,
-          specialty: teachers.get(entry.teacherId)?.specialty
-        });
-      }
+  readonly scheduledBreakCount = computed(() => this.boardRows().filter((row) => row.blockType === 'RECREO').length);
+
+  readonly pedagogicalLoad = computed(() => {
+    const totalMinutes = this.scheduleEntries().reduce((sum, entry) => sum + this.durationForOrder(entry.order), 0);
+    return this.formatMinutes(totalMinutes);
+  });
+
+  readonly currentBoardTitle = computed(() => {
+    const course = this.selectedCourse();
+    if (!course) {
+      return 'Horario escolar';
     }
-    return Array.from(summaries.values());
+    return `${course.name} - ${this.selectedSemesterLabel()}`;
+  });
+
+  readonly currentBoardSubtitle = computed(() => {
+    const course = this.selectedCourse();
+    if (!course) {
+      return 'Selecciona un curso para organizar el horario semanal.';
+    }
+    return `Organiza, ajusta y exporta el horario de ${course.name}.`;
   });
 
   constructor() {
     this.loadCatalog();
   }
 
-  selectCourse(courseId: number): void {
-    if (this.selectedCourseId() === courseId) {
+  updateCourse(courseId: number | null): void {
+    if (!courseId || this.selectedCourseId() === courseId) {
       return;
     }
     this.selectedCourseId.set(courseId);
-    this.loadSchedule(courseId);
+    this.reloadSelectedCourse();
+  }
+
+  updateSemester(periodId: number | null): void {
+    this.selectedSemesterId.set(periodId);
+    this.reloadSelectedCourse();
   }
 
   openCreateDialog(blockId?: number): void {
     const catalog = this.catalog();
-    if (!catalog || !this.selectedCourseId()) {
+    const courseId = this.selectedCourseId();
+    if (!catalog || !courseId) {
       return;
     }
 
@@ -135,32 +155,112 @@ export class SchedulePageComponent {
       width: '780px',
       maxWidth: '84vw',
       autoFocus: false,
+      panelClass: 'schedule-dialog-panel',
+      backdropClass: 'schedule-dialog-backdrop',
       data: {
+        mode: 'entry-create',
         catalog,
-        presetCourseId: this.selectedCourseId(),
+        presetPeriodId: this.selectedSemesterId(),
+        presetCourseId: courseId,
         presetBlockId: blockId ?? null
       }
     });
 
-    dialogRef.afterClosed().subscribe((result?: { payload?: any; delete?: boolean }) => {
-      if (!result?.payload) {
-        return;
-      }
+    dialogRef.afterClosed().subscribe((result) => this.handleDialogResult(result));
+  }
 
-      this.scheduleApiService.create(result.payload).subscribe({
-        next: () => {
-          this.snackBar.open('Horario creado correctamente', 'Cerrar', { duration: 2500 });
-          this.reloadSelectedCourse();
-        },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible crear el horario')
-      });
+  openEditDialog(entry: ScheduleEntry): void {
+    const catalog = this.catalog();
+    if (!catalog) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ScheduleDialogComponent, {
+      width: '780px',
+      maxWidth: '84vw',
+      autoFocus: false,
+      panelClass: 'schedule-dialog-panel',
+      backdropClass: 'schedule-dialog-backdrop',
+      data: {
+        mode: 'entry-edit',
+        catalog,
+        schedule: entry
+      }
     });
+
+    dialogRef.afterClosed().subscribe((result) => this.handleDialogResult(result, entry));
+  }
+
+  openAddBreakDialog(): void {
+    const courseId = this.selectedCourseId();
+    const catalog = this.catalog();
+    if (!courseId || !catalog) {
+      return;
+    }
+
+    const rows = this.boardRows();
+    const anchorOrder = rows[rows.length - 1]?.order ?? 0;
+    const previousRow = rows[rows.length - 1] ?? null;
+    const draft: ScheduleRowDraft = {
+      rowKey: `custom-${anchorOrder + 1}`,
+      order: anchorOrder + 1,
+      startTime: previousRow?.endTime ?? '10:00',
+      endTime: this.addMinutes(previousRow?.endTime ?? '10:00', 15),
+      blockType: 'RECREO',
+      isCustom: true,
+      sourceOrder: null
+    };
+
+    const dialogRef = this.dialog.open(ScheduleDialogComponent, {
+      width: '560px',
+      maxWidth: '84vw',
+      autoFocus: false,
+      panelClass: 'schedule-dialog-panel',
+      backdropClass: 'schedule-dialog-backdrop',
+      data: {
+        mode: 'row-create',
+        catalog,
+        row: draft
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => this.handleDialogResult(result));
+  }
+
+  openRowDialog(row: ScheduleBoardRow): void {
+    const catalog = this.catalog();
+    if (!catalog) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ScheduleDialogComponent, {
+      width: '560px',
+      maxWidth: '84vw',
+      autoFocus: false,
+      panelClass: 'schedule-dialog-panel',
+      backdropClass: 'schedule-dialog-backdrop',
+      data: {
+        mode: 'row-edit',
+        catalog,
+        row: {
+          rowKey: row.rowKey,
+          order: row.order,
+          startTime: row.startTime,
+          endTime: row.endTime,
+          blockType: row.blockType,
+          isCustom: row.isCustom,
+          sourceOrder: row.sourceOrder
+        }
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => this.handleDialogResult(result));
   }
 
   async downloadSchedulePdf(): Promise<void> {
     const course = this.selectedCourse();
     const exportTarget = this.pdfScheduleRef?.nativeElement;
-    if (!course || !exportTarget || this.gridRows().length === 0) {
+    if (!course || !exportTarget || this.boardRows().length === 0) {
       this.snackBar.open('El horario todavia no esta listo para exportar', 'Cerrar', { duration: 2600 });
       return;
     }
@@ -192,8 +292,8 @@ export class SchedulePageComponent {
       const y = (pageHeight - renderedHeight) / 2;
 
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, renderedWidth, renderedHeight, undefined, 'FAST');
-      pdf.save(this.buildPdfFileName(course.name, course.schoolYear));
-      this.snackBar.open('Horario descargado en PDF', 'Cerrar', { duration: 2600 });
+      pdf.save(this.buildPdfFileName(course.name));
+      this.snackBar.open('Horario escolar exportado en PDF', 'Cerrar', { duration: 2600 });
     } catch {
       this.snackBar.open('No fue posible generar el PDF del horario', 'Cerrar', { duration: 3200 });
     } finally {
@@ -201,87 +301,133 @@ export class SchedulePageComponent {
     }
   }
 
-  openEditDialog(entry: ScheduleEntry): void {
-    const catalog = this.catalog();
-    if (!catalog) {
-      return;
+  blockFor(day: DayKey, row: ScheduleBoardRow): ScheduleBlock | undefined {
+    if (row.sourceOrder === null) {
+      return undefined;
     }
-
-    const dialogRef = this.dialog.open(ScheduleDialogComponent, {
-      width: '780px',
-      maxWidth: '84vw',
-      autoFocus: false,
-      data: { catalog, schedule: entry }
-    });
-
-    dialogRef.afterClosed().subscribe((result?: { payload?: any; delete?: boolean }) => {
-      if (!result) {
-        return;
-      }
-
-      if (result.delete) {
-        const ref = this.snackBar.open(`Eliminar ${entry.subjectName} de ${entry.dayOfWeek}?`, 'Confirmar', {
-          duration: 5000
-        });
-        ref.onAction().subscribe(() => {
-          this.scheduleApiService.delete(entry.id).subscribe({
-            next: () => {
-              this.snackBar.open('Horario eliminado correctamente', 'Cerrar', { duration: 2500 });
-              this.reloadSelectedCourse();
-            },
-            error: (error: HttpErrorResponse) =>
-              this.showError(error, 'No fue posible eliminar el horario')
-          });
-        });
-        return;
-      }
-
-      if (!result.payload) {
-        return;
-      }
-
-      this.scheduleApiService.update(entry.id, result.payload).subscribe({
-        next: () => {
-          this.snackBar.open('Horario actualizado correctamente', 'Cerrar', { duration: 2500 });
-          this.reloadSelectedCourse();
-        },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible actualizar el horario')
-      });
-    });
+    return this.catalog()?.blocks.find((block) => block.dayOfWeek === day && block.order === row.sourceOrder);
   }
 
-  blockFor(day: DayKey, order: number): ScheduleBlock | undefined {
-    return this.catalog()?.blocks.find((block) => block.dayOfWeek === day && block.order === order);
-  }
-
-  entryFor(day: DayKey, order: number): ScheduleEntry | undefined {
-    const block = this.blockFor(day, order);
+  entryFor(day: DayKey, row: ScheduleBoardRow): ScheduleEntry | undefined {
+    const block = this.blockFor(day, row);
     return block ? this.scheduleEntries().find((entry) => entry.blockId === block.id) : undefined;
   }
 
   slotStyles(entry: ScheduleEntry): Record<string, string> {
     return {
-      background: this.toRgba(entry.subjectColorHex, 0.95),
-      color: '#173553'
+      '--slot-accent': entry.subjectColorHex,
+      '--slot-background': this.toRgba(entry.subjectColorHex, 0.12),
+      '--slot-border': this.toRgba(entry.subjectColorHex, 0.24)
     };
+  }
+
+  trackRow(_: number, row: ScheduleBoardRow): string {
+    return row.rowKey;
+  }
+
+  private handleDialogResult(result?: ScheduleDialogCloseResult, entry?: ScheduleEntry): void {
+    if (!result) {
+      return;
+    }
+
+    if (result.deleteEntry && entry) {
+      const ref = this.snackBar.open(`Eliminar ${entry.subjectName} de ${entry.dayOfWeek}?`, 'Confirmar', {
+        duration: 5000
+      });
+      ref.onAction().subscribe(() => {
+        this.scheduleApiService.delete(entry.id).subscribe({
+          next: () => {
+            this.snackBar.open('Horario eliminado correctamente', 'Cerrar', { duration: 2500 });
+            this.reloadSelectedCourse();
+          },
+          error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el horario')
+        });
+      });
+      return;
+    }
+
+    if (result.entryPayload) {
+      if (entry) {
+        this.scheduleApiService.update(entry.id, result.entryPayload).subscribe({
+          next: () => {
+            this.snackBar.open('Horario actualizado correctamente', 'Cerrar', { duration: 2500 });
+            this.reloadSelectedCourse();
+          },
+          error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible actualizar el horario')
+        });
+        return;
+      }
+
+      this.scheduleApiService.create(result.entryPayload).subscribe({
+        next: () => {
+          this.snackBar.open('Horario creado correctamente', 'Cerrar', { duration: 2500 });
+          this.reloadSelectedCourse();
+        },
+        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible crear el horario')
+      });
+      return;
+    }
+
+    if (result.deleteRow && entry === undefined) {
+      const row = result.rowPayload;
+      if (!row) {
+        return;
+      }
+      this.scheduleApiService.deleteBreakRow(row.order).subscribe({
+        next: () => {
+          this.snackBar.open('Recreo eliminado del horario institucional', 'Cerrar', { duration: 2500 });
+          this.reloadCatalogAndCourse();
+        },
+        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el recreo')
+      });
+      return;
+    }
+
+    if (result.rowPayload) {
+      if (result.rowPayload.isCustom) {
+        this.scheduleApiService.createBreakRow({
+          startTime: result.rowPayload.startTime,
+          endTime: result.rowPayload.endTime
+        }).subscribe({
+          next: () => {
+            this.snackBar.open('Recreo agregado al horario institucional', 'Cerrar', { duration: 2500 });
+            this.reloadCatalogAndCourse();
+          },
+          error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible agregar el recreo')
+        });
+        return;
+      }
+
+      this.scheduleApiService.updateRowTime(result.rowPayload.order, {
+        startTime: result.rowPayload.startTime,
+        endTime: result.rowPayload.endTime
+      }).subscribe({
+        next: () => {
+          this.snackBar.open('Hora del bloque actualizada', 'Cerrar', { duration: 2500 });
+          this.reloadCatalogAndCourse();
+        },
+        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible actualizar la hora del bloque')
+      });
+    }
   }
 
   private loadCatalog(): void {
     this.scheduleApiService.getCatalog().subscribe({
-      next: (catalog) => {
-        this.catalog.set(catalog);
-        const firstCourseId = catalog.courses[0]?.id ?? null;
-        this.selectedCourseId.set(firstCourseId);
-        if (firstCourseId) {
-          this.loadSchedule(firstCourseId);
-        }
-      },
+        next: (catalog) => {
+          this.catalog.set(catalog);
+          this.selectedSemesterId.set(catalog.periods[0]?.id ?? null);
+          const preferredCourseId = this.resolvePreferredCourseId(catalog);
+          this.selectedCourseId.set(preferredCourseId);
+          if (preferredCourseId && this.selectedSemesterId()) {
+            this.loadSchedule(preferredCourseId, this.selectedSemesterId()!);
+          }
+        },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar el catalogo horario')
     });
   }
 
-  private loadSchedule(courseId: number): void {
-    this.scheduleApiService.getByCourse(courseId).subscribe({
+  private loadSchedule(courseId: number, periodId: number): void {
+    this.scheduleApiService.getByCourse(courseId, periodId).subscribe({
       next: (entries) => this.scheduleEntries.set(entries),
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar el horario')
     });
@@ -289,9 +435,42 @@ export class SchedulePageComponent {
 
   private reloadSelectedCourse(): void {
     const courseId = this.selectedCourseId();
-    if (courseId) {
-      this.loadSchedule(courseId);
+    const periodId = this.selectedSemesterId();
+    if (courseId && periodId) {
+      this.loadSchedule(courseId, periodId);
     }
+  }
+
+  private durationForOrder(order: number): number {
+    const row = this.boardRows().find((item) => item.sourceOrder === order || item.order === order);
+    if (!row) {
+      return 0;
+    }
+    return this.timeToMinutes(row.endTime) - this.timeToMinutes(row.startTime);
+  }
+
+  private formatMinutes(totalMinutes: number): string {
+    if (totalMinutes <= 0) {
+      return '0h';
+    }
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  }
+
+  private addMinutes(timeValue: string, minutesToAdd: number): string {
+    const minutes = this.timeToMinutes(timeValue) + minutesToAdd;
+    const normalized = Math.max(minutes, 0);
+    const hours = Math.floor(normalized / 60)
+      .toString()
+      .padStart(2, '0');
+    const minutesPart = (normalized % 60).toString().padStart(2, '0');
+    return `${hours}:${minutesPart}`;
+  }
+
+  private timeToMinutes(timeValue: string): number {
+    const [hours, minutes] = timeValue.split(':').map((part) => Number.parseInt(part, 10));
+    return (hours || 0) * 60 + (minutes || 0);
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {
@@ -311,32 +490,49 @@ export class SchedulePageComponent {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
-  private buildPdfFileName(courseName: string, schoolYear: number): string {
-    return `horario-${courseName.toLowerCase().replaceAll(' ', '-').replaceAll('°', '').replaceAll('/', '-')}-${schoolYear}.pdf`;
+  private buildPdfFileName(courseName: string): string {
+    const safeCourse = courseName
+      .toLowerCase()
+      .replaceAll(' ', '-')
+      .replaceAll('/', '-')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    return `horario-escolar-${safeCourse}-${this.selectedSemesterId() ?? 'periodo'}.pdf`;
   }
 
-  private formatTodayHeader(): string {
-    const formatter = new Intl.DateTimeFormat('es-CL', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
+  private reloadCatalogAndCourse(): void {
+    const currentCourseId = this.selectedCourseId();
+    this.scheduleApiService.getCatalog().subscribe({
+      next: (catalog) => {
+        this.catalog.set(catalog);
+        if (!catalog.periods.some((period) => period.id === this.selectedSemesterId())) {
+          this.selectedSemesterId.set(catalog.periods[0]?.id ?? null);
+        }
+        const nextCourseId =
+          currentCourseId && catalog.courses.some((course) => course.id === currentCourseId)
+            ? currentCourseId
+            : this.resolvePreferredCourseId(catalog);
+
+        this.selectedCourseId.set(nextCourseId);
+        if (nextCourseId && this.selectedSemesterId()) {
+          this.loadSchedule(nextCourseId, this.selectedSemesterId()!);
+        }
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible refrescar el catalogo horario')
     });
-
-    const parts = formatter.formatToParts(new Date());
-    const values = Object.fromEntries(parts.map((part) => [part.type, part.value])) as Record<string, string>;
-    const weekday = this.capitalizeWord(values['weekday'] ?? '');
-    const month = values['month'] ?? '';
-
-    return `${weekday}, ${values['day'] ?? ''} de ${month} de ${values['year'] ?? ''}`.trim();
   }
 
-  private capitalizeWord(value: string): string {
-    if (!value) {
-      return value;
+  private resolvePreferredCourseId(catalog: ScheduleCatalog): number | null {
+    const currentCourseId = this.selectedCourseId();
+    if (currentCourseId && catalog.courses.some((course) => course.id === currentCourseId)) {
+      return currentCourseId;
     }
 
-    return value.charAt(0).toUpperCase() + value.slice(1);
+    const orderedCourses = [...catalog.courses].sort(
+      (left, right) => this.courseSortWeight(left.name) - this.courseSortWeight(right.name)
+    );
+
+    return orderedCourses[0]?.id ?? null;
   }
 
   private courseSortWeight(name: string): number {
@@ -349,7 +545,7 @@ export class SchedulePageComponent {
       return 0;
     }
 
-    if (normalized.includes('KINDER') || normalized.includes('KINDER')) {
+    if (normalized.includes('KINDER')) {
       return 1;
     }
 

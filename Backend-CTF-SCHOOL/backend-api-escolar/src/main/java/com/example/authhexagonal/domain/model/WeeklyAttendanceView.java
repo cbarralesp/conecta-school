@@ -7,6 +7,7 @@ public record WeeklyAttendanceView(
         String courseName,
         String weekLabel,
         List<String> dates,
+        WeeklyAttendanceSummary summary,
         List<WeeklyAttendanceStudent> students,
         List<AttendanceAlert> alerts
 ) {

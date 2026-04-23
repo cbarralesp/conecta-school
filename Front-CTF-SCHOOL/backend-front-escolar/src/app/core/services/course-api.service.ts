@@ -31,6 +31,19 @@ export class CourseApiService {
     );
   }
 
+  findById(courseId: number): Observable<Course> {
+    return this.http.get<Course>(`${API_CONFIG.baseUrl}/cursos/${courseId}`).pipe(
+      map((course) => ({
+        ...course,
+        code: normalizeDashboardText(course.code),
+        name: normalizeDashboardText(course.name),
+        level: normalizeDashboardText(course.level),
+        letter: normalizeDashboardText(course.letter),
+        scheduleType: normalizeDashboardText(course.scheduleType)
+      }))
+    );
+  }
+
   create(payload: CoursePayload): Observable<Course> {
     return this.http.post<Course>(`${API_CONFIG.baseUrl}/cursos`, payload);
   }

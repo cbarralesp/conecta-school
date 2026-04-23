@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ManageSubjectsUseCase {
 
-    List<AcademicSubject> findAll();
+    List<AcademicSubject> findAll(String search, String levelGroup);
 
     AcademicSubject findById(Long subjectId);
 

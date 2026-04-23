@@ -1,8 +1,8 @@
-import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,9 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   PlanningClassCatalogs,
   PlanningClassCatalogUnit,
@@ -24,7 +22,7 @@ import {
 } from '../../../core/models/planning.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type ClassFormMode = 'draft' | 'publish';
 
@@ -37,8 +35,6 @@ type PendingDocument = {
   selector: 'app-planning-class-create',
   imports: [
     ReactiveFormsModule,
-    DecimalPipe,
-    RouterLink,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
@@ -48,10 +44,8 @@ type PendingDocument = {
     MatInputModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './planning-class-create.component.html',
   styleUrl: './planning-class-create.component.scss',
@@ -64,6 +58,7 @@ export class PlanningClassCreateComponent {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly catalogs = signal<PlanningClassCatalogs | null>(null);
@@ -80,9 +75,10 @@ export class PlanningClassCreateComponent {
     developmentActivity: this.formBuilder.control(''),
     closingActivity: this.formBuilder.control('')
   });
+  readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
 
   readonly selectedUnit = computed<PlanningClassCatalogUnit | null>(() => {
-    const unitId = this.form.controls.unitId.value;
+    const unitId = this.formValue().unitId;
     if (!unitId) {
       return null;
     }
@@ -90,7 +86,7 @@ export class PlanningClassCreateComponent {
   });
 
   readonly objectiveOptions = computed<PlanningObjectiveOption[]>(() => {
-    const unitId = this.form.controls.unitId.value;
+    const unitId = this.formValue().unitId;
     if (!unitId) {
       return [];
     }
@@ -98,11 +94,39 @@ export class PlanningClassCreateComponent {
   });
 
   readonly selectedObjective = computed<PlanningObjectiveOption | null>(() => {
-    const objectiveCode = this.form.controls.objectiveCode.value;
+    const objectiveCode = this.formValue().objectiveCode;
     if (!objectiveCode) {
       return null;
     }
     return this.objectiveOptions().find((objective) => objective.code === objectiveCode) ?? null;
+  });
+
+  readonly selectedDurationLabel = computed(() => {
+    const durationCode = this.formValue().durationCode;
+    if (!durationCode) {
+      return 'Duracion pendiente';
+    }
+    return this.catalogs()?.durationOptions.find((item) => item.code === durationCode)?.label ?? durationCode;
+  });
+
+  readonly plannedDateLabel = computed(() => {
+    const plannedDate = this.formValue().plannedDate;
+    if (!plannedDate) {
+      return 'Fecha pendiente';
+    }
+    return new Intl.DateTimeFormat('es-CL', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short'
+    }).format(plannedDate);
+  });
+
+  readonly plannerSubtitle = computed(() => {
+    const unit = this.selectedUnit();
+    if (!unit) {
+      return 'Selecciona una unidad para completar asignatura, curso y OA';
+    }
+    return `${unit.subjectName} · ${unit.courseName} · ${unit.unitNumberLabel}`;
   });
 
   constructor() {
@@ -111,12 +135,6 @@ export class PlanningClassCreateComponent {
       this.form.controls.objectiveCode.setValue('');
     });
   }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
-  }
-
   cancel(): void {
     void this.router.navigate(['/dashboard/planificacion']);
   }

@@ -8,6 +8,7 @@ import {
   PlanningClassPayload,
   PlanningClassDocument,
   PlanningDocument,
+  PlanningDocumentFileType,
   PlanningDocumentFilters,
   PlanningSummary,
   PlanningSummaryFilters,
@@ -71,6 +72,12 @@ export class PlanningApiService {
       .pipe(map((unit) => this.normalizeUnit(unit)));
   }
 
+  updateUnit(unitId: number, payload: Pick<PlanningUnitPayload, 'unitNumber' | 'name'>): Observable<PlanningUnit> {
+    return this.http
+      .put<PlanningUnit>(`${API_CONFIG.baseUrl}/planning/units/${unitId}`, payload)
+      .pipe(map((unit) => this.normalizeUnit(unit)));
+  }
+
   getClassCatalogs(): Observable<PlanningClassCatalogs> {
     return this.http
       .get<PlanningClassCatalogs>(`${API_CONFIG.baseUrl}/planning/classes/catalogs`)
@@ -106,6 +113,43 @@ export class PlanningApiService {
       );
   }
 
+  getClasses(filters?: {
+    courseId?: number;
+    subjectId?: number;
+    semester?: number;
+    month?: number;
+    status?: PlanningClass['status'];
+    documentType?: PlanningDocumentFileType;
+    search?: string;
+  }): Observable<PlanningClass[]> {
+    let params = new HttpParams();
+    if (filters?.courseId != null) {
+      params = params.set('courseId', filters.courseId);
+    }
+    if (filters?.subjectId != null) {
+      params = params.set('subjectId', filters.subjectId);
+    }
+    if (filters?.semester != null) {
+      params = params.set('semester', filters.semester);
+    }
+    if (filters?.month != null) {
+      params = params.set('month', filters.month);
+    }
+    if (filters?.status) {
+      params = params.set('status', filters.status);
+    }
+    if (filters?.documentType) {
+      params = params.set('documentType', filters.documentType);
+    }
+    if (filters?.search?.trim()) {
+      params = params.set('search', filters.search.trim());
+    }
+
+    return this.http.get<PlanningClass[]>(`${API_CONFIG.baseUrl}/planning/classes`, { params }).pipe(
+      map((classes) => classes.map((planningClass) => this.normalizeClass(planningClass)))
+    );
+  }
+
   createClass(payload: PlanningClassPayload): Observable<PlanningClass> {
     return this.http
       .post<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes`, payload)
@@ -116,6 +160,16 @@ export class PlanningApiService {
     return this.http
       .post<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes/draft`, payload)
       .pipe(map((planningClass) => this.normalizeClass(planningClass)));
+  }
+
+  updateClassTitle(classId: number, title: string): Observable<PlanningClass> {
+    return this.http
+      .put<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes/${classId}`, { title })
+      .pipe(map((planningClass) => this.normalizeClass(planningClass)));
+  }
+
+  deleteClass(classId: number): Observable<void> {
+    return this.http.delete<void>(`${API_CONFIG.baseUrl}/planning/classes/${classId}`);
   }
 
   uploadClassDocument(
@@ -183,6 +237,21 @@ export class PlanningApiService {
     if (filters?.year != null) {
       params = params.set('year', filters.year);
     }
+    if (filters?.courseId != null) {
+      params = params.set('courseId', filters.courseId);
+    }
+    if (filters?.semester != null) {
+      params = params.set('semester', filters.semester);
+    }
+    if (filters?.month != null) {
+      params = params.set('month', filters.month);
+    }
+    if (filters?.status) {
+      params = params.set('status', filters.status);
+    }
+    if (filters?.documentType) {
+      params = params.set('documentType', filters.documentType);
+    }
 
     return this.http
       .get<PlanningSummary>(`${API_CONFIG.baseUrl}/planning/summary`, { params })
@@ -237,6 +306,8 @@ export class PlanningApiService {
   private normalizeClass(planningClass: PlanningClass): PlanningClass {
     return {
       ...planningClass,
+      subjectName: normalizeDashboardText(planningClass.subjectName),
+      courseName: normalizeDashboardText(planningClass.courseName),
       unitNumberLabel: normalizeDashboardText(planningClass.unitNumberLabel),
       unitName: normalizeDashboardText(planningClass.unitName),
       title: normalizeDashboardText(planningClass.title),
@@ -262,7 +333,8 @@ export class PlanningApiService {
       storedName: normalizeDashboardText(document.storedName),
       extension: normalizeDashboardText(document.extension),
       mimeType: normalizeDashboardText(document.mimeType),
-      filePath: normalizeDashboardText(document.filePath)
+      filePath: normalizeDashboardText(document.filePath),
+      fileType: normalizeDashboardText(document.fileType) as PlanningDocumentFileType
     };
   }
 

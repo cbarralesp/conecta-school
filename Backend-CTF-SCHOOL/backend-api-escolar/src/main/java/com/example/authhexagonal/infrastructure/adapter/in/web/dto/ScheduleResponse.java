@@ -5,6 +5,8 @@ import com.example.authhexagonal.domain.model.ScheduleEntry;
 public record ScheduleResponse(
         Long id,
         Long loadId,
+        Long periodId,
+        String periodName,
         Long courseId,
         String courseName,
         Long teacherId,
@@ -26,6 +28,8 @@ public record ScheduleResponse(
         return new ScheduleResponse(
                 entry.id(),
                 entry.loadId(),
+                entry.periodId(),
+                entry.periodName(),
                 entry.courseId(),
                 entry.courseName(),
                 entry.teacherId(),

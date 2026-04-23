@@ -2,13 +2,18 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.model.GradeBookView;
 import com.example.authhexagonal.domain.model.GradeCatalog;
+import com.example.authhexagonal.domain.model.GradeEvaluationCommand;
 import com.example.authhexagonal.domain.model.GradeReportView;
 import com.example.authhexagonal.domain.model.GradeSaveCommand;
 import com.example.authhexagonal.domain.model.StudentGradeProfileView;
 import com.example.authhexagonal.domain.port.in.ManageGradesUseCase;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.GradeEvaluationRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.SaveGradeBookRequest;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +62,29 @@ public class GradesController {
         );
     }
 
+    @PostMapping("/evaluaciones")
+    public GradeBookView createEvaluation(@Valid @RequestBody GradeEvaluationRequest request) {
+        return manageGradesUseCase.createEvaluation(toCommand(request));
+    }
+
+    @PutMapping("/evaluaciones/{evaluationId}")
+    public GradeBookView updateEvaluation(
+            @PathVariable Long evaluationId,
+            @Valid @RequestBody GradeEvaluationRequest request
+    ) {
+        return manageGradesUseCase.updateEvaluation(evaluationId, toCommand(request));
+    }
+
+    @DeleteMapping("/evaluaciones/{evaluationId}")
+    public GradeBookView deleteEvaluation(
+            @PathVariable Long evaluationId,
+            @RequestParam Long courseId,
+            @RequestParam Long periodId,
+            @RequestParam Long subjectId
+    ) {
+        return manageGradesUseCase.deleteEvaluation(evaluationId, courseId, periodId, subjectId);
+    }
+
     @GetMapping("/ficha")
     public StudentGradeProfileView studentProfile(@RequestParam Long courseId, @RequestParam Long periodId) {
         return manageGradesUseCase.getStudentProfile(courseId, periodId);
@@ -65,5 +93,17 @@ public class GradesController {
     @GetMapping("/informes")
     public GradeReportView reports(@RequestParam Long courseId, @RequestParam Long periodId) {
         return manageGradesUseCase.getGradeReports(courseId, periodId);
+    }
+
+    private GradeEvaluationCommand toCommand(GradeEvaluationRequest request) {
+        return new GradeEvaluationCommand(
+                request.courseId(),
+                request.periodId(),
+                request.subjectId(),
+                request.code(),
+                request.name(),
+                request.weight(),
+                request.evaluationDate()
+        );
     }
 }

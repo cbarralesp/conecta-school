@@ -13,6 +13,7 @@ public record PlanningClassDocumentResponse(
         String mimeType,
         long sizeBytes,
         String filePath,
+        String fileType,
         boolean visibleToStudents,
         LocalDateTime uploadedAt
 ) {
@@ -26,6 +27,7 @@ public record PlanningClassDocumentResponse(
                 document.mimeType(),
                 document.sizeBytes(),
                 document.filePath(),
+                document.fileType().name(),
                 document.visibleToStudents(),
                 document.uploadedAt()
         );

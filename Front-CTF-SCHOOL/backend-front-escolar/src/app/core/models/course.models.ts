@@ -7,6 +7,7 @@ export interface Course {
   schoolYear: number;
   scheduleType: string;
   active: boolean;
+  studentCount: number;
 }
 
 export interface CoursePayload {
@@ -16,6 +17,7 @@ export interface CoursePayload {
   letter: string;
   schoolYear: number;
   scheduleType: string;
+  studentIds?: number[];
 }
 
 export interface MasterCourse {
@@ -48,6 +50,7 @@ export interface StudentCatalogItem {
 
 export interface CreateCourseFromMasterPayload {
   masterCourseId: number;
+  parallel: string;
   schoolYear: number;
   scheduleType: string;
   teacherId: number;

@@ -223,7 +223,7 @@ export class TeacherSideMenuComponent {
               { label: 'Dashboard', icon: 'space_dashboard', route: '/alumno', exact: true },
               { label: 'Asignaturas', icon: 'library_books', route: '/alumno/asignaturas' },
               { label: 'Horario', icon: 'schedule', route: '/alumno/horario', exact: true },
-              { label: 'Calificaciones', icon: 'grading', route: '/alumno/calificaciones', exact: true },
+              { label: 'Evaluaciones', icon: 'grading', route: '/alumno/calificaciones', exact: true },
               { label: 'Asistencia', icon: 'fact_check', route: '/alumno/asistencia', exact: true },
               { label: 'Actividades', icon: 'event', route: '/alumno/actividades', exact: true }
             ]
@@ -251,7 +251,7 @@ export class TeacherSideMenuComponent {
             collapsible: true,
             items: [
               { label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia' },
-              { label: 'Calificaciones', icon: 'grading', route: '/dashboard/calificaciones' },
+              { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones' },
               { label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades' },
               { label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion' }
             ]
@@ -281,7 +281,7 @@ export class TeacherSideMenuComponent {
               { label: 'Cursos', icon: 'class', route: '/dashboard/cursos' },
               { label: 'Horario', icon: 'schedule', route: '/dashboard/horario' },
               { label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia' },
-              { label: 'Calificaciones', icon: 'grading', route: '/dashboard/calificaciones' },
+              { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones' },
               { label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades' },
               { label: 'Asignaturas', icon: 'menu_book', route: '/dashboard/asignaturas' },
               { label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion' }
@@ -326,12 +326,12 @@ export class TeacherSideMenuComponent {
   protected readonly footerDescription = computed(() => {
     switch (this.currentRole()) {
       case 'STUDENT':
-        return 'Consulta tus cursos, horario, asistencia y calificaciones desde un solo lugar.';
+        return 'Consulta tus cursos, horario, asistencia y evaluaciones desde un solo lugar.';
       case 'ADMIN':
         return 'Accede a administracion, modulos academicos y herramientas docentes desde un solo lugar.';
       case 'TEACHER':
       default:
-        return 'Accede a tus cursos, horario, asistencia y calificaciones con una navegacion ordenada.';
+        return 'Accede a tus cursos, horario, asistencia y evaluaciones con una navegacion ordenada.';
     }
   });
 

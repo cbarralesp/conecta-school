@@ -48,6 +48,12 @@ export class AttendanceApiService {
         ...view,
         courseName: normalizeDashboardText(view.courseName),
         weekLabel: normalizeDashboardText(view.weekLabel),
+        summary: {
+          averageAttendance: view.summary?.averageAttendance ?? 0,
+          totalAbsences: view.summary?.totalAbsences ?? 0,
+          totalLate: view.summary?.totalLate ?? 0,
+          activeAlerts: view.summary?.activeAlerts ?? view.alerts.length
+        },
         dates: view.dates.map((date) => normalizeDashboardText(date)),
         students: view.students.map((student) => ({
           ...student,
@@ -76,10 +82,21 @@ export class AttendanceApiService {
         ...view,
         courseName: normalizeDashboardText(view.courseName),
         monthLabel: normalizeDashboardText(view.monthLabel),
+        distribution: {
+          ...view.distribution
+        },
+        dailySummary: view.dailySummary.map((day) => ({
+          ...day,
+          dayLabel: normalizeDashboardText(day.dayLabel)
+        })),
         students: view.students.map((student) => ({
           ...student,
           fullName: normalizeDashboardText(student.fullName),
-          riskStatus: normalizeDashboardText(student.riskStatus)
+          riskStatus: normalizeDashboardText(student.riskStatus),
+          days: student.days.map((day) => ({
+            ...day,
+            status: normalizeDashboardText(day.status)
+          }))
         }))
       }))
     );
@@ -89,6 +106,15 @@ export class AttendanceApiService {
     return {
       ...view,
       courseName: normalizeDashboardText(view.courseName),
+      summary: {
+        markedCount:
+          view.summary?.markedCount ??
+          (view.presentCount ?? 0) + (view.absentCount ?? 0) + (view.lateCount ?? 0),
+        progressPercent: view.summary?.progressPercent ?? 0,
+        presentPercentage: view.summary?.presentPercentage ?? 0,
+        absentPercentage: view.summary?.absentPercentage ?? 0,
+        latePercentage: view.summary?.latePercentage ?? 0
+      },
       students: view.students.map((student) => ({
         ...student,
         fullName: normalizeDashboardText(student.fullName),

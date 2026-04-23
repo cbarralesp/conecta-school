@@ -1,4 +1,4 @@
-<app-teacher-modern-layout
+﻿<app-teacher-modern-layout
   title=""
   activeItem="subjects"
   dashboardRoute="/dashboard"
@@ -51,24 +51,24 @@
 
           <div class="subjects-levels" role="tablist" aria-label="Filtrar por nivel">
             <button type="button" [class.active]="levelFilter() === 'all'" (click)="setLevelFilter('all')">Todas</button>
-            <button type="button" [class.active]="levelFilter() === 'basic'" (click)="setLevelFilter('basic')">Básica</button>
+            <button type="button" [class.active]="levelFilter() === 'basic'" (click)="setLevelFilter('basic')">BÃ¡sica</button>
             <button type="button" [class.active]="levelFilter() === 'media'" (click)="setLevelFilter('media')">Media</button>
           </div>
         </div>
       </div>
 
       <mat-card-content>
-        @if (subjects().length === 0) {
+        @if (filteredSubjects().length === 0 && hasActiveFilters()) {
+          <section class="empty-state empty-state--compact">
+            <mat-icon>search_off</mat-icon>
+            <strong>No encontramos coincidencias</strong>
+            <p>Ajusta la bÃºsqueda o cambia el filtro de nivel para ver mÃ¡s asignaturas.</p>
+          </section>
+        } @else if (subjects().length === 0) {
           <section class="empty-state">
             <mat-icon>library_books</mat-icon>
             <strong>No hay asignaturas registradas</strong>
             <p>Crea la primera asignatura del catalogo academico.</p>
-          </section>
-        } @else if (filteredSubjects().length === 0) {
-          <section class="empty-state empty-state--compact">
-            <mat-icon>search_off</mat-icon>
-            <strong>No encontramos coincidencias</strong>
-            <p>Ajusta la búsqueda o cambia el filtro de nivel para ver más asignaturas.</p>
           </section>
         } @else {
           <div class="table-shell">
@@ -133,3 +133,4 @@
     </mat-card>
   </main>
 </app-teacher-modern-layout>
+

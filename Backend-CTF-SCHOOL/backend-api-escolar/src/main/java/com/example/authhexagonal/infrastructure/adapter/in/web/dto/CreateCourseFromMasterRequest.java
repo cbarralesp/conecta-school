@@ -8,6 +8,7 @@ import java.util.List;
 
 public record CreateCourseFromMasterRequest(
         @NotNull Long masterCourseId,
+        @NotBlank String parallel,
         @Min(2020) int schoolYear,
         @NotBlank String scheduleType,
         @NotNull Long teacherId,

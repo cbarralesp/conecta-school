@@ -24,6 +24,10 @@ public class PlanningSummaryService implements GetPlanningSummaryUseCase {
 
     @Override
     public PlanningSummary getSummary(String username, PlanningSummaryFilter filter) {
+        if (filter.month() != null && (filter.month() < 1 || filter.month() > 12)) {
+            throw new IllegalArgumentException("El mes seleccionado no es valido");
+        }
+
         LOGGER.info("Obteniendo resumen semestral de planificacion para usuario={} filtro={}", username, filter);
         return new PlanningSummary(
                 planningSummaryRepositoryPort.findMetrics(username, filter),

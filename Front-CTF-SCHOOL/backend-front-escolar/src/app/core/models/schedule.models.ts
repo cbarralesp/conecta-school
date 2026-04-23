@@ -8,6 +8,13 @@ export interface ScheduleCourseOption {
   scheduleType: string;
 }
 
+export interface SchedulePeriodOption {
+  id: number;
+  name: string;
+  schoolYear: number;
+  semester: number;
+}
+
 export interface ScheduleTeacherOption {
   id: number;
   code: string;
@@ -27,6 +34,8 @@ export interface ScheduleBlock {
 export interface ScheduleEntry {
   id: number;
   loadId: number;
+  periodId: number;
+  periodName: string;
   courseId: number;
   courseName: string;
   teacherId: number;
@@ -47,15 +56,22 @@ export interface ScheduleEntry {
 
 export interface ScheduleCatalog {
   courses: ScheduleCourseOption[];
+  periods: SchedulePeriodOption[];
   teachers: ScheduleTeacherOption[];
   subjects: Subject[];
   blocks: ScheduleBlock[];
 }
 
 export interface SchedulePayload {
+  periodId: number;
   courseId: number;
   subjectId: number;
   teacherId: number;
   blockId: number;
   room: string | null;
+}
+
+export interface ScheduleRowTimePayload {
+  startTime: string;
+  endTime: string;
 }

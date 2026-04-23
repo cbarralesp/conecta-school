@@ -5,11 +5,13 @@ import com.example.authhexagonal.domain.model.ScheduleBlock;
 import com.example.authhexagonal.domain.model.ScheduleCatalog;
 import com.example.authhexagonal.domain.model.ScheduleCourseOption;
 import com.example.authhexagonal.domain.model.ScheduleEntry;
+import com.example.authhexagonal.domain.model.SchedulePeriodOption;
 import com.example.authhexagonal.domain.model.ScheduleTeacherOption;
 import com.example.authhexagonal.domain.port.in.ManageSchedulesUseCase;
 import com.example.authhexagonal.domain.port.out.ManageSchedulesPort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -25,6 +27,7 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
     public ScheduleCatalog getCatalog() {
         return new ScheduleCatalog(
                 manageSchedulesPort.findActiveScheduleCourses(),
+                manageSchedulesPort.findActiveSchedulePeriods(),
                 manageSchedulesPort.findActiveScheduleTeachers(),
                 manageSchedulesPort.findAvailableScheduleSubjects(),
                 manageSchedulesPort.findWeeklyScheduleBlocks()
@@ -32,40 +35,43 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
     }
 
     @Override
-    public List<ScheduleEntry> findByCourse(Long courseId) {
+    public List<ScheduleEntry> findByCourse(Long courseId, Long periodId) {
         findCourse(courseId);
-        return manageSchedulesPort.findSchedulesByCourseId(courseId);
+        findPeriod(periodId);
+        return manageSchedulesPort.findSchedulesByCourseIdAndPeriodId(courseId, periodId);
     }
 
     @Override
-    public ScheduleEntry create(Long courseId, Long subjectId, Long teacherId, Long blockId, String room) {
+    public ScheduleEntry create(Long periodId, Long courseId, Long subjectId, Long teacherId, Long blockId, String room) {
         ScheduleCourseOption course = findCourse(courseId);
+        findPeriod(periodId);
         findTeacher(teacherId);
         manageSchedulesPort.findAvailableScheduleSubjectById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
         ScheduleBlock block = findBlock(blockId);
         validateBlock(block);
-        validateConflicts(courseId, teacherId, blockId, null);
+        validateConflicts(courseId, periodId, teacherId, blockId, null);
 
-        Long loadId = manageSchedulesPort.findOrCreateTeachingLoad(teacherId, courseId, subjectId, course.schoolYear());
+        Long loadId = manageSchedulesPort.findOrCreateTeachingLoad(teacherId, courseId, subjectId, course.schoolYear(), periodId);
         ScheduleEntry created = manageSchedulesPort.createScheduleEntry(loadId, blockId, normalizeRoom(room));
         manageSchedulesPort.syncWeeklyHours(loadId);
         return created;
     }
 
     @Override
-    public ScheduleEntry update(Long scheduleId, Long courseId, Long subjectId, Long teacherId, Long blockId, String room) {
+    public ScheduleEntry update(Long scheduleId, Long periodId, Long courseId, Long subjectId, Long teacherId, Long blockId, String room) {
         ScheduleEntry existing = manageSchedulesPort.findScheduleEntryById(scheduleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Schedule not found"));
         ScheduleCourseOption course = findCourse(courseId);
+        findPeriod(periodId);
         findTeacher(teacherId);
         manageSchedulesPort.findAvailableScheduleSubjectById(subjectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
         ScheduleBlock block = findBlock(blockId);
         validateBlock(block);
-        validateConflicts(courseId, teacherId, blockId, scheduleId);
+        validateConflicts(courseId, periodId, teacherId, blockId, scheduleId);
 
-        Long newLoadId = manageSchedulesPort.findOrCreateTeachingLoad(teacherId, courseId, subjectId, course.schoolYear());
+        Long newLoadId = manageSchedulesPort.findOrCreateTeachingLoad(teacherId, courseId, subjectId, course.schoolYear(), periodId);
         ScheduleEntry updated = manageSchedulesPort.updateScheduleEntry(scheduleId, newLoadId, blockId, normalizeRoom(room));
         manageSchedulesPort.syncWeeklyHours(existing.loadId());
         manageSchedulesPort.syncWeeklyHours(newLoadId);
@@ -80,6 +86,44 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
         manageSchedulesPort.syncWeeklyHours(existing.loadId());
     }
 
+    @Override
+    public void updateRowTime(int order, String startTime, String endTime) {
+        List<ScheduleBlock> blocks = manageSchedulesPort.findActiveScheduleBlocksByOrder(order);
+        if (blocks.isEmpty()) {
+            throw new ResourceNotFoundException("Schedule row not found");
+        }
+
+        validateTimeRange(startTime, endTime);
+        manageSchedulesPort.updateScheduleBlocksTimeByOrder(order, normalizeTime(startTime), normalizeTime(endTime));
+    }
+
+    @Override
+    public void createBreakRow(String startTime, String endTime) {
+        validateTimeRange(startTime, endTime);
+        int nextOrder = manageSchedulesPort.findWeeklyScheduleBlocks().stream()
+                .mapToInt(ScheduleBlock::order)
+                .max()
+                .orElse(0) + 1;
+        manageSchedulesPort.createBreakBlocks(normalizeTime(startTime), normalizeTime(endTime), nextOrder);
+    }
+
+    @Override
+    public void deleteBreakRow(int order) {
+        List<ScheduleBlock> blocks = manageSchedulesPort.findActiveScheduleBlocksByOrder(order);
+        if (blocks.isEmpty()) {
+            throw new ResourceNotFoundException("Break row not found");
+        }
+
+        boolean breakRow = blocks.stream().allMatch(block -> "RECREO".equalsIgnoreCase(block.blockType()));
+        if (!breakRow) {
+            throw new IllegalArgumentException("Solo se pueden eliminar filas de recreo");
+        }
+        if (manageSchedulesPort.hasScheduleEntriesForOrder(order)) {
+            throw new IllegalArgumentException("No se puede eliminar una fila que tiene horarios asignados");
+        }
+        manageSchedulesPort.deactivateScheduleBlocksByOrder(order);
+    }
+
     private ScheduleCourseOption findCourse(Long courseId) {
         return manageSchedulesPort.findActiveScheduleCourseById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
@@ -88,6 +132,11 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
     private ScheduleTeacherOption findTeacher(Long teacherId) {
         return manageSchedulesPort.findActiveScheduleTeacherById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+    }
+
+    private SchedulePeriodOption findPeriod(Long periodId) {
+        return manageSchedulesPort.findActiveSchedulePeriodById(periodId)
+                .orElseThrow(() -> new ResourceNotFoundException("Academic period not found"));
     }
 
     private ScheduleBlock findBlock(Long blockId) {
@@ -101,11 +150,11 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
         }
     }
 
-    private void validateConflicts(Long courseId, Long teacherId, Long blockId, Long scheduleId) {
-        if (manageSchedulesPort.hasCourseConflict(courseId, blockId, scheduleId)) {
+    private void validateConflicts(Long courseId, Long periodId, Long teacherId, Long blockId, Long scheduleId) {
+        if (manageSchedulesPort.hasCourseConflict(courseId, periodId, blockId, scheduleId)) {
             throw new IllegalArgumentException("El curso ya tiene una clase asignada en ese bloque");
         }
-        if (manageSchedulesPort.hasTeacherConflict(teacherId, blockId, scheduleId)) {
+        if (manageSchedulesPort.hasTeacherConflict(teacherId, periodId, blockId, scheduleId)) {
             throw new IllegalArgumentException("El profesor ya tiene otra clase asignada en ese bloque");
         }
     }
@@ -115,5 +164,17 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
             return null;
         }
         return room.trim();
+    }
+
+    private void validateTimeRange(String startTime, String endTime) {
+        LocalTime start = LocalTime.parse(normalizeTime(startTime));
+        LocalTime end = LocalTime.parse(normalizeTime(endTime));
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("La hora de inicio debe ser menor a la hora de termino");
+        }
+    }
+
+    private String normalizeTime(String value) {
+        return LocalTime.parse(value).toString();
     }
 }

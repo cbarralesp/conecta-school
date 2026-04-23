@@ -1,0 +1,109 @@
+<app-teacher-modern-layout
+  title=""
+  activeItem="courses"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="course-students-page">
+    <section class="course-students-page__heading">
+      <div class="course-students-page__copy">
+        <button mat-stroked-button type="button" routerLink="/dashboard/cursos" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+          Volver a Cursos
+        </button>
+
+        <h1>
+          @if (course(); as currentCourse) {
+            Alumnos de {{ currentCourse.name }} {{ currentCourse.letter }} ({{ currentCourse.code }})
+          } @else {
+            Alumnos del curso
+          }
+        </h1>
+        <p>Listado de alumnos matriculados y datos clave para la gestión del curso.</p>
+      </div>
+
+      <label class="students-search">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+          placeholder="Buscar alumno..." />
+      </label>
+    </section>
+
+    <mat-card appearance="outlined" class="students-card">
+      <mat-card-content>
+        @if (isLoading()) {
+          <section class="empty-state">
+            <mat-icon>hourglass_top</mat-icon>
+            <strong>Cargando alumnos del curso...</strong>
+            <p>Estamos trayendo la información actual desde matrículas.</p>
+          </section>
+        } @else if (filteredEnrollments().length === 0) {
+          <section class="empty-state">
+            <mat-icon>groups</mat-icon>
+            <strong>No hay alumnos para mostrar</strong>
+            <p>Ajusta la búsqueda o revisa las matrículas activas de este curso.</p>
+          </section>
+        } @else {
+          <div class="table-shell">
+            <table mat-table [dataSource]="filteredEnrollments()" class="students-table">
+              <ng-container matColumnDef="studentRun">
+                <th mat-header-cell *matHeaderCellDef>RUT</th>
+                <td mat-cell *matCellDef="let enrollment">{{ enrollment.studentRun }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="fullName">
+                <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
+                <td mat-cell *matCellDef="let enrollment">
+                  <div class="student-name-cell">
+                    <div class="student-avatar">{{ initials(enrollment.fullName) }}</div>
+                    <div class="student-name-copy">
+                      <strong>{{ enrollment.fullName }}</strong>
+                      <span>ID alumno {{ enrollment.studentId }}</span>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="guardian">
+                <th mat-header-cell *matHeaderCellDef>Apoderado</th>
+                <td mat-cell *matCellDef="let enrollment">{{ enrollment.guardianFullName }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="enrollmentDate">
+                <th mat-header-cell *matHeaderCellDef>Fecha matrícula</th>
+                <td mat-cell *matCellDef="let enrollment">{{ formatDate(enrollment.enrollmentDate) }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let enrollment">
+                  <span class="status-badge">{{ enrollment.status }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let enrollment" class="actions-cell">
+                  <button
+                    mat-icon-button
+                    color="warn"
+                    type="button"
+                    (click)="requestDelete(enrollment)"
+                    aria-label="Eliminar alumno del curso">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </main>
+</app-teacher-modern-layout>

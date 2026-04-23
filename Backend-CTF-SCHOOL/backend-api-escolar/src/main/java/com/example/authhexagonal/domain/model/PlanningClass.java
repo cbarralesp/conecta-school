@@ -7,6 +7,10 @@ import java.util.List;
 public record PlanningClass(
         Long id,
         Long unitId,
+        Long subjectId,
+        String subjectName,
+        Long courseId,
+        String courseName,
         String unitNumberLabel,
         String unitName,
         String title,

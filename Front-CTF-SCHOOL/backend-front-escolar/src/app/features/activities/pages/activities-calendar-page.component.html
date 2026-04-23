@@ -99,7 +99,7 @@
                     @for (day of week; track day.isoDate) {
                       <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
                         <header class="day-header">
-                          <span class="day-number" [class.today]="day.isToday">{{ day.date.getDate() }}</span>
+                          <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
                         </header>
 
                         <div class="day-events">
@@ -149,7 +149,7 @@
                   <div class="pdf-export-week">
                     @for (day of week; track day.isoDate) {
                       <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
-                        <header>{{ day.date.getDate() }}</header>
+                        <header>{{ day.dayOfMonth }}</header>
                         <div class="pdf-export-events">
                           @for (activity of day.activities; track activity.id) {
                             <div
@@ -267,13 +267,13 @@
                     <article
                       class="calendar-board__day"
                       [class.calendar-board__day--selected]="selectedDate() === day.isoDate"
-                      [class.calendar-board__day--today]="day.isToday"
+                      [class.calendar-board__day--today]="day.today"
                       [class.calendar-board__day--other]="!day.inCurrentMonth"
                       [class.calendar-board__day--weekend]="dayIndex >= 5"
                       (click)="selectDate(day.isoDate)"
                     >
                       <header class="calendar-board__day-header">
-                        <span class="calendar-board__number">{{ day.date.getDate() }}</span>
+                        <span class="calendar-board__number">{{ day.dayOfMonth }}</span>
                       </header>
 
                       <div class="calendar-board__events">
@@ -422,7 +422,7 @@
                   @for (day of week; track day.isoDate) {
                     <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
                       <header class="day-header">
-                        <span class="day-number" [class.today]="day.isToday">{{ day.date.getDate() }}</span>
+                        <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
                       </header>
 
                       <div class="day-events">
@@ -473,7 +473,7 @@
                 <div class="pdf-export-week">
                   @for (day of week; track day.isoDate) {
                     <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
-                      <header>{{ day.date.getDate() }}</header>
+                      <header>{{ day.dayOfMonth }}</header>
                       <div class="pdf-export-events">
                         @for (activity of day.activities; track activity.id) {
                           <div

@@ -11,6 +11,7 @@ public record PlanningClassDocument(
         String mimeType,
         long sizeBytes,
         String filePath,
+        PlanningDocumentFileType fileType,
         boolean visibleToStudents,
         LocalDateTime uploadedAt
 ) {

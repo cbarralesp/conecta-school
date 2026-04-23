@@ -16,6 +16,7 @@ public record TeacherDashboardResponse(
         int pendingPlanningCount,
         List<TeacherAssignedCourse> assignedCourses,
         List<TeacherScheduleItem> weeklySchedule,
+        List<TeacherScheduleItem> todaySchedulePreview,
         List<TeacherPlanningItem> planningItems
 ) {
     public static TeacherDashboardResponse fromDomain(TeacherDashboard dashboard) {
@@ -28,6 +29,7 @@ public record TeacherDashboardResponse(
                 dashboard.pendingPlanningCount(),
                 dashboard.assignedCourses(),
                 dashboard.weeklySchedule(),
+                dashboard.todaySchedulePreview(),
                 dashboard.planningItems()
         );
     }

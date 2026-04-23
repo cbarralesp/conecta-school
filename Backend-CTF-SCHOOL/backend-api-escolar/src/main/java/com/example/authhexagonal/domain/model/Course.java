@@ -8,6 +8,7 @@ public record Course(
         String letter,
         int schoolYear,
         String scheduleType,
-        boolean active
+        boolean active,
+        int studentCount
 ) {
 }

@@ -1,24 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { Course, CoursePayload } from '../../../core/models/course.models';
-import { CourseApiService } from '../../../core/services/course-api.service';
+import { filter } from 'rxjs/operators';
+import { Course } from '../../../core/models/course.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { CourseApiService } from '../../../core/services/course-api.service';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
-import { CourseDialogComponent } from '../components/course-dialog.component';
 
 @Component({
   selector: 'app-courses-page',
   imports: [
     MatButtonModule,
     MatCardModule,
-    MatDialogModule,
     MatIconModule,
     MatSnackBarModule,
     MatTableModule,
@@ -32,90 +30,66 @@ import { CourseDialogComponent } from '../components/course-dialog.component';
 export class CoursesPageComponent {
   private readonly courseApiService = inject(CourseApiService);
   private readonly authStateService = inject(AuthStateService);
-  private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
   readonly user = this.authStateService.user;
-  readonly displayedColumns = ['code', 'name', 'level', 'letter', 'schoolYear', 'scheduleType', 'actions'];
+  readonly displayedColumns = ['code', 'name', 'letter', 'schoolYear', 'scheduleType', 'students', 'actions'];
   readonly courses = signal<Course[]>([]);
+
   readonly summaryCards = computed(() => {
     const courses = this.courses();
     const schoolYears = Array.from(new Set(courses.map((course) => course.schoolYear))).sort((a, b) => b - a);
+    const distinctShifts = Array.from(new Set(courses.map((course) => course.scheduleType))).length;
+    const totalStudents = courses.reduce((total, course) => total + course.studentCount, 0);
+
     return [
       {
         label: 'Cursos activos',
         value: courses.length,
-        hint: '',
+        ring: 'ACT',
         icon: 'school',
         tone: 'primary'
       },
       {
-        label: 'Año principal',
+        label: 'Ano principal',
         value: schoolYears[0] ?? '-',
-        hint: '',
+        ring: 'ANO',
         icon: 'calendar_month',
         tone: 'success'
       },
       {
         label: 'Jornadas',
-        value: Array.from(new Set(courses.map((course) => course.scheduleType))).length,
-        hint: '',
+        value: distinctShifts,
+        ring: 'JRN',
         icon: 'wb_sunny',
         tone: 'warning'
+      },
+      {
+        label: 'Total alumnos',
+        value: totalStudents,
+        ring: 'ALM',
+        icon: 'groups',
+        tone: 'rose'
       }
     ];
   });
 
   constructor() {
-    this.loadCourses();
-  }
+    this.refreshData();
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        if (!event.urlAfterRedirects.startsWith('/dashboard/cursos')) {
+          return;
+        }
 
-  openCreateDialog(): void {
-    const dialogRef = this.dialog.open(CourseDialogComponent, {
-      width: '920px',
-      maxWidth: '84vw',
-      maxHeight: '88vh',
-      autoFocus: false,
-      panelClass: 'course-dialog-panel'
-    });
-    dialogRef.afterClosed().subscribe((payload?: CoursePayload) => {
-      if (!payload) {
-        return;
-      }
-
-      this.courseApiService.create(payload).subscribe({
-        next: () => {
-          this.snackBar.open('Curso creado correctamente', 'Cerrar', { duration: 2500 });
-          this.loadCourses();
-        },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible crear el curso')
+        this.refreshData();
       });
-    });
   }
 
   openEditDialog(course: Course): void {
-    const dialogRef = this.dialog.open(CourseDialogComponent, {
-      data: { course },
-      width: '920px',
-      maxWidth: '84vw',
-      maxHeight: '88vh',
-      autoFocus: false,
-      panelClass: 'course-dialog-panel'
-    });
-    dialogRef.afterClosed().subscribe((payload?: CoursePayload) => {
-      if (!payload) {
-        return;
-      }
-
-      this.courseApiService.update(course.id, payload).subscribe({
-        next: () => {
-          this.snackBar.open('Curso actualizado correctamente', 'Cerrar', { duration: 2500 });
-          this.loadCourses();
-        },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible actualizar el curso')
-      });
-    });
+    void this.router.navigate(['/dashboard/cursos', course.id, 'editar']);
   }
 
   confirmDelete(course: Course): void {
@@ -124,11 +98,19 @@ export class CoursesPageComponent {
       this.courseApiService.delete(course.id).subscribe({
         next: () => {
           this.snackBar.open('Curso eliminado correctamente', 'Cerrar', { duration: 2500 });
-          this.loadCourses();
+          this.refreshData();
         },
         error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el curso')
       });
     });
+  }
+
+  studentCount(courseId: number): number {
+    return this.courses().find((course) => course.id === courseId)?.studentCount ?? 0;
+  }
+
+  openStudentsDialog(course: Course): void {
+    void this.router.navigate(['/dashboard/cursos', course.id, 'alumnos']);
   }
 
   private loadCourses(): void {
@@ -136,6 +118,10 @@ export class CoursesPageComponent {
       next: (courses) => this.courses.set(courses),
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos')
     });
+  }
+
+  private refreshData(): void {
+    this.loadCourses();
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {

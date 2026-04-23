@@ -297,7 +297,7 @@ export class TeacherModernSidebarComponent {
               { key: 'dashboard', label: 'Dashboard', icon: 'space_dashboard', route: '/alumno' },
               { key: 'subjects', label: 'Asignaturas', icon: 'library_books', route: '/alumno/asignaturas' },
               { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/alumno/horario' },
-              { key: 'grades', label: 'Calificaciones', icon: 'grading', route: '/alumno/calificaciones' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/alumno/calificaciones' },
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/alumno/asistencia' },
               { key: 'activities', label: 'Actividades', icon: 'event', route: '/alumno/actividades' }
             ]
@@ -326,8 +326,9 @@ export class TeacherModernSidebarComponent {
             collapsible: true,
             items: [
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia' },
-              { key: 'grades', label: 'Calificaciones', icon: 'grading', route: '/dashboard/calificaciones' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones' },
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades' },
+              { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido' },
               { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge }
             ]
           },
@@ -357,8 +358,9 @@ export class TeacherModernSidebarComponent {
               { key: 'courses', label: 'Cursos', icon: 'class', route: '/dashboard/cursos', badge: this.coursesBadge },
               { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/dashboard/horario' },
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia' },
-              { key: 'grades', label: 'Calificaciones', icon: 'grading', route: '/dashboard/calificaciones' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones' },
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades' },
+              { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido' },
               { key: 'subjects', label: 'Asignaturas', icon: 'menu_book', route: '/dashboard/asignaturas' },
               { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge }
             ]

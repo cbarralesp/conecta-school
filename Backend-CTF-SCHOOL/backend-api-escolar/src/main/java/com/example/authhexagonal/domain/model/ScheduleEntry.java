@@ -3,6 +3,8 @@ package com.example.authhexagonal.domain.model;
 public record ScheduleEntry(
         Long id,
         Long loadId,
+        Long periodId,
+        String periodName,
         Long courseId,
         String courseName,
         Long teacherId,

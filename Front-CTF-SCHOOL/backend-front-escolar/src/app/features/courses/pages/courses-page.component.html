@@ -22,14 +22,16 @@
     <section class="courses-page__stats">
       @for (card of summaryCards(); track card.label) {
         <mat-card appearance="outlined" class="summary-card" [class]="'summary-card--' + card.tone">
-          <div class="summary-card__icon">
-            <mat-icon>{{ card.icon }}</mat-icon>
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>{{ card.icon }}</mat-icon>
+            </div>
+            <div class="summary-card__ring">{{ card.ring }}</div>
           </div>
 
           <div class="summary-card__copy">
-            <span>{{ card.label }}</span>
             <strong>{{ card.value }}</strong>
-            <small>{{ card.hint }}</small>
+            <span>{{ card.label }}</span>
           </div>
         </mat-card>
       }
@@ -59,15 +61,7 @@
                 <td mat-cell *matCellDef="let course">
                   <div class="course-name-cell">
                     <strong>{{ course.name }}</strong>
-                    <small>{{ course.level }} {{ course.letter }}</small>
                   </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="level">
-                <th mat-header-cell *matHeaderCellDef>Nivel</th>
-                <td mat-cell *matCellDef="let course">
-                  <span class="soft-badge">{{ course.level }}</span>
                 </td>
               </ng-container>
 
@@ -88,9 +82,19 @@
                 </td>
               </ng-container>
 
+              <ng-container matColumnDef="students">
+                <th mat-header-cell *matHeaderCellDef>Alumnos</th>
+                <td mat-cell *matCellDef="let course">
+                  <span class="students-badge">{{ studentCount(course.id) }}</span>
+                </td>
+              </ng-container>
+
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Acciones</th>
                 <td mat-cell *matCellDef="let course" class="actions-cell">
+                  <button mat-icon-button (click)="openStudentsDialog(course)" aria-label="Listar alumnos del curso">
+                    <mat-icon>groups</mat-icon>
+                  </button>
                   <button mat-icon-button (click)="openEditDialog(course)" aria-label="Editar curso">
                     <mat-icon>edit</mat-icon>
                   </button>

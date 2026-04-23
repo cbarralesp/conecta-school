@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -89,35 +89,71 @@ interface SubjectDialogData {
     </div>
   `,
   styles: `
+    .subject-dialog-backdrop {
+      background: rgba(15, 23, 42, 0.34);
+      backdrop-filter: blur(6px);
+    }
+    .subject-dialog-panel .mat-mdc-dialog-surface {
+      border-radius: 22px !important;
+      background: transparent !important;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22) !important;
+      overflow: hidden !important;
+    }
+    .dialog-shell {
+      background:
+        radial-gradient(circle at top right, rgba(15, 157, 107, 0.1), transparent 32%),
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #e5ecf4;
+      border-radius: 22px;
+    }
     h2[mat-dialog-title] {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
       margin: 0;
-      padding: 0.85rem 1rem 0.45rem;
-      font-size: 1.1rem;
+      padding: 1.05rem 1.15rem 0.9rem;
+      background: linear-gradient(135deg, #ecfdf5 0%, #f8fbff 68%);
+      border-bottom: 1px solid #e7eef6;
+    }
+    h2[mat-dialog-title] span {
+      color: #18283f;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    h2[mat-dialog-title] button {
+      color: #6b7f98;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: inset 0 0 0 1px rgba(107, 127, 152, 0.14);
     }
     .dialog-copy {
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.9rem;
       color: #64748b;
-      font-size: 0.75rem;
-      line-height: 1.35;
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.5;
     }
     mat-dialog-content {
-      padding: 0 1rem 0.55rem;
+      padding: 0 1.15rem 1rem;
       max-height: 70vh;
     }
     .dialog-form {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.6rem;
+      gap: 0.8rem;
       min-width: min(38rem, 100%);
     }
     .dialog-form .mat-mdc-form-field {
       font-size: 0.8rem;
       --mat-form-field-container-height: 42px;
       --mat-form-field-container-vertical-padding: 9px;
+      --mdc-outlined-text-field-outline-color: #dbe5f0;
+      --mdc-outlined-text-field-hover-outline-color: #c9d8e9;
+      --mdc-outlined-text-field-focus-outline-color: #0f9d6b;
+      --mdc-filled-text-field-container-color: #f8fbff;
     }
     .dialog-form .mat-mdc-text-field-wrapper {
       min-height: 42px;
@@ -128,12 +164,12 @@ interface SubjectDialogData {
     .color-palette {
       display: grid;
       gap: 0.35rem;
-      margin-top: -0.15rem;
+      margin-top: -0.1rem;
     }
     .palette-label {
       color: #64748b;
-      font-size: 0.73rem;
-      font-weight: 600;
+      font-size: 0.76rem;
+      font-weight: 700;
     }
     .palette-grid {
       display: flex;
@@ -157,7 +193,26 @@ interface SubjectDialogData {
       box-shadow: 0 0 0 3px rgba(31, 95, 170, 0.16);
     }
     mat-dialog-actions {
-      padding: 0.45rem 1rem 0.85rem;
+      position: sticky;
+      bottom: 0;
+      padding: 1rem 1.15rem 1.1rem;
+      border-top: 1px solid rgba(226, 232, 240, 0.9);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+    }
+    mat-dialog-actions button[mat-flat-button] {
+      min-height: 42px;
+      border-radius: 14px;
+      padding-inline: 1.15rem;
+      background: #0f9d6b;
+      color: #ffffff;
+      box-shadow: 0 14px 24px rgba(15, 157, 107, 0.16);
+    }
+    mat-dialog-actions button[mat-stroked-button] {
+      min-height: 42px;
+      border-radius: 14px;
+      border-color: #d8e3ef;
+      color: #51667f;
     }
     @media (max-width: 720px) {
       .dialog-form {
@@ -167,9 +222,16 @@ interface SubjectDialogData {
       .span-2 {
         grid-column: auto;
       }
+      mat-dialog-actions {
+        justify-content: stretch;
+      }
+      mat-dialog-actions button {
+        flex: 1 1 100%;
+      }
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 export class SubjectDialogComponent {
   private readonly formBuilder = inject(FormBuilder);

@@ -5,6 +5,7 @@ import { API_CONFIG } from '../constants/api.config';
 import {
   GradeBookView,
   GradeCatalog,
+  GradeEvaluationPayload,
   GradeReportView,
   SaveGradeBookPayload,
   StudentGradeProfileView
@@ -46,6 +47,26 @@ export class GradeApiService {
   saveGradeBook(payload: SaveGradeBookPayload): Observable<GradeBookView> {
     return this.http
       .put<GradeBookView>(`${API_CONFIG.baseUrl}/calificaciones/libro`, payload)
+      .pipe(map((view) => this.normalizeGradeBook(view)));
+  }
+
+  createEvaluation(payload: GradeEvaluationPayload): Observable<GradeBookView> {
+    return this.http
+      .post<GradeBookView>(`${API_CONFIG.baseUrl}/calificaciones/evaluaciones`, payload)
+      .pipe(map((view) => this.normalizeGradeBook(view)));
+  }
+
+  updateEvaluation(evaluationId: number, payload: GradeEvaluationPayload): Observable<GradeBookView> {
+    return this.http
+      .put<GradeBookView>(`${API_CONFIG.baseUrl}/calificaciones/evaluaciones/${evaluationId}`, payload)
+      .pipe(map((view) => this.normalizeGradeBook(view)));
+  }
+
+  deleteEvaluation(evaluationId: number, courseId: number, periodId: number, subjectId: number): Observable<GradeBookView> {
+    return this.http
+      .delete<GradeBookView>(`${API_CONFIG.baseUrl}/calificaciones/evaluaciones/${evaluationId}`, {
+        params: { courseId, periodId, subjectId }
+      })
       .pipe(map((view) => this.normalizeGradeBook(view)));
   }
 

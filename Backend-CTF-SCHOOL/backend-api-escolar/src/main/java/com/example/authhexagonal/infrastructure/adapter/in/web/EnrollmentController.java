@@ -31,10 +31,12 @@ public class EnrollmentController {
     public EnrollmentOverviewResponse findOverview(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Long courseId,
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
         return EnrollmentOverviewResponse.fromDomain(
-                manageEnrollmentsUseCase.findOverview(search, courseId, status)
+                manageEnrollmentsUseCase.findOverview(search, courseId, status, page, size)
         );
     }
 

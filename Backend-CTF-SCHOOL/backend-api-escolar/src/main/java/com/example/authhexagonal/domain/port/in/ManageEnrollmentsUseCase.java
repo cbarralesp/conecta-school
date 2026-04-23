@@ -6,7 +6,7 @@ import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentReq
 
 public interface ManageEnrollmentsUseCase {
 
-    EnrollmentOverview findOverview(String search, Long courseId, String status);
+    EnrollmentOverview findOverview(String search, Long courseId, String status, Integer page, Integer size);
 
     EnrollmentDetail findById(Long enrollmentId);
 

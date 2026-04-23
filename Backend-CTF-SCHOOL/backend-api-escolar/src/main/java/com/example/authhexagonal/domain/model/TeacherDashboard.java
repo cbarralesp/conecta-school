@@ -11,6 +11,7 @@ public record TeacherDashboard(
         int pendingPlanningCount,
         List<TeacherAssignedCourse> assignedCourses,
         List<TeacherScheduleItem> weeklySchedule,
+        List<TeacherScheduleItem> todaySchedulePreview,
         List<TeacherPlanningItem> planningItems
 ) {
 }

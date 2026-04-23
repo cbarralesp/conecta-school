@@ -10,9 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import {
   PlanningUnitCatalogAssignment,
   PlanningUnitCatalogs,
@@ -20,7 +18,7 @@ import {
 } from '../../../core/models/planning.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type UnitFormMode = 'draft' | 'create';
 
@@ -37,10 +35,8 @@ type UnitFormMode = 'draft' | 'create';
     MatInputModule,
     MatNativeDateModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './planning-unit-create.component.html',
   styleUrl: './planning-unit-create.component.scss',
@@ -53,6 +49,7 @@ export class PlanningUnitCreateComponent {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly catalogs = signal<PlanningUnitCatalogs | null>(null);
@@ -112,11 +109,6 @@ export class PlanningUnitCreateComponent {
     this.loadCatalogs();
     this.form.controls.subjectId.valueChanges.subscribe(() => this.ensureValidPairing('subject'));
     this.form.controls.courseId.valueChanges.subscribe(() => this.ensureValidPairing('course'));
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   cancel(): void {

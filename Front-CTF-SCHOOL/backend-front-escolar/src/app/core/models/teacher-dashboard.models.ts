@@ -41,6 +41,7 @@ export interface TeacherDashboard {
   pendingPlanningCount: number;
   assignedCourses: TeacherAssignedCourse[];
   weeklySchedule: TeacherScheduleItem[];
+  todaySchedulePreview: TeacherScheduleItem[];
   planningItems: TeacherPlanningItem[];
 }
 

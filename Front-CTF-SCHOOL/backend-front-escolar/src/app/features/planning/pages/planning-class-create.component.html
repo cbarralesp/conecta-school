@@ -1,235 +1,148 @@
-<mat-sidenav-container class="planning-shell">
-  <mat-sidenav mode="side" opened class="planning-sidenav">
-    <app-teacher-side-menu />
-  </mat-sidenav>
-
-  <mat-sidenav-content class="planning-content">
-    <mat-toolbar class="planning-toolbar">
-      <div class="planning-toolbar__title">
-        <span class="planning-toolbar__eyebrow">Planificacion</span>
-        <h1>Nueva clase</h1>
-      </div>
-
-      <button mat-stroked-button routerLink="/dashboard/planificacion">
-        <mat-icon>arrow_back</mat-icon>
-        Volver a planificacion
-      </button>
-    </mat-toolbar>
-
-    <div class="planning-page">
-      @if (isLoading()) {
-        <mat-card class="loading-card">
-          <div class="loading-card__content">
-            <mat-icon>hourglass_top</mat-icon>
-            <p>Cargando catalogos para la nueva clase...</p>
+<app-teacher-modern-layout
+  title=""
+  activeItem="planning"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="content-area">
+    @if (isLoading()) {
+      <section class="loading-card">
+        <mat-icon>hourglass_top</mat-icon>
+        <strong>Cargando catalogos para la nueva planificacion...</strong>
+      </section>
+    } @else {
+      <form class="planner-container" [formGroup]="form">
+        <div class="planner-header">
+          <div class="planner-title">
+            <h2>Nueva Planificación</h2>
+            <p>{{ plannerSubtitle() }}</p>
           </div>
-        </mat-card>
-      } @else {
-        <form class="planning-form" [formGroup]="form">
-          <mat-card class="planning-section">
-            <div class="section-header">
-              <div class="section-icon tone-primary">
-                <mat-icon>assignment</mat-icon>
+          <div class="meta-badges">
+            <div class="badge">
+              <mat-icon>schedule</mat-icon>
+              {{ selectedDurationLabel() }}
+            </div>
+            <div class="badge">
+              <mat-icon>event</mat-icon>
+              {{ plannedDateLabel() }}
+            </div>
+          </div>
+        </div>
+
+        <div class="planner-grid">
+          <div class="planner-main">
+            <div class="section-title">
+              <mat-icon>layers</mat-icon>
+              Estructura de la Clase
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-header">
+                <div class="phase-name">
+                  <div class="icon-inicio">
+                    <mat-icon>play_arrow</mat-icon>
+                  </div>
+                  Inicio (Activación)
+                </div>
+                <input type="text" class="time-input" value="15 min" readonly>
               </div>
-              <div>
-                <h2>Informacion de la clase</h2>
-                <p>Selecciona la unidad y define el OA, duracion y tipo de evaluacion de esta clase.</p>
+              <textarea
+                class="rich-editor-placeholder"
+                formControlName="startActivity"
+                placeholder="Escriba aquí cómo activará conocimientos previos..."></textarea>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-header">
+                <div class="phase-name">
+                  <div class="icon-desarrollo">
+                    <mat-icon>design_services</mat-icon>
+                  </div>
+                  Desarrollo (Construcción)
+                </div>
+                <input type="text" class="time-input" value="60 min" readonly>
               </div>
+              <textarea
+                class="rich-editor-placeholder"
+                formControlName="developmentActivity"
+                placeholder="Instrucciones principales de la actividad..."></textarea>
             </div>
 
-            <div class="form-grid grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>Unidad</mat-label>
-                <mat-select formControlName="unitId">
-                  @for (unit of catalogs()?.units ?? []; track unit.unitId) {
-                    <mat-option [value]="unit.unitId">
-                      {{ unit.unitNumberLabel }} · {{ unit.unitName }}
-                    </mat-option>
-                  }
-                </mat-select>
-                @if (form.controls.unitId.hasError('required') && form.controls.unitId.touched) {
-                  <mat-error>Selecciona una unidad</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Duracion</mat-label>
-                <mat-select formControlName="durationCode">
-                  @for (item of catalogs()?.durationOptions ?? []; track item.code) {
-                    <mat-option [value]="item.code">{{ item.label }}</mat-option>
-                  }
-                </mat-select>
-                @if (form.controls.durationCode.hasError('required') && form.controls.durationCode.touched) {
-                  <mat-error>Selecciona una duracion</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Fecha planificada</mat-label>
-                <input matInput [matDatepicker]="plannedDatePicker" formControlName="plannedDate" />
-                <mat-datepicker-toggle matIconSuffix [for]="plannedDatePicker" />
-                <mat-datepicker #plannedDatePicker />
-                @if (form.controls.plannedDate.hasError('required') && form.controls.plannedDate.touched) {
-                  <mat-error>Selecciona la fecha</mat-error>
-                }
-              </mat-form-field>
+            <div class="phase-card">
+              <div class="phase-header">
+                <div class="phase-name">
+                  <div class="icon-cierre">
+                    <mat-icon>flag</mat-icon>
+                  </div>
+                  Cierre (Metacognición)
+                </div>
+                <input type="text" class="time-input" value="15 min" readonly>
+              </div>
+              <textarea
+                class="rich-editor-placeholder"
+                formControlName="closingActivity"
+                placeholder="Preguntas de cierre y síntesis..."></textarea>
             </div>
 
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>Titulo de la clase</mat-label>
-                <input matInput formControlName="title" />
-                @if (form.controls.title.hasError('required') && form.controls.title.touched) {
-                  <mat-error>Ingresa el titulo de la clase</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-grid grid-2">
-              <mat-form-field appearance="outline">
-                <mat-label>OA de esta clase</mat-label>
-                <mat-select formControlName="objectiveCode">
-                  @for (objective of objectiveOptions(); track objective.code) {
-                    <mat-option [value]="objective.code">{{ objective.label }}</mat-option>
-                  }
-                </mat-select>
-                @if (form.controls.objectiveCode.hasError('required') && form.controls.objectiveCode.touched) {
-                  <mat-error>Selecciona un OA</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Tipo de evaluacion</mat-label>
-                <mat-select formControlName="evaluationType">
+            <div class="eval-section">
+              <div class="eval-header">
+                <mat-icon>fact_check</mat-icon>
+                Evaluación y Evidencia
+              </div>
+              <div class="curriculum-box plain">
+                <label class="curriculum-label">Evidencia de Aprendizaje</label>
+                <input
+                  type="text"
+                  class="form-input-full"
+                  placeholder="Ej: Producción artística finalizada con uso de colores primarios.">
+              </div>
+              <div class="curriculum-box plain">
+                <label class="curriculum-label">Instrumento</label>
+                <select class="select-full" formControlName="evaluationType">
                   @for (item of catalogs()?.evaluationTypes ?? []; track item.code) {
-                    <mat-option [value]="item.code">{{ item.label }}</mat-option>
+                    <option [value]="item.code">{{ item.label }}</option>
                   }
-                </mat-select>
-                @if (form.controls.evaluationType.hasError('required') && form.controls.evaluationType.touched) {
-                  <mat-error>Selecciona el tipo de evaluacion</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            @if (selectedObjective(); as objective) {
-              <div class="info-box tone-info">
-                <strong>{{ objective.label }}</strong>
-                <p>{{ objective.description }}</p>
-              </div>
-            }
-
-            @if (selectedUnit(); as unit) {
-              <div class="info-box tone-ai">
-                <strong>Sugerencia IA — Apoyo visual</strong>
-                <p>
-                  Puedes conectar esta clase con la unidad
-                  <strong>{{ unit.unitNumberLabel }}</strong>
-                  y reforzar el curso {{ unit.courseName }} usando ejemplos cercanos al contexto del estudiante.
-                </p>
-              </div>
-            }
-          </mat-card>
-
-          <mat-card class="planning-section">
-            <div class="section-header">
-              <div class="section-icon tone-success">
-                <mat-icon>view_stream</mat-icon>
-              </div>
-              <div>
-                <h2>Estructura de la clase</h2>
-                <p>Define activacion, desarrollo y cierre con lenguaje claro y accionable.</p>
+                </select>
               </div>
             </div>
-
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>Inicio (activacion)</mat-label>
-                <textarea matInput rows="4" formControlName="startActivity"></textarea>
-                @if (form.controls.startActivity.hasError('required') && form.controls.startActivity.touched) {
-                  <mat-error>Ingresa el inicio de la clase</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>Desarrollo (actividad central)</mat-label>
-                <textarea matInput rows="5" formControlName="developmentActivity"></textarea>
-                @if (form.controls.developmentActivity.hasError('required') && form.controls.developmentActivity.touched) {
-                  <mat-error>Ingresa el desarrollo de la clase</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>Cierre (sintesis)</mat-label>
-                <textarea matInput rows="4" formControlName="closingActivity"></textarea>
-                @if (form.controls.closingActivity.hasError('required') && form.controls.closingActivity.touched) {
-                  <mat-error>Ingresa el cierre de la clase</mat-error>
-                }
-              </mat-form-field>
-            </div>
-          </mat-card>
-
-          <mat-card class="planning-section">
-            <div class="section-header">
-              <div class="section-icon tone-warning">
-                <mat-icon>folder</mat-icon>
-              </div>
-              <div>
-                <h2>Documentos adjuntos a esta clase</h2>
-                <p>Formatos permitidos: PDF, DOCX y PPTX. Maximo 20 MB por archivo.</p>
-              </div>
-            </div>
-
-            <label class="upload-dropzone">
-              <input type="file" hidden multiple accept=".pdf,.docx,.pptx" (change)="addDocuments($event)" />
-              <mat-icon>upload_file</mat-icon>
-              <strong>Arrastra o selecciona tus archivos</strong>
-        <span>.docx · .pdf · .pptx</span>
-            </label>
-
-            @if (pendingDocuments().length > 0) {
-              <div class="documents-list">
-                @for (document of pendingDocuments(); track document.file.name + $index) {
-                  <article class="document-item">
-                    <div class="document-item__copy">
-                      <mat-icon>description</mat-icon>
-                      <div>
-                        <strong>{{ document.file.name }}</strong>
-                        <p>{{ document.file.type || 'Documento' }} · {{ (document.file.size / 1024) | number:'1.0-0' }} KB</p>
-                      </div>
-                    </div>
-
-                    <div class="document-item__actions">
-                      <mat-checkbox
-                        [checked]="document.visibleToStudents"
-                        (change)="toggleDocumentVisibility($index, $event.checked)"
-                      >
-                  Visible a estudiantes
-                      </mat-checkbox>
-                      <button mat-stroked-button color="warn" type="button" (click)="removePendingDocument($index)">
-                        Quitar
-                      </button>
-                    </div>
-                  </article>
-                }
-              </div>
-            }
-          </mat-card>
-
-          <div class="planning-actions">
-            <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
-            <button mat-stroked-button color="primary" type="button" [disabled]="isSaving()" (click)="saveDraft()">
-              Guardar borrador
-            </button>
-            <button mat-flat-button color="primary" type="button" [disabled]="isSaving()" (click)="publishToStudents()">
-                    Publicar a estudiantes
-            </button>
           </div>
-        </form>
-      }
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+
+          <div class="planner-sidebar">
+            <div class="section-title">
+              <mat-icon>link</mat-icon>
+              Alineación Mineduc
+            </div>
+
+            <div class="curriculum-box">
+              <div class="curriculum-label">Objetivos de Aprendizaje (OA)</div>
+              @if (selectedObjective(); as objective) {
+                <span class="oa-tag">{{ objective.code }} <mat-icon>close</mat-icon></span>
+              } @else {
+                <span class="oa-tag">OA12 <mat-icon>close</mat-icon></span>
+                <span class="oa-tag">OA04 <mat-icon>close</mat-icon></span>
+              }
+              <button class="add-oa-btn" type="button">
+                <mat-icon>add_circle</mat-icon>
+                Buscar OA
+              </button>
+            </div>
+
+            <div class="curriculum-box">
+              <div class="curriculum-label">Habilidades</div>
+              <span class="oa-tag skill">Crear <mat-icon>close</mat-icon></span>
+              <span class="oa-tag skill">Analizar <mat-icon>close</mat-icon></span>
+            </div>
+
+            <div class="curriculum-box">
+              <div class="curriculum-label">Actitudes Transversales</div>
+              <p>
+                • Respetar y valorar las obras de sus compañeros.<br>
+                • Cuidar los materiales de trabajo.
+              </p>
+            </div>
+          </div>
+        </div>
+      </form>
+    }
+  </main>
+</app-teacher-modern-layout>

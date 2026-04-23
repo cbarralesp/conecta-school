@@ -103,6 +103,7 @@ public class CourseController {
         return CourseResponse.fromDomain(
                 manageCoursesUseCase.createFromMaster(
                         request.masterCourseId(),
+                        request.parallel(),
                         request.schoolYear(),
                         request.scheduleType(),
                         request.teacherId(),
@@ -122,7 +123,8 @@ public class CourseController {
                         request.level(),
                         request.letter(),
                         request.schoolYear(),
-                        request.scheduleType()
+                        request.scheduleType(),
+                        request.studentIds()
                 )
         );
     }

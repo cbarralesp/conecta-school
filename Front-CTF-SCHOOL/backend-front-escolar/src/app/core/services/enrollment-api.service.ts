@@ -10,7 +10,7 @@ import { normalizeDashboardText } from '../utils/text-normalizer';
 export class EnrollmentApiService {
   private readonly http = inject(HttpClient);
 
-  getOverview(filters?: { search?: string; courseId?: number | null; status?: string | null }): Observable<EnrollmentOverview> {
+  getOverview(filters?: { search?: string; courseId?: number | null; status?: string | null; page?: number; size?: number }): Observable<EnrollmentOverview> {
     let params = new HttpParams();
     if (filters?.search?.trim()) {
       params = params.set('search', filters.search.trim());
@@ -20,6 +20,12 @@ export class EnrollmentApiService {
     }
     if (filters?.status?.trim()) {
       params = params.set('status', filters.status.trim());
+    }
+    if (typeof filters?.page === 'number') {
+      params = params.set('page', filters.page);
+    }
+    if (typeof filters?.size === 'number') {
+      params = params.set('size', filters.size);
     }
 
     return this.http.get<EnrollmentOverview>(`${API_CONFIG.baseUrl}/matriculas`, { params }).pipe(
@@ -57,6 +63,12 @@ export class EnrollmentApiService {
         code: normalizeDashboardText(course.code),
         name: normalizeDashboardText(course.name)
       })),
+      pagination: {
+        page: overview.pagination?.page ?? 0,
+        size: overview.pagination?.size ?? overview.enrollments.length,
+        totalItems: overview.pagination?.totalItems ?? overview.summary.total,
+        totalPages: overview.pagination?.totalPages ?? (overview.summary.total > 0 ? 1 : 0)
+      },
       enrollments: overview.enrollments.map((enrollment) => ({
         ...enrollment,
         studentRun: normalizeDashboardText(enrollment.studentRun),

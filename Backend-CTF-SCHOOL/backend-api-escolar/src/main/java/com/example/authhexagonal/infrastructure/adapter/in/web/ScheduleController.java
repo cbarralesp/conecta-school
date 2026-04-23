@@ -2,6 +2,7 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.port.in.ManageSchedulesUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleCatalogResponse;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleRowTimeRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleResponse;
 import jakarta.validation.Valid;
@@ -35,8 +36,8 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public List<ScheduleResponse> findByCourse(@RequestParam Long courseId) {
-        return manageSchedulesUseCase.findByCourse(courseId).stream()
+    public List<ScheduleResponse> findByCourse(@RequestParam Long courseId, @RequestParam Long periodId) {
+        return manageSchedulesUseCase.findByCourse(courseId, periodId).stream()
                 .map(ScheduleResponse::fromDomain)
                 .toList();
     }
@@ -46,6 +47,7 @@ public class ScheduleController {
     public ScheduleResponse create(@Valid @RequestBody ScheduleRequest request) {
         return ScheduleResponse.fromDomain(
                 manageSchedulesUseCase.create(
+                        request.periodId(),
                         request.courseId(),
                         request.subjectId(),
                         request.teacherId(),
@@ -60,6 +62,7 @@ public class ScheduleController {
         return ScheduleResponse.fromDomain(
                 manageSchedulesUseCase.update(
                         scheduleId,
+                        request.periodId(),
                         request.courseId(),
                         request.subjectId(),
                         request.teacherId(),
@@ -73,5 +76,23 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long scheduleId) {
         manageSchedulesUseCase.delete(scheduleId);
+    }
+
+    @PutMapping("/bloques/{order}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateRowTime(@PathVariable int order, @Valid @RequestBody ScheduleRowTimeRequest request) {
+        manageSchedulesUseCase.updateRowTime(order, request.startTime(), request.endTime());
+    }
+
+    @PostMapping("/bloques/recreo")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createBreakRow(@Valid @RequestBody ScheduleRowTimeRequest request) {
+        manageSchedulesUseCase.createBreakRow(request.startTime(), request.endTime());
+    }
+
+    @DeleteMapping("/bloques/{order}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBreakRow(@PathVariable int order) {
+        manageSchedulesUseCase.deleteBreakRow(order);
     }
 }

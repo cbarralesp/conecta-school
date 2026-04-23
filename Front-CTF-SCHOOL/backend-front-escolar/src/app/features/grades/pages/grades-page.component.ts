@@ -10,24 +10,32 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
 import {
+  GradeEvaluationHeader,
   GradeBookStudentRow,
   GradeBookSummary,
   GradeBookView,
   GradeCatalog,
+  GradeEvaluationPayload,
   GradeReportView,
   GradeSaveEntryPayload,
   StudentGradeCard,
   StudentGradeProfileView
 } from '../../../core/models/grade.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type GradesTab = 'book' | 'profile' | 'reports';
+type EvaluationDialogState = {
+  mode: 'create' | 'edit';
+  evaluationId: number | null;
+  code: string;
+  name: string;
+  weight: number | null;
+  evaluationDate: string;
+};
 
 @Component({
   selector: 'app-grades-page',
@@ -39,10 +47,8 @@ type GradesTab = 'book' | 'profile' | 'reports';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    MatToolbarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './grades-page.component.html',
   styleUrl: './grades-page.component.scss',
@@ -56,7 +62,11 @@ export class GradesPageComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
+  readonly user = this.authStateService.user;
   readonly activeTab = signal<GradesTab>('book');
+  readonly gradeBookSearch = signal('');
+  readonly evaluationDialog = signal<EvaluationDialogState | null>(null);
+  readonly evaluationDetailsDialog = signal<GradeEvaluationHeader | null>(null);
   readonly catalog = signal<GradeCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
   readonly selectedPeriodId = signal<number | null>(null);
@@ -104,6 +114,39 @@ export class GradesPageComponent {
 
     return filtered.slice(0, 1);
   });
+  readonly filteredGradeBookStudents = computed(() => {
+    const students = this.gradeBook()?.students ?? [];
+    const term = this.gradeBookSearch().trim().toLowerCase();
+    if (!term) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      student.fullName.toLowerCase().includes(term) || student.run.toLowerCase().includes(term)
+    );
+  });
+  readonly persistedEvaluationsCount = computed(() => this.gradeBook()?.evaluations.length ?? 0);
+  readonly selectedEvaluationStats = computed(() => {
+    const evaluation = this.evaluationDetailsDialog();
+    const gradeBook = this.gradeBook();
+    if (!evaluation || !gradeBook) {
+      return null;
+    }
+
+    const scores = gradeBook.students
+      .map((student) => student.scores.find((score) => score.evaluationId === evaluation.id)?.score ?? null)
+      .filter((score): score is number => score != null);
+
+    const average = scores.length === 0
+      ? null
+      : Math.round((scores.reduce((total, score) => total + score, 0) / scores.length) * 10) / 10;
+
+    return {
+      average,
+      gradedCount: scores.length,
+      pendingCount: gradeBook.students.length - scores.length
+    };
+  });
 
   constructor() {
     this.loadCatalog();
@@ -121,16 +164,25 @@ export class GradesPageComponent {
 
   updateCourse(courseId: number | null): void {
     this.selectedCourseId.set(courseId);
+    this.selectedSubjectId.set(null);
+    this.gradeBookSearch.set('');
+    this.closeDraftEvaluationDialog();
+    this.closeEvaluationDetails();
     this.loadActiveView();
   }
 
   updatePeriod(periodId: number | null): void {
     this.selectedPeriodId.set(periodId);
+    this.selectedSubjectId.set(null);
+    this.gradeBookSearch.set('');
+    this.closeDraftEvaluationDialog();
+    this.closeEvaluationDetails();
     this.loadActiveView();
   }
 
   selectSubject(subjectId: number): void {
     this.selectedSubjectId.set(subjectId);
+    this.closeEvaluationDetails();
     this.loadGradeBook();
   }
 
@@ -157,6 +209,204 @@ export class GradesPageComponent {
     });
   }
 
+  updateGradeBookSearch(value: string): void {
+    this.gradeBookSearch.set(value);
+  }
+
+  openDraftEvaluationDialog(): void {
+    const nextNumber = this.persistedEvaluationsCount() + 1;
+    this.evaluationDialog.set({
+      mode: 'create',
+      evaluationId: null,
+      code: `EVAL. ${nextNumber}`,
+      name: `Evaluación ${nextNumber}`,
+      weight: null,
+      evaluationDate: this.todayIso()
+    });
+  }
+
+  updateDraftEvaluationCode(value: string): void {
+    this.evaluationDialog.update((current) => current ? { ...current, code: value } : current);
+  }
+
+  updateDraftEvaluationName(value: string): void {
+    this.evaluationDialog.update((current) => current ? { ...current, name: value } : current);
+  }
+
+  updateEvaluationWeight(value: string): void {
+    this.evaluationDialog.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const trimmed = value.trim();
+      return {
+        ...current,
+        weight: trimmed === '' ? null : Number.parseFloat(trimmed.replace(',', '.'))
+      };
+    });
+  }
+
+  updateEvaluationDate(value: string): void {
+    this.evaluationDialog.update((current) => current ? { ...current, evaluationDate: value } : current);
+  }
+
+  closeDraftEvaluationDialog(): void {
+    this.evaluationDialog.set(null);
+  }
+
+  openEvaluationDetails(evaluationId: number): void {
+    const evaluation = this.gradeBook()?.evaluations.find((item) => item.id === evaluationId) ?? null;
+    this.evaluationDetailsDialog.set(evaluation);
+  }
+
+  closeEvaluationDetails(): void {
+    this.evaluationDetailsDialog.set(null);
+  }
+
+  editEvaluationFromDetails(): void {
+    const evaluation = this.evaluationDetailsDialog();
+    if (!evaluation) {
+      return;
+    }
+
+    this.closeEvaluationDetails();
+    this.openEvaluationEditor(evaluation.id);
+  }
+
+  openEvaluationEditor(evaluationId: number): void {
+    const evaluation = this.gradeBook()?.evaluations.find((item) => item.id === evaluationId);
+    if (!evaluation) {
+      return;
+    }
+
+    this.evaluationDialog.set({
+      mode: 'edit',
+      evaluationId,
+      code: evaluation.code,
+      name: evaluation.name,
+      weight: evaluation.weight ?? null,
+      evaluationDate: evaluation.evaluationDate ?? ''
+    });
+  }
+
+  private buildEvaluationPayload(dialog: EvaluationDialogState): GradeEvaluationPayload | null {
+    const courseId = this.selectedCourseId();
+    const periodId = this.selectedPeriodId();
+    const subjectId = this.selectedSubjectId();
+    const code = dialog.code.trim();
+    const name = dialog.name.trim();
+    const weight = dialog.weight == null || Number.isNaN(dialog.weight)
+      ? null
+      : Math.max(0, Math.round(dialog.weight * 100) / 100);
+    const evaluationDate = dialog.evaluationDate.trim();
+
+    if (!courseId || !periodId || !subjectId) {
+      this.snackBar.open('Selecciona curso, periodo y asignatura antes de gestionar evaluaciones', 'Cerrar', {
+        duration: 2800
+      });
+      return null;
+    }
+
+    if (!code || !name || weight == null || !evaluationDate) {
+      this.snackBar.open('Completa codigo, nombre, ponderacion y fecha de la evaluacion', 'Cerrar', {
+        duration: 2800
+      });
+      return null;
+    }
+
+    return {
+      courseId,
+      periodId,
+      subjectId,
+      code,
+      name,
+      weight,
+      evaluationDate
+    };
+  }
+
+  private handleEvaluationViewUpdate(view: GradeBookView, message: string): void {
+    this.gradeBook.set(view);
+    this.selectedSubjectId.set(view.subjectId);
+    this.closeDraftEvaluationDialog();
+    this.closeEvaluationDetails();
+    this.snackBar.open(message, 'Cerrar', { duration: 2600 });
+    this.loadStudentProfile();
+    this.loadReports();
+  }
+
+  addDraftEvaluation(): void {
+    const draft = this.evaluationDialog();
+    if (!draft || this.isSaving()) {
+      return;
+    }
+    const payload = this.buildEvaluationPayload(draft);
+    if (!payload) {
+      return;
+    }
+    this.isSaving.set(true);
+    this.gradeApiService.createEvaluation(payload).subscribe({
+      next: (view) => {
+        this.isSaving.set(false);
+        this.handleEvaluationViewUpdate(view, 'Evaluacion creada correctamente');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSaving.set(false);
+        this.showError(error, 'No fue posible crear la evaluacion');
+      }
+    });
+  }
+
+  saveEvaluationDialog(): void {
+    const dialog = this.evaluationDialog();
+    if (!dialog) {
+      return;
+    }
+    if (dialog.mode === 'create') {
+      this.addDraftEvaluation();
+      return;
+    }
+    if (dialog.evaluationId == null || this.isSaving()) {
+      return;
+    }
+    const payload = this.buildEvaluationPayload(dialog);
+    if (!payload) {
+      return;
+    }
+    this.isSaving.set(true);
+    this.gradeApiService.updateEvaluation(dialog.evaluationId, payload).subscribe({
+      next: (view) => {
+        this.isSaving.set(false);
+        this.handleEvaluationViewUpdate(view, 'Evaluacion actualizada correctamente');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSaving.set(false);
+        this.showError(error, 'No fue posible actualizar la evaluacion');
+      }
+    });
+  }
+
+  removeEvaluation(evaluationId: number): void {
+    const courseId = this.selectedCourseId();
+    const periodId = this.selectedPeriodId();
+    const subjectId = this.selectedSubjectId();
+    if (!courseId || !periodId || !subjectId || this.isSaving()) {
+      return;
+    }
+    this.isSaving.set(true);
+    this.gradeApiService.deleteEvaluation(evaluationId, courseId, periodId, subjectId).subscribe({
+      next: (view) => {
+        this.isSaving.set(false);
+        this.handleEvaluationViewUpdate(view, 'Evaluacion eliminada correctamente');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSaving.set(false);
+        this.showError(error, 'No fue posible eliminar la evaluacion');
+      }
+    });
+  }
+
   saveGradeBook(): void {
     const gradeBook = this.gradeBook();
     const courseId = this.selectedCourseId();
@@ -168,11 +418,12 @@ export class GradesPageComponent {
 
     this.isSaving.set(true);
     const entries: GradeSaveEntryPayload[] = gradeBook.students.flatMap((student) =>
-      student.scores.map((scoreCell) => ({
-        studentId: student.studentId,
-        evaluationId: scoreCell.evaluationId,
-        score: scoreCell.score
-      }))
+      student.scores
+        .map((scoreCell) => ({
+          studentId: student.studentId,
+          evaluationId: scoreCell.evaluationId,
+          score: scoreCell.score
+        }))
     );
 
     this.gradeApiService.saveGradeBook({ courseId, periodId, subjectId, entries }).subscribe({
@@ -180,7 +431,7 @@ export class GradesPageComponent {
         this.gradeBook.set(view);
         this.selectedSubjectId.set(view.subjectId);
         this.isSaving.set(false);
-        this.snackBar.open('Notas guardadas correctamente', 'Cerrar', { duration: 2600 });
+        this.snackBar.open('Notas guardadas correctamente', 'Cerrar', { duration: 3200 });
         this.loadStudentProfile();
         this.loadReports();
       },
@@ -212,7 +463,7 @@ export class GradesPageComponent {
       new Blob([content], { type: 'text/csv;charset=utf-8;' }),
       `libro-notas-${this.slug(this.selectedCourse()?.name ?? 'curso')}-${this.slug(this.selectedPeriod()?.name ?? 'periodo')}.csv`
     );
-    this.snackBar.open('Libro de notas exportado', 'Cerrar', { duration: 2400 });
+    this.snackBar.open('Evaluaciones exportadas', 'Cerrar', { duration: 2400 });
   }
 
   async exportStudentPdf(student: StudentGradeCard): Promise<void> {
@@ -276,6 +527,27 @@ export class GradesPageComponent {
     return student.studentId;
   }
 
+  formatEvaluationDate(value: string | null | undefined): string {
+    if (!value) {
+      return 'Sin fecha';
+    }
+
+    const [year, month, day] = value.split('-');
+    if (!year || !month || !day) {
+      return value;
+    }
+
+    return `${day}-${month}-${year}`;
+  }
+
+  formatWeight(value: number | null | undefined): string {
+    if (value == null) {
+      return 'Sin ponderación';
+    }
+
+    return `${value.toFixed(0)}%`;
+  }
+
   private loadCatalog(): void {
     this.isLoading.set(true);
     this.gradeApiService.getCatalog().subscribe({
@@ -288,7 +560,7 @@ export class GradesPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el catalogo de calificaciones');
+        this.showError(error, 'No fue posible cargar el catalogo de evaluaciones');
       }
     });
   }
@@ -317,11 +589,14 @@ export class GradesPageComponent {
       next: (view) => {
         this.gradeBook.set(view);
         this.selectedSubjectId.set(view.subjectId);
+        this.gradeBookSearch.set('');
+        this.closeDraftEvaluationDialog();
+        this.closeEvaluationDetails();
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el libro de notas');
+        this.showError(error, 'No fue posible cargar las evaluaciones');
       }
     });
   }
@@ -475,9 +750,16 @@ export class GradesPageComponent {
     return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
 
+
+  private todayIso(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+
   private showError(error: HttpErrorResponse, fallback: string): void {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3600
     });
   }
 }
+

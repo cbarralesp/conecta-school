@@ -13,6 +13,7 @@ import com.example.authhexagonal.domain.port.in.CreatePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitsUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningUnitDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.out.PlanningCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningUnitRepositoryPort;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ public class PlanningUnitService implements
         CreatePlanningUnitUseCase,
         SavePlanningUnitDraftUseCase,
         GetPlanningUnitCatalogsUseCase,
-        GetPlanningUnitsUseCase {
+        GetPlanningUnitsUseCase,
+        UpdatePlanningUnitUseCase {
 
     private final PlanningUnitRepositoryPort planningUnitRepositoryPort;
     private final PlanningCatalogRepositoryPort planningCatalogRepositoryPort;
@@ -60,6 +62,25 @@ public class PlanningUnitService implements
     @Override
     public List<PlanningUnitSummary> findUnits(String username) {
         return planningUnitRepositoryPort.findUnitsByUsername(username);
+    }
+
+    @Override
+    public PlanningUnit updateUnit(String username, Long unitId, String unitNumber, String name) {
+        PlanningUnit planningUnit = planningUnitRepositoryPort.findAccessibleById(username, unitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unidad de planificacion no encontrada"));
+
+        if (unitNumber == null || unitNumber.isBlank()) {
+            throw new IllegalArgumentException("El numero de unidad es obligatorio");
+        }
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("El nombre de la unidad es obligatorio");
+        }
+
+        return planningUnitRepositoryPort.updateUnit(
+                planningUnit.id(),
+                unitNumber.trim(),
+                name.trim()
+        );
     }
 
     private PlanningUnit save(String username, PlanningUnitCommand command, PlanningUnitStatus status) {

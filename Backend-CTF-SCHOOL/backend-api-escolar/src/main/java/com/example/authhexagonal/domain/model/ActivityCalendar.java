@@ -6,6 +6,8 @@ public record ActivityCalendar(
         int year,
         int month,
         String monthLabel,
+        ActivityCalendarSummary summary,
+        List<ActivityCalendarDay> days,
         List<SchoolActivity> monthlyActivities,
         List<SchoolActivity> upcomingActivities,
         List<ActivityType> activityTypes

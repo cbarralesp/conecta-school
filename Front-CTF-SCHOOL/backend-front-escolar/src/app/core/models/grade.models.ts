@@ -27,6 +27,8 @@ export interface GradeEvaluationHeader {
   code: string;
   name: string;
   order: number;
+  weight?: number | null;
+  evaluationDate?: string | null;
 }
 
 export interface GradeScoreCell {
@@ -107,4 +109,14 @@ export interface SaveGradeBookPayload {
   periodId: number;
   subjectId: number;
   entries: GradeSaveEntryPayload[];
+}
+
+export interface GradeEvaluationPayload {
+  courseId: number;
+  periodId: number;
+  subjectId: number;
+  code: string;
+  name: string;
+  weight: number | null;
+  evaluationDate: string | null;
 }
