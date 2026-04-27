@@ -25,7 +25,7 @@ public interface ManageCoursesUseCase {
 
     Course createFromMaster(Long masterCourseId, String parallel, int schoolYear, String scheduleType, Long teacherId, Long assistantId, List<Long> studentIds);
 
-    Course update(Long courseId, String code, String name, String level, String letter, int schoolYear, String scheduleType, List<Long> studentIds);
+    Course update(Long courseId, String code, String name, String level, String letter, int schoolYear, String scheduleType, Long teacherId, Long assistantId, List<Long> studentIds);
 
     void delete(Long courseId);
 }

@@ -12,6 +12,8 @@ public record CourseRequest(
         @NotBlank String letter,
         @Min(2020) int schoolYear,
         @NotBlank String scheduleType,
+        Long teacherId,
+        Long assistantId,
         List<Long> studentIds
 ) {
 }

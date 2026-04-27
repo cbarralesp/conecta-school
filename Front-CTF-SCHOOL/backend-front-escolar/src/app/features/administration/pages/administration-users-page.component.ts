@@ -5,12 +5,8 @@ import { Router } from '@angular/router';
 import { Observable, debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import {
   AdministrationRoleCode,
   AdministrationUserStatus,
@@ -21,8 +17,6 @@ import {
 import { AdministrationApiService } from '../../../core/services/administration-api.service';
 import { AdministrationActionButtonsComponent, AdministrationIconAction } from '../components/administration-action-buttons.component';
 import { AdministrationConfirmDialogComponent } from '../components/administration-confirm-dialog.component';
-import { AdministrationHeroComponent } from '../components/administration-hero.component';
-import { AdministrationKpiGridComponent } from '../components/administration-kpi-grid.component';
 import { AdministrationShellComponent } from '../components/administration-shell.component';
 import { AdministrationStatusBadgeComponent } from '../components/administration-status-badge.component';
 import { AdministrationUserDetailDialogComponent } from '../components/administration-user-detail-dialog.component';
@@ -34,15 +28,9 @@ import { AdministrationUserDetailDialogComponent } from '../components/administr
     ReactiveFormsModule,
     MatCardModule,
     MatDialogModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatSelectModule,
     MatSnackBarModule,
-    MatTableModule,
     AdministrationActionButtonsComponent,
-    AdministrationHeroComponent,
-    AdministrationKpiGridComponent,
     AdministrationShellComponent,
     AdministrationStatusBadgeComponent
   ],
@@ -69,6 +57,13 @@ export class AdministrationUsersPageComponent {
   readonly summary = computed(() => this.overview()?.summary ?? []);
   readonly roleOptions = computed(() => this.overview()?.roles ?? []);
   readonly users = computed(() => this.overview()?.users ?? []);
+  readonly summaryCards = computed(() =>
+    this.summary().slice(0, 4).map((item, index) => ({
+      ...item,
+      icon: ['groups', 'check_circle', 'badge', 'insights'][index] ?? 'dashboard',
+      toneClass: ['sc-blue', 'sc-green', 'sc-violet', 'sc-amber'][index] ?? 'sc-blue'
+    }))
+  );
 
   constructor() {
     this.loadOverview();
@@ -77,6 +72,23 @@ export class AdministrationUsersPageComponent {
 
   goToCreate(): void {
     void this.router.navigate(['/dashboard/administracion/nuevo-usuario']);
+  }
+
+  rolePillClass(user: AdministrationUserListItem): string {
+    switch (user.roleCode) {
+      case 'PROFESOR':
+        return 'role-pill role-pill--teacher';
+      case 'DIRECTOR':
+        return 'role-pill role-pill--director';
+      case 'SUPERADMIN':
+        return 'role-pill role-pill--superadmin';
+      case 'APODERADO':
+        return 'role-pill role-pill--guardian';
+      case 'INSPECTOR':
+      case 'SECRETARIA':
+      default:
+        return 'role-pill role-pill--admin';
+    }
   }
 
   handleAction(user: AdministrationUserListItem, actionKey: string): void {

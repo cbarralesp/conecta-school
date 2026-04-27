@@ -1,28 +1,31 @@
-import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type AdministrationTab = 'users' | 'roles' | 'matrix' | 'new-user' | 'audit';
 
 @Component({
   selector: 'app-administration-shell',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatSidenavModule, MatToolbarModule, TeacherSideMenuComponent],
+  imports: [RouterLink, MatButtonModule, TeacherModernLayoutComponent],
   template: `
-    <mat-sidenav-container class="administration-shell">
-      <mat-sidenav mode="side" opened class="administration-sidenav">
-        <app-teacher-side-menu></app-teacher-side-menu>
-      </mat-sidenav>
+    <app-teacher-modern-layout
+      [title]="toolbarTitle"
+      activeItem="users"
+      dashboardRoute="/dashboard"
+      [userName]="userName()"
+      [userRole]="userRole()"
+    >
+      <main class="administration-content">
+        <section class="administration-subnav">
+          <div class="administration-subnav__copy">
+            <span class="administration-subnav__eyebrow">Administracion</span>
+            <strong>{{ sectionTitle() }}</strong>
+          </div>
 
-      <mat-sidenav-content>
-        <mat-toolbar class="administration-toolbar">
-          <span>{{ toolbarTitle }}</span>
-          <span class="toolbar-spacer"></span>
-          <section class="toolbar-switcher">
+          <div class="administration-subnav__tabs">
             @for (tab of tabs; track tab.route) {
               <a
                 mat-stroked-button
@@ -32,125 +35,95 @@ type AdministrationTab = 'users' | 'roles' | 'matrix' | 'new-user' | 'audit';
                 {{ tab.label }}
               </a>
             }
-          </section>
-          <button mat-stroked-button type="button" (click)="logout()">Cerrar sesion</button>
-        </mat-toolbar>
+          </div>
+        </section>
 
-        <main class="administration-content">
+        <section class="administration-page-shell">
           <ng-content></ng-content>
-        </main>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
+        </section>
+      </main>
+    </app-teacher-modern-layout>
   `,
   styles: `
-    .administration-shell {
-      min-height: 100vh;
-      width: 100%;
-    }
-
-    .administration-sidenav {
-      width: var(--app-shell-sidebar-width);
-      min-width: var(--app-shell-sidebar-width);
-      max-width: var(--app-shell-sidebar-width);
-      padding: var(--app-shell-sidebar-padding);
-      background: var(--app-gradient-shell);
-      border-right: 1px solid var(--app-border-color);
-    }
-
-    mat-sidenav-content {
-      min-width: 0;
-      overflow-x: hidden;
-    }
-
-    .administration-toolbar {
-      position: sticky;
-      top: 0;
-      z-index: 12;
-      display: flex;
-      gap: 0.85rem;
-      min-height: var(--app-toolbar-height);
-      padding: 0 1.1rem;
-      background: var(--app-toolbar-background);
-      border-bottom: 1px solid rgba(17, 38, 71, 0.06);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 8px 20px rgba(17, 47, 94, 0.05);
-      align-items: center;
-      flex-wrap: nowrap;
-    }
-
-    .administration-toolbar > span:first-child {
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: #24364f;
-    }
-
-    .toolbar-spacer {
-      flex: 1;
-    }
-
-    .toolbar-switcher {
-      display: inline-flex;
-      gap: 0.65rem;
-      flex-wrap: nowrap;
-      justify-content: flex-end;
-      align-items: center;
-      margin-right: 0.2rem;
-      overflow-x: hidden;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    .toolbar-switcher::-webkit-scrollbar {
-      display: none;
-    }
-
-    .toolbar-switcher a[mat-stroked-button] {
-      min-width: 0;
-      min-height: 44px;
-      padding: 0 1rem;
-      font-size: 0.92rem;
-      justify-content: center;
-      white-space: nowrap;
-      border-radius: 18px !important;
-      border-color: rgba(20, 56, 103, 0.18) !important;
-      background: rgba(255, 255, 255, 0.8) !important;
-      color: #173553 !important;
-    }
-
-    .toolbar-switcher .active-tab {
-      background: rgba(25, 83, 150, 0.12) !important;
-      border-color: rgba(25, 83, 150, 0.3) !important;
-      color: #0f5bb4 !important;
-      box-shadow: inset 0 0 0 1px rgba(15, 91, 180, 0.06);
-    }
-
     .administration-content {
-      width: min(100%, var(--app-page-max-width));
-      margin: 0 auto;
-      padding: var(--app-page-padding-y) var(--app-page-padding-x) 2rem;
       display: grid;
-      gap: 0.95rem;
+      gap: 1rem;
       min-width: 0;
     }
 
-    @media (max-width: 768px) {
-      .administration-content {
-        padding: 1rem;
-      }
+    .administration-subnav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.2rem 0;
+      flex-wrap: wrap;
+    }
 
-      .administration-toolbar {
-        flex-wrap: wrap;
+    .administration-subnav__copy {
+      display: grid;
+      gap: 0.18rem;
+      min-width: 0;
+    }
+
+    .administration-subnav__eyebrow {
+      color: #3b82f6;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .administration-subnav__copy strong {
+      color: #0f172a;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .administration-subnav__tabs {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .administration-subnav__tabs a[mat-stroked-button] {
+      min-width: 0;
+      min-height: 42px;
+      padding: 0 0.95rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      white-space: nowrap;
+      border-radius: 14px !important;
+      border-color: #d5dfed !important;
+      background: rgba(255, 255, 255, 0.92) !important;
+      color: #45617f !important;
+      box-shadow: none !important;
+    }
+
+    .administration-subnav__tabs .active-tab {
+      background: #eef4ff !important;
+      border-color: #bfd4f8 !important;
+      color: #1d5eb3 !important;
+    }
+
+    .administration-page-shell {
+      display: grid;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    @media (max-width: 960px) {
+      .administration-subnav {
         align-items: stretch;
-        row-gap: 0.55rem;
-        padding-block: 0.75rem;
       }
 
-      .toolbar-switcher {
-        justify-content: flex-start;
+      .administration-subnav__tabs {
         width: 100%;
-        order: 3;
-        padding-bottom: 0.1rem;
-        overflow-x: auto;
+        justify-content: flex-start;
       }
     }
   `,
@@ -162,6 +135,13 @@ export class AdministrationShellComponent {
 
   @Input() activeTab: AdministrationTab = 'users';
   @Input() toolbarTitle = 'Administracion';
+
+  protected readonly userName = computed(() => this.authStateService.user()?.nombre ?? 'Administrador');
+  protected readonly userRole = computed(() => {
+    const roleCode = this.authStateService.user()?.roleCode ?? this.authStateService.user()?.rol ?? 'ADMIN';
+    return roleCode === 'SUPERADMIN' ? 'Superadmin' : 'Administrador';
+  });
+  protected readonly sectionTitle = computed(() => this.tabs.find((tab) => tab.key === this.activeTab)?.label ?? 'Usuarios');
 
   protected readonly tabs = [
     { key: 'users', label: 'Usuarios', route: '/dashboard/administracion/usuarios' },

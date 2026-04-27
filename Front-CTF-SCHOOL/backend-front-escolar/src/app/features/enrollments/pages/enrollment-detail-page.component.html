@@ -1,123 +1,222 @@
 <app-teacher-modern-layout
-  title="Gestion de matriculas"
+  title="Matriculas"
   searchPlaceholder="Buscar estudiantes, cursos o apoderados..."
   activeItem="enrollments"
   dashboardRoute="/dashboard"
->
-  <main class="enrollment-detail-content">
-      <section class="module-nav">
-        <a mat-stroked-button routerLink="/dashboard/matriculas">Listado de estudiantes</a>
-        <a mat-stroked-button routerLink="/dashboard/matriculas/nueva">Nueva matricula</a>
-        <button mat-stroked-button type="button" class="active-tab" disabled>Ficha estudiante</button>
+  [userName]="user()?.nombre ?? 'Administracion'"
+  userRole="Administracion">
+  <main class="content-area">
+    <section class="page-header">
+      <div>
+        <span class="page-header__overline">Administracion</span>
+        <h2>Ficha del Estudiante</h2>
+        <p>Visualizacion de informacion matriculada</p>
+      </div>
+      <div class="page-header__actions">
+        <button class="btn btn-primary" type="button" (click)="goToEdit()">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <a class="btn btn-ghost" routerLink="/dashboard/matriculas">
+          <mat-icon>arrow_back</mat-icon>
+          Volver al Listado
+        </a>
+      </div>
+    </section>
+
+    @if (isLoading()) {
+      <section class="loading-card">
+        <mat-icon>hourglass_top</mat-icon>
+        <strong>Cargando ficha...</strong>
       </section>
+    } @else if (detail(); as student) {
+      <section class="view-layout">
+        <aside class="profile-sidebar">
+          <section class="card profile-card">
+            <div class="profile-img-container">
+              <div class="profile-img profile-img--placeholder">{{ avatar() }}</div>
+              <div class="profile-name">{{ fullName() }}</div>
+              <div class="profile-run">{{ student.studentRun }}</div>
+              <span class="status-badge-large">{{ statusBadgeLabel() }}</span>
+            </div>
 
-      <section class="detail-hero">
-        <div class="hero-copy">
-          <span class="hero-tag">Matriculas 2026</span>
-          <h1>Ficha estudiante</h1>
-          <p>Consulta la informacion del estudiante, apoderado principal y responsables de retiro.</p>
-        </div>
-      </section>
+            <div class="profile-meta">
+              <div class="meta-row">
+                <span>Curso:</span>
+                <span>{{ student.courseName }}</span>
+              </div>
+              <div class="meta-row">
+                <span>Edad:</span>
+                <span>{{ ageLabel() }}</span>
+              </div>
+              <div class="meta-row">
+                <span>Codigo:</span>
+                <span>#{{ student.id }}</span>
+              </div>
+            </div>
 
-      @if (isLoading()) {
-        <mat-card appearance="outlined" class="detail-card">
-          <mat-card-content>Cargando ficha...</mat-card-content>
-        </mat-card>
-      } @else if (detail(); as student) {
-        <mat-card appearance="outlined" class="detail-card">
-          <mat-card-content class="detail-stack">
-            <section class="student-header">
-              <div class="student-identity">
-                <span class="avatar">{{ avatar() }}</span>
-                <div>
-                  <h1>{{ student.studentName }} {{ student.studentLastName }}</h1>
-                  <div class="meta-row">
-                    <span>RUN: {{ student.studentRun }}</span>
-                    <span class="course-pill">{{ student.courseName }}</span>
-                    <span class="status-pill" [class.pending]="student.status === 'PENDIENTE'">{{ student.status }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="header-actions">
-                <button mat-stroked-button (click)="goToEdit()">Editar</button>
-                <button mat-stroked-button color="warn" (click)="deleteEnrollment()">Eliminar</button>
-              </div>
-            </section>
+            <div class="action-grid">
+              <button class="action-btn" type="button" (click)="printProfile()">
+                <mat-icon>print</mat-icon>
+                <span>Imprimir Ficha</span>
+              </button>
+              <button class="action-btn" type="button" (click)="openSchedule()">
+                <mat-icon>calendar_month</mat-icon>
+                <span>Ver Horario</span>
+              </button>
+              <button class="action-btn" type="button" (click)="downloadPdf()">
+                <mat-icon>picture_as_pdf</mat-icon>
+                <span>Descargar PDF</span>
+              </button>
+              <button class="action-btn" type="button" (click)="shareData()">
+                <mat-icon>mail</mat-icon>
+                <span>Enviar Datos</span>
+              </button>
+            </div>
+          </section>
+        </aside>
 
-            <section class="data-grid">
-              <div class="data-item">
-                <span>Fecha nacimiento</span>
-                <strong>{{ student.birthDate }}</strong>
+        <div class="main-info">
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <mat-icon>badge</mat-icon>
+                Datos Personales
               </div>
-              <div class="data-item">
-                <span>Genero</span>
-                <strong>{{ student.gender }}</strong>
-              </div>
-              <div class="data-item">
-                <span>Direccion</span>
-                <strong>{{ student.address }}</strong>
-              </div>
-              <div class="data-item">
-                <span>Fecha matricula</span>
-                <strong>{{ student.enrollmentDate }}</strong>
-              </div>
-              <div class="data-item">
-                <span>Necesidades especiales</span>
-                <strong>{{ student.specialNeeds }}</strong>
-              </div>
-            </section>
+            </div>
 
-            <section class="section-block">
-              <div class="section-head">
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Nombre Completo</span>
+                <span class="info-value">{{ fullName() }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Fecha de Nacimiento</span>
+                <span class="info-value">{{ formattedBirthDate() }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Direccion</span>
+                <span class="info-value">{{ student.address || 'Sin direccion registrada' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Sexo</span>
+                <span class="info-value">{{ student.gender }}</span>
+              </div>
+              <div class="info-item info-item--full">
+                <span class="info-label">Comentarios / Salud</span>
+                <span class="info-value info-value--muted">{{ student.specialNeeds || 'Sin observaciones registradas' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
                 <mat-icon>supervisor_account</mat-icon>
-                <h2>Apoderado principal</h2>
+                Apoderado Principal
               </div>
-              <div class="contact-card">
-                <div class="contact-main">
-                  <strong>{{ student.guardian.name }} {{ student.guardian.lastName }}</strong>
-                  <small>{{ student.guardian.relation }} · RUN {{ student.guardian.run }}</small>
-                </div>
-                <div class="data-grid compact">
-                  <div class="data-item">
-                    <span>Telefono</span>
-                    <strong>{{ student.guardian.phone }}</strong>
-                  </div>
-                  <div class="data-item">
-                    <span>Email</span>
-                    <strong>{{ student.guardian.email }}</strong>
-                  </div>
-                </div>
-              </div>
-            </section>
+            </div>
 
-            <section class="section-block">
-              <div class="section-head">
-                <mat-icon>groups</mat-icon>
-                <h2>Responsables de retiro</h2>
+            <div class="guardian-highlight">
+              <div class="guardian-avatar">
+                <mat-icon>person</mat-icon>
               </div>
-              <div class="pickup-list">
+              <div class="guardian-details">
+                <div class="guardian-name">{{ student.guardian.name }} {{ student.guardian.lastName }}</div>
+                <div class="guardian-role">{{ student.guardian.relation }}</div>
+              </div>
+              <div class="guardian-contact-actions">
+                <a [href]="'tel:' + student.guardian.phone" class="contact-round-btn btn-phone" title="Llamar">
+                  <mat-icon>call</mat-icon>
+                </a>
+                <a [href]="'mailto:' + student.guardian.email" class="contact-round-btn btn-email" title="Escribir Email">
+                  <mat-icon>mail</mat-icon>
+                </a>
+              </div>
+            </div>
+
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">RUN Apoderado</span>
+                <span class="info-value">{{ student.guardian.run }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Telefono</span>
+                <span class="info-value info-value--link">{{ student.guardian.phone }}</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="detail-grid">
+            <section class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <mat-icon>directions_car</mat-icon>
+                  Autorizados Retiro
+                </div>
+              </div>
+
+              <div class="auth-list">
                 @for (contact of student.pickupContacts; track contact.id ?? $index) {
-                  <div class="contact-card">
-                    <div class="contact-main">
-                      <strong>{{ contact.name }} {{ contact.lastName }}</strong>
-                      <small>{{ contact.relation }} · RUN {{ contact.run }}</small>
-                    </div>
-                    <div class="data-grid compact">
-                      <div class="data-item">
-                        <span>Telefono</span>
-                        <strong>{{ contact.phone }}</strong>
+                  <div class="auth-row">
+                    <div class="auth-info">
+                      <div class="auth-icon">
+                        <mat-icon>verified_user</mat-icon>
                       </div>
-                      <div class="data-item">
-                        <span>Retiro</span>
-                        <strong>{{ contact.authorizedPickup ? 'Autorizado' : 'No autorizado' }}</strong>
+                      <div>
+                        <div class="auth-name">{{ contact.name }} {{ contact.lastName }}</div>
+                        <div class="auth-role">{{ contact.relation }}</div>
                       </div>
                     </div>
                   </div>
+                } @empty {
+                  <div class="empty-state">Sin responsables de retiro registrados.</div>
                 }
               </div>
             </section>
-          </mat-card-content>
-        </mat-card>
-      }
-    </main>
+
+            <section class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <mat-icon>folder_open</mat-icon>
+                  Documentacion
+                </div>
+              </div>
+
+              <div class="doc-list">
+                <div class="doc-item">
+                  <div class="doc-main">
+                    <mat-icon class="doc-icon doc-icon--received">check_circle</mat-icon>
+                    <span class="doc-name">Carnet de Identidad</span>
+                  </div>
+                  <span class="doc-status doc-status--received">Recibido</span>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-main">
+                    <mat-icon class="doc-icon doc-icon--received">description</mat-icon>
+                    <span class="doc-name">Certificado Nacimiento</span>
+                  </div>
+                  <span class="doc-status doc-status--received">Recibido</span>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-main">
+                    <mat-icon class="doc-icon doc-icon--pending">error</mat-icon>
+                    <span class="doc-name">Certificado Salud</span>
+                  </div>
+                  <span class="doc-status doc-status--pending">Pendiente</span>
+                </div>
+                <div class="doc-item">
+                  <div class="doc-main">
+                    <mat-icon class="doc-icon doc-icon--pending">error</mat-icon>
+                    <span class="doc-name">Foto Carnet</span>
+                  </div>
+                  <span class="doc-status doc-status--pending">Pendiente</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    }
+  </main>
 </app-teacher-modern-layout>

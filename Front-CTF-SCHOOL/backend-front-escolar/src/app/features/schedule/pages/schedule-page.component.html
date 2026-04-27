@@ -18,22 +18,6 @@
       </div>
     </section>
 
-    <section class="schedule-actions">
-      <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openAddBreakDialog()">
-        <mat-icon>free_breakfast</mat-icon>
-        Agregar recreo
-      </button>
-      <button
-        mat-stroked-button
-        type="button"
-        class="header-button header-button--ghost"
-        (click)="downloadSchedulePdf()"
-        [disabled]="isExportingPdf() || !selectedCourse()">
-        <mat-icon>download</mat-icon>
-        {{ isExportingPdf() ? 'Generando PDF...' : 'Exportar PDF' }}
-      </button>
-    </section>
-
     <section class="summary-grid">
       <mat-card appearance="outlined" class="summary-card sc-blue">
         <div class="summary-card__head">
@@ -116,6 +100,22 @@
               </select>
             </label>
           </label>
+        </div>
+
+        <div class="schedule-card__tools">
+          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openAddBreakDialog()">
+            <mat-icon>free_breakfast</mat-icon>
+            Agregar recreo
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            class="header-button header-button--ghost"
+            (click)="downloadSchedulePdf()"
+            [disabled]="isExportingPdf() || !selectedCourse()">
+            <mat-icon>download</mat-icon>
+            {{ isExportingPdf() ? 'Generando PDF...' : 'Exportar PDF' }}
+          </button>
         </div>
       </div>
 

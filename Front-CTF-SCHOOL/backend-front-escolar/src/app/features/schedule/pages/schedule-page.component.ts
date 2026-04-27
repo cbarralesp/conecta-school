@@ -415,7 +415,7 @@ export class SchedulePageComponent {
     this.scheduleApiService.getCatalog().subscribe({
         next: (catalog) => {
           this.catalog.set(catalog);
-          this.selectedSemesterId.set(catalog.periods[0]?.id ?? null);
+          this.selectedSemesterId.set(this.resolvePreferredSemesterId(catalog));
           const preferredCourseId = this.resolvePreferredCourseId(catalog);
           this.selectedCourseId.set(preferredCourseId);
           if (preferredCourseId && this.selectedSemesterId()) {
@@ -506,7 +506,7 @@ export class SchedulePageComponent {
       next: (catalog) => {
         this.catalog.set(catalog);
         if (!catalog.periods.some((period) => period.id === this.selectedSemesterId())) {
-          this.selectedSemesterId.set(catalog.periods[0]?.id ?? null);
+          this.selectedSemesterId.set(this.resolvePreferredSemesterId(catalog));
         }
         const nextCourseId =
           currentCourseId && catalog.courses.some((course) => course.id === currentCourseId)
@@ -532,7 +532,56 @@ export class SchedulePageComponent {
       (left, right) => this.courseSortWeight(left.name) - this.courseSortWeight(right.name)
     );
 
+    const preferredMorningBasicCourse = orderedCourses.find(
+      (course) => this.isBasicCourse(course.name) && this.isMorningSchedule(course.scheduleType)
+    );
+
+    if (preferredMorningBasicCourse) {
+      return preferredMorningBasicCourse.id;
+    }
+
+    const preferredBasicCourse = orderedCourses.find((course) => this.isBasicCourse(course.name));
+    if (preferredBasicCourse) {
+      return preferredBasicCourse.id;
+    }
+
     return orderedCourses[0]?.id ?? null;
+  }
+
+  private resolvePreferredSemesterId(catalog: ScheduleCatalog): number | null {
+    const currentSemesterId = this.selectedSemesterId();
+    if (currentSemesterId && catalog.periods.some((period) => period.id === currentSemesterId)) {
+      return currentSemesterId;
+    }
+
+    const firstSemester = catalog.periods.find((period) => period.semester === 1);
+    return firstSemester?.id ?? catalog.periods[0]?.id ?? null;
+  }
+
+  private isBasicCourse(name: string): boolean {
+    const normalized = name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+
+    if (normalized.includes('PK') || normalized.includes('PRE KINDER') || normalized.includes('PREKINDER')) {
+      return false;
+    }
+
+    if (normalized.includes('KINDER')) {
+      return false;
+    }
+
+    return normalized.includes('BASICO');
+  }
+
+  private isMorningSchedule(scheduleType: string): boolean {
+    const normalized = scheduleType
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+
+    return normalized.includes('MANANA') || normalized.includes('MORNING');
   }
 
   private courseSortWeight(name: string): number {

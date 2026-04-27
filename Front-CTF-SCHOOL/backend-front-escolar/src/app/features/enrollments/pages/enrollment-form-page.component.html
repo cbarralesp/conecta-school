@@ -1,177 +1,266 @@
 <app-teacher-modern-layout
-  title="Gestión de matrículas"
-  searchPlaceholder="Buscar estudiantes, cursos o apoderados..."
+  title="Matriculas"
   activeItem="enrollments"
   dashboardRoute="/dashboard"
->
-  <main class="enrollment-form-content">
-      <section class="page-header">
-        <div class="page-header__left">
-          <h1 class="page-header__title">{{ title() }}</h1>
-          <p class="page-header__subtitle">Registra datos del estudiante, apoderado principal y responsables de retiro en un solo flujo.</p>
-        </div>
-        <div class="page-header__actions">
-          <button mat-flat-button type="button" class="back-button" routerLink="/dashboard/matriculas">
-            <mat-icon>arrow_back</mat-icon>
-            Volver al listado
-          </button>
-        </div>
+  [userName]="user()?.nombre ?? 'Administracion'"
+  userRole="Administracion">
+  <main class="content-area">
+    <section class="page-header">
+      <div>
+        <span class="page-header__overline">Administracion</span>
+        <h2>{{ pageTitle() }}</h2>
+        <p>{{ subtitle() }}</p>
+      </div>
+      <div class="page-header__actions">
+        <a class="btn btn-ghost" routerLink="/dashboard/matriculas">
+          <mat-icon>arrow_back</mat-icon>
+          Volver al Listado
+        </a>
+      </div>
+    </section>
+
+    @if (isLoading()) {
+      <section class="loading-card">
+        <mat-icon>hourglass_top</mat-icon>
+        <strong>Cargando formulario...</strong>
       </section>
-
-      @if (isLoading()) {
-        <mat-card appearance="outlined" class="loading-card">
-          <mat-card-content>Cargando formulario...</mat-card-content>
-        </mat-card>
-      } @else {
-        <form [formGroup]="form" class="enrollment-form-grid">
-          <mat-card appearance="outlined" class="form-card">
-            <div class="form-card__header">
-              <span class="form-card__step">1</span>
-              <span class="form-card__title">Datos del estudiante</span>
+    } @else {
+      <form class="editor-layout" [formGroup]="form" (ngSubmit)="save()">
+        <div class="left-col">
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <mat-icon>badge</mat-icon>
+                1. Datos del Estudiante
+              </div>
             </div>
-            <mat-card-content class="form-card__body section-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>RUN</mat-label>
-                <input matInput formControlName="studentRun" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="studentName" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Apellidos</mat-label>
-                <input matInput formControlName="studentLastName" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Fecha de nacimiento</mat-label>
-                <input matInput type="date" formControlName="birthDate" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Genero</mat-label>
-                <mat-select formControlName="gender">
-                  <mat-option value="Femenino">Femenino</mat-option>
-                  <mat-option value="Masculino">Masculino</mat-option>
-                  <mat-option value="Otro">Otro</mat-option>
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Curso a matricular</mat-label>
-                <mat-select formControlName="courseId">
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="student-run">RUN *</label>
+                <input id="student-run" type="text" class="form-input" formControlName="studentRun" placeholder="Ej: 12.345.678-9" (input)="formatRunValue('studentRun')">
+              </div>
+
+              <div class="form-group">
+                <label for="student-birth-date">Fecha de Nacimiento</label>
+                <input id="student-birth-date" type="date" class="form-input" formControlName="birthDate">
+              </div>
+
+              <div class="form-group">
+                <label for="student-first-name">Primer Nombre *</label>
+                <input id="student-first-name" type="text" class="form-input" formControlName="studentFirstName">
+              </div>
+
+              <div class="form-group">
+                <label for="student-middle-name">Segundo Nombre</label>
+                <input id="student-middle-name" type="text" class="form-input" formControlName="studentMiddleName">
+              </div>
+
+              <div class="form-group">
+                <label for="student-last-name-father">Apellido Paterno *</label>
+                <input id="student-last-name-father" type="text" class="form-input" formControlName="studentLastNameFather">
+              </div>
+
+              <div class="form-group">
+                <label for="student-last-name-mother">Apellido Materno *</label>
+                <input id="student-last-name-mother" type="text" class="form-input" formControlName="studentLastNameMother">
+              </div>
+
+              <div class="form-group full">
+                <label for="student-course">Curso *</label>
+                <select id="student-course" class="form-input" formControlName="courseId">
+                  <option [value]="0" disabled>Seleccione curso</option>
                   @for (course of courses(); track course.id) {
-                    <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                    <option [value]="course.id">{{ course.name }}</option>
                   }
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="address-field">
-                <mat-label>Direccion</mat-label>
-                <input matInput formControlName="address" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Necesidades especiales</mat-label>
-                <input matInput formControlName="specialNeeds" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Estado matricula</mat-label>
-                <mat-select formControlName="status">
-                  <mat-option value="ACTIVO">Activo</mat-option>
-                  <mat-option value="PENDIENTE">Pendiente</mat-option>
-                </mat-select>
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Fecha de matricula</mat-label>
-                <input matInput type="date" formControlName="enrollmentDate" />
-              </mat-form-field>
-            </mat-card-content>
-          </mat-card>
+                </select>
+              </div>
 
-          <mat-card appearance="outlined" class="form-card" [formGroup]="form.controls.guardian">
-            <div class="form-card__header">
-              <span class="form-card__step">2</span>
-              <span class="form-card__title">Apoderado principal</span>
-            </div>
-            <mat-card-content class="form-card__body section-grid">
-              <mat-form-field appearance="outline">
-                <mat-label>RUN</mat-label>
-                <input matInput formControlName="run" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Nombre</mat-label>
-                <input matInput formControlName="name" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Apellidos</mat-label>
-                <input matInput formControlName="lastName" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Telefono</mat-label>
-                <input matInput formControlName="phone" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Email</mat-label>
-                <input matInput formControlName="email" />
-              </mat-form-field>
-              <mat-form-field appearance="outline">
-                <mat-label>Relacion</mat-label>
-                <input matInput formControlName="relation" />
-              </mat-form-field>
-              <mat-checkbox formControlName="authorizedPickup">Autorizado para retirar</mat-checkbox>
-            </mat-card-content>
-          </mat-card>
+              <div class="form-group">
+                <label for="student-gender">Genero *</label>
+                <select id="student-gender" class="form-input" formControlName="gender">
+                  <option value="Femenino">Femenino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="No binario">No binario</option>
+                </select>
+              </div>
 
-          <mat-card appearance="outlined" class="form-card">
-            <div class="form-card__header">
-              <span class="form-card__step">3</span>
-              <span class="form-card__title">Responsables de retiro</span>
+              <div class="form-group">
+                <label for="student-priority">Prioridad</label>
+                <select id="student-priority" class="form-input" formControlName="specialNeeds">
+                  <option value="Regular">Regular</option>
+                  <option value="PIE">PIE</option>
+                  <option value="Prioritario">Prioritario</option>
+                  <option value="Preferente">Preferente</option>
+                </select>
+              </div>
+
+              <div class="form-group full">
+                <label for="student-address">Direccion *</label>
+                <input id="student-address" type="text" class="form-input" formControlName="address" placeholder="Calle, numero, comuna">
+              </div>
             </div>
-            <mat-card-content class="form-card__body pickup-stack" formArrayName="pickupContacts">
-              <p class="section-help">Agrega personas adicionales autorizadas para retirar al estudiante además del apoderado principal.</p>
+          </section>
+
+          <section class="card" [formGroup]="guardianGroup">
+            <div class="card-header">
+              <div class="card-title">
+                <mat-icon>supervisor_account</mat-icon>
+                2. Apoderado Principal
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="guardian-run">RUN Apoderado</label>
+                <input id="guardian-run" type="text" class="form-input" formControlName="run" placeholder="RUN" (input)="formatRunValue('guardian.run')">
+              </div>
+
+              <div class="form-group">
+                <label for="guardian-relation">Relacion</label>
+                <select id="guardian-relation" class="form-input" formControlName="relation">
+                  <option value="Madre">Madre</option>
+                  <option value="Padre">Padre</option>
+                  <option value="Tutor">Tutor</option>
+                  <option value="Abuelo/a">Abuelo/a</option>
+                </select>
+              </div>
+
+              <div class="form-group full">
+                <label for="guardian-full-name">Nombre Completo *</label>
+                <input id="guardian-full-name" type="text" class="form-input" formControlName="fullName">
+              </div>
+
+              <div class="form-group">
+                <label for="guardian-phone">Telefono *</label>
+                <input id="guardian-phone" type="tel" class="form-input" formControlName="phone">
+              </div>
+
+              <div class="form-group">
+                <label for="guardian-email">Email *</label>
+                <input id="guardian-email" type="email" class="form-input" formControlName="email">
+              </div>
+            </div>
+
+            <div class="guardian-toggle">
+              <input id="guardian-authorized" type="checkbox" formControlName="authorizedPickup">
+              <label for="guardian-authorized">Autorizado para retiro</label>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <mat-icon>directions_car</mat-icon>
+                3. Responsables de Retiro
+              </div>
+              <div class="card-note">Maximo 5 personas</div>
+            </div>
+
+            <p class="helper-text">Agregue a las personas autorizadas para retirar al estudiante.</p>
+
+            <div formArrayName="pickupContacts" class="authorized-list">
               @for (contact of pickupContacts.controls; track $index) {
-                <div class="pickup-card" [formGroupName]="$index">
-                  <div class="pickup-head">
-                    <strong>Responsable {{ $index + 1 }}</strong>
-                    <button mat-icon-button type="button" (click)="removePickupContact($index)" aria-label="Eliminar responsable">
+                <div class="authorized-card" [formGroupName]="$index">
+                  <div class="auth-card-header">
+                    <div class="auth-title">
+                      <span class="auth-badge">Responsable {{ $index + 1 }}</span>
+                      <span class="auth-label">{{ authLabel($index) }}</span>
+                    </div>
+                    <button class="btn-remove-auth" type="button" title="Eliminar Responsable" (click)="removeAuthorized($index)">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
-                  <div class="section-grid compact-grid">
-                    <mat-form-field appearance="outline">
-                      <mat-label>RUN</mat-label>
-                      <input matInput formControlName="run" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Nombre</mat-label>
-                      <input matInput formControlName="name" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Apellidos</mat-label>
-                      <input matInput formControlName="lastName" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Telefono</mat-label>
-                      <input matInput formControlName="phone" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline">
-                      <mat-label>Relacion</mat-label>
-                      <input matInput formControlName="relation" />
-                    </mat-form-field>
-                    <mat-checkbox formControlName="authorizedPickup">Autorizado para retirar</mat-checkbox>
+
+                  <div class="form-grid thirds">
+                    <div class="form-group">
+                      <label>RUN *</label>
+                      <input type="text" class="form-input" formControlName="run" placeholder="RUN" (input)="formatRunValue('pickupContacts.' + $index + '.run')">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Nombre *</label>
+                      <input type="text" class="form-input" formControlName="name" placeholder="Nombre">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Apellidos *</label>
+                      <input type="text" class="form-input" formControlName="lastName" placeholder="Apellidos">
+                    </div>
+
+                    <div class="form-group">
+                      <label>Telefono *</label>
+                      <input type="tel" class="form-input" formControlName="phone" placeholder="+56 9...">
+                    </div>
+
+                    <div class="form-group form-group--span-2">
+                      <label>Relacion *</label>
+                      <select class="form-input" formControlName="relation">
+                        <option value="Familiar">Familiar</option>
+                        <option value="Nanny">Nanny</option>
+                        <option value="Abuelo/a">Abuelo/a</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="auth-check-group">
+                    <input [id]="'auth-check-' + $index" type="checkbox" formControlName="authorizedPickup">
+                    <label [for]="'auth-check-' + $index">Autorizado para retirar</label>
                   </div>
                 </div>
               }
-              <button mat-stroked-button type="button" class="add-button" (click)="addPickupContact()">
-                <mat-icon>person_add</mat-icon>
-                Agregar responsable
-              </button>
-            </mat-card-content>
-          </mat-card>
+            </div>
 
-          <div class="actions-row">
-            <button mat-stroked-button type="button" routerLink="/dashboard/matriculas">Cancelar</button>
-            <button mat-flat-button type="button" (click)="save()">
-              {{ isSaving() ? 'Guardando...' : (isEditMode ? 'Guardar cambios' : 'Crear matricula') }}
+            <button class="btn-add-resp" type="button" (click)="addPickupContact()">
+              <mat-icon>add</mat-icon>
+              Agregar Responsable
             </button>
-          </div>
-        </form>
-      }
-    </main>
+          </section>
+        </div>
+
+        <aside class="right-col">
+          <section class="card sticky-card">
+            <div class="student-photo-container">
+              <div class="photo-placeholder" title="Subir foto">
+                <mat-icon>photo_camera</mat-icon>
+              </div>
+              <span class="change-photo">Cambiar Foto</span>
+            </div>
+
+            <div class="status-wrapper">
+              <span [class]="statusBadgeClass()">{{ statusBadgeLabel() }}</span>
+            </div>
+
+            <div class="meta-panel">
+              <div class="meta-row">
+                <span>Fecha Ingreso:</span>
+                <span>{{ form.controls.enrollmentDate.value || '-' }}</span>
+              </div>
+              <div class="meta-row">
+                <span>Curso:</span>
+                <span>{{ selectedCourseName() }}</span>
+              </div>
+              <div class="meta-row">
+                <span>Prioridad:</span>
+                <span>{{ form.controls.specialNeeds.value || 'Regular' }}</span>
+              </div>
+            </div>
+
+            <div class="sidebar-actions">
+              <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+                <mat-icon>save</mat-icon>
+                {{ isSaving() ? 'Guardando...' : 'Guardar Cambios' }}
+              </button>
+
+              <button class="btn btn-danger" type="button" (click)="anularMatricula()" [disabled]="!isEditMode || isSaving()">
+                <mat-icon>person_remove</mat-icon>
+                Anular Matricula
+              </button>
+            </div>
+          </section>
+        </aside>
+      </form>
+    }
+  </main>
 </app-teacher-modern-layout>

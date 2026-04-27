@@ -159,6 +159,15 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'dashboard/planificacion/clases/:id/editar',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: teacherOrAdmin },
+    loadComponent: () =>
+      import('./features/planning/pages/planning-class-create.component').then(
+        (m) => m.PlanningClassCreateComponent
+      )
+  },
+  {
     path: 'dashboard/planificacion/documentos',
     canActivate: [authGuard, roleGuard],
     data: { roles: teacherOrAdmin },

@@ -19,7 +19,7 @@ pnpm-debug.log*
 # Java / Spring
 target/
 build/
-out/
+/out/
 *.class
 *.jar
 *.war

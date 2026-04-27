@@ -14,7 +14,7 @@
       <form class="planner-container" [formGroup]="form">
         <div class="planner-header">
           <div class="planner-title">
-            <h2>Nueva Planificación</h2>
+            <h2>{{ pageTitle() }}</h2>
             <p>{{ plannerSubtitle() }}</p>
           </div>
           <div class="meta-badges">
@@ -25,6 +25,84 @@
             <div class="badge">
               <mat-icon>event</mat-icon>
               {{ plannedDateLabel() }}
+            </div>
+          </div>
+        </div>
+
+        <div class="data-bar">
+          <div class="data-row">
+            <div class="input-group">
+              <label class="data-label" for="planning-title">Titulo de la clase</label>
+              <div class="data-input-shell data-input-shell--text">
+                <mat-icon>edit_note</mat-icon>
+                <input
+                  id="planning-title"
+                  type="text"
+                  class="data-input"
+                  formControlName="title"
+                  placeholder="Ej: Mezcla de colores primarios">
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="data-label" for="planning-subject">Asignatura</label>
+              <div class="data-input-shell">
+                <mat-icon>menu_book</mat-icon>
+                <select
+                  id="planning-subject"
+                  class="data-input"
+                  formControlName="subjectId"
+                  (change)="updateSubject($any($event.target).value)">
+                  @for (subject of subjectOptions(); track subject.id) {
+                    <option [value]="subject.id">{{ subject.name }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="data-label" for="planning-grade">Nivel</label>
+              <div class="data-input-shell">
+                <mat-icon>school</mat-icon>
+                <select
+                  id="planning-grade"
+                  class="data-input"
+                  formControlName="courseId"
+                  (change)="updateCourse($any($event.target).value)">
+                  @for (course of courseOptions(); track course.id) {
+                    <option [value]="course.id">{{ course.name }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="data-label" for="planning-unit">Unidad</label>
+              <div class="data-input-shell">
+                <mat-icon>layers</mat-icon>
+                <select
+                  id="planning-unit"
+                  class="data-input"
+                  formControlName="unitId"
+                  (change)="updateUnit($any($event.target).value)">
+                  @for (unit of filteredUnits(); track unit.unitId) {
+                    <option [value]="unit.unitId">{{ unit.unitNumberLabel }} - {{ unit.unitName }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="data-label" for="planning-date">Fecha</label>
+              <div class="data-input-shell">
+                <mat-icon>calendar_month</mat-icon>
+                <input
+                  id="planning-date"
+                  type="date"
+                  class="data-input"
+                  [value]="plannedDateInputValue()"
+                  (change)="updatePlannedDate($any($event.target).value)">
+              </div>
             </div>
           </div>
         </div>
@@ -42,14 +120,14 @@
                   <div class="icon-inicio">
                     <mat-icon>play_arrow</mat-icon>
                   </div>
-                  Inicio (Activación)
+                  Inicio (Activacion)
                 </div>
                 <input type="text" class="time-input" value="15 min" readonly>
               </div>
               <textarea
                 class="rich-editor-placeholder"
                 formControlName="startActivity"
-                placeholder="Escriba aquí cómo activará conocimientos previos..."></textarea>
+                placeholder="Escriba aqui como activara conocimientos previos..."></textarea>
             </div>
 
             <div class="phase-card">
@@ -58,7 +136,7 @@
                   <div class="icon-desarrollo">
                     <mat-icon>design_services</mat-icon>
                   </div>
-                  Desarrollo (Construcción)
+                  Desarrollo (Construccion)
                 </div>
                 <input type="text" class="time-input" value="60 min" readonly>
               </div>
@@ -74,73 +152,103 @@
                   <div class="icon-cierre">
                     <mat-icon>flag</mat-icon>
                   </div>
-                  Cierre (Metacognición)
+                  Cierre (Metacognicion)
                 </div>
                 <input type="text" class="time-input" value="15 min" readonly>
               </div>
               <textarea
                 class="rich-editor-placeholder"
                 formControlName="closingActivity"
-                placeholder="Preguntas de cierre y síntesis..."></textarea>
-            </div>
-
-            <div class="eval-section">
-              <div class="eval-header">
-                <mat-icon>fact_check</mat-icon>
-                Evaluación y Evidencia
-              </div>
-              <div class="curriculum-box plain">
-                <label class="curriculum-label">Evidencia de Aprendizaje</label>
-                <input
-                  type="text"
-                  class="form-input-full"
-                  placeholder="Ej: Producción artística finalizada con uso de colores primarios.">
-              </div>
-              <div class="curriculum-box plain">
-                <label class="curriculum-label">Instrumento</label>
-                <select class="select-full" formControlName="evaluationType">
-                  @for (item of catalogs()?.evaluationTypes ?? []; track item.code) {
-                    <option [value]="item.code">{{ item.label }}</option>
-                  }
-                </select>
-              </div>
+                placeholder="Preguntas de cierre y sintesis..."></textarea>
             </div>
           </div>
 
           <div class="planner-sidebar">
             <div class="section-title">
               <mat-icon>link</mat-icon>
-              Alineación Mineduc
+              Alineacion Mineduc
             </div>
 
             <div class="curriculum-box">
               <div class="curriculum-label">Objetivos de Aprendizaje (OA)</div>
-              @if (selectedObjective(); as objective) {
-                <span class="oa-tag">{{ objective.code }} <mat-icon>close</mat-icon></span>
-              } @else {
-                <span class="oa-tag">OA12 <mat-icon>close</mat-icon></span>
-                <span class="oa-tag">OA04 <mat-icon>close</mat-icon></span>
-              }
-              <button class="add-oa-btn" type="button">
+              <select class="oa-select" formControlName="objectiveCode">
+                <option value="">Seleccione OA...</option>
+                @for (group of objectiveGroups(); track group.axis) {
+                  <optgroup [label]="group.axis">
+                    @for (objective of group.objectives; track objective.code) {
+                      <option [value]="objective.code">
+                        {{ objective.code }}: {{ objective.label }}
+                      </option>
+                    }
+                  </optgroup>
+                }
+              </select>
+
+              <div class="tags-container">
+                @if (selectedObjective(); as objective) {
+                  <span class="oa-tag">
+                    {{ objective.code }}
+                    <mat-icon>close</mat-icon>
+                  </span>
+                  @if (objective.axis) {
+                    <p class="objective-axis">{{ objective.axis }}</p>
+                  }
+                  <p class="objective-description">{{ objective.description }}</p>
+                }
+              </div>
+
+              <button class="add-oa-btn" type="button" (click)="addSelectedObjective()">
                 <mat-icon>add_circle</mat-icon>
-                Buscar OA
+                Agregar OA Seleccionado
               </button>
             </div>
 
             <div class="curriculum-box">
-              <div class="curriculum-label">Habilidades</div>
-              <span class="oa-tag skill">Crear <mat-icon>close</mat-icon></span>
-              <span class="oa-tag skill">Analizar <mat-icon>close</mat-icon></span>
+              <div class="curriculum-label">Habilidades (Transversales)</div>
+              <div class="tags-container">
+                @if (selectedObjective()?.skills?.length) {
+                  @for (skill of selectedObjective()?.skills ?? []; track skill) {
+                    <span class="oa-tag skill">{{ skill }} <mat-icon>close</mat-icon></span>
+                  }
+                } @else {
+                  <span class="oa-tag skill">Crear <mat-icon>close</mat-icon></span>
+                  <span class="oa-tag skill">Analizar <mat-icon>close</mat-icon></span>
+                }
+              </div>
+              <button class="add-oa-btn compact" type="button">
+                <mat-icon>add</mat-icon>
+                Habilidad
+              </button>
             </div>
 
             <div class="curriculum-box">
               <div class="curriculum-label">Actitudes Transversales</div>
-              <p>
-                • Respetar y valorar las obras de sus compañeros.<br>
-                • Cuidar los materiales de trabajo.
-              </p>
+              @if (selectedObjective()?.attitudes?.length) {
+                <p>
+                  @for (attitude of selectedObjective()?.attitudes ?? []; track attitude) {
+                    - {{ attitude }}<br>
+                  }
+                </p>
+              } @else {
+                <p>
+                  - Respetar y valorar las obras de sus companeros.<br>
+                  - Cuidar los materiales de trabajo.
+                </p>
+              }
             </div>
           </div>
+        </div>
+
+        <div class="planner-footer">
+          <button class="btn btn-ghost" type="button" (click)="cancel()">Cancelar</button>
+          <button
+            class="btn btn-primary"
+            type="button"
+            [disabled]="isSaving()"
+            (click)="publishToStudents()">
+            <mat-icon>save</mat-icon>
+            {{ saveButtonLabel() }}
+          </button>
         </div>
       </form>
     }

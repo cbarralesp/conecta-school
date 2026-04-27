@@ -57,6 +57,25 @@
                   }
                 </mat-select>
               </mat-form-field>
+
+              <mat-form-field appearance="outline" class="compact-field">
+                <mat-label>Profesor jefe</mat-label>
+                <mat-select formControlName="teacherId">
+                  @for (teacher of teachers(); track teacher.id) {
+                    <mat-option [value]="teacher.id">{{ teacher.fullName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="compact-field">
+                <mat-label>Asistente</mat-label>
+                <mat-select formControlName="assistantId">
+                  <mat-option [value]="null">Sin asistente</mat-option>
+                  @for (teacher of teachers(); track teacher.id) {
+                    <mat-option [value]="teacher.id">{{ teacher.fullName }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             </form>
           </section>
 

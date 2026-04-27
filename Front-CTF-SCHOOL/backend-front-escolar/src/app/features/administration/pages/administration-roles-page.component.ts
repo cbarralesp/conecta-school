@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdministrationRoleCard, AdministrationRolesOverview } from '../../../core/models/administration.models';
 import { AdministrationApiService } from '../../../core/services/administration-api.service';
-import { AdministrationHeroComponent } from '../components/administration-hero.component';
 import { AdministrationRoleCardComponent } from '../components/administration-role-card.component';
 import { AdministrationRoleDetailDialogComponent } from '../components/administration-role-detail-dialog.component';
 import { AdministrationShellComponent } from '../components/administration-shell.component';
@@ -12,9 +13,10 @@ import { AdministrationShellComponent } from '../components/administration-shell
   selector: 'app-administration-roles-page',
   standalone: true,
   imports: [
+    MatCardModule,
     MatDialogModule,
+    MatIconModule,
     MatSnackBarModule,
-    AdministrationHeroComponent,
     AdministrationRoleCardComponent,
     AdministrationShellComponent
   ],
@@ -28,6 +30,19 @@ export class AdministrationRolesPageComponent {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly overview = signal<AdministrationRolesOverview | null>(null);
+  readonly summaryCards = computed(() => {
+    const roles = this.overview()?.roles ?? [];
+    const totalUsers = roles.reduce((acc, role) => acc + role.userCount, 0);
+    const fullAccess = roles.filter((role) => role.levelLabel.toLowerCase().includes('total') || role.levelLabel.toLowerCase().includes('completo')).length;
+    const partialAccess = roles.filter((role) => role.permissions.some((permission) => permission.state === 'PARTIAL')).length;
+
+    return [
+      { label: 'Roles activos', value: roles.length, icon: 'admin_panel_settings', toneClass: 'sc-blue' },
+      { label: 'Usuarios asignados', value: totalUsers, icon: 'groups', toneClass: 'sc-green' },
+      { label: 'Acceso completo', value: fullAccess, icon: 'verified_user', toneClass: 'sc-violet' },
+      { label: 'Roles mixtos', value: partialAccess, icon: 'tune', toneClass: 'sc-amber' }
+    ];
+  });
 
   constructor() {
     this.administrationApi.getRolesOverview().subscribe({
@@ -57,4 +72,3 @@ export class AdministrationRolesPageComponent {
     }
   }
 }
-

@@ -7,10 +7,12 @@ import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.port.in.AttachPlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.CreatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.DeletePlanningClassUseCase;
+import com.example.authhexagonal.domain.port.in.GetPlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.ListPlanningClassesUseCase;
 import com.example.authhexagonal.domain.port.in.RemovePlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningClassDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.UpdatePlanningClassTitleUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassCatalogsResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassCreateRequest;
@@ -41,31 +43,37 @@ import java.io.IOException;
 public class PlanningClassController {
 
     private final GetPlanningClassCatalogsUseCase getPlanningClassCatalogsUseCase;
+    private final GetPlanningClassUseCase getPlanningClassUseCase;
     private final ListPlanningClassesUseCase listPlanningClassesUseCase;
     private final CreatePlanningClassUseCase createPlanningClassUseCase;
     private final SavePlanningClassDraftUseCase savePlanningClassDraftUseCase;
     private final DeletePlanningClassUseCase deletePlanningClassUseCase;
     private final AttachPlanningClassDocumentUseCase attachPlanningClassDocumentUseCase;
     private final RemovePlanningClassDocumentUseCase removePlanningClassDocumentUseCase;
+    private final UpdatePlanningClassUseCase updatePlanningClassUseCase;
     private final UpdatePlanningClassTitleUseCase updatePlanningClassTitleUseCase;
 
     public PlanningClassController(
             GetPlanningClassCatalogsUseCase getPlanningClassCatalogsUseCase,
+            GetPlanningClassUseCase getPlanningClassUseCase,
             ListPlanningClassesUseCase listPlanningClassesUseCase,
             CreatePlanningClassUseCase createPlanningClassUseCase,
             SavePlanningClassDraftUseCase savePlanningClassDraftUseCase,
             DeletePlanningClassUseCase deletePlanningClassUseCase,
             AttachPlanningClassDocumentUseCase attachPlanningClassDocumentUseCase,
             RemovePlanningClassDocumentUseCase removePlanningClassDocumentUseCase,
+            UpdatePlanningClassUseCase updatePlanningClassUseCase,
             UpdatePlanningClassTitleUseCase updatePlanningClassTitleUseCase
     ) {
         this.getPlanningClassCatalogsUseCase = getPlanningClassCatalogsUseCase;
+        this.getPlanningClassUseCase = getPlanningClassUseCase;
         this.listPlanningClassesUseCase = listPlanningClassesUseCase;
         this.createPlanningClassUseCase = createPlanningClassUseCase;
         this.savePlanningClassDraftUseCase = savePlanningClassDraftUseCase;
         this.deletePlanningClassUseCase = deletePlanningClassUseCase;
         this.attachPlanningClassDocumentUseCase = attachPlanningClassDocumentUseCase;
         this.removePlanningClassDocumentUseCase = removePlanningClassDocumentUseCase;
+        this.updatePlanningClassUseCase = updatePlanningClassUseCase;
         this.updatePlanningClassTitleUseCase = updatePlanningClassTitleUseCase;
     }
 
@@ -101,6 +109,16 @@ public class PlanningClassController {
                 .toList();
     }
 
+    @GetMapping("/{classId}")
+    public PlanningClassResponse getById(
+            Authentication authentication,
+            @PathVariable Long classId
+    ) {
+        return PlanningClassResponse.fromDomain(
+                getPlanningClassUseCase.getClass(authentication.getName(), classId)
+        );
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PlanningClassResponse create(
@@ -131,6 +149,17 @@ public class PlanningClassController {
     ) {
         return PlanningClassResponse.fromDomain(
                 updatePlanningClassTitleUseCase.updateTitle(authentication.getName(), classId, request.title())
+        );
+    }
+
+    @PutMapping("/{classId}/details")
+    public PlanningClassResponse updateDetails(
+            Authentication authentication,
+            @PathVariable Long classId,
+            @Valid @RequestBody PlanningClassCreateRequest request
+    ) {
+        return PlanningClassResponse.fromDomain(
+                updatePlanningClassUseCase.updateClass(authentication.getName(), classId, toCommand(request))
         );
     }
 

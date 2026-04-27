@@ -6,6 +6,8 @@ export interface Course {
   letter: string;
   schoolYear: number;
   scheduleType: string;
+  teacherId?: number | null;
+  assistantId?: number | null;
   active: boolean;
   studentCount: number;
 }
@@ -17,6 +19,8 @@ export interface CoursePayload {
   letter: string;
   schoolYear: number;
   scheduleType: string;
+  teacherId?: number | null;
+  assistantId?: number | null;
   studentIds?: number[];
 }
 

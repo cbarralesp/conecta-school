@@ -13,7 +13,7 @@ import { forkJoin } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
-import { Course, CoursePayload, StudentCatalogItem } from '../../../core/models/course.models';
+import { Course, CoursePayload, StudentCatalogItem, TeacherCatalogItem } from '../../../core/models/course.models';
 import { EnrollmentListItem } from '../../../core/models/enrollment.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
@@ -52,6 +52,7 @@ export class EditCoursePageComponent {
   readonly isSaving = signal(false);
   readonly availableStudents = signal<StudentCatalogItem[]>([]);
   readonly selectedStudents = signal<StudentCatalogItem[]>([]);
+  readonly teachers = signal<TeacherCatalogItem[]>([]);
   readonly checkedAvailableIds = signal<number[]>([]);
   readonly checkedSelectedIds = signal<number[]>([]);
   readonly studentSearch = signal('');
@@ -63,7 +64,9 @@ export class EditCoursePageComponent {
     level: ['', [Validators.required]],
     letter: ['', [Validators.required]],
     schoolYear: [2026, [Validators.required, Validators.min(2020)]],
-    scheduleType: ['Manana', [Validators.required]]
+    scheduleType: ['Manana', [Validators.required]],
+    teacherId: [null as number | null, [Validators.required]],
+    assistantId: [null as number | null]
   });
 
   readonly filteredAvailableStudents = computed(() => this.filterStudents(this.availableStudents()));
@@ -92,6 +95,8 @@ export class EditCoursePageComponent {
 
     const payload: CoursePayload = {
       ...this.form.getRawValue(),
+      teacherId: this.form.controls.teacherId.value,
+      assistantId: this.form.controls.assistantId.value,
       studentIds: this.selectedStudents().map((student) => student.id)
     };
 
@@ -159,17 +164,21 @@ export class EditCoursePageComponent {
     forkJoin({
       course: this.courseApiService.findById(this.courseId),
       enrolled: this.enrollmentApiService.getOverview({ courseId: this.courseId }),
-      available: this.courseApiService.searchAllUnassignedStudents('')
+      available: this.courseApiService.searchAllUnassignedStudents(''),
+      teachers: this.courseApiService.searchTeachers('')
     }).subscribe({
-      next: ({ course, enrolled, available }) => {
+      next: ({ course, enrolled, available, teachers }) => {
         this.course.set(course);
+        this.teachers.set(teachers);
         this.form.patchValue({
           code: course.code,
           name: course.name,
           level: course.level,
           letter: course.letter,
           schoolYear: course.schoolYear,
-          scheduleType: course.scheduleType
+          scheduleType: course.scheduleType,
+          teacherId: course.teacherId ?? null,
+          assistantId: course.assistantId ?? null
         });
 
         const selected = enrolled.enrollments

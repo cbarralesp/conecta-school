@@ -84,6 +84,7 @@ export class ContentPageComponent {
   readonly isLoading = signal(true);
   readonly filter = signal<ContentFilter>('all');
   readonly selectedCourse = signal<number | 'all'>('all');
+  readonly selectedSubject = signal<number | 'all'>('all');
   readonly selectedSemester = signal<SemesterFilter>('all');
   readonly units = signal<ContentUnitView[]>([]);
   readonly summary = signal<PlanningSummary | null>(null);
@@ -149,6 +150,14 @@ export class ContentPageComponent {
       { key: 'ppt' as const, label: 'PPT', icon: 'slideshow', count: documents.filter((item) => item.type === 'ppt').length }
     ];
   });
+
+  readonly formatOptions = computed(() =>
+    this.filterChips().map((chip) => ({
+      value: chip.key,
+      label: `${chip.label} (${chip.count})`
+    }))
+  );
+
   readonly semesterChips = computed(() => {
     const units = this.units();
     return [
@@ -156,6 +165,14 @@ export class ContentPageComponent {
       { key: 'S2' as const, label: 'Semestre 2', count: units.filter((unit) => this.resolveSemester(unit) === 'S2').length }
     ];
   });
+
+  readonly semesterOptions = computed(() => [
+    { value: 'all' as const, label: 'Todos los semestres' },
+    ...this.semesterChips().map((chip) => ({
+      value: chip.key,
+      label: `${chip.label} (${chip.count})`
+    }))
+  ]);
 
   readonly assignmentOptions = computed(() => this.unitCatalogs()?.teachingAssignments ?? []);
   readonly courseOptions = computed(() => {
@@ -167,6 +184,21 @@ export class ContentPageComponent {
     }
 
     return Array.from(courses.entries()).map(([id, name]) => ({ id, name }));
+  });
+  readonly subjectOptions = computed(() => {
+    const selectedCourse = this.selectedCourse();
+    const subjects = new Map<number, string>();
+
+    for (const assignment of this.assignmentOptions()) {
+      if (selectedCourse !== 'all' && assignment.courseId !== selectedCourse) {
+        continue;
+      }
+      if (!subjects.has(assignment.subjectId)) {
+        subjects.set(assignment.subjectId, assignment.subjectName);
+      }
+    }
+
+    return Array.from(subjects.entries()).map(([id, name]) => ({ id, name }));
   });
   readonly unitNumberOptions = computed(() => this.unitCatalogs()?.unitNumbers ?? []);
   readonly durationOptions = computed(() => this.classCatalogs()?.durationOptions ?? []);
@@ -184,6 +216,15 @@ export class ContentPageComponent {
 
   setCourseFilter(value: number | 'all'): void {
     this.selectedCourse.set(value);
+    const hasSelectedSubject = this.subjectOptions().some((subject) => subject.id === this.selectedSubject());
+    if (!hasSelectedSubject) {
+      this.selectedSubject.set('all');
+    }
+    this.loadContent();
+  }
+
+  setSubjectFilter(value: number | 'all'): void {
+    this.selectedSubject.set(value);
     this.loadContent();
   }
 
@@ -449,11 +490,13 @@ export class ContentPageComponent {
     this.isLoading.set(true);
     const selectedCourse = this.selectedCourse();
     const courseId = selectedCourse === 'all' ? undefined : selectedCourse;
+    const selectedSubject = this.selectedSubject();
+    const subjectId = selectedSubject === 'all' ? undefined : selectedSubject;
     const semester = this.resolveSemesterNumber(this.selectedSemester());
     const documentType = this.resolveDocumentTypeFilter(this.filter());
     forkJoin({
-      summary: this.planningApiService.getPlanningSummary({ courseId, semester, documentType }),
-      classes: this.planningApiService.getClasses({ courseId, semester, documentType })
+      summary: this.planningApiService.getPlanningSummary({ courseId, subjectId, semester, documentType }),
+      classes: this.planningApiService.getClasses({ courseId, subjectId, semester, documentType })
     }).subscribe({
       next: ({ summary, classes }) => {
         this.summary.set(summary);

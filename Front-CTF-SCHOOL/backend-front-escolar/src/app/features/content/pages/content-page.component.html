@@ -10,6 +10,22 @@
         <h1 class="page-header__title">Contenido</h1>
         <p class="page-header__subtitle">Organiza unidades, clases y documentos usando la informacion real de planificacion del sistema.</p>
       </div>
+
+      <div class="page-header__actions">
+        <label class="inline-field inline-field--header">
+          <span class="inline-field__label">Semestre</span>
+          <div class="inline-field__control inline-field__control--semester">
+            <div class="inline-select">
+              <mat-icon>calendar_month</mat-icon>
+              <select [ngModel]="selectedSemester()" (ngModelChange)="setSemesterFilter($event)">
+                @for (option of semesterOptions(); track option.value) {
+                  <option [ngValue]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </label>
+      </div>
     </section>
 
     @if (isLoading()) {
@@ -53,29 +69,34 @@
             </div>
           </label>
 
-          <div class="content-tabs">
-            @for (chip of filterChips(); track chip.key) {
-              <button type="button" class="content-tab" [class.is-active]="filter() === chip.key" (click)="setFilter(chip.key)">
-                <mat-icon>{{ chip.icon }}</mat-icon>
-                <span>{{ chip.label }}</span>
-                <small>{{ chip.count }}</small>
-              </button>
-            }
-          </div>
+          <label class="inline-field">
+            <span class="inline-field__label">Asignatura</span>
+            <div class="inline-field__control inline-field__control--subject">
+              <div class="inline-select">
+                <mat-icon>menu_book</mat-icon>
+                <select [ngModel]="selectedSubject()" (ngModelChange)="setSubjectFilter($event)">
+                  <option [ngValue]="'all'">Todas</option>
+                  @for (subject of subjectOptions(); track subject.id) {
+                    <option [ngValue]="subject.id">{{ subject.name }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </label>
 
-          <div class="content-tabs content-tabs--semester">
-            @for (chip of semesterChips(); track chip.key) {
-              <button
-                type="button"
-                class="content-tab content-tab--semester"
-                [class.is-active]="selectedSemester() === chip.key"
-                (click)="setSemesterFilter(chip.key)">
-                <mat-icon>calendar_month</mat-icon>
-                <span>{{ chip.label }}</span>
-                <small>{{ chip.count }}</small>
-              </button>
-            }
-          </div>
+          <label class="inline-field">
+            <span class="inline-field__label">Formato</span>
+            <div class="inline-field__control inline-field__control--format">
+              <div class="inline-select">
+                <mat-icon>description</mat-icon>
+                <select [ngModel]="filter()" (ngModelChange)="setFilter($event)">
+                  @for (option of formatOptions(); track option.value) {
+                    <option [ngValue]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </label>
         </div>
 
         <div class="page-header__actions">

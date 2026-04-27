@@ -1,10 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import { EnrollmentDetail } from '../../../core/models/enrollment.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
@@ -13,8 +12,6 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
   selector: 'app-enrollment-detail-page',
   imports: [
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
     MatIconModule,
     MatSnackBarModule,
     TeacherModernLayoutComponent
@@ -27,17 +24,64 @@ export class EnrollmentDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
+  private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
 
+  readonly user = this.authStateService.user;
   readonly enrollmentId = Number(this.route.snapshot.paramMap.get('id'));
   readonly detail = signal<EnrollmentDetail | null>(null);
   readonly isLoading = signal(true);
+
+  readonly fullName = computed(() => {
+    const student = this.detail();
+    return student ? `${student.studentName} ${student.studentLastName}`.trim() : '';
+  });
+
   readonly avatar = computed(() => {
-    const detail = this.detail();
-    if (!detail) {
+    const student = this.detail();
+    if (!student) {
       return '--';
     }
-    return `${detail.studentName.charAt(0)}${detail.studentLastName.charAt(0)}`.toUpperCase();
+    return `${student.studentName.charAt(0)}${student.studentLastName.charAt(0)}`.toUpperCase();
+  });
+
+  readonly ageLabel = computed(() => {
+    const student = this.detail();
+    if (!student?.birthDate) {
+      return '-';
+    }
+    const birth = new Date(`${student.birthDate}T00:00:00`);
+    if (Number.isNaN(birth.getTime())) {
+      return '-';
+    }
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age -= 1;
+    }
+    return `${age} ${age === 1 ? 'Ano' : 'Anos'}`;
+  });
+
+  readonly formattedBirthDate = computed(() => {
+    const student = this.detail();
+    if (!student?.birthDate) {
+      return '-';
+    }
+    const birth = new Date(`${student.birthDate}T00:00:00`);
+    if (Number.isNaN(birth.getTime())) {
+      return student.birthDate;
+    }
+    return `${birth.toLocaleDateString('es-CL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })} (${this.ageLabel()})`;
+  });
+
+  readonly statusBadgeLabel = computed(() => {
+    const student = this.detail();
+    return student?.status === 'PENDIENTE' ? 'Pendiente' : 'Activo';
   });
 
   constructor() {
@@ -48,24 +92,35 @@ export class EnrollmentDetailPageComponent {
     void this.router.navigate(['/dashboard/matriculas', this.enrollmentId, 'editar']);
   }
 
-  deleteEnrollment(): void {
-    const detail = this.detail();
-    if (!detail) {
+  printProfile(): void {
+    window.print();
+  }
+
+  openSchedule(): void {
+    void this.router.navigate(['/dashboard/horario']);
+  }
+
+  downloadPdf(): void {
+    this.snackBar.open('La descarga PDF quedo preparada para la siguiente iteracion', 'Cerrar', {
+      duration: 2500
+    });
+  }
+
+  shareData(): void {
+    const student = this.detail();
+    if (!student) {
       return;
     }
-    const ref = this.snackBar.open(`Eliminar matricula de ${detail.studentName}?`, 'Confirmar', {
-      duration: 5000
-    });
-    ref.onAction().subscribe(() => {
-      this.enrollmentApiService.delete(this.enrollmentId).subscribe({
-        next: () => {
-          this.snackBar.open('Matricula eliminada correctamente', 'Cerrar', { duration: 2500 });
-          void this.router.navigate(['/dashboard/matriculas']);
-        },
-        error: (error: HttpErrorResponse) =>
-          this.showError(error, 'No fue posible eliminar la matricula')
-      });
-    });
+
+    const body = [
+      `Estudiante: ${student.studentName} ${student.studentLastName}`,
+      `RUN: ${student.studentRun}`,
+      `Curso: ${student.courseName}`,
+      `Apoderado: ${student.guardian.name} ${student.guardian.lastName}`,
+      `Telefono: ${student.guardian.phone}`
+    ].join('%0D%0A');
+
+    window.location.href = `mailto:${student.guardian.email}?subject=Ficha%20del%20estudiante&body=${body}`;
   }
 
   private loadDetail(): void {
@@ -76,7 +131,7 @@ export class EnrollmentDetailPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-      this.showError(error, 'No fue posible cargar la ficha del estudiante');
+        this.showError(error, 'No fue posible cargar la ficha del estudiante');
       }
     });
   }

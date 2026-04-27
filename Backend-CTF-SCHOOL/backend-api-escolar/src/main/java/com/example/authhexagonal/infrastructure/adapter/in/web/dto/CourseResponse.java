@@ -10,6 +10,8 @@ public record CourseResponse(
         String letter,
         int schoolYear,
         String scheduleType,
+        Long teacherId,
+        Long assistantId,
         boolean active,
         int studentCount
 ) {
@@ -22,6 +24,8 @@ public record CourseResponse(
                 course.letter(),
                 course.schoolYear(),
                 course.scheduleType(),
+                course.teacherId(),
+                course.assistantId(),
                 course.active(),
                 course.studentCount()
         );

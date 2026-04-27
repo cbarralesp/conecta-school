@@ -17,10 +17,12 @@ import com.example.authhexagonal.domain.model.StoredFileReference;
 import com.example.authhexagonal.domain.port.in.AttachPlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.CreatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.DeletePlanningClassUseCase;
+import com.example.authhexagonal.domain.port.in.GetPlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.ListPlanningClassesUseCase;
 import com.example.authhexagonal.domain.port.in.RemovePlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningClassDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.UpdatePlanningClassTitleUseCase;
 import com.example.authhexagonal.domain.port.out.FileStoragePort;
 import com.example.authhexagonal.domain.port.out.PlanningCatalogRepositoryPort;
@@ -37,10 +39,12 @@ public class PlanningClassService implements
         CreatePlanningClassUseCase,
         SavePlanningClassDraftUseCase,
         GetPlanningClassCatalogsUseCase,
+        GetPlanningClassUseCase,
         ListPlanningClassesUseCase,
         DeletePlanningClassUseCase,
         AttachPlanningClassDocumentUseCase,
         RemovePlanningClassDocumentUseCase,
+        UpdatePlanningClassUseCase,
         UpdatePlanningClassTitleUseCase {
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "docx", "pptx");
@@ -69,14 +73,12 @@ public class PlanningClassService implements
     @Override
     public PlanningClassCatalogs getCatalogs(String username) {
         List<PlanningClassCatalogUnit> units = planningClassCatalogRepositoryPort.findUnits(username);
-        List<PlanningObjectiveOption> objectives = units.stream()
-                .map(unit -> new PlanningObjectiveOption(
-                        "UNIT-" + unit.unitId() + "-OA-1",
-                        "OA principal - " + unit.unitNumberLabel(),
-                        normalizeNullable(unit.learningObjectives()),
-                        unit.unitId()
-                ))
-                .toList();
+        List<PlanningObjectiveOption> curriculumObjectives = planningClassCatalogRepositoryPort.findObjectives(username);
+        List<PlanningObjectiveOption> objectives = curriculumObjectives.isEmpty()
+                ? units.stream()
+                        .map(this::fallbackObjective)
+                        .toList()
+                : curriculumObjectives;
 
         return new PlanningClassCatalogs(
                 units,
@@ -109,6 +111,12 @@ public class PlanningClassService implements
     @Override
     public PlanningClass saveDraft(String username, PlanningClassCommand command) {
         return save(username, command, PlanningClassStatus.BORRADOR, false);
+    }
+
+    @Override
+    public PlanningClass getClass(String username, Long classId) {
+        return planningClassRepositoryPort.findAccessibleById(username, classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clase planificada no encontrada"));
     }
 
     @Override
@@ -162,6 +170,39 @@ public class PlanningClassService implements
         }
 
         return planningClassRepositoryPort.updateTitle(planningClass.id(), title.trim());
+    }
+
+    @Override
+    public PlanningClass updateClass(String username, Long classId, PlanningClassCommand command) {
+        PlanningClass planningClass = planningClassRepositoryPort.findAccessibleById(username, classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clase planificada no encontrada"));
+
+        PlanningClassCatalogUnit unit = planningClassCatalogRepositoryPort.findAccessibleUnitById(username, command.unitId())
+                .orElseThrow(() -> new ResourceNotFoundException("Unidad de planificacion no encontrada"));
+
+        validateCommand(command, PlanningClassStatus.PUBLICADA);
+
+        PlanningObjectiveOption objective = resolveObjective(unit, command.objectiveCode(), username);
+        PlanningOptionItem duration = resolveDuration(command.durationCode());
+        PlanningEvaluationType evaluationType = resolveEvaluationType(command.evaluationType());
+
+        return planningClassRepositoryPort.updateClass(
+                planningClass.id(),
+                unit.unitId(),
+                command.title().trim(),
+                command.plannedDate(),
+                duration.code(),
+                duration.label(),
+                objective.code(),
+                objective.label(),
+                objective.description(),
+                evaluationType.name(),
+                normalizeNullable(command.startActivity()),
+                normalizeNullable(command.developmentActivity()),
+                normalizeNullable(command.closingActivity()),
+                PlanningClassStatus.PUBLICADA,
+                true
+        );
     }
 
     @Override
@@ -255,18 +296,29 @@ public class PlanningClassService implements
     ) {
         String description = normalizeNullable(unit.learningObjectives());
         if (objectiveCode == null || objectiveCode.isBlank()) {
-            return new PlanningObjectiveOption(
-                    "UNIT-" + unit.unitId() + "-OA-1",
-                    "OA principal - " + unit.unitNumberLabel(),
-                    description,
-                    unit.unitId()
-            );
+            return fallbackObjective(unit);
         }
 
+        return planningClassCatalogRepositoryPort.findObjectives(username).stream()
+                .filter(objective -> objective.unitId().equals(unit.unitId()))
+                .filter(objective -> objective.code().equalsIgnoreCase(objectiveCode.trim()))
+                .findFirst()
+                .orElse(new PlanningObjectiveOption(
+                        objectiveCode.trim(),
+                        "OA principal - " + unit.unitNumberLabel(),
+                        description,
+                        unit.unitId(),
+                        "",
+                        List.of(),
+                        List.of()
+                ));
+    }
+
+    private PlanningObjectiveOption fallbackObjective(PlanningClassCatalogUnit unit) {
         return new PlanningObjectiveOption(
-                objectiveCode,
+                "UNIT-" + unit.unitId() + "-OA-1",
                 "OA principal - " + unit.unitNumberLabel(),
-                description,
+                normalizeNullable(unit.learningObjectives()),
                 unit.unitId()
         );
     }

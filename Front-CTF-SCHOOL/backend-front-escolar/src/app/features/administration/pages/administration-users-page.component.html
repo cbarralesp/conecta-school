@@ -1,106 +1,113 @@
-<app-administration-shell activeTab="users" toolbarTitle="Administracion">
-  <app-administration-hero
-    tag="Administracion"
-    title="Usuarios del sistema"
-    description="Torre Fuerte School - Solo el Superadmin puede gestionar usuarios, roles y permisos del sistema."
-    actionLabel="Nuevo usuario"
-    actionIcon="person_add"
-    (action)="goToCreate()"
-  />
+<app-administration-shell activeTab="users" toolbarTitle="Usuarios del sistema">
+  <section class="users-page">
+    <section class="summary-grid">
+      @for (metric of summaryCards(); track metric.label) {
+        <mat-card appearance="outlined" class="summary-card" [class]="metric.toneClass">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>{{ metric.icon }}</mat-icon>
+            </div>
+          </div>
 
-  <app-administration-kpi-grid [items]="summary()" />
+          <div class="summary-card__copy">
+            <strong>{{ metric.value }}</strong>
+            <span>{{ metric.label }}</span>
+          </div>
+        </mat-card>
+      }
+    </section>
 
-  <mat-card appearance="outlined" class="listing-card">
-    <mat-card-content>
-      <form [formGroup]="filtersForm" class="filters-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Buscar</mat-label>
-          <input matInput formControlName="search" placeholder="Usuario por nombre o email..." />
-        </mat-form-field>
+    <mat-card appearance="outlined" class="users-card">
+      <div class="users-card__header">
+        <form [formGroup]="filtersForm" class="users-toolbar">
+          <label class="search-shell" aria-label="Buscar usuario">
+            <mat-icon>search</mat-icon>
+            <input type="text" formControlName="search" placeholder="Buscar usuario..." />
+          </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Rol</mat-label>
-          <mat-select formControlName="roleCode">
-            <mat-option value="">Todos los roles</mat-option>
-            @for (role of roleOptions(); track role.code) {
-              <mat-option [value]="role.code">{{ role.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+          <label class="filter-shell" aria-label="Filtrar por rol">
+            <mat-icon>shield_person</mat-icon>
+            <select class="filter-select" formControlName="roleCode">
+              <option value="">Todos los roles</option>
+              @for (role of roleOptions(); track role.code) {
+                <option [value]="role.code">{{ role.name }}</option>
+              }
+            </select>
+          </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Estado</mat-label>
-          <mat-select formControlName="status">
-            <mat-option value="">Todos los estados</mat-option>
-            <mat-option value="Activo">Activo</mat-option>
-            <mat-option value="Bloqueado">Bloqueado</mat-option>
-            <mat-option value="Inactivo">Inactivo</mat-option>
-            <mat-option value="Pendiente">Pendiente</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </form>
+          <label class="filter-shell" aria-label="Filtrar por estado">
+            <mat-icon>toggle_on</mat-icon>
+            <select class="filter-select" formControlName="status">
+              <option value="">Todos los estados</option>
+              <option value="Activo">Activo</option>
+              <option value="Bloqueado">Bloqueado</option>
+              <option value="Inactivo">Inactivo</option>
+              <option value="Pendiente">Pendiente</option>
+            </select>
+          </label>
+        </form>
+
+        <button type="button" class="btn-create" (click)="goToCreate()">
+          <mat-icon>person_add</mat-icon>
+          Nuevo usuario
+        </button>
+      </div>
 
       @if (isLoading()) {
         <section class="empty-state">
           <mat-icon>hourglass_top</mat-icon>
           <strong>Cargando usuarios</strong>
+          <p>Estamos preparando el directorio administrativo.</p>
         </section>
       } @else if (users().length === 0) {
         <section class="empty-state">
           <mat-icon>manage_accounts</mat-icon>
           <strong>No hay usuarios para mostrar</strong>
-          <p>Ajusta los filtros o registra el primer usuario administrativo.</p>
+          <p>Ajusta los filtros o registra el primer usuario del sistema.</p>
         </section>
       } @else {
         <div class="table-shell">
-          <table mat-table [dataSource]="users()" class="users-table">
-            <ng-container matColumnDef="user">
-              <th mat-header-cell *matHeaderCellDef>Usuario</th>
-              <td mat-cell *matCellDef="let user">
-                <div class="identity-cell">
-                  <span class="avatar">{{ initials(user.fullName) }}</span>
-                  <div>
-                    <strong>{{ user.fullName }}</strong>
-                    <p>{{ user.username }}</p>
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Email</th>
-              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>Rol</th>
-              <td mat-cell *matCellDef="let user">
-                <span class="role-pill">{{ user.roleName }}</span>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Estado</th>
-              <td mat-cell *matCellDef="let user">
-                <app-administration-status-badge [userStatus]="user.status"></app-administration-status-badge>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Acciones</th>
-              <td mat-cell *matCellDef="let user" class="actions-cell">
-                <app-administration-action-buttons
-                  [actions]="rowActions(user)"
-                  (actionSelected)="handleAction(user, $event)"
-                />
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Ultimo acceso</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr>
+                  <td>
+                    <div class="identity-cell">
+                      <span class="avatar">{{ initials(user.fullName) }}</span>
+                      <div class="identity-copy">
+                        <strong>{{ user.fullName }}</strong>
+                        <p>{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span [class]="rolePillClass(user)">{{ user.roleName }}</span>
+                  </td>
+                  <td>
+                    <app-administration-status-badge [userStatus]="user.status"></app-administration-status-badge>
+                  </td>
+                  <td class="access-cell">{{ user.lastAccessLabel }}</td>
+                  <td class="actions-cell">
+                    <app-administration-action-buttons
+                      [actions]="rowActions(user)"
+                      (actionSelected)="handleAction(user, $event)"
+                    />
+                  </td>
+                </tr>
+              }
+            </tbody>
           </table>
         </div>
       }
-    </mat-card-content>
-  </mat-card>
+    </mat-card>
+  </section>
 </app-administration-shell>

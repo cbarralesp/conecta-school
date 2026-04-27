@@ -89,6 +89,9 @@ export interface PlanningObjectiveOption {
   label: string;
   description: string;
   unitId: number;
+  axis: string;
+  skills: string[];
+  attitudes: string[];
 }
 
 export interface PlanningClassCatalogs {

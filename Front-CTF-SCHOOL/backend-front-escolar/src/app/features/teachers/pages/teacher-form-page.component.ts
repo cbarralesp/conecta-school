@@ -1,16 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TeacherApiService } from '../../../core/services/teacher-api.service';
@@ -18,32 +10,14 @@ import { Subject } from '../../../core/models/subject.models';
 import { TeacherAssignedCourse, TeacherDetail, TeacherPayload } from '../../../core/models/teacher.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
-class ChileDateAdapter extends NativeDateAdapter {
-  override getFirstDayOfWeek(): number {
-    return 1;
-  }
-}
-
 @Component({
   selector: 'app-teacher-form-page',
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    MatButtonModule,
-    MatCardModule,
-    MatChipsModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatNativeDateModule,
-    MatSelectModule,
     MatSnackBarModule,
     TeacherModernLayoutComponent
-  ],
-  providers: [
-    { provide: MAT_DATE_LOCALE, useValue: 'es-CL' },
-    { provide: DateAdapter, useClass: ChileDateAdapter }
   ],
   templateUrl: './teacher-form-page.component.html',
   styleUrl: './teacher-form-page.component.scss',
@@ -63,21 +37,26 @@ export class TeacherFormPageComponent {
   readonly isLoading = signal(false);
   readonly subjectOptions = signal<Subject[]>([]);
   readonly assignedCourses = signal<TeacherAssignedCourse[]>([]);
+  readonly pageTitle = computed(() => this.isEditMode ? 'Editar Profesor' : 'Nuevo Profesor');
+  readonly pageSubtitle = computed(() =>
+    this.isEditMode ? 'Actualizando informacion del docente' : 'Registrando informacion del docente'
+  );
+  readonly statusBadgeLabel = computed(() => this.form.controls.employmentStatus.value || 'Activo');
 
   readonly form = this.formBuilder.nonNullable.group({
     firstNames: ['', [Validators.required, Validators.maxLength(120)]],
     paternalLastName: ['', [Validators.required, Validators.maxLength(80)]],
     maternalLastName: ['', [Validators.maxLength(80)]],
     run: ['', [Validators.required, Validators.maxLength(20)]],
-    birthDate: [null as Date | null, Validators.required],
-    gender: ['', Validators.required],
+    birthDate: ['', Validators.required],
+    gender: ['Masculino', Validators.required],
     phone: ['', [Validators.required, Validators.maxLength(30)]],
     institutionalEmail: ['', [Validators.required, Validators.email, Validators.maxLength(160)]],
     address: ['', [Validators.required, Validators.maxLength(255)]],
     professionalTitle: ['', [Validators.required, Validators.maxLength(180)]],
-    contractType: ['', Validators.required],
+    contractType: ['Part-time', Validators.required],
     weeklyHours: [38, [Validators.required, Validators.min(1), Validators.max(60)]],
-    startDate: [null as Date | null, Validators.required],
+    startDate: ['', Validators.required],
     employmentStatus: ['Activo', Validators.required],
     subjectIds: [[] as number[], Validators.required],
     emergencyContactName: ['', [Validators.required, Validators.maxLength(160)]],
@@ -90,11 +69,6 @@ export class TeacherFormPageComponent {
     if (this.isEditMode) {
       this.loadTeacher();
     }
-  }
-
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
   }
 
   saveTeacher(): void {
@@ -127,6 +101,38 @@ export class TeacherFormPageComponent {
     });
   }
 
+  deactivateTeacher(): void {
+    this.form.controls.employmentStatus.setValue('Inactivo');
+    this.snackBar.open('Estado cambiado a Inactivo. Guarda los cambios para aplicar.', 'Cerrar', {
+      duration: 2500
+    });
+  }
+
+  toggleSubject(subjectId: number, checked: boolean): void {
+    const current = this.form.controls.subjectIds.value;
+    const next = checked
+      ? Array.from(new Set([...current, subjectId]))
+      : current.filter((id) => id !== subjectId);
+    this.form.controls.subjectIds.setValue(next);
+    this.form.controls.subjectIds.markAsDirty();
+    this.form.controls.subjectIds.markAsTouched();
+  }
+
+  isSubjectSelected(subjectId: number): boolean {
+    return this.form.controls.subjectIds.value.includes(subjectId);
+  }
+
+  selectedSubjectNames(): string[] {
+    return this.subjectOptions()
+      .filter((subject) => this.form.controls.subjectIds.value.includes(subject.id))
+      .map((subject) => subject.name);
+  }
+
+  formatRunValue(): void {
+    const control = this.form.controls.run;
+    control.setValue(this.formatRun(`${control.value ?? ''}`));
+  }
+
   private loadCatalog(): void {
     this.teacherApiService.getOverview().subscribe({
       next: (overview) => this.subjectOptions.set(overview.subjects),
@@ -155,7 +161,7 @@ export class TeacherFormPageComponent {
       paternalLastName: teacher.paternalLastName,
       maternalLastName: teacher.maternalLastName,
       run: teacher.run,
-      birthDate: teacher.birthDate ? new Date(`${teacher.birthDate}T00:00:00`) : null,
+      birthDate: teacher.birthDate,
       gender: teacher.gender,
       phone: teacher.phone,
       institutionalEmail: teacher.institutionalEmail,
@@ -163,7 +169,7 @@ export class TeacherFormPageComponent {
       professionalTitle: teacher.professionalTitle,
       contractType: teacher.contractType,
       weeklyHours: teacher.weeklyHours,
-      startDate: teacher.startDate ? new Date(`${teacher.startDate}T00:00:00`) : null,
+      startDate: teacher.startDate,
       employmentStatus: teacher.employmentStatus,
       subjectIds: teacher.subjects.map((subject) => subject.id),
       emergencyContactName: teacher.emergencyContact.fullName,
@@ -179,7 +185,7 @@ export class TeacherFormPageComponent {
       paternalLastName: rawValue.paternalLastName.trim(),
       maternalLastName: rawValue.maternalLastName.trim(),
       run: rawValue.run.trim(),
-      birthDate: this.toDateString(rawValue.birthDate),
+      birthDate: rawValue.birthDate,
       gender: rawValue.gender,
       phone: rawValue.phone.trim(),
       institutionalEmail: rawValue.institutionalEmail.trim(),
@@ -187,7 +193,7 @@ export class TeacherFormPageComponent {
       professionalTitle: rawValue.professionalTitle.trim(),
       contractType: rawValue.contractType,
       weeklyHours: Number(rawValue.weeklyHours),
-      startDate: this.toDateString(rawValue.startDate),
+      startDate: rawValue.startDate,
       employmentStatus: rawValue.employmentStatus,
       subjectIds: rawValue.subjectIds.map(Number),
       emergencyContactName: rawValue.emergencyContactName.trim(),
@@ -196,15 +202,25 @@ export class TeacherFormPageComponent {
     };
   }
 
-  private toDateString(value: Date | null): string {
-    if (!value) {
+  private formatRun(value: string): string {
+    const clean = value.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (!clean) {
       return '';
     }
-    const date = new Date(value);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+
+    const body = clean.slice(0, -1);
+    const verifier = clean.slice(-1);
+    const reversed = body.split('').reverse();
+    const parts: string[] = [];
+
+    for (let index = 0; index < reversed.length; index += 1) {
+      if (index > 0 && index % 3 === 0) {
+        parts.push('.');
+      }
+      parts.push(reversed[index]!);
+    }
+
+    return `${parts.reverse().join('')}-${verifier}`;
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {

@@ -124,6 +124,8 @@ public class CourseController {
                         request.letter(),
                         request.schoolYear(),
                         request.scheduleType(),
+                        request.teacherId(),
+                        request.assistantId(),
                         request.studentIds()
                 )
         );

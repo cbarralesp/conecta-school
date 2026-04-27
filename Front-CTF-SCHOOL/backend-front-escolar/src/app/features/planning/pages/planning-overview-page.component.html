@@ -67,24 +67,33 @@
           (input)="updateSearch($any($event.target).value)" />
       </label>
 
-      <select class="filter-select" [value]="semester()" (change)="updateSemester($any($event.target).value)">
-        <option value="all">Todos los semestres</option>
-        <option value="1">Primer Semestre</option>
-        <option value="2">Segundo Semestre</option>
-      </select>
+      <label class="filter-shell">
+        <mat-icon>calendar_month</mat-icon>
+        <select class="filter-select" [value]="semester()" (change)="updateSemester($any($event.target).value)">
+          <option value="all">Todos los semestres</option>
+          <option value="1">Primer Semestre</option>
+          <option value="2">Segundo Semestre</option>
+        </select>
+      </label>
 
-      <select class="filter-select" [value]="month()" (change)="updateMonth($any($event.target).value)">
-        @for (item of months; track item.value) {
-          <option [value]="item.value">{{ item.label }}</option>
-        }
-      </select>
+      <label class="filter-shell">
+        <mat-icon>date_range</mat-icon>
+        <select class="filter-select" [value]="month()" (change)="updateMonth($any($event.target).value)">
+          @for (item of months; track item.value) {
+            <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </label>
 
-      <select class="filter-select" [value]="subjectId()" (change)="updateSubject($any($event.target).value)">
-        <option value="all">Todas las Asignaturas</option>
-        @for (subject of subjects(); track subject.id) {
-          <option [value]="subject.id">{{ subject.name }}</option>
-        }
-      </select>
+      <label class="filter-shell">
+        <mat-icon>menu_book</mat-icon>
+        <select class="filter-select" [value]="subjectId()" (change)="updateSubject($any($event.target).value)">
+          <option value="all">Todas las Asignaturas</option>
+          @for (subject of subjects(); track subject.id) {
+            <option [value]="subject.id">{{ subject.name }}</option>
+          }
+        </select>
+      </label>
     </section>
 
     <section class="table-container">
@@ -153,7 +162,11 @@
                       <button class="btn-icon" type="button" (click)="openView(planningClass)" title="Ver planificación">
                         <mat-icon>visibility</mat-icon>
                       </button>
-                      <button class="btn-icon" type="button" disabled title="Editar se migrará con formato de nueva planificación">
+                      <button
+                        class="btn-icon"
+                        type="button"
+                        [routerLink]="['/dashboard/planificacion/clases', planningClass.id, 'editar']"
+                        title="Editar planificación">
                         <mat-icon>edit</mat-icon>
                       </button>
                       <button class="btn-icon danger" type="button" (click)="deleteClass(planningClass)" title="Eliminar planificación">

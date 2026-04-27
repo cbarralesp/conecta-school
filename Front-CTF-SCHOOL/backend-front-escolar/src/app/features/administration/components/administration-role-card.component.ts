@@ -13,7 +13,7 @@ import { AdministrationRoleCard } from '../../../core/models/administration.mode
         <div class="role-card__icon">
           <mat-icon>{{ icon }}</mat-icon>
         </div>
-        <div>
+        <div class="role-card__identity">
           <h3>{{ role.name }}</h3>
           <p>{{ role.userCount }} usuario{{ role.userCount === 1 ? '' : 's' }} · {{ role.scopeSummary }}</p>
         </div>
@@ -41,11 +41,13 @@ import { AdministrationRoleCard } from '../../../core/models/administration.mode
   styles: `
     .role-card {
       display: grid;
-      gap: 0.9rem;
-      padding: 1.2rem;
-      border: 1px solid rgba(42, 78, 126, 0.1);
-      border-radius: 22px;
+      gap: 0.95rem;
+      min-height: 100%;
+      padding: 1.15rem;
+      border: 1px solid #e5ecf4;
+      border-radius: 16px;
       background: #fff;
+      box-shadow: none;
     }
 
     .role-card__head,
@@ -56,36 +58,57 @@ import { AdministrationRoleCard } from '../../../core/models/administration.mode
 
     .role-card__head {
       gap: 0.85rem;
-      align-items: center;
+      align-items: flex-start;
     }
 
     .role-card__icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
       display: grid;
       place-items: center;
       background: #eef4ff;
-      color: #285f9f;
+      color: #2f65e1;
+      flex: 0 0 auto;
+    }
+
+    .role-card__icon .mat-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+
+    .role-card__identity {
+      min-width: 0;
     }
 
     h3 {
       margin: 0;
-      font-size: 1.08rem;
       color: #1c2d42;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
 
-    .role-card__head p,
-    .role-card__description {
-      margin: 0.2rem 0 0;
+    .role-card__head p {
+      margin: 0.18rem 0 0;
       color: #6a809a;
-      font-size: 0.88rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .role-card__description {
+      margin: 0;
+      color: #1c2d42;
+      font-size: 0.84rem;
+      font-weight: 500;
       line-height: 1.5;
     }
 
     .permission-list {
       display: grid;
-      gap: 0.45rem;
+      gap: 0.5rem;
       list-style: none;
       margin: 0;
       padding: 0;
@@ -95,6 +118,8 @@ import { AdministrationRoleCard } from '../../../core/models/administration.mode
       gap: 0.55rem;
       align-items: center;
       color: #30455f;
+      font-size: 0.8rem;
+      font-weight: 600;
     }
 
     .dot {
@@ -114,18 +139,30 @@ import { AdministrationRoleCard } from '../../../core/models/administration.mode
       justify-content: space-between;
       gap: 0.75rem;
       padding-top: 0.85rem;
-      border-top: 1px solid rgba(42, 78, 126, 0.08);
+      border-top: 1px solid #edf2f7;
     }
 
     .level-pill {
       display: inline-flex;
       align-items: center;
+      min-height: 28px;
       padding: 0.28rem 0.72rem;
       border-radius: 999px;
       background: #eef4ff;
       color: #5d58b8;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    button[mat-stroked-button] {
+      min-height: 36px;
+      padding-inline: 0.95rem;
+      border-radius: 10px !important;
+      border-color: #d5dfed !important;
+      background: #ffffff !important;
+      color: #45617f !important;
       font-size: 0.78rem;
-      font-weight: 700;
+      font-weight: 800;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -136,4 +173,3 @@ export class AdministrationRoleCardComponent {
 
   @Output() readonly viewDetail = new EventEmitter<AdministrationRoleCard>();
 }
-

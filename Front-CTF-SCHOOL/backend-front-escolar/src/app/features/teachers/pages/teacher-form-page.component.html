@@ -1,158 +1,239 @@
 <app-teacher-modern-layout
-  title=""
+  title="Profesores"
   activeItem="teachers"
   dashboardRoute="/dashboard"
   [userName]="user()?.nombre ?? 'Docente'"
   userRole="Docente">
-  <main class="teacher-form-content">
-    <section class="teacher-form-header">
-      <div class="teacher-form-header__copy">
-        <span class="page-header__overline">Gestión académica</span>
-        <h1 class="page-header__title">{{ isEditMode ? 'Editar profesor' : 'Nuevo profesor' }}</h1>
-        <p class="page-header__subtitle">Completa la información personal, docente y de contacto de emergencia.</p>
+  <main class="content-area">
+    <section class="page-header">
+      <div>
+        <span class="page-header__overline">Gestion academica</span>
+        <h2>{{ pageTitle() }}</h2>
+        <p>{{ pageSubtitle() }}</p>
+      </div>
+      <div class="page-header__actions">
+        <a class="btn btn-ghost" routerLink="/dashboard/profesores">
+          <mat-icon>arrow_back</mat-icon>
+          Volver al Listado
+        </a>
       </div>
     </section>
 
-    <form [formGroup]="form" class="teacher-form" (ngSubmit)="saveTeacher()">
-      <mat-card appearance="outlined" class="form-card">
-        <div class="form-card__header">
-          <span class="form-card__step">1</span>
-          <span class="form-card__title">Datos personales</span>
-        </div>
-
-        <mat-card-content class="fields-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Nombres</mat-label>
-            <input matInput formControlName="firstNames" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Apellido paterno</mat-label>
-            <input matInput formControlName="paternalLastName" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Apellido materno</mat-label>
-            <input matInput formControlName="maternalLastName" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>RUN</mat-label>
-            <input matInput formControlName="run" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha de nacimiento</mat-label>
-            <input matInput [matDatepicker]="birthPicker" formControlName="birthDate" />
-            <mat-datepicker-toggle matSuffix [for]="birthPicker"></mat-datepicker-toggle>
-            <mat-datepicker #birthPicker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Género</mat-label>
-            <mat-select formControlName="gender">
-              <mat-option value="Femenino">Femenino</mat-option>
-              <mat-option value="Masculino">Masculino</mat-option>
-              <mat-option value="No binario">No binario</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Teléfono</mat-label>
-            <input matInput formControlName="phone" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Email institucional</mat-label>
-            <input matInput formControlName="institutionalEmail" />
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="field-span-3">
-            <mat-label>Dirección</mat-label>
-            <input matInput formControlName="address" />
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="form-card">
-        <div class="form-card__header">
-          <span class="form-card__step">2</span>
-          <span class="form-card__title">Información docente</span>
-        </div>
-
-        <mat-card-content class="fields-grid">
-          <mat-form-field appearance="outline" class="field-span-2">
-            <mat-label>Título profesional</mat-label>
-            <input matInput formControlName="professionalTitle" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Tipo de contrato</mat-label>
-            <mat-select formControlName="contractType">
-              <mat-option value="Jornada completa">Jornada completa</mat-option>
-              <mat-option value="Media jornada">Media jornada</mat-option>
-              <mat-option value="Part-time">Part-time</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Horas semanales</mat-label>
-            <input matInput type="number" formControlName="weeklyHours" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha de ingreso</mat-label>
-            <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
-            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-            <mat-datepicker #startPicker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
-            <mat-select formControlName="employmentStatus">
-              <mat-option value="Activo">Activo</mat-option>
-              <mat-option value="Licencia">Licencia</mat-option>
-              <mat-option value="Inactivo">Inactivo</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="field-span-2">
-            <mat-label>Asignaturas que imparte</mat-label>
-            <mat-select formControlName="subjectIds" multiple>
-              @for (subject of subjectOptions(); track subject.id) {
-                <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          @if (assignedCourses().length > 0) {
-            <div class="field-span-3 readonly-block">
-              <span class="readonly-label">Cursos asignados</span>
-              <mat-chip-set>
-                @for (course of assignedCourses(); track course.id + '-' + course.subjectName) {
-                  <mat-chip>{{ course.courseName }} - {{ course.subjectName }}</mat-chip>
-                }
-              </mat-chip-set>
+    <form [formGroup]="form" class="editor-layout" (ngSubmit)="saveTeacher()">
+      <div class="left-col">
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <mat-icon>badge</mat-icon>
+              1. Datos Personales
             </div>
-          }
-        </mat-card-content>
-      </mat-card>
+          </div>
 
-      <mat-card appearance="outlined" class="form-card">
-        <div class="form-card__header">
-          <span class="form-card__step">3</span>
-          <span class="form-card__title">Contacto de emergencia</span>
-        </div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Nombre Completo *</label>
+              <input
+                type="text"
+                class="form-input"
+                [value]="(form.controls.firstNames.value + ' ' + form.controls.paternalLastName.value + ' ' + form.controls.maternalLastName.value).trim()"
+                readonly>
+            </div>
 
-        <mat-card-content class="fields-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Nombre</mat-label>
-            <input matInput formControlName="emergencyContactName" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Relación</mat-label>
-            <input matInput formControlName="emergencyContactRelation" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Teléfono</mat-label>
-            <input matInput formControlName="emergencyContactPhone" />
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
+            <div class="form-group">
+              <label>RUN *</label>
+              <input type="text" class="form-input" formControlName="run" placeholder="Ej: 14.567.890-1" (input)="formatRunValue()">
+            </div>
 
-      <div class="form-actions">
-        <button mat-stroked-button type="button" routerLink="/dashboard/profesores">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading()">
-          {{ isEditMode ? 'Guardar profesor' : 'Crear profesor' }}
-        </button>
+            <div class="form-group">
+              <label>Fecha de Nacimiento</label>
+              <input type="date" class="form-input" formControlName="birthDate">
+            </div>
+
+            <div class="form-group">
+              <label>Nombres *</label>
+              <input type="text" class="form-input" formControlName="firstNames">
+            </div>
+
+            <div class="form-group">
+              <label>Apellido Paterno *</label>
+              <input type="text" class="form-input" formControlName="paternalLastName">
+            </div>
+
+            <div class="form-group">
+              <label>Apellido Materno</label>
+              <input type="text" class="form-input" formControlName="maternalLastName">
+            </div>
+
+            <div class="form-group">
+              <label>Telefono *</label>
+              <input type="tel" class="form-input" formControlName="phone">
+            </div>
+
+            <div class="form-group">
+              <label>Email Personal</label>
+              <input type="email" class="form-input" formControlName="institutionalEmail">
+            </div>
+
+            <div class="form-group">
+              <label>Genero</label>
+              <select class="form-input" formControlName="gender">
+                <option value="Femenino">Femenino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="No binario">No binario</option>
+              </select>
+            </div>
+
+            <div class="form-group full">
+              <label>Direccion</label>
+              <input type="text" class="form-input" formControlName="address" placeholder="Calle, Numero, Comuna">
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <mat-icon>school</mat-icon>
+              2. Informacion Docente
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Titulo Profesional *</label>
+              <input type="text" class="form-input" formControlName="professionalTitle">
+            </div>
+
+            <div class="form-group">
+              <label>Horas Semanales *</label>
+              <input type="number" class="form-input" formControlName="weeklyHours" min="1" max="60">
+            </div>
+
+            <div class="form-group">
+              <label>Fecha de Ingreso</label>
+              <input type="date" class="form-input" formControlName="startDate">
+            </div>
+
+            <div class="form-group">
+              <label>Tipo Contrato</label>
+              <select class="form-input" formControlName="contractType">
+                <option value="Jornada completa">Jornada completa</option>
+                <option value="Media jornada">Media jornada</option>
+                <option value="Part-time">Part-Time</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Estado</label>
+              <select class="form-input" formControlName="employmentStatus">
+                <option value="Activo">Activo</option>
+                <option value="Licencia">Licencia</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+            </div>
+
+            <div class="form-group full">
+              <label>Departamento / Area</label>
+              <div class="subject-selector">
+                <div class="subject-selector__summary">
+                  @if (selectedSubjectNames().length > 0) {
+                    @for (subjectName of selectedSubjectNames(); track subjectName) {
+                      <span class="subject-chip">{{ subjectName }}</span>
+                    }
+                  } @else {
+                    <span class="subject-selector__placeholder">Selecciona una o mas asignaturas para este profesor</span>
+                  }
+                </div>
+
+                <div class="subject-selector__list">
+                  @for (subject of subjectOptions(); track subject.id) {
+                    <label class="subject-option">
+                      <input
+                        type="checkbox"
+                        [checked]="isSubjectSelected(subject.id)"
+                        (change)="toggleSubject(subject.id, $any($event.target).checked)">
+                      <span class="subject-option__content">
+                        <strong>{{ subject.name }}</strong>
+                        <small>{{ subject.area }}</small>
+                      </span>
+                    </label>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <mat-icon>medical_information</mat-icon>
+              3. Contacto de Emergencia
+            </div>
+          </div>
+
+          <p class="helper-text">Persona a contactar en caso de urgencia laboral o medica.</p>
+
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Nombre Completo</label>
+              <input type="text" class="form-input" formControlName="emergencyContactName">
+            </div>
+
+            <div class="form-group">
+              <label>Relacion</label>
+              <input type="text" class="form-input" formControlName="emergencyContactRelation">
+            </div>
+
+            <div class="form-group">
+              <label>Telefono *</label>
+              <input type="tel" class="form-input" formControlName="emergencyContactPhone">
+            </div>
+          </div>
+        </section>
       </div>
+
+      <aside class="right-col">
+        <section class="card sticky-card">
+          <div class="student-photo-container">
+            <div class="photo-placeholder" title="Subir foto">
+              <mat-icon>photo_camera</mat-icon>
+            </div>
+            <span class="change-photo">Cambiar Foto</span>
+          </div>
+
+          <div class="status-wrapper">
+            <span class="status-badge">{{ statusBadgeLabel() }}</span>
+          </div>
+
+          <div class="meta-panel">
+            <div class="meta-row">
+              <span>Codigo Docente:</span>
+              <span>{{ isEditMode ? ('#DOC-' + teacherId) : 'Nuevo' }}</span>
+            </div>
+            <div class="meta-row">
+              <span>Fecha Ingreso:</span>
+              <span>{{ form.controls.startDate.value || '-' }}</span>
+            </div>
+            <div class="meta-row">
+              <span>Tipo Contrato:</span>
+              <span>{{ form.controls.contractType.value || '-' }}</span>
+            </div>
+          </div>
+
+          <div class="sidebar-actions">
+            <button class="btn btn-primary" type="submit" [disabled]="isLoading()">
+              <mat-icon>save</mat-icon>
+              Guardar Cambios
+            </button>
+
+            <button class="btn btn-danger" type="button" (click)="deactivateTeacher()">
+              <mat-icon>person_off</mat-icon>
+              Desactivar Usuario
+            </button>
+          </div>
+        </section>
+      </aside>
     </form>
   </main>
 </app-teacher-modern-layout>

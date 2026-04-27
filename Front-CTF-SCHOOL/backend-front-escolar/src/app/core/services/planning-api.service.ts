@@ -97,7 +97,10 @@ export class PlanningApiService {
             ...objective,
             code: normalizeDashboardText(objective.code),
             label: normalizeDashboardText(objective.label),
-            description: normalizeDashboardText(objective.description)
+            description: normalizeDashboardText(objective.description),
+            axis: normalizeDashboardText(objective.axis ?? ''),
+            skills: (objective.skills ?? []).map((skill) => normalizeDashboardText(skill)),
+            attitudes: (objective.attitudes ?? []).map((attitude) => normalizeDashboardText(attitude))
           })),
           evaluationTypes: catalogs.evaluationTypes.map((item) => ({
             ...item,
@@ -150,6 +153,12 @@ export class PlanningApiService {
     );
   }
 
+  getClassById(classId: number): Observable<PlanningClass> {
+    return this.http
+      .get<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes/${classId}`)
+      .pipe(map((planningClass) => this.normalizeClass(planningClass)));
+  }
+
   createClass(payload: PlanningClassPayload): Observable<PlanningClass> {
     return this.http
       .post<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes`, payload)
@@ -165,6 +174,12 @@ export class PlanningApiService {
   updateClassTitle(classId: number, title: string): Observable<PlanningClass> {
     return this.http
       .put<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes/${classId}`, { title })
+      .pipe(map((planningClass) => this.normalizeClass(planningClass)));
+  }
+
+  updateClass(classId: number, payload: PlanningClassPayload): Observable<PlanningClass> {
+    return this.http
+      .put<PlanningClass>(`${API_CONFIG.baseUrl}/planning/classes/${classId}/details`, payload)
       .pipe(map((planningClass) => this.normalizeClass(planningClass)));
   }
 

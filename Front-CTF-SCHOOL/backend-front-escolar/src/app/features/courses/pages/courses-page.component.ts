@@ -36,6 +36,9 @@ export class CoursesPageComponent {
   readonly user = this.authStateService.user;
   readonly displayedColumns = ['code', 'name', 'letter', 'schoolYear', 'scheduleType', 'students', 'actions'];
   readonly courses = signal<Course[]>([]);
+  readonly searchTerm = signal('');
+  readonly levelFilter = signal('all');
+  readonly scheduleFilter = signal('all');
 
   readonly summaryCards = computed(() => {
     const courses = this.courses();
@@ -75,6 +78,27 @@ export class CoursesPageComponent {
     ];
   });
 
+  readonly filteredCourses = computed(() => {
+    const search = this.searchTerm().trim().toLowerCase();
+    const level = this.levelFilter();
+    const schedule = this.scheduleFilter();
+
+    return this.courses().filter((course) => {
+      const matchesSearch = !search
+        || course.code.toLowerCase().includes(search)
+        || course.name.toLowerCase().includes(search)
+        || `${course.name} ${course.letter}`.toLowerCase().includes(search);
+
+      const normalizedLevel = this.normalizeLevel(course.level);
+      const normalizedSchedule = this.normalizeSchedule(course.scheduleType);
+
+      const matchesLevel = level === 'all' || normalizedLevel === level;
+      const matchesSchedule = schedule === 'all' || normalizedSchedule === schedule;
+
+      return matchesSearch && matchesLevel && matchesSchedule;
+    });
+  });
+
   constructor() {
     this.refreshData();
     this.router.events
@@ -105,12 +129,81 @@ export class CoursesPageComponent {
     });
   }
 
-  studentCount(courseId: number): number {
-    return this.courses().find((course) => course.id === courseId)?.studentCount ?? 0;
-  }
-
   openStudentsDialog(course: Course): void {
     void this.router.navigate(['/dashboard/cursos', course.id, 'alumnos']);
+  }
+
+  updateSearchTerm(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  updateLevelFilter(value: string): void {
+    this.levelFilter.set(value);
+  }
+
+  updateScheduleFilter(value: string): void {
+    this.scheduleFilter.set(value);
+  }
+
+  courseDisplayName(course: Course): string {
+    return `${course.name} ${course.letter}`.trim();
+  }
+
+  courseLeadLabel(_course: Course): string {
+    return 'Jefe de Curso: Por definir';
+  }
+
+  courseLevelLabel(course: Course): string {
+    return course.level || course.name;
+  }
+
+  courseShiftLabel(course: Course): string {
+    const schedule = this.normalizeSchedule(course.scheduleType);
+    return schedule === 'manana' ? 'Manana' : schedule === 'tarde' ? 'Tarde' : course.scheduleType;
+  }
+
+  courseShiftIcon(course: Course): string {
+    return this.normalizeSchedule(course.scheduleType) === 'tarde' ? 'dark_mode' : 'light_mode';
+  }
+
+  courseShiftClass(course: Course): string {
+    return this.normalizeSchedule(course.scheduleType) === 'tarde'
+      ? 'shift-badge shift-badge--tarde'
+      : 'shift-badge shift-badge--manana';
+  }
+
+  courseCapacityTone(course: Course): string {
+    const maxCapacity = this.courseMaxCapacity(course);
+    const ratio = maxCapacity === 0 ? 0 : course.studentCount / maxCapacity;
+    if (ratio >= 1) {
+      return 'full';
+    }
+    if (ratio >= 0.95) {
+      return 'warning';
+    }
+    return '';
+  }
+
+  courseCapacityWidth(course: Course): number {
+    const maxCapacity = this.courseMaxCapacity(course);
+    if (maxCapacity === 0) {
+      return 0;
+    }
+    return Math.min(100, Math.round((course.studentCount / maxCapacity) * 100));
+  }
+
+  courseMaxCapacity(course: Course): number {
+    return this.normalizeLevel(course.level) === 'media' ? 35 : 30;
+  }
+
+  courseIcon(course: Course): string {
+    return this.normalizeLevel(course.level) === 'media' ? 'school' : 'child_care';
+  }
+
+  courseIconClass(course: Course): string {
+    return this.normalizeLevel(course.level) === 'media'
+      ? 'course-icon course-icon--media'
+      : 'course-icon course-icon--basic';
   }
 
   private loadCourses(): void {
@@ -122,6 +215,22 @@ export class CoursesPageComponent {
 
   private refreshData(): void {
     this.loadCourses();
+  }
+
+  private normalizeLevel(level: string): string {
+    const normalized = (level || '').toLowerCase();
+    if (normalized.includes('medio') || normalized.includes('media')) {
+      return 'media';
+    }
+    return 'basico';
+  }
+
+  private normalizeSchedule(scheduleType: string): string {
+    const normalized = (scheduleType || '').toLowerCase();
+    if (normalized.includes('tarde')) {
+      return 'tarde';
+    }
+    return 'manana';
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {

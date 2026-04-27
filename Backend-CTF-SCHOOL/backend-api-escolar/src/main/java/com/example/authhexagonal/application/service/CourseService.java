@@ -99,10 +99,21 @@ public class CourseService implements ManageCoursesUseCase {
     }
 
     @Override
-    public Course update(Long courseId, String code, String name, String level, String letter, int schoolYear, String scheduleType, List<Long> studentIds) {
+    public Course update(Long courseId, String code, String name, String level, String letter, int schoolYear, String scheduleType, Long teacherId, Long assistantId, List<Long> studentIds) {
         findById(courseId);
         validateDuplicateCode(code, courseId);
+        if (teacherId != null) {
+            loadMasterCoursesPort.findTeacherById(teacherId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        }
+        if (assistantId != null) {
+            loadMasterCoursesPort.findTeacherById(assistantId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Assistant not found"));
+        }
         Course updatedCourse = manageCoursesPort.update(courseId, code, name, level, letter, schoolYear, scheduleType);
+        if (teacherId != null) {
+            manageCoursesPort.assignTeacherTeam(courseId, teacherId, assistantId);
+        }
         if (studentIds != null) {
             validateStudentsForUpdate(courseId, studentIds);
             manageCoursesPort.syncStudents(courseId, studentIds);
