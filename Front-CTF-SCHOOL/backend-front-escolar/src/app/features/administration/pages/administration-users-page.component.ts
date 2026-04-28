@@ -20,6 +20,7 @@ import { AdministrationConfirmDialogComponent } from '../components/administrati
 import { AdministrationShellComponent } from '../components/administration-shell.component';
 import { AdministrationStatusBadgeComponent } from '../components/administration-status-badge.component';
 import { AdministrationUserDetailDialogComponent } from '../components/administration-user-detail-dialog.component';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 
 @Component({
   selector: 'app-administration-users-page',
@@ -32,7 +33,8 @@ import { AdministrationUserDetailDialogComponent } from '../components/administr
     MatSnackBarModule,
     AdministrationActionButtonsComponent,
     AdministrationShellComponent,
-    AdministrationStatusBadgeComponent
+    AdministrationStatusBadgeComponent,
+    SummaryMetricCardComponent
   ],
   templateUrl: './administration-users-page.component.html',
   styleUrl: './administration-users-page.component.scss',

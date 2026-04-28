@@ -9,21 +9,21 @@
       <section class="page-header">
         <div class="page-header__left">
           <h1 class="page-header__title">Evaluaciones</h1>
-          <p class="page-header__subtitle">Registra, consulta y exporta las notas de los estudiantes por curso, semestre y asignatura.</p>
+          <p class="page-header__subtitle">Gestiona notas por curso, semestre y asignatura.</p>
         </div>
 
         <div class="page-header__actions">
+          <section class="grades-tabs-bar">
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Ficha por estudiante</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informes de notas</button>
+          </section>
+
           <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportGradeBook()">
             <mat-icon>download</mat-icon>
             Exportar Excel
           </button>
         </div>
-      </section>
-
-      <section class="grades-tabs-bar">
-        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
-        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Ficha por estudiante</button>
-        <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informes de notas</button>
       </section>
 
       <section class="summary-grid">
@@ -80,7 +80,7 @@
         </mat-card>
       </section>
 
-      <mat-card appearance="outlined" class="grades-book-card">
+      <mat-card appearance="outlined" class="filters-card">
         <div class="grades-book-card__filters">
           <label class="inline-field">
             <span class="inline-field__label">Curso:</span>
@@ -118,7 +118,9 @@
             </label>
           </label>
         </div>
+      </mat-card>
 
+      <mat-card appearance="outlined" class="grades-book-card table-card">
         <div class="grades-book-card__header">
           <div>
             <h2>Libro de notas</h2>
@@ -507,9 +509,22 @@
         }
       </div>
 
-      <footer class="dialog-panel__footer">
-        <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="closeEvaluationDetails()">Cerrar</button>
-        <button mat-flat-button type="button" class="header-button header-button--primary" (click)="editEvaluationFromDetails()">Editar evaluación</button>
+      <footer class="dialog-panel__footer dialog-panel__footer--split">
+        <div class="dialog-panel__footer-left">
+          <button
+            mat-stroked-button
+            type="button"
+            class="header-button header-button--danger"
+            (click)="removeEvaluation(evaluation.id)"
+            [disabled]="isSaving()">
+            <mat-icon>delete</mat-icon>
+            {{ isSaving() ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+        <div class="dialog-panel__footer-right">
+          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="closeEvaluationDetails()">Cerrar</button>
+          <button mat-flat-button type="button" class="header-button header-button--primary" (click)="editEvaluationFromDetails()">Editar evaluación</button>
+        </div>
       </footer>
     </section>
   }

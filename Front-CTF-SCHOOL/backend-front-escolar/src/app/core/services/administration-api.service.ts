@@ -29,7 +29,8 @@ type UserFilter = {
 type AuditFilter = {
   type?: AdministrationAuditType | '';
   user?: string;
-  date?: string | Date | null;
+  dateStart?: string | Date | null;
+  dateEnd?: string | Date | null;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -122,9 +123,13 @@ export class AdministrationApiService {
     if (filters?.user?.trim()) {
       params = params.set('user', filters.user.trim());
     }
-    const normalizedDate = this.normalizeDateFilter(filters?.date);
-    if (normalizedDate) {
-      params = params.set('date', normalizedDate);
+    const normalizedDateStart = this.normalizeDateFilter(filters?.dateStart);
+    const normalizedDateEnd = this.normalizeDateFilter(filters?.dateEnd);
+    if (normalizedDateStart) {
+      params = params.set('dateStart', normalizedDateStart);
+    }
+    if (normalizedDateEnd) {
+      params = params.set('dateEnd', normalizedDateEnd);
     }
 
     return this.http.get<AdministrationAuditLogView>(`${API_CONFIG.baseUrl}/admin/audit-logs`, { params }).pipe(
@@ -155,9 +160,13 @@ export class AdministrationApiService {
     if (filters?.user?.trim()) {
       params = params.set('user', filters.user.trim());
     }
-    const normalizedDate = this.normalizeDateFilter(filters?.date);
-    if (normalizedDate) {
-      params = params.set('date', normalizedDate);
+    const normalizedDateStart = this.normalizeDateFilter(filters?.dateStart);
+    const normalizedDateEnd = this.normalizeDateFilter(filters?.dateEnd);
+    if (normalizedDateStart) {
+      params = params.set('dateStart', normalizedDateStart);
+    }
+    if (normalizedDateEnd) {
+      params = params.set('dateEnd', normalizedDateEnd);
     }
 
     return this.http.get(`${API_CONFIG.baseUrl}/admin/audit-logs/export`, {
@@ -236,6 +245,7 @@ export class AdministrationApiService {
       ...item,
       occurredLabel: normalizeDashboardText(item.occurredLabel),
       userDisplay: normalizeDashboardText(item.userDisplay),
+      roleName: normalizeDashboardText(item.roleName),
       actionLabel: normalizeDashboardText(item.actionLabel),
       context: normalizeDashboardText(item.context)
     };

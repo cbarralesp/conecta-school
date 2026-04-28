@@ -88,6 +88,7 @@ export interface AdministrationAuditLogItem {
   occurredLabel: string;
   type: AdministrationAuditType;
   userDisplay: string;
+  roleName: string;
   actionLabel: string;
   context: string;
 }

@@ -37,6 +37,8 @@ type EvaluationDialogState = {
   evaluationDate: string;
 };
 
+const DEFAULT_EVALUATION_WEIGHT = 20;
+
 @Component({
   selector: 'app-grades-page',
   imports: [
@@ -220,7 +222,7 @@ export class GradesPageComponent {
       evaluationId: null,
       code: `EVAL. ${nextNumber}`,
       name: `Evaluación ${nextNumber}`,
-      weight: null,
+      weight: DEFAULT_EVALUATION_WEIGHT,
       evaluationDate: this.todayIso()
     });
   }
@@ -297,7 +299,7 @@ export class GradesPageComponent {
     const code = dialog.code.trim();
     const name = dialog.name.trim();
     const weight = dialog.weight == null || Number.isNaN(dialog.weight)
-      ? null
+      ? DEFAULT_EVALUATION_WEIGHT
       : Math.max(0, Math.round(dialog.weight * 100) / 100);
     const evaluationDate = dialog.evaluationDate.trim();
 
@@ -308,8 +310,8 @@ export class GradesPageComponent {
       return null;
     }
 
-    if (!code || !name || weight == null || !evaluationDate) {
-      this.snackBar.open('Completa codigo, nombre, ponderacion y fecha de la evaluacion', 'Cerrar', {
+    if (!code || !name || !evaluationDate) {
+      this.snackBar.open('Completa codigo, nombre y fecha de la evaluacion', 'Cerrar', {
         duration: 2800
       });
       return null;

@@ -20,48 +20,13 @@
     </section>
 
     <section class="summary-grid">
-      <mat-card appearance="outlined" class="summary-card sc-blue">
-        <div class="summary-card__icon">
-          <mat-icon>school</mat-icon>
-        </div>
-        <div class="summary-card__copy">
-          <span>Total docentes</span>
-          <strong>{{ summary().totalTeachers }}</strong>
-        </div>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="summary-card sc-green">
-        <div class="summary-card__icon">
-          <mat-icon>check_circle</mat-icon>
-        </div>
-        <div class="summary-card__copy">
-          <span>Activos</span>
-          <strong>{{ summary().activeTeachers }}</strong>
-        </div>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="summary-card sc-amber">
-        <div class="summary-card__icon">
-          <mat-icon>class</mat-icon>
-        </div>
-        <div class="summary-card__copy">
-          <span>Asignaturas cubiertas</span>
-          <strong>{{ summary().subjectCount }}</strong>
-        </div>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="summary-card sc-purple">
-        <div class="summary-card__icon">
-          <mat-icon>schedule</mat-icon>
-        </div>
-        <div class="summary-card__copy">
-          <span>Horario completo</span>
-          <strong>{{ summary().fullTimeTeachers }}</strong>
-        </div>
-      </mat-card>
+      <app-summary-metric-card label="Total docentes" [value]="summary().totalTeachers" icon="school" tone="blue" />
+      <app-summary-metric-card label="Activos" [value]="summary().activeTeachers" icon="check_circle" tone="green" />
+      <app-summary-metric-card label="Asignaturas cubiertas" [value]="summary().subjectCount" icon="class" tone="amber" />
+      <app-summary-metric-card label="Horario completo" [value]="summary().fullTimeTeachers" icon="schedule" tone="purple" />
     </section>
 
-    <mat-card appearance="outlined" class="listing-card">
+    <mat-card appearance="outlined" class="filters-card">
       <mat-card-content>
         <form [formGroup]="filtersForm" class="list-toolbar">
           <div class="list-toolbar__left">
@@ -98,10 +63,12 @@
               </button>
             </div>
           </div>
-
-          <div class="list-toolbar__right" aria-hidden="true"></div>
         </form>
+      </mat-card-content>
+    </mat-card>
 
+    <mat-card appearance="outlined" class="table-card">
+      <mat-card-content>
         @if (isLoading()) {
           <section class="empty-state">
             <mat-icon>hourglass_top</mat-icon>

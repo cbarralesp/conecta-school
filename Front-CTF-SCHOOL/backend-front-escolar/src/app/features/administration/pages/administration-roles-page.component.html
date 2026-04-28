@@ -11,18 +11,7 @@
 
     <section class="summary-grid">
       @for (metric of summaryCards(); track metric.label) {
-        <mat-card appearance="outlined" class="summary-card" [class]="metric.toneClass">
-          <div class="summary-card__head">
-            <div class="summary-card__icon">
-              <mat-icon>{{ metric.icon }}</mat-icon>
-            </div>
-          </div>
-
-          <div class="summary-card__copy">
-            <strong>{{ metric.value }}</strong>
-            <span>{{ metric.label }}</span>
-          </div>
-        </mat-card>
+        <app-summary-metric-card [label]="metric.label" [value]="metric.value" [icon]="metric.icon" [tone]="metric.toneClass" />
       }
     </section>
 

@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 @Service
 public class GradesService implements ManageGradesUseCase {
 
+    private static final double DEFAULT_EVALUATION_WEIGHT = 20.0;
+
     private final ManageGradesPort manageGradesPort;
 
     public GradesService(ManageGradesPort manageGradesPort) {
@@ -288,13 +290,11 @@ public class GradesService implements ManageGradesUseCase {
             throw new IllegalArgumentException("Evaluation code and name are required");
         }
 
-        Double weight = command.weight();
-        if (weight != null) {
-            if (weight < 0.0 || weight > 100.0) {
-                throw new IllegalArgumentException("Evaluation weight must be between 0 and 100");
-            }
-            weight = Math.round(weight * 100.0) / 100.0;
+        Double weight = command.weight() == null ? DEFAULT_EVALUATION_WEIGHT : command.weight();
+        if (weight < 0.0 || weight > 100.0) {
+            throw new IllegalArgumentException("Evaluation weight must be between 0 and 100");
         }
+        weight = Math.round(weight * 100.0) / 100.0;
 
         return new GradeEvaluationCommand(
                 command.courseId(),

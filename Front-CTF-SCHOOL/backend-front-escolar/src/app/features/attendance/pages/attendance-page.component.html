@@ -8,41 +8,32 @@
     <section class="page-header">
       <div class="page-header__left">
         <h1 class="page-header__title">Control de asistencia</h1>
-        <p class="page-header__subtitle">Registra y consulta la asistencia de los estudiantes por curso, semana o mes.</p>
+        <p class="page-header__subtitle">Gestiona la asistencia por curso y periodo.</p>
       </div>
 
       <div class="page-header__actions">
-        @if (activeTab() === 'daily') {
-          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="resetDailyAttendance()">
-            <mat-icon>restart_alt</mat-icon>
-            Reiniciar
+        <section class="attendance-tabs">
+          <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'daily'" (click)="setTab('daily')">
+            <mat-icon>calendar_today</mat-icon>
+            Pase de lista
           </button>
-          <button mat-flat-button type="button" class="header-button header-button--primary" (click)="saveDailyAttendance()" [disabled]="isSaving()">
-            <mat-icon>check</mat-icon>
-            {{ isSaving() ? 'Guardando...' : 'Guardar asistencia' }}
+          <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'weekly'" (click)="setTab('weekly')">
+            <mat-icon>date_range</mat-icon>
+            Semanal
           </button>
-        } @else if (activeTab() === 'monthly') {
+          <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'monthly'" (click)="setTab('monthly')">
+            <mat-icon>calendar_month</mat-icon>
+            Resumen mensual
+          </button>
+        </section>
+
+        @if (activeTab() === 'monthly') {
           <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportMonthlyReport()" [disabled]="isExporting()">
             <mat-icon>download</mat-icon>
             {{ isExporting() ? 'Exportando...' : 'Exportar reporte' }}
           </button>
         }
       </div>
-    </section>
-
-    <section class="attendance-tabs">
-      <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'daily'" (click)="setTab('daily')">
-        <mat-icon>calendar_today</mat-icon>
-        Pase de lista
-      </button>
-      <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'weekly'" (click)="setTab('weekly')">
-        <mat-icon>date_range</mat-icon>
-        Semanal
-      </button>
-      <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'monthly'" (click)="setTab('monthly')">
-        <mat-icon>calendar_month</mat-icon>
-        Resumen mensual
-      </button>
     </section>
 
     @if (activeTab() === 'daily') {
@@ -110,7 +101,7 @@
         </div>
       </mat-card>
 
-      <mat-card appearance="outlined" class="attendance-card">
+      <mat-card appearance="outlined" class="filters-card">
         <div class="attendance-card__toolbar">
           <div class="attendance-card__filters">
             <label class="inline-field">
@@ -137,14 +128,6 @@
               </label>
             </label>
 
-            <div class="date-nav">
-              <button mat-stroked-button type="button" class="date-nav__button" (click)="moveDay(-1)">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              <button mat-stroked-button type="button" class="date-nav__button" (click)="moveDay(1)">
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
           </div>
 
           <div class="attendance-card__bulk">
@@ -154,7 +137,9 @@
             </button>
           </div>
         </div>
+      </mat-card>
 
+      <mat-card appearance="outlined" class="attendance-card">
         <div class="attendance-card__header">
           <div>
             <h2>Lista de estudiantes</h2>
@@ -242,17 +227,35 @@
 
       </mat-card>
 
-      <div class="floating-save-shell">
-        <button
-          mat-flat-button
-          type="button"
-          class="header-button header-button--primary"
-          (click)="saveDailyAttendance()"
-          [disabled]="isSaving()">
-          <mat-icon>check</mat-icon>
-          {{ isSaving() ? 'Guardando...' : 'Guardar asistencia' }}
-        </button>
+      <mat-card appearance="outlined" class="attendance-save-card">
+      <div class="attendance-save-shell">
+        <div class="attendance-progress">
+          <div class="attendance-progress__head">
+            <span>Progreso de marcación</span>
+            <strong>{{ dailyProgress().marked }} / {{ dailyProgress().total }}</strong>
+          </div>
+          <div class="progress-track">
+            <span class="progress-track__fill" [style.width.%]="dailyProgress().percent"></span>
+          </div>
+        </div>
+
+        <div class="attendance-save-shell__actions">
+          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="resetDailyAttendance()">
+            <mat-icon>restart_alt</mat-icon>
+            Reiniciar
+          </button>
+          <button
+            mat-flat-button
+            type="button"
+            class="header-button header-button--primary"
+            (click)="saveDailyAttendance()"
+            [disabled]="isSaving()">
+            <mat-icon>check</mat-icon>
+            {{ isSaving() ? 'Guardando...' : 'Guardar asistencia' }}
+          </button>
+        </div>
       </div>
+      </mat-card>
     }
 
     @if (activeTab() === 'weekly') {

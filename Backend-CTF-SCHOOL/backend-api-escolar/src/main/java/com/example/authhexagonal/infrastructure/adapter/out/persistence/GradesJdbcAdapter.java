@@ -220,10 +220,9 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                     "PONDERACION",
                     "FECHA_EVALUACION",
                     "ACTIVA",
-                    "CREADO_EN",
-                    "ACTUALIZADO_EN"
+                    "CREADO_EN"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE, CURRENT_TIMESTAMP)
                 """,
                 command.courseId(),
                 command.periodId(),
@@ -243,8 +242,7 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 SET "CODIGO" = ?,
                     "NOMBRE" = ?,
                     "PONDERACION" = ?,
-                    "FECHA_EVALUACION" = ?,
-                    "ACTUALIZADO_EN" = CURRENT_TIMESTAMP
+                    "FECHA_EVALUACION" = ?
                 WHERE "ID" = ?
                   AND "CURSO_ID" = ?
                   AND "PERIODO_ID" = ?
@@ -266,8 +264,7 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     public boolean deactivateEvaluation(Long evaluationId, Long courseId, Long periodId, Long subjectId) {
         int updated = jdbcTemplate.update("""
                 UPDATE "EVALUACIONES"
-                SET "ACTIVA" = FALSE,
-                    "ACTUALIZADO_EN" = CURRENT_TIMESTAMP
+                SET "ACTIVA" = FALSE
                 WHERE "ID" = ?
                   AND "CURSO_ID" = ?
                   AND "PERIODO_ID" = ?

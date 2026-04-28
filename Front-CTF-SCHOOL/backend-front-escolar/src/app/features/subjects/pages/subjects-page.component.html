@@ -21,23 +21,18 @@
 
     <section class="subjects-page__stats">
       @for (card of summaryCards(); track card.label) {
-        <mat-card appearance="outlined" class="summary-card" [class]="'summary-card--' + card.tone">
-          <div class="summary-card__icon">
-            <mat-icon>{{ card.icon }}</mat-icon>
-          </div>
-
-          <div class="summary-card__copy">
-            <span>{{ card.label }}</span>
-            <strong>{{ card.value }}</strong>
-            <small>{{ card.hint }}</small>
-          </div>
-        </mat-card>
+        <app-summary-metric-card [label]="card.label" [value]="card.value" [icon]="card.icon" [tone]="card.tone" />
       }
     </section>
 
-    <mat-card appearance="outlined" class="subjects-card">
+    <mat-card appearance="outlined" class="subjects-card subjects-card--filters">
       <div class="subjects-card__header">
-        <mat-card-title>Asignaturas activas</mat-card-title>
+        <div class="subjects-card__heading">
+          <div class="subjects-card__icon" aria-hidden="true">
+            <mat-icon>menu_book</mat-icon>
+          </div>
+          <mat-card-title>Buscar asignatura</mat-card-title>
+        </div>
 
         <div class="subjects-card__filters">
           <label class="subjects-search" aria-label="Buscar asignatura">
@@ -51,24 +46,26 @@
 
           <div class="subjects-levels" role="tablist" aria-label="Filtrar por nivel">
             <button type="button" [class.active]="levelFilter() === 'all'" (click)="setLevelFilter('all')">Todas</button>
-            <button type="button" [class.active]="levelFilter() === 'basic'" (click)="setLevelFilter('basic')">BÃ¡sica</button>
+            <button type="button" [class.active]="levelFilter() === 'basic'" (click)="setLevelFilter('basic')">Básica</button>
             <button type="button" [class.active]="levelFilter() === 'media'" (click)="setLevelFilter('media')">Media</button>
           </div>
         </div>
       </div>
+    </mat-card>
 
+    <mat-card appearance="outlined" class="subjects-card subjects-card--table">
       <mat-card-content>
         @if (filteredSubjects().length === 0 && hasActiveFilters()) {
           <section class="empty-state empty-state--compact">
             <mat-icon>search_off</mat-icon>
             <strong>No encontramos coincidencias</strong>
-            <p>Ajusta la bÃºsqueda o cambia el filtro de nivel para ver mÃ¡s asignaturas.</p>
+            <p>Ajusta la búsqueda o cambia el filtro de nivel para ver más asignaturas.</p>
           </section>
         } @else if (subjects().length === 0) {
           <section class="empty-state">
             <mat-icon>library_books</mat-icon>
             <strong>No hay asignaturas registradas</strong>
-            <p>Crea la primera asignatura del catalogo academico.</p>
+            <p>Crea la primera asignatura del catálogo académico.</p>
           </section>
         } @else {
           <div class="table-shell">

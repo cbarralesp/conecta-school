@@ -35,7 +35,7 @@ public interface ManageAdministrationUseCase {
 
     AdministrationAccessMatrix getAccessMatrix();
 
-    AdministrationAuditLogView getAuditLogs(String type, String user, LocalDate date);
+    AdministrationAuditLogView getAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
 
-    byte[] exportAuditLogs(String type, String user, LocalDate date);
+    byte[] exportAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
 }

@@ -11,6 +11,7 @@ import {
 } from '../../../core/models/administration.models';
 import { AdministrationApiService } from '../../../core/services/administration-api.service';
 import { AdministrationShellComponent } from '../components/administration-shell.component';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 
 type MatrixViewMode = 'matrix' | 'user';
 
@@ -28,7 +29,8 @@ type SummaryCard = {
     MatCardModule,
     MatIconModule,
     MatSnackBarModule,
-    AdministrationShellComponent
+    AdministrationShellComponent,
+    SummaryMetricCardComponent
   ],
   templateUrl: './administration-access-matrix-page.component.html',
   styleUrl: './administration-access-matrix-page.component.scss',

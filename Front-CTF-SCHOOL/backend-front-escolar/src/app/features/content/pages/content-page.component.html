@@ -36,76 +36,66 @@
     } @else {
       <section class="summary-grid">
         @for (card of stats(); track card.label) {
-          <mat-card appearance="outlined" class="summary-card" [class]="'sc-' + card.tone">
-            <div class="summary-card__head">
-              <div class="summary-card__icon">
-                <mat-icon>{{ card.icon }}</mat-icon>
-              </div>
-              <div class="summary-card__ring">{{ card.value }}</div>
-            </div>
-
-            <div class="summary-card__copy">
-              <strong>{{ card.value }}</strong>
-              <span>{{ card.label }}</span>
-            </div>
-          </mat-card>
+          <app-summary-metric-card [label]="card.label" [value]="card.value" [icon]="card.icon" [tone]="card.tone" />
         }
       </section>
 
-      <section class="content-toolbar">
-        <div class="content-toolbar__filters">
-          <label class="inline-field">
-            <span class="inline-field__label">Curso</span>
-            <div class="inline-field__control inline-field__control--course">
-              <div class="inline-select">
-                <mat-icon>school</mat-icon>
-                <select [ngModel]="selectedCourse()" (ngModelChange)="setCourseFilter($event)">
-                  <option [ngValue]="'all'">Todos</option>
-                  @for (course of courseOptions(); track course.id) {
-                    <option [ngValue]="course.id">{{ course.name }}</option>
-                  }
-                </select>
+      <mat-card appearance="outlined" class="filters-card">
+        <section class="content-toolbar">
+          <div class="content-toolbar__filters">
+            <label class="inline-field">
+              <span class="inline-field__label">Curso</span>
+              <div class="inline-field__control inline-field__control--course">
+                <div class="inline-select">
+                  <mat-icon>school</mat-icon>
+                  <select [ngModel]="selectedCourse()" (ngModelChange)="setCourseFilter($event)">
+                    <option [ngValue]="'all'">Todos</option>
+                    @for (course of courseOptions(); track course.id) {
+                      <option [ngValue]="course.id">{{ course.name }}</option>
+                    }
+                  </select>
+                </div>
               </div>
-            </div>
-          </label>
+            </label>
 
-          <label class="inline-field">
-            <span class="inline-field__label">Asignatura</span>
-            <div class="inline-field__control inline-field__control--subject">
-              <div class="inline-select">
-                <mat-icon>menu_book</mat-icon>
-                <select [ngModel]="selectedSubject()" (ngModelChange)="setSubjectFilter($event)">
-                  <option [ngValue]="'all'">Todas</option>
-                  @for (subject of subjectOptions(); track subject.id) {
-                    <option [ngValue]="subject.id">{{ subject.name }}</option>
-                  }
-                </select>
+            <label class="inline-field">
+              <span class="inline-field__label">Asignatura</span>
+              <div class="inline-field__control inline-field__control--subject">
+                <div class="inline-select">
+                  <mat-icon>menu_book</mat-icon>
+                  <select [ngModel]="selectedSubject()" (ngModelChange)="setSubjectFilter($event)">
+                    <option [ngValue]="'all'">Todas</option>
+                    @for (subject of subjectOptions(); track subject.id) {
+                      <option [ngValue]="subject.id">{{ subject.name }}</option>
+                    }
+                  </select>
+                </div>
               </div>
-            </div>
-          </label>
+            </label>
 
-          <label class="inline-field">
-            <span class="inline-field__label">Formato</span>
-            <div class="inline-field__control inline-field__control--format">
-              <div class="inline-select">
-                <mat-icon>description</mat-icon>
-                <select [ngModel]="filter()" (ngModelChange)="setFilter($event)">
-                  @for (option of formatOptions(); track option.value) {
-                    <option [ngValue]="option.value">{{ option.label }}</option>
-                  }
-                </select>
+            <label class="inline-field">
+              <span class="inline-field__label">Formato</span>
+              <div class="inline-field__control inline-field__control--format">
+                <div class="inline-select">
+                  <mat-icon>description</mat-icon>
+                  <select [ngModel]="filter()" (ngModelChange)="setFilter($event)">
+                    @for (option of formatOptions(); track option.value) {
+                      <option [ngValue]="option.value">{{ option.label }}</option>
+                    }
+                  </select>
+                </div>
               </div>
-            </div>
-          </label>
-        </div>
+            </label>
+          </div>
 
-        <div class="page-header__actions">
-          <button mat-flat-button type="button" class="header-button header-button--primary" (click)="openUnitDialog()">
-            <mat-icon>add</mat-icon>
-            Nueva Unidad
-          </button>
-        </div>
-      </section>
+          <div class="page-header__actions">
+            <button mat-flat-button type="button" class="header-button header-button--primary" (click)="openUnitDialog()">
+              <mat-icon>add</mat-icon>
+              Nueva Unidad
+            </button>
+          </div>
+        </section>
+      </mat-card>
 
       <section class="units-list">
         @for (unit of visibleUnits(); track unit.id) {

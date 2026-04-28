@@ -39,9 +39,9 @@ public class GradesController {
 
     @GetMapping("/libro")
     public GradeBookView gradeBook(
-            @RequestParam Long courseId,
-            @RequestParam Long periodId,
-            @RequestParam(required = false) Long subjectId
+            @RequestParam(name = "courseId") Long courseId,
+            @RequestParam(name = "periodId") Long periodId,
+            @RequestParam(name = "subjectId", required = false) Long subjectId
     ) {
         return manageGradesUseCase.getGradeBook(courseId, periodId, subjectId);
     }
@@ -69,7 +69,7 @@ public class GradesController {
 
     @PutMapping("/evaluaciones/{evaluationId}")
     public GradeBookView updateEvaluation(
-            @PathVariable Long evaluationId,
+            @PathVariable("evaluationId") Long evaluationId,
             @Valid @RequestBody GradeEvaluationRequest request
     ) {
         return manageGradesUseCase.updateEvaluation(evaluationId, toCommand(request));
@@ -77,21 +77,27 @@ public class GradesController {
 
     @DeleteMapping("/evaluaciones/{evaluationId}")
     public GradeBookView deleteEvaluation(
-            @PathVariable Long evaluationId,
-            @RequestParam Long courseId,
-            @RequestParam Long periodId,
-            @RequestParam Long subjectId
+            @PathVariable("evaluationId") Long evaluationId,
+            @RequestParam(name = "courseId") Long courseId,
+            @RequestParam(name = "periodId") Long periodId,
+            @RequestParam(name = "subjectId") Long subjectId
     ) {
         return manageGradesUseCase.deleteEvaluation(evaluationId, courseId, periodId, subjectId);
     }
 
     @GetMapping("/ficha")
-    public StudentGradeProfileView studentProfile(@RequestParam Long courseId, @RequestParam Long periodId) {
+    public StudentGradeProfileView studentProfile(
+            @RequestParam(name = "courseId") Long courseId,
+            @RequestParam(name = "periodId") Long periodId
+    ) {
         return manageGradesUseCase.getStudentProfile(courseId, periodId);
     }
 
     @GetMapping("/informes")
-    public GradeReportView reports(@RequestParam Long courseId, @RequestParam Long periodId) {
+    public GradeReportView reports(
+            @RequestParam(name = "courseId") Long courseId,
+            @RequestParam(name = "periodId") Long periodId
+    ) {
         return manageGradesUseCase.getGradeReports(courseId, periodId);
     }
 

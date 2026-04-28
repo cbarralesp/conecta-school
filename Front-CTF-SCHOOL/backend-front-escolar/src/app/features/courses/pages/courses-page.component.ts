@@ -10,6 +10,7 @@ import { filter } from 'rxjs/operators';
 import { Course } from '../../../core/models/course.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
@@ -21,6 +22,7 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
     MatSnackBarModule,
     MatTableModule,
     RouterLink,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './courses-page.component.html',

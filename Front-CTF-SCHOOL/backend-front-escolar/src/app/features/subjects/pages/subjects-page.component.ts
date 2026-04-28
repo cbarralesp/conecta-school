@@ -9,6 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SubjectApiService } from '../../../core/services/subject-api.service';
 import { Subject, SubjectPayload } from '../../../core/models/subject.models';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { SubjectDialogComponent } from '../components/subject-dialog.component';
 
@@ -21,6 +22,7 @@ import { SubjectDialogComponent } from '../components/subject-dialog.component';
     MatIconModule,
     MatSnackBarModule,
     MatTableModule,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './subjects-page.component.html',
@@ -41,27 +43,31 @@ export class SubjectsPageComponent {
   readonly hasActiveFilters = computed(() => this.searchTerm().trim().length > 0 || this.levelFilter() !== 'all');
   readonly summaryCards = computed(() => {
     const subjects = this.subjects();
+    const totalSuggestedHours = subjects.reduce((total, subject) => total + subject.suggestedHours, 0);
     return [
       {
         label: 'Asignaturas activas',
         value: subjects.length,
-        hint: '',
         icon: 'library_books',
         tone: 'primary'
       },
       {
         label: 'Areas curriculares',
         value: Array.from(new Set(subjects.map((subject) => subject.area))).length,
-        hint: '',
         icon: 'category',
         tone: 'success'
       },
       {
         label: 'Niveles de referencia',
         value: Array.from(new Set(subjects.map((subject) => subject.referenceLevel))).length,
-        hint: '',
         icon: 'layers',
         tone: 'warning'
+      },
+      {
+        label: 'Horas sugeridas',
+        value: totalSuggestedHours,
+        icon: 'schedule',
+        tone: 'violet'
       }
     ];
   });

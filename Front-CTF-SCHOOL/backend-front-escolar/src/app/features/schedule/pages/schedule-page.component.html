@@ -19,111 +19,65 @@
     </section>
 
     <section class="summary-grid">
-      <mat-card appearance="outlined" class="summary-card sc-blue">
-        <div class="summary-card__head">
-          <div class="summary-card__icon">
-            <mat-icon>calendar_view_week</mat-icon>
-          </div>
-          <div class="summary-card__ring">5D</div>
-        </div>
-        <div class="summary-card__copy">
-          <strong>{{ scheduledClassCount() }}</strong>
-          <span>Clases semanales</span>
-        </div>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="summary-card sc-green">
-        <div class="summary-card__head">
-          <div class="summary-card__icon">
-            <mat-icon>groups</mat-icon>
-          </div>
-          <div class="summary-card__ring">{{ scheduledTeacherCount() }}</div>
-        </div>
-        <div class="summary-card__copy">
-          <strong>{{ scheduledTeacherCount() }}</strong>
-          <span>Profesores asignados</span>
-        </div>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="summary-card sc-amber">
-        <div class="summary-card__head">
-          <div class="summary-card__icon">
-            <mat-icon>free_breakfast</mat-icon>
-          </div>
-          <div class="summary-card__ring">{{ scheduledBreakCount() }}</div>
-        </div>
-        <div class="summary-card__copy">
-          <strong>{{ scheduledBreakCount() }}</strong>
-          <span>Recreos visibles</span>
-        </div>
-      </mat-card>
-
-      <mat-card appearance="outlined" class="summary-card sc-red">
-        <div class="summary-card__head">
-          <div class="summary-card__icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <div class="summary-card__ring">HT</div>
-        </div>
-        <div class="summary-card__copy">
-          <strong>{{ pedagogicalLoad() }}</strong>
-          <span>Carga pedagogica</span>
-        </div>
-      </mat-card>
+      <app-summary-metric-card label="Clases semanales" [value]="scheduledClassCount()" icon="calendar_view_week" tone="blue" />
+      <app-summary-metric-card label="Profesores asignados" [value]="scheduledTeacherCount()" icon="groups" tone="green" />
+      <app-summary-metric-card label="Recreos visibles" [value]="scheduledBreakCount()" icon="free_breakfast" tone="amber" />
+      <app-summary-metric-card label="Carga pedagogica" [value]="pedagogicalLoad()" icon="schedule" tone="red" />
     </section>
 
+    <mat-card appearance="outlined" class="filters-card">
+      <mat-card-content>
+        <div class="schedule-card__toolbar">
+          <div class="schedule-card__filters">
+            <label class="inline-field">
+              <span class="inline-field__label">Curso</span>
+              <label class="inline-select inline-field__control inline-field__control--course">
+                <mat-icon>school</mat-icon>
+                <select
+                  [value]="selectedCourseId() ?? ''"
+                  (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+                  @for (course of orderedCourses(); track course.id) {
+                    <option [value]="course.id">{{ course.name }}</option>
+                  }
+                </select>
+              </label>
+            </label>
+
+            <label class="inline-field">
+              <span class="inline-field__label">Semestre</span>
+              <label class="inline-select inline-field__control inline-field__control--semester">
+                <mat-icon>calendar_month</mat-icon>
+                <select [value]="selectedSemesterId()" (change)="updateSemester(+$any($event.target).value)">
+                  @for (semester of periodOptions(); track semester.id) {
+                    <option [value]="semester.id">{{ semester.name }}</option>
+                  }
+                </select>
+              </label>
+            </label>
+          </div>
+
+          <div class="schedule-card__tools">
+            <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openAddBreakDialog()">
+              <mat-icon>free_breakfast</mat-icon>
+              Agregar recreo
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              class="header-button header-button--ghost"
+              (click)="downloadSchedulePdf()"
+              [disabled]="isExportingPdf() || !selectedCourse()">
+              <mat-icon>download</mat-icon>
+              {{ isExportingPdf() ? 'Generando PDF...' : 'Exportar PDF' }}
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <mat-card appearance="outlined" class="schedule-card">
-      <div class="schedule-card__toolbar">
-        <div class="schedule-card__filters">
-          <label class="inline-field">
-            <span class="inline-field__label">Curso:</span>
-            <label class="inline-select inline-field__control inline-field__control--course">
-              <mat-icon>school</mat-icon>
-              <select
-                [value]="selectedCourseId() ?? ''"
-                (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
-                @for (course of orderedCourses(); track course.id) {
-                  <option [value]="course.id">{{ course.name }}</option>
-                }
-              </select>
-            </label>
-          </label>
-
-          <label class="inline-field">
-            <span class="inline-field__label">Semestre:</span>
-            <label class="inline-select inline-field__control inline-field__control--semester">
-              <mat-icon>calendar_month</mat-icon>
-              <select [value]="selectedSemesterId()" (change)="updateSemester(+$any($event.target).value)">
-                @for (semester of periodOptions(); track semester.id) {
-                  <option [value]="semester.id">{{ semester.name }}</option>
-                }
-              </select>
-            </label>
-          </label>
-        </div>
-
-        <div class="schedule-card__tools">
-          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openAddBreakDialog()">
-            <mat-icon>free_breakfast</mat-icon>
-            Agregar recreo
-          </button>
-          <button
-            mat-stroked-button
-            type="button"
-            class="header-button header-button--ghost"
-            (click)="downloadSchedulePdf()"
-            [disabled]="isExportingPdf() || !selectedCourse()">
-            <mat-icon>download</mat-icon>
-            {{ isExportingPdf() ? 'Generando PDF...' : 'Exportar PDF' }}
-          </button>
-        </div>
-      </div>
-
       <div class="schedule-card__header">
-        <div>
-          <h2>{{ currentBoardTitle() }}</h2>
-          <p>{{ currentBoardSubtitle() }}</p>
-        </div>
+        <h2>Horario semanal</h2>
       </div>
 
       <div class="schedule-board-shell">

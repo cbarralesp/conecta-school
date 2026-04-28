@@ -19,6 +19,7 @@ import {
 } from '../../../core/models/planning.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type ContentFilter = 'all' | 'pdf' | 'word' | 'ppt' | 'other';
@@ -69,6 +70,7 @@ type ContentUnitView = {
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './content-page.component.html',

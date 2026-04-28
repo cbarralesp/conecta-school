@@ -21,47 +21,64 @@
 
     <section class="courses-page__stats">
       @for (card of summaryCards(); track card.label) {
-        <mat-card appearance="outlined" class="summary-card" [class]="'summary-card--' + card.tone">
-          <div class="summary-card__head">
-            <div class="summary-card__icon">
-              <mat-icon>{{ card.icon }}</mat-icon>
-            </div>
-            <div class="summary-card__ring">{{ card.ring }}</div>
-          </div>
-
-          <div class="summary-card__copy">
-            <strong>{{ card.value }}</strong>
-            <span>{{ card.label }}</span>
-          </div>
-        </mat-card>
+        <app-summary-metric-card [label]="card.label" [value]="card.value" [icon]="card.icon" [tone]="card.tone" />
       }
     </section>
 
-    <section class="filters-bar">
-      <label class="search-wrapper" aria-label="Buscar por codigo o nombre">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          [value]="searchTerm()"
-          placeholder="Buscar por codigo o nombre..."
-          (input)="updateSearchTerm(($any($event.target).value ?? '').toString())"
-        />
-      </label>
+    <mat-card appearance="outlined" class="filters-card">
+      <mat-card-content>
+        <section class="filters-bar">
+          <div class="filters-bar__left">
+            <div class="view-toggle">
+              <button class="view-toggle__btn is-active" type="button" aria-label="Listado de cursos">
+                <mat-icon>view_list</mat-icon>
+              </button>
+            </div>
+            <span class="filters-bar__title">Buscar curso</span>
+          </div>
 
-      <select class="filter-select" [value]="levelFilter()" (change)="updateLevelFilter(($any($event.target).value ?? 'all').toString())">
-        <option value="all">Todos los Niveles</option>
-        <option value="basico">Ensenanza Basica</option>
-        <option value="media">Ensenanza Media</option>
-      </select>
+          <div class="filters-bar__right">
+            <label class="filter-field filter-field--search" aria-label="Buscar curso">
+              <span class="search-wrapper">
+                <mat-icon>search</mat-icon>
+                <input
+                  type="text"
+                  [value]="searchTerm()"
+                  placeholder="Buscar por codigo o nombre..."
+                  (input)="updateSearchTerm(($any($event.target).value ?? '').toString())"
+                />
+              </span>
+            </label>
 
-      <select class="filter-select" [value]="scheduleFilter()" (change)="updateScheduleFilter(($any($event.target).value ?? 'all').toString())">
-        <option value="all">Todas las Jornadas</option>
-        <option value="manana">Jornada Manana</option>
-        <option value="tarde">Jornada Tarde</option>
-      </select>
-    </section>
+            <label class="filter-field" aria-label="Filtrar por nivel">
+              <span class="filter-field__inline-label">Nivel</span>
+              <span class="select-shell">
+                <mat-icon>school</mat-icon>
+                <select class="filter-select" [value]="levelFilter()" (change)="updateLevelFilter(($any($event.target).value ?? 'all').toString())">
+                  <option value="all">Todos los Niveles</option>
+                  <option value="basico">Ensenanza Basica</option>
+                  <option value="media">Ensenanza Media</option>
+                </select>
+              </span>
+            </label>
 
-    <mat-card appearance="outlined" class="courses-card">
+            <label class="filter-field" aria-label="Filtrar por jornada">
+              <span class="filter-field__inline-label">Jornada</span>
+              <span class="select-shell">
+                <mat-icon>wb_sunny</mat-icon>
+                <select class="filter-select" [value]="scheduleFilter()" (change)="updateScheduleFilter(($any($event.target).value ?? 'all').toString())">
+                  <option value="all">Todas las Jornadas</option>
+                  <option value="manana">Jornada Manana</option>
+                  <option value="tarde">Jornada Tarde</option>
+                </select>
+              </span>
+            </label>
+          </div>
+        </section>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="table-card">
       <mat-card-content>
         @if (filteredCourses().length === 0) {
           <section class="empty-state">

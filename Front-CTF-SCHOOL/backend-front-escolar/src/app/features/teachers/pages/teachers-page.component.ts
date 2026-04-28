@@ -17,6 +17,7 @@ import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TeacherApiService } from '../../../core/services/teacher-api.service';
 import { Subject } from '../../../core/models/subject.models';
 import { TeacherListItem, TeacherOverview, TeacherSummary } from '../../../core/models/teacher.models';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { TeacherDeleteDialogComponent } from '../components/teacher-delete-dialog.component';
 
@@ -34,6 +35,7 @@ import { TeacherDeleteDialogComponent } from '../components/teacher-delete-dialo
     MatSnackBarModule,
     MatTableModule,
     MatTooltipModule,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './teachers-page.component.html',

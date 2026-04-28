@@ -339,33 +339,45 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     @Override
-    public List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate date) {
+    public List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd) {
         List<Object> args = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    "ID",
-                    "OCURRIDO_AT",
-                    "TIPO",
-                    "NOMBRE_USUARIO",
-                    "ACCION",
-                    "CONTEXTO"
-                FROM "ADMIN_AUDIT_LOGS"
+                    logs."ID",
+                    logs."OCURRIDO_AT",
+                    logs."TIPO",
+                    logs."NOMBRE_USUARIO",
+                    logs."ACCION",
+                    logs."CONTEXTO",
+                    COALESCE(roles."NOMBRE",
+                        CASE
+                            WHEN logs."USUARIO_ID" IS NULL THEN 'Sistema'
+                            ELSE 'Sin rol'
+                        END
+                    ) AS "ROL_NOMBRE"
+                FROM "ADMIN_AUDIT_LOGS" logs
+                LEFT JOIN "ADMIN_USER_SETTINGS" settings ON settings."USUARIO_ID" = logs."USUARIO_ID"
+                LEFT JOIN "ADMIN_ROLES" roles ON roles."ID" = settings."ROL_ID"
                 WHERE 1 = 1
                 """);
 
         if (normalize(type) != null) {
-            sql.append(" AND \"TIPO\" = ?");
+            sql.append(" AND logs.\"TIPO\" = ?");
             args.add(type.trim().toUpperCase());
         }
         if (normalize(user) != null) {
-            sql.append(" AND \"NOMBRE_USUARIO\" = ?");
-            args.add(user.trim());
+            sql.append(" AND UPPER(logs.\"NOMBRE_USUARIO\") LIKE ?");
+            args.add("%" + user.trim().toUpperCase() + "%");
         }
-        if (date != null) {
-            sql.append(" AND \"OCURRIDO_AT\"::date = ?");
-            args.add(Date.valueOf(date));
+        if (dateStart != null) {
+            sql.append(" AND logs.\"OCURRIDO_AT\"::date >= ?");
+            args.add(Date.valueOf(dateStart));
         }
-        sql.append(" ORDER BY \"OCURRIDO_AT\" DESC");
+        if (dateEnd != null) {
+            sql.append(" AND logs.\"OCURRIDO_AT\"::date <= ?");
+            args.add(Date.valueOf(dateEnd));
+        }
+        sql.append(" ORDER BY logs.\"OCURRIDO_AT\" DESC");
 
         return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
             LocalDateTime occurredAt = rs.getTimestamp("OCURRIDO_AT").toLocalDateTime();
@@ -375,6 +387,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                     buildRelativeDateLabel(occurredAt),
                     rs.getString("TIPO"),
                     rs.getString("NOMBRE_USUARIO"),
+                    rs.getString("ROL_NOMBRE"),
                     rs.getString("ACCION"),
                     rs.getString("CONTEXTO")
             );

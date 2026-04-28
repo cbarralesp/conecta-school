@@ -8,6 +8,7 @@ import { AdministrationApiService } from '../../../core/services/administration-
 import { AdministrationRoleCardComponent } from '../components/administration-role-card.component';
 import { AdministrationRoleDetailDialogComponent } from '../components/administration-role-detail-dialog.component';
 import { AdministrationShellComponent } from '../components/administration-shell.component';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 
 @Component({
   selector: 'app-administration-roles-page',
@@ -18,7 +19,8 @@ import { AdministrationShellComponent } from '../components/administration-shell
     MatIconModule,
     MatSnackBarModule,
     AdministrationRoleCardComponent,
-    AdministrationShellComponent
+    AdministrationShellComponent,
+    SummaryMetricCardComponent
   ],
   templateUrl: './administration-roles-page.component.html',
   styleUrl: './administration-roles-page.component.scss',

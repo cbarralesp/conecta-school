@@ -42,15 +42,15 @@ public class AdministrationController {
 
     @GetMapping("/users")
     public AdministrationUsersOverview getUsers(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String roleCode,
-            @RequestParam(required = false) String status
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "roleCode", required = false) String roleCode,
+            @RequestParam(name = "status", required = false) String status
     ) {
         return manageAdministrationUseCase.getUsersOverview(search, roleCode, status);
     }
 
     @GetMapping("/users/{userId}")
-    public AdministrationUserDetail getUserById(@PathVariable Long userId) {
+    public AdministrationUserDetail getUserById(@PathVariable("userId") Long userId) {
         return manageAdministrationUseCase.findUserById(userId);
     }
 
@@ -65,7 +65,7 @@ public class AdministrationController {
 
     @PutMapping("/users/{userId}")
     public AdministrationUserDetail updateUser(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @Valid @RequestBody AdministrationUserRequest request,
             Authentication authentication
     ) {
@@ -74,21 +74,21 @@ public class AdministrationController {
 
     @PatchMapping("/users/{userId}/block")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void blockUser(@PathVariable Long userId, Authentication authentication) {
+    public void blockUser(@PathVariable("userId") Long userId, Authentication authentication) {
         manageAdministrationUseCase.blockUser(userId, authentication.getName());
     }
 
     @PatchMapping("/users/{userId}/unblock")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void unblockUser(@PathVariable Long userId, Authentication authentication) {
+    public void unblockUser(@PathVariable("userId") Long userId, Authentication authentication) {
         manageAdministrationUseCase.unblockUser(userId, authentication.getName());
     }
 
     @PatchMapping("/users/{userId}/active")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setActiveState(
-            @PathVariable Long userId,
-            @RequestParam boolean value,
+            @PathVariable("userId") Long userId,
+            @RequestParam(name = "value") boolean value,
             Authentication authentication
     ) {
         manageAdministrationUseCase.setActiveState(userId, value, authentication.getName());
@@ -96,7 +96,7 @@ public class AdministrationController {
 
     @DeleteMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable Long userId, Authentication authentication) {
+    public void deleteUser(@PathVariable("userId") Long userId, Authentication authentication) {
         manageAdministrationUseCase.deleteUser(userId, authentication.getName());
     }
 
@@ -117,20 +117,22 @@ public class AdministrationController {
 
     @GetMapping("/audit-logs")
     public AdministrationAuditLogView getAuditLogs(
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String user,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "user", required = false) String user,
+            @RequestParam(name = "dateStart", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateStart,
+            @RequestParam(name = "dateEnd", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateEnd
     ) {
-        return manageAdministrationUseCase.getAuditLogs(type, user, date);
+        return manageAdministrationUseCase.getAuditLogs(type, user, dateStart, dateEnd);
     }
 
     @GetMapping("/audit-logs/export")
     public ResponseEntity<byte[]> exportAuditLogs(
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String user,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @RequestParam(name = "type", required = false) String type,
+            @RequestParam(name = "user", required = false) String user,
+            @RequestParam(name = "dateStart", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateStart,
+            @RequestParam(name = "dateEnd", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateEnd
     ) {
-        byte[] body = manageAdministrationUseCase.exportAuditLogs(type, user, date);
+        byte[] body = manageAdministrationUseCase.exportAuditLogs(type, user, dateStart, dateEnd);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=auditoria-sistema.csv")
                 .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))

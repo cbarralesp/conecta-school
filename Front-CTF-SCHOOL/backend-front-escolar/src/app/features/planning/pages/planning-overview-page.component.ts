@@ -10,6 +10,7 @@ import {
 } from '../../../core/models/planning.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type SemesterFilter = 'all' | '1' | '2';
@@ -21,6 +22,7 @@ type MonthFilter = 'all' | `${number}`;
     RouterLink,
     MatIconModule,
     MatSnackBarModule,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './planning-overview-page.component.html',

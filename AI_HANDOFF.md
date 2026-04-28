@@ -90,6 +90,48 @@ Se estandarizaron:
 
 ## Módulos trabajados recientemente
 
+### Evaluaciones
+
+Archivos principales:
+
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar\src\app\features\grades\pages\grades-page.component.html`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar\src\app\features\grades\pages\grades-page.component.scss`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar\src\app\features\grades\pages\grades-page.component.ts`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar\src\app\core\services\grade-api.service.ts`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar\src\main\java\com\example\authhexagonal\infrastructure\adapter\in\web\GradesController.java`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar\src\main\java\com\example\authhexagonal\application\service\GradesService.java`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar\src\main\java\com\example\authhexagonal\infrastructure\adapter\out\persistence\GradesJdbcAdapter.java`
+
+Estado actual:
+
+- popup de detalle de evaluación con botón rojo `Eliminar` a la izquierda
+- edición y borrado usan el flujo real del backend
+- ponderación por defecto en evaluaciones nuevas: `20%`
+- el backend de notas fue reforzado con `@RequestParam(name=...)` y `@PathVariable(...)`
+- el adapter JDBC de evaluaciones ya no debe depender de `ACTUALIZADO_EN` en la tabla `EVALUACIONES`
+
+Atención importante:
+
+- si sigue apareciendo el error SQL de `ACTUALIZADO_EN` en `EVALUACIONES`, el backend corriendo tiene clases viejas en memoria
+- reiniciar la instancia backend después de cambios en:
+  - `GradesJdbcAdapter.java`
+  - `GradesController.java`
+  - `GradesService.java`
+
+### Asistencia docente
+
+Archivos principales:
+
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar\src\app\features\attendance\pages\attendance-page.component.html`
+- `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar\src\app\features\attendance\pages\attendance-page.component.scss`
+
+Estado actual:
+
+- tabs subidos al header derecho
+- cards de resumen ajustadas al estándar visual del sistema
+- progreso y guardado separados en card propia
+- summary cards centradas visualmente
+
 ### Portal estudiante
 
 Se trabajó en:

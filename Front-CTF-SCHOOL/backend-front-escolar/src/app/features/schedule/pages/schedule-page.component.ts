@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
 import { ScheduleBlock, ScheduleCatalog, ScheduleEntry, SchedulePeriodOption } from '../../../core/models/schedule.models';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import {
   ScheduleDialogCloseResult,
@@ -39,6 +40,7 @@ interface ScheduleBoardRow {
     MatDialogModule,
     MatIconModule,
     MatSnackBarModule,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './schedule-page.component.html',

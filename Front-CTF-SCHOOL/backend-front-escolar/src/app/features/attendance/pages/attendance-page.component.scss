@@ -21,6 +21,7 @@
   align-items: center;
   gap: 0.65rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .page-header__title {
@@ -42,7 +43,7 @@
 .attendance-tabs {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 0.85rem;
   flex-wrap: wrap;
 }
@@ -107,8 +108,10 @@
 }
 
 .summary-card,
+.filters-card,
 .progress-card,
 .attendance-card,
+.attendance-save-card,
 .alert-card {
   border-radius: 16px;
   border-color: #e5ecf4 !important;
@@ -116,15 +119,30 @@
   box-shadow: none;
 }
 
+.filters-card {
+  overflow: hidden;
+}
+
+.attendance-save-card {
+  overflow: hidden;
+}
+
 .summary-card {
+  min-height: 116px;
   padding: 1rem 1.05rem;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
 }
 
 .summary-card__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 0.85rem;
   margin-bottom: 0.85rem;
+  width: 100%;
 }
 
 .summary-card__icon {
@@ -156,6 +174,7 @@
 .summary-card__copy {
   display: grid;
   gap: 0.12rem;
+  justify-items: center;
 }
 
 .summary-card__copy strong {
@@ -211,7 +230,7 @@
 }
 
 .progress-card {
-  padding: 1rem 1.1rem;
+  display: none;
 }
 
 .progress-card__head {
@@ -271,14 +290,13 @@
 }
 
 .attendance-card__toolbar,
-.attendance-card__header,
-.attendance-card__footer {
+.attendance-card__header {
   padding-inline: 1.1rem;
 }
 
 .attendance-card__toolbar {
-  padding-top: 1rem;
-  padding-bottom: 0.9rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -304,10 +322,11 @@
 }
 
 .bulk-button {
-  min-height: 42px;
+  height: 34px;
+  min-height: 34px;
   border-radius: 10px;
-  padding-inline: 1rem;
-  font-size: 0.8rem;
+  padding-inline: 0.95rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: #3f5977 !important;
   border-color: #dbe5f0 !important;
@@ -320,9 +339,11 @@
 }
 
 .inline-field__label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #334a67;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
 }
 
 .inline-field__control {
@@ -341,11 +362,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  min-height: 40px;
-  padding: 0 0.8rem;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 0.7rem;
   border-radius: 10px;
   border: 1.5px solid #dbe5f0;
   background: #f8fbff;
+  transition: 0.2s ease;
 }
 
 .inline-select .mat-icon {
@@ -358,7 +381,8 @@
 .inline-select select,
 .inline-select input {
   width: 100%;
-  min-height: 38px;
+  min-height: 32px;
+  height: 32px;
   border: 0;
   outline: 0;
   background: transparent;
@@ -366,6 +390,12 @@
   font-weight: 600;
   color: #485d77;
   font-family: inherit;
+}
+
+.inline-select:focus-within {
+  border-color: #c8d7ea;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
 .inline-select select {
@@ -376,21 +406,6 @@
 .inline-select input::-webkit-calendar-picker-indicator {
   opacity: 0.7;
   cursor: pointer;
-}
-
-.date-nav {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.date-nav__button {
-  width: 42px;
-  min-width: 42px;
-  height: 42px;
-  border-radius: 10px !important;
-  padding: 0 !important;
-  border-color: #dbe5f0 !important;
 }
 
 .week-label {
@@ -424,6 +439,49 @@
   font-size: 0.76rem;
   color: #7f92ad;
   font-weight: 600;
+}
+
+.attendance-progress {
+  flex: 1 1 280px;
+  max-width: 380px;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.attendance-progress__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.attendance-progress__head span {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #50637c;
+}
+
+.attendance-progress__head strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0f9d6b;
+}
+
+.attendance-save-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.95rem 1.2rem 1rem;
+}
+
+.attendance-save-shell__actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
 }
 
 .search-field {
@@ -1360,13 +1418,6 @@
   color: #91a3bb;
 }
 
-.floating-save-shell {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -0.1rem;
-  padding: 0 0.2rem 0.2rem;
-}
-
 .pdf-export-shell {
   position: absolute;
   inset-inline-start: -9999px;
@@ -1478,7 +1529,9 @@
   }
 
   .attendance-tabs {
+    width: 100%;
     align-items: flex-start;
+    justify-content: flex-start;
   }
 
   .page-header__actions,
@@ -1487,8 +1540,7 @@
   }
 
   .attendance-card__toolbar,
-  .attendance-card__header,
-  .attendance-card__footer {
+  .attendance-card__header {
     padding-inline: 0.9rem;
   }
 
@@ -1519,6 +1571,24 @@
     justify-content: center;
   }
 
+  .attendance-save-shell,
+  .attendance-save-shell__actions {
+    width: 100%;
+  }
+
+  .attendance-save-shell {
+    padding: 0.9rem;
+  }
+
+  .attendance-save-shell__actions {
+    justify-content: stretch;
+  }
+
+  .attendance-progress {
+    width: 100%;
+    max-width: none;
+  }
+
   .daily-table__head {
     display: none;
   }
@@ -1546,12 +1616,4 @@
     width: 100%;
   }
 
-  .floating-save-shell {
-    padding: 0;
-  }
-
-  .floating-save-shell .header-button {
-    width: 100%;
-    justify-content: center;
-  }
 }

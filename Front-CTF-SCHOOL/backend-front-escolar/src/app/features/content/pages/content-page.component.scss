@@ -1,13 +1,13 @@
 .content-page {
   display: grid;
-  gap: 0.95rem;
+  gap: 1rem;
   width: 100%;
   min-width: 0;
 }
 
 .page-header {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
@@ -67,6 +67,7 @@
   min-width: 0;
 }
 
+.filters-card,
 .summary-card,
 .content-card {
   border-radius: 16px;
@@ -75,14 +76,19 @@
   box-shadow: none;
 }
 
+.filters-card {
+  padding: 0.75rem 1rem 0.7rem;
+}
+
 .summary-card {
+  min-height: 116px;
   padding: 1rem 1.05rem;
 }
 
 .summary-card__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 0.85rem;
 }
 
@@ -98,19 +104,6 @@
   width: 20px;
   height: 20px;
   font-size: 20px;
-}
-
-.summary-card__ring {
-  min-width: 38px;
-  height: 38px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  border: 3px solid currentColor;
-  color: #d3dce7;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding-inline: 0.35rem;
 }
 
 .summary-card__copy {
@@ -136,7 +129,6 @@
   color: #3b82f6;
 }
 
-.sc-blue .summary-card__ring,
 .sc-blue .summary-card__copy strong {
   color: #2f65e1;
 }
@@ -146,7 +138,6 @@
   color: #10b981;
 }
 
-.sc-green .summary-card__ring,
 .sc-green .summary-card__copy strong {
   color: #0f9d6b;
 }
@@ -156,7 +147,6 @@
   color: #f59e0b;
 }
 
-.sc-yellow .summary-card__ring,
 .sc-yellow .summary-card__copy strong {
   color: #d97706;
 }
@@ -166,14 +156,13 @@
   color: #7c3aed;
 }
 
-.sc-violet .summary-card__ring,
 .sc-violet .summary-card__copy strong {
   color: #6d28d9;
 }
 
 .content-toolbar {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 0.9rem;
   flex-wrap: wrap;
@@ -201,9 +190,10 @@
 }
 
 .inline-field__label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #334a67;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 .inline-field__control {
@@ -230,8 +220,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  min-height: 40px;
-  padding: 0 0.8rem;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 0.7rem;
   border-radius: 10px;
   border: 1.5px solid #dbe5f0;
   background: #f8fbff;
@@ -247,7 +238,7 @@
 
 .inline-select select {
   width: 100%;
-  min-height: 38px;
+  height: 32px;
   border: 0;
   outline: 0;
   background: transparent;
@@ -260,17 +251,18 @@
 }
 
 .header-button {
-  min-height: 42px;
-  border-radius: 14px;
-  padding-inline: 1.2rem;
-  font-size: 0.82rem;
+  min-height: 34px;
+  height: 34px;
+  border-radius: 10px;
+  padding-inline: 0.95rem;
+  font-size: 0.78rem;
   font-weight: 700;
   white-space: nowrap;
 }
 
 .content-toolbar .page-header__actions {
   flex: 0 0 auto;
-  align-self: flex-end;
+  align-self: center;
   margin-left: auto;
 }
 

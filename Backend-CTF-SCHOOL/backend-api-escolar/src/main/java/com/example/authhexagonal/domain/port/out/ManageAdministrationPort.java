@@ -47,7 +47,7 @@ public interface ManageAdministrationPort {
 
     List<AdministrationAccessMatrixRow> findAccessMatrixRows();
 
-    List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate date);
+    List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
 
     List<String> findAuditUserOptions();
 

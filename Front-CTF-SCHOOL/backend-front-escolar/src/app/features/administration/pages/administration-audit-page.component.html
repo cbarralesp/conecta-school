@@ -1,55 +1,119 @@
-<app-administration-shell activeTab="audit" toolbarTitle="Administracion">
-  <app-administration-hero
-    tag="Auditoria"
-    title="Log de actividad del sistema"
-    description="Registro inmutable de acciones criticas realizadas por usuarios con acceso administrativo."
-    actionLabel="Exportar log"
-    actionIcon="download"
-    (action)="exportLogs()"
-  />
-
-  <mat-card appearance="outlined" class="audit-card">
-    <mat-card-content>
-      <form [formGroup]="filtersForm" class="filters-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Tipo de accion</mat-label>
-          <mat-select formControlName="type">
-            @for (option of view()?.actionOptions ?? []; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Usuario</mat-label>
-          <mat-select formControlName="user">
-            @for (option of view()?.userOptions ?? []; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Fecha</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="date" placeholder="03-04-2026" />
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </form>
-
-      <div class="audit-list">
-        @for (item of view()?.items ?? []; track item.id) {
-          <article class="audit-item">
-            <span class="audit-time">{{ item.occurredLabel }}</span>
-            <span class="audit-dot" [class]="eventClass(item.type)"></span>
-            <div class="audit-body">
-              <strong>{{ item.userDisplay }} {{ item.actionLabel }}</strong>
-              <p>{{ item.context }}</p>
-            </div>
-          </article>
-        }
+<app-administration-shell activeTab="audit" toolbarTitle="Auditoria">
+  <section class="audit-page">
+    <section class="page-header">
+      <div class="page-header__left">
+        <h1 class="page-header__title">Registro de Auditoria</h1>
+        <p class="page-header__subtitle">Registro inmutable de las acciones realizadas por los administradores del sistema.</p>
       </div>
-    </mat-card-content>
-  </mat-card>
-</app-administration-shell>
 
+      <div class="page-header__actions">
+        <button type="button" class="btn-secondary" (click)="exportLogs()">
+          <mat-icon>download</mat-icon>
+          Exportar CSV
+        </button>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      @for (metric of summaryCards(); track metric.label) {
+        <app-summary-metric-card [label]="metric.label" [value]="metric.value" [icon]="metric.icon" [tone]="metric.toneClass" />
+      }
+    </section>
+
+    <mat-card appearance="outlined" class="filters-card">
+      <form [formGroup]="filtersForm" class="filters-grid">
+        <label class="filter-field">
+          <span>Tipo de accion</span>
+          <select class="filter-control" formControlName="type">
+            @for (option of view()?.actionOptions ?? []; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="filter-field">
+          <span>Usuario</span>
+          <input type="text" class="filter-control" formControlName="user" placeholder="Buscar usuario..." />
+        </label>
+
+        <label class="filter-field">
+          <span>Fecha inicio</span>
+          <input type="date" class="filter-control" formControlName="dateStart" />
+        </label>
+
+        <label class="filter-field">
+          <span>Fecha fin</span>
+          <input type="date" class="filter-control" formControlName="dateEnd" />
+        </label>
+
+        <div class="filters-actions">
+          <button type="button" class="btn-secondary" (click)="resetFilters()">
+            <mat-icon>restart_alt</mat-icon>
+            Limpiar
+          </button>
+          <button type="button" class="btn-primary" (click)="applyFilters()">
+            <mat-icon>search</mat-icon>
+            Buscar
+          </button>
+        </div>
+      </form>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="table-card">
+      @if (isLoading()) {
+        <section class="empty-state">
+          <mat-icon>hourglass_top</mat-icon>
+          <strong>Cargando auditoria</strong>
+          <p>Estamos preparando el registro de actividad del sistema.</p>
+        </section>
+      } @else if ((view()?.items?.length ?? 0) === 0) {
+        <section class="empty-state">
+          <mat-icon>history</mat-icon>
+          <strong>No se encontraron registros</strong>
+          <p>Ajusta los filtros para explorar otros eventos del sistema.</p>
+        </section>
+      } @else {
+        <div class="table-shell">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Accion / Usuario</th>
+                <th>Fecha</th>
+                <th>Rol</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of view()?.items ?? []; track trackByAuditId($index, item)) {
+                <tr>
+                  <td>
+                    <div class="action-group">
+                      <div class="action-icon">
+                        <mat-icon>{{ iconFor(item) }}</mat-icon>
+                      </div>
+                      <div class="user-info">
+                        <strong>{{ item.userDisplay }}</strong>
+                        <span>{{ item.actionLabel }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="timestamp">{{ item.occurredLabel }}</div>
+                  </td>
+                  <td>
+                    <span [class]="rolePillClass(item.roleName)">{{ item.roleName }}</span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [class.status-success]="statusMeta(item).toneClass === 'success'" [class.status-warning]="statusMeta(item).toneClass === 'warning'">
+                      {{ statusMeta(item).label }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </mat-card>
+  </section>
+</app-administration-shell>

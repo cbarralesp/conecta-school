@@ -7,7 +7,6 @@
   <main class="planning-shell">
     <section class="page-header">
       <div class="page-title">
-        <span class="eyebrow">Planificacion docente</span>
         <h1>Mis Planificaciones</h1>
         <p>Historial y control de clases planificadas por semestre.</p>
       </div>
@@ -18,82 +17,52 @@
       </a>
     </section>
 
-    <section class="summary-strip">
-      <article class="summary-card tone-blue">
-        <div class="summary-icon">
-          <mat-icon>view_module</mat-icon>
-        </div>
-        <div>
-          <strong>{{ metrics().totalUnits }}</strong>
-          <span>Unidades</span>
-        </div>
-      </article>
-      <article class="summary-card tone-green">
-        <div class="summary-icon">
-          <mat-icon>event_note</mat-icon>
-        </div>
-        <div>
-          <strong>{{ metrics().totalClasses }}</strong>
-          <span>Clases</span>
-        </div>
-      </article>
-      <article class="summary-card tone-amber">
-        <div class="summary-icon">
-          <mat-icon>task_alt</mat-icon>
-        </div>
-        <div>
-          <strong>{{ metrics().publishedClasses }}</strong>
-          <span>Publicadas</span>
-        </div>
-      </article>
-      <article class="summary-card tone-purple">
-        <div class="summary-icon">
-          <mat-icon>trending_up</mat-icon>
-        </div>
-        <div>
-          <strong>{{ metrics().semesterProgressPercent }}%</strong>
-          <span>Avance</span>
-        </div>
-      </article>
+    <section class="summary-grid">
+      <app-summary-metric-card label="Unidades" [value]="metrics().totalUnits" icon="view_module" tone="blue" />
+      <app-summary-metric-card label="Clases" [value]="metrics().totalClasses" icon="event_note" tone="green" />
+      <app-summary-metric-card label="Publicadas" [value]="metrics().publishedClasses" icon="task_alt" tone="amber" />
+      <app-summary-metric-card label="Avance" [value]="metrics().semesterProgressPercent + '%'" icon="trending_up" tone="purple" />
     </section>
 
-    <section class="filters-bar">
-      <label class="search-wrapper">
-        <mat-icon>search</mat-icon>
-        <input
-          type="search"
-          placeholder="Buscar por tema, asignatura, curso u OA..."
-          [value]="search()"
-          (input)="updateSearch($any($event.target).value)" />
-      </label>
+    <section class="filters-card">
+      <div class="filters-bar">
+        <label class="search-wrapper">
+          <mat-icon>search</mat-icon>
+          <input
+            type="search"
+            placeholder="Buscar por tema, asignatura, curso u OA..."
+            [value]="search()"
+            (input)="updateSearch($any($event.target).value)" />
+        </label>
 
-      <label class="filter-shell">
-        <mat-icon>calendar_month</mat-icon>
-        <select class="filter-select" [value]="semester()" (change)="updateSemester($any($event.target).value)">
-          <option value="all">Todos los semestres</option>
-          <option value="1">Primer Semestre</option>
-          <option value="2">Segundo Semestre</option>
-        </select>
-      </label>
+        <label class="filter-shell">
+          <mat-icon>calendar_month</mat-icon>
+          <select class="filter-select" [value]="semester()" (change)="updateSemester($any($event.target).value)">
+            <option value="all">Todos los semestres</option>
+            <option value="1">Primer Semestre</option>
+            <option value="2">Segundo Semestre</option>
+          </select>
+        </label>
 
-      <label class="filter-shell">
-        <mat-icon>date_range</mat-icon>
-        <select class="filter-select" [value]="month()" (change)="updateMonth($any($event.target).value)">
-          @for (item of months; track item.value) {
-            <option [value]="item.value">{{ item.label }}</option>
-          }
-        </select>
-      </label>
+        <label class="filter-shell">
+          <mat-icon>date_range</mat-icon>
+          <select class="filter-select" [value]="month()" (change)="updateMonth($any($event.target).value)">
+            @for (item of months; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </label>
 
-      <label class="filter-shell">
-        <mat-icon>menu_book</mat-icon>
-        <select class="filter-select" [value]="subjectId()" (change)="updateSubject($any($event.target).value)">
-          <option value="all">Todas las Asignaturas</option>
-          @for (subject of subjects(); track subject.id) {
-            <option [value]="subject.id">{{ subject.name }}</option>
-          }
-        </select>
-      </label>
+        <label class="filter-shell">
+          <mat-icon>menu_book</mat-icon>
+          <select class="filter-select" [value]="subjectId()" (change)="updateSubject($any($event.target).value)">
+            <option value="all">Todas las Asignaturas</option>
+            @for (subject of subjects(); track subject.id) {
+              <option [value]="subject.id">{{ subject.name }}</option>
+            }
+          </select>
+        </label>
+      </div>
     </section>
 
     <section class="table-container">

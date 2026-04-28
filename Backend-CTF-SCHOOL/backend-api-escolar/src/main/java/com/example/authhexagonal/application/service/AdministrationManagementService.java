@@ -152,7 +152,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     }
 
     @Override
-    public AdministrationAuditLogView getAuditLogs(String type, String user, LocalDate date) {
+    public AdministrationAuditLogView getAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd) {
         return new AdministrationAuditLogView(
                 List.of(
                         new AdministrationOptionItem("", "Todas las acciones"),
@@ -164,18 +164,19 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                         new AdministrationOptionItem("LOGOUT", "Cierre de sesion")
                 ),
                 buildUserOptions(),
-                manageAdministrationPort.findAuditLogs(type, user, date)
+                manageAdministrationPort.findAuditLogs(type, user, dateStart, dateEnd)
         );
     }
 
     @Override
-    public byte[] exportAuditLogs(String type, String user, LocalDate date) {
-        List<AdministrationAuditLogItem> items = manageAdministrationPort.findAuditLogs(type, user, date);
+    public byte[] exportAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd) {
+        List<AdministrationAuditLogItem> items = manageAdministrationPort.findAuditLogs(type, user, dateStart, dateEnd);
         StringBuilder csv = new StringBuilder();
-        csv.append("\"Fecha\",\"Usuario\",\"Accion\",\"Contexto\"\n");
+        csv.append("\"Fecha\",\"Usuario\",\"Rol\",\"Accion\",\"Contexto\"\n");
         for (AdministrationAuditLogItem item : items) {
             csv.append('"').append(escape(item.occurredAt())).append("\",")
                     .append('"').append(escape(item.userDisplay())).append("\",")
+                    .append('"').append(escape(item.roleName())).append("\",")
                     .append('"').append(escape(item.actionLabel())).append("\",")
                     .append('"').append(escape(item.context())).append("\"\n");
         }

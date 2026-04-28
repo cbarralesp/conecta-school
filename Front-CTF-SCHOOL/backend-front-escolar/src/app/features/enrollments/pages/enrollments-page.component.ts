@@ -12,6 +12,7 @@ import { MatTableModule } from '@angular/material/table';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import { EnrollmentListItem, EnrollmentOverview, EnrollmentPagination, EnrollmentSummary } from '../../../core/models/enrollment.models';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
@@ -25,6 +26,7 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
     MatPaginatorModule,
     MatSnackBarModule,
     MatTableModule,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './enrollments-page.component.html',
