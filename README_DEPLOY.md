@@ -4,10 +4,12 @@
 
 - Backend Spring Boot: `C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar`
 - Frontend Angular: `C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar`
+- DB image: `C:\Users\Diegazzo\Desktop\Desarrollo\deploy\db`
 - Compose: `C:\Users\Diegazzo\Desktop\Desarrollo\deploy\docker-compose.yml`
 
-## Imágenes Docker Hub
+## Imagenes Docker Hub
 
+- DB: `crbarrales/conectaschool:db-latest`
 - Backend: `crbarrales/conectaschool:backend-latest`
 - Frontend: `crbarrales/conectaschool:frontend-latest`
 
@@ -15,7 +17,7 @@ Si quieres reutilizar estos archivos con otro usuario, reemplaza `crbarrales` po
 
 ## Variables importantes
 
-El backend ya quedó preparado para leer:
+El backend ya quedo preparado para leer:
 
 - `SPRING_DATASOURCE_URL`
 - `SPRING_DATASOURCE_USERNAME`
@@ -27,9 +29,13 @@ El backend ya quedó preparado para leer:
 - `APP_CORS_ALLOWED_ORIGINS`
 - `APP_SECURITY_JWT_SECRET`
 
-Valor recomendado para Docker:
+Valores recomendados para Docker:
 
 ```env
+POSTGRES_DB=sistema_escolar
+POSTGRES_USER=escolar_user
+POSTGRES_PASSWORD=escolar_pass
+DB_IMAGE=crbarrales/conectaschool:db-latest
 SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sistema_escolar
 SPRING_DATASOURCE_USERNAME=escolar_user
 SPRING_DATASOURCE_PASSWORD=escolar_pass
@@ -37,18 +43,47 @@ SPRING_PROFILES_ACTIVE=docker
 JAVA_OPTS=-Xms128m -Xmx512m
 ```
 
-## Backend: build y push
+## DB: build y push
 
-Ubícate en:
+Ubicate en:
 
 ```powershell
-cd C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar
+cd C:\Users\Diegazzo\Desktop\Desarrollo\deploy\db
 ```
 
 Login:
 
 ```powershell
 docker login
+```
+
+Build:
+
+```powershell
+docker build -t crbarrales/conectaschool:db-latest .
+```
+
+Push:
+
+```powershell
+docker push crbarrales/conectaschool:db-latest
+```
+
+Con placeholders:
+
+```powershell
+docker build -t DOCKERHUB_USER/sistema-escolar-db:latest .
+docker push DOCKERHUB_USER/sistema-escolar-db:latest
+```
+
+Esta imagen esta construida sobre `postgres:16` e inicializa `sistema_escolar` con un dump real del entorno actual.
+
+## Backend: build y push
+
+Ubicate en:
+
+```powershell
+cd C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar
 ```
 
 Build:
@@ -63,7 +98,7 @@ Push:
 docker push crbarrales/conectaschool:backend-latest
 ```
 
-Si quieres mantener placeholders genéricos:
+Con placeholders:
 
 ```powershell
 docker build -t DOCKERHUB_USER/sistema-escolar-backend:latest .
@@ -72,7 +107,7 @@ docker push DOCKERHUB_USER/sistema-escolar-backend:latest
 
 ## Frontend: build y push
 
-Ubícate en:
+Ubicate en:
 
 ```powershell
 cd C:\Users\Diegazzo\Desktop\Desarrollo\Front-CTF-SCHOOL\backend-front-escolar
@@ -99,7 +134,7 @@ docker push DOCKERHUB_USER/sistema-escolar-frontend:latest
 
 ## Docker Compose local o servidor
 
-Ubícate en:
+Ubicate en:
 
 ```powershell
 cd C:\Users\Diegazzo\Desktop\Desarrollo\deploy
@@ -111,7 +146,7 @@ Copia el archivo de ejemplo si quieres personalizar variables:
 Copy-Item .env.example .env
 ```
 
-Descargar imágenes:
+Descargar imagenes:
 
 ```powershell
 docker compose pull
@@ -139,7 +174,7 @@ docker logs -f sistema_escolar_db
 
 ## Servicios incluidos
 
-- `db`: `postgres:16`
+- `db`: `crbarrales/conectaschool:db-latest` basada en `postgres:16`
 - `backend`: `crbarrales/conectaschool:backend-latest`
 - `frontend`: `crbarrales/conectaschool:frontend-latest`
 
@@ -148,18 +183,24 @@ Persistencia:
 - PostgreSQL: volumen `postgres_data`
 - Archivos subidos del backend: volumen `backend_uploads`
 
+## Notas de base de datos
+
+- La imagen de DB corre sobre la imagen oficial `postgres:16`.
+- El dump se restaura solo en el primer arranque del contenedor, cuando `postgres_data` esta vacio.
+- Si ya existe un volumen previo y quieres reinicializar desde cero, elimina ese volumen antes de volver a levantar el stack.
+
 ## Notas de frontend
 
-- Angular quedó usando `baseUrl: '/api'`.
+- Angular quedo usando `baseUrl: '/api'`.
 - En desarrollo local, `npm start` usa `proxy.conf.json` para reenviar `/api` a `http://localhost:8080`.
-- En producción, Nginx hace proxy de `/api` al contenedor `backend`.
+- En produccion, Nginx hace proxy de `/api` al contenedor `backend`.
 - El `nginx.conf` redirige cualquier ruta desconocida a `index.html`, evitando errores 404 al refrescar una SPA.
 
 ## Notas de backend
 
 - El backend expone `8080`.
-- Quedó preparado para escuchar en `0.0.0.0:8080`.
-- La conexión a PostgreSQL en Docker usa `jdbc:postgresql://db:5432/sistema_escolar`.
+- Quedo preparado para escuchar en `0.0.0.0:8080`.
+- La conexion a PostgreSQL en Docker usa `jdbc:postgresql://db:5432/sistema_escolar`.
 - Los valores por defecto locales siguen apuntando a `localhost`, para no romper el desarrollo fuera de Docker.
 
 ## Despliegue en un Droplet
@@ -167,7 +208,7 @@ Persistencia:
 1. Instala Docker y el plugin de Docker Compose.
 2. Crea una carpeta de despliegue, por ejemplo `/opt/conectaschool`.
 3. Copia `docker-compose.yml` y opcionalmente `.env.example` como `.env`.
-4. Reemplaza imágenes o usuario si corresponde.
+4. Reemplaza imagenes o usuario si corresponde.
 5. Ejecuta:
 
 ```bash
@@ -177,9 +218,9 @@ docker compose up -d
 ```
 
 6. Abre al menos el puerto `80`.
-7. Abre también `8080` sólo si necesitas acceder al backend directamente desde fuera del proxy frontal.
+7. Abre tambien `8080` solo si necesitas acceder al backend directamente desde fuera del proxy frontal.
 
-## Verificación sugerida
+## Verificacion sugerida
 
 Frontend:
 
@@ -195,4 +236,11 @@ cd C:\Users\Diegazzo\Desktop\Desarrollo\Backend-CTF-SCHOOL\backend-api-escolar
 docker build -t crbarrales/conectaschool:backend-latest .
 ```
 
-El proyecto no incluye `mvnw`, por eso la validación práctica del backend queda apoyada en el `docker build` multi-stage con Maven.
+DB:
+
+```powershell
+cd C:\Users\Diegazzo\Desktop\Desarrollo\deploy\db
+docker build -t crbarrales/conectaschool:db-latest .
+```
+
+El proyecto no incluye `mvnw`, por eso la validacion practica del backend queda apoyada en el `docker build` multi-stage con Maven.

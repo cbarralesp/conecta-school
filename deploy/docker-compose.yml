@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: ${DB_IMAGE:-crbarrales/conectaschool:db-latest}
     container_name: sistema_escolar_db
     restart: always
     environment:
