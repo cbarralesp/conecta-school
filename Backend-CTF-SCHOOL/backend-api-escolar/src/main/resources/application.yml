@@ -1,5 +1,6 @@
 server:
-  port: 8080
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
@@ -9,9 +10,9 @@ spring:
       max-file-size: 20MB
       max-request-size: 25MB
   datasource:
-    url: jdbc:postgresql://localhost:5432/sistema_escolar
-    username: postgres
-    password: 1234
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sistema_escolar}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -23,10 +24,19 @@ spring:
     show-sql: false
 
 app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200,http://127.0.0.1:4200,http://localhost,http://127.0.0.1}
   security:
     jwt:
-      secret: "my-super-secret-key-for-jwt-signing-with-java21-hexagonal-auth"
-      expiration-seconds: 3600
+      secret: ${APP_SECURITY_JWT_SECRET:my-super-secret-key-for-jwt-signing-with-java21-hexagonal-auth}
+      expiration-seconds: ${APP_SECURITY_JWT_EXPIRATION_SECONDS:3600}
+  ai:
+    provider: ${AI_PROVIDER:local}
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      model: ${OPENAI_MODEL:gpt-5.4-mini}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      timeout-seconds: ${OPENAI_TIMEOUT_SECONDS:45}
 
 springdoc:
   api-docs:

@@ -67,7 +67,7 @@
             </thead>
 
             <tbody>
-              @for (row of editableRows(); track row.moduleName) {
+              @for (row of editableRows(); track row.moduleCode) {
                 <tr>
                   <td class="module-cell">{{ row.moduleName }}</td>
                   @for (role of roles(); track role.code) {
@@ -76,7 +76,7 @@
                         type="button"
                         [class]="accessMeta(row.permissions[role.code]).className"
                         [disabled]="role.code === 'SUPERADMIN'"
-                        (click)="cycleMatrixPermission(row.moduleName, role.code)"
+                        (click)="cycleMatrixPermission(row.moduleCode, role.code)"
                       >
                         <mat-icon>{{ accessMeta(row.permissions[role.code]).icon }}</mat-icon>
                         <span>{{ accessMeta(row.permissions[role.code]).label }}</span>
@@ -129,7 +129,7 @@
                       <button
                         type="button"
                         [class]="switcherClass(item.level === level, $any(level))"
-                        (click)="setUserPermission(item.moduleName, $any(level))"
+                        (click)="setUserPermission(item.moduleCode, $any(level))"
                       >
                         <mat-icon>{{ accessMeta($any(level)).icon }}</mat-icon>
                         <span>{{ accessMeta($any(level)).shortLabel }}</span>

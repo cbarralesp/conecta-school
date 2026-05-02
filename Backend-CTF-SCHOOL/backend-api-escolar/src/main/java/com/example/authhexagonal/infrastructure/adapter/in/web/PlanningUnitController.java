@@ -89,7 +89,7 @@ public class PlanningUnitController {
     @PutMapping("/{unitId}")
     public PlanningUnitResponse updateUnit(
             Authentication authentication,
-            @PathVariable Long unitId,
+            @PathVariable("unitId") Long unitId,
             @Valid @RequestBody PlanningUnitUpdateRequest request
     ) {
         return PlanningUnitResponse.fromDomain(

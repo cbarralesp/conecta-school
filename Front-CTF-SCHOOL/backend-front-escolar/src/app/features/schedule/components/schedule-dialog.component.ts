@@ -73,6 +73,9 @@ export interface ScheduleDialogCloseResult {
                   <mat-option [value]="course.id">{{ course.name }} - {{ course.scheduleType }}</mat-option>
                 }
               </mat-select>
+              @if (getEntryControlError('courseId')) {
+                <mat-error>{{ getEntryControlError('courseId') }}</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -82,6 +85,9 @@ export interface ScheduleDialogCloseResult {
                   <mat-option [value]="block.id">{{ blockLabel(block) }}</mat-option>
                 }
               </mat-select>
+              @if (getEntryControlError('blockId')) {
+                <mat-error>{{ getEntryControlError('blockId') }}</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -91,6 +97,9 @@ export interface ScheduleDialogCloseResult {
                   <mat-option [value]="subject.id">{{ subject.name }}</mat-option>
                 }
               </mat-select>
+              @if (getEntryControlError('subjectId')) {
+                <mat-error>{{ getEntryControlError('subjectId') }}</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline">
@@ -100,6 +109,9 @@ export interface ScheduleDialogCloseResult {
                   <mat-option [value]="teacher.id">{{ teacher.fullName }}</mat-option>
                 }
               </mat-select>
+              @if (getEntryControlError('teacherId')) {
+                <mat-error>{{ getEntryControlError('teacherId') }}</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="span-2">
@@ -112,11 +124,17 @@ export interface ScheduleDialogCloseResult {
             <mat-form-field appearance="outline">
               <mat-label>Hora inicio</mat-label>
               <input matInput type="time" formControlName="startTime" />
+              @if (getRowControlError('startTime')) {
+                <mat-error>{{ getRowControlError('startTime') }}</mat-error>
+              }
             </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Hora termino</mat-label>
               <input matInput type="time" formControlName="endTime" />
+              @if (getRowControlError('endTime')) {
+                <mat-error>{{ getRowControlError('endTime') }}</mat-error>
+              }
             </mat-form-field>
 
             <div class="dialog-note span-2">
@@ -383,6 +401,28 @@ export class ScheduleDialogComponent {
 
   blockLabel(block: ScheduleBlock): string {
     return `${block.dayOfWeek} - ${block.startTime} - ${block.endTime}`;
+  }
+
+  getEntryControlError(controlName: 'courseId' | 'blockId' | 'subjectId' | 'teacherId'): string {
+    const control = this.entryForm.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    return 'Revisa este campo.';
+  }
+
+  getRowControlError(controlName: 'startTime' | 'endTime'): string {
+    const control = this.rowForm.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    return 'Revisa este campo.';
   }
 
   submit(): void {

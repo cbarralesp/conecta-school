@@ -12,6 +12,8 @@ public record TeacherCommand(
         String gender,
         String phone,
         String institutionalEmail,
+        Long regionId,
+        Long communeId,
         String address,
         String professionalTitle,
         String contractType,
@@ -19,6 +21,7 @@ public record TeacherCommand(
         LocalDate startDate,
         String employmentStatus,
         List<Long> subjectIds,
+        List<Long> courseIds,
         String emergencyContactName,
         String emergencyContactRelation,
         String emergencyContactPhone

@@ -1,5 +1,6 @@
 package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
+import com.example.authhexagonal.domain.model.CurriculumObjective;
 import com.example.authhexagonal.domain.model.PlanningClass;
 import com.example.authhexagonal.domain.model.PlanningClassCatalogUnit;
 import com.example.authhexagonal.domain.model.PlanningClassDocument;
@@ -10,6 +11,7 @@ import com.example.authhexagonal.domain.model.PlanningObjectiveOption;
 import com.example.authhexagonal.domain.port.out.PlanningClassCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassDocumentRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassRepositoryPort;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class PlanningClassJdbcAdapter implements
@@ -262,6 +265,8 @@ public class PlanningClassJdbcAdapter implements
 
     @Override
     public void deleteClass(Long classId) {
+        deleteCurriculumObjectiveLinks(classId);
+
         jdbcTemplate.update("""
                 DELETE FROM "CLASES_PLANIFICACION_DOCUMENTOS"
                 WHERE "CLASE_ID" = ?
@@ -271,6 +276,84 @@ public class PlanningClassJdbcAdapter implements
                 DELETE FROM "CLASES_PLANIFICACION"
                 WHERE "ID" = ?
                 """, classId);
+    }
+
+    @Override
+    public void syncCurriculumObjectives(Long classId, List<UUID> objectiveIds) {
+        try {
+            jdbcTemplate.update("""
+                    DELETE FROM planning_class_curriculum_objectives
+                    WHERE planning_class_id = ?
+                    """, classId);
+
+            if (objectiveIds == null || objectiveIds.isEmpty()) {
+                return;
+            }
+
+            jdbcTemplate.batchUpdate("""
+                    INSERT INTO planning_class_curriculum_objectives (planning_class_id, objective_id)
+                    VALUES (?, ?)
+                    ON CONFLICT DO NOTHING
+                    """, objectiveIds, objectiveIds.size(), (ps, objectiveId) -> {
+                ps.setLong(1, classId);
+                ps.setObject(2, objectiveId);
+            });
+        } catch (BadSqlGrammarException ignored) {
+            // Keep existing planning flows alive while the curriculum schema is applied.
+        }
+    }
+
+    @Override
+    public List<UUID> findCurriculumObjectiveIdsByClassId(Long classId) {
+        try {
+            return jdbcTemplate.query("""
+                    SELECT objective_id
+                    FROM planning_class_curriculum_objectives
+                    WHERE planning_class_id = ?
+                    ORDER BY objective_id
+                    """, (rs, rowNum) -> rs.getObject("objective_id", UUID.class), classId);
+        } catch (BadSqlGrammarException ignored) {
+            return List.of();
+        }
+    }
+
+    @Override
+    public List<CurriculumObjective> findCurriculumObjectivesByClassId(Long classId) {
+        try {
+            return jdbcTemplate.query("""
+                    SELECT
+                        o.id,
+                        o.grade_id,
+                        o.codigo,
+                        o.tipo,
+                        COALESCE(o.eje, '') AS eje,
+                        o.descripcion
+                    FROM planning_class_curriculum_objectives pcco
+                    JOIN curriculum_objectives o ON o.id = pcco.objective_id
+                    JOIN curriculum_grades g ON g.id = o.grade_id
+                    JOIN curriculum_subjects s ON s.id = g.subject_id
+                    WHERE pcco.planning_class_id = ?
+                    ORDER BY
+                        s.nombre,
+                        CAST(g.grado AS INTEGER),
+                        CASE o.tipo
+                            WHEN 'conocimiento' THEN 1
+                            WHEN 'habilidad' THEN 2
+                            ELSE 3
+                        END,
+                        o.codigo
+                    """, (rs, rowNum) -> new CurriculumObjective(
+                    rs.getObject("id", UUID.class),
+                    rs.getObject("grade_id", UUID.class),
+                    rs.getString("codigo"),
+                    rs.getString("tipo"),
+                    rs.getString("eje"),
+                    rs.getString("descripcion"),
+                    List.of()
+            ), classId).stream().map(this::withCurriculumSubItems).toList();
+        } catch (BadSqlGrammarException ignored) {
+            return List.of();
+        }
     }
 
     @Override
@@ -671,6 +754,8 @@ public class PlanningClassJdbcAdapter implements
                 rs.getString("created_by"),
                 rs.getTimestamp("FECHA_CREACION").toLocalDateTime(),
                 rs.getTimestamp("FECHA_ACTUALIZACION").toLocalDateTime(),
+                List.of(),
+                List.of(),
                 List.of()
         );
     }
@@ -721,7 +806,9 @@ public class PlanningClassJdbcAdapter implements
                 planningClass.createdBy(),
                 planningClass.createdAt(),
                 planningClass.updatedAt(),
-                findByClassId(planningClass.id(), documentType)
+                findByClassId(planningClass.id(), documentType),
+                findCurriculumObjectiveIdsByClassId(planningClass.id()),
+                findCurriculumObjectivesByClassId(planningClass.id())
         );
     }
 
@@ -739,6 +826,30 @@ public class PlanningClassJdbcAdapter implements
         };
     }
 
+    private CurriculumObjective withCurriculumSubItems(CurriculumObjective objective) {
+        List<String> subItems;
+        try {
+            subItems = jdbcTemplate.query("""
+                    SELECT descripcion
+                    FROM curriculum_objective_items
+                    WHERE objective_id = ?
+                    ORDER BY orden
+                    """, (rs, rowNum) -> rs.getString("descripcion"), objective.id());
+        } catch (BadSqlGrammarException ignored) {
+            subItems = List.of();
+        }
+
+        return new CurriculumObjective(
+                objective.id(),
+                objective.gradeId(),
+                objective.codigo(),
+                objective.tipo(),
+                objective.eje(),
+                objective.descripcion(),
+                subItems
+        );
+    }
+
     private List<String> splitList(String value) {
         if (value == null || value.isBlank()) {
             return List.of();
@@ -748,5 +859,16 @@ public class PlanningClassJdbcAdapter implements
                 .map(String::trim)
                 .filter(item -> !item.isBlank())
                 .toList();
+    }
+
+    private void deleteCurriculumObjectiveLinks(Long classId) {
+        try {
+            jdbcTemplate.update("""
+                    DELETE FROM planning_class_curriculum_objectives
+                    WHERE planning_class_id = ?
+                    """, classId);
+        } catch (BadSqlGrammarException ignored) {
+            // Ignore while the curriculum schema is not available yet.
+        }
     }
 }

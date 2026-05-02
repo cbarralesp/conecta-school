@@ -7,6 +7,7 @@ import com.example.authhexagonal.domain.model.AdministrationRolesOverview;
 import com.example.authhexagonal.domain.model.AdministrationUserDetail;
 import com.example.authhexagonal.domain.model.AdministrationUsersOverview;
 import com.example.authhexagonal.domain.port.in.ManageAdministrationUseCase;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.AdministrationAccessMatrixRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.AdministrationUserRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -113,6 +114,15 @@ public class AdministrationController {
     @GetMapping("/access-matrix")
     public AdministrationAccessMatrix getAccessMatrix() {
         return manageAdministrationUseCase.getAccessMatrix();
+    }
+
+    @PutMapping("/access-matrix")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void saveAccessMatrix(
+            @RequestBody AdministrationAccessMatrixRequest request,
+            Authentication authentication
+    ) {
+        manageAdministrationUseCase.saveAccessMatrix(request.toDomain(), authentication.getName());
     }
 
     @GetMapping("/audit-logs")

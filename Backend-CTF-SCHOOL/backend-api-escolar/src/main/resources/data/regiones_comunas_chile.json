@@ -1,0 +1,1492 @@
+﻿{
+    "regiones":  [
+                     {
+                         "id":  1,
+                         "nombre":  "Región de Tarapacá",
+                         "codigo":  "I",
+                         "comunas":  [
+                                         {
+                                             "id":  101,
+                                             "nombre":  "Iquique"
+                                         },
+                                         {
+                                             "id":  102,
+                                             "nombre":  "Alto Hospicio"
+                                         },
+                                         {
+                                             "id":  103,
+                                             "nombre":  "Pozo Almonte"
+                                         },
+                                         {
+                                             "id":  104,
+                                             "nombre":  "Camiña"
+                                         },
+                                         {
+                                             "id":  105,
+                                             "nombre":  "Colchane"
+                                         },
+                                         {
+                                             "id":  106,
+                                             "nombre":  "Huara"
+                                         },
+                                         {
+                                             "id":  107,
+                                             "nombre":  "Pica"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  2,
+                         "nombre":  "Región de Antofagasta",
+                         "codigo":  "II",
+                         "comunas":  [
+                                         {
+                                             "id":  201,
+                                             "nombre":  "Antofagasta"
+                                         },
+                                         {
+                                             "id":  202,
+                                             "nombre":  "Mejillones"
+                                         },
+                                         {
+                                             "id":  203,
+                                             "nombre":  "Sierra Gorda"
+                                         },
+                                         {
+                                             "id":  204,
+                                             "nombre":  "Taltal"
+                                         },
+                                         {
+                                             "id":  205,
+                                             "nombre":  "Calama"
+                                         },
+                                         {
+                                             "id":  206,
+                                             "nombre":  "Ollagüe"
+                                         },
+                                         {
+                                             "id":  207,
+                                             "nombre":  "San Pedro de Atacama"
+                                         },
+                                         {
+                                             "id":  208,
+                                             "nombre":  "Tocopilla"
+                                         },
+                                         {
+                                             "id":  209,
+                                             "nombre":  "María Elena"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  3,
+                         "nombre":  "Región de Atacama",
+                         "codigo":  "III",
+                         "comunas":  [
+                                         {
+                                             "id":  301,
+                                             "nombre":  "Copiapó"
+                                         },
+                                         {
+                                             "id":  302,
+                                             "nombre":  "Caldera"
+                                         },
+                                         {
+                                             "id":  303,
+                                             "nombre":  "Tierra Amarilla"
+                                         },
+                                         {
+                                             "id":  304,
+                                             "nombre":  "Chañaral"
+                                         },
+                                         {
+                                             "id":  305,
+                                             "nombre":  "Diego de Almagro"
+                                         },
+                                         {
+                                             "id":  306,
+                                             "nombre":  "Vallenar"
+                                         },
+                                         {
+                                             "id":  307,
+                                             "nombre":  "Alto del Carmen"
+                                         },
+                                         {
+                                             "id":  308,
+                                             "nombre":  "Freirina"
+                                         },
+                                         {
+                                             "id":  309,
+                                             "nombre":  "Huasco"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  4,
+                         "nombre":  "Región de Coquimbo",
+                         "codigo":  "IV",
+                         "comunas":  [
+                                         {
+                                             "id":  401,
+                                             "nombre":  "La Serena"
+                                         },
+                                         {
+                                             "id":  402,
+                                             "nombre":  "Coquimbo"
+                                         },
+                                         {
+                                             "id":  403,
+                                             "nombre":  "Andacollo"
+                                         },
+                                         {
+                                             "id":  404,
+                                             "nombre":  "La Higuera"
+                                         },
+                                         {
+                                             "id":  405,
+                                             "nombre":  "Paiguano"
+                                         },
+                                         {
+                                             "id":  406,
+                                             "nombre":  "Vicuña"
+                                         },
+                                         {
+                                             "id":  407,
+                                             "nombre":  "Illapel"
+                                         },
+                                         {
+                                             "id":  408,
+                                             "nombre":  "Canela"
+                                         },
+                                         {
+                                             "id":  409,
+                                             "nombre":  "Los Vilos"
+                                         },
+                                         {
+                                             "id":  410,
+                                             "nombre":  "Salamanca"
+                                         },
+                                         {
+                                             "id":  411,
+                                             "nombre":  "Ovalle"
+                                         },
+                                         {
+                                             "id":  412,
+                                             "nombre":  "Combarbalá"
+                                         },
+                                         {
+                                             "id":  413,
+                                             "nombre":  "Monte Patria"
+                                         },
+                                         {
+                                             "id":  414,
+                                             "nombre":  "Punitaqui"
+                                         },
+                                         {
+                                             "id":  415,
+                                             "nombre":  "Río Hurtado"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  5,
+                         "nombre":  "Región de Valparaíso",
+                         "codigo":  "V",
+                         "comunas":  [
+                                         {
+                                             "id":  501,
+                                             "nombre":  "Valparaíso"
+                                         },
+                                         {
+                                             "id":  502,
+                                             "nombre":  "Casablanca"
+                                         },
+                                         {
+                                             "id":  503,
+                                             "nombre":  "Concón"
+                                         },
+                                         {
+                                             "id":  504,
+                                             "nombre":  "Juan Fernández"
+                                         },
+                                         {
+                                             "id":  505,
+                                             "nombre":  "Puchuncaví"
+                                         },
+                                         {
+                                             "id":  506,
+                                             "nombre":  "Quintero"
+                                         },
+                                         {
+                                             "id":  507,
+                                             "nombre":  "Viña del Mar"
+                                         },
+                                         {
+                                             "id":  508,
+                                             "nombre":  "Isla de Pascua"
+                                         },
+                                         {
+                                             "id":  509,
+                                             "nombre":  "Los Andes"
+                                         },
+                                         {
+                                             "id":  510,
+                                             "nombre":  "Calle Larga"
+                                         },
+                                         {
+                                             "id":  511,
+                                             "nombre":  "Rinconada"
+                                         },
+                                         {
+                                             "id":  512,
+                                             "nombre":  "San Esteban"
+                                         },
+                                         {
+                                             "id":  513,
+                                             "nombre":  "La Ligua"
+                                         },
+                                         {
+                                             "id":  514,
+                                             "nombre":  "Cabildo"
+                                         },
+                                         {
+                                             "id":  515,
+                                             "nombre":  "Papudo"
+                                         },
+                                         {
+                                             "id":  516,
+                                             "nombre":  "Petorca"
+                                         },
+                                         {
+                                             "id":  517,
+                                             "nombre":  "Zapallar"
+                                         },
+                                         {
+                                             "id":  518,
+                                             "nombre":  "Quillota"
+                                         },
+                                         {
+                                             "id":  519,
+                                             "nombre":  "Calera"
+                                         },
+                                         {
+                                             "id":  520,
+                                             "nombre":  "Hijuelas"
+                                         },
+                                         {
+                                             "id":  521,
+                                             "nombre":  "La Cruz"
+                                         },
+                                         {
+                                             "id":  522,
+                                             "nombre":  "Limache"
+                                         },
+                                         {
+                                             "id":  523,
+                                             "nombre":  "Nogales"
+                                         },
+                                         {
+                                             "id":  524,
+                                             "nombre":  "Olmué"
+                                         },
+                                         {
+                                             "id":  525,
+                                             "nombre":  "San Antonio"
+                                         },
+                                         {
+                                             "id":  526,
+                                             "nombre":  "Algarrobo"
+                                         },
+                                         {
+                                             "id":  527,
+                                             "nombre":  "Cartagena"
+                                         },
+                                         {
+                                             "id":  528,
+                                             "nombre":  "El Quisco"
+                                         },
+                                         {
+                                             "id":  529,
+                                             "nombre":  "El Tabo"
+                                         },
+                                         {
+                                             "id":  530,
+                                             "nombre":  "Santo Domingo"
+                                         },
+                                         {
+                                             "id":  531,
+                                             "nombre":  "San Felipe"
+                                         },
+                                         {
+                                             "id":  532,
+                                             "nombre":  "Catemu"
+                                         },
+                                         {
+                                             "id":  533,
+                                             "nombre":  "Llaillay"
+                                         },
+                                         {
+                                             "id":  534,
+                                             "nombre":  "Panquehue"
+                                         },
+                                         {
+                                             "id":  535,
+                                             "nombre":  "Putaendo"
+                                         },
+                                         {
+                                             "id":  536,
+                                             "nombre":  "Santa María"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  6,
+                         "nombre":  "Región del Libertador General Bernardo O\u0027Higgins",
+                         "codigo":  "VI",
+                         "comunas":  [
+                                         {
+                                             "id":  601,
+                                             "nombre":  "Rancagua"
+                                         },
+                                         {
+                                             "id":  602,
+                                             "nombre":  "Codegua"
+                                         },
+                                         {
+                                             "id":  603,
+                                             "nombre":  "Coinco"
+                                         },
+                                         {
+                                             "id":  604,
+                                             "nombre":  "Coltauco"
+                                         },
+                                         {
+                                             "id":  605,
+                                             "nombre":  "Doñihue"
+                                         },
+                                         {
+                                             "id":  606,
+                                             "nombre":  "Graneros"
+                                         },
+                                         {
+                                             "id":  607,
+                                             "nombre":  "Las Cabras"
+                                         },
+                                         {
+                                             "id":  608,
+                                             "nombre":  "Machalí"
+                                         },
+                                         {
+                                             "id":  609,
+                                             "nombre":  "Malloa"
+                                         },
+                                         {
+                                             "id":  610,
+                                             "nombre":  "Mostazal"
+                                         },
+                                         {
+                                             "id":  611,
+                                             "nombre":  "Olivar"
+                                         },
+                                         {
+                                             "id":  612,
+                                             "nombre":  "Peumo"
+                                         },
+                                         {
+                                             "id":  613,
+                                             "nombre":  "Pichidegua"
+                                         },
+                                         {
+                                             "id":  614,
+                                             "nombre":  "Quinta de Tilcoco"
+                                         },
+                                         {
+                                             "id":  615,
+                                             "nombre":  "Rengo"
+                                         },
+                                         {
+                                             "id":  616,
+                                             "nombre":  "Requínoa"
+                                         },
+                                         {
+                                             "id":  617,
+                                             "nombre":  "San Vicente"
+                                         },
+                                         {
+                                             "id":  618,
+                                             "nombre":  "Pichilemu"
+                                         },
+                                         {
+                                             "id":  619,
+                                             "nombre":  "La Estrella"
+                                         },
+                                         {
+                                             "id":  620,
+                                             "nombre":  "Litueche"
+                                         },
+                                         {
+                                             "id":  621,
+                                             "nombre":  "Marchihue"
+                                         },
+                                         {
+                                             "id":  622,
+                                             "nombre":  "Navidad"
+                                         },
+                                         {
+                                             "id":  623,
+                                             "nombre":  "Paredones"
+                                         },
+                                         {
+                                             "id":  624,
+                                             "nombre":  "San Fernando"
+                                         },
+                                         {
+                                             "id":  625,
+                                             "nombre":  "Chépica"
+                                         },
+                                         {
+                                             "id":  626,
+                                             "nombre":  "Chimbarongo"
+                                         },
+                                         {
+                                             "id":  627,
+                                             "nombre":  "Lolol"
+                                         },
+                                         {
+                                             "id":  628,
+                                             "nombre":  "Nancagua"
+                                         },
+                                         {
+                                             "id":  629,
+                                             "nombre":  "Palmilla"
+                                         },
+                                         {
+                                             "id":  630,
+                                             "nombre":  "Peralillo"
+                                         },
+                                         {
+                                             "id":  631,
+                                             "nombre":  "Placilla"
+                                         },
+                                         {
+                                             "id":  632,
+                                             "nombre":  "Pumanque"
+                                         },
+                                         {
+                                             "id":  633,
+                                             "nombre":  "Santa Cruz"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  7,
+                         "nombre":  "Región del Maule",
+                         "codigo":  "VII",
+                         "comunas":  [
+                                         {
+                                             "id":  701,
+                                             "nombre":  "Talca"
+                                         },
+                                         {
+                                             "id":  702,
+                                             "nombre":  "Constitución"
+                                         },
+                                         {
+                                             "id":  703,
+                                             "nombre":  "Curepto"
+                                         },
+                                         {
+                                             "id":  704,
+                                             "nombre":  "Empedrado"
+                                         },
+                                         {
+                                             "id":  705,
+                                             "nombre":  "Maule"
+                                         },
+                                         {
+                                             "id":  706,
+                                             "nombre":  "Pelarco"
+                                         },
+                                         {
+                                             "id":  707,
+                                             "nombre":  "Pencahue"
+                                         },
+                                         {
+                                             "id":  708,
+                                             "nombre":  "Río Claro"
+                                         },
+                                         {
+                                             "id":  709,
+                                             "nombre":  "San Clemente"
+                                         },
+                                         {
+                                             "id":  710,
+                                             "nombre":  "San Rafael"
+                                         },
+                                         {
+                                             "id":  711,
+                                             "nombre":  "Cauquenes"
+                                         },
+                                         {
+                                             "id":  712,
+                                             "nombre":  "Chanco"
+                                         },
+                                         {
+                                             "id":  713,
+                                             "nombre":  "Pelluhue"
+                                         },
+                                         {
+                                             "id":  714,
+                                             "nombre":  "Curicó"
+                                         },
+                                         {
+                                             "id":  715,
+                                             "nombre":  "Hualañé"
+                                         },
+                                         {
+                                             "id":  716,
+                                             "nombre":  "Licantén"
+                                         },
+                                         {
+                                             "id":  717,
+                                             "nombre":  "Molina"
+                                         },
+                                         {
+                                             "id":  718,
+                                             "nombre":  "Rauco"
+                                         },
+                                         {
+                                             "id":  719,
+                                             "nombre":  "Romeral"
+                                         },
+                                         {
+                                             "id":  720,
+                                             "nombre":  "Sagrada Familia"
+                                         },
+                                         {
+                                             "id":  721,
+                                             "nombre":  "Teno"
+                                         },
+                                         {
+                                             "id":  722,
+                                             "nombre":  "Vichuquén"
+                                         },
+                                         {
+                                             "id":  723,
+                                             "nombre":  "Linares"
+                                         },
+                                         {
+                                             "id":  724,
+                                             "nombre":  "Colbún"
+                                         },
+                                         {
+                                             "id":  725,
+                                             "nombre":  "Longaví"
+                                         },
+                                         {
+                                             "id":  726,
+                                             "nombre":  "Parral"
+                                         },
+                                         {
+                                             "id":  727,
+                                             "nombre":  "Retiro"
+                                         },
+                                         {
+                                             "id":  728,
+                                             "nombre":  "San Javier"
+                                         },
+                                         {
+                                             "id":  729,
+                                             "nombre":  "Villa Alegre"
+                                         },
+                                         {
+                                             "id":  730,
+                                             "nombre":  "Yerbas Buenas"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  8,
+                         "nombre":  "Región de �\u0027uble",
+                         "codigo":  "XVI",
+                         "comunas":  [
+                                         {
+                                             "id":  801,
+                                             "nombre":  "Chillán"
+                                         },
+                                         {
+                                             "id":  802,
+                                             "nombre":  "Bulnes"
+                                         },
+                                         {
+                                             "id":  803,
+                                             "nombre":  "Chillán Viejo"
+                                         },
+                                         {
+                                             "id":  804,
+                                             "nombre":  "El Carmen"
+                                         },
+                                         {
+                                             "id":  805,
+                                             "nombre":  "Pemuco"
+                                         },
+                                         {
+                                             "id":  806,
+                                             "nombre":  "Pinto"
+                                         },
+                                         {
+                                             "id":  807,
+                                             "nombre":  "Quillón"
+                                         },
+                                         {
+                                             "id":  808,
+                                             "nombre":  "San Ignacio"
+                                         },
+                                         {
+                                             "id":  809,
+                                             "nombre":  "Yungay"
+                                         },
+                                         {
+                                             "id":  810,
+                                             "nombre":  "Coihueco"
+                                         },
+                                         {
+                                             "id":  811,
+                                             "nombre":  "�\u0027iquén"
+                                         },
+                                         {
+                                             "id":  812,
+                                             "nombre":  "San Carlos"
+                                         },
+                                         {
+                                             "id":  813,
+                                             "nombre":  "San Fabián"
+                                         },
+                                         {
+                                             "id":  814,
+                                             "nombre":  "San Nicolás"
+                                         },
+                                         {
+                                             "id":  815,
+                                             "nombre":  "Cobquecura"
+                                         },
+                                         {
+                                             "id":  816,
+                                             "nombre":  "Coelemu"
+                                         },
+                                         {
+                                             "id":  817,
+                                             "nombre":  "Ninhue"
+                                         },
+                                         {
+                                             "id":  818,
+                                             "nombre":  "Portezuelo"
+                                         },
+                                         {
+                                             "id":  819,
+                                             "nombre":  "Quirihue"
+                                         },
+                                         {
+                                             "id":  820,
+                                             "nombre":  "Ránquil"
+                                         },
+                                         {
+                                             "id":  821,
+                                             "nombre":  "Trehuaco"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  9,
+                         "nombre":  "Región del Biobío",
+                         "codigo":  "VIII",
+                         "comunas":  [
+                                         {
+                                             "id":  901,
+                                             "nombre":  "Concepción"
+                                         },
+                                         {
+                                             "id":  902,
+                                             "nombre":  "Coronel"
+                                         },
+                                         {
+                                             "id":  903,
+                                             "nombre":  "Chiguayante"
+                                         },
+                                         {
+                                             "id":  904,
+                                             "nombre":  "Florida"
+                                         },
+                                         {
+                                             "id":  905,
+                                             "nombre":  "Hualqui"
+                                         },
+                                         {
+                                             "id":  906,
+                                             "nombre":  "Lota"
+                                         },
+                                         {
+                                             "id":  907,
+                                             "nombre":  "Penco"
+                                         },
+                                         {
+                                             "id":  908,
+                                             "nombre":  "San Pedro de la Paz"
+                                         },
+                                         {
+                                             "id":  909,
+                                             "nombre":  "Santa Juana"
+                                         },
+                                         {
+                                             "id":  910,
+                                             "nombre":  "Talcahuano"
+                                         },
+                                         {
+                                             "id":  911,
+                                             "nombre":  "Tomé"
+                                         },
+                                         {
+                                             "id":  912,
+                                             "nombre":  "Hualpén"
+                                         },
+                                         {
+                                             "id":  913,
+                                             "nombre":  "Lebu"
+                                         },
+                                         {
+                                             "id":  914,
+                                             "nombre":  "Arauco"
+                                         },
+                                         {
+                                             "id":  915,
+                                             "nombre":  "Cañete"
+                                         },
+                                         {
+                                             "id":  916,
+                                             "nombre":  "Contulmo"
+                                         },
+                                         {
+                                             "id":  917,
+                                             "nombre":  "Curanilahue"
+                                         },
+                                         {
+                                             "id":  918,
+                                             "nombre":  "Los Álamos"
+                                         },
+                                         {
+                                             "id":  919,
+                                             "nombre":  "Tirúa"
+                                         },
+                                         {
+                                             "id":  920,
+                                             "nombre":  "Los Ángeles"
+                                         },
+                                         {
+                                             "id":  921,
+                                             "nombre":  "Antuco"
+                                         },
+                                         {
+                                             "id":  922,
+                                             "nombre":  "Cabrero"
+                                         },
+                                         {
+                                             "id":  923,
+                                             "nombre":  "Laja"
+                                         },
+                                         {
+                                             "id":  924,
+                                             "nombre":  "Mulchén"
+                                         },
+                                         {
+                                             "id":  925,
+                                             "nombre":  "Nacimiento"
+                                         },
+                                         {
+                                             "id":  926,
+                                             "nombre":  "Negrete"
+                                         },
+                                         {
+                                             "id":  927,
+                                             "nombre":  "Quilaco"
+                                         },
+                                         {
+                                             "id":  928,
+                                             "nombre":  "Quilleco"
+                                         },
+                                         {
+                                             "id":  929,
+                                             "nombre":  "San Rosendo"
+                                         },
+                                         {
+                                             "id":  930,
+                                             "nombre":  "Santa Bárbara"
+                                         },
+                                         {
+                                             "id":  931,
+                                             "nombre":  "Tucapel"
+                                         },
+                                         {
+                                             "id":  932,
+                                             "nombre":  "Yumbel"
+                                         },
+                                         {
+                                             "id":  933,
+                                             "nombre":  "Alto Biobío"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  10,
+                         "nombre":  "Región de La Araucanía",
+                         "codigo":  "IX",
+                         "comunas":  [
+                                         {
+                                             "id":  1001,
+                                             "nombre":  "Temuco"
+                                         },
+                                         {
+                                             "id":  1002,
+                                             "nombre":  "Carahue"
+                                         },
+                                         {
+                                             "id":  1003,
+                                             "nombre":  "Cunco"
+                                         },
+                                         {
+                                             "id":  1004,
+                                             "nombre":  "Curarrehue"
+                                         },
+                                         {
+                                             "id":  1005,
+                                             "nombre":  "Freire"
+                                         },
+                                         {
+                                             "id":  1006,
+                                             "nombre":  "Galvarino"
+                                         },
+                                         {
+                                             "id":  1007,
+                                             "nombre":  "Gorbea"
+                                         },
+                                         {
+                                             "id":  1008,
+                                             "nombre":  "Lautaro"
+                                         },
+                                         {
+                                             "id":  1009,
+                                             "nombre":  "Loncoche"
+                                         },
+                                         {
+                                             "id":  1010,
+                                             "nombre":  "Melipeuco"
+                                         },
+                                         {
+                                             "id":  1011,
+                                             "nombre":  "Nueva Imperial"
+                                         },
+                                         {
+                                             "id":  1012,
+                                             "nombre":  "Padre Las Casas"
+                                         },
+                                         {
+                                             "id":  1013,
+                                             "nombre":  "Perquenco"
+                                         },
+                                         {
+                                             "id":  1014,
+                                             "nombre":  "Pitrufquén"
+                                         },
+                                         {
+                                             "id":  1015,
+                                             "nombre":  "Pucón"
+                                         },
+                                         {
+                                             "id":  1016,
+                                             "nombre":  "Saavedra"
+                                         },
+                                         {
+                                             "id":  1017,
+                                             "nombre":  "Teodoro Schmidt"
+                                         },
+                                         {
+                                             "id":  1018,
+                                             "nombre":  "Toltén"
+                                         },
+                                         {
+                                             "id":  1019,
+                                             "nombre":  "Vilcún"
+                                         },
+                                         {
+                                             "id":  1020,
+                                             "nombre":  "Villarrica"
+                                         },
+                                         {
+                                             "id":  1021,
+                                             "nombre":  "Cholchol"
+                                         },
+                                         {
+                                             "id":  1022,
+                                             "nombre":  "Angol"
+                                         },
+                                         {
+                                             "id":  1023,
+                                             "nombre":  "Collipulli"
+                                         },
+                                         {
+                                             "id":  1024,
+                                             "nombre":  "Curacautín"
+                                         },
+                                         {
+                                             "id":  1025,
+                                             "nombre":  "Ercilla"
+                                         },
+                                         {
+                                             "id":  1026,
+                                             "nombre":  "Lonquimay"
+                                         },
+                                         {
+                                             "id":  1027,
+                                             "nombre":  "Los Sauces"
+                                         },
+                                         {
+                                             "id":  1028,
+                                             "nombre":  "Lumaco"
+                                         },
+                                         {
+                                             "id":  1029,
+                                             "nombre":  "Purén"
+                                         },
+                                         {
+                                             "id":  1030,
+                                             "nombre":  "Renaico"
+                                         },
+                                         {
+                                             "id":  1031,
+                                             "nombre":  "Traiguén"
+                                         },
+                                         {
+                                             "id":  1032,
+                                             "nombre":  "Victoria"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  11,
+                         "nombre":  "Región de Los Ríos",
+                         "codigo":  "XIV",
+                         "comunas":  [
+                                         {
+                                             "id":  1101,
+                                             "nombre":  "Valdivia"
+                                         },
+                                         {
+                                             "id":  1102,
+                                             "nombre":  "Corral"
+                                         },
+                                         {
+                                             "id":  1103,
+                                             "nombre":  "Futrono"
+                                         },
+                                         {
+                                             "id":  1104,
+                                             "nombre":  "La Unión"
+                                         },
+                                         {
+                                             "id":  1105,
+                                             "nombre":  "Lago Ranco"
+                                         },
+                                         {
+                                             "id":  1106,
+                                             "nombre":  "Lanco"
+                                         },
+                                         {
+                                             "id":  1107,
+                                             "nombre":  "Los Lagos"
+                                         },
+                                         {
+                                             "id":  1108,
+                                             "nombre":  "Máfil"
+                                         },
+                                         {
+                                             "id":  1109,
+                                             "nombre":  "Mariquina"
+                                         },
+                                         {
+                                             "id":  1110,
+                                             "nombre":  "Paillaco"
+                                         },
+                                         {
+                                             "id":  1111,
+                                             "nombre":  "Panguipulli"
+                                         },
+                                         {
+                                             "id":  1112,
+                                             "nombre":  "Río Bueno"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  12,
+                         "nombre":  "Región de Los Lagos",
+                         "codigo":  "X",
+                         "comunas":  [
+                                         {
+                                             "id":  1201,
+                                             "nombre":  "Puerto Montt"
+                                         },
+                                         {
+                                             "id":  1202,
+                                             "nombre":  "Calbuco"
+                                         },
+                                         {
+                                             "id":  1203,
+                                             "nombre":  "Cochamó"
+                                         },
+                                         {
+                                             "id":  1204,
+                                             "nombre":  "Fresia"
+                                         },
+                                         {
+                                             "id":  1205,
+                                             "nombre":  "Frutillar"
+                                         },
+                                         {
+                                             "id":  1206,
+                                             "nombre":  "Los Muermos"
+                                         },
+                                         {
+                                             "id":  1207,
+                                             "nombre":  "Llanquihue"
+                                         },
+                                         {
+                                             "id":  1208,
+                                             "nombre":  "Maullín"
+                                         },
+                                         {
+                                             "id":  1209,
+                                             "nombre":  "Puerto Varas"
+                                         },
+                                         {
+                                             "id":  1210,
+                                             "nombre":  "Castro"
+                                         },
+                                         {
+                                             "id":  1211,
+                                             "nombre":  "Ancud"
+                                         },
+                                         {
+                                             "id":  1212,
+                                             "nombre":  "Chonchi"
+                                         },
+                                         {
+                                             "id":  1213,
+                                             "nombre":  "Curaco de Vélez"
+                                         },
+                                         {
+                                             "id":  1214,
+                                             "nombre":  "Dalcahue"
+                                         },
+                                         {
+                                             "id":  1215,
+                                             "nombre":  "Puqueldón"
+                                         },
+                                         {
+                                             "id":  1216,
+                                             "nombre":  "Queilén"
+                                         },
+                                         {
+                                             "id":  1217,
+                                             "nombre":  "Quellón"
+                                         },
+                                         {
+                                             "id":  1218,
+                                             "nombre":  "Quemchi"
+                                         },
+                                         {
+                                             "id":  1219,
+                                             "nombre":  "Quinchao"
+                                         },
+                                         {
+                                             "id":  1220,
+                                             "nombre":  "Osorno"
+                                         },
+                                         {
+                                             "id":  1221,
+                                             "nombre":  "Puerto Octay"
+                                         },
+                                         {
+                                             "id":  1222,
+                                             "nombre":  "Purranque"
+                                         },
+                                         {
+                                             "id":  1223,
+                                             "nombre":  "Puyehue"
+                                         },
+                                         {
+                                             "id":  1224,
+                                             "nombre":  "Río Negro"
+                                         },
+                                         {
+                                             "id":  1225,
+                                             "nombre":  "San Juan de la Costa"
+                                         },
+                                         {
+                                             "id":  1226,
+                                             "nombre":  "San Pablo"
+                                         },
+                                         {
+                                             "id":  1227,
+                                             "nombre":  "Chaitén"
+                                         },
+                                         {
+                                             "id":  1228,
+                                             "nombre":  "Futaleufú"
+                                         },
+                                         {
+                                             "id":  1229,
+                                             "nombre":  "Hualaihué"
+                                         },
+                                         {
+                                             "id":  1230,
+                                             "nombre":  "Palena"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  13,
+                         "nombre":  "Región Aysén del General Carlos Ibáñez del Campo",
+                         "codigo":  "XI",
+                         "comunas":  [
+                                         {
+                                             "id":  1301,
+                                             "nombre":  "Coyhaique"
+                                         },
+                                         {
+                                             "id":  1302,
+                                             "nombre":  "Lago Verde"
+                                         },
+                                         {
+                                             "id":  1303,
+                                             "nombre":  "Aysén"
+                                         },
+                                         {
+                                             "id":  1304,
+                                             "nombre":  "Cisnes"
+                                         },
+                                         {
+                                             "id":  1305,
+                                             "nombre":  "Guaitecas"
+                                         },
+                                         {
+                                             "id":  1306,
+                                             "nombre":  "Cochrane"
+                                         },
+                                         {
+                                             "id":  1307,
+                                             "nombre":  "O\u0027Higgins"
+                                         },
+                                         {
+                                             "id":  1308,
+                                             "nombre":  "Tortel"
+                                         },
+                                         {
+                                             "id":  1309,
+                                             "nombre":  "Chile Chico"
+                                         },
+                                         {
+                                             "id":  1310,
+                                             "nombre":  "Río Ibáñez"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  14,
+                         "nombre":  "Región de Magallanes y de la Antártica Chilena",
+                         "codigo":  "XII",
+                         "comunas":  [
+                                         {
+                                             "id":  1401,
+                                             "nombre":  "Punta Arenas"
+                                         },
+                                         {
+                                             "id":  1402,
+                                             "nombre":  "Laguna Blanca"
+                                         },
+                                         {
+                                             "id":  1403,
+                                             "nombre":  "Río Verde"
+                                         },
+                                         {
+                                             "id":  1404,
+                                             "nombre":  "San Gregorio"
+                                         },
+                                         {
+                                             "id":  1405,
+                                             "nombre":  "Cabo de Hornos"
+                                         },
+                                         {
+                                             "id":  1406,
+                                             "nombre":  "Antártica"
+                                         },
+                                         {
+                                             "id":  1407,
+                                             "nombre":  "Porvenir"
+                                         },
+                                         {
+                                             "id":  1408,
+                                             "nombre":  "Primavera"
+                                         },
+                                         {
+                                             "id":  1409,
+                                             "nombre":  "Timaukel"
+                                         },
+                                         {
+                                             "id":  1410,
+                                             "nombre":  "Natales"
+                                         },
+                                         {
+                                             "id":  1411,
+                                             "nombre":  "Torres del Paine"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  15,
+                         "nombre":  "Región Metropolitana de Santiago",
+                         "codigo":  "RM",
+                         "comunas":  [
+                                         {
+                                             "id":  1501,
+                                             "nombre":  "Santiago"
+                                         },
+                                         {
+                                             "id":  1502,
+                                             "nombre":  "Cerrillos"
+                                         },
+                                         {
+                                             "id":  1503,
+                                             "nombre":  "Cerro Navia"
+                                         },
+                                         {
+                                             "id":  1504,
+                                             "nombre":  "Conchalí"
+                                         },
+                                         {
+                                             "id":  1505,
+                                             "nombre":  "El Bosque"
+                                         },
+                                         {
+                                             "id":  1506,
+                                             "nombre":  "Estación Central"
+                                         },
+                                         {
+                                             "id":  1507,
+                                             "nombre":  "Huechuraba"
+                                         },
+                                         {
+                                             "id":  1508,
+                                             "nombre":  "Independencia"
+                                         },
+                                         {
+                                             "id":  1509,
+                                             "nombre":  "La Cisterna"
+                                         },
+                                         {
+                                             "id":  1510,
+                                             "nombre":  "La Florida"
+                                         },
+                                         {
+                                             "id":  1511,
+                                             "nombre":  "La Granja"
+                                         },
+                                         {
+                                             "id":  1512,
+                                             "nombre":  "La Pintana"
+                                         },
+                                         {
+                                             "id":  1513,
+                                             "nombre":  "La Reina"
+                                         },
+                                         {
+                                             "id":  1514,
+                                             "nombre":  "Las Condes"
+                                         },
+                                         {
+                                             "id":  1515,
+                                             "nombre":  "Lo Barnechea"
+                                         },
+                                         {
+                                             "id":  1516,
+                                             "nombre":  "Lo Espejo"
+                                         },
+                                         {
+                                             "id":  1517,
+                                             "nombre":  "Lo Prado"
+                                         },
+                                         {
+                                             "id":  1518,
+                                             "nombre":  "Macul"
+                                         },
+                                         {
+                                             "id":  1519,
+                                             "nombre":  "Maipú"
+                                         },
+                                         {
+                                             "id":  1520,
+                                             "nombre":  "�\u0027uñoa"
+                                         },
+                                         {
+                                             "id":  1521,
+                                             "nombre":  "Pedro Aguirre Cerda"
+                                         },
+                                         {
+                                             "id":  1522,
+                                             "nombre":  "Peñalolén"
+                                         },
+                                         {
+                                             "id":  1523,
+                                             "nombre":  "Providencia"
+                                         },
+                                         {
+                                             "id":  1524,
+                                             "nombre":  "Pudahuel"
+                                         },
+                                         {
+                                             "id":  1525,
+                                             "nombre":  "Quilicura"
+                                         },
+                                         {
+                                             "id":  1526,
+                                             "nombre":  "Quinta Normal"
+                                         },
+                                         {
+                                             "id":  1527,
+                                             "nombre":  "Recoleta"
+                                         },
+                                         {
+                                             "id":  1528,
+                                             "nombre":  "Renca"
+                                         },
+                                         {
+                                             "id":  1529,
+                                             "nombre":  "San Joaquín"
+                                         },
+                                         {
+                                             "id":  1530,
+                                             "nombre":  "San Miguel"
+                                         },
+                                         {
+                                             "id":  1531,
+                                             "nombre":  "San Ramón"
+                                         },
+                                         {
+                                             "id":  1532,
+                                             "nombre":  "Vitacura"
+                                         },
+                                         {
+                                             "id":  1533,
+                                             "nombre":  "Puente Alto"
+                                         },
+                                         {
+                                             "id":  1534,
+                                             "nombre":  "Pirque"
+                                         },
+                                         {
+                                             "id":  1535,
+                                             "nombre":  "San José de Maipo"
+                                         },
+                                         {
+                                             "id":  1536,
+                                             "nombre":  "Colina"
+                                         },
+                                         {
+                                             "id":  1537,
+                                             "nombre":  "Lampa"
+                                         },
+                                         {
+                                             "id":  1538,
+                                             "nombre":  "Tiltil"
+                                         },
+                                         {
+                                             "id":  1539,
+                                             "nombre":  "San Bernardo"
+                                         },
+                                         {
+                                             "id":  1540,
+                                             "nombre":  "Buin"
+                                         },
+                                         {
+                                             "id":  1541,
+                                             "nombre":  "Calera de Tango"
+                                         },
+                                         {
+                                             "id":  1542,
+                                             "nombre":  "Paine"
+                                         },
+                                         {
+                                             "id":  1543,
+                                             "nombre":  "Melipilla"
+                                         },
+                                         {
+                                             "id":  1544,
+                                             "nombre":  "Alhué"
+                                         },
+                                         {
+                                             "id":  1545,
+                                             "nombre":  "Curacaví"
+                                         },
+                                         {
+                                             "id":  1546,
+                                             "nombre":  "María Pinto"
+                                         },
+                                         {
+                                             "id":  1547,
+                                             "nombre":  "San Pedro"
+                                         },
+                                         {
+                                             "id":  1548,
+                                             "nombre":  "Talagante"
+                                         },
+                                         {
+                                             "id":  1549,
+                                             "nombre":  "El Monte"
+                                         },
+                                         {
+                                             "id":  1550,
+                                             "nombre":  "Isla de Maipo"
+                                         },
+                                         {
+                                             "id":  1551,
+                                             "nombre":  "Padre Hurtado"
+                                         },
+                                         {
+                                             "id":  1552,
+                                             "nombre":  "Peñaflor"
+                                         }
+                                     ]
+                     },
+                     {
+                         "id":  16,
+                         "nombre":  "Región de Arica y Parinacota",
+                         "codigo":  "XV",
+                         "comunas":  [
+                                         {
+                                             "id":  1601,
+                                             "nombre":  "Arica"
+                                         },
+                                         {
+                                             "id":  1602,
+                                             "nombre":  "Camarones"
+                                         },
+                                         {
+                                             "id":  1603,
+                                             "nombre":  "Putre"
+                                         },
+                                         {
+                                             "id":  1604,
+                                             "nombre":  "General Lagos"
+                                         }
+                                     ]
+                     }
+                 ]
+}

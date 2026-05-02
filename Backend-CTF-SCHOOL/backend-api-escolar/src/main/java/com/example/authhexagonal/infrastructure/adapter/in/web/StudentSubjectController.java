@@ -37,7 +37,7 @@ public class StudentSubjectController {
     @GetMapping("/{subjectId}/documents")
     public StudentSubjectDocumentsResponse detail(
             Authentication authentication,
-            @PathVariable Long subjectId
+            @PathVariable("subjectId") Long subjectId
     ) {
         return StudentSubjectDocumentsResponse.fromDomain(
                 getStudentSubjectDocumentsUseCase.getDocuments(authentication.getName(), subjectId)

@@ -18,14 +18,17 @@
         <mat-form-field appearance="outline">
           <mat-label>Nombre</mat-label>
           <input matInput formControlName="firstName" placeholder="Nombre(s)" />
-          @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-            <mat-error>Ingresa el nombre del usuario.</mat-error>
+          @if (getControlError('firstName')) {
+            <mat-error>{{ getControlError('firstName') }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Apellido paterno</mat-label>
           <input matInput formControlName="paternalLastName" placeholder="Apellido" />
+          @if (getControlError('paternalLastName')) {
+            <mat-error>{{ getControlError('paternalLastName') }}</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -38,16 +41,16 @@
         <mat-form-field appearance="outline">
           <mat-label>Email institucional</mat-label>
           <input matInput formControlName="email" placeholder="usuario@tfs.cl" />
-          @if (form.controls.email.invalid && form.controls.email.touched) {
-            <mat-error>Ingresa un email institucional valido.</mat-error>
+          @if (getControlError('email')) {
+            <mat-error>{{ getControlError('email') }}</mat-error>
           }
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>RUN</mat-label>
           <input matInput formControlName="run" placeholder="12.345.678-9" />
-          @if (form.controls.run.invalid && form.controls.run.touched) {
-            <mat-error>Usa formato 12.345.678-9.</mat-error>
+          @if (getControlError('run')) {
+            <mat-error>{{ getControlError('run') }}</mat-error>
           }
         </mat-form-field>
       </div>
@@ -56,8 +59,8 @@
         <mat-form-field appearance="outline">
           <mat-label>Telefono</mat-label>
           <input matInput formControlName="phone" placeholder="+56 9 1234 5678" />
-          @if (form.controls.phone.invalid && form.controls.phone.touched) {
-            <mat-error>Usa formato +56 9 1234 5678.</mat-error>
+          @if (getControlError('phone')) {
+            <mat-error>{{ getControlError('phone') }}</mat-error>
           }
         </mat-form-field>
 
@@ -69,6 +72,9 @@
             <mat-option value="Inactivo">Inactivo</mat-option>
             <mat-option value="Bloqueado">Bloqueado</mat-option>
           </mat-select>
+          @if (getControlError('initialStatus')) {
+            <mat-error>{{ getControlError('initialStatus') }}</mat-error>
+          }
         </mat-form-field>
       </div>
     </mat-card>
@@ -99,6 +105,9 @@
         <strong>Rol seleccionado:</strong>
         <span>{{ roleOptions().find(role => role.code === form.controls.roleCode.value)?.name }} — {{ selectedRoleDescription() }}</span>
       </div>
+      @if (getControlError('roleCode')) {
+        <p class="role-error">{{ getControlError('roleCode') }}</p>
+      }
     </mat-card>
 
     <mat-card appearance="outlined" class="form-card">
@@ -151,4 +160,3 @@
     </footer>
   </form>
 </app-administration-shell>
-

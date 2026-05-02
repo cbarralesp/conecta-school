@@ -19,6 +19,8 @@ public record TeacherRequest(
         @NotBlank @Size(max = 30) String gender,
         @NotBlank @Size(max = 30) String phone,
         @NotBlank @Email @Size(max = 160) String institutionalEmail,
+        Long regionId,
+        Long communeId,
         @NotBlank @Size(max = 255) String address,
         @NotBlank @Size(max = 180) String professionalTitle,
         @NotBlank @Size(max = 60) String contractType,
@@ -26,6 +28,7 @@ public record TeacherRequest(
         @NotNull LocalDate startDate,
         @NotBlank @Size(max = 40) String employmentStatus,
         @NotEmpty List<Long> subjectIds,
+        @NotNull List<Long> courseIds,
         @NotBlank @Size(max = 160) String emergencyContactName,
         @NotBlank @Size(max = 80) String emergencyContactRelation,
         @NotBlank @Size(max = 30) String emergencyContactPhone
@@ -40,6 +43,8 @@ public record TeacherRequest(
                 gender,
                 phone,
                 institutionalEmail,
+                regionId,
+                communeId,
                 address,
                 professionalTitle,
                 contractType,
@@ -47,6 +52,7 @@ public record TeacherRequest(
                 startDate,
                 employmentStatus,
                 subjectIds,
+                courseIds,
                 emergencyContactName,
                 emergencyContactRelation,
                 emergencyContactPhone

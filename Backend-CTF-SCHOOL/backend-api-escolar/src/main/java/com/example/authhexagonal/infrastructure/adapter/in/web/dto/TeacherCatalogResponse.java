@@ -11,6 +11,10 @@ public record TeacherCatalogResponse(
         String fullName,
         String rud,
         String address,
+        Long regionId,
+        Long communeId,
+        String regionName,
+        String communeName,
         String email,
         List<String> subjects
 ) {
@@ -22,6 +26,10 @@ public record TeacherCatalogResponse(
                 item.fullName(),
                 item.rud(),
                 item.address(),
+                item.regionId(),
+                item.communeId(),
+                item.regionName(),
+                item.communeName(),
                 item.email(),
                 item.subjects()
         );

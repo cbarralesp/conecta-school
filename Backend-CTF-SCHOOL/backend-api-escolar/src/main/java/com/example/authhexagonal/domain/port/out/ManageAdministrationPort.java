@@ -9,6 +9,7 @@ import com.example.authhexagonal.domain.model.AdministrationRoleOption;
 import com.example.authhexagonal.domain.model.AdministrationUserCommand;
 import com.example.authhexagonal.domain.model.AdministrationUserDetail;
 import com.example.authhexagonal.domain.model.AdministrationUserListItem;
+import com.example.authhexagonal.domain.model.AdministrationUserModuleOverride;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +47,12 @@ public interface ManageAdministrationPort {
     List<AdministrationPermissionBullet> findRolePermissions(String roleCode);
 
     List<AdministrationAccessMatrixRow> findAccessMatrixRows();
+
+    List<AdministrationUserModuleOverride> findUserModuleOverrides();
+
+    void replaceAccessMatrixRows(List<AdministrationAccessMatrixRow> rows);
+
+    void replaceUserModuleOverrides(List<AdministrationUserModuleOverride> overrides);
 
     List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
 

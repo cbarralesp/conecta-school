@@ -110,6 +110,9 @@ interface CourseDialogData {
                         <div>
                           <strong>{{ student.fullName }}</strong>
                           <span>{{ student.run }}</span>
+                          @if (studentLocationLabel(student)) {
+                            <small>{{ studentLocationLabel(student) }}</small>
+                          }
                         </div>
                         <small>{{ student.age > 0 ? student.age + ' anos' : 'Sin edad' }}</small>
                       </button>
@@ -142,6 +145,9 @@ interface CourseDialogData {
                         <div>
                           <strong>{{ student.fullName }}</strong>
                           <span>{{ student.run }}</span>
+                          @if (studentLocationLabel(student)) {
+                            <small>{{ studentLocationLabel(student) }}</small>
+                          }
                         </div>
                         <small>{{ student.age > 0 ? student.age + ' anos' : 'Asignado' }}</small>
                       </button>
@@ -406,6 +412,10 @@ interface CourseDialogData {
       font-weight: 500;
     }
 
+    .assignment-student-row div small {
+      color: #7c8ca4;
+    }
+
     .assignment-student-row:hover {
       background: #eef2ff;
     }
@@ -645,6 +655,10 @@ export class CourseDialogComponent {
       lastName: enrollment.studentLastName,
       fullName: enrollment.fullName,
       address: '',
+      regionId: null,
+      communeId: null,
+      regionName: '',
+      communeName: '',
       birthDate: '',
       age: 0
     };
@@ -659,5 +673,16 @@ export class CourseDialogComponent {
     return items.filter((student) =>
       student.fullName.toLowerCase().includes(query) || student.run.toLowerCase().includes(query)
     );
+  }
+
+  studentLocationLabel(student: StudentCatalogItem): string {
+    const commune = student.communeName.trim();
+    const region = student.regionName.trim();
+
+    if (commune && region) {
+      return `${commune}, ${region}`;
+    }
+
+    return commune || region;
   }
 }

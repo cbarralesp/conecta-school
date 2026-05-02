@@ -16,11 +16,15 @@ public record EnrollmentRequest(
         @NotNull LocalDate birthDate,
         @NotBlank @Size(max = 30) String gender,
         @NotNull Long courseId,
+        Long regionId,
+        Long communeId,
         @NotBlank @Size(max = 255) String address,
         @Size(max = 255) String specialNeeds,
         @NotBlank @Size(max = 40) String status,
         @NotNull LocalDate enrollmentDate,
+        @NotNull @Valid EnrollmentEstablishmentRequest establishment,
         @NotNull @Valid EnrollmentGuardianRequest guardian,
-        @NotEmpty List<@Valid EnrollmentPickupContactRequest> pickupContacts
+        @NotEmpty List<@Valid EnrollmentPickupContactRequest> pickupContacts,
+        List<@Valid EnrollmentDocumentRequest> documents
 ) {
 }

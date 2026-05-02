@@ -2,6 +2,7 @@ package com.example.authhexagonal.application.service;
 
 import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.AdministrationAccessMatrix;
+import com.example.authhexagonal.domain.model.AdministrationAccessMatrixUpdateCommand;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogItem;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogView;
 import com.example.authhexagonal.domain.model.AdministrationOptionItem;
@@ -11,10 +12,12 @@ import com.example.authhexagonal.domain.model.AdministrationRolesOverview;
 import com.example.authhexagonal.domain.model.AdministrationUserCommand;
 import com.example.authhexagonal.domain.model.AdministrationUserDetail;
 import com.example.authhexagonal.domain.model.AdministrationUsersOverview;
+import com.example.authhexagonal.domain.model.AdministrationUserModuleOverride;
 import com.example.authhexagonal.domain.port.in.ManageAdministrationUseCase;
 import com.example.authhexagonal.domain.port.out.ManageAdministrationPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -147,7 +150,26 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     public AdministrationAccessMatrix getAccessMatrix() {
         return new AdministrationAccessMatrix(
                 manageAdministrationPort.findRoleOptions(),
-                manageAdministrationPort.findAccessMatrixRows()
+                manageAdministrationPort.findAccessMatrixRows(),
+                manageAdministrationPort.findUserModuleOverrides()
+        );
+    }
+
+    @Override
+    @Transactional
+    public void saveAccessMatrix(AdministrationAccessMatrixUpdateCommand command, String actorUsername) {
+        manageAdministrationPort.replaceAccessMatrixRows(command.rows());
+        manageAdministrationPort.replaceUserModuleOverrides(command.userOverrides());
+        long roleChanges = command.rows().stream()
+                .mapToLong(row -> row.permissions().size())
+                .sum();
+        long overrideCount = command.userOverrides().size();
+        manageAdministrationPort.recordAuditEvent(
+                actorUsername,
+                "ROLE_CHANGE",
+                "Actualizo la matriz de accesos",
+                roleChanges + " permisos de rol y " + overrideCount + " excepciones por usuario",
+                LocalDateTime.now()
         );
     }
 

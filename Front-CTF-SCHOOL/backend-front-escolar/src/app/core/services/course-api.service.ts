@@ -93,6 +93,8 @@ export class CourseApiService {
         lastName: normalizeDashboardText(teacher.lastName),
         fullName: normalizeDashboardText(teacher.fullName),
         address: normalizeDashboardText(teacher.address),
+        regionName: normalizeDashboardText(teacher.regionName),
+        communeName: normalizeDashboardText(teacher.communeName),
         email: normalizeDashboardText(teacher.email),
         subjects: teacher.subjects.map((subject) => normalizeDashboardText(subject))
       })))
@@ -117,7 +119,9 @@ export class CourseApiService {
       firstName: normalizeDashboardText(student.firstName),
       lastName: normalizeDashboardText(student.lastName),
       fullName: normalizeDashboardText(student.fullName),
-      address: normalizeDashboardText(student.address)
+      address: normalizeDashboardText(student.address),
+      regionName: normalizeDashboardText(student.regionName),
+      communeName: normalizeDashboardText(student.communeName)
     };
   }
 }

@@ -14,12 +14,16 @@ public record EnrollmentDetailResponse(
         String gender,
         Long courseId,
         String courseName,
+        Long regionId,
+        Long communeId,
         String address,
         String specialNeeds,
         String status,
         String enrollmentDate,
+        EnrollmentEstablishmentResponse establishment,
         EnrollmentGuardianResponse guardian,
-        List<EnrollmentPickupContactResponse> pickupContacts
+        List<EnrollmentPickupContactResponse> pickupContacts,
+        List<EnrollmentDocumentResponse> documents
 ) {
     public static EnrollmentDetailResponse fromDomain(EnrollmentDetail detail) {
         return new EnrollmentDetailResponse(
@@ -32,12 +36,16 @@ public record EnrollmentDetailResponse(
                 detail.gender(),
                 detail.courseId(),
                 detail.courseName(),
+                detail.regionId(),
+                detail.communeId(),
                 detail.address(),
                 detail.specialNeeds(),
                 detail.status(),
                 detail.enrollmentDate(),
+                EnrollmentEstablishmentResponse.fromDomain(detail.establishment()),
                 EnrollmentGuardianResponse.fromDomain(detail.guardian()),
-                detail.pickupContacts().stream().map(EnrollmentPickupContactResponse::fromDomain).toList()
+                detail.pickupContacts().stream().map(EnrollmentPickupContactResponse::fromDomain).toList(),
+                detail.documents().stream().map(EnrollmentDocumentResponse::fromDomain).toList()
         );
     }
 }

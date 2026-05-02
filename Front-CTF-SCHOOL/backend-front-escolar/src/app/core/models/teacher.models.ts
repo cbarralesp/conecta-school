@@ -59,6 +59,8 @@ export interface TeacherDetail {
   gender: string;
   phone: string;
   institutionalEmail: string;
+  regionId: number | null;
+  communeId: number | null;
   address: string;
   professionalTitle: string;
   contractType: string;
@@ -87,6 +89,8 @@ export interface TeacherPayload {
   gender: string;
   phone: string;
   institutionalEmail: string;
+  regionId: number | null;
+  communeId: number | null;
   address: string;
   professionalTitle: string;
   contractType: string;
@@ -94,6 +98,7 @@ export interface TeacherPayload {
   startDate: string;
   employmentStatus: string;
   subjectIds: number[];
+  courseIds: number[];
   emergencyContactName: string;
   emergencyContactRelation: string;
   emergencyContactPhone: string;

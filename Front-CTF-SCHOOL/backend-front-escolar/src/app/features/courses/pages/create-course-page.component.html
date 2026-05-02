@@ -20,7 +20,7 @@
               <mat-form-field appearance="outline" class="compact-field compact-field--wide">
                 <mat-label>Curso a crear *</mat-label>
                 <mat-select
-                  [value]="selectedMasterCourse()"
+                  [formControl]="form.controls.courseSearch"
                   (valueChange)="selectMasterCourse($event)">
                   <mat-option [value]="null">Seleccione...</mat-option>
                   @for (course of masterCourseOptions(); track course.id) {
@@ -29,6 +29,9 @@
                     </mat-option>
                   }
                 </mat-select>
+                @if (getControlError('courseSearch')) {
+                  <mat-error>{{ getControlError('courseSearch') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
@@ -38,6 +41,9 @@
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
                 </mat-select>
+                @if (getControlError('parallel')) {
+                  <mat-error>{{ getControlError('parallel') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
@@ -47,6 +53,9 @@
                     <mat-option [value]="year">{{ year }}</mat-option>
                   }
                 </mat-select>
+                @if (getControlError('schoolYear')) {
+                  <mat-error>{{ getControlError('schoolYear') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field compact-field--narrow">
@@ -56,6 +65,9 @@
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
                 </mat-select>
+                @if (getControlError('scheduleType')) {
+                  <mat-error>{{ getControlError('scheduleType') }}</mat-error>
+                }
               </mat-form-field>
             </form>
           </section>
@@ -71,14 +83,17 @@
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Profesor *</mat-label>
                 <mat-select
-                  [value]="selectedTeacher()"
+                  [formControl]="form.controls.teacherSearch"
                   (valueChange)="selectTeacher($event)">
                   @for (teacher of teachers(); track teacher.id) {
                     <mat-option [value]="teacher">
-                      {{ teacher.fullName }}
+                      {{ teacherOptionLabel(teacher) }}
                     </mat-option>
                   }
                 </mat-select>
+                @if (getControlError('teacherSearch')) {
+                  <mat-error>{{ getControlError('teacherSearch') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
@@ -89,7 +104,7 @@
                   <mat-option [value]="null">Ninguno</mat-option>
                   @for (assistant of assistants(); track assistant.id) {
                     <mat-option [value]="assistant">
-                      {{ assistant.fullName }}
+                      {{ teacherOptionLabel(assistant) }}
                     </mat-option>
                   }
                 </mat-select>
@@ -135,8 +150,13 @@
                       class="assignment-student-row"
                       [class.is-selected]="checkedAvailableIds().includes(student.id)"
                       (click)="toggleAvailableStudent(student.id)">
-                      <strong>{{ student.fullName }}</strong>
-                      <span>{{ student.run }}</span>
+                      <div class="assignment-student-copy">
+                        <strong>{{ student.fullName }}</strong>
+                        <span>{{ student.run }}</span>
+                        @if (studentLocationLabel(student)) {
+                          <small>{{ studentLocationLabel(student) }}</small>
+                        }
+                      </div>
                     </button>
                   }
                 }
@@ -164,8 +184,13 @@
                       class="assignment-student-row assignment-student-row--selected"
                       [class.is-selected]="checkedSelectedIds().includes(student.id)"
                       (click)="toggleSelectedStudent(student.id)">
-                      <strong>{{ student.fullName }}</strong>
-                      <span>{{ student.run }}</span>
+                      <div class="assignment-student-copy">
+                        <strong>{{ student.fullName }}</strong>
+                        <span>{{ student.run }}</span>
+                        @if (studentLocationLabel(student)) {
+                          <small>{{ studentLocationLabel(student) }}</small>
+                        }
+                      </div>
                     </button>
                   }
                 }

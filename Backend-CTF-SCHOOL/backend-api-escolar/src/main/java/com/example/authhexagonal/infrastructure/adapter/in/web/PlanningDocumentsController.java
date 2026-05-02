@@ -73,7 +73,7 @@ public class PlanningDocumentsController {
     @GetMapping("/{documentId}/download")
     public ResponseEntity<ByteArrayResource> download(
             Authentication authentication,
-            @PathVariable Long documentId
+            @PathVariable("documentId") Long documentId
     ) {
         PlanningDocumentDownload download = downloadPlanningDocumentUseCase.downloadDocument(
                 authentication.getName(),
@@ -94,7 +94,7 @@ public class PlanningDocumentsController {
     @DeleteMapping("/{documentId}")
     public PlanningDocumentDeleteResponse delete(
             Authentication authentication,
-            @PathVariable Long documentId
+            @PathVariable("documentId") Long documentId
     ) {
         deletePlanningDocumentUseCase.deleteDocument(authentication.getName(), documentId);
         return new PlanningDocumentDeleteResponse(documentId, "ELIMINADO", "Documento eliminado correctamente");

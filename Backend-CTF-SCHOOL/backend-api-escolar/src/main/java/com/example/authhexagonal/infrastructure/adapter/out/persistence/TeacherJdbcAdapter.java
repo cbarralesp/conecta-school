@@ -55,6 +55,8 @@ public class TeacherJdbcAdapter {
                             rs.getString("GENERO"),
                             rs.getString("TELEFONO"),
                             rs.getString("CORREO_ELECTRONICO"),
+                            readNullableLong(rs, "REGION_ID"),
+                            readNullableLong(rs, "COMUNA_ID"),
                             rs.getString("DIRECCION"),
                             rs.getString("TITULO_PROFESIONAL"),
                             rs.getString("TIPO_CONTRATO"),
@@ -71,13 +73,26 @@ public class TeacherJdbcAdapter {
     }
 
     public boolean existsTeacherRun(String run, Long excludeTeacherId) {
-        Integer count = jdbcTemplate.queryForObject("""
+        String sql = """
                 SELECT COUNT(1)
                 FROM "PROFESORES" pr
                 JOIN "PERSONAS" pe ON pe."ID" = pr."PERSONA_ID"
                 WHERE UPPER(pe."RUN") = UPPER(?)
-                  AND (? IS NULL OR pr."ID" <> ?)
-                """, Integer.class, run, excludeTeacherId, excludeTeacherId);
+                """;
+
+        Integer count;
+        if (excludeTeacherId == null) {
+            count = jdbcTemplate.queryForObject(sql, Integer.class, run);
+        } else {
+            count = jdbcTemplate.queryForObject(
+                    sql + """
+                            AND pr."ID" <> ?
+                            """,
+                    Integer.class,
+                    run,
+                    excludeTeacherId
+            );
+        }
         return count != null && count > 0;
     }
 
@@ -85,6 +100,7 @@ public class TeacherJdbcAdapter {
         Long personId = insertPerson(command);
         Long teacherId = insertTeacher(personId, command);
         replaceTeacherSubjects(teacherId, command.subjectIds());
+        syncTeacherCourseAssignments(teacherId, command.subjectIds(), command.courseIds());
         replaceEmergencyContact(teacherId, command);
         return findById(teacherId).orElseThrow();
     }
@@ -98,6 +114,7 @@ public class TeacherJdbcAdapter {
         updatePerson(personId, command);
         updateTeacherRecord(teacherId, command);
         replaceTeacherSubjects(teacherId, command.subjectIds());
+        syncTeacherCourseAssignments(teacherId, command.subjectIds(), command.courseIds());
         replaceEmergencyContact(teacherId, command);
         return findById(teacherId).orElseThrow();
     }
@@ -312,6 +329,14 @@ public class TeacherJdbcAdapter {
             sql.append(", \"GENERO\"");
             values.add(command.gender());
         }
+        if (columnExists("PERSONAS", "REGION_ID")) {
+            sql.append(", \"REGION_ID\"");
+            values.add(command.regionId());
+        }
+        if (columnExists("PERSONAS", "COMUNA_ID")) {
+            sql.append(", \"COMUNA_ID\"");
+            values.add(command.communeId());
+        }
         sql.append(") VALUES (");
         StringJoiner joiner = new StringJoiner(", ");
         for (int index = 0; index < values.size(); index++) {
@@ -377,13 +402,33 @@ public class TeacherJdbcAdapter {
             return;
         }
         jdbcTemplate.update("DELETE FROM \"PROFESOR_ASIGNATURAS\" WHERE \"PROFESOR_ID\" = ?", teacherId);
-        if (columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA_ID")) {
+        boolean hasSubjectIdColumn = columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA_ID");
+        boolean hasSubjectNameColumn = columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA");
+        if (hasSubjectIdColumn && hasSubjectNameColumn) {
+            for (Long subjectId : subjectIds) {
+                String subjectName = jdbcTemplate.queryForObject(
+                        "SELECT \"NOMBRE\" FROM \"ASIGNATURAS\" WHERE \"ID\" = ?",
+                        String.class,
+                        subjectId
+                );
+                if (subjectName != null && !subjectName.isBlank()) {
+                    jdbcTemplate.update(
+                            "INSERT INTO \"PROFESOR_ASIGNATURAS\" (\"PROFESOR_ID\", \"ASIGNATURA\", \"ASIGNATURA_ID\", \"ACTIVO\") VALUES (?, ?, ?, TRUE)",
+                            teacherId,
+                            subjectName,
+                            subjectId
+                    );
+                }
+            }
+            return;
+        }
+        if (hasSubjectIdColumn) {
             for (Long subjectId : subjectIds) {
                 jdbcTemplate.update("INSERT INTO \"PROFESOR_ASIGNATURAS\" (\"PROFESOR_ID\", \"ASIGNATURA_ID\", \"ACTIVO\") VALUES (?, ?, TRUE)", teacherId, subjectId);
             }
             return;
         }
-        if (columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA")) {
+        if (hasSubjectNameColumn) {
             for (Long subjectId : subjectIds) {
                 String subjectName = jdbcTemplate.queryForObject(
                         "SELECT \"NOMBRE\" FROM \"ASIGNATURAS\" WHERE \"ID\" = ?",
@@ -410,6 +455,172 @@ public class TeacherJdbcAdapter {
                 INSERT INTO "PROFESOR_CONTACTOS_EMERGENCIA" ("PROFESOR_ID", "NOMBRE_COMPLETO", "RELACION", "TELEFONO", "ACTIVO")
                 VALUES (?, ?, ?, ?, TRUE)
                 """, teacherId, command.emergencyContactName(), command.emergencyContactRelation(), command.emergencyContactPhone());
+    }
+
+    private void syncTeacherCourseAssignments(Long teacherId, List<Long> subjectIds, List<Long> courseIds) {
+        if (!tableExists("CARGAS_DOCENTES") || subjectIds == null || subjectIds.isEmpty() || courseIds == null || courseIds.isEmpty()) {
+            return;
+        }
+
+        Long createdByUserId = resolveTeacherUserId(teacherId);
+        for (Long courseId : courseIds) {
+            Integer schoolYear = jdbcTemplate.queryForObject(
+                    "SELECT COALESCE(\"ANIO_ESCOLAR\", EXTRACT(YEAR FROM CURRENT_DATE)::INTEGER) FROM \"CURSOS\" WHERE \"ID\" = ?",
+                    Integer.class,
+                    courseId
+            );
+
+            for (Long subjectId : subjectIds) {
+                Integer suggestedHours = jdbcTemplate.queryForObject(
+                        "SELECT COALESCE(\"HORAS_SUGERIDAS\", 1) FROM \"ASIGNATURAS\" WHERE \"ID\" = ?",
+                        Integer.class,
+                        subjectId
+                );
+
+                Long loadId = jdbcTemplate.query("""
+                        SELECT "ID"
+                        FROM "CARGAS_DOCENTES"
+                        WHERE "PROFESOR_ID" = ?
+                          AND "CURSO_ID" = ?
+                          AND "ASIGNATURA_ID" = ?
+                        ORDER BY "ID"
+                        LIMIT 1
+                        """, (rs, rowNum) -> rs.getLong("ID"), teacherId, courseId, subjectId)
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+
+                if (loadId == null) {
+                    Long nextLoadId = nextTableId("CARGAS_DOCENTES");
+                    loadId = jdbcTemplate.queryForObject("""
+                            INSERT INTO "CARGAS_DOCENTES" (
+                                "ID",
+                                "PROFESOR_ID",
+                                "CURSO_ID",
+                                "ASIGNATURA_ID",
+                                "ANIO_ESCOLAR",
+                                "HORAS_SEMANALES",
+                                "ES_PROFESOR_JEFE",
+                                "ACTIVA"
+                            )
+                            VALUES (?, ?, ?, ?, ?, ?, FALSE, TRUE)
+                            RETURNING "ID"
+                            """, Long.class,
+                            nextLoadId,
+                            teacherId,
+                            courseId,
+                            subjectId,
+                            schoolYear == null ? LocalDate.now().getYear() : schoolYear,
+                            suggestedHours == null ? 1 : suggestedHours
+                    );
+                } else {
+                    jdbcTemplate.update("""
+                            UPDATE "CARGAS_DOCENTES"
+                            SET "ANIO_ESCOLAR" = ?,
+                                "HORAS_SEMANALES" = ?,
+                                "ACTIVA" = TRUE
+                            WHERE "ID" = ?
+                            """,
+                            schoolYear == null ? LocalDate.now().getYear() : schoolYear,
+                            suggestedHours == null ? 1 : suggestedHours,
+                            loadId
+                    );
+                }
+
+                ensureDefaultPlanningUnit(loadId, createdByUserId, courseId, subjectId);
+            }
+        }
+    }
+
+    private void ensureDefaultPlanningUnit(Long loadId, Long createdByUserId, Long courseId, Long subjectId) {
+        if (!tableExists("UNIDADES_PLANIFICACION")) {
+            return;
+        }
+
+        Integer unitCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "UNIDADES_PLANIFICACION"
+                WHERE "CARGA_DOCENTE_ID" = ?
+                """, Integer.class, loadId);
+
+        if (unitCount != null && unitCount > 0) {
+            return;
+        }
+
+        String subjectName = jdbcTemplate.queryForObject(
+                "SELECT \"NOMBRE\" FROM \"ASIGNATURAS\" WHERE \"ID\" = ?",
+                String.class,
+                subjectId
+        );
+        String courseName = jdbcTemplate.queryForObject(
+                "SELECT \"NOMBRE\" FROM \"CURSOS\" WHERE \"ID\" = ?",
+                String.class,
+                courseId
+        );
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = startDate.plusWeeks(4);
+
+        jdbcTemplate.update("""
+                INSERT INTO "UNIDADES_PLANIFICACION" (
+                    "ID",
+                    "CARGA_DOCENTE_ID",
+                    "NUMERO_UNIDAD",
+                    "NOMBRE",
+                    "SEMANA_INICIO",
+                    "FECHA_INICIO",
+                    "FECHA_TERMINO",
+                    "SEMANAS_ESTIMADAS",
+                    "CLASES_PLANIFICADAS",
+                    "DESCRIPCION_GENERAL",
+                    "OBJETIVOS_APRENDIZAJE",
+                    "INDICADORES_LOGRO",
+                    "ESTADO",
+                    "CREADO_POR_USUARIO_ID",
+                    "FECHA_CREACION",
+                    "FECHA_ACTUALIZACION"
+                )
+                VALUES (?, ?, 'UNIDAD_I', ?, 1, ?, ?, 4, 1, ?, ?, ?, 'CREADA', ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """,
+                nextTableId("UNIDADES_PLANIFICACION"),
+                loadId,
+                "Unidad I",
+                startDate,
+                endDate,
+                "Unidad generada automaticamente para habilitar la planificacion del curso y asignatura.",
+                "Objetivos iniciales de " + (subjectName == null ? "la asignatura" : subjectName) + " para " + (courseName == null ? "el curso" : courseName) + ".",
+                "Participa en actividades iniciales y desarrolla evidencia basica del aprendizaje esperado.",
+                createdByUserId
+        );
+    }
+
+    private Long resolveTeacherUserId(Long teacherId) {
+        return jdbcTemplate.query("""
+                SELECT u."ID"
+                FROM "USUARIOS" u
+                JOIN "PROFESORES" pr ON pr."PERSONA_ID" = u."PERSONA_ID"
+                WHERE pr."ID" = ?
+                ORDER BY u."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), teacherId)
+                .stream()
+                .findFirst()
+                .orElseGet(() -> jdbcTemplate.query("""
+                        SELECT "ID"
+                        FROM "USUARIOS"
+                        ORDER BY "ID"
+                        LIMIT 1
+                        """, (rs, rowNum) -> rs.getLong("ID"))
+                        .stream()
+                        .findFirst()
+                        .orElse(1L));
+    }
+
+    private Long nextTableId(String tableName) {
+        Long nextId = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(MAX(\"ID\"), 0) + 1 FROM \"" + tableName + "\"",
+                Long.class
+        );
+        return nextId == null ? 1L : nextId;
     }
 
     private String nextTeacherCode() {
@@ -442,6 +653,11 @@ public class TeacherJdbcAdapter {
         return value != null ? value.toLocalDate() : null;
     }
 
+    private Long readNullableLong(java.sql.ResultSet rs, String columnName) throws java.sql.SQLException {
+        long value = rs.getLong(columnName);
+        return rs.wasNull() ? null : value;
+    }
+
     private String detailQuery() {
         return "SELECT " +
                 "pr.\"ID\", " +
@@ -459,6 +675,8 @@ public class TeacherJdbcAdapter {
                 selectColumnOrAlias("PERSONAS", "FECHA_NACIMIENTO", "pe", "NULL::date", "FECHA_NACIMIENTO") + ", " +
                 selectColumnOrAlias("PERSONAS", "GENERO", "pe", "''", "GENERO") + ", " +
                 "pe.\"CORREO_ELECTRONICO\", " +
+                selectColumnOrAlias("PERSONAS", "REGION_ID", "pe", "NULL::bigint", "REGION_ID") + ", " +
+                selectColumnOrAlias("PERSONAS", "COMUNA_ID", "pe", "NULL::bigint", "COMUNA_ID") + ", " +
                 "pe.\"DIRECCION\", " +
                 "pe.\"TELEFONO\" " +
                 "FROM \"PROFESORES\" pr " +
@@ -636,6 +854,14 @@ public class TeacherJdbcAdapter {
         if (columnExists("PERSONAS", "GENERO")) {
             sql.append(", \"GENERO\" = ?");
             values.add(command.gender());
+        }
+        if (columnExists("PERSONAS", "REGION_ID")) {
+            sql.append(", \"REGION_ID\" = ?");
+            values.add(command.regionId());
+        }
+        if (columnExists("PERSONAS", "COMUNA_ID")) {
+            sql.append(", \"COMUNA_ID\" = ?");
+            values.add(command.communeId());
         }
         sql.append(" WHERE \"ID\" = ?");
         values.add(personId);

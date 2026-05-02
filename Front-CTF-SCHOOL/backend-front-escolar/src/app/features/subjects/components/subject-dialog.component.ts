@@ -37,18 +37,30 @@ interface SubjectDialogData {
           <mat-form-field appearance="outline">
             <mat-label>Codigo</mat-label>
             <input matInput formControlName="code" />
+            @if (getControlError('code')) {
+              <mat-error>{{ getControlError('code') }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Nombre</mat-label>
             <input matInput formControlName="name" />
+            @if (getControlError('name')) {
+              <mat-error>{{ getControlError('name') }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Area</mat-label>
             <input matInput formControlName="area" />
+            @if (getControlError('area')) {
+              <mat-error>{{ getControlError('area') }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Color</mat-label>
             <input matInput formControlName="colorHex" placeholder="#D7E8FB" />
+            @if (getControlError('colorHex')) {
+              <mat-error>{{ getControlError('colorHex') }}</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Nivel de referencia</mat-label>
@@ -57,6 +69,9 @@ interface SubjectDialogData {
           <mat-form-field appearance="outline">
             <mat-label>Horas sugeridas</mat-label>
             <input matInput type="number" formControlName="suggestedHours" />
+            @if (getControlError('suggestedHours')) {
+              <mat-error>{{ getControlError('suggestedHours') }}</mat-error>
+            }
           </mat-form-field>
 
           <div class="span-2 color-palette">
@@ -276,5 +291,30 @@ export class SubjectDialogComponent {
     this.form.controls.colorHex.setValue(colorHex);
     this.form.controls.colorHex.markAsDirty();
     this.form.controls.colorHex.markAsTouched();
+  }
+
+  getControlError(
+    controlName: 'code' | 'name' | 'area' | 'colorHex' | 'suggestedHours'
+  ): string {
+    const control = this.form.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    if (control.hasError('maxlength')) {
+      return 'Supera el largo permitido.';
+    }
+    if (control.hasError('pattern')) {
+      return 'Usa formato #RRGGBB.';
+    }
+    if (control.hasError('min')) {
+      return 'Ingresa al menos 1 hora.';
+    }
+    if (control.hasError('max')) {
+      return 'No puede superar 20 horas.';
+    }
+    return 'Revisa este campo.';
   }
 }

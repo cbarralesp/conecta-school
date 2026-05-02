@@ -55,7 +55,7 @@ public class SubjectController {
     }
 
     @PutMapping("/{subjectId}")
-    public SubjectResponse update(@PathVariable Long subjectId, @Valid @RequestBody SubjectRequest request) {
+    public SubjectResponse update(@PathVariable("subjectId") Long subjectId, @Valid @RequestBody SubjectRequest request) {
         return SubjectResponse.fromDomain(
                 manageSubjectsUseCase.update(
                         subjectId,
@@ -72,7 +72,7 @@ public class SubjectController {
 
     @DeleteMapping("/{subjectId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long subjectId) {
+    public void delete(@PathVariable("subjectId") Long subjectId) {
         manageSubjectsUseCase.delete(subjectId);
     }
 }

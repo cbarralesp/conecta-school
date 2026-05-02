@@ -8,6 +8,10 @@ public record TeacherCatalogItem(
         String rud,
         String lastName,
         String address,
+        Long regionId,
+        Long communeId,
+        String regionName,
+        String communeName,
         String email,
         List<String> subjects
 ) {

@@ -248,16 +248,27 @@
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
+.assignment-student-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
 .assignment-student-row strong {
   color: #243043;
   font-size: 0.8rem;
   font-weight: 700;
 }
 
-.assignment-student-row span {
+.assignment-student-row span,
+.assignment-student-row small {
   color: #4b5563;
   font-size: 0.78rem;
   font-weight: 500;
+}
+
+.assignment-student-row small {
+  color: #7c8ca4;
 }
 
 .assignment-student-row:hover {

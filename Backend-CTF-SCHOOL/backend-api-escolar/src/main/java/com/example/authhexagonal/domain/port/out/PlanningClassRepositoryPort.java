@@ -1,12 +1,14 @@
 package com.example.authhexagonal.domain.port.out;
 
 import com.example.authhexagonal.domain.model.PlanningClass;
+import com.example.authhexagonal.domain.model.CurriculumObjective;
 import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PlanningClassRepositoryPort {
 
@@ -52,6 +54,12 @@ public interface PlanningClassRepositoryPort {
     );
 
     void deleteClass(Long classId);
+
+    void syncCurriculumObjectives(Long classId, List<UUID> objectiveIds);
+
+    List<UUID> findCurriculumObjectiveIdsByClassId(Long classId);
+
+    List<CurriculumObjective> findCurriculumObjectivesByClassId(Long classId);
 
     Optional<PlanningClass> findAccessibleById(String username, Long classId);
 

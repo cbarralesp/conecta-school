@@ -47,14 +47,14 @@ public class CourseController {
     }
 
     @GetMapping("/cursos-maestros")
-    public List<MasterCourseResponse> searchMasterCourses(@RequestParam(defaultValue = "") String search) {
+    public List<MasterCourseResponse> searchMasterCourses(@RequestParam(name = "search", defaultValue = "") String search) {
         return manageCoursesUseCase.searchMasterCourses(search).stream()
                 .map(MasterCourseResponse::fromDomain)
                 .toList();
     }
 
     @GetMapping("/profesores-catalogo")
-    public List<TeacherCatalogResponse> searchTeachers(@RequestParam(defaultValue = "") String search) {
+    public List<TeacherCatalogResponse> searchTeachers(@RequestParam(name = "search", defaultValue = "") String search) {
         return manageCoursesUseCase.searchTeachers(search).stream()
                 .map(TeacherCatalogResponse::fromDomain)
                 .toList();
@@ -62,8 +62,8 @@ public class CourseController {
 
     @GetMapping("/alumnos/disponibles")
     public List<StudentCatalogResponse> searchAvailableStudents(
-            @RequestParam Long masterCourseId,
-            @RequestParam(defaultValue = "") String search
+            @RequestParam(name = "masterCourseId") Long masterCourseId,
+            @RequestParam(name = "search", defaultValue = "") String search
     ) {
         return manageCoursesUseCase.searchAvailableStudents(masterCourseId, search).stream()
                 .map(StudentCatalogResponse::fromDomain)
@@ -71,14 +71,14 @@ public class CourseController {
     }
 
     @GetMapping("/alumnos/universo")
-    public List<StudentCatalogResponse> searchAllUnassignedStudents(@RequestParam(defaultValue = "") String search) {
+    public List<StudentCatalogResponse> searchAllUnassignedStudents(@RequestParam(name = "search", defaultValue = "") String search) {
         return manageCoursesUseCase.searchAllUnassignedStudents(search).stream()
                 .map(StudentCatalogResponse::fromDomain)
                 .toList();
     }
 
     @GetMapping("/cursos/{courseId}")
-    public CourseResponse findById(@PathVariable Long courseId) {
+    public CourseResponse findById(@PathVariable("courseId") Long courseId) {
         return CourseResponse.fromDomain(manageCoursesUseCase.findById(courseId));
     }
 
@@ -114,7 +114,7 @@ public class CourseController {
     }
 
     @PutMapping("/cursos/{courseId}")
-    public CourseResponse update(@PathVariable Long courseId, @Valid @RequestBody CourseRequest request) {
+    public CourseResponse update(@PathVariable("courseId") Long courseId, @Valid @RequestBody CourseRequest request) {
         return CourseResponse.fromDomain(
                 manageCoursesUseCase.update(
                         courseId,
@@ -133,7 +133,7 @@ public class CourseController {
 
     @DeleteMapping("/cursos/{courseId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long courseId) {
+    public void delete(@PathVariable("courseId") Long courseId) {
         manageCoursesUseCase.delete(courseId);
     }
 

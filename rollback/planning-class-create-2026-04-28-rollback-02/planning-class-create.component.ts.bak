@@ -1,0 +1,862 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, WritableSignal, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  PlanningClassCatalogs,
+  PlanningClassCatalogUnit,
+  PlanningClass,
+  PlanningClassPayload,
+  PlanningObjectiveOption
+} from '../../../core/models/planning.models';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import {
+  CurriculumGrade,
+  CurriculumObjective,
+  CurriculumSubject
+} from '../../../core/models/curriculum.models';
+import { CurriculumService } from '../../../core/services/curriculum.service';
+import { PlanningApiService } from '../../../core/services/planning-api.service';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
+
+type ClassFormMode = 'draft' | 'publish';
+
+type PendingDocument = {
+  file: File;
+  visibleToStudents: boolean;
+};
+
+type ChipGroupMode = 'single' | 'multiple';
+
+@Component({
+  selector: 'app-planning-class-create',
+  imports: [
+    ReactiveFormsModule,
+    MatIconModule,
+    MatSnackBarModule,
+    TeacherModernLayoutComponent
+  ],
+  templateUrl: './planning-class-create.component.html',
+  styleUrl: './planning-class-create.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class PlanningClassCreateComponent {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly planningApiService = inject(PlanningApiService);
+  private readonly curriculumService = inject(CurriculumService);
+  private readonly authStateService = inject(AuthStateService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
+
+  readonly user = this.authStateService.user;
+  readonly editingClassId = signal<number | null>(this.resolveEditingClassId());
+  readonly isLoading = signal(true);
+  readonly isSaving = signal(false);
+  readonly catalogs = signal<PlanningClassCatalogs | null>(null);
+  readonly pendingDocuments = signal<PendingDocument[]>([]);
+  readonly selectedSubjectId = signal<number | null>(null);
+  readonly selectedCourseId = signal<number | null>(null);
+  readonly startStrategy = signal('Lluvia de ideas');
+  readonly groupingMode = signal('Individual');
+  readonly reflectionSuccess = signal('');
+  readonly reflectionImprove = signal('');
+  readonly objectiveAchievement = signal(75);
+  readonly diversityNotes = signal('');
+  readonly selectedLearningApproach = signal('Para el aprendizaje');
+  readonly selectedInstrument = signal('Rubrica');
+  readonly activeResources = signal<string[]>(['Guia impresa', 'Proyector']);
+  readonly activeDiversitySupports = signal<string[]>(['PIE']);
+  readonly curriculumSubjects = signal<CurriculumSubject[]>([]);
+  readonly curriculumGrades = signal<CurriculumGrade[]>([]);
+  readonly curriculumObjectives = signal<CurriculumObjective[]>([]);
+  readonly selectedCurriculumSubjectId = signal<string | null>(null);
+  readonly selectedCurriculumGradeId = signal<string | null>(null);
+  readonly selectedCurriculumAxis = signal('all');
+  readonly selectedCurriculumType = signal('all');
+  readonly selectedCurriculumObjectives = signal<CurriculumObjective[]>([]);
+  readonly isCurriculumLoading = signal(false);
+
+  readonly form = this.formBuilder.group({
+    unitId: this.formBuilder.control<number | null>(null, Validators.required),
+    durationCode: this.formBuilder.control('', Validators.required),
+    plannedDate: this.formBuilder.control<Date | null>(null, Validators.required),
+    title: this.formBuilder.control('', Validators.required),
+    subjectId: this.formBuilder.control<number | null>(null),
+    courseId: this.formBuilder.control<number | null>(null),
+    objectiveCode: this.formBuilder.control(''),
+    evaluationType: this.formBuilder.control(''),
+    startActivity: this.formBuilder.control(''),
+    developmentActivity: this.formBuilder.control(''),
+    closingActivity: this.formBuilder.control('')
+  });
+  readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
+
+  readonly isEditMode = computed(() => this.editingClassId() !== null);
+  readonly pageTitle = computed(() => this.isEditMode() ? 'Editar Planificacion' : 'Nueva Planificacion');
+  readonly saveButtonLabel = computed(() => this.isEditMode() ? 'Actualizar Planificacion' : 'Guardar Planificacion');
+  readonly startStrategyOptions = [
+    'Lluvia de ideas',
+    'Imagen misteriosa',
+    'Pregunta detonante',
+    'Video corto'
+  ] as const;
+  readonly groupingOptions = [
+    'Individual',
+    'Parejas',
+    'Grupos pequenos (4 alumnos)',
+    'Grande (Puzzle)'
+  ] as const;
+  readonly learningApproachOptions = [
+    'Para el aprendizaje',
+    'Como el aprendizaje',
+    'Del aprendizaje'
+  ] as const;
+  readonly instrumentOptions = [
+    'Lista de cotejo',
+    'Rubrica',
+    'Pregunta oral',
+    'Prueba escrita',
+    'Autoevaluacion'
+  ] as const;
+  readonly resourceOptions = [
+    'Guia impresa',
+    'Proyector',
+    'Libro de texto',
+    'Material concreto',
+    'Video'
+  ] as const;
+  readonly diversitySupportOptions = [
+    'PIE',
+    'Superdotacion',
+    'Diferenciacion por nivel'
+  ] as const;
+
+  readonly subjectOptions = computed(() => {
+    const subjects = new Map<number, { id: number; name: string }>();
+    for (const unit of this.catalogs()?.units ?? []) {
+      if (!subjects.has(unit.subjectId)) {
+        subjects.set(unit.subjectId, { id: unit.subjectId, name: unit.subjectName });
+      }
+    }
+    return Array.from(subjects.values());
+  });
+
+  readonly courseOptions = computed(() => {
+    const subjectId = this.selectedSubjectId();
+    const courses = new Map<number, { id: number; name: string }>();
+    for (const unit of this.catalogs()?.units ?? []) {
+      if (subjectId !== null && unit.subjectId !== subjectId) {
+        continue;
+      }
+      if (!courses.has(unit.courseId)) {
+        courses.set(unit.courseId, { id: unit.courseId, name: unit.courseName });
+      }
+    }
+    return Array.from(courses.values());
+  });
+
+  readonly filteredUnits = computed(() => {
+    const subjectId = this.selectedSubjectId();
+    const courseId = this.selectedCourseId();
+    return (this.catalogs()?.units ?? []).filter(
+      (unit) =>
+        (subjectId === null || unit.subjectId === subjectId) &&
+        (courseId === null || unit.courseId === courseId)
+    );
+  });
+
+  readonly selectedUnit = computed<PlanningClassCatalogUnit | null>(() => {
+    const unitId = this.formValue().unitId;
+    if (!unitId) {
+      return null;
+    }
+    return this.catalogs()?.units.find((unit) => unit.unitId === unitId) ?? null;
+  });
+
+  readonly objectiveOptions = computed<PlanningObjectiveOption[]>(() => {
+    const unitId = this.formValue().unitId;
+    if (!unitId) {
+      return [];
+    }
+    return (this.catalogs()?.objectives ?? []).filter((objective) => objective.unitId === unitId);
+  });
+
+  readonly objectiveGroups = computed(() => {
+    const groups = new Map<string, PlanningObjectiveOption[]>();
+    for (const objective of this.objectiveOptions()) {
+      const axis = objective.axis || 'Objetivos de Aprendizaje';
+      groups.set(axis, [...(groups.get(axis) ?? []), objective]);
+    }
+
+    return Array.from(groups.entries()).map(([axis, objectives]) => ({
+      axis,
+      objectives
+    }));
+  });
+
+  readonly selectedObjective = computed<PlanningObjectiveOption | null>(() => {
+    const objectiveCode = this.formValue().objectiveCode;
+    if (!objectiveCode) {
+      return null;
+    }
+    return this.objectiveOptions().find((objective) => objective.code === objectiveCode) ?? null;
+  });
+
+  readonly displayedSkills = computed(() => {
+    const skills = this.selectedObjective()?.skills ?? [];
+    return skills.length > 0 ? skills : ['Crear', 'Analizar'];
+  });
+
+  readonly displayedAttitudes = computed(() => {
+    const attitudes = this.selectedObjective()?.attitudes ?? [];
+    return attitudes.length > 0
+      ? attitudes
+      : ['Respetar y valorar las obras de sus companeros.', 'Cuidar los materiales de trabajo.'];
+  });
+
+  readonly curriculumAxisOptions = computed(() => {
+    const axes = new Set<string>();
+    for (const objective of this.curriculumObjectives()) {
+      if (objective.eje?.trim()) {
+        axes.add(objective.eje.trim());
+      }
+    }
+    return Array.from(axes.values()).sort((left, right) => left.localeCompare(right, 'es'));
+  });
+
+  readonly filteredCurriculumObjectives = computed(() => {
+    const selectedAxis = this.selectedCurriculumAxis();
+    const selectedType = this.selectedCurriculumType();
+
+    return this.curriculumObjectives().filter((objective) => {
+      const matchesAxis = selectedAxis === 'all' || objective.eje === selectedAxis;
+      const matchesType = selectedType === 'all' || objective.tipo === selectedType;
+      return matchesAxis && matchesType;
+    });
+  });
+
+  readonly selectedCurriculumSubjectName = computed(() => {
+    const subjectId = this.selectedCurriculumSubjectId();
+    return this.curriculumSubjects().find((subject) => subject.id === subjectId)?.nombre ?? 'Pendiente';
+  });
+
+  readonly selectedCurriculumGradeLabel = computed(() => {
+    const gradeId = this.selectedCurriculumGradeId();
+    return this.curriculumGrades().find((grade) => grade.id === gradeId)?.label ?? 'Pendiente';
+  });
+
+  readonly selectedDurationLabel = computed(() => {
+    const durationCode = this.formValue().durationCode;
+    if (!durationCode) {
+      return 'Duracion pendiente';
+    }
+    return this.catalogs()?.durationOptions.find((item) => item.code === durationCode)?.label ?? durationCode;
+  });
+
+  readonly plannedDateLabel = computed(() => {
+    const plannedDate = this.formValue().plannedDate;
+    if (!plannedDate) {
+      return 'Fecha pendiente';
+    }
+    return new Intl.DateTimeFormat('es-CL', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short'
+    }).format(plannedDate);
+  });
+
+  readonly plannedDateInputValue = computed(() => {
+    const plannedDate = this.formValue().plannedDate;
+    return plannedDate ? this.formatDate(plannedDate) : '';
+  });
+
+  readonly plannerSubtitle = computed(() => {
+    const unit = this.selectedUnit();
+    if (!unit) {
+      return 'Selecciona una unidad para completar asignatura, curso y OA';
+    }
+    return `${unit.subjectName} · ${unit.courseName} · ${unit.unitNumberLabel}`;
+  });
+
+  constructor() {
+    this.loadCatalogs();
+    this.loadCurriculumSubjects();
+    this.form.controls.unitId.valueChanges.subscribe((unitId) => {
+      this.form.controls.objectiveCode.setValue('', { emitEvent: false });
+      const unit = this.catalogs()?.units.find((item) => item.unitId === unitId);
+      if (unit) {
+        this.selectedSubjectId.set(unit.subjectId);
+        this.selectedCourseId.set(unit.courseId);
+        this.form.controls.subjectId.setValue(unit.subjectId, { emitEvent: false });
+        this.form.controls.courseId.setValue(unit.courseId, { emitEvent: false });
+        this.syncCurriculumSelectionFromUnit();
+      }
+    });
+  }
+
+  updateSubject(value: string): void {
+    const subjectId = Number(value);
+    const nextSubjectId = Number.isFinite(subjectId) ? subjectId : null;
+    this.selectedSubjectId.set(nextSubjectId);
+    this.form.controls.subjectId.setValue(nextSubjectId, { emitEvent: false });
+
+    const firstCourse = this.courseOptions()[0] ?? null;
+    this.selectedCourseId.set(firstCourse?.id ?? null);
+    this.form.controls.courseId.setValue(firstCourse?.id ?? null, { emitEvent: false });
+    this.selectFirstFilteredUnit();
+    this.syncCurriculumSelectionFromUnit();
+  }
+
+  updateCourse(value: string): void {
+    const courseId = Number(value);
+    const nextCourseId = Number.isFinite(courseId) ? courseId : null;
+    this.selectedCourseId.set(nextCourseId);
+    this.form.controls.courseId.setValue(nextCourseId, { emitEvent: false });
+    this.selectFirstFilteredUnit();
+    this.syncCurriculumSelectionFromUnit();
+  }
+
+  updateUnit(value: string): void {
+    const unitId = Number(value);
+    if (!Number.isFinite(unitId)) {
+      this.form.controls.unitId.setValue(null);
+      return;
+    }
+
+    this.form.controls.unitId.setValue(unitId);
+  }
+
+  updatePlannedDate(value: string): void {
+    this.form.controls.plannedDate.setValue(value ? new Date(`${value}T00:00:00`) : null);
+  }
+
+  addSelectedObjective(): void {
+    const currentObjectiveCode = this.form.controls.objectiveCode.value;
+    if (currentObjectiveCode) {
+      this.snackBar.open(`OA ${currentObjectiveCode} agregado`, 'Cerrar', { duration: 2200 });
+      return;
+    }
+
+    const firstObjective = this.objectiveOptions()[0];
+    if (!firstObjective) {
+      this.snackBar.open('No hay OA disponibles para esta unidad', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    this.form.controls.objectiveCode.setValue(firstObjective.code);
+    this.snackBar.open(`OA ${firstObjective.code} agregado`, 'Cerrar', { duration: 2200 });
+  }
+
+  setStartStrategy(value: string): void {
+    this.startStrategy.set(value);
+  }
+
+  setGroupingMode(value: string): void {
+    this.groupingMode.set(value);
+  }
+
+  updateReflectionSuccess(value: string): void {
+    this.reflectionSuccess.set(value);
+  }
+
+  updateReflectionImprove(value: string): void {
+    this.reflectionImprove.set(value);
+  }
+
+  updateObjectiveAchievement(value: string): void {
+    const parsed = Number(value);
+    this.objectiveAchievement.set(Number.isFinite(parsed) ? parsed : 75);
+  }
+
+  updateDiversityNotes(value: string): void {
+    this.diversityNotes.set(value);
+  }
+
+  selectEvaluationType(code: string): void {
+    this.form.controls.evaluationType.setValue(code);
+  }
+
+  selectLearningApproach(value: string): void {
+    this.selectedLearningApproach.set(value);
+  }
+
+  selectInstrument(value: string): void {
+    this.selectedInstrument.set(value);
+  }
+
+  toggleResource(value: string): void {
+    this.toggleChipState(this.activeResources, value, 'multiple');
+  }
+
+  toggleDiversitySupport(value: string): void {
+    this.toggleChipState(this.activeDiversitySupports, value, 'multiple');
+  }
+
+  isActiveEvaluationType(code: string): boolean {
+    return this.form.controls.evaluationType.value === code;
+  }
+
+  isActiveLearningApproach(value: string): boolean {
+    return this.selectedLearningApproach() === value;
+  }
+
+  isActiveInstrument(value: string): boolean {
+    return this.selectedInstrument() === value;
+  }
+
+  hasActiveResource(value: string): boolean {
+    return this.activeResources().includes(value);
+  }
+
+  hasActiveDiversitySupport(value: string): boolean {
+    return this.activeDiversitySupports().includes(value);
+  }
+
+  selectCurriculumSubject(subjectId: string): void {
+    this.selectedCurriculumSubjectId.set(subjectId || null);
+    this.selectedCurriculumGradeId.set(null);
+    this.curriculumObjectives.set([]);
+    this.selectedCurriculumAxis.set('all');
+    this.selectedCurriculumType.set('all');
+
+    if (!subjectId) {
+      this.curriculumGrades.set([]);
+      return;
+    }
+
+    this.isCurriculumLoading.set(true);
+    this.curriculumService.getGradesBySubject(subjectId).subscribe({
+      next: (grades) => {
+        this.curriculumGrades.set(grades);
+        const preferredGrade = this.resolvePreferredCurriculumGrade(grades);
+        this.isCurriculumLoading.set(false);
+        if (preferredGrade) {
+          this.selectCurriculumGrade(preferredGrade.id);
+        }
+      },
+      error: () => {
+        this.curriculumGrades.set([]);
+        this.curriculumObjectives.set([]);
+        this.isCurriculumLoading.set(false);
+      }
+    });
+  }
+
+  selectCurriculumGrade(gradeId: string): void {
+    this.selectedCurriculumGradeId.set(gradeId || null);
+    this.selectedCurriculumAxis.set('all');
+    this.selectedCurriculumType.set('all');
+
+    if (!gradeId) {
+      this.curriculumObjectives.set([]);
+      return;
+    }
+
+    this.isCurriculumLoading.set(true);
+    this.curriculumService.getObjectivesByGrade(gradeId).subscribe({
+      next: (objectives) => {
+        this.curriculumObjectives.set(objectives);
+        this.selectedCurriculumObjectives.update((current) =>
+          current.filter((selected) => objectives.some((objective) => objective.id === selected.id))
+        );
+        this.isCurriculumLoading.set(false);
+      },
+      error: () => {
+        this.curriculumObjectives.set([]);
+        this.isCurriculumLoading.set(false);
+      }
+    });
+  }
+
+  updateCurriculumAxis(value: string): void {
+    this.selectedCurriculumAxis.set(value || 'all');
+  }
+
+  updateCurriculumType(value: string): void {
+    this.selectedCurriculumType.set(value || 'all');
+  }
+
+  toggleCurriculumObjective(objective: CurriculumObjective): void {
+    this.selectedCurriculumObjectives.update((current) => {
+      if (current.some((item) => item.id === objective.id)) {
+        return current.filter((item) => item.id !== objective.id);
+      }
+      return [...current, objective];
+    });
+  }
+
+  removeCurriculumObjective(objectiveId: string): void {
+    this.selectedCurriculumObjectives.update((current) =>
+      current.filter((objective) => objective.id !== objectiveId)
+    );
+  }
+
+  isCurriculumObjectiveSelected(objectiveId: string): boolean {
+    return this.selectedCurriculumObjectives().some((objective) => objective.id === objectiveId);
+  }
+
+  cancel(): void {
+    void this.router.navigate(['/dashboard/planificacion']);
+  }
+
+  saveDraft(): void {
+    this.submit('draft');
+  }
+
+  publishToStudents(): void {
+    this.submit('publish');
+  }
+
+  addDocuments(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+
+    if (files.length === 0) {
+      return;
+    }
+
+    const acceptedExtensions = new Set(['pdf', 'docx', 'pptx']);
+    const maxSize = 20 * 1024 * 1024;
+
+    const nextDocuments: PendingDocument[] = [];
+    for (const file of files) {
+      const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+      if (!acceptedExtensions.has(extension)) {
+        this.snackBar.open(`El archivo ${file.name} no tiene una extension permitida`, 'Cerrar', {
+          duration: 3200
+        });
+        continue;
+      }
+
+      if (file.size > maxSize) {
+        this.snackBar.open(`El archivo ${file.name} supera el limite de 20 MB`, 'Cerrar', {
+          duration: 3200
+        });
+        continue;
+      }
+
+      nextDocuments.push({ file, visibleToStudents: true });
+    }
+
+    this.pendingDocuments.update((current) => [...current, ...nextDocuments]);
+    input.value = '';
+  }
+
+  removePendingDocument(index: number): void {
+    this.pendingDocuments.update((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  toggleDocumentVisibility(index: number, visibleToStudents: boolean): void {
+    this.pendingDocuments.update((current) =>
+      current.map((document, itemIndex) =>
+        itemIndex === index ? { ...document, visibleToStudents } : document
+      )
+    );
+  }
+
+  private loadCatalogs(): void {
+    this.planningApiService.getClassCatalogs().subscribe({
+      next: (catalogs) => {
+        this.catalogs.set(catalogs);
+        const classId = this.editingClassId();
+        if (classId === null) {
+          this.initializeDefaults(catalogs);
+          this.syncCurriculumSelectionFromUnit();
+          this.isLoading.set(false);
+          return;
+        }
+
+        this.loadClassForEdit(classId);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoading.set(false);
+        this.snackBar.open(
+          typeof error.error?.message === 'string'
+            ? error.error.message
+            : 'No fue posible cargar los catalogos de nueva clase',
+          'Cerrar',
+          { duration: 3500 }
+        );
+      }
+    });
+  }
+
+  private submit(mode: ClassFormMode): void {
+    if (this.isSaving()) {
+      return;
+    }
+
+    if (mode === 'publish') {
+      this.form.controls.objectiveCode.addValidators(Validators.required);
+      this.form.controls.evaluationType.addValidators(Validators.required);
+      this.form.controls.startActivity.addValidators(Validators.required);
+      this.form.controls.developmentActivity.addValidators(Validators.required);
+      this.form.controls.closingActivity.addValidators(Validators.required);
+    } else {
+      this.form.controls.objectiveCode.removeValidators(Validators.required);
+      this.form.controls.evaluationType.removeValidators(Validators.required);
+      this.form.controls.startActivity.removeValidators(Validators.required);
+      this.form.controls.developmentActivity.removeValidators(Validators.required);
+      this.form.controls.closingActivity.removeValidators(Validators.required);
+    }
+
+    this.form.controls.objectiveCode.updateValueAndValidity();
+    this.form.controls.evaluationType.updateValueAndValidity();
+    this.form.controls.startActivity.updateValueAndValidity();
+    this.form.controls.developmentActivity.updateValueAndValidity();
+    this.form.controls.closingActivity.updateValueAndValidity();
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const payload = this.toPayload();
+    const classId = this.editingClassId();
+    const request$ = classId !== null
+      ? this.planningApiService.updateClass(classId, payload)
+      : mode === 'draft'
+        ? this.planningApiService.saveClassDraft(payload)
+        : this.planningApiService.createClass(payload);
+
+    this.isSaving.set(true);
+    request$
+      .pipe(
+        switchMap((planningClass) => {
+          const documents = this.pendingDocuments();
+          if (documents.length === 0) {
+            return of(planningClass);
+          }
+
+          return forkJoin(
+            documents.map((document) =>
+              this.planningApiService
+                .uploadClassDocument(planningClass.id, document.file, document.visibleToStudents)
+                .pipe(catchError(() => of(null)))
+            )
+          ).pipe(map(() => planningClass));
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.isSaving.set(false);
+          this.snackBar.open(
+            classId !== null
+              ? 'Planificacion actualizada correctamente'
+              : mode === 'draft'
+              ? 'Clase guardada como borrador'
+              : 'Clase publicada correctamente para continuar el flujo docente',
+            'Cerrar',
+            { duration: 3200 }
+          );
+          void this.router.navigate(['/dashboard/planificacion']);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSaving.set(false);
+          this.snackBar.open(
+            typeof error.error?.message === 'string'
+              ? error.error.message
+              : 'No fue posible guardar la clase planificada',
+            'Cerrar',
+            { duration: 3500 }
+          );
+        }
+      });
+  }
+
+  private toPayload(): PlanningClassPayload {
+    const value = this.form.getRawValue();
+    return {
+      unitId: value.unitId!,
+      durationCode: value.durationCode!,
+      plannedDate: this.formatDate(value.plannedDate!),
+      title: value.title!.trim(),
+      objectiveCode: value.objectiveCode?.trim() ?? '',
+      evaluationType: value.evaluationType?.trim() ?? '',
+      objectiveDescription: this.selectedObjective()?.description ?? this.selectedUnit()?.learningObjectives ?? '',
+      startActivity: value.startActivity?.trim() ?? '',
+      developmentActivity: value.developmentActivity?.trim() ?? '',
+      closingActivity: value.closingActivity?.trim() ?? '',
+      objectiveIds: this.selectedCurriculumObjectives().map((objective) => objective.id)
+    };
+  }
+
+  private initializeDefaults(catalogs: PlanningClassCatalogs): void {
+    const firstUnit = catalogs.units[0] ?? null;
+    if (firstUnit) {
+      this.selectedSubjectId.set(firstUnit.subjectId);
+      this.selectedCourseId.set(firstUnit.courseId);
+      this.form.controls.subjectId.setValue(firstUnit.subjectId, { emitEvent: false });
+      this.form.controls.courseId.setValue(firstUnit.courseId, { emitEvent: false });
+      this.form.controls.unitId.setValue(firstUnit.unitId);
+    }
+
+    const firstDuration = catalogs.durationOptions[0];
+    if (firstDuration && !this.form.controls.durationCode.value) {
+      this.form.controls.durationCode.setValue(firstDuration.code);
+    }
+
+    const firstEvaluation = catalogs.evaluationTypes[0];
+    if (firstEvaluation && !this.form.controls.evaluationType.value) {
+      this.form.controls.evaluationType.setValue(firstEvaluation.code);
+    }
+
+    this.syncCurriculumSelectionFromUnit();
+  }
+
+  private loadClassForEdit(classId: number): void {
+    this.planningApiService.getClassById(classId).pipe(
+      catchError(() =>
+        this.planningApiService.getClasses().pipe(
+          map((classes) => {
+            const planningClass = classes.find((item) => item.id === classId);
+            if (!planningClass) {
+              throw new Error('Planificacion no encontrada');
+            }
+            return planningClass;
+          }),
+          catchError((error) => throwError(() => error))
+        )
+      )
+    ).subscribe({
+      next: (planningClass) => {
+        this.patchFormForEdit(planningClass);
+        this.isLoading.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoading.set(false);
+        this.snackBar.open(
+          typeof error.error?.message === 'string'
+            ? error.error.message
+            : 'No fue posible cargar la planificacion para editar',
+          'Cerrar',
+          { duration: 3500 }
+        );
+        void this.router.navigate(['/dashboard/planificacion']);
+      }
+    });
+  }
+
+  private patchFormForEdit(planningClass: PlanningClass): void {
+    this.selectedSubjectId.set(planningClass.subjectId);
+    this.selectedCourseId.set(planningClass.courseId);
+    this.form.patchValue({
+      unitId: planningClass.unitId,
+      durationCode: planningClass.durationCode,
+      plannedDate: new Date(`${planningClass.plannedDate}T00:00:00`),
+      title: planningClass.title,
+      subjectId: planningClass.subjectId,
+      courseId: planningClass.courseId,
+      objectiveCode: planningClass.objectiveCode,
+      evaluationType: planningClass.evaluationType,
+      startActivity: planningClass.startActivity,
+      developmentActivity: planningClass.developmentActivity,
+      closingActivity: planningClass.closingActivity
+    });
+    this.selectedCurriculumObjectives.set(planningClass.curriculumObjectives ?? []);
+    this.syncCurriculumSelectionFromUnit();
+  }
+
+  private selectFirstFilteredUnit(): void {
+    const firstUnit = this.filteredUnits()[0] ?? null;
+    this.form.controls.unitId.setValue(firstUnit?.unitId ?? null);
+  }
+
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private resolveEditingClassId(): number | null {
+    const value = this.route.snapshot.paramMap.get('id');
+    if (!value) {
+      return null;
+    }
+
+    const classId = Number(value);
+    return Number.isFinite(classId) ? classId : null;
+  }
+
+  private toggleChipState(
+    source: WritableSignal<string[]>,
+    value: string,
+    mode: ChipGroupMode
+  ): void {
+    if (mode === 'single') {
+      source.set([value]);
+      return;
+    }
+
+    source.update((current) =>
+      current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value]
+    );
+  }
+
+  private loadCurriculumSubjects(): void {
+    this.curriculumService.getSubjects().subscribe({
+      next: (subjects) => {
+        this.curriculumSubjects.set(subjects);
+        this.syncCurriculumSelectionFromUnit();
+      },
+      error: () => {
+        this.curriculumSubjects.set([]);
+      }
+    });
+  }
+
+  private syncCurriculumSelectionFromUnit(): void {
+    const unit = this.selectedUnit();
+    const subjects = this.curriculumSubjects();
+    if (!unit || subjects.length === 0) {
+      return;
+    }
+
+    const currentSubjectId = this.selectedCurriculumSubjectId();
+    const matchedSubject = subjects.find((subject) =>
+      this.normalizeCompare(subject.nombre) === this.normalizeCompare(unit.subjectName)
+    );
+
+    if (!matchedSubject) {
+      return;
+    }
+
+    if (currentSubjectId !== matchedSubject.id) {
+      this.selectCurriculumSubject(matchedSubject.id);
+    } else if (this.curriculumGrades().length === 0) {
+      this.selectCurriculumSubject(matchedSubject.id);
+    }
+  }
+
+  private resolvePreferredCurriculumGrade(grades: CurriculumGrade[]): CurriculumGrade | null {
+    const unit = this.selectedUnit();
+    if (!unit) {
+      return grades[0] ?? null;
+    }
+
+    const gradeCode = this.extractGradeCode(unit.courseName);
+    return grades.find((grade) => grade.grado === gradeCode) ?? grades[0] ?? null;
+  }
+
+  private extractGradeCode(courseName: string): string {
+    const match = courseName.match(/\d+/);
+    return match?.[0] ?? '';
+  }
+
+  private normalizeCompare(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+}

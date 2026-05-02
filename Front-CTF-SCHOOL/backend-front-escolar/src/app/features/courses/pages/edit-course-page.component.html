@@ -27,26 +27,41 @@
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Codigo</mat-label>
                 <input matInput formControlName="code" />
+                @if (getControlError('code')) {
+                  <mat-error>{{ getControlError('code') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Curso</mat-label>
                 <input matInput formControlName="name" />
+                @if (getControlError('name')) {
+                  <mat-error>{{ getControlError('name') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Nivel</mat-label>
                 <input matInput formControlName="level" />
+                @if (getControlError('level')) {
+                  <mat-error>{{ getControlError('level') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Paralelo</mat-label>
                 <input matInput formControlName="letter" maxlength="1" />
+                @if (getControlError('letter')) {
+                  <mat-error>{{ getControlError('letter') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Ano escolar</mat-label>
                 <input matInput type="number" formControlName="schoolYear" />
+                @if (getControlError('schoolYear')) {
+                  <mat-error>{{ getControlError('schoolYear') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
@@ -56,15 +71,21 @@
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
                 </mat-select>
+                @if (getControlError('scheduleType')) {
+                  <mat-error>{{ getControlError('scheduleType') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
                 <mat-label>Profesor jefe</mat-label>
                 <mat-select formControlName="teacherId">
                   @for (teacher of teachers(); track teacher.id) {
-                    <mat-option [value]="teacher.id">{{ teacher.fullName }}</mat-option>
+                    <mat-option [value]="teacher.id">{{ teacherOptionLabel(teacher) }}</mat-option>
                   }
                 </mat-select>
+                @if (getControlError('teacherId')) {
+                  <mat-error>{{ getControlError('teacherId') }}</mat-error>
+                }
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
@@ -72,7 +93,7 @@
                 <mat-select formControlName="assistantId">
                   <mat-option [value]="null">Sin asistente</mat-option>
                   @for (teacher of teachers(); track teacher.id) {
-                    <mat-option [value]="teacher.id">{{ teacher.fullName }}</mat-option>
+                    <mat-option [value]="teacher.id">{{ teacherOptionLabel(teacher) }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
@@ -116,6 +137,9 @@
                         <div>
                           <strong>{{ student.fullName }}</strong>
                           <span>{{ student.run }}</span>
+                          @if (studentLocationLabel(student)) {
+                            <small>{{ studentLocationLabel(student) }}</small>
+                          }
                         </div>
                       </button>
                     }
@@ -147,6 +171,9 @@
                         <div>
                           <strong>{{ student.fullName }}</strong>
                           <span>{{ student.run }}</span>
+                          @if (studentLocationLabel(student)) {
+                            <small>{{ studentLocationLabel(student) }}</small>
+                          }
                         </div>
                       </button>
                     }

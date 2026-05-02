@@ -1,0 +1,14 @@
+.git
+.gitignore
+.idea
+.settings
+target
+tmp
+uploads
+sql
+scripts
+*.log
+*.class
+.project
+.classpath
+README.md

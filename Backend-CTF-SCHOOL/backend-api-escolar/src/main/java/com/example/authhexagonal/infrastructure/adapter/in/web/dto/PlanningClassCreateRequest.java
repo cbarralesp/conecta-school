@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 public record PlanningClassCreateRequest(
         @NotNull Long unitId,
@@ -15,6 +17,7 @@ public record PlanningClassCreateRequest(
         String objectiveDescription,
         @NotBlank String startActivity,
         @NotBlank String developmentActivity,
-        @NotBlank String closingActivity
+        @NotBlank String closingActivity,
+        List<UUID> objectiveIds
 ) {
 }

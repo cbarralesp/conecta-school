@@ -41,22 +41,34 @@
 
             <div class="form-group">
               <label>RUN *</label>
-              <input type="text" class="form-input" formControlName="run" placeholder="Ej: 14.567.890-1" (input)="formatRunValue()">
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('run')" formControlName="run" placeholder="Ej: 14.567.890-1" (input)="formatRunValue()">
+              @if (getControlError('run')) {
+                <span class="field-error">{{ getControlError('run') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Fecha de Nacimiento</label>
-              <input type="date" class="form-input" formControlName="birthDate">
+              <label>Fecha de Nacimiento *</label>
+              <input type="date" class="form-input" [class.form-input--invalid]="isControlInvalid('birthDate')" formControlName="birthDate">
+              @if (getControlError('birthDate')) {
+                <span class="field-error">{{ getControlError('birthDate') }}</span>
+              }
             </div>
 
             <div class="form-group">
               <label>Nombres *</label>
-              <input type="text" class="form-input" formControlName="firstNames">
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('firstNames')" formControlName="firstNames">
+              @if (getControlError('firstNames')) {
+                <span class="field-error">{{ getControlError('firstNames') }}</span>
+              }
             </div>
 
             <div class="form-group">
               <label>Apellido Paterno *</label>
-              <input type="text" class="form-input" formControlName="paternalLastName">
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('paternalLastName')" formControlName="paternalLastName">
+              @if (getControlError('paternalLastName')) {
+                <span class="field-error">{{ getControlError('paternalLastName') }}</span>
+              }
             </div>
 
             <div class="form-group">
@@ -66,26 +78,57 @@
 
             <div class="form-group">
               <label>Telefono *</label>
-              <input type="tel" class="form-input" formControlName="phone">
+              <input type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('phone')" formControlName="phone">
+              @if (getControlError('phone')) {
+                <span class="field-error">{{ getControlError('phone') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Email Personal</label>
-              <input type="email" class="form-input" formControlName="institutionalEmail">
+              <label>Email Personal *</label>
+              <input type="email" class="form-input" [class.form-input--invalid]="isControlInvalid('institutionalEmail')" formControlName="institutionalEmail">
+              @if (getControlError('institutionalEmail')) {
+                <span class="field-error">{{ getControlError('institutionalEmail') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Genero</label>
-              <select class="form-input" formControlName="gender">
+              <label>Genero *</label>
+              <select class="form-input" [class.form-input--invalid]="isControlInvalid('gender')" formControlName="gender">
                 <option value="Femenino">Femenino</option>
                 <option value="Masculino">Masculino</option>
-                <option value="No binario">No binario</option>
+              </select>
+              @if (getControlError('gender')) {
+                <span class="field-error">{{ getControlError('gender') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Region</label>
+              <select class="form-input" formControlName="regionId">
+                <option [value]="0">Seleccione region</option>
+                @for (region of chileRegions(); track region.id) {
+                  <option [value]="region.id">{{ region.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Comuna</label>
+              <select class="form-input" formControlName="communeId">
+                <option [value]="0">Seleccione comuna</option>
+                @for (commune of teacherCommunes(); track commune.id) {
+                  <option [value]="commune.id">{{ commune.name }}</option>
+                }
               </select>
             </div>
 
             <div class="form-group full">
-              <label>Direccion</label>
-              <input type="text" class="form-input" formControlName="address" placeholder="Calle, Numero, Comuna">
+              <label>Direccion *</label>
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('address')" formControlName="address" placeholder="Calle, Numero, Comuna">
+              @if (getControlError('address')) {
+                <span class="field-error">{{ getControlError('address') }}</span>
+              }
             </div>
           </div>
         </section>
@@ -101,41 +144,56 @@
           <div class="form-grid">
             <div class="form-group full">
               <label>Titulo Profesional *</label>
-              <input type="text" class="form-input" formControlName="professionalTitle">
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('professionalTitle')" formControlName="professionalTitle">
+              @if (getControlError('professionalTitle')) {
+                <span class="field-error">{{ getControlError('professionalTitle') }}</span>
+              }
             </div>
 
             <div class="form-group">
               <label>Horas Semanales *</label>
-              <input type="number" class="form-input" formControlName="weeklyHours" min="1" max="60">
+              <input type="number" class="form-input" [class.form-input--invalid]="isControlInvalid('weeklyHours')" formControlName="weeklyHours" min="1" max="60">
+              @if (getControlError('weeklyHours')) {
+                <span class="field-error">{{ getControlError('weeklyHours') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Fecha de Ingreso</label>
-              <input type="date" class="form-input" formControlName="startDate">
+              <label>Fecha de Ingreso *</label>
+              <input type="date" class="form-input" [class.form-input--invalid]="isControlInvalid('startDate')" formControlName="startDate">
+              @if (getControlError('startDate')) {
+                <span class="field-error">{{ getControlError('startDate') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Tipo Contrato</label>
-              <select class="form-input" formControlName="contractType">
+              <label>Tipo Contrato *</label>
+              <select class="form-input" [class.form-input--invalid]="isControlInvalid('contractType')" formControlName="contractType">
                 <option value="Jornada completa">Jornada completa</option>
                 <option value="Media jornada">Media jornada</option>
                 <option value="Part-time">Part-Time</option>
               </select>
+              @if (getControlError('contractType')) {
+                <span class="field-error">{{ getControlError('contractType') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Estado</label>
-              <select class="form-input" formControlName="employmentStatus">
+              <label>Estado *</label>
+              <select class="form-input" [class.form-input--invalid]="isControlInvalid('employmentStatus')" formControlName="employmentStatus">
                 <option value="Activo">Activo</option>
                 <option value="Licencia">Licencia</option>
                 <option value="Inactivo">Inactivo</option>
               </select>
+              @if (getControlError('employmentStatus')) {
+                <span class="field-error">{{ getControlError('employmentStatus') }}</span>
+              }
             </div>
 
             <div class="form-group full">
-              <label>Departamento / Area</label>
+              <label>Departamento / Area *</label>
               <div class="subject-selector">
-                <div class="subject-selector__summary">
+                <div class="subject-selector__summary" [class.subject-selector__summary--invalid]="hasInvalidSubjects()">
                   @if (selectedSubjectNames().length > 0) {
                     @for (subjectName of selectedSubjectNames(); track subjectName) {
                       <span class="subject-chip">{{ subjectName }}</span>
@@ -159,6 +217,39 @@
                     </label>
                   }
                 </div>
+                @if (hasInvalidSubjects()) {
+                  <span class="field-error">Debes seleccionar al menos una asignatura.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label>Cursos asignados</label>
+              <div class="subject-selector">
+                <div class="subject-selector__summary">
+                  @if (selectedCourseNames().length > 0) {
+                    @for (courseName of selectedCourseNames(); track courseName) {
+                      <span class="subject-chip">{{ courseName }}</span>
+                    }
+                  } @else {
+                    <span class="subject-selector__placeholder">Selecciona uno o mas cursos para este profesor</span>
+                  }
+                </div>
+
+                <div class="subject-selector__list subject-selector__list--courses">
+                  @for (course of courseOptions(); track course.id) {
+                    <label class="subject-option">
+                      <input
+                        type="checkbox"
+                        [checked]="isCourseSelected(course.id)"
+                        (change)="toggleCourse(course.id, $any($event.target).checked)">
+                      <span class="subject-option__content">
+                        <strong>{{ course.name }}</strong>
+                        <small>{{ course.code }} · {{ course.schoolYear }}</small>
+                      </span>
+                    </label>
+                  }
+                </div>
               </div>
             </div>
           </div>
@@ -176,18 +267,27 @@
 
           <div class="form-grid">
             <div class="form-group full">
-              <label>Nombre Completo</label>
-              <input type="text" class="form-input" formControlName="emergencyContactName">
+              <label>Nombre Completo *</label>
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('emergencyContactName')" formControlName="emergencyContactName">
+              @if (getControlError('emergencyContactName')) {
+                <span class="field-error">{{ getControlError('emergencyContactName') }}</span>
+              }
             </div>
 
             <div class="form-group">
-              <label>Relacion</label>
-              <input type="text" class="form-input" formControlName="emergencyContactRelation">
+              <label>Relacion *</label>
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('emergencyContactRelation')" formControlName="emergencyContactRelation">
+              @if (getControlError('emergencyContactRelation')) {
+                <span class="field-error">{{ getControlError('emergencyContactRelation') }}</span>
+              }
             </div>
 
             <div class="form-group">
               <label>Telefono *</label>
-              <input type="tel" class="form-input" formControlName="emergencyContactPhone">
+              <input type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('emergencyContactPhone')" formControlName="emergencyContactPhone">
+              @if (getControlError('emergencyContactPhone')) {
+                <span class="field-error">{{ getControlError('emergencyContactPhone') }}</span>
+              }
             </div>
           </div>
         </section>

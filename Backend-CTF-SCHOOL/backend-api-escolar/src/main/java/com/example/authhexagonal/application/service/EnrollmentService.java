@@ -2,6 +2,8 @@ package com.example.authhexagonal.application.service;
 
 import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
+import com.example.authhexagonal.domain.model.EnrollmentDocument;
+import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentOverview;
 import com.example.authhexagonal.domain.model.EnrollmentPagination;
@@ -68,6 +70,8 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                             request.studentLastName(),
                             request.birthDate(),
                             request.gender(),
+                            request.regionId(),
+                            request.communeId(),
                             request.address(),
                             normalizeText(request.specialNeeds())
                     );
@@ -79,6 +83,8 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                         request.studentLastName(),
                         request.birthDate(),
                         request.gender(),
+                        request.regionId(),
+                        request.communeId(),
                         request.address(),
                         normalizeText(request.specialNeeds())
                 ));
@@ -87,7 +93,8 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 studentId,
                 request.courseId(),
                 request.status(),
-                request.enrollmentDate()
+                request.enrollmentDate(),
+                mapEstablishment(request)
         );
         saveContacts(enrollmentId, request);
         return findById(enrollmentId);
@@ -116,6 +123,8 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 request.studentLastName(),
                 request.birthDate(),
                 request.gender(),
+                request.regionId(),
+                request.communeId(),
                 request.address(),
                 normalizeText(request.specialNeeds())
         );
@@ -124,7 +133,8 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 studentId,
                 request.courseId(),
                 request.status(),
-                request.enrollmentDate()
+                request.enrollmentDate(),
+                mapEstablishment(request)
         );
         saveContacts(enrollmentId, request);
         return findById(enrollmentId);
@@ -155,6 +165,7 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 request.guardian().authorizedPickup()
         ));
         manageEnrollmentsPort.replacePickupContacts(enrollmentId, mapPickupContacts(request.pickupContacts()));
+        manageEnrollmentsPort.replaceDocuments(enrollmentId, mapDocuments(request));
     }
 
     private List<EnrollmentPickupContact> mapPickupContacts(List<EnrollmentPickupContactRequest> contacts) {
@@ -169,6 +180,35 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                         contact.authorizedPickup()
                 ))
                 .toList();
+    }
+
+    private List<EnrollmentDocument> mapDocuments(EnrollmentRequest request) {
+        if (request.documents() == null || request.documents().isEmpty()) {
+            return List.of();
+        }
+
+        return request.documents().stream()
+                .map(document -> new EnrollmentDocument(
+                        null,
+                        document.documentKey(),
+                        document.fileName(),
+                        null,
+                        null
+                ))
+                .toList();
+    }
+
+    private EnrollmentEstablishment mapEstablishment(EnrollmentRequest request) {
+        return new EnrollmentEstablishment(
+                request.establishment().regionId(),
+                request.establishment().communeId(),
+                request.establishment().name(),
+                request.establishment().academicYear(),
+                request.establishment().dependency(),
+                request.establishment().region(),
+                request.establishment().commune(),
+                request.establishment().address()
+        );
     }
 
     private String normalizeText(String value) {

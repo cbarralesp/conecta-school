@@ -29,11 +29,11 @@ public class EnrollmentController {
 
     @GetMapping
     public EnrollmentOverviewResponse findOverview(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long courseId,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "courseId", required = false) Long courseId,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "size", required = false) Integer size
     ) {
         return EnrollmentOverviewResponse.fromDomain(
                 manageEnrollmentsUseCase.findOverview(search, courseId, status, page, size)
@@ -41,7 +41,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/{enrollmentId}")
-    public EnrollmentDetailResponse findById(@PathVariable Long enrollmentId) {
+    public EnrollmentDetailResponse findById(@PathVariable("enrollmentId") Long enrollmentId) {
         return EnrollmentDetailResponse.fromDomain(manageEnrollmentsUseCase.findById(enrollmentId));
     }
 
@@ -53,7 +53,7 @@ public class EnrollmentController {
 
     @PutMapping("/{enrollmentId}")
     public EnrollmentDetailResponse update(
-            @PathVariable Long enrollmentId,
+            @PathVariable("enrollmentId") Long enrollmentId,
             @Valid @RequestBody EnrollmentRequest request
     ) {
         return EnrollmentDetailResponse.fromDomain(manageEnrollmentsUseCase.update(enrollmentId, request));
@@ -61,7 +61,7 @@ public class EnrollmentController {
 
     @DeleteMapping("/{enrollmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long enrollmentId) {
+    public void delete(@PathVariable("enrollmentId") Long enrollmentId) {
         manageEnrollmentsUseCase.delete(enrollmentId);
     }
 }

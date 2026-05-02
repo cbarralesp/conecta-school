@@ -38,17 +38,26 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="student-run">RUN *</label>
-                <input id="student-run" type="text" class="form-input" formControlName="studentRun" placeholder="Ej: 12.345.678-9" (input)="formatRunValue('studentRun')">
+                <input id="student-run" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('studentRun')" formControlName="studentRun" placeholder="Ej: 12.345.678-9" (input)="formatRunValue('studentRun')">
+                @if (getControlError('studentRun')) {
+                  <span class="field-error">{{ getControlError('studentRun') }}</span>
+                }
               </div>
 
               <div class="form-group">
-                <label for="student-birth-date">Fecha de Nacimiento</label>
-                <input id="student-birth-date" type="date" class="form-input" formControlName="birthDate">
+                <label for="student-birth-date">Fecha de Nacimiento *</label>
+                <input id="student-birth-date" type="date" class="form-input" [class.form-input--invalid]="isControlInvalid('birthDate')" formControlName="birthDate">
+                @if (getControlError('birthDate')) {
+                  <span class="field-error">{{ getControlError('birthDate') }}</span>
+                }
               </div>
 
               <div class="form-group">
                 <label for="student-first-name">Primer Nombre *</label>
-                <input id="student-first-name" type="text" class="form-input" formControlName="studentFirstName">
+                <input id="student-first-name" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('studentFirstName')" formControlName="studentFirstName">
+                @if (getControlError('studentFirstName')) {
+                  <span class="field-error">{{ getControlError('studentFirstName') }}</span>
+                }
               </div>
 
               <div class="form-group">
@@ -58,31 +67,42 @@
 
               <div class="form-group">
                 <label for="student-last-name-father">Apellido Paterno *</label>
-                <input id="student-last-name-father" type="text" class="form-input" formControlName="studentLastNameFather">
+                <input id="student-last-name-father" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('studentLastNameFather')" formControlName="studentLastNameFather">
+                @if (getControlError('studentLastNameFather')) {
+                  <span class="field-error">{{ getControlError('studentLastNameFather') }}</span>
+                }
               </div>
 
               <div class="form-group">
                 <label for="student-last-name-mother">Apellido Materno *</label>
-                <input id="student-last-name-mother" type="text" class="form-input" formControlName="studentLastNameMother">
+                <input id="student-last-name-mother" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('studentLastNameMother')" formControlName="studentLastNameMother">
+                @if (getControlError('studentLastNameMother')) {
+                  <span class="field-error">{{ getControlError('studentLastNameMother') }}</span>
+                }
               </div>
 
               <div class="form-group full">
                 <label for="student-course">Curso *</label>
-                <select id="student-course" class="form-input" formControlName="courseId">
+                <select id="student-course" class="form-input" [class.form-input--invalid]="isControlInvalid('courseId')" formControlName="courseId">
                   <option [value]="0" disabled>Seleccione curso</option>
                   @for (course of courses(); track course.id) {
                     <option [value]="course.id">{{ course.name }}</option>
                   }
                 </select>
+                @if (getControlError('courseId')) {
+                  <span class="field-error">{{ getControlError('courseId') }}</span>
+                }
               </div>
 
               <div class="form-group">
                 <label for="student-gender">Genero *</label>
-                <select id="student-gender" class="form-input" formControlName="gender">
+                <select id="student-gender" class="form-input" [class.form-input--invalid]="isControlInvalid('gender')" formControlName="gender">
                   <option value="Femenino">Femenino</option>
                   <option value="Masculino">Masculino</option>
-                  <option value="No binario">No binario</option>
                 </select>
+                @if (getControlError('gender')) {
+                  <span class="field-error">{{ getControlError('gender') }}</span>
+                }
               </div>
 
               <div class="form-group">
@@ -95,9 +115,32 @@
                 </select>
               </div>
 
+              <div class="form-group">
+                <label for="student-region">Region</label>
+                <select id="student-region" class="form-input" formControlName="regionId">
+                  <option [value]="0">Seleccione region</option>
+                  @for (region of chileRegions(); track region.id) {
+                    <option [value]="region.id">{{ region.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="student-commune">Comuna</label>
+                <select id="student-commune" class="form-input" formControlName="communeId">
+                  <option [value]="0">Seleccione comuna</option>
+                  @for (commune of studentCommunes(); track commune.id) {
+                    <option [value]="commune.id">{{ commune.name }}</option>
+                  }
+                </select>
+              </div>
+
               <div class="form-group full">
                 <label for="student-address">Direccion *</label>
-                <input id="student-address" type="text" class="form-input" formControlName="address" placeholder="Calle, numero, comuna">
+                <input id="student-address" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('address')" formControlName="address" placeholder="Calle, numero, comuna">
+                @if (getControlError('address')) {
+                  <span class="field-error">{{ getControlError('address') }}</span>
+                }
               </div>
             </div>
           </section>
@@ -112,33 +155,48 @@
 
             <div class="form-grid">
               <div class="form-group">
-                <label for="guardian-run">RUN Apoderado</label>
-                <input id="guardian-run" type="text" class="form-input" formControlName="run" placeholder="RUN" (input)="formatRunValue('guardian.run')">
+                <label for="guardian-run">RUN Apoderado *</label>
+                <input id="guardian-run" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.run')" formControlName="run" placeholder="RUN" (input)="formatRunValue('guardian.run')">
+                @if (getControlError('guardian.run')) {
+                  <span class="field-error">{{ getControlError('guardian.run') }}</span>
+                }
               </div>
 
               <div class="form-group">
-                <label for="guardian-relation">Relacion</label>
-                <select id="guardian-relation" class="form-input" formControlName="relation">
+                <label for="guardian-relation">Relacion *</label>
+                <select id="guardian-relation" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.relation')" formControlName="relation">
                   <option value="Madre">Madre</option>
                   <option value="Padre">Padre</option>
                   <option value="Tutor">Tutor</option>
                   <option value="Abuelo/a">Abuelo/a</option>
                 </select>
+                @if (getControlError('guardian.relation')) {
+                  <span class="field-error">{{ getControlError('guardian.relation') }}</span>
+                }
               </div>
 
               <div class="form-group full">
                 <label for="guardian-full-name">Nombre Completo *</label>
-                <input id="guardian-full-name" type="text" class="form-input" formControlName="fullName">
+                <input id="guardian-full-name" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.fullName')" formControlName="fullName">
+                @if (getControlError('guardian.fullName')) {
+                  <span class="field-error">{{ getControlError('guardian.fullName') }}</span>
+                }
               </div>
 
               <div class="form-group">
                 <label for="guardian-phone">Telefono *</label>
-                <input id="guardian-phone" type="tel" class="form-input" formControlName="phone">
+                <input id="guardian-phone" type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.phone')" formControlName="phone">
+                @if (getControlError('guardian.phone')) {
+                  <span class="field-error">{{ getControlError('guardian.phone') }}</span>
+                }
               </div>
 
               <div class="form-group">
                 <label for="guardian-email">Email *</label>
-                <input id="guardian-email" type="email" class="form-input" formControlName="email">
+                <input id="guardian-email" type="email" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.email')" formControlName="email">
+                @if (getControlError('guardian.email')) {
+                  <span class="field-error">{{ getControlError('guardian.email') }}</span>
+                }
               </div>
             </div>
 
@@ -159,6 +217,13 @@
 
             <p class="helper-text">Agregue a las personas autorizadas para retirar al estudiante.</p>
 
+            <div class="section-inline-actions">
+              <button class="btn btn-secondary" type="button" (click)="useGuardianAsPickupContact()">
+                <mat-icon>content_copy</mat-icon>
+                Usar datos del apoderado principal
+              </button>
+            </div>
+
             <div formArrayName="pickupContacts" class="authorized-list">
               @for (contact of pickupContacts.controls; track $index) {
                 <div class="authorized-card" [formGroupName]="$index">
@@ -175,32 +240,46 @@
                   <div class="form-grid thirds">
                     <div class="form-group">
                       <label>RUN *</label>
-                      <input type="text" class="form-input" formControlName="run" placeholder="RUN" (input)="formatRunValue('pickupContacts.' + $index + '.run')">
+                      <input type="text" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'run')" formControlName="run" placeholder="RUN" (input)="formatRunValue('pickupContacts.' + $index + '.run')">
+                      @if (getArrayControlError($index, 'run')) {
+                        <span class="field-error">{{ getArrayControlError($index, 'run') }}</span>
+                      }
                     </div>
 
                     <div class="form-group">
                       <label>Nombre *</label>
-                      <input type="text" class="form-input" formControlName="name" placeholder="Nombre">
+                      <input type="text" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'name')" formControlName="name" placeholder="Nombre">
+                      @if (getArrayControlError($index, 'name')) {
+                        <span class="field-error">{{ getArrayControlError($index, 'name') }}</span>
+                      }
                     </div>
 
                     <div class="form-group">
                       <label>Apellidos *</label>
-                      <input type="text" class="form-input" formControlName="lastName" placeholder="Apellidos">
+                      <input type="text" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'lastName')" formControlName="lastName" placeholder="Apellidos">
+                      @if (getArrayControlError($index, 'lastName')) {
+                        <span class="field-error">{{ getArrayControlError($index, 'lastName') }}</span>
+                      }
                     </div>
 
                     <div class="form-group">
                       <label>Telefono *</label>
-                      <input type="tel" class="form-input" formControlName="phone" placeholder="+56 9...">
+                      <input type="tel" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'phone')" formControlName="phone" placeholder="+56 9...">
+                      @if (getArrayControlError($index, 'phone')) {
+                        <span class="field-error">{{ getArrayControlError($index, 'phone') }}</span>
+                      }
                     </div>
 
                     <div class="form-group form-group--span-2">
                       <label>Relacion *</label>
-                      <select class="form-input" formControlName="relation">
-                        <option value="Familiar">Familiar</option>
-                        <option value="Nanny">Nanny</option>
-                        <option value="Abuelo/a">Abuelo/a</option>
-                        <option value="Otro">Otro</option>
+                      <select class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'relation')" formControlName="relation">
+                        @for (relation of pickupRelationOptions; track relation) {
+                          <option [value]="relation">{{ relation }}</option>
+                        }
                       </select>
+                      @if (getArrayControlError($index, 'relation')) {
+                        <span class="field-error">{{ getArrayControlError($index, 'relation') }}</span>
+                      }
                     </div>
                   </div>
 
@@ -216,6 +295,108 @@
               <mat-icon>add</mat-icon>
               Agregar Responsable
             </button>
+          </section>
+
+          <section class="card card--establishment" [formGroup]="establishmentGroup">
+            <div class="card-header">
+              <div class="card-title">
+                <mat-icon>school</mat-icon>
+                4. Datos del Establecimiento
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="establishment-name">Nombre del Establecimiento</label>
+                <input id="establishment-name" type="text" class="form-input" formControlName="name" placeholder="Ej: Escuela Basica Acade Fuerte">
+              </div>
+
+              <div class="form-group">
+                <label for="establishment-year">Ano Academico</label>
+                <input id="establishment-year" type="text" class="form-input" formControlName="academicYear" placeholder="2026">
+              </div>
+
+              <div class="form-group">
+                <label for="establishment-dependency">Dependencia</label>
+                <select id="establishment-dependency" class="form-input" formControlName="dependency">
+                  @for (dependency of establishmentDependencyOptions; track dependency) {
+                    <option [value]="dependency">{{ dependency }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="establishment-region">Region</label>
+                <select id="establishment-region" class="form-input" formControlName="regionId">
+                  <option [value]="0">Seleccione region</option>
+                  @for (region of chileRegions(); track region.id) {
+                    <option [value]="region.id">{{ region.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="establishment-commune">Comuna</label>
+                <select id="establishment-commune" class="form-input" formControlName="communeId">
+                  <option [value]="0">Seleccione comuna</option>
+                  @for (commune of establishmentCommunes(); track commune.id) {
+                    <option [value]="commune.id">{{ commune.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group full">
+                <label for="establishment-address">Direccion del Establecimiento</label>
+                <input id="establishment-address" type="text" class="form-input" formControlName="address" placeholder="Av. Libertador Bernardo O'Higgins 1234">
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <mat-icon>folder_open</mat-icon>
+                5. Documentos del Alumno
+              </div>
+              <div class="card-note">Todos los documentos son opcionales</div>
+            </div>
+
+            @for (section of documentSections; track section.title) {
+              <div class="doc-section">
+                <div class="doc-section-title">{{ section.title }}</div>
+
+                <div class="doc-list">
+                  @for (document of section.documents; track document.key) {
+                    <div class="doc-row">
+                      <div class="doc-icon">
+                        <mat-icon>{{ document.icon }}</mat-icon>
+                      </div>
+
+                      <div class="doc-info">
+                        <div class="doc-title">{{ document.title }}</div>
+                        <div class="doc-desc">{{ document.description }}</div>
+                        @if (hasUploadedDocument(document.key)) {
+                          <div class="doc-file-name">
+                            Archivo cargado: {{ uploadedDocumentName(document.key) }}
+                          </div>
+                        }
+                      </div>
+
+                      <div class="doc-actions">
+                        <span class="badge-doc badge-doc--optional">Opcional</span>
+                        <label class="upload-btn-wrapper">
+                          <span class="btn-upload" [class.btn-upload--loaded]="hasUploadedDocument(document.key)">
+                            <mat-icon>{{ hasUploadedDocument(document.key) ? 'check_circle' : 'upload_file' }}</mat-icon>
+                            {{ hasUploadedDocument(document.key) ? 'Archivo cargado' : 'Subir archivo' }}
+                          </span>
+                          <input type="file" (change)="onDocumentSelected(document.key, $event)">
+                        </label>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           </section>
         </div>
 

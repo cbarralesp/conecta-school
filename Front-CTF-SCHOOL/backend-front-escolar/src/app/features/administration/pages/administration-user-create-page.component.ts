@@ -92,6 +92,7 @@ export class AdministrationUserCreatePageComponent {
 
   selectRole(code: AdministrationRoleCode): void {
     this.form.controls.roleCode.setValue(code);
+    this.form.controls.roleCode.markAsTouched();
   }
 
   cancel(): void {
@@ -101,6 +102,11 @@ export class AdministrationUserCreatePageComponent {
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
+      if (this.form.invalid) {
+        this.snackBar.open('Completa los campos obligatorios para guardar el usuario', 'Cerrar', {
+          duration: 3000
+        });
+      }
       return;
     }
 
@@ -173,5 +179,39 @@ export class AdministrationUserCreatePageComponent {
     }
 
     return value;
+  }
+
+  getControlError(
+    controlName:
+      | 'firstName'
+      | 'paternalLastName'
+      | 'email'
+      | 'run'
+      | 'phone'
+      | 'initialStatus'
+      | 'roleCode'
+  ): string {
+    const control = this.form.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    if (control.hasError('email')) {
+      return 'Ingresa un email valido.';
+    }
+    if (control.hasError('minlength')) {
+      return 'Ingresa al menos 2 caracteres.';
+    }
+    if (control.hasError('pattern')) {
+      if (controlName === 'run') {
+        return 'Usa formato 12.345.678-9.';
+      }
+      if (controlName === 'phone') {
+        return 'Usa formato +56 9 1234 5678.';
+      }
+    }
+    return 'Revisa este campo.';
   }
 }

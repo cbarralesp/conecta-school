@@ -34,7 +34,7 @@ public class StudentDocumentController {
     @PostMapping("/{documentId}/reviewed")
     public StudentDocumentReviewedResponse markReviewed(
             Authentication authentication,
-            @PathVariable Long documentId
+            @PathVariable("documentId") Long documentId
     ) {
         markStudentDocumentReviewedUseCase.markReviewed(authentication.getName(), documentId);
         return new StudentDocumentReviewedResponse(documentId, true, "Documento marcado como revisado");
@@ -43,7 +43,7 @@ public class StudentDocumentController {
     @GetMapping("/{documentId}/download")
     public ResponseEntity<ByteArrayResource> download(
             Authentication authentication,
-            @PathVariable Long documentId
+            @PathVariable("documentId") Long documentId
     ) {
         StudentDocumentDownload download = downloadStudentDocumentUseCase.download(authentication.getName(), documentId);
         ByteArrayResource resource = new ByteArrayResource(download.content());

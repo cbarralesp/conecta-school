@@ -35,7 +35,10 @@ public class AttendanceController {
     }
 
     @GetMapping("/diaria")
-    public DailyAttendanceView daily(@RequestParam Long courseId, @RequestParam LocalDate date) {
+    public DailyAttendanceView daily(
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("date") LocalDate date
+    ) {
         return manageAttendanceUseCase.getDailyAttendance(courseId, date);
     }
 
@@ -50,12 +53,18 @@ public class AttendanceController {
     }
 
     @GetMapping("/semanal")
-    public WeeklyAttendanceView weekly(@RequestParam Long courseId, @RequestParam LocalDate startDate) {
+    public WeeklyAttendanceView weekly(
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("startDate") LocalDate startDate
+    ) {
         return manageAttendanceUseCase.getWeeklyAttendance(courseId, startDate);
     }
 
     @GetMapping("/mensual")
-    public MonthlyAttendanceView monthly(@RequestParam Long courseId, @RequestParam String month) {
+    public MonthlyAttendanceView monthly(
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("month") String month
+    ) {
         return manageAttendanceUseCase.getMonthlyAttendance(courseId, YearMonth.parse(month));
     }
 }

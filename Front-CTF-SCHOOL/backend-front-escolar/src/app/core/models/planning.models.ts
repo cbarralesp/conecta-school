@@ -1,3 +1,5 @@
+import { CurriculumObjective } from './curriculum.models';
+
 export interface PlanningOptionItem {
   code: string;
   label: string;
@@ -112,6 +114,28 @@ export interface PlanningClassPayload {
   startActivity: string;
   developmentActivity: string;
   closingActivity: string;
+  objectiveIds?: string[];
+}
+
+export interface PlanningClassSuggestionPayload {
+  subjectName: string;
+  courseName: string;
+  objectiveCode: string;
+  objectiveDescription: string;
+  objectiveType: 'conocimiento' | 'habilidad';
+  objectiveAxis: string;
+  subItems: string[];
+}
+
+export interface PlanningClassSuggestion {
+  title: string;
+  objectiveSummary: string;
+  startActivity: string;
+  developmentActivity: string;
+  closingActivity: string;
+  diversitySupport: string;
+  statusMessage: string;
+  providerUsed: string;
 }
 
 export interface PlanningClassDocument {
@@ -154,6 +178,8 @@ export interface PlanningClass {
   createdAt: string;
   updatedAt: string;
   documents: PlanningClassDocument[];
+  objectiveIds: string[];
+  curriculumObjectives: CurriculumObjective[];
 }
 
 export type PlanningDocumentFileType = 'WORD' | 'PDF' | 'PPT' | 'OTRO';

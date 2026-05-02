@@ -31,8 +31,8 @@ public class ActivityCalendarController {
 
     @GetMapping("/calendar")
     public ActivityCalendarResponse getCalendar(
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "month", required = false) Integer month
     ) {
         LocalDate now = LocalDate.now();
         return ActivityCalendarResponse.fromDomain(
@@ -61,7 +61,7 @@ public class ActivityCalendarController {
 
     @PutMapping("/{activityId}")
     public SchoolActivityResponse updateActivity(
-            @PathVariable Long activityId,
+            @PathVariable("activityId") Long activityId,
             @Valid @RequestBody CreateSchoolActivityRequest request
     ) {
         return SchoolActivityResponse.fromDomain(
@@ -80,7 +80,7 @@ public class ActivityCalendarController {
 
     @DeleteMapping("/{activityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteActivity(@PathVariable Long activityId) {
+    public void deleteActivity(@PathVariable("activityId") Long activityId) {
         manageActivityCalendarUseCase.deleteActivity(activityId);
     }
 }

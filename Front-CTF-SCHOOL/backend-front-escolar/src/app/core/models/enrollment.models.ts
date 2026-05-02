@@ -47,6 +47,25 @@ export interface EnrollmentPickupContact {
   authorizedPickup: boolean;
 }
 
+export interface EnrollmentEstablishment {
+  regionId: number | null;
+  communeId: number | null;
+  name: string;
+  academicYear: string;
+  dependency: string;
+  region: string;
+  commune: string;
+  address: string;
+}
+
+export interface EnrollmentDocument {
+  id: number | null;
+  documentKey: string;
+  fileName: string;
+  driveFileId?: string | null;
+  driveUrl?: string | null;
+}
+
 export interface EnrollmentDetail {
   id: number;
   studentId: number;
@@ -56,13 +75,17 @@ export interface EnrollmentDetail {
   birthDate: string;
   gender: string;
   courseId: number;
+  regionId: number | null;
+  communeId: number | null;
   courseName: string;
   address: string;
   specialNeeds: string;
   status: string;
   enrollmentDate: string;
+  establishment: EnrollmentEstablishment;
   guardian: EnrollmentGuardian;
   pickupContacts: EnrollmentPickupContact[];
+  documents: EnrollmentDocument[];
 }
 
 export interface EnrollmentPagination {
@@ -86,10 +109,14 @@ export interface EnrollmentPayload {
   birthDate: string;
   gender: string;
   courseId: number;
+  regionId: number | null;
+  communeId: number | null;
   address: string;
   specialNeeds: string;
   status: string;
   enrollmentDate: string;
+  establishment: EnrollmentEstablishment;
   guardian: EnrollmentGuardian;
   pickupContacts: EnrollmentPickupContact[];
+  documents: EnrollmentDocument[];
 }

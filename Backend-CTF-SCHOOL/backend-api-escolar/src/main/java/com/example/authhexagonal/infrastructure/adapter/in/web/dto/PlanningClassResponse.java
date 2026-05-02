@@ -5,6 +5,7 @@ import com.example.authhexagonal.domain.model.PlanningClass;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record PlanningClassResponse(
         Long id,
@@ -31,7 +32,9 @@ public record PlanningClassResponse(
         String createdBy,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        List<PlanningClassDocumentResponse> documents
+        List<PlanningClassDocumentResponse> documents,
+        List<UUID> objectiveIds,
+        List<CurriculumObjectiveResponse> curriculumObjectives
 ) {
     public static PlanningClassResponse fromDomain(PlanningClass planningClass) {
         return new PlanningClassResponse(
@@ -59,7 +62,9 @@ public record PlanningClassResponse(
                 planningClass.createdBy(),
                 planningClass.createdAt(),
                 planningClass.updatedAt(),
-                planningClass.documents().stream().map(PlanningClassDocumentResponse::fromDomain).toList()
+                planningClass.documents().stream().map(PlanningClassDocumentResponse::fromDomain).toList(),
+                planningClass.curriculumObjectiveIds(),
+                planningClass.curriculumObjectives().stream().map(CurriculumObjectiveResponse::fromDomain).toList()
         );
     }
 }

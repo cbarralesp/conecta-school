@@ -73,13 +73,26 @@ export interface AdministrationRolesOverview {
 }
 
 export interface AdministrationAccessMatrixRow {
+  moduleCode: string;
   moduleName: string;
   permissions: Record<AdministrationRoleCode, AdministrationAccessLevel>;
+}
+
+export interface AdministrationUserModuleOverride {
+  userId: number;
+  moduleCode: string;
+  accessLevel: AdministrationAccessLevel;
 }
 
 export interface AdministrationAccessMatrix {
   roles: AdministrationRoleOption[];
   rows: AdministrationAccessMatrixRow[];
+  userOverrides: AdministrationUserModuleOverride[];
+}
+
+export interface AdministrationAccessMatrixSavePayload {
+  rows: AdministrationAccessMatrixRow[];
+  userOverrides: AdministrationUserModuleOverride[];
 }
 
 export interface AdministrationAuditLogItem {

@@ -118,6 +118,20 @@ export class CreateCoursePageComponent {
     this.searchAssistants('');
   }
 
+  getControlError(controlName: 'courseSearch' | 'parallel' | 'schoolYear' | 'scheduleType' | 'teacherSearch'): string {
+    const control = this.form.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    if (control.hasError('min')) {
+      return 'Ingresa un valor valido.';
+    }
+    return 'Revisa este campo.';
+  }
+
   selectMasterCourse(masterCourse: MasterCourse | null): void {
     if (this.selectedMasterCourse()?.id !== masterCourse?.id) {
       this.availableStudents.set([]);
@@ -128,11 +142,13 @@ export class CreateCoursePageComponent {
     }
     this.selectedMasterCourse.set(masterCourse);
     this.form.controls.courseSearch.setValue(masterCourse ?? '', { emitEvent: false });
+    this.form.controls.courseSearch.markAsTouched();
   }
 
   selectTeacher(teacher: TeacherCatalogItem | null): void {
     this.selectedTeacher.set(teacher);
     this.form.controls.teacherSearch.setValue(teacher ?? '', { emitEvent: false });
+    this.form.controls.teacherSearch.markAsTouched();
   }
 
   selectAssistant(assistant: TeacherCatalogItem | null): void {
@@ -235,6 +251,14 @@ export class CreateCoursePageComponent {
     const teacher = this.selectedTeacher();
     const assistant = this.selectedAssistant();
     if (this.isSaving()) {
+      return;
+    }
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snackBar.open('Completa los campos obligatorios para crear el curso', 'Cerrar', {
+        duration: 3000
+      });
       return;
     }
 
@@ -390,5 +414,25 @@ export class CreateCoursePageComponent {
       .replace(/^DECIMO\b/i, '10')
       .replace(/\bBASICO\b/gi, 'Básico')
       .replace(/\bMEDIO\b/gi, 'Medio');
+  }
+
+  teacherOptionLabel(teacher: TeacherCatalogItem): string {
+    const location = this.locationLabel(teacher.regionName, teacher.communeName);
+    return location ? `${teacher.fullName} · ${location}` : teacher.fullName;
+  }
+
+  studentLocationLabel(student: StudentCatalogItem): string {
+    return this.locationLabel(student.regionName, student.communeName);
+  }
+
+  private locationLabel(regionName: string, communeName: string): string {
+    const commune = communeName.trim();
+    const region = regionName.trim();
+
+    if (commune && region) {
+      return `${commune}, ${region}`;
+    }
+
+    return commune || region;
   }
 }

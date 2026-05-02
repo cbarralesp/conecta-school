@@ -12,11 +12,15 @@ public record EnrollmentDetail(
         String gender,
         Long courseId,
         String courseName,
+        Long regionId,
+        Long communeId,
         String address,
         String specialNeeds,
         String status,
         String enrollmentDate,
+        EnrollmentEstablishment establishment,
         EnrollmentGuardian guardian,
-        List<EnrollmentPickupContact> pickupContacts
+        List<EnrollmentPickupContact> pickupContacts,
+        List<EnrollmentDocument> documents
 ) {
 }

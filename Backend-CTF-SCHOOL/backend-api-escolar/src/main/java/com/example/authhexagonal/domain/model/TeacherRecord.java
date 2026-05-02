@@ -15,6 +15,8 @@ public record TeacherRecord(
         String gender,
         String phone,
         String institutionalEmail,
+        Long regionId,
+        Long communeId,
         String address,
         String professionalTitle,
         String contractType,

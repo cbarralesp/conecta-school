@@ -1,6 +1,8 @@
 package com.example.authhexagonal.domain.model;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 
 public record PlanningClassCommand(
         Long unitId,
@@ -12,6 +14,7 @@ public record PlanningClassCommand(
         String objectiveDescription,
         String startActivity,
         String developmentActivity,
-        String closingActivity
+        String closingActivity,
+        List<UUID> objectiveIds
 ) {
 }

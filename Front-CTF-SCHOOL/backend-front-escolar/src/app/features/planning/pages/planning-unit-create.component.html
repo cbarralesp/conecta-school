@@ -65,7 +65,7 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Nivel / Curso</mat-label>
+              <mat-label>Curso</mat-label>
               <mat-select formControlName="courseId">
                 @for (assignment of availableCourses(); track assignment.courseId) {
                   <mat-option [value]="assignment.courseId">{{ assignment.courseName }}</mat-option>

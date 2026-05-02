@@ -2,6 +2,8 @@ package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
 import com.example.authhexagonal.domain.model.EnrollmentCourseOption;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
+import com.example.authhexagonal.domain.model.EnrollmentDocument;
+import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentListItem;
 import com.example.authhexagonal.domain.model.EnrollmentPickupContact;
@@ -150,10 +152,20 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     COALESCE(a."GENERO", '') AS genero,
                     c."ID" AS course_id,
                     c."NOMBRE" AS course_name,
+                    a."REGION_ID" AS region_id,
+                    a."COMUNA_ID" AS comuna_id,
                     COALESCE(a."DIRECCION", '') AS direccion,
                     COALESCE(a."NECESIDADES_ESPECIALES", 'No') AS necesidades,
                     m."ESTADO",
-                    m."FECHA_MATRICULA"
+                    m."FECHA_MATRICULA",
+                    m."ESTABLECIMIENTO_REGION_ID" AS establecimiento_region_id,
+                    m."ESTABLECIMIENTO_COMUNA_ID" AS establecimiento_comuna_id,
+                    COALESCE(m."ESTABLECIMIENTO_NOMBRE", '') AS establecimiento_nombre,
+                    COALESCE(m."ESTABLECIMIENTO_ANIO_ACADEMICO", '') AS establecimiento_anio,
+                    COALESCE(m."ESTABLECIMIENTO_DEPENDENCIA", '') AS establecimiento_dependencia,
+                    COALESCE(m."ESTABLECIMIENTO_REGION", '') AS establecimiento_region,
+                    COALESCE(m."ESTABLECIMIENTO_COMUNA", '') AS establecimiento_comuna,
+                    COALESCE(m."ESTABLECIMIENTO_DIRECCION", '') AS establecimiento_direccion
                 FROM "MATRICULAS" m
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
@@ -168,14 +180,18 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 rs.getString("genero"),
                 rs.getLong("course_id"),
                 rs.getString("course_name"),
+                readNullableLong(rs, "region_id"),
+                readNullableLong(rs, "comuna_id"),
                 rs.getString("direccion"),
                 rs.getString("necesidades"),
                 rs.getString("ESTADO"),
                 rs.getObject("FECHA_MATRICULA", LocalDate.class).toString(),
+                mapEstablishment(rs),
                 findGuardianByEnrollmentId(enrollmentId).orElse(new EnrollmentGuardian(
                         null, "", "", "", "", "", "", false
                 )),
-                findPickupContactsByEnrollmentId(enrollmentId)
+                findPickupContactsByEnrollmentId(enrollmentId),
+                findDocumentsByEnrollmentId(enrollmentId)
         ), enrollmentId);
 
         return details.stream().findFirst();
@@ -193,13 +209,26 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
 
     @Override
     public boolean hasActiveEnrollmentForStudent(Long studentId, Long excludeEnrollmentId) {
-        Integer count = jdbcTemplate.queryForObject("""
+        String sql = """
                 SELECT COUNT(1)
                 FROM "MATRICULAS"
                 WHERE "ALUMNO_ID" = ?
                   AND "ACTIVA" = TRUE
-                  AND (? IS NULL OR "ID" <> ?)
-                """, Integer.class, studentId, excludeEnrollmentId, excludeEnrollmentId);
+                """;
+
+        Integer count;
+        if (excludeEnrollmentId == null) {
+            count = jdbcTemplate.queryForObject(sql, Integer.class, studentId);
+        } else {
+            count = jdbcTemplate.queryForObject(
+                    sql + """
+                            AND "ID" <> ?
+                            """,
+                    Integer.class,
+                    studentId,
+                    excludeEnrollmentId
+            );
+        }
         return count != null && count > 0;
     }
 
@@ -210,6 +239,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             String lastName,
             LocalDate birthDate,
             String gender,
+            Long regionId,
+            Long communeId,
             String address,
             String specialNeeds
     ) {
@@ -221,12 +252,14 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "DIRECCION",
                     "FECHA_NACIMIENTO",
                     "GENERO",
+                    "REGION_ID",
+                    "COMUNA_ID",
                     "NECESIDADES_ESPECIALES",
                     "ACTIVO"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, TRUE)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 RETURNING "ID"
-                """, Long.class, run, name, lastName, address, birthDate, gender, specialNeeds);
+                """, Long.class, run, name, lastName, address, birthDate, gender, regionId, communeId, specialNeeds);
     }
 
     @Override
@@ -237,6 +270,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             String lastName,
             LocalDate birthDate,
             String gender,
+            Long regionId,
+            Long communeId,
             String address,
             String specialNeeds
     ) {
@@ -248,10 +283,12 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "DIRECCION" = ?,
                     "FECHA_NACIMIENTO" = ?,
                     "GENERO" = ?,
+                    "REGION_ID" = ?,
+                    "COMUNA_ID" = ?,
                     "NECESIDADES_ESPECIALES" = ?,
                     "ACTIVO" = TRUE
                 WHERE "ID" = ?
-                """, run, name, lastName, address, birthDate, gender, specialNeeds, studentId);
+                """, run, name, lastName, address, birthDate, gender, regionId, communeId, specialNeeds, studentId);
     }
 
     @Override
@@ -266,7 +303,13 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     @Override
-    public Long createEnrollment(Long studentId, Long courseId, String status, LocalDate enrollmentDate) {
+    public Long createEnrollment(
+            Long studentId,
+            Long courseId,
+            String status,
+            LocalDate enrollmentDate,
+            EnrollmentEstablishment establishment
+    ) {
         return jdbcTemplate.queryForObject("""
                 INSERT INTO "MATRICULAS" (
                     "ALUMNO_ID",
@@ -274,23 +317,73 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "ESTADO",
                     "FECHA_MATRICULA",
                     "ACTIVA",
-                    "OBSERVACIONES"
+                    "OBSERVACIONES",
+                    "ESTABLECIMIENTO_REGION_ID",
+                    "ESTABLECIMIENTO_COMUNA_ID",
+                    "ESTABLECIMIENTO_NOMBRE",
+                    "ESTABLECIMIENTO_ANIO_ACADEMICO",
+                    "ESTABLECIMIENTO_DEPENDENCIA",
+                    "ESTABLECIMIENTO_REGION",
+                    "ESTABLECIMIENTO_COMUNA",
+                    "ESTABLECIMIENTO_DIRECCION"
                 )
-                VALUES (?, ?, ?, ?, TRUE, '')
+                VALUES (?, ?, ?, ?, TRUE, '', ?, ?, ?, ?, ?, ?, ?, ?)
                 RETURNING "ID"
-                """, Long.class, studentId, courseId, status, enrollmentDate);
+                """, Long.class,
+                studentId,
+                courseId,
+                status,
+                enrollmentDate,
+                establishment.regionId(),
+                establishment.communeId(),
+                establishment.name(),
+                establishment.academicYear(),
+                establishment.dependency(),
+                establishment.region(),
+                establishment.commune(),
+                establishment.address()
+        );
     }
 
     @Override
-    public void updateEnrollment(Long enrollmentId, Long studentId, Long courseId, String status, LocalDate enrollmentDate) {
+    public void updateEnrollment(
+            Long enrollmentId,
+            Long studentId,
+            Long courseId,
+            String status,
+            LocalDate enrollmentDate,
+            EnrollmentEstablishment establishment
+    ) {
         jdbcTemplate.update("""
                 UPDATE "MATRICULAS"
                 SET "ALUMNO_ID" = ?,
                     "CURSO_ID" = ?,
                     "ESTADO" = ?,
-                    "FECHA_MATRICULA" = ?
+                    "FECHA_MATRICULA" = ?,
+                    "ESTABLECIMIENTO_REGION_ID" = ?,
+                    "ESTABLECIMIENTO_COMUNA_ID" = ?,
+                    "ESTABLECIMIENTO_NOMBRE" = ?,
+                    "ESTABLECIMIENTO_ANIO_ACADEMICO" = ?,
+                    "ESTABLECIMIENTO_DEPENDENCIA" = ?,
+                    "ESTABLECIMIENTO_REGION" = ?,
+                    "ESTABLECIMIENTO_COMUNA" = ?,
+                    "ESTABLECIMIENTO_DIRECCION" = ?
                 WHERE "ID" = ?
-                """, studentId, courseId, status, enrollmentDate, enrollmentId);
+                """,
+                studentId,
+                courseId,
+                status,
+                enrollmentDate,
+                establishment.regionId(),
+                establishment.communeId(),
+                establishment.name(),
+                establishment.academicYear(),
+                establishment.dependency(),
+                establishment.region(),
+                establishment.commune(),
+                establishment.address(),
+                enrollmentId
+        );
     }
 
     @Override
@@ -360,6 +453,34 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
         }
     }
 
+    @Override
+    public void replaceDocuments(Long enrollmentId, List<EnrollmentDocument> documents) {
+        jdbcTemplate.update("""
+                DELETE FROM "MATRICULA_DOCUMENTOS"
+                WHERE "MATRICULA_ID" = ?
+                """, enrollmentId);
+
+        for (EnrollmentDocument document : documents) {
+            jdbcTemplate.update("""
+                    INSERT INTO "MATRICULA_DOCUMENTOS" (
+                        "MATRICULA_ID",
+                        "DOCUMENTO_CLAVE",
+                        "NOMBRE_ARCHIVO",
+                        "DRIVE_FILE_ID",
+                        "DRIVE_URL",
+                        "ACTIVO"
+                    )
+                    VALUES (?, ?, ?, ?, ?, TRUE)
+                    """,
+                    enrollmentId,
+                    document.documentKey(),
+                    document.fileName(),
+                    document.driveFileId(),
+                    document.driveUrl()
+            );
+        }
+    }
+
     private Optional<EnrollmentGuardian> findGuardianByEnrollmentId(Long enrollmentId) {
         return jdbcTemplate.query("""
                 SELECT "ID", "RUN", "NOMBRE", "APELLIDOS", "TELEFONO", COALESCE("EMAIL", '') AS "EMAIL",
@@ -379,6 +500,36 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                   AND "ACTIVO" = TRUE
                 ORDER BY "ID"
                 """, (rs, rowNum) -> mapPickupContact(rs), enrollmentId);
+    }
+
+    private List<EnrollmentDocument> findDocumentsByEnrollmentId(Long enrollmentId) {
+        return jdbcTemplate.query("""
+                SELECT "ID", "DOCUMENTO_CLAVE", "NOMBRE_ARCHIVO", COALESCE("DRIVE_FILE_ID", '') AS "DRIVE_FILE_ID",
+                       COALESCE("DRIVE_URL", '') AS "DRIVE_URL"
+                FROM "MATRICULA_DOCUMENTOS"
+                WHERE "MATRICULA_ID" = ?
+                  AND "ACTIVO" = TRUE
+                ORDER BY "ID"
+                """, (rs, rowNum) -> new EnrollmentDocument(
+                rs.getLong("ID"),
+                rs.getString("DOCUMENTO_CLAVE"),
+                rs.getString("NOMBRE_ARCHIVO"),
+                rs.getString("DRIVE_FILE_ID"),
+                rs.getString("DRIVE_URL")
+        ), enrollmentId);
+    }
+
+    private EnrollmentEstablishment mapEstablishment(ResultSet rs) throws SQLException {
+        return new EnrollmentEstablishment(
+                readNullableLong(rs, "establecimiento_region_id"),
+                readNullableLong(rs, "establecimiento_comuna_id"),
+                rs.getString("establecimiento_nombre"),
+                rs.getString("establecimiento_anio"),
+                rs.getString("establecimiento_dependencia"),
+                rs.getString("establecimiento_region"),
+                rs.getString("establecimiento_comuna"),
+                rs.getString("establecimiento_direccion")
+        );
     }
 
     private EnrollmentGuardian mapGuardian(ResultSet rs) throws SQLException {
@@ -404,5 +555,10 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 rs.getString("RELACION"),
                 rs.getBoolean("AUTORIZADO_RETIRO")
         );
+    }
+
+    private Long readNullableLong(ResultSet rs, String column) throws SQLException {
+        long value = rs.getLong(column);
+        return rs.wasNull() ? null : value;
     }
 }

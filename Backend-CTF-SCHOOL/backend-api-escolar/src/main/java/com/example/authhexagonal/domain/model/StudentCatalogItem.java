@@ -8,6 +8,10 @@ public record StudentCatalogItem(
         String firstName,
         String lastName,
         String address,
+        Long regionId,
+        Long communeId,
+        String regionName,
+        String communeName,
         LocalDate birthDate,
         int age
 ) {

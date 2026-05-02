@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 import { API_CONFIG } from '../constants/api.config';
 import {
   AdministrationAccessMatrix,
+  AdministrationAccessMatrixSavePayload,
   AdministrationAuditLogItem,
   AdministrationAuditLogView,
   AdministrationAuditType,
@@ -110,9 +111,14 @@ export class AdministrationApiService {
         rows: matrix.rows.map((row) => ({
           ...row,
           moduleName: normalizeDashboardText(row.moduleName)
-        }))
+        })),
+        userOverrides: matrix.userOverrides ?? []
       }))
     );
+  }
+
+  saveAccessMatrix(payload: AdministrationAccessMatrixSavePayload): Observable<void> {
+    return this.http.put<void>(`${API_CONFIG.baseUrl}/admin/access-matrix`, payload);
   }
 
   getAuditLogs(filters?: AuditFilter): Observable<AdministrationAuditLogView> {

@@ -2,11 +2,13 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.model.PlanningClassCommand;
 import com.example.authhexagonal.domain.model.PlanningClassDocumentUploadCommand;
+import com.example.authhexagonal.domain.model.PlanningClassSuggestionCommand;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
 import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.port.in.AttachPlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.CreatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.DeletePlanningClassUseCase;
+import com.example.authhexagonal.domain.port.in.GeneratePlanningClassSuggestionUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.ListPlanningClassesUseCase;
@@ -19,6 +21,8 @@ import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClass
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassDocumentResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassDraftRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassResponse;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassSuggestionRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassSuggestionResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassTitleUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -48,6 +52,7 @@ public class PlanningClassController {
     private final CreatePlanningClassUseCase createPlanningClassUseCase;
     private final SavePlanningClassDraftUseCase savePlanningClassDraftUseCase;
     private final DeletePlanningClassUseCase deletePlanningClassUseCase;
+    private final GeneratePlanningClassSuggestionUseCase generatePlanningClassSuggestionUseCase;
     private final AttachPlanningClassDocumentUseCase attachPlanningClassDocumentUseCase;
     private final RemovePlanningClassDocumentUseCase removePlanningClassDocumentUseCase;
     private final UpdatePlanningClassUseCase updatePlanningClassUseCase;
@@ -60,6 +65,7 @@ public class PlanningClassController {
             CreatePlanningClassUseCase createPlanningClassUseCase,
             SavePlanningClassDraftUseCase savePlanningClassDraftUseCase,
             DeletePlanningClassUseCase deletePlanningClassUseCase,
+            GeneratePlanningClassSuggestionUseCase generatePlanningClassSuggestionUseCase,
             AttachPlanningClassDocumentUseCase attachPlanningClassDocumentUseCase,
             RemovePlanningClassDocumentUseCase removePlanningClassDocumentUseCase,
             UpdatePlanningClassUseCase updatePlanningClassUseCase,
@@ -71,6 +77,7 @@ public class PlanningClassController {
         this.createPlanningClassUseCase = createPlanningClassUseCase;
         this.savePlanningClassDraftUseCase = savePlanningClassDraftUseCase;
         this.deletePlanningClassUseCase = deletePlanningClassUseCase;
+        this.generatePlanningClassSuggestionUseCase = generatePlanningClassSuggestionUseCase;
         this.attachPlanningClassDocumentUseCase = attachPlanningClassDocumentUseCase;
         this.removePlanningClassDocumentUseCase = removePlanningClassDocumentUseCase;
         this.updatePlanningClassUseCase = updatePlanningClassUseCase;
@@ -112,7 +119,7 @@ public class PlanningClassController {
     @GetMapping("/{classId}")
     public PlanningClassResponse getById(
             Authentication authentication,
-            @PathVariable Long classId
+            @PathVariable("classId") Long classId
     ) {
         return PlanningClassResponse.fromDomain(
                 getPlanningClassUseCase.getClass(authentication.getName(), classId)
@@ -144,7 +151,7 @@ public class PlanningClassController {
     @PutMapping("/{classId}")
     public PlanningClassResponse updateTitle(
             Authentication authentication,
-            @PathVariable Long classId,
+            @PathVariable("classId") Long classId,
             @Valid @RequestBody PlanningClassTitleUpdateRequest request
     ) {
         return PlanningClassResponse.fromDomain(
@@ -155,7 +162,7 @@ public class PlanningClassController {
     @PutMapping("/{classId}/details")
     public PlanningClassResponse updateDetails(
             Authentication authentication,
-            @PathVariable Long classId,
+            @PathVariable("classId") Long classId,
             @Valid @RequestBody PlanningClassCreateRequest request
     ) {
         return PlanningClassResponse.fromDomain(
@@ -167,16 +174,37 @@ public class PlanningClassController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClass(
             Authentication authentication,
-            @PathVariable Long classId
+            @PathVariable("classId") Long classId
     ) {
         deletePlanningClassUseCase.deleteClass(authentication.getName(), classId);
+    }
+
+    @PostMapping("/suggestion")
+    public PlanningClassSuggestionResponse generateSuggestion(
+            Authentication authentication,
+            @Valid @RequestBody PlanningClassSuggestionRequest request
+    ) {
+        return PlanningClassSuggestionResponse.fromDomain(
+                generatePlanningClassSuggestionUseCase.generateSuggestion(
+                        authentication.getName(),
+                        new PlanningClassSuggestionCommand(
+                                request.subjectName(),
+                                request.courseName(),
+                                request.objectiveCode(),
+                                request.objectiveDescription(),
+                                request.objectiveType(),
+                                request.objectiveAxis(),
+                                request.subItems()
+                        )
+                )
+        );
     }
 
     @PostMapping(path = "/{classId}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public PlanningClassDocumentResponse uploadDocument(
             Authentication authentication,
-            @PathVariable Long classId,
+            @PathVariable("classId") Long classId,
             @RequestParam("file") MultipartFile file,
             @RequestParam(name = "visibleToStudents", defaultValue = "false") boolean visibleToStudents
     ) throws IOException {
@@ -199,8 +227,8 @@ public class PlanningClassController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeDocument(
             Authentication authentication,
-            @PathVariable Long classId,
-            @PathVariable Long documentId
+            @PathVariable("classId") Long classId,
+            @PathVariable("documentId") Long documentId
     ) {
         removePlanningClassDocumentUseCase.removeDocument(authentication.getName(), classId, documentId);
     }
@@ -216,7 +244,8 @@ public class PlanningClassController {
                 request.objectiveDescription(),
                 request.startActivity(),
                 request.developmentActivity(),
-                request.closingActivity()
+                request.closingActivity(),
+                request.objectiveIds()
         );
     }
 
@@ -231,7 +260,8 @@ public class PlanningClassController {
                 request.objectiveDescription(),
                 request.startActivity(),
                 request.developmentActivity(),
-                request.closingActivity()
+                request.closingActivity(),
+                request.objectiveIds()
         );
     }
 

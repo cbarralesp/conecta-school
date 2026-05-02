@@ -9,6 +9,7 @@ import com.example.authhexagonal.domain.model.AdministrationRoleOption;
 import com.example.authhexagonal.domain.model.AdministrationUserCommand;
 import com.example.authhexagonal.domain.model.AdministrationUserDetail;
 import com.example.authhexagonal.domain.model.AdministrationUserListItem;
+import com.example.authhexagonal.domain.model.AdministrationUserModuleOverride;
 import com.example.authhexagonal.domain.port.out.ManageAdministrationPort;
 import com.example.authhexagonal.domain.port.out.RegisterSecurityAuditPort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -333,9 +334,81 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             }
             List<AdministrationAccessMatrixRow> rows = new ArrayList<>();
             permissionsByModule.forEach((moduleCode, permissions) ->
-                    rows.add(new AdministrationAccessMatrixRow(namesByModule.get(moduleCode), permissions)));
+                    rows.add(new AdministrationAccessMatrixRow(moduleCode, namesByModule.get(moduleCode), permissions)));
             return rows;
         });
+    }
+
+    @Override
+    public List<AdministrationUserModuleOverride> findUserModuleOverrides() {
+        return jdbcTemplate.query("""
+                SELECT "USUARIO_ID", "MODULO_CODIGO", "NIVEL_ACCESO"
+                FROM "ADMIN_USER_MODULE_ACCESS"
+                WHERE "ACTIVO" = TRUE
+                ORDER BY "USUARIO_ID", "MODULO_CODIGO"
+                """, (rs, rowNum) -> new AdministrationUserModuleOverride(
+                rs.getLong("USUARIO_ID"),
+                rs.getString("MODULO_CODIGO"),
+                rs.getString("NIVEL_ACCESO")
+        ));
+    }
+
+    @Override
+    public void replaceAccessMatrixRows(List<AdministrationAccessMatrixRow> rows) {
+        for (AdministrationAccessMatrixRow row : rows) {
+            for (Map.Entry<String, String> permissionEntry : row.permissions().entrySet()) {
+                int updated = jdbcTemplate.update("""
+                        UPDATE "ADMIN_ROLE_MODULE_ACCESS"
+                        SET "MODULO_NOMBRE" = ?, "NIVEL_ACCESO" = ?
+                        WHERE "ROL_ID" = (SELECT "ID" FROM "ADMIN_ROLES" WHERE "CODIGO" = ?)
+                          AND "MODULO_CODIGO" = ?
+                        """,
+                        row.moduleName(),
+                        permissionEntry.getValue(),
+                        permissionEntry.getKey(),
+                        row.moduleCode()
+                );
+
+                if (updated == 0) {
+                    Integer nextOrder = jdbcTemplate.queryForObject("""
+                            SELECT COALESCE(MAX("ORDEN_VISUAL"), 0) + 1
+                            FROM "ADMIN_ROLE_MODULE_ACCESS"
+                            """, Integer.class);
+                    jdbcTemplate.update("""
+                            INSERT INTO "ADMIN_ROLE_MODULE_ACCESS" (
+                                "ROL_ID", "MODULO_CODIGO", "MODULO_NOMBRE", "NIVEL_ACCESO", "ORDEN_VISUAL"
+                            )
+                            VALUES (
+                                (SELECT "ID" FROM "ADMIN_ROLES" WHERE "CODIGO" = ?),
+                                ?, ?, ?, ?
+                            )
+                            """,
+                            permissionEntry.getKey(),
+                            row.moduleCode(),
+                            row.moduleName(),
+                            permissionEntry.getValue(),
+                            nextOrder == null ? 1 : nextOrder
+                    );
+                }
+            }
+        }
+    }
+
+    @Override
+    public void replaceUserModuleOverrides(List<AdministrationUserModuleOverride> overrides) {
+        jdbcTemplate.update("DELETE FROM \"ADMIN_USER_MODULE_ACCESS\"");
+        for (AdministrationUserModuleOverride override : overrides) {
+            jdbcTemplate.update("""
+                    INSERT INTO "ADMIN_USER_MODULE_ACCESS" (
+                        "USUARIO_ID", "MODULO_CODIGO", "NIVEL_ACCESO", "ACTIVO", "CREADO_AT", "ACTUALIZADO_AT"
+                    )
+                    VALUES (?, ?, ?, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    """,
+                    override.userId(),
+                    override.moduleCode(),
+                    override.accessLevel()
+            );
+        }
     }
 
     @Override

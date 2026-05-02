@@ -1,5 +1,6 @@
 package com.example.authhexagonal.application.service;
 
+import com.example.authhexagonal.domain.exception.AiSuggestionUnavailableException;
 import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.PlanningClass;
 import com.example.authhexagonal.domain.model.PlanningClassCatalogUnit;
@@ -8,6 +9,8 @@ import com.example.authhexagonal.domain.model.PlanningClassCommand;
 import com.example.authhexagonal.domain.model.PlanningClassDocument;
 import com.example.authhexagonal.domain.model.PlanningClassDocumentUploadCommand;
 import com.example.authhexagonal.domain.model.PlanningClassDurationOption;
+import com.example.authhexagonal.domain.model.PlanningClassSuggestion;
+import com.example.authhexagonal.domain.model.PlanningClassSuggestionCommand;
 import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
 import com.example.authhexagonal.domain.model.PlanningEvaluationType;
@@ -17,6 +20,7 @@ import com.example.authhexagonal.domain.model.StoredFileReference;
 import com.example.authhexagonal.domain.port.in.AttachPlanningClassDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.CreatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.DeletePlanningClassUseCase;
+import com.example.authhexagonal.domain.port.in.GeneratePlanningClassSuggestionUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningClassCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.ListPlanningClassesUseCase;
@@ -25,14 +29,19 @@ import com.example.authhexagonal.domain.port.in.SavePlanningClassDraftUseCase;
 import com.example.authhexagonal.domain.port.in.UpdatePlanningClassUseCase;
 import com.example.authhexagonal.domain.port.in.UpdatePlanningClassTitleUseCase;
 import com.example.authhexagonal.domain.port.out.FileStoragePort;
+import com.example.authhexagonal.domain.port.out.GeneratePlanningClassSuggestionPort;
 import com.example.authhexagonal.domain.port.out.PlanningCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassDocumentRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassRepositoryPort;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class PlanningClassService implements
@@ -45,7 +54,10 @@ public class PlanningClassService implements
         AttachPlanningClassDocumentUseCase,
         RemovePlanningClassDocumentUseCase,
         UpdatePlanningClassUseCase,
-        UpdatePlanningClassTitleUseCase {
+        UpdatePlanningClassTitleUseCase,
+        GeneratePlanningClassSuggestionUseCase {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlanningClassService.class);
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "docx", "pptx");
     private static final long MAX_FILE_SIZE_BYTES = 20L * 1024L * 1024L;
@@ -55,19 +67,22 @@ public class PlanningClassService implements
     private final PlanningClassDocumentRepositoryPort planningClassDocumentRepositoryPort;
     private final PlanningCatalogRepositoryPort planningCatalogRepositoryPort;
     private final FileStoragePort fileStoragePort;
+    private final GeneratePlanningClassSuggestionPort generatePlanningClassSuggestionPort;
 
     public PlanningClassService(
             PlanningClassRepositoryPort planningClassRepositoryPort,
             PlanningClassCatalogRepositoryPort planningClassCatalogRepositoryPort,
             PlanningClassDocumentRepositoryPort planningClassDocumentRepositoryPort,
             PlanningCatalogRepositoryPort planningCatalogRepositoryPort,
-            FileStoragePort fileStoragePort
+            FileStoragePort fileStoragePort,
+            GeneratePlanningClassSuggestionPort generatePlanningClassSuggestionPort
     ) {
         this.planningClassRepositoryPort = planningClassRepositoryPort;
         this.planningClassCatalogRepositoryPort = planningClassCatalogRepositoryPort;
         this.planningClassDocumentRepositoryPort = planningClassDocumentRepositoryPort;
         this.planningCatalogRepositoryPort = planningCatalogRepositoryPort;
         this.fileStoragePort = fileStoragePort;
+        this.generatePlanningClassSuggestionPort = generatePlanningClassSuggestionPort;
     }
 
     @Override
@@ -186,7 +201,7 @@ public class PlanningClassService implements
         PlanningOptionItem duration = resolveDuration(command.durationCode());
         PlanningEvaluationType evaluationType = resolveEvaluationType(command.evaluationType());
 
-        return planningClassRepositoryPort.updateClass(
+        PlanningClass updatedClass = planningClassRepositoryPort.updateClass(
                 planningClass.id(),
                 unit.unitId(),
                 command.title().trim(),
@@ -203,6 +218,13 @@ public class PlanningClassService implements
                 PlanningClassStatus.PUBLICADA,
                 true
         );
+
+        planningClassRepositoryPort.syncCurriculumObjectives(
+                updatedClass.id(),
+                sanitizeObjectiveIds(command.objectiveIds())
+        );
+
+        return reloadAccessibleClass(username, updatedClass.id());
     }
 
     @Override
@@ -211,6 +233,142 @@ public class PlanningClassService implements
                 .orElseThrow(() -> new ResourceNotFoundException("Clase planificada no encontrada"));
 
         planningClassRepositoryPort.deleteClass(planningClass.id());
+    }
+
+    @Override
+    public PlanningClassSuggestion generateSuggestion(String username, PlanningClassSuggestionCommand command) {
+        if (command.subjectName() == null || command.subjectName().isBlank()) {
+            throw new IllegalArgumentException("La asignatura es obligatoria para generar sugerencia");
+        }
+        if (command.courseName() == null || command.courseName().isBlank()) {
+            throw new IllegalArgumentException("El curso es obligatorio para generar sugerencia");
+        }
+        if (command.objectiveCode() == null || command.objectiveCode().isBlank()) {
+            throw new IllegalArgumentException("El OA es obligatorio para generar sugerencia");
+        }
+        if (command.objectiveDescription() == null || command.objectiveDescription().isBlank()) {
+            throw new IllegalArgumentException("La descripcion del OA es obligatoria para generar sugerencia");
+        }
+
+        PlanningClassSuggestion aiSuggestion = requestAiSuggestion(command);
+        if (aiSuggestion != null) {
+            return aiSuggestion;
+        }
+
+        return buildLocalSuggestion(command, null);
+    }
+
+    private PlanningClassSuggestion buildLocalSuggestion(PlanningClassSuggestionCommand command, String fallbackReasonCode) {
+        String normalizedAxis = normalize(command.objectiveAxis());
+        boolean appreciation = normalizedAxis.contains("apreciar") || normalizedAxis.contains("responder frente al arte");
+
+        String materials = findSubItemMatch(command.subItems(), List.of("material", "papel", "carton", "pintur", "recurso"));
+        String tools = findSubItemMatch(command.subItems(), List.of("herramient", "pincel", "tijera", "tecnolog"));
+        String visualElements = findSubItemMatch(command.subItems(), List.of("linea", "color", "forma", "textura", "luz", "sombra"));
+
+        String trimmedDescription = command.objectiveDescription().trim();
+        String excerpt = trimmedDescription.length() > 96
+                ? trimmedDescription.substring(0, 96).trim() + "..."
+                : trimmedDescription;
+        String title = buildSuggestionTitle(command.objectiveAxis(), command.objectiveDescription(), command.objectiveCode());
+        String objectiveSummary = "Al finalizar la clase, los estudiantes seran capaces de avanzar en %s mediante una experiencia enfocada en %s."
+                .formatted(command.objectiveCode(), excerpt.toLowerCase());
+
+        if (appreciation) {
+            return new PlanningClassSuggestion(
+                    title,
+                    objectiveSummary,
+                    String.join("\n\n",
+                            "Presentar una obra, imagen o referente visual relacionado con el OA y pedir una observacion silenciosa inicial.",
+                            "Guiar una conversacion breve con preguntas detonantes: que observan, que colores o formas destacan y que sensacion les produce la propuesta visual.",
+                            "Activar conocimientos previos conectando las respuestas con experiencias artisticas cercanas al curso y con el lenguaje visual que ya conocen."
+                    ),
+                    String.join("\n",
+                            "1. Analisis guiado: profundizar en detalles de la obra o referente visual directamente vinculados con el OA seleccionado.",
+                            "2. Registro personal: los estudiantes anotan o dibujan sus primeras impresiones, identificando elementos visuales y justificando sus observaciones.",
+                            "3. Conversacion colaborativa: en parejas o grupos pequenos comparan sus interpretaciones y construyen una conclusion comun sobre el sentido de la obra."
+                    ),
+                    String.join("\n\n",
+                            "Realizar un cierre tipo semaforo de apreciacion para que cada estudiante exprese si la obra le resulto cercana, desafiante o inspiradora.",
+                            "Pedir a algunos voluntarios que expliquen que elemento del lenguaje visual influyo mas en su opinion.",
+                            "Cerrar sintetizando como observar, describir y argumentar fortalece la apreciacion artistica."
+                    ),
+                    "Ofrecer apoyos visuales y una guia breve de preguntas para estudiantes que requieran andamiaje en la observacion, expresion oral o escritura.",
+                    buildFallbackStatusMessage(command, fallbackReasonCode),
+                    buildFallbackProviderLabel(fallbackReasonCode)
+            );
+        }
+
+        return new PlanningClassSuggestion(
+                title,
+                objectiveSummary,
+                String.join("\n\n",
+                        "Explicar al curso que la clase se enfocara en %s, conectando el desafio con el tema %s.".formatted(command.objectiveCode(), excerpt.toLowerCase()),
+                        "Mostrar uno o dos ejemplos breves para aclarar el producto esperado y activar ideas previas antes de iniciar el trabajo practico.",
+                        "Acordar criterios simples de exito para que los estudiantes sepan que deben observar, crear o comunicar durante la actividad."
+                ),
+                String.join("\n",
+                        "1. Preparacion: organizar los materiales disponibles (%s) y recordar el uso responsable de %s."
+                                .formatted(materials.isBlank() ? "papeles, cartulinas y pinturas" : materials, tools.isBlank() ? "las herramientas del taller" : tools),
+                        "2. Desafio principal: los estudiantes desarrollan una produccion aplicando %s de manera intencionada."
+                                .formatted(visualElements.isBlank() ? "los elementos del lenguaje visual trabajados en la unidad" : visualElements),
+                        "3. Acompanamiento docente: circular por los grupos realizando preguntas, modelando decisiones tecnicas y apoyando a quienes necesiten una alternativa de acceso o mayor estructura.",
+                        "4. Puesta en comun parcial: detener el trabajo para que algunos estudiantes compartan avances, dificultades y decisiones creativas antes del cierre final."
+                ),
+                String.join("\n\n",
+                        "Organizar una galeria breve o museo vivo para observar los trabajos del curso con foco en el proceso y no solo en el producto final.",
+                        "Invitar a algunos estudiantes a explicar que quisieron comunicar y que decisiones visuales tomaron para lograrlo.",
+                        "Cerrar con una pregunta metacognitiva sobre que aprendieron, que les resulto desafiante y que mejorarian en una siguiente version."
+                ),
+                "Preparar materiales alternativos, modelado paso a paso y opciones de respuesta visual u oral para estudiantes que requieran apoyos PIE o diferenciacion por nivel.",
+                buildFallbackStatusMessage(command, fallbackReasonCode),
+                buildFallbackProviderLabel(fallbackReasonCode)
+        );
+    }
+
+    private PlanningClassSuggestion requestAiSuggestion(PlanningClassSuggestionCommand command) {
+        if (generatePlanningClassSuggestionPort == null) {
+            return null;
+        }
+
+        try {
+            return generatePlanningClassSuggestionPort.generateSuggestion(command).orElse(null);
+        } catch (AiSuggestionUnavailableException exception) {
+            LOGGER.warn("AI suggestion unavailable ({}), using local fallback.", exception.reasonCode());
+            return buildLocalSuggestion(command, exception.reasonCode());
+        } catch (Exception exception) {
+            LOGGER.warn("AI suggestion unavailable, using local fallback: {}", exception.getMessage());
+            return buildLocalSuggestion(command, "OPENAI_REQUEST_FAILED");
+        }
+    }
+
+    private String buildFallbackStatusMessage(PlanningClassSuggestionCommand command, String fallbackReasonCode) {
+        String axis = command.objectiveAxis() == null || command.objectiveAxis().isBlank()
+                ? "curricular"
+                : command.objectiveAxis();
+
+        if ("OPENAI_INSUFFICIENT_QUOTA".equals(fallbackReasonCode)) {
+            return "OpenAI no disponible por cuota en este momento. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("OPENAI_MISSING_API_KEY".equals(fallbackReasonCode)) {
+            return "OpenAI no esta configurado aun. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("OPENAI_UNAUTHORIZED".equals(fallbackReasonCode)) {
+            return "OpenAI rechazo la credencial configurada. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+
+        return "Sugerencia aplicada en modo local segun el eje %s de %s."
+                .formatted(axis, command.objectiveCode());
+    }
+
+    private String buildFallbackProviderLabel(String fallbackReasonCode) {
+        if (fallbackReasonCode == null || fallbackReasonCode.isBlank()) {
+            return "LOCAL";
+        }
+        return "LOCAL_FALLBACK:" + fallbackReasonCode;
     }
 
     private PlanningClass save(
@@ -231,7 +389,7 @@ public class PlanningClassService implements
         PlanningOptionItem duration = resolveDuration(command.durationCode());
         PlanningEvaluationType evaluationType = resolveEvaluationType(command.evaluationType());
 
-        return planningClassRepositoryPort.createClass(
+        PlanningClass createdClass = planningClassRepositoryPort.createClass(
                 unit.unitId(),
                 command.title().trim(),
                 command.plannedDate(),
@@ -248,6 +406,13 @@ public class PlanningClassService implements
                 publishedToStudents,
                 createdByUserId
         );
+
+        planningClassRepositoryPort.syncCurriculumObjectives(
+                createdClass.id(),
+                sanitizeObjectiveIds(command.objectiveIds())
+        );
+
+        return reloadAccessibleClass(username, createdClass.id());
     }
 
     private void validateCommand(PlanningClassCommand command, PlanningClassStatus status) {
@@ -287,6 +452,39 @@ public class PlanningClassService implements
         if (month != null && (month < 1 || month > 12)) {
             throw new IllegalArgumentException("El mes seleccionado no es valido");
         }
+    }
+
+    private String buildSuggestionTitle(String axis, String description, String code) {
+        String eje = axis == null || axis.isBlank() ? "Aprendizaje" : axis.split(":")[0].trim();
+        String topicSource = description == null || description.isBlank()
+                ? code
+                : description.split("[.:]")[0].trim();
+        String topic = topicSource.length() > 48 ? topicSource.substring(0, 48).trim() + "..." : topicSource;
+        return eje + ": " + topic;
+    }
+
+    private String findSubItemMatch(List<String> subItems, List<String> keywords) {
+        if (subItems == null || subItems.isEmpty()) {
+            return "";
+        }
+        for (String item : subItems) {
+            String normalized = normalize(item);
+            if (keywords.stream().anyMatch(normalized::contains)) {
+                return item;
+            }
+        }
+        return "";
+    }
+
+    private String normalize(String value) {
+        if (value == null) {
+            return "";
+        }
+        return java.text.Normalizer.normalize(value, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replaceAll("\\s+", " ")
+                .trim()
+                .toLowerCase(java.util.Locale.ROOT);
     }
 
     private PlanningObjectiveOption resolveObjective(
@@ -365,5 +563,21 @@ public class PlanningClassService implements
 
     private String normalizeNullable(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private List<UUID> sanitizeObjectiveIds(List<UUID> objectiveIds) {
+        if (objectiveIds == null || objectiveIds.isEmpty()) {
+            return List.of();
+        }
+
+        return objectiveIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+    }
+
+    private PlanningClass reloadAccessibleClass(String username, Long classId) {
+        return planningClassRepositoryPort.findAccessibleById(username, classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clase planificada no encontrada"));
     }
 }

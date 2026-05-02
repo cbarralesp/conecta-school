@@ -6,6 +6,8 @@ import {
   PlanningClass,
   PlanningClassCatalogs,
   PlanningClassPayload,
+  PlanningClassSuggestion,
+  PlanningClassSuggestionPayload,
   PlanningClassDocument,
   PlanningDocument,
   PlanningDocumentFileType,
@@ -183,6 +185,13 @@ export class PlanningApiService {
       .pipe(map((planningClass) => this.normalizeClass(planningClass)));
   }
 
+  generateClassSuggestion(payload: PlanningClassSuggestionPayload): Observable<PlanningClassSuggestion> {
+    return this.http.post<PlanningClassSuggestion>(
+      `${API_CONFIG.baseUrl}/planning/classes/suggestion`,
+      payload
+    );
+  }
+
   deleteClass(classId: number): Observable<void> {
     return this.http.delete<void>(`${API_CONFIG.baseUrl}/planning/classes/${classId}`);
   }
@@ -337,7 +346,16 @@ export class PlanningApiService {
       closingActivity: normalizeDashboardText(planningClass.closingActivity),
       status: normalizeDashboardText(planningClass.status) as PlanningClass['status'],
       createdBy: normalizeDashboardText(planningClass.createdBy),
-      documents: planningClass.documents.map((document) => this.normalizeDocument(document))
+      documents: planningClass.documents.map((document) => this.normalizeDocument(document)),
+      objectiveIds: planningClass.objectiveIds ?? [],
+      curriculumObjectives: (planningClass.curriculumObjectives ?? []).map((objective) => ({
+        ...objective,
+        codigo: normalizeDashboardText(objective.codigo),
+        tipo: normalizeDashboardText(objective.tipo) as typeof objective.tipo,
+        eje: normalizeDashboardText(objective.eje),
+        descripcion: normalizeDashboardText(objective.descripcion),
+        subItems: (objective.subItems ?? []).map((item) => normalizeDashboardText(item))
+      }))
     };
   }
 

@@ -360,16 +360,24 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     pe."RUN" AS "RUD",
                     pe."APELLIDOS" AS "APELLIDO",
                     pe."DIRECCION",
+                    pe."REGION_ID",
+                    pe."COMUNA_ID",
+                    cr."NOMBRE" AS region_name,
+                    cc."NOMBRE" AS commune_name,
                     pe."CORREO_ELECTRONICO" AS "EMAIL",
                     COALESCE(string_agg(DISTINCT teacher_subjects.subject_name, '|' ORDER BY teacher_subjects.subject_name), '') AS subjects
                 FROM "PROFESORES" p
                 JOIN "PERSONAS" pe
                   ON pe."ID" = p."PERSONA_ID"
+                LEFT JOIN "CHILE_REGIONES" cr
+                  ON cr."ID" = pe."REGION_ID"
+                LEFT JOIN "CHILE_COMUNAS" cc
+                  ON cc."ID" = pe."COMUNA_ID"
                 LEFT JOIN (
                     %s
                 ) teacher_subjects ON teacher_subjects.teacher_id = p."ID"
                 WHERE p."ACTIVO" = TRUE
-                GROUP BY p."ID", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."CORREO_ELECTRONICO"
+                GROUP BY p."ID", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."REGION_ID", pe."COMUNA_ID", cr."NOMBRE", cc."NOMBRE", pe."CORREO_ELECTRONICO"
                 ORDER BY pe."NOMBRES", pe."APELLIDOS"
                 """.formatted(teacherSubjectsSubquery()), (rs, rowNum) -> new TeacherCatalogItem(
                 rs.getLong("ID"),
@@ -377,6 +385,10 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getString("RUD"),
                 rs.getString("APELLIDO"),
                 rs.getString("DIRECCION"),
+                (Long) rs.getObject("REGION_ID"),
+                (Long) rs.getObject("COMUNA_ID"),
+                rs.getString("region_name"),
+                rs.getString("commune_name"),
                 rs.getString("EMAIL"),
                 splitSubjects(rs.getString("subjects"))
         )).stream().filter(item -> matchesTeacherTokens(item, tokens)).toList();
@@ -391,23 +403,35 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     pe."RUN" AS "RUD",
                     pe."APELLIDOS" AS "APELLIDO",
                     pe."DIRECCION",
+                    pe."REGION_ID",
+                    pe."COMUNA_ID",
+                    cr."NOMBRE" AS region_name,
+                    cc."NOMBRE" AS commune_name,
                     pe."CORREO_ELECTRONICO" AS "EMAIL",
                     COALESCE(string_agg(DISTINCT teacher_subjects.subject_name, '|' ORDER BY teacher_subjects.subject_name), '') AS subjects
                 FROM "PROFESORES" p
                 JOIN "PERSONAS" pe
                   ON pe."ID" = p."PERSONA_ID"
+                LEFT JOIN "CHILE_REGIONES" cr
+                  ON cr."ID" = pe."REGION_ID"
+                LEFT JOIN "CHILE_COMUNAS" cc
+                  ON cc."ID" = pe."COMUNA_ID"
                 LEFT JOIN (
                     %s
                 ) teacher_subjects ON teacher_subjects.teacher_id = p."ID"
                 WHERE p."ID" = ?
                   AND p."ACTIVO" = TRUE
-                GROUP BY p."ID", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."CORREO_ELECTRONICO"
+                GROUP BY p."ID", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."REGION_ID", pe."COMUNA_ID", cr."NOMBRE", cc."NOMBRE", pe."CORREO_ELECTRONICO"
                 """.formatted(teacherSubjectsSubquery()), (rs, rowNum) -> new TeacherCatalogItem(
                 rs.getLong("ID"),
                 rs.getString("NOMBRE"),
                 rs.getString("RUD"),
                 rs.getString("APELLIDO"),
                 rs.getString("DIRECCION"),
+                (Long) rs.getObject("REGION_ID"),
+                (Long) rs.getObject("COMUNA_ID"),
+                rs.getString("region_name"),
+                rs.getString("commune_name"),
                 rs.getString("EMAIL"),
                 splitSubjects(rs.getString("subjects"))
         ), teacherId).stream().findFirst();
@@ -419,8 +443,22 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
         String[] tokens = normalized.isBlank() ? new String[0] : normalized.split("\\s+");
 
         return jdbcTemplate.query("""
-                SELECT "ID", "RUN", "NOMBRE", "APELLIDOS", "DIRECCION", "FECHA_NACIMIENTO"
-                FROM "ALUMNOS"
+                SELECT
+                    a."ID",
+                    a."RUN",
+                    a."NOMBRE",
+                    a."APELLIDOS",
+                    a."DIRECCION",
+                    a."REGION_ID",
+                    a."COMUNA_ID",
+                    cr."NOMBRE" AS region_name,
+                    cc."NOMBRE" AS commune_name,
+                    a."FECHA_NACIMIENTO"
+                FROM "ALUMNOS" a
+                LEFT JOIN "CHILE_REGIONES" cr
+                  ON cr."ID" = a."REGION_ID"
+                LEFT JOIN "CHILE_COMUNAS" cc
+                  ON cc."ID" = a."COMUNA_ID"
                 WHERE "ACTIVO" = TRUE
                   AND "ID" NOT IN (
                       SELECT "ALUMNO_ID"
@@ -433,6 +471,10 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getString("NOMBRE"),
                 rs.getString("APELLIDOS"),
                 rs.getString("DIRECCION"),
+                (Long) rs.getObject("REGION_ID"),
+                (Long) rs.getObject("COMUNA_ID"),
+                rs.getString("region_name"),
+                rs.getString("commune_name"),
                 rs.getDate("FECHA_NACIMIENTO").toLocalDate()
         )).stream().filter(item -> matchesStudentTokens(item, tokens)).toList();
     }
@@ -440,8 +482,22 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
     @Override
     public Optional<StudentCatalogItem> findUnassignedStudentById(Long studentId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "RUN", "NOMBRE", "APELLIDOS", "DIRECCION", "FECHA_NACIMIENTO"
-                FROM "ALUMNOS"
+                SELECT
+                    a."ID",
+                    a."RUN",
+                    a."NOMBRE",
+                    a."APELLIDOS",
+                    a."DIRECCION",
+                    a."REGION_ID",
+                    a."COMUNA_ID",
+                    cr."NOMBRE" AS region_name,
+                    cc."NOMBRE" AS commune_name,
+                    a."FECHA_NACIMIENTO"
+                FROM "ALUMNOS" a
+                LEFT JOIN "CHILE_REGIONES" cr
+                  ON cr."ID" = a."REGION_ID"
+                LEFT JOIN "CHILE_COMUNAS" cc
+                  ON cc."ID" = a."COMUNA_ID"
                 WHERE "ID" = ?
                   AND "ACTIVO" = TRUE
                   AND "ID" NOT IN (
@@ -454,6 +510,10 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getString("NOMBRE"),
                 rs.getString("APELLIDOS"),
                 rs.getString("DIRECCION"),
+                (Long) rs.getObject("REGION_ID"),
+                (Long) rs.getObject("COMUNA_ID"),
+                rs.getString("region_name"),
+                rs.getString("commune_name"),
                 rs.getDate("FECHA_NACIMIENTO").toLocalDate()
         ), studentId).stream().findFirst();
     }
@@ -532,6 +592,10 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
             String firstName,
             String lastName,
             String address,
+            Long regionId,
+            Long communeId,
+            String regionName,
+            String communeName,
             LocalDate birthDate
     ) {
         return new StudentCatalogItem(
@@ -540,6 +604,10 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 firstName,
                 lastName,
                 address,
+                regionId,
+                communeId,
+                regionName,
+                communeName,
                 birthDate,
                 Period.between(birthDate, LocalDate.now()).getYears()
         );

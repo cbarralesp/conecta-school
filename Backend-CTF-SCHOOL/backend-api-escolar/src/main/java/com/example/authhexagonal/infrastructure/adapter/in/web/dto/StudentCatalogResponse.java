@@ -11,6 +11,10 @@ public record StudentCatalogResponse(
         String lastName,
         String fullName,
         String address,
+        Long regionId,
+        Long communeId,
+        String regionName,
+        String communeName,
         LocalDate birthDate,
         int age
 ) {
@@ -22,6 +26,10 @@ public record StudentCatalogResponse(
                 item.lastName(),
                 item.fullName(),
                 item.address(),
+                item.regionId(),
+                item.communeId(),
+                item.regionName(),
+                item.communeName(),
                 item.birthDate(),
                 item.age()
         );

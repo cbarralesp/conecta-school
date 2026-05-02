@@ -58,7 +58,7 @@ public class ScheduleController {
     }
 
     @PutMapping("/{scheduleId}")
-    public ScheduleResponse update(@PathVariable Long scheduleId, @Valid @RequestBody ScheduleRequest request) {
+    public ScheduleResponse update(@PathVariable("scheduleId") Long scheduleId, @Valid @RequestBody ScheduleRequest request) {
         return ScheduleResponse.fromDomain(
                 manageSchedulesUseCase.update(
                         scheduleId,
@@ -74,7 +74,7 @@ public class ScheduleController {
 
     @DeleteMapping("/{scheduleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long scheduleId) {
+    public void delete(@PathVariable("scheduleId") Long scheduleId) {
         manageSchedulesUseCase.delete(scheduleId);
     }
 

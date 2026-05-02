@@ -78,6 +78,20 @@ export class EditCoursePageComponent {
     this.loadPage();
   }
 
+  getControlError(controlName: 'code' | 'name' | 'level' | 'letter' | 'schoolYear' | 'scheduleType' | 'teacherId'): string {
+    const control = this.form.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    if (control.hasError('min')) {
+      return 'Ingresa un valor valido.';
+    }
+    return 'Revisa este campo.';
+  }
+
   saveCourse(): void {
     const course = this.course();
     if (!course) {
@@ -86,6 +100,9 @@ export class EditCoursePageComponent {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.snackBar.open('Completa los campos obligatorios para guardar el curso', 'Cerrar', {
+        duration: 3000
+      });
       return;
     }
 
@@ -211,6 +228,10 @@ export class EditCoursePageComponent {
       lastName: enrollment.studentLastName,
       fullName: enrollment.fullName,
       address: '',
+      regionId: null,
+      communeId: null,
+      regionName: '',
+      communeName: '',
       birthDate: '',
       age: 0
     };
@@ -231,5 +252,25 @@ export class EditCoursePageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  teacherOptionLabel(teacher: TeacherCatalogItem): string {
+    const location = this.locationLabel(teacher.regionName, teacher.communeName);
+    return location ? `${teacher.fullName} · ${location}` : teacher.fullName;
+  }
+
+  studentLocationLabel(student: StudentCatalogItem): string {
+    return this.locationLabel(student.regionName, student.communeName);
+  }
+
+  private locationLabel(regionName: string, communeName: string): string {
+    const commune = communeName.trim();
+    const region = regionName.trim();
+
+    if (commune && region) {
+      return `${commune}, ${region}`;
+    }
+
+    return commune || region;
   }
 }

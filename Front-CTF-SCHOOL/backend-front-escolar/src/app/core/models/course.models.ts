@@ -37,6 +37,10 @@ export interface TeacherCatalogItem {
   fullName: string;
   rud: string;
   address: string;
+  regionId: number | null;
+  communeId: number | null;
+  regionName: string;
+  communeName: string;
   email: string;
   subjects: string[];
 }
@@ -48,6 +52,10 @@ export interface StudentCatalogItem {
   lastName: string;
   fullName: string;
   address: string;
+  regionId: number | null;
+  communeId: number | null;
+  regionName: string;
+  communeName: string;
   birthDate: string;
   age: number;
 }

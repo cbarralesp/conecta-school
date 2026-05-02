@@ -84,6 +84,13 @@
   gap: 0.2rem;
 }
 
+.role-error {
+  margin: 0.6rem 0 0;
+  color: #dc2626;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -96,4 +103,3 @@
     grid-template-columns: 1fr;
   }
 }
-

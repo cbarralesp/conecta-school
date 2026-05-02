@@ -50,6 +50,7 @@ export class AdministrationAccessMatrixPageComponent {
   readonly selectedUser = signal<AdministrationUserListItem | null>(null);
   readonly userOverrides = signal<Record<string, AdministrationAccessLevel>>({});
   readonly isSearchingUsers = signal(false);
+  readonly isSaving = signal(false);
   readonly matrixDirty = signal(false);
   readonly userDirty = signal(false);
 
@@ -83,17 +84,18 @@ export class AdministrationAccessMatrixPageComponent {
   });
 
   readonly selectedUserPermissions = computed(() => {
-    const user = this.selectedUser();
-    const roleCode = user?.roleCode;
-    if (!user || !roleCode) {
-      return [];
-    }
+      const user = this.selectedUser();
+      const roleCode = user?.roleCode;
+      if (!user || !roleCode) {
+        return [];
+      }
 
-    return this.editableRows().map((row) => {
-      const key = this.userOverrideKey(user.id, row.moduleName);
+      return this.editableRows().map((row) => {
+      const key = this.userOverrideKey(user.id, row.moduleCode);
       const override = this.userOverrides()[key];
       const inherited = row.permissions[roleCode];
       return {
+        moduleCode: row.moduleCode,
         moduleName: row.moduleName,
         level: override ?? inherited,
         inherited,
@@ -159,14 +161,14 @@ export class AdministrationAccessMatrixPageComponent {
     this.userResults.set([]);
   }
 
-  cycleMatrixPermission(moduleName: string, roleCode: AdministrationRoleCode): void {
+  cycleMatrixPermission(moduleCode: string, roleCode: AdministrationRoleCode): void {
     if (roleCode === 'SUPERADMIN') {
       return;
     }
 
     this.editableRows.update((rows) =>
       rows.map((row) => {
-        if (row.moduleName !== moduleName) {
+        if (row.moduleCode !== moduleCode) {
           return row;
         }
 
@@ -182,19 +184,19 @@ export class AdministrationAccessMatrixPageComponent {
     this.matrixDirty.set(true);
   }
 
-  setUserPermission(moduleName: string, level: AdministrationAccessLevel): void {
+  setUserPermission(moduleCode: string, level: AdministrationAccessLevel): void {
     const user = this.selectedUser();
     if (!user) {
       return;
     }
 
-    const row = this.editableRows().find((item) => item.moduleName === moduleName);
+    const row = this.editableRows().find((item) => item.moduleCode === moduleCode);
     if (!row) {
       return;
     }
 
     const inherited = row.permissions[user.roleCode];
-    const key = this.userOverrideKey(user.id, moduleName);
+    const key = this.userOverrideKey(user.id, moduleCode);
 
     this.userOverrides.update((current) => {
       const next = { ...current };
@@ -227,20 +229,44 @@ export class AdministrationAccessMatrixPageComponent {
   }
 
   saveChanges(): void {
+    if (this.isSaving()) {
+      return;
+    }
+
     if (!this.matrixDirty() && !this.userDirty()) {
       this.snackBar.open('No hay cambios pendientes', 'Cerrar', { duration: 2200 });
       return;
     }
 
-    this.snackBar.open('La interfaz quedo lista. Falta conectar el endpoint de guardado en backend.', 'Cerrar', {
-      duration: 3600
+    const payload = {
+      rows: this.editableRows(),
+      userOverrides: Object.entries(this.userOverrides()).map(([key, accessLevel]) => {
+        const [userIdRaw, moduleCode] = key.split('__');
+        return {
+          userId: Number(userIdRaw),
+          moduleCode,
+          accessLevel
+        };
+      })
+    };
+
+    this.isSaving.set(true);
+    this.administrationApi.saveAccessMatrix(payload).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.matrixDirty.set(false);
+        this.userDirty.set(false);
+        this.snackBar.open('Matriz de accesos guardada correctamente', 'Cerrar', { duration: 2800 });
+      },
+      error: () => {
+        this.isSaving.set(false);
+        this.snackBar.open('No fue posible guardar la matriz de accesos', 'Cerrar', { duration: 3200 });
+      }
     });
-    this.matrixDirty.set(false);
-    this.userDirty.set(false);
   }
 
-  isMatrixPermission(level: AdministrationAccessLevel, moduleName: string, roleCode: AdministrationRoleCode): boolean {
-    return this.editableRows().find((row) => row.moduleName === moduleName)?.permissions[roleCode] === level;
+  isMatrixPermission(level: AdministrationAccessLevel, moduleCode: string, roleCode: AdministrationRoleCode): boolean {
+    return this.editableRows().find((row) => row.moduleCode === moduleCode)?.permissions[roleCode] === level;
   }
 
   roleLabel(roleCode: AdministrationRoleCode): string {
@@ -282,6 +308,14 @@ export class AdministrationAccessMatrixPageComponent {
           ...row,
           permissions: { ...row.permissions }
         })));
+        this.userOverrides.set(
+          Object.fromEntries(
+            (matrix.userOverrides ?? []).map((override) => [
+              this.userOverrideKey(override.userId, override.moduleCode),
+              override.accessLevel
+            ])
+          )
+        );
       },
       error: () => this.snackBar.open('No fue posible cargar la matriz de acceso', 'Cerrar', { duration: 2600 })
     });
@@ -293,7 +327,7 @@ export class AdministrationAccessMatrixPageComponent {
     return order[(currentIndex + 1) % order.length];
   }
 
-  private userOverrideKey(userId: number, moduleName: string): string {
-    return `${userId}__${moduleName}`;
+  private userOverrideKey(userId: number, moduleCode: string): string {
+    return `${userId}__${moduleCode}`;
   }
 }

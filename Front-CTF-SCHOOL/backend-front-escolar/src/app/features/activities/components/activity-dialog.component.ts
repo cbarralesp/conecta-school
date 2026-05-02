@@ -57,11 +57,17 @@ type ActivityDialogResult =
                 <mat-option [value]="type.id">{{ type.name }}</mat-option>
               }
             </mat-select>
+            @if (getControlError('activityTypeId')) {
+              <mat-error>{{ getControlError('activityTypeId') }}</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Titulo</mat-label>
             <input matInput formControlName="title" />
+            @if (getControlError('title')) {
+              <mat-error>{{ getControlError('title') }}</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -72,6 +78,9 @@ type ActivityDialogResult =
           <mat-form-field appearance="outline">
             <mat-label>Fecha</mat-label>
             <input matInput type="date" formControlName="date" />
+            @if (getControlError('date')) {
+              <mat-error>{{ getControlError('date') }}</mat-error>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -260,6 +269,20 @@ export class ActivityDialogComponent {
   readonly selectedType = computed(
     () => this.data.activityTypes.find((type) => type.id === this.form.controls.activityTypeId.value) ?? null
   );
+
+  getControlError(controlName: 'activityTypeId' | 'title' | 'date'): string {
+    const control = this.form.controls[controlName];
+    if (!control.invalid || (!control.touched && !control.dirty)) {
+      return '';
+    }
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    if (control.hasError('min')) {
+      return 'Selecciona una opcion valida.';
+    }
+    return 'Revisa este campo.';
+  }
 
   submit(): void {
     if (this.form.invalid) {

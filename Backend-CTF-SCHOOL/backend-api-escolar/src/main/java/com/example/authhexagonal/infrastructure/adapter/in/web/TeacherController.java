@@ -29,9 +29,9 @@ public class TeacherController {
 
     @GetMapping
     public TeacherOverviewResponse getOverview(
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) Long subjectId,
-            @RequestParam(required = false) String status
+            @RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "subjectId", required = false) Long subjectId,
+            @RequestParam(name = "status", required = false) String status
     ) {
         return TeacherOverviewResponse.fromDomain(
                 teacherManagementService.getOverview(search, subjectId, status)
@@ -39,7 +39,7 @@ public class TeacherController {
     }
 
     @GetMapping("/{teacherId}")
-    public TeacherDetailResponse getById(@PathVariable Long teacherId) {
+    public TeacherDetailResponse getById(@PathVariable("teacherId") Long teacherId) {
         return TeacherDetailResponse.fromDomain(teacherManagementService.findById(teacherId));
     }
 
@@ -50,13 +50,13 @@ public class TeacherController {
     }
 
     @PutMapping("/{teacherId}")
-    public TeacherDetailResponse update(@PathVariable Long teacherId, @Valid @RequestBody TeacherRequest request) {
+    public TeacherDetailResponse update(@PathVariable("teacherId") Long teacherId, @Valid @RequestBody TeacherRequest request) {
         return TeacherDetailResponse.fromDomain(teacherManagementService.update(teacherId, request.toDomain()));
     }
 
     @DeleteMapping("/{teacherId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long teacherId) {
+    public void delete(@PathVariable("teacherId") Long teacherId) {
         teacherManagementService.delete(teacherId);
     }
 }

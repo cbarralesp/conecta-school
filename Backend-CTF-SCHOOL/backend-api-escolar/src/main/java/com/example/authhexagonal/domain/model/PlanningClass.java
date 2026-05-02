@@ -3,6 +3,7 @@ package com.example.authhexagonal.domain.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record PlanningClass(
         Long id,
@@ -29,6 +30,8 @@ public record PlanningClass(
         String createdBy,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        List<PlanningClassDocument> documents
+        List<PlanningClassDocument> documents,
+        List<UUID> curriculumObjectiveIds,
+        List<CurriculumObjective> curriculumObjectives
 ) {
 }

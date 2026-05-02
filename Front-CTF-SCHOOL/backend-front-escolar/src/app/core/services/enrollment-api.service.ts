@@ -93,6 +93,16 @@ export class EnrollmentApiService {
       address: normalizeDashboardText(detail.address),
       specialNeeds: normalizeDashboardText(detail.specialNeeds),
       status: normalizeDashboardText(detail.status),
+      establishment: {
+        regionId: detail.establishment.regionId ?? null,
+        communeId: detail.establishment.communeId ?? null,
+        name: normalizeDashboardText(detail.establishment.name),
+        academicYear: normalizeDashboardText(detail.establishment.academicYear),
+        dependency: normalizeDashboardText(detail.establishment.dependency),
+        region: normalizeDashboardText(detail.establishment.region),
+        commune: normalizeDashboardText(detail.establishment.commune),
+        address: normalizeDashboardText(detail.establishment.address)
+      },
       guardian: {
         ...detail.guardian,
         run: normalizeDashboardText(detail.guardian.run),
@@ -109,6 +119,13 @@ export class EnrollmentApiService {
         lastName: normalizeDashboardText(contact.lastName),
         phone: normalizeDashboardText(contact.phone),
         relation: normalizeDashboardText(contact.relation)
+      })),
+      documents: detail.documents.map((document) => ({
+        ...document,
+        documentKey: normalizeDashboardText(document.documentKey),
+        fileName: normalizeDashboardText(document.fileName),
+        driveFileId: normalizeDashboardText(document.driveFileId ?? ''),
+        driveUrl: normalizeDashboardText(document.driveUrl ?? '')
       }))
     };
   }

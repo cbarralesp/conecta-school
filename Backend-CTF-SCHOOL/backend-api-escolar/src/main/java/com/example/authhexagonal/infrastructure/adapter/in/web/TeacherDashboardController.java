@@ -39,7 +39,7 @@ public class TeacherDashboardController {
     @GetMapping("/plannings/{planningId}")
     public TeacherPlanningDetailResponse planning(
             Authentication authentication,
-            @PathVariable Long planningId
+            @PathVariable("planningId") Long planningId
     ) {
         return TeacherPlanningDetailResponse.fromDomain(
                 manageTeacherPlanningUseCase.getPlanning(authentication.getName(), planningId)
@@ -49,7 +49,7 @@ public class TeacherDashboardController {
     @PutMapping("/plannings/{planningId}")
     public TeacherPlanningDetailResponse updatePlanning(
             Authentication authentication,
-            @PathVariable Long planningId,
+            @PathVariable("planningId") Long planningId,
             @Valid @RequestBody TeacherPlanningUpdateRequest request
     ) {
         return TeacherPlanningDetailResponse.fromDomain(
