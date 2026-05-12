@@ -10,6 +10,7 @@ import com.example.authhexagonal.domain.model.PlanningUnitNumber;
 import com.example.authhexagonal.domain.model.PlanningUnitStatus;
 import com.example.authhexagonal.domain.model.PlanningUnitSummary;
 import com.example.authhexagonal.domain.port.in.CreatePlanningUnitUseCase;
+import com.example.authhexagonal.domain.port.in.DeletePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitsUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningUnitDraftUseCase;
@@ -27,7 +28,8 @@ public class PlanningUnitService implements
         SavePlanningUnitDraftUseCase,
         GetPlanningUnitCatalogsUseCase,
         GetPlanningUnitsUseCase,
-        UpdatePlanningUnitUseCase {
+        UpdatePlanningUnitUseCase,
+        DeletePlanningUnitUseCase {
 
     private final PlanningUnitRepositoryPort planningUnitRepositoryPort;
     private final PlanningCatalogRepositoryPort planningCatalogRepositoryPort;
@@ -81,6 +83,18 @@ public class PlanningUnitService implements
                 unitNumber.trim(),
                 name.trim()
         );
+    }
+
+    @Override
+    public void deleteUnit(String username, Long unitId) {
+        planningUnitRepositoryPort.findAccessibleById(username, unitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unidad de planificacion no encontrada"));
+
+        if (planningUnitRepositoryPort.hasClasses(unitId)) {
+            throw new IllegalArgumentException("La unidad tiene clases asociadas y no puede eliminarse");
+        }
+
+        planningUnitRepositoryPort.deleteUnit(unitId);
     }
 
     private PlanningUnit save(String username, PlanningUnitCommand command, PlanningUnitStatus status) {

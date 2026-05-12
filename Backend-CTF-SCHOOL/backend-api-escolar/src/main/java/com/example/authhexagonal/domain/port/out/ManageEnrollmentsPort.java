@@ -4,9 +4,11 @@ import com.example.authhexagonal.domain.model.EnrollmentCourseOption;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
 import com.example.authhexagonal.domain.model.EnrollmentDocument;
 import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
+import com.example.authhexagonal.domain.model.EnrollmentGuardianAccess;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentListItem;
 import com.example.authhexagonal.domain.model.EnrollmentPickupContact;
+import com.example.authhexagonal.domain.model.EnrollmentStudentAccess;
 import com.example.authhexagonal.domain.model.EnrollmentSummary;
 
 import java.time.LocalDate;
@@ -24,6 +26,10 @@ public interface ManageEnrollmentsPort {
     Optional<EnrollmentDetail> findEnrollmentDetailById(Long enrollmentId);
 
     Optional<Long> findStudentIdByRun(String run);
+
+    Optional<EnrollmentStudentAccess> findStudentAccessByRun(String run);
+
+    Optional<EnrollmentGuardianAccess> findGuardianAccessByRun(String run);
 
     boolean hasActiveEnrollmentForStudent(Long studentId, Long excludeEnrollmentId);
 
@@ -78,4 +84,24 @@ public interface ManageEnrollmentsPort {
     void replacePickupContacts(Long enrollmentId, List<EnrollmentPickupContact> contacts);
 
     void replaceDocuments(Long enrollmentId, List<EnrollmentDocument> documents);
+
+    EnrollmentStudentAccess provisionStudentAccess(
+            String studentRun,
+            String studentName,
+            String studentLastName,
+            String guardianEmail,
+            String guardianPhone,
+            String encodedPassword,
+            boolean notifyByEmail
+    );
+
+    EnrollmentGuardianAccess provisionGuardianAccess(
+            String guardianRun,
+            String guardianName,
+            String guardianLastName,
+            String guardianEmail,
+            String guardianPhone,
+            String encodedPassword,
+            boolean notifyByEmail
+    );
 }

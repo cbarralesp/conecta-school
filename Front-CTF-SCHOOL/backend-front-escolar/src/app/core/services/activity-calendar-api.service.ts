@@ -13,10 +13,14 @@ import { normalizeDashboardText } from '../utils/text-normalizer';
 export class ActivityCalendarApiService {
   private readonly http = inject(HttpClient);
 
-  getCalendar(year: number, month: number): Observable<ActivityCalendar> {
+  getCalendar(year: number, month: number, courseId?: number | null): Observable<ActivityCalendar> {
     return this.http
       .get<ActivityCalendar>(`${API_CONFIG.baseUrl}/activities/calendar`, {
-        params: { year, month }
+        params: {
+          year,
+          month,
+          ...(courseId ? { courseId } : {})
+        }
       })
       .pipe(map((calendar) => this.normalizeCalendar(calendar)));
   }
@@ -66,6 +70,7 @@ export class ActivityCalendarApiService {
   private normalizeActivity(activity: SchoolActivity): SchoolActivity {
     return {
       ...activity,
+      courseName: normalizeDashboardText(activity.courseName ?? ''),
       activityTypeCode: normalizeDashboardText(activity.activityTypeCode),
       activityTypeName: normalizeDashboardText(activity.activityTypeName),
       title: normalizeDashboardText(activity.title),

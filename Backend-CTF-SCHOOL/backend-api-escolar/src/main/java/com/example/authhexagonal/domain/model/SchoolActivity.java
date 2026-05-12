@@ -6,6 +6,8 @@ import java.time.LocalTime;
 public record SchoolActivity(
         Long id,
         Long activityTypeId,
+        Long courseId,
+        String courseName,
         String activityTypeCode,
         String activityTypeName,
         String title,

@@ -7,7 +7,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
-import { EnrollmentCourseOption, EnrollmentDetail, EnrollmentPayload } from '../../../core/models/enrollment.models';
+import {
+  EnrollmentCourseOption,
+  EnrollmentDetail,
+  EnrollmentGuardianAccess,
+  EnrollmentPayload,
+  EnrollmentStudentAccess
+} from '../../../core/models/enrollment.models';
+import { normalizeCourseDisplayName } from '../../../core/constants/course-levels';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { LocationApiService } from '../../../core/services/location-api.service';
 import { ChileCommune, ChileRegion } from '../../../core/models/location.models';
@@ -40,15 +47,28 @@ export class EnrollmentFormPageComponent {
   readonly user = this.authStateService.user;
   readonly enrollmentId = this.routeEnrollmentId ? Number(this.routeEnrollmentId) : null;
   readonly isEditMode = this.enrollmentId !== null && Number.isFinite(this.enrollmentId);
+  readonly isCreateMode = !this.isEditMode;
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
+  readonly currentStep = signal(1);
   readonly courses = signal<EnrollmentCourseOption[]>([]);
   readonly chileRegions = signal<ChileRegion[]>([]);
-  readonly pageTitle = computed(() => this.isEditMode ? 'Editar Matricula' : 'Nueva Matricula');
+  readonly createCourseBase = signal('');
+  readonly createCourseLevel = signal('');
+  readonly createCourseLetter = signal('');
+  readonly createCourseSchedule = signal('');
+  readonly wizardSteps = [
+    { id: 1, label: 'Estudiante', icon: 'badge' },
+    { id: 2, label: 'Apoderado', icon: 'supervisor_account' },
+    { id: 3, label: 'Retiro', icon: 'directions_car' },
+    { id: 4, label: 'Establec.', icon: 'school' },
+    { id: 5, label: 'Documentos', icon: 'folder_open' }
+  ] as const;
+  readonly pageTitle = computed(() => this.isEditMode ? 'Editar Matrícula' : 'Nueva Matrícula');
   readonly subtitle = computed(() =>
     this.isEditMode
-      ? 'Actualizando informacion del estudiante'
-      : 'Registrando informacion del estudiante'
+      ? 'Actualizando información del estudiante'
+      : 'Registrando información del estudiante'
   );
   readonly statusBadgeLabel = computed(() => {
     const status = (this.form.controls.status.value || 'ACTIVO').toUpperCase();
@@ -58,9 +78,62 @@ export class EnrollmentFormPageComponent {
     const status = (this.form.controls.status.value || 'ACTIVO').toUpperCase();
     return status === 'PENDIENTE' ? 'status-badge status-badge--pending' : 'status-badge';
   });
-  readonly selectedCourseName = computed(() =>
-    this.courses().find((course) => course.id === Number(this.form.controls.courseId.value))?.name ?? 'Curso sin asignar'
+  readonly selectedCourseOption = computed(() =>
+    this.courses().find((course) => course.id === Number(this.form.controls.courseId.value)) ?? null
   );
+  readonly selectedCourseName = computed(() =>
+    this.selectedCourseOption()
+      ? normalizeCourseDisplayName(this.selectedCourseOption()!.name, this.selectedCourseOption()!.letter)
+      : 'Curso sin asignar'
+  );
+  readonly selectedCourseBaseName = computed(() => {
+    const course = this.selectedCourseOption();
+    return course ? this.baseCourseName(course) : '';
+  });
+  readonly selectedCourseLevel = computed(() => this.selectedCourseOption()?.level ?? '');
+  readonly selectedCourseLetter = computed(() => this.selectedCourseOption()?.letter ?? '');
+  readonly selectedCourseSchoolYear = computed(() => {
+    const course = this.selectedCourseOption();
+    return course ? `${course.schoolYear}` : '';
+  });
+  readonly selectedCourseScheduleType = computed(() => this.selectedCourseOption()?.scheduleType ?? '');
+  readonly availableCourseBaseOptions = computed(() => {
+    const unique = new Map<string, string>();
+    for (const course of this.courses()) {
+      const baseName = this.baseCourseName(course);
+      if (!unique.has(baseName.toUpperCase())) {
+        unique.set(baseName.toUpperCase(), baseName);
+      }
+    }
+    return Array.from(unique.values());
+  });
+  readonly availableLevelOptions = computed(() => {
+    const selectedBase = this.createCourseBase().trim().toUpperCase();
+    const source = this.courses().filter((course) =>
+      !selectedBase || this.baseCourseName(course).trim().toUpperCase() === selectedBase
+    );
+    return Array.from(new Map(source.map((course) => [course.level.toUpperCase(), course.level])).values());
+  });
+  readonly availableLetterOptions = computed(() => {
+    const selectedBase = this.createCourseBase().trim().toUpperCase();
+    const selectedLevel = this.createCourseLevel().trim().toUpperCase();
+    const source = this.courses().filter((course) =>
+      (!selectedBase || this.baseCourseName(course).trim().toUpperCase() === selectedBase) &&
+      (!selectedLevel || course.level.trim().toUpperCase() === selectedLevel)
+    );
+    return Array.from(new Map(source.map((course) => [course.letter.toUpperCase(), course.letter])).values());
+  });
+  readonly availableScheduleOptions = computed(() => {
+    const selectedBase = this.createCourseBase().trim().toUpperCase();
+    const selectedLevel = this.createCourseLevel().trim().toUpperCase();
+    const selectedLetter = this.createCourseLetter().trim().toUpperCase();
+    const source = this.courses().filter((course) =>
+      (!selectedBase || this.baseCourseName(course).trim().toUpperCase() === selectedBase) &&
+      (!selectedLevel || course.level.trim().toUpperCase() === selectedLevel) &&
+      (!selectedLetter || course.letter.trim().toUpperCase() === selectedLetter)
+    );
+    return Array.from(new Map(source.map((course) => [course.scheduleType.toUpperCase(), course.scheduleType])).values());
+  });
   readonly pickupRelationOptions = [
     'Madre',
     'Padre',
@@ -85,27 +158,27 @@ export class EnrollmentFormPageComponent {
       title: 'Identidad y Registro Civil',
       documents: [
         { key: 'birth-certificate', icon: 'child_care', title: 'Certificado de nacimiento', description: 'Copia reciente o digitalizada.' },
-        { key: 'student-id', icon: 'badge', title: 'Cedula de identidad del alumno', description: 'Ambos lados, vigente.' },
-        { key: 'guardian-id', icon: 'contact_page', title: 'Cedula del apoderado', description: 'Documento de identidad del apoderado principal.' },
-        { key: 'legal-custody', icon: 'gavel', title: 'Tutela o resolucion judicial', description: 'Solo si existe tutela legal o condicion especial.' }
+        { key: 'student-id', icon: 'badge', title: 'Cédula de identidad del alumno', description: 'Ambos lados, vigente.' },
+        { key: 'guardian-id', icon: 'contact_page', title: 'Cédula del apoderado', description: 'Documento de identidad del apoderado principal.' },
+        { key: 'legal-custody', icon: 'gavel', title: 'Tutela o resolución judicial', description: 'Solo si existe tutela legal o condición especial.' }
       ]
     },
     {
-      title: 'Historial Academico',
+      title: 'Historial Académico',
       documents: [
-        { key: 'study-certificate', icon: 'workspace_premium', title: 'Certificado de estudios', description: 'Documento del ano anterior o del ultimo curso aprobado.' },
+        { key: 'study-certificate', icon: 'workspace_premium', title: 'Certificado de estudios', description: 'Documento del año anterior o del último curso aprobado.' },
         { key: 'behavior-report', icon: 'fact_check', title: 'Informe de personalidad o conducta', description: 'Emitido por el establecimiento anterior, si aplica.' },
-        { key: 'report-card', icon: 'bar_chart', title: 'Boletin de notas', description: 'Opcional para apoyar la asignacion de curso.' },
-        { key: 'pie-certificate', icon: 'extension', title: 'Certificado PIE o NEE', description: 'Diagnostico de necesidades educativas especiales, si existe.' }
+        { key: 'report-card', icon: 'bar_chart', title: 'Boletín de notas', description: 'Opcional para apoyar la asignación de curso.' },
+        { key: 'pie-certificate', icon: 'extension', title: 'Certificado PIE o NEE', description: 'Diagnóstico de necesidades educativas especiales, si existe.' }
       ]
     },
     {
-      title: 'Documentos Medicos',
+      title: 'Documentos Médicos',
       documents: [
-        { key: 'vaccination-card', icon: 'vaccines', title: 'Carne de vacunacion', description: 'Registro de vacunas del estudiante.' },
-        { key: 'health-record', icon: 'health_and_safety', title: 'Ficha de salud escolar', description: 'Antecedentes medicos relevantes y cuidados generales.' },
-        { key: 'medical-report', icon: 'clinical_notes', title: 'Informe medico o diagnostico', description: 'Solo si presenta alergias, tratamiento o condicion cronica.' },
-        { key: 'medical-authorization', icon: 'description', title: 'Autorizacion de atencion medica', description: 'Permiso para actuar ante emergencias.' }
+        { key: 'vaccination-card', icon: 'vaccines', title: 'Carné de vacunación', description: 'Registro de vacunas del estudiante.' },
+        { key: 'health-record', icon: 'health_and_safety', title: 'Ficha de salud escolar', description: 'Antecedentes médicos relevantes y cuidados generales.' },
+        { key: 'medical-report', icon: 'clinical_notes', title: 'Informe médico o diagnóstico', description: 'Solo si presenta alergias, tratamiento o condición crónica.' },
+        { key: 'medical-authorization', icon: 'description', title: 'Autorización de atención médica', description: 'Permiso para actuar ante emergencias.' }
       ]
     },
     {
@@ -113,8 +186,8 @@ export class EnrollmentFormPageComponent {
       documents: [
         { key: 'junaeb-sep', icon: 'volunteer_activism', title: 'Comprobante JUNAEB o SEP', description: 'Si postula a beneficios o prioridad.' },
         { key: 'migratory-docs', icon: 'travel_explore', title: 'Visa o documentos migratorios', description: 'Solo si corresponde a estudiante extranjero.' },
-        { key: 'image-permission', icon: 'photo_camera', title: 'Autorizacion uso de imagen', description: 'Para actividades o material institucional.' },
-        { key: 'priority-certificate', icon: 'military_tech', title: 'Certificado Prioridad o PIE MINEDUC', description: 'Documento oficial si existe beneficio o condicion asociada.' }
+        { key: 'image-permission', icon: 'photo_camera', title: 'Autorización de uso de imagen', description: 'Para actividades o material institucional.' },
+        { key: 'priority-certificate', icon: 'military_tech', title: 'Certificado Prioridad o PIE MINEDUC', description: 'Documento oficial si existe beneficio o condición asociada.' }
       ]
     }
   ] as const;
@@ -127,6 +200,13 @@ export class EnrollmentFormPageComponent {
     studentLastNameMother: ['', [Validators.required]],
     birthDate: ['', [Validators.required]],
     courseId: [0, [Validators.required, Validators.min(1)]],
+    courseBase: this.formBuilder.nonNullable.group({
+      baseName: [{ value: '', disabled: true }],
+      level: [{ value: '', disabled: true }],
+      letter: [{ value: '', disabled: true }],
+      schoolYear: [{ value: '', disabled: true }],
+      scheduleType: [{ value: '', disabled: true }]
+    }),
     gender: ['Femenino', [Validators.required]],
     regionId: [0],
     communeId: [0],
@@ -142,21 +222,40 @@ export class EnrollmentFormPageComponent {
       relation: ['Madre', [Validators.required]],
       authorizedPickup: [true]
     }),
+    studentAccess: this.formBuilder.nonNullable.group({
+      configureAccess: [false],
+      createStudentAccount: [false],
+      username: [''],
+      temporaryPassword: [''],
+      notifyByEmail: [true],
+      contactEmail: [''],
+      status: ['Sin cuenta']
+    }),
+    guardianAccess: this.formBuilder.nonNullable.group({
+      configureAccess: [false],
+      createGuardianAccount: [false],
+      username: [''],
+      temporaryPassword: [''],
+      notifyByEmail: [true],
+      contactEmail: [''],
+      status: ['Sin cuenta']
+    }),
     pickupContacts: this.formBuilder.array([this.createPickupContactGroup()]),
     establishment: this.formBuilder.nonNullable.group({
       regionId: [0],
       communeId: [0],
-      name: ['Escuela Basica Acade Fuerte'],
+      name: [''],
       academicYear: [`${new Date().getFullYear()}`],
-      dependency: ['Municipal'],
-      region: ['Metropolitana de Santiago'],
-      commune: ['Santiago'],
-      address: ['Av. Libertador 1234, Local 5']
+      dependency: [''],
+      region: [''],
+      commune: [''],
+      address: ['']
     })
   });
 
   constructor() {
     this.observeLocationSelection();
+    this.observeCourseSelection();
     this.loadCoursesAndData();
   }
 
@@ -168,8 +267,20 @@ export class EnrollmentFormPageComponent {
     return this.form.controls.guardian;
   }
 
+  get courseBaseGroup() {
+    return this.form.controls.courseBase;
+  }
+
   get establishmentGroup() {
     return this.form.controls.establishment;
+  }
+
+  get studentAccessGroup() {
+    return this.form.controls.studentAccess;
+  }
+
+  get guardianAccessGroup() {
+    return this.form.controls.guardianAccess;
   }
 
   studentCommunes(): ChileCommune[] {
@@ -293,6 +404,214 @@ export class EnrollmentFormPageComponent {
     return !!this.uploadedDocumentName(documentKey);
   }
 
+  isWizardStepVisible(step: number): boolean {
+    return this.isEditMode || this.currentStep() === step;
+  }
+
+  isWizardStepActive(step: number): boolean {
+    return this.currentStep() === step;
+  }
+
+  isWizardStepCompleted(step: number): boolean {
+    return this.currentStep() > step;
+  }
+
+  goToStep(step: number): void {
+    if (this.isEditMode) {
+      return;
+    }
+    this.currentStep.set(Math.min(Math.max(step, 1), this.wizardSteps.length));
+  }
+
+  nextStep(): void {
+    if (this.isEditMode) {
+      return;
+    }
+    this.currentStep.set(Math.min(this.currentStep() + 1, this.wizardSteps.length));
+  }
+
+  previousStep(): void {
+    if (this.isEditMode) {
+      return;
+    }
+    this.currentStep.set(Math.max(this.currentStep() - 1, 1));
+  }
+
+  saveWithStatus(status: 'PENDIENTE' | 'ACTIVO'): void {
+    this.form.controls.status.setValue(status);
+    this.save();
+  }
+
+  cancelCreate(): void {
+    if (this.isSaving()) {
+      return;
+    }
+    const hasChanges = this.form.dirty || Object.keys(this.uploadedDocuments()).length > 0;
+    if (hasChanges && !window.confirm('¿Cancelar esta nueva matrícula y volver al listado?')) {
+      return;
+    }
+    void this.router.navigate(['/dashboard/matriculas']);
+  }
+
+  studentSummaryName(): string {
+    const firstName = this.form.controls.studentFirstName.value.trim();
+    const middleName = this.form.controls.studentMiddleName.value.trim();
+    const fatherLastName = this.form.controls.studentLastNameFather.value.trim();
+    const motherLastName = this.form.controls.studentLastNameMother.value.trim();
+    return [firstName, middleName, fatherLastName, motherLastName].filter(Boolean).join(' ') || 'Sin nombre';
+  }
+
+  studentSummaryInitials(): string {
+    const firstName = this.form.controls.studentFirstName.value.trim();
+    const lastName = this.form.controls.studentLastNameFather.value.trim();
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.trim().toUpperCase() || 'ST';
+  }
+
+  shouldShowStudentAccessConfig(): boolean {
+    return this.studentAccessGroup.controls.configureAccess.value;
+  }
+
+  shouldShowStudentAccountBlock(): boolean {
+    return this.shouldShowStudentAccessConfig() && this.studentAccessGroup.controls.createStudentAccount.value;
+  }
+
+  shouldShowGuardianAccountBlock(): boolean {
+    return this.shouldShowStudentAccessConfig() && this.guardianAccessGroup.controls.createGuardianAccount.value;
+  }
+
+  studentAccessUsernamePreview(): string {
+    const existingUsername = this.studentAccessGroup.controls.username.value.trim();
+    if (existingUsername) {
+      return existingUsername;
+    }
+
+    const firstName = this.normalizeAccessPart(this.form.controls.studentFirstName.value).charAt(0);
+    const paternalLastName = this.normalizeAccessPart(this.form.controls.studentLastNameFather.value);
+    const username = `${firstName}${paternalLastName}`.toLowerCase();
+    if (!username) {
+      return '';
+    }
+    return username;
+  }
+
+  studentAccessPasswordPreview(): string {
+    const currentValue = this.studentAccessGroup.controls.temporaryPassword.value.trim();
+    if (currentValue) {
+      return currentValue;
+    }
+    return this.buildDefaultStudentPassword();
+  }
+
+  studentAccessStatusPreview(): string {
+    const currentValue = this.studentAccessGroup.controls.status.value.trim();
+    if (this.shouldShowStudentAccountBlock()) {
+      return currentValue && currentValue !== 'Sin cuenta' ? currentValue : 'Pendiente';
+    }
+    return currentValue || 'Sin cuenta';
+  }
+
+  guardianAccessUsernamePreview(): string {
+    const existingUsername = this.guardianAccessGroup.controls.username.value.trim();
+    if (existingUsername) {
+      return existingUsername;
+    }
+
+    const splitName = this.splitGuardianName(this.guardianGroup.controls.fullName.value);
+    const firstName = this.normalizeAccessPart(splitName.name).charAt(0);
+    const paternalLastName = this.normalizeAccessPart(splitName.lastName.split(/\s+/).filter(Boolean)[0] ?? '');
+    const username = `${firstName}${paternalLastName}`.toLowerCase();
+    return username || '';
+  }
+
+  guardianAccessPasswordPreview(): string {
+    const currentValue = this.guardianAccessGroup.controls.temporaryPassword.value.trim();
+    if (currentValue) {
+      return currentValue;
+    }
+    return this.buildDefaultGuardianPassword();
+  }
+
+  guardianAccessStatusPreview(): string {
+    const currentValue = this.guardianAccessGroup.controls.status.value.trim();
+    if (this.shouldShowGuardianAccountBlock()) {
+      return currentValue && currentValue !== 'Sin cuenta' ? currentValue : 'Pendiente';
+    }
+    return currentValue || 'Sin cuenta';
+  }
+
+  copyStudentAccessValue(value: string, label: string): void {
+    if (!value.trim()) {
+      return;
+    }
+
+    navigator.clipboard?.writeText(value.trim())
+      .then(() => {
+        this.snackBar.open(`${label} copiado`, 'Cerrar', { duration: 2200 });
+      })
+      .catch(() => {
+        this.snackBar.open(`No fue posible copiar ${label.toLowerCase()}`, 'Cerrar', { duration: 2200 });
+      });
+  }
+
+  copyGuardianAccessValue(value: string, label: string): void {
+    this.copyStudentAccessValue(value, label);
+  }
+
+  guardianSummaryName(): string {
+    return this.guardianGroup.controls.fullName.value.trim() || '-';
+  }
+
+  documentIconClass(documentKey: string): string {
+    if (['birth-certificate', 'student-id', 'guardian-id', 'legal-custody'].includes(documentKey)) {
+      return 'doc-icon doc-icon--blue';
+    }
+    if (['study-certificate', 'behavior-report', 'report-card', 'pie-certificate'].includes(documentKey)) {
+      return 'doc-icon doc-icon--amber';
+    }
+    if (['vaccination-card', 'health-record', 'medical-report', 'medical-authorization'].includes(documentKey)) {
+      return 'doc-icon doc-icon--green';
+    }
+    return 'doc-icon doc-icon--violet';
+  }
+
+  baseCourseName(course: EnrollmentCourseOption): string {
+    const fullName = normalizeCourseDisplayName(course.name, course.letter);
+    const suffix = course.letter?.trim() ? ` ${course.letter.trim()}` : '';
+    return suffix && fullName.endsWith(suffix) ? fullName.slice(0, -suffix.length) : fullName;
+  }
+
+  onCreateCourseBaseChange(value: string): void {
+    this.createCourseBase.set(value);
+    this.createCourseLevel.set('');
+    this.createCourseLetter.set('');
+    this.createCourseSchedule.set('');
+    this.form.controls.courseId.setValue(0);
+  }
+
+  onCreateCourseLevelChange(value: string): void {
+    this.createCourseLevel.set(value);
+    this.createCourseLetter.set('');
+    this.createCourseSchedule.set('');
+    this.form.controls.courseId.setValue(0);
+  }
+
+  onCreateCourseLetterChange(value: string): void {
+    this.createCourseLetter.set(value);
+    this.createCourseSchedule.set('');
+    this.form.controls.courseId.setValue(0);
+  }
+
+  onCreateCourseScheduleChange(value: string): void {
+    this.createCourseSchedule.set(value);
+    const match = this.courses().find((course) =>
+      this.baseCourseName(course).trim().toUpperCase() === this.createCourseBase().trim().toUpperCase()
+      && course.level.trim().toUpperCase() === this.createCourseLevel().trim().toUpperCase()
+      && course.letter.trim().toUpperCase() === this.createCourseLetter().trim().toUpperCase()
+      && course.scheduleType.trim().toUpperCase() === this.createCourseSchedule().trim().toUpperCase()
+    );
+    this.form.controls.courseId.setValue(match?.id ?? 0);
+  }
+
   save(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -332,7 +651,7 @@ export class EnrollmentFormPageComponent {
       return;
     }
 
-    const confirmed = window.confirm('Deseas anular esta matricula? Esta accion no se puede deshacer.');
+    const confirmed = window.confirm('Deseas inactivar esta matricula? Esta accion dejara al estudiante fuera de la matricula activa.');
     if (!confirmed) {
       return;
     }
@@ -341,12 +660,12 @@ export class EnrollmentFormPageComponent {
     this.enrollmentApiService.delete(this.enrollmentId).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.snackBar.open('Matricula anulada correctamente', 'Cerrar', { duration: 2500 });
+        this.snackBar.open('Matricula inactivada correctamente', 'Cerrar', { duration: 2500 });
         void this.router.navigate(['/dashboard/matriculas']);
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
-        this.showError(error, 'No fue posible anular la matricula');
+        this.showError(error, 'No fue posible inactivar la matricula');
       }
     });
   }
@@ -381,6 +700,7 @@ export class EnrollmentFormPageComponent {
     this.enrollmentApiService.getOverview().subscribe({
       next: (overview) => {
         this.courses.set(overview.courses);
+        this.syncCourseBaseFields(this.form.controls.courseId.value);
         if (this.isEditMode) {
           this.loadEnrollment();
         } else {
@@ -440,17 +760,37 @@ export class EnrollmentFormPageComponent {
         relation: detail.guardian.relation,
         authorizedPickup: detail.guardian.authorizedPickup
       },
+      studentAccess: {
+        configureAccess: detail.studentAccess.configureAccess || detail.guardianAccess.configureAccess,
+        createStudentAccount: detail.studentAccess.createStudentAccount,
+        username: detail.studentAccess.username,
+        temporaryPassword: '',
+        notifyByEmail: detail.studentAccess.notifyByEmail,
+        contactEmail: detail.studentAccess.contactEmail,
+        status: detail.studentAccess.status || 'Sin cuenta'
+      },
+      guardianAccess: {
+        configureAccess: detail.studentAccess.configureAccess || detail.guardianAccess.configureAccess,
+        createGuardianAccount: detail.guardianAccess.createGuardianAccount,
+        username: detail.guardianAccess.username,
+        temporaryPassword: '',
+        notifyByEmail: detail.guardianAccess.notifyByEmail,
+        contactEmail: detail.guardianAccess.contactEmail,
+        status: detail.guardianAccess.status || 'Sin cuenta'
+      },
       establishment: {
         regionId: detail.establishment.regionId ?? 0,
         communeId: detail.establishment.communeId ?? 0,
-        name: detail.establishment.name || 'Escuela Basica Acade Fuerte',
+        name: detail.establishment.name || '',
         academicYear: detail.establishment.academicYear || `${new Date(detail.enrollmentDate).getFullYear() || new Date().getFullYear()}`,
-        dependency: detail.establishment.dependency || 'Municipal',
+        dependency: detail.establishment.dependency || '',
         region: detail.establishment.region || '',
         commune: detail.establishment.commune || '',
-        address: detail.establishment.address || 'Av. Libertador 1234, Local 5'
+        address: detail.establishment.address || ''
       }
     });
+
+    this.syncCourseBaseFields(detail.courseId);
 
     this.uploadedDocuments.set(
       Object.fromEntries(
@@ -543,7 +883,9 @@ export class EnrollmentFormPageComponent {
         fileName,
         driveFileId: null,
         driveUrl: null
-      }))
+      })),
+      studentAccess: this.toStudentAccessPayload(),
+      guardianAccess: this.toGuardianAccessPayload()
     };
   }
 
@@ -613,6 +955,66 @@ export class EnrollmentFormPageComponent {
     return value === 'Masculino' ? 'Masculino' : fallback;
   }
 
+  private toStudentAccessPayload(): EnrollmentStudentAccess {
+    const value = this.studentAccessGroup.getRawValue();
+    const configureAccess = value.configureAccess;
+    const createStudentAccount = configureAccess && value.createStudentAccount;
+    const username = createStudentAccount ? this.studentAccessUsernamePreview() : '';
+    const temporaryPassword = createStudentAccount ? this.studentAccessPasswordPreview() : '';
+
+    return {
+      configureAccess,
+      createStudentAccount,
+      username,
+      temporaryPassword,
+      notifyByEmail: createStudentAccount ? value.notifyByEmail : false,
+      contactEmail: createStudentAccount ? this.guardianGroup.controls.email.value.trim() : '',
+      status: createStudentAccount ? 'Pendiente' : 'Sin cuenta'
+    };
+  }
+
+  private toGuardianAccessPayload(): EnrollmentGuardianAccess {
+    const value = this.guardianAccessGroup.getRawValue();
+    const configureAccess = this.studentAccessGroup.controls.configureAccess.value;
+    const createGuardianAccount = configureAccess && value.createGuardianAccount;
+    const username = createGuardianAccount ? this.guardianAccessUsernamePreview() : '';
+    const temporaryPassword = createGuardianAccount ? this.guardianAccessPasswordPreview() : '';
+
+    return {
+      configureAccess,
+      createGuardianAccount,
+      username,
+      temporaryPassword,
+      notifyByEmail: createGuardianAccount ? value.notifyByEmail : false,
+      contactEmail: createGuardianAccount ? this.guardianGroup.controls.email.value.trim() : '',
+      status: createGuardianAccount ? 'Pendiente' : 'Sin cuenta'
+    };
+  }
+
+  private buildDefaultStudentPassword(): string {
+    const normalizedRun = `${this.form.controls.studentRun.value ?? ''}`.replace(/[^0-9kK]/g, '').toUpperCase();
+    const verifier = normalizedRun.slice(-4) || '2024';
+    const nameInitial = this.normalizeAccessPart(this.form.controls.studentFirstName.value).charAt(0) || 'A';
+    return `Tfs${nameInitial}${verifier}!`;
+  }
+
+  private buildDefaultGuardianPassword(): string {
+    const normalizedRun = `${this.guardianGroup.controls.run.value ?? ''}`.replace(/[^0-9kK]/g, '').toUpperCase();
+    const suffix = normalizedRun.slice(-4) || '2024';
+    const splitName = this.splitGuardianName(this.guardianGroup.controls.fullName.value);
+    const nameInitial = this.normalizeAccessPart(splitName.name).charAt(0) || 'A';
+    return `Apo${nameInitial}${suffix}!`;
+  }
+
+  private normalizeAccessPart(value: string): string {
+    return `${value ?? ''}`
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .trim()
+      .toLowerCase();
+  }
+
   private observeLocationSelection(): void {
     this.form.controls.regionId.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -625,6 +1027,29 @@ export class EnrollmentFormPageComponent {
       .subscribe((regionId) => {
         this.resetCommuneIfMissing(this.establishmentGroup.controls.communeId, Number(regionId ?? 0));
       });
+  }
+
+  private observeCourseSelection(): void {
+    this.form.controls.courseId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((courseId) => {
+        this.syncCourseBaseFields(courseId);
+      });
+  }
+
+  private syncCourseBaseFields(courseId: number): void {
+    const course = this.courses().find((item) => item.id === Number(courseId)) ?? null;
+    this.createCourseBase.set(course ? this.baseCourseName(course) : '');
+    this.createCourseLevel.set(course?.level ?? '');
+    this.createCourseLetter.set(course?.letter ?? '');
+    this.createCourseSchedule.set(course?.scheduleType ?? '');
+    this.courseBaseGroup.patchValue({
+      baseName: course ? this.baseCourseName(course) : '',
+      level: course?.level ?? '',
+      letter: course?.letter ?? '',
+      schoolYear: course ? `${course.schoolYear}` : '',
+      scheduleType: course?.scheduleType ?? ''
+    }, { emitEvent: false });
   }
 
   private resetCommuneIfMissing(control: FormControl<number>, regionId: number): void {
@@ -676,5 +1101,9 @@ export class EnrollmentFormPageComponent {
       return 'Selecciona una opcion valida.';
     }
     return 'Revisa este campo.';
+  }
+
+  private validateStep(step: number): boolean {
+    return true;
   }
 }

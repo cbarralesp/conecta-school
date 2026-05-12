@@ -48,7 +48,7 @@
 
 .create-course-form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 1.35rem 1.2rem;
   align-items: start;
 }
@@ -66,10 +66,6 @@
 
 .compact-field--wide {
   grid-column: span 1;
-}
-
-.compact-field--narrow {
-  grid-column: 1;
 }
 
 .create-course-card ::ng-deep .compact-field .mat-mdc-text-field-wrapper {
@@ -323,15 +319,11 @@
 
 @media (max-width: 960px) {
   .create-course-form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .teacher-form-row {
     grid-template-columns: 1fr;
-  }
-
-  .compact-field--narrow {
-    grid-column: span 2;
   }
 
   .actions-row {
@@ -361,10 +353,6 @@
   .create-course-form,
   .teacher-form-row {
     grid-template-columns: 1fr;
-  }
-
-  .compact-field--narrow {
-    grid-column: span 1;
   }
 
   .create-course-card mat-card-title,

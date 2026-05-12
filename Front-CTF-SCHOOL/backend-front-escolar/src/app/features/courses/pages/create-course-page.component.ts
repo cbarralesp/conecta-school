@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { formatCourseLevelLabel, formatScheduleLabel } from '../../../core/constants/course-levels';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import {
@@ -61,13 +62,18 @@ export class CreateCoursePageComponent {
   readonly addAllArmed = signal(false);
   readonly schoolYears = [2026, 2027, 2028];
   readonly parallelOptions = ['A', 'B', 'C', 'D', 'E', 'F'];
-  readonly scheduleOptions = ['Manana', 'Tarde', 'Completa'];
+  readonly scheduleOptions = [
+    { value: 'Mañana', label: 'Mañana' },
+    { value: 'Tarde', label: 'Tarde' },
+    { value: 'Completa', label: 'Completa' }
+  ] as const;
 
   readonly form = this.formBuilder.nonNullable.group({
     courseSearch: ['' as string | MasterCourse, [Validators.required]],
+    levelSearch: ['', [Validators.required]],
     parallel: ['A', [Validators.required]],
     schoolYear: [2026, [Validators.required, Validators.min(2020)]],
-    scheduleType: ['Manana', [Validators.required]],
+    scheduleType: ['Mañana', [Validators.required]],
     teacherSearch: ['' as string | TeacherCatalogItem, [Validators.required]],
     assistantSearch: ['' as string | TeacherCatalogItem]
   });
@@ -75,12 +81,10 @@ export class CreateCoursePageComponent {
   readonly generatedCodePreview = computed(() => {
     const master = this.selectedMasterCourse();
     const year = this.form.controls.schoolYear.value;
-    return master ? `${this.courseTokenFromDescription(master.description)}${this.parallelPreview()}-${year}` : '-';
+    return master ? `${master.codeToken}${this.parallelPreview()}-${year}` : '-';
   });
 
-  readonly parallelPreview = computed(() => {
-    return this.form.controls.parallel.value || 'A';
-  });
+  readonly parallelPreview = computed(() => this.form.controls.parallel.value || 'A');
 
   readonly selectedCourseTitle = computed(() => {
     const masterCourse = this.selectedMasterCourse();
@@ -88,25 +92,36 @@ export class CreateCoursePageComponent {
       return 'Curso sin definir';
     }
 
-    return `${this.formatMasterCourseLabel(masterCourse.description)} ${this.parallelPreview()}`;
+    return `${masterCourse.description} ${this.parallelPreview()}`;
   });
 
-  readonly masterCourseOptions = computed(() => {
-    const deduped = new Map<string, MasterCourse>();
+  readonly levelOptions = computed(() => {
+    const levels = new Map<string, number>();
 
     for (const course of this.masterCourses()) {
-      const key = this.formatMasterCourseLabel(course.description).toUpperCase();
-      if (!deduped.has(key)) {
-        deduped.set(key, course);
+      if (!levels.has(course.level)) {
+        levels.set(course.level, course.sortOrder);
       }
     }
 
-    return Array.from(deduped.values()).sort((left, right) =>
-      this.formatMasterCourseLabel(left.description).localeCompare(
-        this.formatMasterCourseLabel(right.description),
-        'es'
-      )
-    );
+    return Array.from(levels.entries())
+      .sort((left, right) => left[1] - right[1])
+      .map(([level]) => level);
+  });
+
+  readonly masterCourseOptions = computed(() =>
+    [...this.masterCourses()].sort((left, right) =>
+      left.sortOrder - right.sortOrder || left.description.localeCompare(right.description, 'es')
+    )
+  );
+
+  readonly filteredMasterCourseOptions = computed(() => {
+    const selectedLevel = this.form.controls.levelSearch.value;
+    if (!selectedLevel) {
+      return this.masterCourseOptions();
+    }
+
+    return this.masterCourseOptions().filter((course) => course.level === selectedLevel);
   });
 
   readonly availableCount = computed(() => this.availableStudents().length);
@@ -118,7 +133,7 @@ export class CreateCoursePageComponent {
     this.searchAssistants('');
   }
 
-  getControlError(controlName: 'courseSearch' | 'parallel' | 'schoolYear' | 'scheduleType' | 'teacherSearch'): string {
+  getControlError(controlName: 'courseSearch' | 'levelSearch' | 'parallel' | 'schoolYear' | 'scheduleType' | 'teacherSearch'): string {
     const control = this.form.controls[controlName];
     if (!control.invalid || (!control.touched && !control.dirty)) {
       return '';
@@ -132,6 +147,16 @@ export class CreateCoursePageComponent {
     return 'Revisa este campo.';
   }
 
+  selectLevel(level: string): void {
+    this.form.controls.levelSearch.setValue(level, { emitEvent: false });
+    this.form.controls.levelSearch.markAsTouched();
+
+    const selectedCourse = this.selectedMasterCourse();
+    if (selectedCourse && selectedCourse.level !== level) {
+      this.selectMasterCourse(null);
+    }
+  }
+
   selectMasterCourse(masterCourse: MasterCourse | null): void {
     if (this.selectedMasterCourse()?.id !== masterCourse?.id) {
       this.availableStudents.set([]);
@@ -140,9 +165,14 @@ export class CreateCoursePageComponent {
       this.checkedSelectedIds.set([]);
       this.addAllArmed.set(false);
     }
+
     this.selectedMasterCourse.set(masterCourse);
     this.form.controls.courseSearch.setValue(masterCourse ?? '', { emitEvent: false });
     this.form.controls.courseSearch.markAsTouched();
+
+    if (masterCourse) {
+      this.form.controls.levelSearch.setValue(masterCourse.level, { emitEvent: false });
+    }
   }
 
   selectTeacher(teacher: TeacherCatalogItem | null): void {
@@ -170,7 +200,7 @@ export class CreateCoursePageComponent {
 
     if (!teacher) {
       this.form.controls.teacherSearch.markAsTouched();
-      this.snackBar.open('Selecciona un profesor para crear el curso', 'Cerrar', {
+      this.snackBar.open('Selecciona un profesor jefe para crear el curso', 'Cerrar', {
         duration: 3000
       });
       return;
@@ -299,6 +329,23 @@ export class CreateCoursePageComponent {
       });
   }
 
+  teacherOptionLabel(teacher: TeacherCatalogItem): string {
+    const location = this.locationLabel(teacher.regionName, teacher.communeName);
+    return location ? `${teacher.fullName} · ${location}` : teacher.fullName;
+  }
+
+  levelLabel(level: string): string {
+    return formatCourseLevelLabel(level);
+  }
+
+  scheduleLabel(schedule: string): string {
+    return formatScheduleLabel(schedule);
+  }
+
+  studentLocationLabel(student: StudentCatalogItem): string {
+    return this.locationLabel(student.regionName, student.communeName);
+  }
+
   private loadAvailableStudents(masterCourseId: number): void {
     this.isLoadingStudents.set(true);
     this.courseApiService.searchAvailableStudents(masterCourseId, '').subscribe({
@@ -354,7 +401,7 @@ export class CreateCoursePageComponent {
     this.isSearchingTeachers.set(true);
     this.courseApiService.searchTeachers(search).subscribe({
       next: (teachers) => {
-        this.teachers.set(teachers);
+        this.teachers.set(this.resolveTeacherCatalog(teachers));
         this.isSearchingTeachers.set(false);
       },
       error: () => {
@@ -368,7 +415,7 @@ export class CreateCoursePageComponent {
     this.isSearchingAssistants.set(true);
     this.courseApiService.searchTeachers(search).subscribe({
       next: (teachers) => {
-        this.assistants.set(teachers);
+        this.assistants.set(this.resolveAssistantCatalog(teachers));
         this.isSearchingAssistants.set(false);
       },
       error: () => {
@@ -376,53 +423,6 @@ export class CreateCoursePageComponent {
         this.isSearchingAssistants.set(false);
       }
     });
-  }
-
-  private normalizeMasterCourseCode(code: string): string {
-    const normalized = code.trim().toUpperCase();
-    return normalized.startsWith('CUR-') ? normalized.slice(4) : normalized;
-  }
-
-  private courseTokenFromDescription(description: string): string {
-    const normalized = description.trim().toUpperCase();
-    if (normalized.startsWith('PRIMERO')) return '1';
-    if (normalized.startsWith('SEGUNDO')) return '2';
-    if (normalized.startsWith('TERCERO')) return '3';
-    if (normalized.startsWith('CUARTO')) return '4';
-    if (normalized.startsWith('QUINTO')) return '5';
-    if (normalized.startsWith('SEXTO')) return '6';
-    if (normalized.startsWith('SEPTIMO')) return '7';
-    if (normalized.startsWith('OCTAVO')) return '8';
-    if (normalized.startsWith('NOVENO')) return '9';
-    if (normalized.startsWith('DECIMO')) return '10';
-    return this.normalizeMasterCourseCode(description).replace(/[^0-9]/g, '') || '1';
-  }
-
-  formatMasterCourseLabel(description: string): string {
-    return description
-      .trim()
-      .replace(/\s+[A-Z]$/i, '')
-      .replace(/^PRIMERO\b/i, '1')
-      .replace(/^SEGUNDO\b/i, '2')
-      .replace(/^TERCERO\b/i, '3')
-      .replace(/^CUARTO\b/i, '4')
-      .replace(/^QUINTO\b/i, '5')
-      .replace(/^SEXTO\b/i, '6')
-      .replace(/^SEPTIMO\b/i, '7')
-      .replace(/^OCTAVO\b/i, '8')
-      .replace(/^NOVENO\b/i, '9')
-      .replace(/^DECIMO\b/i, '10')
-      .replace(/\bBASICO\b/gi, 'Básico')
-      .replace(/\bMEDIO\b/gi, 'Medio');
-  }
-
-  teacherOptionLabel(teacher: TeacherCatalogItem): string {
-    const location = this.locationLabel(teacher.regionName, teacher.communeName);
-    return location ? `${teacher.fullName} · ${location}` : teacher.fullName;
-  }
-
-  studentLocationLabel(student: StudentCatalogItem): string {
-    return this.locationLabel(student.regionName, student.communeName);
   }
 
   private locationLabel(regionName: string, communeName: string): string {
@@ -434,5 +434,23 @@ export class CreateCoursePageComponent {
     }
 
     return commune || region;
+  }
+
+  private isTeacherStaff(item: TeacherCatalogItem): boolean {
+    return (item.staffType || '').trim().toUpperCase() !== 'ASISTENTE';
+  }
+
+  private isAssistantStaff(item: TeacherCatalogItem): boolean {
+    return (item.staffType || '').trim().toUpperCase() === 'ASISTENTE';
+  }
+
+  private resolveTeacherCatalog(items: TeacherCatalogItem[]): TeacherCatalogItem[] {
+    const hasTypedStaff = items.some((item) => (item.staffType || '').trim().length > 0);
+    return hasTypedStaff ? items.filter((item) => this.isTeacherStaff(item)) : items;
+  }
+
+  private resolveAssistantCatalog(items: TeacherCatalogItem[]): TeacherCatalogItem[] {
+    const hasTypedStaff = items.some((item) => (item.staffType || '').trim().length > 0);
+    return hasTypedStaff ? items.filter((item) => this.isAssistantStaff(item)) : items;
   }
 }

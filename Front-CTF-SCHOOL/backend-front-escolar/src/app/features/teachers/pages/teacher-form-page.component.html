@@ -1,5 +1,5 @@
 <app-teacher-modern-layout
-  title="Profesores"
+  title="Docentes"
   activeItem="teachers"
   dashboardRoute="/dashboard"
   [userName]="user()?.nombre ?? 'Docente'"
@@ -30,31 +30,6 @@
           </div>
 
           <div class="form-grid">
-            <div class="form-group full">
-              <label>Nombre Completo *</label>
-              <input
-                type="text"
-                class="form-input"
-                [value]="(form.controls.firstNames.value + ' ' + form.controls.paternalLastName.value + ' ' + form.controls.maternalLastName.value).trim()"
-                readonly>
-            </div>
-
-            <div class="form-group">
-              <label>RUN *</label>
-              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('run')" formControlName="run" placeholder="Ej: 14.567.890-1" (input)="formatRunValue()">
-              @if (getControlError('run')) {
-                <span class="field-error">{{ getControlError('run') }}</span>
-              }
-            </div>
-
-            <div class="form-group">
-              <label>Fecha de Nacimiento *</label>
-              <input type="date" class="form-input" [class.form-input--invalid]="isControlInvalid('birthDate')" formControlName="birthDate">
-              @if (getControlError('birthDate')) {
-                <span class="field-error">{{ getControlError('birthDate') }}</span>
-              }
-            </div>
-
             <div class="form-group">
               <label>Nombres *</label>
               <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('firstNames')" formControlName="firstNames">
@@ -77,8 +52,24 @@
             </div>
 
             <div class="form-group">
+              <label>RUN *</label>
+              <input type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('run')" formControlName="run" placeholder="Ej: 14.567.890-1" (input)="formatRunValue()">
+              @if (getControlError('run')) {
+                <span class="field-error">{{ getControlError('run') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Fecha de Nacimiento *</label>
+              <input type="date" class="form-input" [class.form-input--invalid]="isControlInvalid('birthDate')" formControlName="birthDate">
+              @if (getControlError('birthDate')) {
+                <span class="field-error">{{ getControlError('birthDate') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
               <label>Telefono *</label>
-              <input type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('phone')" formControlName="phone">
+              <input type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('phone')" formControlName="phone" placeholder="+56912345678" (input)="formatPhoneValue('phone')">
               @if (getControlError('phone')) {
                 <span class="field-error">{{ getControlError('phone') }}</span>
               }
@@ -136,8 +127,75 @@
         <section class="card">
           <div class="card-header">
             <div class="card-title">
+              <mat-icon>manage_accounts</mat-icon>
+              2. Acceso al Sistema
+            </div>
+          </div>
+
+          <div class="access-config" [formGroup]="systemAccessGroup">
+            <label class="access-toggle">
+              <input type="checkbox" formControlName="configureAccess">
+              <span class="access-toggle__copy">
+                <strong>Configurar Acceso al Sistema</strong>
+                <small>Gestion de usuarios y credenciales para este {{ staffTypeLabel().toLowerCase() }}.</small>
+              </span>
+            </label>
+
+            @if (shouldShowSystemAccessConfig()) {
+              <div class="access-config__panel">
+                <div class="access-config__header">Gestion de Usuarios y Credenciales</div>
+
+                <div class="access-user-card">
+                  <label class="access-toggle access-toggle--nested">
+                    <input type="checkbox" formControlName="createAccount">
+                    <span class="access-toggle__copy">
+                      <strong>Crear cuenta para el {{ staffTypeLabel() }}</strong>
+                      <small>Usuario, contrasena y envio de credenciales para el acceso al sistema.</small>
+                    </span>
+                  </label>
+
+                  @if (shouldShowStaffAccountBlock()) {
+                    <div class="access-user-card__body" [class.access-user-card__body--assistant]="staffType() === 'ASISTENTE'">
+                      <div class="form-grid">
+                        <div class="form-group">
+                          <label>Usuario</label>
+                          <div class="access-inline-field">
+                            <input type="text" class="form-input" [value]="accessUsernamePreview()" readonly>
+                            <button class="inline-copy" type="button" (click)="copyAccessValue(accessUsernamePreview(), 'Usuario')">
+                              <mat-icon>content_copy</mat-icon>
+                            </button>
+                          </div>
+                          <span class="helper-text">Formato base: inicial del nombre + apellido paterno.</span>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Contrasena (Para entregar)</label>
+                          <div class="access-inline-field">
+                            <input type="text" class="form-input form-input--password" [value]="accessPasswordPreview()" readonly>
+                            <button class="inline-copy" type="button" (click)="copyAccessValue(accessPasswordPreview(), 'Contrasena')">
+                              <mat-icon>content_copy</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="guardian-toggle guardian-toggle--access">
+                        <input id="staff-access-notify" type="checkbox" formControlName="notifyByEmail">
+                        <label for="staff-access-notify">Enviar credenciales por email</label>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header">
+            <div class="card-title">
               <mat-icon>school</mat-icon>
-              2. Informacion Docente
+              3. Informacion {{ staffTypeLabel() }}
             </div>
           </div>
 
@@ -199,7 +257,7 @@
                       <span class="subject-chip">{{ subjectName }}</span>
                     }
                   } @else {
-                    <span class="subject-selector__placeholder">Selecciona una o mas asignaturas para este profesor</span>
+                    <span class="subject-selector__placeholder">Selecciona una o mas asignaturas para este {{ staffTypeLabel().toLowerCase() }}</span>
                   }
                 </div>
 
@@ -232,7 +290,7 @@
                       <span class="subject-chip">{{ courseName }}</span>
                     }
                   } @else {
-                    <span class="subject-selector__placeholder">Selecciona uno o mas cursos para este profesor</span>
+                    <span class="subject-selector__placeholder">Selecciona uno o mas cursos para este {{ staffTypeLabel().toLowerCase() }}</span>
                   }
                 </div>
 
@@ -259,7 +317,7 @@
           <div class="card-header">
             <div class="card-title">
               <mat-icon>medical_information</mat-icon>
-              3. Contacto de Emergencia
+              4. Contacto de Emergencia
             </div>
           </div>
 
@@ -284,7 +342,7 @@
 
             <div class="form-group">
               <label>Telefono *</label>
-              <input type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('emergencyContactPhone')" formControlName="emergencyContactPhone">
+              <input type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('emergencyContactPhone')" formControlName="emergencyContactPhone" placeholder="+56912345678" (input)="formatPhoneValue('emergencyContactPhone')">
               @if (getControlError('emergencyContactPhone')) {
                 <span class="field-error">{{ getControlError('emergencyContactPhone') }}</span>
               }
@@ -308,7 +366,11 @@
 
           <div class="meta-panel">
             <div class="meta-row">
-              <span>Codigo Docente:</span>
+              <span>Tipo Perfil:</span>
+              <span>{{ staffTypeLabel() }}</span>
+            </div>
+            <div class="meta-row">
+              <span>Codigo Personal:</span>
               <span>{{ isEditMode ? ('#DOC-' + teacherId) : 'Nuevo' }}</span>
             </div>
             <div class="meta-row">
@@ -329,7 +391,7 @@
 
             <button class="btn btn-danger" type="button" (click)="deactivateTeacher()">
               <mat-icon>person_off</mat-icon>
-              Desactivar Usuario
+              Desactivar {{ staffTypeLabel() }}
             </button>
           </div>
         </section>

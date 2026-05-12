@@ -1,5 +1,5 @@
 <app-teacher-modern-layout
-  title="Profesores"
+  title="Docentes"
   activeItem="teachers"
   dashboardRoute="/dashboard"
   [userName]="user()?.nombre ?? 'Docente'"
@@ -8,7 +8,7 @@
     <section class="page-header">
       <div>
         <span class="page-header__overline">Gestion academica</span>
-        <h2>Ficha del Docente</h2>
+        <h2>Ficha del {{ staffTypeLabel() }}</h2>
         <p>Visualizacion de informacion laboral</p>
       </div>
       <div class="page-header__actions">
@@ -26,7 +26,7 @@
     @if (isLoading()) {
       <section class="loading-card">
         <mat-icon>hourglass_top</mat-icon>
-        <strong>Cargando ficha del profesor...</strong>
+        <strong>Cargando ficha del docente...</strong>
       </section>
     } @else if (teacher(); as teacher) {
       <section class="view-layout">
@@ -45,7 +45,11 @@
                 <span>{{ departmentLabel() }}</span>
               </div>
               <div class="meta-row">
-                <span>Codigo Docente:</span>
+                <span>Tipo Perfil:</span>
+                <span>{{ staffTypeLabel() }}</span>
+              </div>
+              <div class="meta-row">
+                <span>Codigo Personal:</span>
                 <span>#DOC-{{ teacher.id }}</span>
               </div>
               <div class="meta-row">
@@ -142,7 +146,7 @@
               </div>
 
               <div class="class-list">
-                @for (course of teacher.assignedCourses; track course.id + '-' + course.subjectName) {
+                @for (course of assignedCourseGroups(); track course.id) {
                   <div class="class-row">
                     <div class="class-info">
                       <div class="class-icon">
@@ -150,10 +154,15 @@
                       </div>
                       <div>
                         <div class="class-name">{{ course.courseName }}</div>
-                        <div class="class-subject">{{ course.subjectName }}</div>
+                        <div class="class-subject">
+                          {{ course.courseCode }}
+                          @if (course.homeroomTeacher) {
+                            <span class="class-chip">Profesor jefe</span>
+                          }
+                        </div>
                       </div>
                     </div>
-                    <button class="btn-sm" type="button">
+                    <button class="btn-sm" type="button" (click)="openCourseSubjects(course)">
                       <mat-icon>visibility</mat-icon>
                       Ver
                     </button>
@@ -207,3 +216,31 @@
     }
   </main>
 </app-teacher-modern-layout>
+
+@if (selectedCourse(); as course) {
+  <div class="course-modal-backdrop" (click)="closeCourseSubjects()">
+    <section class="course-modal" (click)="$event.stopPropagation()">
+      <header class="course-modal__header">
+        <div>
+          <span class="course-modal__eyebrow">Asignaturas del curso</span>
+          <h3>{{ course.courseName }}</h3>
+          <p>{{ course.courseCode }}</p>
+        </div>
+        <button class="course-modal__close" type="button" (click)="closeCourseSubjects()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="course-modal__body">
+        @for (subject of course.subjects; track subject) {
+          <div class="course-modal__subject">
+            <mat-icon>menu_book</mat-icon>
+            <span>{{ subject }}</span>
+          </div>
+        } @empty {
+          <div class="empty-state-card">Sin asignaturas vinculadas.</div>
+        }
+      </div>
+    </section>
+  </div>
+}

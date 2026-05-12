@@ -4,6 +4,7 @@ import java.util.List;
 
 public record TeacherCatalogItem(
         Long id,
+        String staffType,
         String firstName,
         String rud,
         String lastName,

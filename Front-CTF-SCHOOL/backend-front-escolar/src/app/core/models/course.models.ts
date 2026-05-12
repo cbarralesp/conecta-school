@@ -7,7 +7,9 @@ export interface Course {
   schoolYear: number;
   scheduleType: string;
   teacherId?: number | null;
+  teacherName?: string | null;
   assistantId?: number | null;
+  assistantName?: string | null;
   active: boolean;
   studentCount: number;
 }
@@ -28,10 +30,14 @@ export interface MasterCourse {
   id: number;
   code: string;
   description: string;
+  level: string;
+  codeToken: string;
+  sortOrder: number;
 }
 
 export interface TeacherCatalogItem {
   id: number;
+  staffType: string;
   firstName: string;
   lastName: string;
   fullName: string;

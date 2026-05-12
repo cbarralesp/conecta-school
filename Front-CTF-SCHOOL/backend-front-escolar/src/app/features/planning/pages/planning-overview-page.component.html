@@ -26,15 +26,6 @@
 
     <section class="filters-card">
       <div class="filters-bar">
-        <label class="search-wrapper">
-          <mat-icon>search</mat-icon>
-          <input
-            type="search"
-            placeholder="Buscar por tema, asignatura, curso u OA..."
-            [value]="search()"
-            (input)="updateSearch($any($event.target).value)" />
-        </label>
-
         <label class="filter-shell">
           <mat-icon>calendar_month</mat-icon>
           <select class="filter-select" [value]="semester()" (change)="updateSemester($any($event.target).value)">
@@ -54,6 +45,16 @@
         </label>
 
         <label class="filter-shell">
+          <mat-icon>school</mat-icon>
+          <select class="filter-select" [value]="courseId()" (change)="updateCourse($any($event.target).value)">
+            <option value="all">Todos los cursos</option>
+            @for (course of courseOptions(); track course.id) {
+              <option [value]="course.id">{{ course.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="filter-shell">
           <mat-icon>menu_book</mat-icon>
           <select class="filter-select" [value]="subjectId()" (change)="updateSubject($any($event.target).value)">
             <option value="all">Todas las Asignaturas</option>
@@ -67,10 +68,18 @@
 
     <section class="table-container">
       <header class="table-heading">
-        <div>
+        <div class="table-heading__copy">
           <h2>Planificaciones</h2>
           <p>{{ semesterLabel() }} · {{ classes().length }} clases encontradas</p>
         </div>
+        <label class="search-wrapper table-heading__search">
+          <mat-icon>search</mat-icon>
+          <input
+            type="search"
+            placeholder="Buscar tema o asignatura..."
+            [value]="search()"
+            (input)="updateSearch($any($event.target).value)" />
+        </label>
       </header>
 
       @if (isLoading()) {
@@ -97,7 +106,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (planningClass of classes(); track planningClass.id) {
+              @for (planningClass of pagedClasses(); track planningClass.id) {
                 <tr>
                   <td>
                     <div class="class-info">
@@ -148,6 +157,17 @@
             </tbody>
           </table>
         </div>
+
+        @if (shouldShowPaginator()) {
+          <mat-paginator
+            class="planning-paginator"
+            [length]="totalItems()"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[5, 10, 15]"
+            [pageIndex]="pageIndex()"
+            (page)="handlePageChange($event)"
+          />
+        }
       }
     </section>
 

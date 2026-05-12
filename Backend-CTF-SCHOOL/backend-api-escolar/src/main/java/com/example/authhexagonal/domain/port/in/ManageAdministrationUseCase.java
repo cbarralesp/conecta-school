@@ -3,6 +3,7 @@ package com.example.authhexagonal.domain.port.in;
 import com.example.authhexagonal.domain.model.AdministrationAccessMatrix;
 import com.example.authhexagonal.domain.model.AdministrationAccessMatrixUpdateCommand;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogView;
+import com.example.authhexagonal.domain.model.AdministrationCurrentModuleAccess;
 import com.example.authhexagonal.domain.model.AdministrationRoleOption;
 import com.example.authhexagonal.domain.model.AdministrationRolesOverview;
 import com.example.authhexagonal.domain.model.AdministrationUserCommand;
@@ -35,6 +36,8 @@ public interface ManageAdministrationUseCase {
     List<AdministrationRoleOption> getRoleOptions();
 
     AdministrationAccessMatrix getAccessMatrix();
+
+    AdministrationCurrentModuleAccess getCurrentModuleAccess(String username);
 
     void saveAccessMatrix(AdministrationAccessMatrixUpdateCommand command, String actorUsername);
 

@@ -3,11 +3,13 @@ import { Observable, tap } from 'rxjs';
 import { AuthResponse, AuthUser, ApplicationRole, LoginRequest } from '../models/auth.models';
 import { AuthApiService } from './auth-api.service';
 import { AuthStateService } from './auth-state.service';
+import { UserModuleAccessService } from './user-module-access.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly authApiService = inject(AuthApiService);
   private readonly authStateService = inject(AuthStateService);
+  private readonly userModuleAccessService = inject(UserModuleAccessService);
 
   readonly user = this.authStateService.user;
   readonly token = this.authStateService.token;
@@ -16,11 +18,15 @@ export class AuthService {
 
   login(payload: LoginRequest): Observable<AuthResponse> {
     return this.authApiService.login(payload).pipe(
-      tap((response) => this.authStateService.setSession(response))
+      tap((response) => {
+        this.userModuleAccessService.clearCache();
+        this.authStateService.setSession(response);
+      })
     );
   }
 
   logout(): void {
+    this.userModuleAccessService.clearCache();
     this.authStateService.clearSession();
   }
 

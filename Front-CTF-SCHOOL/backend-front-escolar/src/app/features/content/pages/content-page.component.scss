@@ -278,6 +278,13 @@
   min-width: 0;
 }
 
+.content-paginator {
+  margin-top: 0.25rem;
+  border: 1px solid #e5ecf4;
+  border-radius: 16px;
+  background: #fff;
+}
+
 .content-card {
   overflow: hidden;
 }
@@ -483,6 +490,11 @@
   width: 16px;
   height: 16px;
   font-size: 16px;
+}
+
+.edit-icon-button--danger {
+  color: #c2410c;
+  background: #fff7ed;
 }
 
 .class-card__meta {

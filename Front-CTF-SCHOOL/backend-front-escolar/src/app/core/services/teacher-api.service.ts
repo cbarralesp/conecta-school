@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
-import { TeacherAssignedCourse, TeacherDetail, TeacherOverview, TeacherPayload } from '../models/teacher.models';
+import { TeacherAssignedCourse, TeacherDetail, TeacherOverview, TeacherPayload, TeacherSystemAccess } from '../models/teacher.models';
 import { Subject } from '../models/subject.models';
 import { normalizeDashboardText } from '../utils/text-normalizer';
 
@@ -35,11 +35,15 @@ export class TeacherApiService {
   }
 
   create(payload: TeacherPayload): Observable<TeacherDetail> {
-    return this.http.post<TeacherDetail>(`${API_CONFIG.baseUrl}/profesores`, payload);
+    return this.http.post<TeacherDetail>(`${API_CONFIG.baseUrl}/profesores`, payload).pipe(
+      map((teacher) => this.normalizeDetail(teacher))
+    );
   }
 
   update(teacherId: number, payload: TeacherPayload): Observable<TeacherDetail> {
-    return this.http.put<TeacherDetail>(`${API_CONFIG.baseUrl}/profesores/${teacherId}`, payload);
+    return this.http.put<TeacherDetail>(`${API_CONFIG.baseUrl}/profesores/${teacherId}`, payload).pipe(
+      map((teacher) => this.normalizeDetail(teacher))
+    );
   }
 
   delete(teacherId: number): Observable<void> {
@@ -52,6 +56,7 @@ export class TeacherApiService {
       subjects: overview.subjects.map((subject) => this.normalizeSubject(subject)),
       teachers: overview.teachers.map((teacher) => ({
         ...teacher,
+        staffType: normalizeDashboardText(teacher.staffType),
         fullName: normalizeDashboardText(teacher.fullName),
         professionalTitle: normalizeDashboardText(teacher.professionalTitle),
         contractType: normalizeDashboardText(teacher.contractType),
@@ -65,6 +70,7 @@ export class TeacherApiService {
   private normalizeDetail(teacher: TeacherDetail): TeacherDetail {
     return {
       ...teacher,
+      staffType: normalizeDashboardText(teacher.staffType),
       firstNames: normalizeDashboardText(teacher.firstNames),
       paternalLastName: normalizeDashboardText(teacher.paternalLastName),
       maternalLastName: normalizeDashboardText(teacher.maternalLastName),
@@ -87,7 +93,8 @@ export class TeacherApiService {
         ...teacher.emergencyContact,
         fullName: normalizeDashboardText(teacher.emergencyContact.fullName),
         relation: normalizeDashboardText(teacher.emergencyContact.relation)
-      }
+      },
+      systemAccess: this.normalizeSystemAccess(teacher.systemAccess)
     };
   }
 
@@ -107,6 +114,18 @@ export class TeacherApiService {
       courseName: normalizeDashboardText(course.courseName),
       courseCode: normalizeDashboardText(course.courseCode),
       subjectName: normalizeDashboardText(course.subjectName)
+    };
+  }
+
+  private normalizeSystemAccess(access: TeacherSystemAccess | null | undefined): TeacherSystemAccess {
+    return {
+      configureAccess: !!access?.configureAccess,
+      createAccount: !!access?.createAccount,
+      username: access?.username?.trim() ?? '',
+      temporaryPassword: '',
+      notifyByEmail: !!access?.notifyByEmail,
+      contactEmail: access?.contactEmail?.trim() ?? '',
+      status: normalizeDashboardText(access?.status ?? 'Sin cuenta')
     };
   }
 }

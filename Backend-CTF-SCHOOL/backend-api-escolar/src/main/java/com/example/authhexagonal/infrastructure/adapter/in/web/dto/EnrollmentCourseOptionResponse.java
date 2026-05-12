@@ -6,14 +6,20 @@ public record EnrollmentCourseOptionResponse(
         Long id,
         String code,
         String name,
-        int schoolYear
+        String level,
+        String letter,
+        int schoolYear,
+        String scheduleType
 ) {
     public static EnrollmentCourseOptionResponse fromDomain(EnrollmentCourseOption course) {
         return new EnrollmentCourseOptionResponse(
                 course.id(),
                 course.code(),
                 course.name(),
-                course.schoolYear()
+                course.level(),
+                course.letter(),
+                course.schoolYear(),
+                course.scheduleType()
         );
     }
 }

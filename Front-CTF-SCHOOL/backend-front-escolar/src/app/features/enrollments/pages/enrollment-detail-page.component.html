@@ -43,7 +43,7 @@
             <div class="profile-meta">
               <div class="meta-row">
                 <span>Curso:</span>
-                <span>{{ student.courseName }}</span>
+                <span>{{ selectedCourseName() }}</span>
               </div>
               <div class="meta-row">
                 <span>Edad:</span>
@@ -151,6 +151,51 @@
             <section class="card">
               <div class="card-header">
                 <div class="card-title">
+                  <mat-icon>school</mat-icon>
+                  Curso y Matricula
+                </div>
+              </div>
+
+              @if (courseSnapshot(); as courseInfo) {
+                <div class="class-list">
+                  <div class="class-row">
+                    <div class="class-info">
+                      <div class="class-icon class-icon--course">
+                        <mat-icon>class</mat-icon>
+                      </div>
+                      <div>
+                        <div class="class-name">{{ courseInfo.displayName }}</div>
+                        <div class="class-subject">{{ courseInfo.level }} · Paralelo {{ courseInfo.letter }}</div>
+                      </div>
+                    </div>
+                    <span class="class-tag">{{ courseInfo.scheduleType }}</span>
+                  </div>
+                </div>
+
+                <div class="info-grid info-grid--compact">
+                  <div class="info-item">
+                    <span class="info-label">Ano escolar</span>
+                    <span class="info-value">{{ courseInfo.schoolYear }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Fecha de matricula</span>
+                    <span class="info-value">{{ student.enrollmentDate }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Estado</span>
+                    <span class="info-value info-value--success">{{ student.status }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Codigo registro</span>
+                    <span class="info-value">#MAT-{{ student.id }}</span>
+                  </div>
+                </div>
+              }
+            </section>
+
+            <section class="card">
+              <div class="card-header">
+                <div class="card-title">
                   <mat-icon>directions_car</mat-icon>
                   Autorizados Retiro
                 </div>
@@ -184,34 +229,17 @@
               </div>
 
               <div class="doc-list">
-                <div class="doc-item">
-                  <div class="doc-main">
-                    <mat-icon class="doc-icon doc-icon--received">check_circle</mat-icon>
-                    <span class="doc-name">Carnet de Identidad</span>
+                @for (document of documents(); track document.id ?? document.documentKey) {
+                  <div class="doc-item">
+                    <div class="doc-main">
+                      <mat-icon [class]="documentIconClass(document)">{{ documentIcon(document) }}</mat-icon>
+                      <span class="doc-name">{{ documentLabel(document) }}</span>
+                    </div>
+                    <span [class]="documentStatusClass(document)">{{ documentStatus(document) }}</span>
                   </div>
-                  <span class="doc-status doc-status--received">Recibido</span>
-                </div>
-                <div class="doc-item">
-                  <div class="doc-main">
-                    <mat-icon class="doc-icon doc-icon--received">description</mat-icon>
-                    <span class="doc-name">Certificado Nacimiento</span>
-                  </div>
-                  <span class="doc-status doc-status--received">Recibido</span>
-                </div>
-                <div class="doc-item">
-                  <div class="doc-main">
-                    <mat-icon class="doc-icon doc-icon--pending">error</mat-icon>
-                    <span class="doc-name">Certificado Salud</span>
-                  </div>
-                  <span class="doc-status doc-status--pending">Pendiente</span>
-                </div>
-                <div class="doc-item">
-                  <div class="doc-main">
-                    <mat-icon class="doc-icon doc-icon--pending">error</mat-icon>
-                    <span class="doc-name">Foto Carnet</span>
-                  </div>
-                  <span class="doc-status doc-status--pending">Pendiente</span>
-                </div>
+                } @empty {
+                  <div class="empty-state">Sin documentos registrados.</div>
+                }
               </div>
             </section>
           </div>

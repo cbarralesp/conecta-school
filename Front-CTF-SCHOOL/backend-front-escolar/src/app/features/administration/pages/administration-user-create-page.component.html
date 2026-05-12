@@ -1,162 +1,224 @@
 <app-administration-shell activeTab="new-user" toolbarTitle="Administracion">
-  <button mat-stroked-button type="button" class="back-button" routerLink="/dashboard/administracion/usuarios">
-    <mat-icon>arrow_back</mat-icon>
-    Volver a usuarios
-  </button>
+  <section class="user-form-page">
+    <button type="button" class="back-button" (click)="cancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Volver a usuarios
+    </button>
 
-  <form [formGroup]="form" class="form-layout" (ngSubmit)="submit()">
-    <mat-card appearance="outlined" class="form-card">
-      <header class="section-head">
-        <mat-icon>person</mat-icon>
-        <div>
-          <strong>Datos del usuario</strong>
-          <span>{{ title() }}</span>
-        </div>
+    <form [formGroup]="form" class="form-container" (ngSubmit)="submit()">
+      <header class="page-header">
+        <h1>Datos del usuario</h1>
+        <p>{{ title() }}</p>
       </header>
 
-      <div class="form-grid three">
-        <mat-form-field appearance="outline">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="firstName" placeholder="Nombre(s)" />
-          @if (getControlError('firstName')) {
-            <mat-error>{{ getControlError('firstName') }}</mat-error>
-          }
-        </mat-form-field>
+      <section class="form-section">
+        <div class="grid-4">
+          <label class="form-group">
+            <span class="form-label">Nombre</span>
+            <input class="form-input" type="text" formControlName="firstName" />
+            @if (getControlError('firstName')) {
+              <small class="field-error">{{ getControlError('firstName') }}</small>
+            }
+          </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Apellido paterno</mat-label>
-          <input matInput formControlName="paternalLastName" placeholder="Apellido" />
-          @if (getControlError('paternalLastName')) {
-            <mat-error>{{ getControlError('paternalLastName') }}</mat-error>
-          }
-        </mat-form-field>
+          <label class="form-group">
+            <span class="form-label">Segundo Nombre</span>
+            <input class="form-input" type="text" formControlName="secondName" />
+          </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Apellido materno</mat-label>
-          <input matInput formControlName="maternalLastName" placeholder="Apellido" />
-        </mat-form-field>
-      </div>
+          <label class="form-group">
+            <span class="form-label">Apellido paterno</span>
+            <input class="form-input" type="text" formControlName="paternalLastName" />
+            @if (getControlError('paternalLastName')) {
+              <small class="field-error">{{ getControlError('paternalLastName') }}</small>
+            }
+          </label>
 
-      <div class="form-grid two">
-        <mat-form-field appearance="outline">
-          <mat-label>Email institucional</mat-label>
-          <input matInput formControlName="email" placeholder="usuario@tfs.cl" />
-          @if (getControlError('email')) {
-            <mat-error>{{ getControlError('email') }}</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>RUN</mat-label>
-          <input matInput formControlName="run" placeholder="12.345.678-9" />
-          @if (getControlError('run')) {
-            <mat-error>{{ getControlError('run') }}</mat-error>
-          }
-        </mat-form-field>
-      </div>
-
-      <div class="form-grid two">
-        <mat-form-field appearance="outline">
-          <mat-label>Telefono</mat-label>
-          <input matInput formControlName="phone" placeholder="+56 9 1234 5678" />
-          @if (getControlError('phone')) {
-            <mat-error>{{ getControlError('phone') }}</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Estado inicial</mat-label>
-          <mat-select formControlName="initialStatus">
-            <mat-option value="Activo">Activo</mat-option>
-            <mat-option value="Pendiente">Pendiente</mat-option>
-            <mat-option value="Inactivo">Inactivo</mat-option>
-            <mat-option value="Bloqueado">Bloqueado</mat-option>
-          </mat-select>
-          @if (getControlError('initialStatus')) {
-            <mat-error>{{ getControlError('initialStatus') }}</mat-error>
-          }
-        </mat-form-field>
-      </div>
-    </mat-card>
-
-    <mat-card appearance="outlined" class="form-card">
-      <header class="section-head">
-        <mat-icon>shield_person</mat-icon>
-        <div>
-          <strong>Asignacion de rol</strong>
-          <span>Selecciona el perfil que tendra este usuario.</span>
+          <label class="form-group">
+            <span class="form-label">Apellido materno</span>
+            <input class="form-input" type="text" formControlName="maternalLastName" />
+          </label>
         </div>
-      </header>
 
-      <div class="role-selector">
-        @for (role of roleOptions(); track role.code) {
-          <button
-            mat-stroked-button
-            type="button"
-            [class.is-selected]="roleButtonClass(role.code)"
-            (click)="selectRole(role.code)"
-          >
-            {{ role.name }}
-          </button>
+        <div class="grid-2">
+          @if (editingUserId()) {
+            <label class="form-group">
+              <span class="form-label">Usuario</span>
+              <span class="input-with-icon">
+                <input class="form-input" type="text" formControlName="username" autocomplete="off" />
+                <mat-icon>alternate_email</mat-icon>
+              </span>
+              @if (getControlError('username')) {
+                <small class="field-error">{{ getControlError('username') }}</small>
+              }
+            </label>
+          }
+
+          <label class="form-group">
+            <span class="form-label">Email institucional</span>
+            <span class="input-with-icon">
+              <input class="form-input" type="email" formControlName="email" />
+              <mat-icon>mail</mat-icon>
+            </span>
+            @if (getControlError('email')) {
+              <small class="field-error">{{ getControlError('email') }}</small>
+            }
+          </label>
+
+          <label class="form-group">
+            <span class="form-label">RUN</span>
+            <input class="form-input form-input--mono" type="text" formControlName="run" />
+            @if (getControlError('run')) {
+              <small class="field-error">{{ getControlError('run') }}</small>
+            }
+          </label>
+
+          <label class="form-group form-group--half">
+            <span class="form-label">Telefono</span>
+            <span class="input-with-icon">
+              <input class="form-input" type="tel" formControlName="phone" />
+              <mat-icon>phone</mat-icon>
+            </span>
+            @if (getControlError('phone')) {
+              <small class="field-error">{{ getControlError('phone') }}</small>
+            }
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="status-row">
+          <div class="status-copy">
+            <span class="form-label">Estado inicial</span>
+            <span class="status-badge" [class]="'status-badge status-badge--' + currentStatusTone()">
+              <mat-icon>check_circle</mat-icon>
+              {{ form.controls.initialStatus.value }}
+            </span>
+          </div>
+
+          <label class="toggle-switch" aria-label="Activar usuario">
+            <input
+              type="checkbox"
+              [checked]="statusSwitchChecked()"
+              (change)="toggleActiveStatus($event)"
+            />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="status-detail">
+          <label class="form-group">
+            <span class="form-label">Estado detallado</span>
+            <select class="form-input" formControlName="initialStatus">
+              <option value="Activo">Activo</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Inactivo">Inactivo</option>
+              <option value="Bloqueado">Bloqueado</option>
+            </select>
+            @if (getControlError('initialStatus')) {
+              <small class="field-error">{{ getControlError('initialStatus') }}</small>
+            }
+          </label>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title">Asignacion de rol</div>
+          <p class="section-subtitle">Selecciona el perfil que tendra este usuario.</p>
+        </div>
+
+        <div class="role-pills-wrapper">
+          <div class="role-pills">
+            @for (role of roleOptions(); track role.code) {
+              <button
+                type="button"
+                class="role-pill"
+                [class.active]="roleButtonClass(role.code)"
+                (click)="selectRole(role.code)"
+              >
+                {{ role.name }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="role-desc-box" [class.role-desc-box--accent]="selectedRole()?.code === 'PROFESOR'">
+          <mat-icon>{{ selectedRole()?.code === 'SUPERADMIN' || selectedRole()?.code === 'DIRECTOR' ? 'verified_user' : 'info' }}</mat-icon>
+          <div class="role-desc-text">
+            <strong>{{ selectedRole()?.name ?? 'Rol' }}</strong>
+            <span> — {{ selectedRoleDescription() || 'Selecciona un rol para ver su alcance.' }}</span>
+          </div>
+        </div>
+        @if (getControlError('roleCode')) {
+          <p class="role-error">{{ getControlError('roleCode') }}</p>
         }
-      </div>
+      </section>
 
-      <div class="role-description">
-        <strong>Rol seleccionado:</strong>
-        <span>{{ roleOptions().find(role => role.code === form.controls.roleCode.value)?.name }} — {{ selectedRoleDescription() }}</span>
-      </div>
-      @if (getControlError('roleCode')) {
-        <p class="role-error">{{ getControlError('roleCode') }}</p>
-      }
-    </mat-card>
-
-    <mat-card appearance="outlined" class="form-card">
-      <header class="section-head">
-        <mat-icon>vpn_key</mat-icon>
-        <div>
-          <strong>Configuracion de acceso</strong>
-          <span>Define el ingreso inicial y las restricciones de seguridad.</span>
+      <section class="form-section form-section--soft">
+        <div class="section-block">
+          <div class="section-title">Configuracion de acceso</div>
+          <p class="section-subtitle">Define el ingreso inicial y las restricciones de seguridad.</p>
         </div>
-      </header>
 
-      <div class="form-grid two">
-        <mat-form-field appearance="outline">
-          <mat-label>Contrasena temporal</mat-label>
-          <input matInput formControlName="temporaryPassword" placeholder="Se enviara por email si se deja vacio" />
-        </mat-form-field>
+        <div class="grid-2">
+          <label class="form-group">
+            <span class="form-label">Contrasena temporal</span>
+            <input class="form-input" type="text" formControlName="temporaryPassword" placeholder="Se enviara por email si se deja vacio" />
+            <small class="field-hint">Minimo 8 caracteres si se define manualmente.</small>
+          </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Vigencia de cuenta</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="accountExpiresAt" placeholder="Sin vencimiento" />
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </div>
+          <label class="form-group">
+            <span class="form-label">Vigencia de cuenta</span>
+            <select class="form-input" formControlName="accountExpiryMode">
+              <option [value]="expiryModes.NONE">Sin vencimiento</option>
+              <option [value]="expiryModes.MONTH_1">1 Mes</option>
+              <option [value]="expiryModes.MONTH_6">6 Meses</option>
+              <option [value]="expiryModes.YEAR_END">Hasta fin de año</option>
+              <option [value]="expiryModes.CUSTOM">Fecha personalizada</option>
+            </select>
+          </label>
+        </div>
 
-      <div class="form-grid two">
-        <mat-form-field appearance="outline">
-          <mat-label>Forzar cambio de contrasena</mat-label>
-          <mat-select [value]="form.controls.forcePasswordChange.value" (valueChange)="form.controls.forcePasswordChange.setValue($event)">
-            <mat-option [value]="true">Si, en primer acceso</mat-option>
-            <mat-option [value]="false">No forzar cambio</mat-option>
-          </mat-select>
-        </mat-form-field>
+        @if (form.controls.accountExpiryMode.value === expiryModes.CUSTOM) {
+          <div class="grid-2">
+            <label class="form-group">
+              <span class="form-label">Fecha de expiracion</span>
+              <input class="form-input" type="date" formControlName="customAccountExpiresAt" />
+            </label>
+          </div>
+        }
 
-        <mat-form-field appearance="outline">
-          <mat-label>Autenticacion 2 factores</mat-label>
-          <mat-select [value]="form.controls.twoFactorRequired.value" (valueChange)="form.controls.twoFactorRequired.setValue($event)">
-            <mat-option [value]="true">Requerida</mat-option>
-            <mat-option [value]="false">Opcional</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </mat-card>
+        <div class="switch-group">
+          <div class="switch-copy">
+            <span class="switch-label">Forzar cambio de contrasena</span>
+            <small>Si, en primer acceso</small>
+          </div>
 
-    <footer class="form-actions">
-      <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
-      <button mat-flat-button color="primary" type="submit" [disabled]="isSaving()">
-        {{ editingUserId() ? 'Guardar cambios' : 'Crear usuario' }}
-      </button>
-    </footer>
-  </form>
+          <label class="toggle-switch">
+            <input type="checkbox" formControlName="forcePasswordChange" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="switch-group switch-group--plain">
+          <div class="switch-copy">
+            <span class="switch-label">Autenticacion 2 factores</span>
+          </div>
+
+          <select class="form-input form-input--compact" formControlName="twoFactorMode">
+            <option [value]="twoFactorModes.OPTIONAL">Opcional</option>
+            <option [value]="twoFactorModes.REQUIRED">Requerido</option>
+            <option [value]="twoFactorModes.DISABLED">Deshabilitado</option>
+          </select>
+        </div>
+      </section>
+
+      <footer class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+          <mat-icon>{{ isSaving() ? 'progress_activity' : 'save' }}</mat-icon>
+          {{ isSaving() ? 'Guardando...' : (editingUserId() ? 'Guardar cambios' : 'Crear usuario') }}
+        </button>
+      </footer>
+    </form>
+  </section>
 </app-administration-shell>

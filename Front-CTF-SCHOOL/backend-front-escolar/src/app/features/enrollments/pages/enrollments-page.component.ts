@@ -43,7 +43,7 @@ export class EnrollmentsPageComponent {
   private readonly router = inject(Router);
 
   readonly user = this.authStateService.user;
-  readonly displayedColumns = ['student', 'course', 'guardian', 'status', 'actions'];
+  readonly displayedColumns = ['student', 'course', 'enrollmentDate', 'guardian', 'status', 'actions'];
   readonly overview = signal<EnrollmentOverview | null>(null);
   readonly isLoading = signal(true);
   readonly pageIndex = signal(0);
@@ -120,6 +120,19 @@ export class EnrollmentsPageComponent {
 
   initials(item: EnrollmentListItem): string {
     return `${item.studentName.charAt(0)}${item.studentLastName.charAt(0)}`.toUpperCase();
+  }
+
+  formatEnrollmentDate(value: string): string {
+    if (!value) {
+      return '-';
+    }
+
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+    if (!match) {
+      return value;
+    }
+
+    return `${match[3]}-${match[2]}-${match[1]}`;
   }
 
   handlePageChange(event: PageEvent): void {

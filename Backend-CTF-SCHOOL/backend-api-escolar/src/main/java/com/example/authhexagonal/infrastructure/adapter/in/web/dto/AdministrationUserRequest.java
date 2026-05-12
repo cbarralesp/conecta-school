@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 public record AdministrationUserRequest(
+        String username,
         @NotBlank String firstName,
         @NotBlank String paternalLastName,
         String maternalLastName,
@@ -24,6 +25,7 @@ public record AdministrationUserRequest(
 ) {
     public AdministrationUserCommand toDomain() {
         return new AdministrationUserCommand(
+                username == null ? "" : username,
                 firstName,
                 paternalLastName,
                 maternalLastName == null ? "" : maternalLastName,

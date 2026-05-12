@@ -10,6 +10,7 @@ export interface TeacherSummary {
 export interface TeacherListItem {
   id: number;
   teacherCode: string;
+  staffType: string;
   fullName: string;
   run: string;
   professionalTitle: string;
@@ -47,9 +48,20 @@ export interface TeacherEmergencyContact {
   phone: string;
 }
 
+export interface TeacherSystemAccess {
+  configureAccess: boolean;
+  createAccount: boolean;
+  username: string;
+  temporaryPassword: string;
+  notifyByEmail: boolean;
+  contactEmail: string;
+  status: string;
+}
+
 export interface TeacherDetail {
   id: number;
   teacherCode: string;
+  staffType: string;
   firstNames: string;
   paternalLastName: string;
   maternalLastName: string;
@@ -72,6 +84,7 @@ export interface TeacherDetail {
   assignedCourses: TeacherAssignedCourse[];
   weeklySchedule: TeacherScheduleItem[];
   emergencyContact: TeacherEmergencyContact;
+  systemAccess: TeacherSystemAccess;
 }
 
 export interface TeacherOverview {
@@ -81,6 +94,7 @@ export interface TeacherOverview {
 }
 
 export interface TeacherPayload {
+  staffType: string;
   firstNames: string;
   paternalLastName: string;
   maternalLastName: string;
@@ -102,4 +116,5 @@ export interface TeacherPayload {
   emergencyContactName: string;
   emergencyContactRelation: string;
   emergencyContactPhone: string;
+  systemAccess: TeacherSystemAccess;
 }

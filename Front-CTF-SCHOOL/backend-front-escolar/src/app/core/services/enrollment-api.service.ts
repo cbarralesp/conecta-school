@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
+import { formatCourseLevelLabel, formatScheduleLabel } from '../constants/course-levels';
 import { EnrollmentDetail, EnrollmentOverview, EnrollmentPayload } from '../models/enrollment.models';
 import { normalizeDashboardText } from '../utils/text-normalizer';
 
@@ -61,7 +62,10 @@ export class EnrollmentApiService {
       courses: overview.courses.map((course) => ({
         ...course,
         code: normalizeDashboardText(course.code),
-        name: normalizeDashboardText(course.name)
+        name: normalizeDashboardText(course.name),
+        level: formatCourseLevelLabel(normalizeDashboardText(course.level)),
+        letter: normalizeDashboardText(course.letter),
+        scheduleType: formatScheduleLabel(normalizeDashboardText(course.scheduleType))
       })),
       pagination: {
         page: overview.pagination?.page ?? 0,
@@ -126,7 +130,25 @@ export class EnrollmentApiService {
         fileName: normalizeDashboardText(document.fileName),
         driveFileId: normalizeDashboardText(document.driveFileId ?? ''),
         driveUrl: normalizeDashboardText(document.driveUrl ?? '')
-      }))
+      })),
+      studentAccess: {
+        configureAccess: !!detail.studentAccess?.configureAccess,
+        createStudentAccount: !!detail.studentAccess?.createStudentAccount,
+        username: normalizeDashboardText(detail.studentAccess?.username ?? ''),
+        temporaryPassword: normalizeDashboardText(detail.studentAccess?.temporaryPassword ?? ''),
+        notifyByEmail: !!detail.studentAccess?.notifyByEmail,
+        contactEmail: normalizeDashboardText(detail.studentAccess?.contactEmail ?? ''),
+        status: normalizeDashboardText(detail.studentAccess?.status ?? '')
+      },
+      guardianAccess: {
+        configureAccess: !!detail.guardianAccess?.configureAccess,
+        createGuardianAccount: !!detail.guardianAccess?.createGuardianAccount,
+        username: normalizeDashboardText(detail.guardianAccess?.username ?? ''),
+        temporaryPassword: normalizeDashboardText(detail.guardianAccess?.temporaryPassword ?? ''),
+        notifyByEmail: !!detail.guardianAccess?.notifyByEmail,
+        contactEmail: normalizeDashboardText(detail.guardianAccess?.contactEmail ?? ''),
+        status: normalizeDashboardText(detail.guardianAccess?.status ?? '')
+      }
     };
   }
 }

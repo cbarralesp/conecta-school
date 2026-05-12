@@ -9,7 +9,10 @@ export interface EnrollmentCourseOption {
   id: number;
   code: string;
   name: string;
+  level: string;
+  letter: string;
   schoolYear: number;
+  scheduleType: string;
 }
 
 export interface EnrollmentListItem {
@@ -66,6 +69,26 @@ export interface EnrollmentDocument {
   driveUrl?: string | null;
 }
 
+export interface EnrollmentStudentAccess {
+  configureAccess: boolean;
+  createStudentAccount: boolean;
+  username: string;
+  temporaryPassword: string;
+  notifyByEmail: boolean;
+  contactEmail: string;
+  status: string;
+}
+
+export interface EnrollmentGuardianAccess {
+  configureAccess: boolean;
+  createGuardianAccount: boolean;
+  username: string;
+  temporaryPassword: string;
+  notifyByEmail: boolean;
+  contactEmail: string;
+  status: string;
+}
+
 export interface EnrollmentDetail {
   id: number;
   studentId: number;
@@ -86,6 +109,8 @@ export interface EnrollmentDetail {
   guardian: EnrollmentGuardian;
   pickupContacts: EnrollmentPickupContact[];
   documents: EnrollmentDocument[];
+  studentAccess: EnrollmentStudentAccess;
+  guardianAccess: EnrollmentGuardianAccess;
 }
 
 export interface EnrollmentPagination {
@@ -119,4 +144,6 @@ export interface EnrollmentPayload {
   guardian: EnrollmentGuardian;
   pickupContacts: EnrollmentPickupContact[];
   documents: EnrollmentDocument[];
+  studentAccess: EnrollmentStudentAccess;
+  guardianAccess: EnrollmentGuardianAccess;
 }

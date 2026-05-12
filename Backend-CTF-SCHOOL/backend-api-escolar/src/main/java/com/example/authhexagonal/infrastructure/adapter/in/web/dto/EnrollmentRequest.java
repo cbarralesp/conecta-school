@@ -25,6 +25,8 @@ public record EnrollmentRequest(
         @NotNull @Valid EnrollmentEstablishmentRequest establishment,
         @NotNull @Valid EnrollmentGuardianRequest guardian,
         @NotEmpty List<@Valid EnrollmentPickupContactRequest> pickupContacts,
-        List<@Valid EnrollmentDocumentRequest> documents
+        List<@Valid EnrollmentDocumentRequest> documents,
+        @Valid EnrollmentStudentAccessRequest studentAccess,
+        @Valid EnrollmentGuardianAccessRequest guardianAccess
 ) {
 }

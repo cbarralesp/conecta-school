@@ -11,6 +11,7 @@ import com.example.authhexagonal.domain.port.out.ManageCoursesPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -34,29 +35,96 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
 
     @Override
     public List<Course> findAllActive() {
+        if (!courseNormalizationAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT
+                        c."ID",
+                        c."CODIGO",
+                        c."NOMBRE",
+                        c."NIVEL",
+                        c."LETRA",
+                        c."ANIO_ESCOLAR",
+                        c."JORNADA",
+                        cd."PROFESOR_ID" AS teacher_id,
+                        tp."NOMBRES" || ' ' || tp."APELLIDOS" AS teacher_name,
+                        cd."ASISTENTE_ID" AS assistant_id,
+                        ta."NOMBRES" || ' ' || ta."APELLIDOS" AS assistant_name,
+                        c."ACTIVO",
+                        COUNT(m."ID") AS student_count
+                    FROM "CURSOS"
+                    c
+                    LEFT JOIN "CURSO_DOCENTES" cd
+                      ON cd."CURSO_ID" = c."ID"
+                    LEFT JOIN "PROFESORES" pt
+                      ON pt."ID" = cd."PROFESOR_ID"
+                    LEFT JOIN "PERSONAS" tp
+                      ON tp."ID" = pt."PERSONA_ID"
+                    LEFT JOIN "PROFESORES" pa
+                      ON pa."ID" = cd."ASISTENTE_ID"
+                    LEFT JOIN "PERSONAS" ta
+                      ON ta."ID" = pa."PERSONA_ID"
+                    LEFT JOIN "MATRICULAS" m
+                      ON m."CURSO_ID" = c."ID"
+                     AND m."ACTIVA" = TRUE
+                    WHERE c."ACTIVO" = TRUE
+                    GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cd."PROFESOR_ID", tp."NOMBRES", tp."APELLIDOS", cd."ASISTENTE_ID", ta."NOMBRES", ta."APELLIDOS", c."ACTIVO"
+                    ORDER BY c."ANIO_ESCOLAR", c."NIVEL", c."LETRA"
+                    """, (rs, rowNum) -> new Course(
+                    rs.getLong("ID"),
+                    rs.getString("CODIGO"),
+                    rs.getString("NOMBRE"),
+                    rs.getString("NIVEL"),
+                    rs.getString("LETRA"),
+                    rs.getInt("ANIO_ESCOLAR"),
+                    rs.getString("JORNADA"),
+                    (Long) rs.getObject("teacher_id"),
+                    rs.getString("teacher_name"),
+                    (Long) rs.getObject("assistant_id"),
+                    rs.getString("assistant_name"),
+                    rs.getBoolean("ACTIVO"),
+                    rs.getInt("student_count")
+            ));
+        }
+
         return jdbcTemplate.query("""
                 SELECT
                     c."ID",
                     c."CODIGO",
-                    c."NOMBRE",
-                    c."NIVEL",
+                    COALESCE(cg."NOMBRE", c."NOMBRE") AS "NOMBRE",
+                    COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
                     c."LETRA",
                     c."ANIO_ESCOLAR",
-                    c."JORNADA",
+                    COALESCE(cj."NOMBRE", c."JORNADA") AS "JORNADA",
                     cd."PROFESOR_ID" AS teacher_id,
+                    tp."NOMBRES" || ' ' || tp."APELLIDOS" AS teacher_name,
                     cd."ASISTENTE_ID" AS assistant_id,
+                    ta."NOMBRES" || ' ' || ta."APELLIDOS" AS assistant_name,
                     c."ACTIVO",
                     COUNT(m."ID") AS student_count
                 FROM "CURSOS"
                 c
+                LEFT JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = c."GRADO_ID"
+                LEFT JOIN "CURSO_NIVELES" cn
+                  ON cn."ID" = cg."NIVEL_ID"
+                LEFT JOIN "CURSO_JORNADAS" cj
+                  ON cj."ID" = c."JORNADA_ID"
                 LEFT JOIN "CURSO_DOCENTES" cd
                   ON cd."CURSO_ID" = c."ID"
+                LEFT JOIN "PROFESORES" pt
+                  ON pt."ID" = cd."PROFESOR_ID"
+                LEFT JOIN "PERSONAS" tp
+                  ON tp."ID" = pt."PERSONA_ID"
+                LEFT JOIN "PROFESORES" pa
+                  ON pa."ID" = cd."ASISTENTE_ID"
+                LEFT JOIN "PERSONAS" ta
+                  ON ta."ID" = pa."PERSONA_ID"
                 LEFT JOIN "MATRICULAS" m
                   ON m."CURSO_ID" = c."ID"
                  AND m."ACTIVA" = TRUE
                 WHERE c."ACTIVO" = TRUE
-                GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cd."PROFESOR_ID", cd."ASISTENTE_ID", c."ACTIVO"
-                ORDER BY c."ANIO_ESCOLAR", c."NIVEL", c."LETRA"
+                GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cg."NOMBRE", cn."NOMBRE", cj."NOMBRE", cd."PROFESOR_ID", tp."NOMBRES", tp."APELLIDOS", cd."ASISTENTE_ID", ta."NOMBRES", ta."APELLIDOS", c."ACTIVO"
+                ORDER BY c."ANIO_ESCOLAR", COALESCE(cg."NOMBRE", c."NOMBRE"), c."LETRA"
                 """, (rs, rowNum) -> new Course(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
@@ -66,7 +134,9 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getInt("ANIO_ESCOLAR"),
                 rs.getString("JORNADA"),
                 (Long) rs.getObject("teacher_id"),
+                rs.getString("teacher_name"),
                 (Long) rs.getObject("assistant_id"),
+                rs.getString("assistant_name"),
                 rs.getBoolean("ACTIVO"),
                 rs.getInt("student_count")
         ));
@@ -74,28 +144,94 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
 
     @Override
     public Optional<Course> findActiveById(Long courseId) {
+        if (!courseNormalizationAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT
+                        c."ID",
+                        c."CODIGO",
+                        c."NOMBRE",
+                        c."NIVEL",
+                        c."LETRA",
+                        c."ANIO_ESCOLAR",
+                        c."JORNADA",
+                        cd."PROFESOR_ID" AS teacher_id,
+                        tp."NOMBRES" || ' ' || tp."APELLIDOS" AS teacher_name,
+                        cd."ASISTENTE_ID" AS assistant_id,
+                        ta."NOMBRES" || ' ' || ta."APELLIDOS" AS assistant_name,
+                        c."ACTIVO",
+                        COUNT(m."ID") AS student_count
+                    FROM "CURSOS" c
+                    LEFT JOIN "CURSO_DOCENTES" cd
+                      ON cd."CURSO_ID" = c."ID"
+                    LEFT JOIN "PROFESORES" pt
+                      ON pt."ID" = cd."PROFESOR_ID"
+                    LEFT JOIN "PERSONAS" tp
+                      ON tp."ID" = pt."PERSONA_ID"
+                    LEFT JOIN "PROFESORES" pa
+                      ON pa."ID" = cd."ASISTENTE_ID"
+                    LEFT JOIN "PERSONAS" ta
+                      ON ta."ID" = pa."PERSONA_ID"
+                    LEFT JOIN "MATRICULAS" m
+                      ON m."CURSO_ID" = c."ID"
+                     AND m."ACTIVA" = TRUE
+                    WHERE c."ID" = ?
+                      AND c."ACTIVO" = TRUE
+                    GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cd."PROFESOR_ID", tp."NOMBRES", tp."APELLIDOS", cd."ASISTENTE_ID", ta."NOMBRES", ta."APELLIDOS", c."ACTIVO"
+                    """, (rs, rowNum) -> new Course(
+                    rs.getLong("ID"),
+                    rs.getString("CODIGO"),
+                    rs.getString("NOMBRE"),
+                    rs.getString("NIVEL"),
+                    rs.getString("LETRA"),
+                    rs.getInt("ANIO_ESCOLAR"),
+                    rs.getString("JORNADA"),
+                    (Long) rs.getObject("teacher_id"),
+                    rs.getString("teacher_name"),
+                    (Long) rs.getObject("assistant_id"),
+                    rs.getString("assistant_name"),
+                    rs.getBoolean("ACTIVO"),
+                    rs.getInt("student_count")
+            ), courseId).stream().findFirst();
+        }
+
         return jdbcTemplate.query("""
                 SELECT
                     c."ID",
                     c."CODIGO",
-                    c."NOMBRE",
-                    c."NIVEL",
+                    COALESCE(cg."NOMBRE", c."NOMBRE") AS "NOMBRE",
+                    COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
                     c."LETRA",
                     c."ANIO_ESCOLAR",
-                    c."JORNADA",
+                    COALESCE(cj."NOMBRE", c."JORNADA") AS "JORNADA",
                     cd."PROFESOR_ID" AS teacher_id,
+                    tp."NOMBRES" || ' ' || tp."APELLIDOS" AS teacher_name,
                     cd."ASISTENTE_ID" AS assistant_id,
+                    ta."NOMBRES" || ' ' || ta."APELLIDOS" AS assistant_name,
                     c."ACTIVO",
                     COUNT(m."ID") AS student_count
                 FROM "CURSOS" c
+                LEFT JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = c."GRADO_ID"
+                LEFT JOIN "CURSO_NIVELES" cn
+                  ON cn."ID" = cg."NIVEL_ID"
+                LEFT JOIN "CURSO_JORNADAS" cj
+                  ON cj."ID" = c."JORNADA_ID"
                 LEFT JOIN "CURSO_DOCENTES" cd
                   ON cd."CURSO_ID" = c."ID"
+                LEFT JOIN "PROFESORES" pt
+                  ON pt."ID" = cd."PROFESOR_ID"
+                LEFT JOIN "PERSONAS" tp
+                  ON tp."ID" = pt."PERSONA_ID"
+                LEFT JOIN "PROFESORES" pa
+                  ON pa."ID" = cd."ASISTENTE_ID"
+                LEFT JOIN "PERSONAS" ta
+                  ON ta."ID" = pa."PERSONA_ID"
                 LEFT JOIN "MATRICULAS" m
                   ON m."CURSO_ID" = c."ID"
                  AND m."ACTIVA" = TRUE
                 WHERE c."ID" = ?
                   AND c."ACTIVO" = TRUE
-                GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cd."PROFESOR_ID", cd."ASISTENTE_ID", c."ACTIVO"
+                GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cg."NOMBRE", cn."NOMBRE", cj."NOMBRE", cd."PROFESOR_ID", tp."NOMBRES", tp."APELLIDOS", cd."ASISTENTE_ID", ta."NOMBRES", ta."APELLIDOS", c."ACTIVO"
                 """, (rs, rowNum) -> new Course(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
@@ -105,42 +241,47 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getInt("ANIO_ESCOLAR"),
                 rs.getString("JORNADA"),
                 (Long) rs.getObject("teacher_id"),
+                rs.getString("teacher_name"),
                 (Long) rs.getObject("assistant_id"),
+                rs.getString("assistant_name"),
                 rs.getBoolean("ACTIVO"),
                 rs.getInt("student_count")
         ), courseId).stream().findFirst();
     }
 
     @Override
-    public boolean existsActiveByCode(String code) {
+    public boolean existsByCode(String code) {
         Integer exists = jdbcTemplate.queryForObject("""
                 SELECT COUNT(1)
                 FROM "CURSOS"
                 WHERE UPPER("CODIGO") = UPPER(?)
-                  AND "ACTIVO" = TRUE
                 """, Integer.class, code);
         return exists != null && exists > 0;
     }
 
     @Override
-    public boolean existsActiveByCodeExcludingId(String code, Long courseId) {
+    public boolean existsByCodeExcludingId(String code, Long courseId) {
         Integer exists = jdbcTemplate.queryForObject("""
                 SELECT COUNT(1)
                 FROM "CURSOS"
                 WHERE UPPER("CODIGO") = UPPER(?)
                   AND "ID" <> ?
-                  AND "ACTIVO" = TRUE
                 """, Integer.class, code, courseId);
         return exists != null && exists > 0;
     }
 
     @Override
     public Course create(String code, String name, String level, String letter, int schoolYear, String scheduleType) {
+        String normalizedName = normalizeGradeDisplayName(name);
+        String normalizedLevel = normalizeLevelDisplayName(level);
+        String normalizedSchedule = normalizeScheduleDisplayName(scheduleType);
+        Long gradeId = resolveGradeId(normalizedName);
+        Long scheduleId = resolveScheduleId(normalizedSchedule);
         Long id = jdbcTemplate.queryForObject("""
-                INSERT INTO "CURSOS" ("CODIGO", "NOMBRE", "NIVEL", "LETRA", "ANIO_ESCOLAR", "JORNADA", "ACTIVO")
-                VALUES (?, ?, ?, ?, ?, ?, TRUE)
+                INSERT INTO "CURSOS" ("CODIGO", "NOMBRE", "NIVEL", "LETRA", "ANIO_ESCOLAR", "JORNADA", "GRADO_ID", "JORNADA_ID", "ACTIVO")
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 RETURNING "ID"
-                """, Long.class, code, name, level, letter, schoolYear, scheduleType);
+                """, Long.class, code, normalizedName, normalizedLevel, letter, schoolYear, normalizedSchedule, gradeId, scheduleId);
 
         return findActiveById(id).orElseThrow();
     }
@@ -252,6 +393,11 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
 
     @Override
     public Course update(Long courseId, String code, String name, String level, String letter, int schoolYear, String scheduleType) {
+        String normalizedName = normalizeGradeDisplayName(name);
+        String normalizedLevel = normalizeLevelDisplayName(level);
+        String normalizedSchedule = normalizeScheduleDisplayName(scheduleType);
+        Long gradeId = resolveGradeId(normalizedName);
+        Long scheduleId = resolveScheduleId(normalizedSchedule);
         jdbcTemplate.update("""
                 UPDATE "CURSOS"
                 SET "CODIGO" = ?,
@@ -259,20 +405,46 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     "NIVEL" = ?,
                     "LETRA" = ?,
                     "ANIO_ESCOLAR" = ?,
-                    "JORNADA" = ?
+                    "JORNADA" = ?,
+                    "GRADO_ID" = ?,
+                    "JORNADA_ID" = ?
                 WHERE "ID" = ?
-                """, code, name, level, letter, schoolYear, scheduleType, courseId);
+                """, code, normalizedName, normalizedLevel, letter, schoolYear, normalizedSchedule, gradeId, scheduleId, courseId);
 
         return findActiveById(courseId).orElseThrow();
     }
 
     @Override
     public void deactivate(Long courseId) {
+        String currentCode = jdbcTemplate.queryForObject("""
+                SELECT "CODIGO"
+                FROM "CURSOS"
+                WHERE "ID" = ?
+                """, String.class, courseId);
+        String archivedCode = buildArchivedCourseCode(currentCode, courseId);
+
         jdbcTemplate.update("""
                 UPDATE "CURSOS"
-                SET "ACTIVO" = FALSE
+                SET "CODIGO" = ?,
+                    "ACTIVO" = FALSE
                 WHERE "ID" = ?
+                """, archivedCode, courseId);
+
+        jdbcTemplate.update("""
+                UPDATE "MATRICULAS"
+                SET "ACTIVA" = FALSE,
+                    "ESTADO" = 'INACTIVA'
+                WHERE "CURSO_ID" = ?
+                  AND "ACTIVA" = TRUE
                 """, courseId);
+
+        if (tableExists("CURSO_ALUMNOS")) {
+            jdbcTemplate.update("""
+                    UPDATE "CURSO_ALUMNOS"
+                    SET "ACTIVO" = FALSE
+                    WHERE "CURSO_ID" = ?
+                    """, courseId);
+        }
     }
 
     @Override
@@ -322,29 +494,74 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
         String normalized = query == null ? "" : query.trim().toUpperCase();
         String[] tokens = normalized.isBlank() ? new String[0] : normalized.split("\\s+");
 
+        if (!masterCourseNormalizationAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT "ID", "CODIGO", "DESCRIPCION"
+                    FROM "CURSOS_MAESTROS"
+                    WHERE "ACTIVO" = TRUE
+                    ORDER BY "DESCRIPCION"
+                    """, (rs, rowNum) -> legacyMasterCourse(rs.getLong("ID"), rs.getString("CODIGO"), rs.getString("DESCRIPCION")))
+                    .stream().filter(item -> matchesTokens(item, tokens)).toList();
+        }
+
         return jdbcTemplate.query("""
-                SELECT "ID", "CODIGO", "DESCRIPCION"
-                FROM "CURSOS_MAESTROS"
-                WHERE "ACTIVO" = TRUE
-                ORDER BY "DESCRIPCION"
+                SELECT
+                    cm."ID",
+                    cm."CODIGO",
+                    COALESCE(cg."NOMBRE", cm."DESCRIPCION") AS "DESCRIPCION",
+                    COALESCE(cn."NOMBRE", 'Sin nivel') AS level_name,
+                    COALESCE(cg."CODIGO_TOKEN", REGEXP_REPLACE(UPPER(cm."CODIGO"), '^CUR-', '')) AS code_token,
+                    COALESCE(cg."ORDEN", 999) AS sort_order
+                FROM "CURSOS_MAESTROS" cm
+                LEFT JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = cm."GRADO_ID"
+                LEFT JOIN "CURSO_NIVELES" cn
+                  ON cn."ID" = cg."NIVEL_ID"
+                WHERE cm."ACTIVO" = TRUE
+                ORDER BY sort_order, "DESCRIPCION"
                 """, (rs, rowNum) -> new MasterCourse(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
-                rs.getString("DESCRIPCION")
+                rs.getString("DESCRIPCION"),
+                rs.getString("level_name"),
+                rs.getString("code_token"),
+                rs.getInt("sort_order")
         )).stream().filter(item -> matchesTokens(item, tokens)).toList();
     }
 
     @Override
     public Optional<MasterCourse> findById(Long masterCourseId) {
+        if (!masterCourseNormalizationAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT "ID", "CODIGO", "DESCRIPCION"
+                    FROM "CURSOS_MAESTROS"
+                    WHERE "ID" = ?
+                      AND "ACTIVO" = TRUE
+                    """, (rs, rowNum) -> legacyMasterCourse(rs.getLong("ID"), rs.getString("CODIGO"), rs.getString("DESCRIPCION")), masterCourseId).stream().findFirst();
+        }
+
         return jdbcTemplate.query("""
-                SELECT "ID", "CODIGO", "DESCRIPCION"
-                FROM "CURSOS_MAESTROS"
-                WHERE "ID" = ?
-                  AND "ACTIVO" = TRUE
+                SELECT
+                    cm."ID",
+                    cm."CODIGO",
+                    COALESCE(cg."NOMBRE", cm."DESCRIPCION") AS "DESCRIPCION",
+                    COALESCE(cn."NOMBRE", 'Sin nivel') AS level_name,
+                    COALESCE(cg."CODIGO_TOKEN", REGEXP_REPLACE(UPPER(cm."CODIGO"), '^CUR-', '')) AS code_token,
+                    COALESCE(cg."ORDEN", 999) AS sort_order
+                FROM "CURSOS_MAESTROS" cm
+                LEFT JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = cm."GRADO_ID"
+                LEFT JOIN "CURSO_NIVELES" cn
+                  ON cn."ID" = cg."NIVEL_ID"
+                WHERE cm."ID" = ?
+                  AND cm."ACTIVO" = TRUE
                 """, (rs, rowNum) -> new MasterCourse(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
-                rs.getString("DESCRIPCION")
+                rs.getString("DESCRIPCION"),
+                rs.getString("level_name"),
+                rs.getString("code_token"),
+                rs.getInt("sort_order")
         ), masterCourseId).stream().findFirst();
     }
 
@@ -356,6 +573,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
         return jdbcTemplate.query("""
                 SELECT
                     p."ID",
+                    COALESCE(NULLIF(TRIM(p."TIPO_PERSONAL"), ''), 'DOCENTE') AS staff_type,
                     pe."NOMBRES" AS "NOMBRE",
                     pe."RUN" AS "RUD",
                     pe."APELLIDOS" AS "APELLIDO",
@@ -377,10 +595,11 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     %s
                 ) teacher_subjects ON teacher_subjects.teacher_id = p."ID"
                 WHERE p."ACTIVO" = TRUE
-                GROUP BY p."ID", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."REGION_ID", pe."COMUNA_ID", cr."NOMBRE", cc."NOMBRE", pe."CORREO_ELECTRONICO"
+                GROUP BY p."ID", p."TIPO_PERSONAL", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."REGION_ID", pe."COMUNA_ID", cr."NOMBRE", cc."NOMBRE", pe."CORREO_ELECTRONICO"
                 ORDER BY pe."NOMBRES", pe."APELLIDOS"
                 """.formatted(teacherSubjectsSubquery()), (rs, rowNum) -> new TeacherCatalogItem(
                 rs.getLong("ID"),
+                rs.getString("staff_type"),
                 rs.getString("NOMBRE"),
                 rs.getString("RUD"),
                 rs.getString("APELLIDO"),
@@ -399,6 +618,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
         return jdbcTemplate.query("""
                 SELECT
                     p."ID",
+                    COALESCE(NULLIF(TRIM(p."TIPO_PERSONAL"), ''), 'DOCENTE') AS staff_type,
                     pe."NOMBRES" AS "NOMBRE",
                     pe."RUN" AS "RUD",
                     pe."APELLIDOS" AS "APELLIDO",
@@ -421,9 +641,10 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 ) teacher_subjects ON teacher_subjects.teacher_id = p."ID"
                 WHERE p."ID" = ?
                   AND p."ACTIVO" = TRUE
-                GROUP BY p."ID", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."REGION_ID", pe."COMUNA_ID", cr."NOMBRE", cc."NOMBRE", pe."CORREO_ELECTRONICO"
+                GROUP BY p."ID", p."TIPO_PERSONAL", pe."NOMBRES", pe."RUN", pe."APELLIDOS", pe."DIRECCION", pe."REGION_ID", pe."COMUNA_ID", cr."NOMBRE", cc."NOMBRE", pe."CORREO_ELECTRONICO"
                 """.formatted(teacherSubjectsSubquery()), (rs, rowNum) -> new TeacherCatalogItem(
                 rs.getLong("ID"),
+                rs.getString("staff_type"),
                 rs.getString("NOMBRE"),
                 rs.getString("RUD"),
                 rs.getString("APELLIDO"),
@@ -459,13 +680,13 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                   ON cr."ID" = a."REGION_ID"
                 LEFT JOIN "CHILE_COMUNAS" cc
                   ON cc."ID" = a."COMUNA_ID"
-                WHERE "ACTIVO" = TRUE
-                  AND "ID" NOT IN (
+                WHERE a."ACTIVO" = TRUE
+                  AND a."ID" NOT IN (
                       SELECT "ALUMNO_ID"
                       FROM "MATRICULAS"
                       WHERE "ACTIVA" = TRUE
                   )
-                ORDER BY "NOMBRE", "APELLIDOS"
+                ORDER BY a."NOMBRE", a."APELLIDOS"
                 """, (rs, rowNum) -> mapStudent(rs.getLong("ID"),
                 rs.getString("RUN"),
                 rs.getString("NOMBRE"),
@@ -498,9 +719,9 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                   ON cr."ID" = a."REGION_ID"
                 LEFT JOIN "CHILE_COMUNAS" cc
                   ON cc."ID" = a."COMUNA_ID"
-                WHERE "ID" = ?
-                  AND "ACTIVO" = TRUE
-                  AND "ID" NOT IN (
+                WHERE a."ID" = ?
+                  AND a."ACTIVO" = TRUE
+                  AND a."ID" NOT IN (
                       SELECT "ALUMNO_ID"
                       FROM "MATRICULAS"
                       WHERE "ACTIVA" = TRUE
@@ -657,5 +878,173 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 LEFT JOIN "ASIGNATURAS" a ON a."ID" = pa."ASIGNATURA_ID"
                 WHERE pa."ACTIVO" = TRUE
                 """;
+    }
+
+    private MasterCourse legacyMasterCourse(Long id, String code, String description) {
+        String normalizedCode = code == null ? "" : code.trim().toUpperCase();
+        return switch (normalizedCode) {
+            case "CUR-PK" -> new MasterCourse(id, code, "Prekínder", "Inicial", "PK", 10);
+            case "CUR-K" -> new MasterCourse(id, code, "Kínder", "Inicial", "K", 20);
+            case "CUR-1B" -> new MasterCourse(id, code, "1 Básico", "Básico", "1", 30);
+            case "CUR-2B" -> new MasterCourse(id, code, "2 Básico", "Básico", "2", 40);
+            case "CUR-3B" -> new MasterCourse(id, code, "3 Básico", "Básico", "3", 50);
+            case "CUR-4B" -> new MasterCourse(id, code, "4 Básico", "Básico", "4", 60);
+            case "CUR-5B" -> new MasterCourse(id, code, "5 Básico", "Básico", "5", 70);
+            case "CUR-6B" -> new MasterCourse(id, code, "6 Básico", "Básico", "6", 80);
+            case "CUR-7B" -> new MasterCourse(id, code, "7 Básico", "Básico", "7", 90);
+            case "CUR-8B" -> new MasterCourse(id, code, "8 Básico", "Básico", "8", 100);
+            case "CUR-1M" -> new MasterCourse(id, code, "1 Medio", "Medio", "1M", 110);
+            case "CUR-2M" -> new MasterCourse(id, code, "2 Medio", "Medio", "2M", 120);
+            case "CUR-3M" -> new MasterCourse(id, code, "3 Medio", "Medio", "3M", 130);
+            case "CUR-4M" -> new MasterCourse(id, code, "4 Medio", "Medio", "4M", 140);
+            default -> new MasterCourse(id, code, description, inferLevelFromDescription(description), normalizedCode.replace("CUR-", ""), 999);
+        };
+    }
+
+    private String inferLevelFromDescription(String description) {
+        String normalized = normalizeText(description);
+        if (normalized.contains("KINDER") || normalized.contains("NT1") || normalized.contains("NT2")) {
+            return "Inicial";
+        }
+        if (normalized.contains("MEDIO")) {
+            return "Medio";
+        }
+        return "Básico";
+    }
+
+    private boolean courseNormalizationAvailable() {
+        return tableExists("CURSO_GRADOS")
+                && tableExists("CURSO_NIVELES")
+                && tableExists("CURSO_JORNADAS")
+                && columnExists("CURSOS", "GRADO_ID")
+                && columnExists("CURSOS", "JORNADA_ID");
+    }
+
+    private boolean masterCourseNormalizationAvailable() {
+        return tableExists("CURSO_GRADOS")
+                && tableExists("CURSO_NIVELES")
+                && columnExists("CURSOS_MAESTROS", "GRADO_ID");
+    }
+
+    private Long resolveGradeId(String courseName) {
+        if (courseName == null || courseName.isBlank() || !tableExists("CURSO_GRADOS")) {
+            return null;
+        }
+
+        String normalizedCourseName = normalizeText(courseName);
+        List<Long> ids = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "CURSO_GRADOS"
+                WHERE UPPER(TRANSLATE("NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = ?
+                  AND "ACTIVO" = TRUE
+                ORDER BY "ORDEN"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), normalizedCourseName);
+
+        return ids.isEmpty() ? null : ids.getFirst();
+    }
+
+    private Long resolveScheduleId(String scheduleType) {
+        if (scheduleType == null || scheduleType.isBlank() || !tableExists("CURSO_JORNADAS")) {
+            return null;
+        }
+
+        String normalizedScheduleType = normalizeText(scheduleType);
+        List<Long> ids = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "CURSO_JORNADAS"
+                WHERE (
+                    UPPER(TRANSLATE("NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = ?
+                    OR UPPER(TRANSLATE("CODIGO", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = ?
+                )
+                  AND "ACTIVO" = TRUE
+                ORDER BY "ID"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), normalizedScheduleType, normalizedScheduleType);
+
+        return ids.isEmpty() ? null : ids.getFirst();
+    }
+
+    private boolean columnExists(String tableName, String columnName) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name = ?
+                  AND column_name = ?
+                """, Integer.class, tableName, columnName);
+        return count != null && count > 0;
+    }
+
+    private String normalizeText(String value) {
+        String sanitized = (value == null ? "" : value.trim())
+                .replace("Ã¡", "á")
+                .replace("Ã©", "é")
+                .replace("Ã­", "í")
+                .replace("Ã³", "ó")
+                .replace("Ãº", "ú")
+                .replace("Ã", "Á")
+                .replace("Ã‰", "É")
+                .replace("Ã", "Í")
+                .replace("Ã“", "Ó")
+                .replace("Ãš", "Ú")
+                .replace("Ã±", "ñ")
+                .replace("Ã‘", "Ñ");
+
+        return Normalizer.normalize(sanitized, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toUpperCase();
+    }
+
+    private String normalizeGradeDisplayName(String value) {
+        return switch (normalizeText(value)) {
+            case "PREKINDER" -> "Prekínder";
+            case "KINDER" -> "Kínder";
+            case "1 BASICO" -> "1 Básico";
+            case "2 BASICO" -> "2 Básico";
+            case "3 BASICO" -> "3 Básico";
+            case "4 BASICO" -> "4 Básico";
+            case "5 BASICO" -> "5 Básico";
+            case "6 BASICO" -> "6 Básico";
+            case "7 BASICO" -> "7 Básico";
+            case "8 BASICO" -> "8 Básico";
+            case "1 MEDIO" -> "1 Medio";
+            case "2 MEDIO" -> "2 Medio";
+            case "3 MEDIO" -> "3 Medio";
+            case "4 MEDIO" -> "4 Medio";
+            default -> value == null ? "" : value.trim();
+        };
+    }
+
+    private String normalizeLevelDisplayName(String value) {
+        return switch (normalizeText(value)) {
+            case "INICIAL" -> "Inicial";
+            case "BASICO" -> "Básico";
+            case "MEDIO" -> "Medio";
+            default -> value == null ? "" : value.trim();
+        };
+    }
+
+    private String normalizeScheduleDisplayName(String value) {
+        return switch (normalizeText(value)) {
+            case "MANANA" -> "Mañana";
+            case "TARDE" -> "Tarde";
+            case "COMPLETA" -> "Completa";
+            default -> value == null ? "" : value.trim();
+        };
+    }
+
+    private String buildArchivedCourseCode(String currentCode, Long courseId) {
+        String baseCode = (currentCode == null || currentCode.isBlank())
+                ? "CURSO"
+                : currentCode.trim();
+        String suffix = "__INACTIVO__" + courseId;
+
+        if (baseCode.length() + suffix.length() <= 100) {
+            return baseCode + suffix;
+        }
+
+        int maxBaseLength = Math.max(1, 100 - suffix.length());
+        return baseCode.substring(0, Math.min(baseCode.length(), maxBaseLength)) + suffix;
     }
 }

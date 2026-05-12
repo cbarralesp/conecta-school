@@ -6,6 +6,7 @@ import java.util.List;
 public record TeacherRecord(
         Long id,
         String teacherCode,
+        String staffType,
         String firstNames,
         String paternalLastName,
         String maternalLastName,
@@ -27,6 +28,7 @@ public record TeacherRecord(
         List<AcademicSubject> subjects,
         List<TeacherAssignedCourse> assignedCourses,
         List<TeacherScheduleItem> weeklySchedule,
-        TeacherEmergencyContact emergencyContact
+        TeacherEmergencyContact emergencyContact,
+        TeacherSystemAccess systemAccess
 ) {
 }

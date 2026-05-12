@@ -27,26 +27,22 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     @Override
     public List<GradeCourseOption> findCoursesWithGrades() {
         return jdbcTemplate.query("""
-                SELECT ordered."ID", ordered."NOMBRE", ordered."ANIO_ESCOLAR"
-                FROM (
-                  SELECT DISTINCT
+                SELECT
                     c."ID",
-                    c."NOMBRE",
-                    c."ANIO_ESCOLAR",
+                    c."NOMBRE" || CASE WHEN COALESCE(c."LETRA", '') <> '' THEN ' ' || c."LETRA" ELSE '' END AS "NOMBRE",
+                    c."ANIO_ESCOLAR"
+                FROM "CURSOS" c
+                WHERE c."ACTIVO" = TRUE
+                ORDER BY
                     CASE
                       WHEN UPPER(c."NOMBRE") LIKE '%%PK%%' THEN 0
                       WHEN UPPER(c."NOMBRE") LIKE '%%KINDER%%' THEN 1
                       ELSE 2
-                    END AS sort_priority
-                  FROM "CURSOS" c
-                  JOIN "MATRICULAS" m ON m."CURSO_ID" = c."ID" AND m."ACTIVA" = TRUE
-                  JOIN (
-                    %s
-                  ) course_subjects ON course_subjects."CURSO_ID" = c."ID"
-                  WHERE c."ACTIVO" = TRUE
-                ) ordered
-                ORDER BY ordered.sort_priority, ordered."NOMBRE"
-                """.formatted(activeCourseSubjectsSubquery()), (rs, rowNum) -> new GradeCourseOption(
+                    END,
+                    c."ANIO_ESCOLAR" DESC,
+                    c."NOMBRE",
+                    c."LETRA"
+                """, (rs, rowNum) -> new GradeCourseOption(
                 rs.getLong("ID"),
                 rs.getString("NOMBRE"),
                 rs.getInt("ANIO_ESCOLAR")
@@ -56,7 +52,10 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     @Override
     public Optional<GradeCourseOption> findCourseById(Long courseId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "NOMBRE", "ANIO_ESCOLAR"
+                SELECT
+                    "ID",
+                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
+                    "ANIO_ESCOLAR"
                 FROM "CURSOS"
                 WHERE "ID" = ?
                   AND "ACTIVO" = TRUE
@@ -209,6 +208,7 @@ public class GradesJdbcAdapter implements ManageGradesPort {
 
     @Override
     public void createEvaluation(GradeEvaluationCommand command, int order) {
+        syncSequence("EVALUACIONES", "ID");
         jdbcTemplate.update("""
                 INSERT INTO "EVALUACIONES" (
                     "CURSO_ID",
@@ -342,5 +342,15 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 FROM "CARGAS_DOCENTES" cd
                 WHERE cd."ACTIVA" = TRUE
                 """;
+    }
+
+    private void syncSequence(String tableName, String columnName) {
+        jdbcTemplate.execute("""
+                SELECT setval(
+                    pg_get_serial_sequence('"%s"', '%s'),
+                    COALESCE((SELECT MAX("%s") FROM "%s"), 0) + 1,
+                    false
+                )
+                """.formatted(tableName, columnName, columnName, tableName));
     }
 }

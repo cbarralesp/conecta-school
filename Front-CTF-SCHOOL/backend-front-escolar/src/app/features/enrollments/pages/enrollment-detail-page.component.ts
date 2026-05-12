@@ -5,7 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
-import { EnrollmentDetail } from '../../../core/models/enrollment.models';
+import { EnrollmentCourseOption, EnrollmentDetail, EnrollmentDocument } from '../../../core/models/enrollment.models';
+import { normalizeCourseDisplayName } from '../../../core/constants/course-levels';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
@@ -30,6 +31,7 @@ export class EnrollmentDetailPageComponent {
   readonly user = this.authStateService.user;
   readonly enrollmentId = Number(this.route.snapshot.paramMap.get('id'));
   readonly detail = signal<EnrollmentDetail | null>(null);
+  readonly courses = signal<EnrollmentCourseOption[]>([]);
   readonly isLoading = signal(true);
 
   readonly fullName = computed(() => {
@@ -84,6 +86,45 @@ export class EnrollmentDetailPageComponent {
     return student?.status === 'PENDIENTE' ? 'Pendiente' : 'Activo';
   });
 
+  readonly documents = computed(() => this.detail()?.documents ?? []);
+  readonly selectedCourseOption = computed(() => {
+    const detail = this.detail();
+    if (!detail) {
+      return null;
+    }
+
+    return this.courses().find((course) => course.id === detail.courseId) ?? null;
+  });
+  readonly selectedCourseName = computed(() => {
+    const course = this.selectedCourseOption();
+    if (course) {
+      return normalizeCourseDisplayName(course.name, course.letter);
+    }
+
+    return this.detail()?.courseName ?? 'Curso sin asignar';
+  });
+  readonly courseSnapshot = computed(() => {
+    const detail = this.detail();
+    const selectedCourse = this.selectedCourseOption();
+
+    if (!detail) {
+      return null;
+    }
+
+    const rawCourseName = (selectedCourse?.name || detail.courseName || '').trim();
+    const normalizedCourseName = selectedCourse
+      ? normalizeCourseDisplayName(selectedCourse.name, selectedCourse.letter)
+      : rawCourseName || 'Curso sin asignar';
+
+    return {
+      displayName: normalizedCourseName,
+      level: selectedCourse?.level || this.inferCourseLevel(rawCourseName),
+      letter: selectedCourse?.letter || this.inferCourseLetter(rawCourseName),
+      schoolYear: selectedCourse?.schoolYear ? `${selectedCourse.schoolYear}` : this.extractSchoolYear(detail.enrollmentDate),
+      scheduleType: selectedCourse?.scheduleType || 'Sin jornada'
+    };
+  });
+
   constructor() {
     this.loadDetail();
   }
@@ -123,11 +164,40 @@ export class EnrollmentDetailPageComponent {
     window.location.href = `mailto:${student.guardian.email}?subject=Ficha%20del%20estudiante&body=${body}`;
   }
 
+  documentLabel(document: EnrollmentDocument): string {
+    return this.humanizeDocumentKey(document.documentKey) || document.fileName || 'Documento';
+  }
+
+  documentStatus(document: EnrollmentDocument): string {
+    return document.fileName?.trim() ? 'Recibido' : 'Pendiente';
+  }
+
+  documentStatusClass(document: EnrollmentDocument): string {
+    return document.fileName?.trim() ? 'doc-status doc-status--received' : 'doc-status doc-status--pending';
+  }
+
+  documentIcon(document: EnrollmentDocument): string {
+    return document.fileName?.trim() ? 'check_circle' : 'error';
+  }
+
+  documentIconClass(document: EnrollmentDocument): string {
+    return document.fileName?.trim() ? 'doc-icon doc-icon--received' : 'doc-icon doc-icon--pending';
+  }
+
   private loadDetail(): void {
-    this.enrollmentApiService.getById(this.enrollmentId).subscribe({
-      next: (detail) => {
-        this.detail.set(detail);
-        this.isLoading.set(false);
+    this.enrollmentApiService.getOverview().subscribe({
+      next: (overview) => {
+        this.courses.set(overview.courses);
+        this.enrollmentApiService.getById(this.enrollmentId).subscribe({
+          next: (detail) => {
+            this.detail.set(detail);
+            this.isLoading.set(false);
+          },
+          error: (error: HttpErrorResponse) => {
+            this.isLoading.set(false);
+            this.showError(error, 'No fue posible cargar la ficha del estudiante');
+          }
+        });
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
@@ -140,5 +210,41 @@ export class EnrollmentDetailPageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private humanizeDocumentKey(key: string): string {
+    return (key || '')
+      .split('-')
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  }
+
+  private inferCourseLevel(courseName: string): string {
+    const normalized = (courseName || '').toUpperCase();
+    if (normalized.includes('PREK')) {
+      return 'Inicial';
+    }
+    if (normalized.includes('KIND')) {
+      return 'Inicial';
+    }
+    if (normalized.includes('MEDIO')) {
+      return 'Medio';
+    }
+    if (normalized.includes('BASICO') || normalized.includes('BÁSICO')) {
+      return 'Básico';
+    }
+    return 'Sin nivel';
+  }
+
+  private inferCourseLetter(courseName: string): string {
+    const parts = (courseName || '').trim().split(/\s+/);
+    const lastPart = parts.at(-1) ?? '';
+    return /^[A-F]$/i.test(lastPart) ? lastPart.toUpperCase() : '-';
+  }
+
+  private extractSchoolYear(enrollmentDate: string): string {
+    const match = /^(\d{4})-/.exec(enrollmentDate || '');
+    return match?.[1] ?? '-';
   }
 }

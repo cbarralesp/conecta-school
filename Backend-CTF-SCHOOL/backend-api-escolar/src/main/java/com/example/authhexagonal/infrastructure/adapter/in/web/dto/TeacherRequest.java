@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record TeacherRequest(
+        @Size(max = 30) String staffType,
         @NotBlank @Size(max = 120) String firstNames,
         @NotBlank @Size(max = 80) String paternalLastName,
         @Size(max = 80) String maternalLastName,
@@ -31,10 +32,12 @@ public record TeacherRequest(
         @NotNull List<Long> courseIds,
         @NotBlank @Size(max = 160) String emergencyContactName,
         @NotBlank @Size(max = 80) String emergencyContactRelation,
-        @NotBlank @Size(max = 30) String emergencyContactPhone
+        @NotBlank @Size(max = 30) String emergencyContactPhone,
+        TeacherSystemAccessRequest systemAccess
 ) {
     public TeacherCommand toDomain() {
         return new TeacherCommand(
+                staffType == null || staffType.isBlank() ? "DOCENTE" : staffType.trim().toUpperCase(),
                 firstNames,
                 paternalLastName,
                 maternalLastName,
@@ -55,7 +58,10 @@ public record TeacherRequest(
                 courseIds,
                 emergencyContactName,
                 emergencyContactRelation,
-                emergencyContactPhone
+                emergencyContactPhone,
+                systemAccess == null
+                        ? new TeacherSystemAccessRequest(false, false, "", "", false, "", "Sin cuenta").toDomain()
+                        : systemAccess.toDomain()
         );
     }
 }

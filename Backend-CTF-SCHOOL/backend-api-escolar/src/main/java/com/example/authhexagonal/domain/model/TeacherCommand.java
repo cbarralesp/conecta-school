@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record TeacherCommand(
+        String staffType,
         String firstNames,
         String paternalLastName,
         String maternalLastName,
@@ -24,6 +25,7 @@ public record TeacherCommand(
         List<Long> courseIds,
         String emergencyContactName,
         String emergencyContactRelation,
-        String emergencyContactPhone
+        String emergencyContactPhone,
+        TeacherSystemAccess systemAccess
 ) {
 }

@@ -40,6 +40,9 @@ export class TeacherFormPageComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly teacherId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly requestedStaffType = (this.route.snapshot.data['staffType'] as string | undefined)?.toUpperCase() === 'ASISTENTE'
+    ? 'ASISTENTE'
+    : 'DOCENTE';
   readonly user = this.authStateService.user;
   readonly isEditMode = Number.isFinite(this.teacherId) && this.teacherId > 0;
   readonly isLoading = signal(false);
@@ -47,9 +50,13 @@ export class TeacherFormPageComponent {
   readonly courseOptions = signal<Course[]>([]);
   readonly chileRegions = signal<ChileRegion[]>([]);
   readonly assignedCourses = signal<TeacherAssignedCourse[]>([]);
-  readonly pageTitle = computed(() => this.isEditMode ? 'Editar Profesor' : 'Nuevo Profesor');
+  readonly staffType = signal<'DOCENTE' | 'ASISTENTE'>(this.requestedStaffType);
+  readonly staffTypeLabel = computed(() => this.staffType() === 'ASISTENTE' ? 'Asistente' : 'Docente');
+  readonly pageTitle = computed(() => this.isEditMode ? `Editar ${this.staffTypeLabel()}` : `Nuevo ${this.staffTypeLabel()}`);
   readonly pageSubtitle = computed(() =>
-    this.isEditMode ? 'Actualizando informacion del docente' : 'Registrando informacion del docente'
+    this.isEditMode
+      ? `Actualizando informacion del ${this.staffTypeLabel().toLowerCase()}`
+      : `Registrando informacion del ${this.staffTypeLabel().toLowerCase()}`
   );
   readonly statusBadgeLabel = computed(() => this.form.controls.employmentStatus.value || 'Activo');
 
@@ -74,7 +81,16 @@ export class TeacherFormPageComponent {
     courseIds: [[] as number[]],
     emergencyContactName: ['', [Validators.required, Validators.maxLength(160)]],
     emergencyContactRelation: ['', [Validators.required, Validators.maxLength(80)]],
-    emergencyContactPhone: ['', [Validators.required, Validators.maxLength(30)]]
+    emergencyContactPhone: ['', [Validators.required, Validators.maxLength(30)]],
+    systemAccess: this.formBuilder.nonNullable.group({
+      configureAccess: [false],
+      createAccount: [false],
+      username: [''],
+      temporaryPassword: [''],
+      notifyByEmail: [true],
+      contactEmail: [''],
+      status: ['Sin cuenta']
+    })
   });
 
   constructor() {
@@ -87,6 +103,10 @@ export class TeacherFormPageComponent {
 
   teacherCommunes(): ChileCommune[] {
     return this.findCommunesByRegionId(this.form.controls.regionId.value);
+  }
+
+  get systemAccessGroup() {
+    return this.form.controls.systemAccess;
   }
 
   isControlInvalid(path: string): boolean {
@@ -136,7 +156,9 @@ export class TeacherFormPageComponent {
       next: (teacher) => {
         this.isLoading.set(false);
         this.snackBar.open(
-          this.isEditMode ? 'Profesor actualizado correctamente' : 'Profesor creado correctamente',
+          this.isEditMode
+            ? `${this.staffTypeLabel()} actualizado correctamente`
+            : `${this.staffTypeLabel()} creado correctamente`,
           'Cerrar',
           { duration: 2800 }
         );
@@ -144,7 +166,7 @@ export class TeacherFormPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible guardar el profesor');
+        this.showError(error, 'No fue posible guardar el docente');
       }
     });
   }
@@ -198,9 +220,71 @@ export class TeacherFormPageComponent {
       .map((course) => course.name);
   }
 
+  shouldShowSystemAccessConfig(): boolean {
+    return this.systemAccessGroup.controls.configureAccess.value;
+  }
+
+  shouldShowStaffAccountBlock(): boolean {
+    return this.shouldShowSystemAccessConfig() && this.systemAccessGroup.controls.createAccount.value;
+  }
+
+  accessUsernamePreview(): string {
+    const existingUsername = this.systemAccessGroup.controls.username.value.trim();
+    if (existingUsername) {
+      return existingUsername;
+    }
+
+    const firstName = this.normalizeAccessPart(this.form.controls.firstNames.value).split(/\s+/).filter(Boolean)[0] ?? '';
+    const paternalLastName = this.normalizeAccessPart(this.form.controls.paternalLastName.value);
+    const maternalLastName = this.normalizeAccessPart(this.form.controls.maternalLastName.value);
+
+    let candidate = `${firstName.charAt(0)}${paternalLastName}`.toLowerCase();
+    if (!candidate) {
+      candidate = this.staffType() === 'ASISTENTE' ? 'asistente' : 'docente';
+    }
+    if (candidate.length < 4 && paternalLastName) {
+      candidate = `${candidate}${paternalLastName}`.slice(0, 12);
+    }
+    if (maternalLastName) {
+      return `${candidate}${maternalLastName.charAt(0)}`.slice(0, 16);
+    }
+    return candidate.slice(0, 16);
+  }
+
+  accessPasswordPreview(): string {
+    const existingPassword = this.systemAccessGroup.controls.temporaryPassword.value.trim();
+    if (existingPassword) {
+      return existingPassword;
+    }
+    return this.buildDefaultAccessPassword();
+  }
+
+  copyAccessValue(value: string, label: string): void {
+    if (!value.trim()) {
+      this.snackBar.open(`No hay ${label.toLowerCase()} para copiar`, 'Cerrar', { duration: 2200 });
+      return;
+    }
+
+    if (!navigator?.clipboard?.writeText) {
+      this.snackBar.open('No fue posible copiar al portapapeles en este navegador', 'Cerrar', { duration: 2200 });
+      return;
+    }
+
+    navigator.clipboard.writeText(value).then(() => {
+      this.snackBar.open(`${label} copiado`, 'Cerrar', { duration: 1800 });
+    }).catch(() => {
+      this.snackBar.open(`No fue posible copiar ${label.toLowerCase()}`, 'Cerrar', { duration: 2200 });
+    });
+  }
+
   formatRunValue(): void {
     const control = this.form.controls.run;
     control.setValue(this.formatRun(`${control.value ?? ''}`));
+  }
+
+  formatPhoneValue(controlName: 'phone' | 'emergencyContactPhone'): void {
+    const control = this.form.controls[controlName];
+    control.setValue(this.formatPhone(`${control.value ?? ''}`), { emitEvent: false });
   }
 
   private loadCatalog(): void {
@@ -225,12 +309,13 @@ export class TeacherFormPageComponent {
     this.teacherApiService.getById(this.teacherId).subscribe({
       next: (teacher) => {
         this.patchTeacher(teacher);
+        this.staffType.set(teacher.staffType === 'ASISTENTE' ? 'ASISTENTE' : 'DOCENTE');
         this.assignedCourses.set(teacher.assignedCourses);
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el profesor');
+        this.showError(error, 'No fue posible cargar el docente');
       }
     });
   }
@@ -257,13 +342,23 @@ export class TeacherFormPageComponent {
       courseIds: Array.from(new Set(teacher.assignedCourses.map((course) => course.id))),
       emergencyContactName: teacher.emergencyContact.fullName,
       emergencyContactRelation: teacher.emergencyContact.relation,
-      emergencyContactPhone: teacher.emergencyContact.phone
+      emergencyContactPhone: teacher.emergencyContact.phone,
+      systemAccess: {
+        configureAccess: teacher.systemAccess.configureAccess,
+        createAccount: teacher.systemAccess.createAccount,
+        username: teacher.systemAccess.username,
+        temporaryPassword: '',
+        notifyByEmail: teacher.systemAccess.notifyByEmail,
+        contactEmail: teacher.systemAccess.contactEmail,
+        status: teacher.systemAccess.status || 'Sin cuenta'
+      }
     });
   }
 
   private toPayload(): TeacherPayload {
     const rawValue = this.form.getRawValue();
     return {
+      staffType: this.staffType(),
       firstNames: rawValue.firstNames.trim(),
       paternalLastName: rawValue.paternalLastName.trim(),
       maternalLastName: rawValue.maternalLastName.trim(),
@@ -284,7 +379,8 @@ export class TeacherFormPageComponent {
       courseIds: rawValue.courseIds.map(Number),
       emergencyContactName: rawValue.emergencyContactName.trim(),
       emergencyContactRelation: rawValue.emergencyContactRelation.trim(),
-      emergencyContactPhone: rawValue.emergencyContactPhone.trim()
+      emergencyContactPhone: rawValue.emergencyContactPhone.trim(),
+      systemAccess: this.toSystemAccessPayload()
     };
   }
 
@@ -307,6 +403,72 @@ export class TeacherFormPageComponent {
     }
 
     return `${parts.reverse().join('')}-${verifier}`;
+  }
+
+  private formatPhone(value: string): string {
+    const clean = `${value ?? ''}`.replace(/[^\d+]/g, '');
+    if (!clean) {
+      return '';
+    }
+
+    const normalized = clean.startsWith('+') ? `+${clean.slice(1).replace(/\+/g, '')}` : clean.replace(/\+/g, '');
+    const digits = normalized.startsWith('+') ? normalized.slice(1) : normalized;
+
+    if (digits.startsWith('569')) {
+      const local = digits.slice(2, 11);
+      const blocks = [local.slice(0, 1), local.slice(1, 5), local.slice(5, 9)].filter(Boolean);
+      return `+56 ${blocks.join(' ')}`.trim();
+    }
+
+    if (digits.startsWith('56')) {
+      const local = digits.slice(2, 11);
+      const blocks = [local.slice(0, 1), local.slice(1, 5), local.slice(5, 9)].filter(Boolean);
+      return `+56 ${blocks.join(' ')}`.trim();
+    }
+
+    if (normalized.startsWith('+')) {
+      return normalized;
+    }
+
+    return digits;
+  }
+
+  private toSystemAccessPayload() {
+    const value = this.systemAccessGroup.getRawValue();
+    const configureAccess = value.configureAccess;
+    const createAccount = configureAccess && value.createAccount;
+    const username = createAccount ? this.accessUsernamePreview() : '';
+    const temporaryPassword = createAccount ? this.accessPasswordPreview() : '';
+    const contactEmail = createAccount
+      ? (this.form.controls.institutionalEmail.value || '').trim().toLowerCase()
+      : '';
+
+    return {
+      configureAccess,
+      createAccount,
+      username,
+      temporaryPassword,
+      notifyByEmail: createAccount ? value.notifyByEmail : false,
+      contactEmail,
+      status: createAccount ? 'Pendiente' : 'Sin cuenta'
+    };
+  }
+
+  private buildDefaultAccessPassword(): string {
+    const normalizedRun = `${this.form.controls.run.value ?? ''}`.replace(/[^0-9kK]/g, '').toUpperCase();
+    const suffix = normalizedRun.slice(-4) || '2024';
+    const firstName = this.normalizeAccessPart(this.form.controls.firstNames.value).split(/\s+/).filter(Boolean)[0] ?? '';
+    const initial = firstName.charAt(0).toUpperCase() || (this.staffType() === 'ASISTENTE' ? 'A' : 'D');
+    return `Tfs${initial}${suffix}!`;
+  }
+
+  private normalizeAccessPart(value: string): string {
+    return `${value ?? ''}`
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .trim()
+      .toLowerCase();
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {

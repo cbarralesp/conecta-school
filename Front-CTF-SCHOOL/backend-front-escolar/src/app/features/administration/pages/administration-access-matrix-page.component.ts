@@ -162,10 +162,6 @@ export class AdministrationAccessMatrixPageComponent {
   }
 
   cycleMatrixPermission(moduleCode: string, roleCode: AdministrationRoleCode): void {
-    if (roleCode === 'SUPERADMIN') {
-      return;
-    }
-
     this.editableRows.update((rows) =>
       rows.map((row) => {
         if (row.moduleCode !== moduleCode) {

@@ -8,12 +8,13 @@ import java.time.LocalTime;
 
 public interface ManageActivityCalendarUseCase {
 
-    ActivityCalendar getMonthlyCalendar(int year, int month);
+    ActivityCalendar getMonthlyCalendar(int year, int month, Long courseId);
 
     SchoolActivity findById(Long activityId);
 
     SchoolActivity createActivity(
             Long activityTypeId,
+            Long courseId,
             String title,
             String description,
             LocalDate date,
@@ -25,6 +26,7 @@ public interface ManageActivityCalendarUseCase {
     SchoolActivity updateActivity(
             Long activityId,
             Long activityTypeId,
+            Long courseId,
             String title,
             String description,
             LocalDate date,

@@ -30,23 +30,21 @@ public class AttendanceJdbcAdapter implements ManageAttendancePort {
     @Override
     public List<AttendanceCourseOption> findAttendanceCourses() {
         return jdbcTemplate.query("""
-                SELECT ordered."ID", ordered."NOMBRE", ordered."ANIO_ESCOLAR"
-                FROM (
-                    SELECT DISTINCT
-                        c."ID",
-                        c."NOMBRE",
-                        c."ANIO_ESCOLAR",
-                        CASE
-                            WHEN UPPER(c."NOMBRE") LIKE '%PK%' THEN 0
-                            WHEN UPPER(c."NOMBRE") LIKE '%KINDER%' THEN 1
-                            ELSE 2
-                        END AS sort_priority
-                    FROM "CURSOS" c
-                    JOIN "MATRICULAS" m ON m."CURSO_ID" = c."ID"
-                    WHERE c."ACTIVO" = TRUE
-                      AND m."ACTIVA" = TRUE
-                ) ordered
-                ORDER BY ordered.sort_priority, ordered."NOMBRE"
+                SELECT
+                    c."ID",
+                    c."NOMBRE" || CASE WHEN COALESCE(c."LETRA", '') <> '' THEN ' ' || c."LETRA" ELSE '' END AS "NOMBRE",
+                    c."ANIO_ESCOLAR"
+                FROM "CURSOS" c
+                WHERE c."ACTIVO" = TRUE
+                ORDER BY
+                    CASE
+                        WHEN UPPER(c."NOMBRE") LIKE '%PK%' THEN 0
+                        WHEN UPPER(c."NOMBRE") LIKE '%KINDER%' THEN 1
+                        ELSE 2
+                    END,
+                    c."ANIO_ESCOLAR" DESC,
+                    c."NOMBRE",
+                    c."LETRA"
                 """, (rs, rowNum) -> new AttendanceCourseOption(
                 rs.getLong("ID"),
                 rs.getString("NOMBRE"),
@@ -57,7 +55,10 @@ public class AttendanceJdbcAdapter implements ManageAttendancePort {
     @Override
     public Optional<AttendanceCourseOption> findAttendanceCourseById(Long courseId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "NOMBRE", "ANIO_ESCOLAR"
+                SELECT
+                    "ID",
+                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
+                    "ANIO_ESCOLAR"
                 FROM "CURSOS"
                 WHERE "ID" = ?
                   AND "ACTIVO" = TRUE

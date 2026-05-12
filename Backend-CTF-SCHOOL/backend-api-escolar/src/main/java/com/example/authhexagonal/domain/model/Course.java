@@ -9,7 +9,9 @@ public record Course(
         int schoolYear,
         String scheduleType,
         Long teacherId,
+        String teacherName,
         Long assistantId,
+        String assistantName,
         boolean active,
         int studentCount
 ) {

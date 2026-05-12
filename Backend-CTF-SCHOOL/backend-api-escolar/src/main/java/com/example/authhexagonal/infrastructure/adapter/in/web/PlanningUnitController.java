@@ -2,6 +2,7 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.model.PlanningUnitCommand;
 import com.example.authhexagonal.domain.port.in.CreatePlanningUnitUseCase;
+import com.example.authhexagonal.domain.port.in.DeletePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitsUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningUnitDraftUseCase;
@@ -35,19 +36,22 @@ public class PlanningUnitController {
     private final SavePlanningUnitDraftUseCase savePlanningUnitDraftUseCase;
     private final GetPlanningUnitsUseCase getPlanningUnitsUseCase;
     private final UpdatePlanningUnitUseCase updatePlanningUnitUseCase;
+    private final DeletePlanningUnitUseCase deletePlanningUnitUseCase;
 
     public PlanningUnitController(
             GetPlanningUnitCatalogsUseCase getPlanningUnitCatalogsUseCase,
             CreatePlanningUnitUseCase createPlanningUnitUseCase,
             SavePlanningUnitDraftUseCase savePlanningUnitDraftUseCase,
             GetPlanningUnitsUseCase getPlanningUnitsUseCase,
-            UpdatePlanningUnitUseCase updatePlanningUnitUseCase
+            UpdatePlanningUnitUseCase updatePlanningUnitUseCase,
+            DeletePlanningUnitUseCase deletePlanningUnitUseCase
     ) {
         this.getPlanningUnitCatalogsUseCase = getPlanningUnitCatalogsUseCase;
         this.createPlanningUnitUseCase = createPlanningUnitUseCase;
         this.savePlanningUnitDraftUseCase = savePlanningUnitDraftUseCase;
         this.getPlanningUnitsUseCase = getPlanningUnitsUseCase;
         this.updatePlanningUnitUseCase = updatePlanningUnitUseCase;
+        this.deletePlanningUnitUseCase = deletePlanningUnitUseCase;
     }
 
     @GetMapping("/catalogs")
@@ -95,6 +99,15 @@ public class PlanningUnitController {
         return PlanningUnitResponse.fromDomain(
                 updatePlanningUnitUseCase.updateUnit(authentication.getName(), unitId, request.unitNumber(), request.name())
         );
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{unitId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUnit(
+            Authentication authentication,
+            @PathVariable("unitId") Long unitId
+    ) {
+        deletePlanningUnitUseCase.deleteUnit(authentication.getName(), unitId);
     }
 
     private PlanningUnitCommand toCommand(PlanningUnitCreateRequest request) {

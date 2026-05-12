@@ -122,7 +122,9 @@ export class CourseStudentsPageComponent {
     }).subscribe({
       next: ({ course, overview }) => {
         this.course.set(course);
-        this.enrollments.set(overview.enrollments);
+        this.enrollments.set(
+          overview.enrollments.filter((enrollment) => enrollment.courseId === this.courseId)
+        );
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {

@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +37,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
 
     @Override
     public List<ScheduleEntry> findSchedulesByCourseIdAndPeriodId(Long courseId, Long periodId) {
-        return jdbcTemplate.query("""
+        StringBuilder sql = new StringBuilder("""
                 SELECT
                     hc."ID" AS schedule_id,
                     hc."CARGA_DOCENTE_ID" AS load_id,
@@ -67,11 +68,21 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID"
                 JOIN "BLOQUES_HORARIOS" bh ON bh."ID" = hc."BLOQUE_HORARIO_ID"
                 WHERE c."ID" = ?
-                  AND (? IS NULL OR cd."PERIODO_ID" = ?)
                   AND c."ACTIVO" = TRUE
                   AND cd."ACTIVA" = TRUE
                   AND a."ACTIVA" = TRUE
                   AND bh."ACTIVO" = TRUE
+                """);
+
+        List<Object> args = new ArrayList<>();
+        args.add(courseId);
+        if (periodId != null) {
+            sql.append(" AND cd.\"PERIODO_ID\" = ?");
+            args.add(periodId);
+        }
+
+        sql.append("""
+                
                 ORDER BY bh."ORDEN",
                     CASE bh."DIA_SEMANA"
                         WHEN 'LUNES' THEN 1
@@ -81,7 +92,9 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                         WHEN 'VIERNES' THEN 5
                         ELSE 6
                     END
-                """, (rs, rowNum) -> mapScheduleEntry(rs), courseId, periodId, periodId);
+                """);
+
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapScheduleEntry(rs), args.toArray());
     }
 
     @Override
@@ -123,17 +136,15 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     @Override
     public List<ScheduleCourseOption> findActiveScheduleCourses() {
         return jdbcTemplate.query("""
-                SELECT "ID", "CODIGO", "NOMBRE", "ANIO_ESCOLAR", "JORNADA"
+                SELECT
+                    "ID",
+                    "CODIGO",
+                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
+                    "ANIO_ESCOLAR",
+                    "JORNADA"
                 FROM "CURSOS"
                 WHERE "ACTIVO" = TRUE
-                  AND EXISTS (
-                      SELECT 1
-                      FROM "CARGAS_DOCENTES" cd
-                      JOIN "HORARIOS_CARGAS" hc ON hc."CARGA_DOCENTE_ID" = cd."ID"
-                      WHERE cd."CURSO_ID" = "CURSOS"."ID"
-                        AND cd."ACTIVA" = TRUE
-                  )
-                ORDER BY "ANIO_ESCOLAR" DESC, "NOMBRE"
+                ORDER BY "ANIO_ESCOLAR" DESC, "NOMBRE", "LETRA"
                 """, (rs, rowNum) -> new ScheduleCourseOption(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
@@ -176,7 +187,12 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     @Override
     public Optional<ScheduleCourseOption> findActiveScheduleCourseById(Long courseId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "CODIGO", "NOMBRE", "ANIO_ESCOLAR", "JORNADA"
+                SELECT
+                    "ID",
+                    "CODIGO",
+                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
+                    "ANIO_ESCOLAR",
+                    "JORNADA"
                 FROM "CURSOS"
                 WHERE "ID" = ?
                   AND "ACTIVO" = TRUE
@@ -293,18 +309,24 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     SELECT COUNT(1)
                     FROM "HORARIOS_CARGAS" hc
                     JOIN "CARGAS_DOCENTES" cd ON cd."ID" = hc."CARGA_DOCENTE_ID"
+                    JOIN "BLOQUES_HORARIOS" bh ON bh."ID" = hc."BLOQUE_HORARIO_ID"
                     WHERE cd."CURSO_ID" = ?
                       AND cd."PERIODO_ID" = ?
                       AND hc."BLOQUE_HORARIO_ID" = ?
+                      AND cd."ACTIVA" = TRUE
+                      AND bh."ACTIVO" = TRUE
                     """, Integer.class, courseId, periodId, blockId);
         } else {
             count = jdbcTemplate.queryForObject("""
                     SELECT COUNT(1)
                     FROM "HORARIOS_CARGAS" hc
                     JOIN "CARGAS_DOCENTES" cd ON cd."ID" = hc."CARGA_DOCENTE_ID"
+                    JOIN "BLOQUES_HORARIOS" bh ON bh."ID" = hc."BLOQUE_HORARIO_ID"
                     WHERE cd."CURSO_ID" = ?
                       AND cd."PERIODO_ID" = ?
                       AND hc."BLOQUE_HORARIO_ID" = ?
+                      AND cd."ACTIVA" = TRUE
+                      AND bh."ACTIVO" = TRUE
                       AND hc."ID" <> ?
                     """, Integer.class, courseId, periodId, blockId, excludeScheduleId);
         }
@@ -361,6 +383,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             return loadId;
         }
 
+        syncSequence("CARGAS_DOCENTES", "ID");
         return jdbcTemplate.queryForObject("""
                 INSERT INTO "CARGAS_DOCENTES" (
                     "PROFESOR_ID",
@@ -635,6 +658,16 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 SET "ACTIVA" = FALSE
                 WHERE "ID" = ?
                 """, subjectId);
+    }
+
+    private void syncSequence(String tableName, String columnName) {
+        jdbcTemplate.execute("""
+                SELECT setval(
+                    pg_get_serial_sequence('"%s"', '%s'),
+                    COALESCE((SELECT MAX("%s") FROM "%s"), 0) + 1,
+                    false
+                )
+                """.formatted(tableName, columnName, columnName, tableName));
     }
 
     private ScheduleEntry mapScheduleEntry(ResultSet rs) throws SQLException {

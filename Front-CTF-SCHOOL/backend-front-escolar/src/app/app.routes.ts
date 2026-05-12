@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { moduleAccessGuard } from './core/guards/module-access.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 const teacherOrAdmin = ['TEACHER', 'ADMIN'] as const;
@@ -16,8 +17,8 @@ export const routes: Routes = [
   },
   {
     path: 'profesor',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'DASHBOARD' },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(
         (m) => m.DashboardPageComponent
@@ -106,8 +107,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'DASHBOARD' },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(
         (m) => m.DashboardPageComponent
@@ -115,8 +116,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/moderno',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin, layoutVariant: 'modern-teacher' },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, layoutVariant: 'modern-teacher', moduleCode: 'DASHBOARD' },
     loadComponent: () =>
       import('./features/dashboard/pages/dashboard-page.component').then(
         (m) => m.DashboardPageComponent
@@ -124,8 +125,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planning/:id',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
     loadComponent: () =>
       import('./features/dashboard/pages/planning-detail-page.component').then(
         (m) => m.PlanningDetailPageComponent
@@ -133,8 +134,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planificacion',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
     loadComponent: () =>
       import('./features/planning/pages/planning-overview-page.component').then(
         (m) => m.PlanningOverviewPageComponent
@@ -142,8 +143,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planificacion/nueva-unidad',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
     loadComponent: () =>
       import('./features/planning/pages/planning-unit-create.component').then(
         (m) => m.PlanningUnitCreateComponent
@@ -151,8 +152,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planificacion/nueva-clase',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
     loadComponent: () =>
       import('./features/planning/pages/planning-class-create.component').then(
         (m) => m.PlanningClassCreateComponent
@@ -160,8 +161,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planificacion/clases/:id/editar',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
     loadComponent: () =>
       import('./features/planning/pages/planning-class-create.component').then(
         (m) => m.PlanningClassCreateComponent
@@ -169,8 +170,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planificacion/documentos',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
     loadComponent: () =>
       import('./features/planning/pages/planning-documents.component').then(
         (m) => m.PlanningDocumentsComponent
@@ -178,15 +179,15 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/cursos',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CURSOS' },
     loadComponent: () =>
       import('./features/courses/pages/courses-page.component').then((m) => m.CoursesPageComponent)
   },
   {
     path: 'dashboard/matriculas',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'MATRICULAS' },
     loadComponent: () =>
       import('./features/enrollments/pages/enrollments-page.component').then(
         (m) => m.EnrollmentsPageComponent
@@ -194,8 +195,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/profesores',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PROFESORES' },
     loadComponent: () =>
       import('./features/teachers/pages/teachers-page.component').then(
         (m) => m.TeachersPageComponent
@@ -203,8 +204,17 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/profesores/nuevo',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, staffType: 'DOCENTE', moduleCode: 'PROFESORES' },
+    loadComponent: () =>
+      import('./features/teachers/pages/teacher-form-page.component').then(
+        (m) => m.TeacherFormPageComponent
+      )
+  },
+  {
+    path: 'dashboard/profesores/nuevo-asistente',
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, staffType: 'ASISTENTE', moduleCode: 'PROFESORES' },
     loadComponent: () =>
       import('./features/teachers/pages/teacher-form-page.component').then(
         (m) => m.TeacherFormPageComponent
@@ -212,8 +222,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/profesores/:id',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PROFESORES' },
     loadComponent: () =>
       import('./features/teachers/pages/teacher-detail-page.component').then(
         (m) => m.TeacherDetailPageComponent
@@ -221,8 +231,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/profesores/:id/editar',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PROFESORES' },
     loadComponent: () =>
       import('./features/teachers/pages/teacher-form-page.component').then(
         (m) => m.TeacherFormPageComponent
@@ -230,8 +240,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/matriculas/nueva',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'MATRICULAS' },
     loadComponent: () =>
       import('./features/enrollments/pages/enrollment-form-page.component').then(
         (m) => m.EnrollmentFormPageComponent
@@ -239,8 +249,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/matriculas/:id',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'MATRICULAS' },
     loadComponent: () =>
       import('./features/enrollments/pages/enrollment-detail-page.component').then(
         (m) => m.EnrollmentDetailPageComponent
@@ -248,8 +258,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/matriculas/:id/editar',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'MATRICULAS' },
     loadComponent: () =>
       import('./features/enrollments/pages/enrollment-form-page.component').then(
         (m) => m.EnrollmentFormPageComponent
@@ -257,8 +267,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/cursos/nuevo',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CURSOS' },
     loadComponent: () =>
       import('./features/courses/pages/create-course-page.component').then(
         (m) => m.CreateCoursePageComponent
@@ -266,8 +276,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/cursos/:id/editar',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CURSOS' },
     loadComponent: () =>
       import('./features/courses/pages/edit-course-page.component').then(
         (m) => m.EditCoursePageComponent
@@ -275,8 +285,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/cursos/:id/alumnos',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CURSOS' },
     loadComponent: () =>
       import('./features/courses/pages/course-students-page.component').then(
         (m) => m.CourseStudentsPageComponent
@@ -284,22 +294,22 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/horario',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'HORARIO' },
     loadComponent: () =>
       import('./features/schedule/pages/schedule-page.component').then((m) => m.SchedulePageComponent)
   },
   {
     path: 'dashboard/asignaturas',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'ASIGNATURAS' },
     loadComponent: () =>
       import('./features/subjects/pages/subjects-page.component').then((m) => m.SubjectsPageComponent)
   },
   {
     path: 'dashboard/actividades',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin, readOnly: false },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, readOnly: false, moduleCode: 'ACTIVIDADES' },
     loadComponent: () =>
       import('./features/activities/pages/activities-calendar-page.component').then(
         (m) => m.ActivitiesCalendarPageComponent
@@ -307,15 +317,15 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/contenido',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CONTENIDO' },
     loadComponent: () =>
       import('./features/content/pages/content-page.component').then((m) => m.ContentPageComponent)
   },
   {
     path: 'dashboard/asistencia',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'ASISTENCIA' },
     loadComponent: () =>
       import('./features/attendance/pages/attendance-page.component').then(
         (m) => m.AttendancePageComponent
@@ -323,15 +333,15 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/calificaciones',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: teacherOrAdmin },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CALIFICACIONES' },
     loadComponent: () =>
       import('./features/grades/pages/grades-page.component').then((m) => m.GradesPageComponent)
   },
   {
     path: 'dashboard/administracion',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'USUARIOS' },
     loadComponent: () =>
       import('./features/administration/pages/administration-shell-redirect.component').then(
         (m) => m.AdministrationShellRedirectComponent
@@ -339,8 +349,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/administracion/usuarios',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'USUARIOS' },
     loadComponent: () =>
       import('./features/administration/pages/administration-users-page.component').then(
         (m) => m.AdministrationUsersPageComponent
@@ -348,8 +358,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/administracion/roles',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'ROLES' },
     loadComponent: () =>
       import('./features/administration/pages/administration-roles-page.component').then(
         (m) => m.AdministrationRolesPageComponent
@@ -357,8 +367,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/administracion/matriz-acceso',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'MATRIZ_ACCESO' },
     loadComponent: () =>
       import('./features/administration/pages/administration-access-matrix-page.component').then(
         (m) => m.AdministrationAccessMatrixPageComponent
@@ -366,8 +376,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/administracion/nuevo-usuario',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'USUARIOS' },
     loadComponent: () =>
       import('./features/administration/pages/administration-user-create-page.component').then(
         (m) => m.AdministrationUserCreatePageComponent
@@ -375,8 +385,8 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/administracion/auditoria',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: adminOnly },
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'AUDITORIA' },
     loadComponent: () =>
       import('./features/administration/pages/administration-audit-page.component').then(
         (m) => m.AdministrationAuditPageComponent

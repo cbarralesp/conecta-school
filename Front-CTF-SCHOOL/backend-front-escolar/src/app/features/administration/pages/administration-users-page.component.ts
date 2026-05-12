@@ -50,15 +50,26 @@ export class AdministrationUsersPageComponent {
   readonly displayedColumns = ['user', 'email', 'role', 'status', 'actions'];
   readonly overview = signal<AdministrationUsersOverview | null>(null);
   readonly isLoading = signal(true);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly pageSizeOptions = [10, 20, 50];
   readonly filtersForm = this.fb.nonNullable.group({
     search: [''],
     roleCode: ['' as '' | AdministrationRoleCode],
-    status: ['' as '' | AdministrationUserStatus]
+    status: ['Activo' as '' | AdministrationUserStatus]
   });
 
   readonly summary = computed(() => this.overview()?.summary ?? []);
   readonly roleOptions = computed(() => this.overview()?.roles ?? []);
   readonly users = computed(() => this.overview()?.users ?? []);
+  readonly totalUsers = computed(() => this.users().length);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalUsers() / this.pageSize())));
+  readonly pagedUsers = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.users().slice(start, start + this.pageSize());
+  });
+  readonly pageStart = computed(() => (this.totalUsers() === 0 ? 0 : this.pageIndex() * this.pageSize() + 1));
+  readonly pageEnd = computed(() => Math.min(this.totalUsers(), this.pageStart() + this.pagedUsers().length - 1));
   readonly summaryCards = computed(() =>
     this.summary().slice(0, 4).map((item, index) => ({
       ...item,
@@ -69,7 +80,10 @@ export class AdministrationUsersPageComponent {
 
   constructor() {
     this.loadOverview();
-    this.filtersForm.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe(() => this.loadOverview());
+    this.filtersForm.valueChanges.pipe(debounceTime(250), distinctUntilChanged()).subscribe(() => {
+      this.pageIndex.set(0);
+      this.loadOverview();
+    });
   }
 
   goToCreate(): void {
@@ -151,6 +165,42 @@ export class AdministrationUsersPageComponent {
     return fullName.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
   }
 
+  goToPreviousPage(): void {
+    if (this.pageIndex() > 0) {
+      this.pageIndex.update((value) => value - 1);
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.pageIndex() < this.totalPages() - 1) {
+      this.pageIndex.update((value) => value + 1);
+    }
+  }
+
+  setPage(index: number): void {
+    if (index >= 0 && index < this.totalPages()) {
+      this.pageIndex.set(index);
+    }
+  }
+
+  updatePageSize(rawValue: string): void {
+    const nextSize = Number(rawValue);
+    if (Number.isFinite(nextSize) && nextSize > 0) {
+      this.pageSize.set(nextSize);
+      this.pageIndex.set(0);
+    }
+  }
+
+  visiblePages(): number[] {
+    const total = this.totalPages();
+    const current = this.pageIndex();
+    const start = Math.max(0, current - 1);
+    const end = Math.min(total - 1, start + 2);
+    const normalizedStart = Math.max(0, end - 2);
+
+    return Array.from({ length: end - normalizedStart + 1 }, (_, index) => normalizedStart + index);
+  }
+
   private loadOverview(): void {
     this.isLoading.set(true);
     this.administrationApi.getUsersOverview({
@@ -160,6 +210,10 @@ export class AdministrationUsersPageComponent {
     }).subscribe({
       next: (overview) => {
         this.overview.set(overview);
+        const lastPageIndex = Math.max(0, Math.ceil((overview.users?.length ?? 0) / this.pageSize()) - 1);
+        if (this.pageIndex() > lastPageIndex) {
+          this.pageIndex.set(lastPageIndex);
+        }
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -177,7 +231,7 @@ export class AdministrationUsersPageComponent {
       }
 
       this.dialog.open(AdministrationUserDetailDialogComponent, {
-        width: '720px',
+        width: '860px',
         maxWidth: 'calc(100vw - 32px)',
         autoFocus: false,
         data: user as AdministrationUserDetail

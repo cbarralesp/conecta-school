@@ -11,7 +11,7 @@
         <form [formGroup]="filtersForm" class="users-toolbar">
           <label class="search-shell" aria-label="Buscar usuario">
             <mat-icon>search</mat-icon>
-            <input type="text" formControlName="search" placeholder="Buscar usuario..." />
+            <input type="text" formControlName="search" placeholder="Buscar por nombre, RUN o email..." />
           </label>
 
           <label class="filter-shell" aria-label="Filtrar por rol">
@@ -67,7 +67,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (user of users(); track user.id) {
+              @for (user of pagedUsers(); track user.id) {
                 <tr>
                   <td>
                     <div class="identity-cell">
@@ -86,16 +86,56 @@
                   </td>
                   <td class="access-cell">{{ user.lastAccessLabel }}</td>
                   <td class="actions-cell">
-                    <app-administration-action-buttons
-                      [actions]="rowActions(user)"
-                      (actionSelected)="handleAction(user, $event)"
-                    />
+                    <div class="actions-shell">
+                      <app-administration-action-buttons
+                        [actions]="rowActions(user)"
+                        (actionSelected)="handleAction(user, $event)"
+                      />
+                    </div>
                   </td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
+
+        <footer class="table-paginator">
+          <div class="table-paginator__summary">
+            Mostrando {{ pageStart() }}-{{ pageEnd() }} de {{ totalUsers() }} usuarios
+          </div>
+
+          <div class="table-paginator__controls">
+            <label class="table-paginator__size">
+              <span>Filas</span>
+              <select [value]="pageSize()" (change)="updatePageSize($any($event.target).value)">
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+            </label>
+
+            <button type="button" class="pager-btn" (click)="goToPreviousPage()" [disabled]="pageIndex() === 0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            <div class="pager-pages">
+              @for (page of visiblePages(); track page) {
+                <button
+                  type="button"
+                  class="pager-page"
+                  [class.is-active]="page === pageIndex()"
+                  (click)="setPage(page)"
+                >
+                  {{ page + 1 }}
+                </button>
+              }
+            </div>
+
+            <button type="button" class="pager-btn" (click)="goToNextPage()" [disabled]="pageIndex() >= totalPages() - 1">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </footer>
       }
     </mat-card>
   </section>

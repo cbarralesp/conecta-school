@@ -16,6 +16,7 @@ interface ActivityDialogData {
   activityTypes: ActivityType[];
   selectedDate?: string;
   activity?: SchoolActivity;
+  courseId?: number | null;
 }
 
 type ActivityDialogResult =
@@ -290,11 +291,12 @@ export class ActivityDialogComponent {
       return;
     }
 
-    const rawValue = this.form.getRawValue();
+        const rawValue = this.form.getRawValue();
     this.dialogRef.close({
       action: 'save',
       payload: {
         activityTypeId: rawValue.activityTypeId,
+        courseId: this.data.courseId ?? this.data.activity?.courseId ?? null,
         title: rawValue.title,
         description: rawValue.description.trim() || '',
         date: rawValue.date,

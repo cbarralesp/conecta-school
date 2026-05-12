@@ -43,6 +43,65 @@
   flex-wrap: wrap;
 }
 
+.inline-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.inline-field--header {
+  align-items: center;
+}
+
+.inline-field__label {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.inline-field__control {
+  width: 188px;
+}
+
+.inline-field__control--course {
+  width: 210px;
+}
+
+.inline-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 0.7rem;
+  border-radius: 10px;
+  border: 1.5px solid #dbe5f0;
+  background: #f8fbff;
+  width: 100%;
+}
+
+.inline-select .mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  color: #9aa9bf;
+}
+
+.inline-select select {
+  width: 100%;
+  height: 32px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #485d77;
+  font-family: inherit;
+  appearance: none;
+  cursor: pointer;
+}
+
 .page-header__button {
   min-height: 2.7rem;
   border-radius: 0.95rem;
@@ -150,12 +209,25 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
 .cal-nav__label {
   font-size: 1.05rem;
   font-weight: 800;
   color: #12233d;
+}
+
+.cal-nav__course {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  background: #eef5ff;
+  color: #315b93;
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
 .cal-nav__today {
@@ -1064,6 +1136,12 @@
   }
 
   .page-header__actions {
+    width: 100%;
+  }
+
+  .inline-field,
+  .inline-field__control,
+  .inline-field__control--course {
     width: 100%;
   }
 

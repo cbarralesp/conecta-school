@@ -32,6 +32,10 @@ public interface PlanningUnitRepositoryPort {
             String name
     );
 
+    boolean hasClasses(Long unitId);
+
+    void deleteUnit(Long unitId);
+
     List<PlanningUnitSummary> findUnitsByUsername(String username);
 
     Optional<PlanningUnit> findById(Long unitId);

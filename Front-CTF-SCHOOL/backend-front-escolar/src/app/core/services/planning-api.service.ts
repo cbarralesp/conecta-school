@@ -80,6 +80,10 @@ export class PlanningApiService {
       .pipe(map((unit) => this.normalizeUnit(unit)));
   }
 
+  deleteUnit(unitId: number): Observable<void> {
+    return this.http.delete<void>(`${API_CONFIG.baseUrl}/planning/units/${unitId}`);
+  }
+
   getClassCatalogs(): Observable<PlanningClassCatalogs> {
     return this.http
       .get<PlanningClassCatalogs>(`${API_CONFIG.baseUrl}/planning/classes/catalogs`)

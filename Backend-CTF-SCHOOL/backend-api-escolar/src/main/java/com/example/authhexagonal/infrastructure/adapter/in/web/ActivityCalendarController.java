@@ -32,13 +32,15 @@ public class ActivityCalendarController {
     @GetMapping("/calendar")
     public ActivityCalendarResponse getCalendar(
             @RequestParam(name = "year", required = false) Integer year,
-            @RequestParam(name = "month", required = false) Integer month
+            @RequestParam(name = "month", required = false) Integer month,
+            @RequestParam(name = "courseId", required = false) Long courseId
     ) {
         LocalDate now = LocalDate.now();
         return ActivityCalendarResponse.fromDomain(
                 manageActivityCalendarUseCase.getMonthlyCalendar(
                         year == null ? now.getYear() : year,
-                        month == null ? now.getMonthValue() : month
+                        month == null ? now.getMonthValue() : month,
+                        courseId
                 )
         );
     }
@@ -49,6 +51,7 @@ public class ActivityCalendarController {
         return SchoolActivityResponse.fromDomain(
                 manageActivityCalendarUseCase.createActivity(
                         request.activityTypeId(),
+                        request.courseId(),
                         request.title(),
                         request.description(),
                         request.date(),
@@ -68,6 +71,7 @@ public class ActivityCalendarController {
                 manageActivityCalendarUseCase.updateActivity(
                         activityId,
                         request.activityTypeId(),
+                        request.courseId(),
                         request.title(),
                         request.description(),
                         request.date(),

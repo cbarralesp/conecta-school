@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
+import { formatCourseLevelLabel, formatScheduleLabel } from '../constants/course-levels';
 import {
   Course,
   CoursePayload,
@@ -24,9 +25,11 @@ export class CourseApiService {
         ...course,
         code: normalizeDashboardText(course.code),
         name: normalizeDashboardText(course.name),
-        level: normalizeDashboardText(course.level),
+        level: formatCourseLevelLabel(normalizeDashboardText(course.level)),
         letter: normalizeDashboardText(course.letter),
-        scheduleType: normalizeDashboardText(course.scheduleType)
+        scheduleType: formatScheduleLabel(normalizeDashboardText(course.scheduleType)),
+        teacherName: normalizeDashboardText(course.teacherName ?? ''),
+        assistantName: normalizeDashboardText(course.assistantName ?? '')
       })))
     );
   }
@@ -37,9 +40,11 @@ export class CourseApiService {
         ...course,
         code: normalizeDashboardText(course.code),
         name: normalizeDashboardText(course.name),
-        level: normalizeDashboardText(course.level),
+        level: formatCourseLevelLabel(normalizeDashboardText(course.level)),
         letter: normalizeDashboardText(course.letter),
-        scheduleType: normalizeDashboardText(course.scheduleType)
+        scheduleType: formatScheduleLabel(normalizeDashboardText(course.scheduleType)),
+        teacherName: normalizeDashboardText(course.teacherName ?? ''),
+        assistantName: normalizeDashboardText(course.assistantName ?? '')
       }))
     );
   }
@@ -78,7 +83,9 @@ export class CourseApiService {
       map((courses) => courses.map((course) => ({
         ...course,
         code: normalizeDashboardText(course.code),
-        description: normalizeDashboardText(course.description)
+        description: normalizeDashboardText(course.description),
+        level: formatCourseLevelLabel(normalizeDashboardText(course.level)),
+        codeToken: normalizeDashboardText(course.codeToken)
       })))
     );
   }
@@ -89,6 +96,7 @@ export class CourseApiService {
     }).pipe(
       map((teachers) => teachers.map((teacher) => ({
         ...teacher,
+        staffType: normalizeDashboardText(teacher.staffType),
         firstName: normalizeDashboardText(teacher.firstName),
         lastName: normalizeDashboardText(teacher.lastName),
         fullName: normalizeDashboardText(teacher.fullName),

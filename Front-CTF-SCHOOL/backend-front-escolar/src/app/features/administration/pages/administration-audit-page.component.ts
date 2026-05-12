@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdministrationAuditLogItem, AdministrationAuditLogView, AdministrationAuditType } from '../../../core/models/administration.models';
 import { AdministrationApiService } from '../../../core/services/administration-api.service';
@@ -16,6 +17,7 @@ import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.
     ReactiveFormsModule,
     MatCardModule,
     MatIconModule,
+    MatPaginatorModule,
     MatSnackBarModule,
     AdministrationShellComponent,
     SummaryMetricCardComponent
@@ -31,6 +33,8 @@ export class AdministrationAuditPageComponent {
 
   readonly view = signal<AdministrationAuditLogView | null>(null);
   readonly isLoading = signal(true);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
   readonly filtersForm = this.fb.nonNullable.group({
     type: ['' as '' | AdministrationAuditType],
     user: [''],
@@ -50,12 +54,20 @@ export class AdministrationAuditPageComponent {
       { label: 'Alertas', value: warnings, icon: 'warning', toneClass: 'sc-amber' }
     ];
   });
+  readonly pagedItems = computed(() => {
+    const items = this.view()?.items ?? [];
+    const start = this.pageIndex() * this.pageSize();
+    return items.slice(start, start + this.pageSize());
+  });
+  readonly totalItems = computed(() => this.view()?.items?.length ?? 0);
+  readonly shouldShowPaginator = computed(() => this.totalItems() > this.pageSize());
 
   constructor() {
     this.loadAudit();
   }
 
   applyFilters(): void {
+    this.pageIndex.set(0);
     this.loadAudit();
   }
 
@@ -66,7 +78,13 @@ export class AdministrationAuditPageComponent {
       dateStart: '',
       dateEnd: ''
     });
+    this.pageIndex.set(0);
     this.loadAudit();
+  }
+
+  handlePageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   exportLogs(): void {
@@ -146,6 +164,10 @@ export class AdministrationAuditPageComponent {
     }).subscribe({
       next: (view) => {
         this.view.set(view);
+        const maxPageIndex = Math.max(0, Math.ceil((view.items.length || 1) / this.pageSize()) - 1);
+        if (this.pageIndex() > maxPageIndex) {
+          this.pageIndex.set(maxPageIndex);
+        }
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {

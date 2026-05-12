@@ -5,6 +5,7 @@ import com.example.authhexagonal.domain.model.AdministrationAccessMatrix;
 import com.example.authhexagonal.domain.model.AdministrationAccessMatrixUpdateCommand;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogItem;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogView;
+import com.example.authhexagonal.domain.model.AdministrationCurrentModuleAccess;
 import com.example.authhexagonal.domain.model.AdministrationOptionItem;
 import com.example.authhexagonal.domain.model.AdministrationRoleCard;
 import com.example.authhexagonal.domain.model.AdministrationRoleOption;
@@ -156,6 +157,11 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     }
 
     @Override
+    public AdministrationCurrentModuleAccess getCurrentModuleAccess(String username) {
+        return manageAdministrationPort.findCurrentModuleAccess(username);
+    }
+
+    @Override
     @Transactional
     public void saveAccessMatrix(AdministrationAccessMatrixUpdateCommand command, String actorUsername) {
         manageAdministrationPort.replaceAccessMatrixRows(command.rows());
@@ -218,7 +224,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
         if (manageAdministrationPort.existsEmail(command.email(), excludeUserId)) {
             throw new IllegalArgumentException("Email already exists");
         }
-        String username = deriveUsername(command.email());
+        String username = resolveUsername(command);
         if (manageAdministrationPort.existsUsername(username, excludeUserId)) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -227,6 +233,13 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     private String deriveUsername(String email) {
         int atIndex = email.indexOf('@');
         return atIndex > 0 ? email.substring(0, atIndex).trim().toLowerCase() : email.trim().toLowerCase();
+    }
+
+    private String resolveUsername(AdministrationUserCommand command) {
+        if (command.username() != null && !command.username().trim().isBlank()) {
+            return command.username().trim().toLowerCase();
+        }
+        return deriveUsername(command.email());
     }
 
     private String resolvePassword(AdministrationUserCommand command) {

@@ -4,6 +4,9 @@ public record EnrollmentCourseOption(
         Long id,
         String code,
         String name,
-        int schoolYear
+        String level,
+        String letter,
+        int schoolYear,
+        String scheduleType
 ) {
 }

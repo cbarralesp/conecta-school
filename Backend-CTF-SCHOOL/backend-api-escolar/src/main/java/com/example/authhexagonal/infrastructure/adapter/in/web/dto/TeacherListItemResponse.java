@@ -7,6 +7,7 @@ import java.util.List;
 public record TeacherListItemResponse(
         Long id,
         String teacherCode,
+        String staffType,
         String fullName,
         String run,
         String professionalTitle,
@@ -21,6 +22,7 @@ public record TeacherListItemResponse(
         return new TeacherListItemResponse(
                 item.id(),
                 item.teacherCode(),
+                item.staffType(),
                 item.fullName(),
                 item.run(),
                 item.professionalTitle(),

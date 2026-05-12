@@ -8,6 +8,8 @@ import java.time.LocalTime;
 public record SchoolActivityResponse(
         Long id,
         Long activityTypeId,
+        Long courseId,
+        String courseName,
         String activityTypeCode,
         String activityTypeName,
         String title,
@@ -24,6 +26,8 @@ public record SchoolActivityResponse(
         return new SchoolActivityResponse(
                 activity.id(),
                 activity.activityTypeId(),
+                activity.courseId(),
+                activity.courseName(),
                 activity.activityTypeCode(),
                 activity.activityTypeName(),
                 activity.title(),

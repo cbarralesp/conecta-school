@@ -12,9 +12,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { Course } from '../../../core/models/course.models';
 import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { ActivityCalendarApiService } from '../../../core/services/activity-calendar-api.service';
+import { CourseApiService } from '../../../core/services/course-api.service';
 import {
   ActivityCalendar,
   ActivityCalendarDay,
@@ -65,6 +67,7 @@ export class ActivitiesCalendarPageComponent {
 
   private readonly authStateService = inject(AuthStateService);
   private readonly activityCalendarApiService = inject(ActivityCalendarApiService);
+  private readonly courseApiService = inject(CourseApiService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
@@ -75,6 +78,8 @@ export class ActivitiesCalendarPageComponent {
   readonly isLoading = signal(false);
   readonly isExportingPdf = signal(false);
   readonly calendar = signal<ActivityCalendar | null>(null);
+  readonly courses = signal<Course[]>([]);
+  readonly selectedCourseId = signal<number | null>(null);
   readonly visibleYear = signal(this.today.getFullYear());
   readonly visibleMonth = signal(this.today.getMonth() + 1);
   readonly isReadOnly = signal(false);
@@ -91,6 +96,14 @@ export class ActivitiesCalendarPageComponent {
 
   readonly weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   readonly monthLabel = computed(() => this.calendar()?.monthLabel ?? 'Cargando...');
+  readonly selectedCourseName = computed(() => {
+    const selectedCourseId = this.selectedCourseId();
+    if (!selectedCourseId) {
+      return 'Todos los cursos';
+    }
+    const course = this.courses().find((item) => item.id === selectedCourseId);
+    return course ? this.formatCourseLabel(course) : 'Curso';
+  });
   readonly stats = computed<ActivityStats>(() => {
     const calendar = this.calendar();
     if (!calendar) {
@@ -164,6 +177,7 @@ export class ActivitiesCalendarPageComponent {
     this.activatedRoute.data.subscribe((data) => {
       this.isReadOnly.set(Boolean(data['roles']?.includes?.('STUDENT')) || Boolean(data['readOnly']));
     });
+    this.loadCourses();
     this.loadCalendar();
   }
 
@@ -176,6 +190,12 @@ export class ActivitiesCalendarPageComponent {
     this.visibleYear.set(this.today.getFullYear());
     this.visibleMonth.set(this.today.getMonth() + 1);
     this.selectedDate.set(this.toIsoDate(this.today));
+    this.loadCalendar();
+  }
+
+  changeCourseFilter(rawValue: string | number | null): void {
+    const nextCourseId = rawValue === null || rawValue === '' ? null : Number(rawValue);
+    this.selectedCourseId.set(Number.isFinite(nextCourseId as number) ? nextCourseId : null);
     this.loadCalendar();
   }
 
@@ -257,7 +277,7 @@ export class ActivitiesCalendarPageComponent {
     }
 
     const dialogRef = this.dialog.open(ActivityDialogComponent, {
-      data: { activityTypes: calendar.activityTypes, selectedDate },
+      data: { activityTypes: calendar.activityTypes, selectedDate, courseId: this.selectedCourseId() },
       width: '860px',
       maxWidth: '84vw',
       maxHeight: '88vh',
@@ -292,7 +312,7 @@ export class ActivitiesCalendarPageComponent {
     }
 
     const dialogRef = this.dialog.open(ActivityDialogComponent, {
-      data: { activityTypes: calendar.activityTypes, activity },
+      data: { activityTypes: calendar.activityTypes, activity, courseId: activity.courseId ?? this.selectedCourseId() },
       width: '860px',
       maxWidth: '84vw',
       maxHeight: '88vh',
@@ -384,10 +404,19 @@ export class ActivitiesCalendarPageComponent {
       .toUpperCase();
   }
 
+  formatCourseLabel(course: Course): string {
+    const trimmedName = course.name.trim();
+    const trimmedLetter = (course.letter ?? '').trim();
+    if (!trimmedLetter) {
+      return trimmedName;
+    }
+    return trimmedName.toUpperCase().endsWith(` ${trimmedLetter.toUpperCase()}`) ? trimmedName : `${trimmedName} ${trimmedLetter}`;
+  }
+
   private loadCalendar(): void {
     this.isLoading.set(true);
 
-    this.activityCalendarApiService.getCalendar(this.visibleYear(), this.visibleMonth()).subscribe({
+    this.activityCalendarApiService.getCalendar(this.visibleYear(), this.visibleMonth(), this.selectedCourseId()).subscribe({
       next: (calendar) => {
         this.calendar.set(calendar);
         this.visibleYear.set(calendar.year);
@@ -408,6 +437,17 @@ export class ActivitiesCalendarPageComponent {
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
         this.showError(error, 'No fue posible cargar el calendario de actividades');
+      }
+    });
+  }
+
+  private loadCourses(): void {
+    this.courseApiService.findAll().subscribe({
+      next: (courses) => {
+        this.courses.set(courses.filter((course) => course.active));
+      },
+      error: () => {
+        this.courses.set([]);
       }
     });
   }

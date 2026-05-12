@@ -11,9 +11,9 @@ public interface ManageCoursesPort {
 
     Optional<Course> findActiveById(Long courseId);
 
-    boolean existsActiveByCode(String code);
+    boolean existsByCode(String code);
 
-    boolean existsActiveByCodeExcludingId(String code, Long courseId);
+    boolean existsByCodeExcludingId(String code, Long courseId);
 
     Course create(String code, String name, String level, String letter, int schoolYear, String scheduleType);
 

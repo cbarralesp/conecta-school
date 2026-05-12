@@ -8,6 +8,7 @@ import java.util.List;
 public record TeacherDetailResponse(
         Long id,
         String teacherCode,
+        String staffType,
         String firstNames,
         String paternalLastName,
         String maternalLastName,
@@ -29,12 +30,14 @@ public record TeacherDetailResponse(
         List<SubjectResponse> subjects,
         List<TeacherAssignedCourseResponse> assignedCourses,
         List<TeacherScheduleItemResponse> weeklySchedule,
-        TeacherEmergencyContactResponse emergencyContact
+        TeacherEmergencyContactResponse emergencyContact,
+        TeacherSystemAccessResponse systemAccess
 ) {
     public static TeacherDetailResponse fromDomain(TeacherRecord record) {
         return new TeacherDetailResponse(
                 record.id(),
                 record.teacherCode(),
+                record.staffType(),
                 record.firstNames(),
                 record.paternalLastName(),
                 record.maternalLastName(),
@@ -56,7 +59,8 @@ public record TeacherDetailResponse(
                 record.subjects().stream().map(SubjectResponse::fromDomain).toList(),
                 record.assignedCourses().stream().map(TeacherAssignedCourseResponse::fromDomain).toList(),
                 record.weeklySchedule().stream().map(TeacherScheduleItemResponse::fromDomain).toList(),
-                TeacherEmergencyContactResponse.fromDomain(record.emergencyContact())
+                TeacherEmergencyContactResponse.fromDomain(record.emergencyContact()),
+                TeacherSystemAccessResponse.fromDomain(record.systemAccess())
         );
     }
 }

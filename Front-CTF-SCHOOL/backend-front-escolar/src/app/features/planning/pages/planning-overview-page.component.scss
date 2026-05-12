@@ -254,9 +254,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
   padding: 1.15rem 1.35rem;
   border-bottom: 1px solid #e2e8f0;
   background: #fff;
+}
+
+.table-heading__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.table-heading__search {
+  min-width: 260px;
+  flex: 0 1 320px;
 }
 
 .table-heading h2 {
@@ -275,6 +287,11 @@
 
 .table-scroll {
   overflow-x: auto;
+}
+
+.planning-paginator {
+  border-top: 1px solid #e2e8f0;
+  background: #fff;
 }
 
 table {
@@ -720,7 +737,8 @@ tr:hover td {
     flex-direction: column;
   }
 
-  .filter-select {
+  .filter-select,
+  .table-heading__search {
     width: 100%;
   }
 
@@ -730,6 +748,10 @@ tr:hover td {
 
   .doc-header {
     flex-direction: column;
+  }
+
+  .table-heading {
+    align-items: stretch;
   }
 
   .doc-actions {

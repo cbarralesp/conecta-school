@@ -1,8 +1,10 @@
 package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
 import com.example.authhexagonal.domain.model.AdministrationAccessMatrixRow;
+import com.example.authhexagonal.domain.model.AdministrationCurrentModuleAccess;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogItem;
 import com.example.authhexagonal.domain.model.AdministrationMetric;
+import com.example.authhexagonal.domain.model.AdministrationModuleAccessItem;
 import com.example.authhexagonal.domain.model.AdministrationPermissionBullet;
 import com.example.authhexagonal.domain.model.AdministrationRoleCard;
 import com.example.authhexagonal.domain.model.AdministrationRoleOption;
@@ -14,6 +16,7 @@ import com.example.authhexagonal.domain.port.out.ManageAdministrationPort;
 import com.example.authhexagonal.domain.port.out.RegisterSecurityAuditPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -26,10 +29,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 @Component
@@ -38,6 +44,40 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     private static final DateTimeFormatter DISPLAY_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+    private static final List<String> CANONICAL_MODULE_ORDER = List.of(
+            "DASHBOARD",
+            "MATRICULAS",
+            "PROFESORES",
+            "CURSOS",
+            "HORARIO",
+            "ASIGNATURAS",
+            "ASISTENCIA",
+            "CALIFICACIONES",
+            "ACTIVIDADES",
+            "CONTENIDO",
+            "PLANIFICACION",
+            "USUARIOS",
+            "ROLES",
+            "MATRIZ_ACCESO",
+            "AUDITORIA"
+    );
+    private static final Map<String, String> CANONICAL_MODULE_NAMES = Map.ofEntries(
+            Map.entry("DASHBOARD", "Dashboard"),
+            Map.entry("MATRICULAS", "Matrículas"),
+            Map.entry("PROFESORES", "Docentes"),
+            Map.entry("CURSOS", "Cursos"),
+            Map.entry("HORARIO", "Horario"),
+            Map.entry("ASIGNATURAS", "Asignaturas"),
+            Map.entry("ASISTENCIA", "Asistencia"),
+            Map.entry("CALIFICACIONES", "Evaluaciones"),
+            Map.entry("ACTIVIDADES", "Actividades"),
+            Map.entry("CONTENIDO", "Contenido"),
+            Map.entry("PLANIFICACION", "Planificación"),
+            Map.entry("USUARIOS", "Usuarios"),
+            Map.entry("ROLES", "Roles"),
+            Map.entry("MATRIZ_ACCESO", "Matriz de acceso"),
+            Map.entry("AUDITORIA", "Auditoría")
+    );
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -69,6 +109,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
     @Override
     public List<AdministrationRoleOption> findRoleOptions() {
+        ensureDefaultRolesPresent();
         return jdbcTemplate.query("""
                 SELECT "CODIGO", "NOMBRE", "DESCRIPCION"
                 FROM "ADMIN_ROLES"
@@ -163,7 +204,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     @Override
     public AdministrationUserDetail createUser(AdministrationUserCommand command, String encodedPassword) {
         Long personId = insertPerson(command);
-        Long userId = insertUser(personId, deriveUsername(command.email()), encodedPassword, !"Inactivo".equalsIgnoreCase(command.initialStatus()));
+        Long userId = insertUser(personId, resolveUsername(command), encodedPassword, !"Inactivo".equalsIgnoreCase(command.initialStatus()));
         insertUserSettings(userId, command);
         return findUserById(userId).orElseThrow();
     }
@@ -261,6 +302,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
     @Override
     public List<AdministrationRoleCard> findRoleCards() {
+        ensureDefaultRolesPresent();
         List<AdministrationRoleCard> roles = jdbcTemplate.query("""
                 SELECT
                     r."CODIGO",
@@ -313,6 +355,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
     @Override
     public List<AdministrationAccessMatrixRow> findAccessMatrixRows() {
+        ensureDefaultRolesPresent();
         return jdbcTemplate.query("""
                 SELECT
                     a."MODULO_CODIGO",
@@ -327,14 +370,29 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             Map<String, Map<String, String>> permissionsByModule = new LinkedHashMap<>();
             Map<String, String> namesByModule = new LinkedHashMap<>();
             while (rs.next()) {
-                String moduleCode = rs.getString("MODULO_CODIGO");
+                String moduleCode = normalizeModuleCode(rs.getString("MODULO_CODIGO"));
+                if (!isSupportedModule(moduleCode)) {
+                    continue;
+                }
                 permissionsByModule.computeIfAbsent(moduleCode, key -> new LinkedHashMap<>())
                         .put(rs.getString("role_code"), rs.getString("NIVEL_ACCESO"));
-                namesByModule.putIfAbsent(moduleCode, rs.getString("MODULO_NOMBRE"));
+                namesByModule.putIfAbsent(moduleCode, canonicalModuleName(moduleCode, rs.getString("MODULO_NOMBRE")));
+            }
+            List<String> roleCodes = findRoleOptions().stream()
+                    .map(AdministrationRoleOption::code)
+                    .toList();
+            for (String moduleCode : CANONICAL_MODULE_ORDER) {
+                permissionsByModule.computeIfAbsent(moduleCode, key -> {
+                    Map<String, String> defaults = new LinkedHashMap<>();
+                    roleCodes.forEach(roleCode -> defaults.put(roleCode, defaultAccessForRole(roleCode)));
+                    return defaults;
+                });
+                namesByModule.putIfAbsent(moduleCode, canonicalModuleName(moduleCode, moduleCode));
             }
             List<AdministrationAccessMatrixRow> rows = new ArrayList<>();
             permissionsByModule.forEach((moduleCode, permissions) ->
                     rows.add(new AdministrationAccessMatrixRow(moduleCode, namesByModule.get(moduleCode), permissions)));
+            rows.sort(Comparator.comparingInt(row -> moduleOrder(row.moduleCode())));
             return rows;
         });
     }
@@ -348,48 +406,111 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                 ORDER BY "USUARIO_ID", "MODULO_CODIGO"
                 """, (rs, rowNum) -> new AdministrationUserModuleOverride(
                 rs.getLong("USUARIO_ID"),
-                rs.getString("MODULO_CODIGO"),
+                normalizeModuleCode(rs.getString("MODULO_CODIGO")),
                 rs.getString("NIVEL_ACCESO")
-        ));
+        )).stream()
+                .filter(override -> isSupportedModule(override.moduleCode()))
+                .toList();
+    }
+
+    @Override
+    public AdministrationCurrentModuleAccess findCurrentModuleAccess(String username) {
+        AuthenticatedAdminUser user = findAuthenticationUser(username)
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+
+        String roleCode = user.roleCode() == null || user.roleCode().isBlank()
+                ? "PROFESOR"
+                : user.roleCode().trim().toUpperCase();
+
+        Map<String, AdministrationModuleAccessItem> modulesByCode = new LinkedHashMap<>();
+
+        jdbcTemplate.query("""
+                SELECT
+                    access."MODULO_CODIGO",
+                    access."MODULO_NOMBRE",
+                    access."NIVEL_ACCESO"
+                FROM "ADMIN_ROLE_MODULE_ACCESS" access
+                JOIN "ADMIN_ROLES" role ON role."ID" = access."ROL_ID"
+                WHERE role."CODIGO" = ?
+                ORDER BY access."ORDEN_VISUAL", access."MODULO_NOMBRE"
+                """, (ResultSetExtractor<Void>) rs -> {
+            while (rs.next()) {
+                String moduleCode = normalizeModuleCode(rs.getString("MODULO_CODIGO"));
+                if (!isSupportedModule(moduleCode)) {
+                    continue;
+                }
+                modulesByCode.put(moduleCode, new AdministrationModuleAccessItem(
+                        moduleCode,
+                        canonicalModuleName(moduleCode, rs.getString("MODULO_NOMBRE")),
+                        rs.getString("NIVEL_ACCESO")
+                ));
+            }
+            return null;
+        }, roleCode);
+
+        jdbcTemplate.query("""
+                SELECT
+                    overrides."MODULO_CODIGO",
+                    COALESCE(MAX(base."MODULO_NOMBRE"), overrides."MODULO_CODIGO") AS "MODULO_NOMBRE",
+                    overrides."NIVEL_ACCESO"
+                FROM "ADMIN_USER_MODULE_ACCESS" overrides
+                LEFT JOIN "ADMIN_ROLE_MODULE_ACCESS" base
+                    ON base."MODULO_CODIGO" = overrides."MODULO_CODIGO"
+                WHERE overrides."USUARIO_ID" = ?
+                  AND overrides."ACTIVO" = TRUE
+                GROUP BY overrides."MODULO_CODIGO", overrides."NIVEL_ACCESO"
+                ORDER BY overrides."MODULO_CODIGO"
+                """, (ResultSetExtractor<Void>) rs -> {
+            while (rs.next()) {
+                String moduleCode = normalizeModuleCode(rs.getString("MODULO_CODIGO"));
+                if (!isSupportedModule(moduleCode)) {
+                    continue;
+                }
+                modulesByCode.put(moduleCode, new AdministrationModuleAccessItem(
+                        moduleCode,
+                        canonicalModuleName(moduleCode, rs.getString("MODULO_NOMBRE")),
+                        rs.getString("NIVEL_ACCESO")
+                ));
+            }
+            return null;
+        }, user.id());
+
+        for (String moduleCode : CANONICAL_MODULE_ORDER) {
+            modulesByCode.putIfAbsent(moduleCode, new AdministrationModuleAccessItem(
+                    moduleCode,
+                    canonicalModuleName(moduleCode, moduleCode),
+                    defaultAccessForRole(roleCode)
+            ));
+        }
+
+        List<AdministrationModuleAccessItem> orderedModules = new ArrayList<>(modulesByCode.values());
+        orderedModules.sort(Comparator.comparingInt(item -> moduleOrder(item.moduleCode())));
+        return new AdministrationCurrentModuleAccess(roleCode, orderedModules);
     }
 
     @Override
     public void replaceAccessMatrixRows(List<AdministrationAccessMatrixRow> rows) {
-        for (AdministrationAccessMatrixRow row : rows) {
-            for (Map.Entry<String, String> permissionEntry : row.permissions().entrySet()) {
-                int updated = jdbcTemplate.update("""
-                        UPDATE "ADMIN_ROLE_MODULE_ACCESS"
-                        SET "MODULO_NOMBRE" = ?, "NIVEL_ACCESO" = ?
-                        WHERE "ROL_ID" = (SELECT "ID" FROM "ADMIN_ROLES" WHERE "CODIGO" = ?)
-                          AND "MODULO_CODIGO" = ?
-                        """,
-                        row.moduleName(),
-                        permissionEntry.getValue(),
-                        permissionEntry.getKey(),
-                        row.moduleCode()
-                );
+        ensureDefaultRolesPresent();
+        List<AdministrationAccessMatrixRow> normalizedRows = normalizeMatrixRows(rows);
+        jdbcTemplate.update("DELETE FROM \"ADMIN_ROLE_MODULE_ACCESS\"");
 
-                if (updated == 0) {
-                    Integer nextOrder = jdbcTemplate.queryForObject("""
-                            SELECT COALESCE(MAX("ORDEN_VISUAL"), 0) + 1
-                            FROM "ADMIN_ROLE_MODULE_ACCESS"
-                            """, Integer.class);
-                    jdbcTemplate.update("""
-                            INSERT INTO "ADMIN_ROLE_MODULE_ACCESS" (
-                                "ROL_ID", "MODULO_CODIGO", "MODULO_NOMBRE", "NIVEL_ACCESO", "ORDEN_VISUAL"
-                            )
-                            VALUES (
-                                (SELECT "ID" FROM "ADMIN_ROLES" WHERE "CODIGO" = ?),
-                                ?, ?, ?, ?
-                            )
-                            """,
-                            permissionEntry.getKey(),
-                            row.moduleCode(),
-                            row.moduleName(),
-                            permissionEntry.getValue(),
-                            nextOrder == null ? 1 : nextOrder
-                    );
-                }
+        for (AdministrationAccessMatrixRow row : normalizedRows) {
+            for (Map.Entry<String, String> permissionEntry : row.permissions().entrySet()) {
+                jdbcTemplate.update("""
+                        INSERT INTO "ADMIN_ROLE_MODULE_ACCESS" (
+                            "ROL_ID", "MODULO_CODIGO", "MODULO_NOMBRE", "NIVEL_ACCESO", "ORDEN_VISUAL"
+                        )
+                        VALUES (
+                            (SELECT "ID" FROM "ADMIN_ROLES" WHERE "CODIGO" = ?),
+                            ?, ?, ?, ?
+                        )
+                        """,
+                        permissionEntry.getKey(),
+                        row.moduleCode(),
+                        canonicalModuleName(row.moduleCode(), row.moduleName()),
+                        permissionEntry.getValue(),
+                        moduleOrder(row.moduleCode()) + 1
+                );
             }
         }
     }
@@ -398,6 +519,10 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     public void replaceUserModuleOverrides(List<AdministrationUserModuleOverride> overrides) {
         jdbcTemplate.update("DELETE FROM \"ADMIN_USER_MODULE_ACCESS\"");
         for (AdministrationUserModuleOverride override : overrides) {
+            String moduleCode = normalizeModuleCode(override.moduleCode());
+            if (!isSupportedModule(moduleCode)) {
+                continue;
+            }
             jdbcTemplate.update("""
                     INSERT INTO "ADMIN_USER_MODULE_ACCESS" (
                         "USUARIO_ID", "MODULO_CODIGO", "NIVEL_ACCESO", "ACTIVO", "CREADO_AT", "ACTUALIZADO_AT"
@@ -405,7 +530,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                     VALUES (?, ?, ?, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                     """,
                     override.userId(),
-                    override.moduleCode(),
+                    moduleCode,
                     override.accessLevel()
             );
         }
@@ -621,7 +746,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     private void updateUserRecord(Long userId, AdministrationUserCommand command, String encodedPasswordOrNull) {
-        String username = deriveUsername(command.email());
+        String username = resolveUsername(command);
         if (encodedPasswordOrNull == null) {
             jdbcTemplate.update("""
                     UPDATE "USUARIOS"
@@ -776,6 +901,13 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         return (atIndex > 0 ? email.substring(0, atIndex) : email).trim().toLowerCase();
     }
 
+    private String resolveUsername(AdministrationUserCommand command) {
+        if (command.username() != null && !command.username().trim().isBlank()) {
+            return command.username().trim().toLowerCase();
+        }
+        return deriveUsername(command.email());
+    }
+
     private String normalize(String value) {
         return value == null || value.trim().isBlank() ? null : value.trim().toUpperCase();
     }
@@ -793,6 +925,130 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             return normalized;
         }
         return Character.toUpperCase(normalized.charAt(0)) + normalized.substring(1);
+    }
+
+    private void ensureDefaultRolesPresent() {
+        ensureRoleExists("SUPERADMIN", "Superadmin", "Administración total del sistema.", 1);
+        ensureRoleExists("DIRECTOR", "Director", "Gestión institucional y supervisión general.", 2);
+        ensureRoleExists("INSPECTOR", "Inspector", "Supervisión disciplinaria y control interno.", 3);
+        ensureRoleExists("PROFESOR", "Profesor", "Gestión docente y académica.", 4);
+        ensureRoleExists("SECRETARIA", "Secretaria", "Apoyo administrativo y operativo.", 5);
+        ensureRoleExists("APODERADO", "Apoderado", "Acceso de familias y seguimiento académico.", 6);
+        ensureRoleExists("ALUMNO", "Alumno", "Acceso estudiantil al sistema.", 7);
+    }
+
+    private void ensureRoleExists(String code, String name, String description, int visualOrder) {
+        Integer exists = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "ADMIN_ROLES"
+                WHERE UPPER("CODIGO") = UPPER(?)
+                """, Integer.class, code);
+        if (exists != null && exists > 0) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "ADMIN_ROLES" (
+                    "CODIGO", "NOMBRE", "DESCRIPCION", "ACTIVO",
+                    "NIVEL_LABEL", "RESUMEN_ALCANCE", "ORDEN_VISUAL"
+                ) VALUES (?, ?, ?, TRUE, ?, ?, ?)
+                """,
+                code,
+                name,
+                description,
+                "Nivel " + visualOrder,
+                description,
+                visualOrder
+        );
+    }
+
+    private List<AdministrationAccessMatrixRow> normalizeMatrixRows(List<AdministrationAccessMatrixRow> rows) {
+        Map<String, AdministrationAccessMatrixRow> merged = new LinkedHashMap<>();
+        List<String> roleCodes = findRoleOptions().stream()
+                .map(AdministrationRoleOption::code)
+                .toList();
+        for (AdministrationAccessMatrixRow row : rows) {
+            String moduleCode = normalizeModuleCode(row.moduleCode());
+            if (!isSupportedModule(moduleCode)) {
+                continue;
+            }
+
+            AdministrationAccessMatrixRow existing = merged.get(moduleCode);
+            if (existing == null) {
+                merged.put(moduleCode, new AdministrationAccessMatrixRow(
+                        moduleCode,
+                        canonicalModuleName(moduleCode, row.moduleName()),
+                        new LinkedHashMap<>(row.permissions())
+                ));
+                continue;
+            }
+
+            Map<String, String> permissions = new LinkedHashMap<>(existing.permissions());
+            permissions.putAll(row.permissions());
+            merged.put(moduleCode, new AdministrationAccessMatrixRow(
+                    moduleCode,
+                    canonicalModuleName(moduleCode, row.moduleName()),
+                        permissions
+            ));
+        }
+        for (String moduleCode : CANONICAL_MODULE_ORDER) {
+            merged.computeIfAbsent(moduleCode, key -> new AdministrationAccessMatrixRow(
+                    moduleCode,
+                    canonicalModuleName(moduleCode, moduleCode),
+                    buildDefaultPermissions(roleCodes)
+            ));
+        }
+        return merged.values().stream()
+                .sorted(Comparator.comparingInt(item -> moduleOrder(item.moduleCode())))
+                .toList();
+    }
+
+    private Map<String, String> buildDefaultPermissions(List<String> roleCodes) {
+        Map<String, String> defaults = new LinkedHashMap<>();
+        roleCodes.forEach(roleCode -> defaults.put(roleCode, defaultAccessForRole(roleCode)));
+        return defaults;
+    }
+
+    private String defaultAccessForRole(String roleCode) {
+        return "SUPERADMIN".equalsIgnoreCase(roleCode) || "DIRECTOR".equalsIgnoreCase(roleCode)
+                ? "FULL"
+                : "NONE";
+    }
+
+    private String normalizeModuleCode(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        String normalized = value.trim()
+                .toUpperCase(Locale.ROOT)
+                .replace('Á', 'A')
+                .replace('É', 'E')
+                .replace('Í', 'I')
+                .replace('Ó', 'O')
+                .replace('Ú', 'U')
+                .replace(' ', '_');
+
+        return switch (normalized) {
+            case "EVALUACIONES" -> "CALIFICACIONES";
+            case "PLANIFICACIONES" -> "PLANIFICACION";
+            case "DOCENTES" -> "PROFESORES";
+            case "MATRIZ_DE_ACCESO" -> "MATRIZ_ACCESO";
+            default -> normalized;
+        };
+    }
+
+    private boolean isSupportedModule(String moduleCode) {
+        return CANONICAL_MODULE_ORDER.contains(normalizeModuleCode(moduleCode));
+    }
+
+    private String canonicalModuleName(String moduleCode, String fallback) {
+        return CANONICAL_MODULE_NAMES.getOrDefault(normalizeModuleCode(moduleCode), fallback);
+    }
+
+    private int moduleOrder(String moduleCode) {
+        int index = CANONICAL_MODULE_ORDER.indexOf(normalizeModuleCode(moduleCode));
+        return index >= 0 ? index : Integer.MAX_VALUE;
     }
 
     private LocalDateTime readLocalDateTime(Timestamp timestamp) {

@@ -103,13 +103,16 @@
             <button type="button" class="content-card__header" (click)="toggleUnit(unit.id)">
               <div class="content-card__number" [class]="'content-card__number--' + unit.color">{{ unit.numberLabel }}</div>
 
-              <div class="content-card__copy">
-                <div class="content-card__title-row">
-                  <h2>{{ unit.title }}</h2>
-                  <button type="button" class="edit-icon-button" aria-label="Editar unidad" (click)="openEditUnitDialog(unit, $event)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                </div>
+                <div class="content-card__copy">
+                  <div class="content-card__title-row">
+                    <h2>{{ unit.title }}</h2>
+                    <button type="button" class="edit-icon-button" aria-label="Editar unidad" (click)="openEditUnitDialog(unit, $event)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button type="button" class="edit-icon-button edit-icon-button--danger" aria-label="Eliminar unidad" (click)="deleteUnit(unit, $event)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
                 <div class="content-card__meta">
                   <span><mat-icon>co_present</mat-icon>{{ unit.classes.length }} clases</span>
                   <span><mat-icon>description</mat-icon>{{ unit.totalDocuments }} documentos</span>
@@ -146,6 +149,9 @@
                             <h3>{{ contentClass.title }}</h3>
                             <button type="button" class="edit-icon-button" aria-label="Editar clase" (click)="openEditClassDialog(contentClass, $event)">
                               <mat-icon>edit</mat-icon>
+                            </button>
+                            <button type="button" class="edit-icon-button edit-icon-button--danger" aria-label="Eliminar clase" (click)="deleteClass(contentClass, $event)">
+                              <mat-icon>delete</mat-icon>
                             </button>
                           </div>
                         </div>
@@ -206,6 +212,17 @@
           </mat-card>
         }
       </section>
+
+      @if (shouldShowPaginator()) {
+        <mat-paginator
+          class="content-paginator"
+          [length]="totalUnits()"
+          [pageIndex]="pageIndex()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[10, 15, 20]"
+          (page)="handlePageChange($event)"
+        />
+      }
     }
   </main>
 

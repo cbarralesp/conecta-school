@@ -4,7 +4,8 @@ export type AdministrationRoleCode =
   | 'INSPECTOR'
   | 'PROFESOR'
   | 'SECRETARIA'
-  | 'APODERADO';
+  | 'APODERADO'
+  | 'ALUMNO';
 
 export type AdministrationUserStatus = 'Activo' | 'Bloqueado' | 'Inactivo' | 'Pendiente';
 
@@ -113,6 +114,7 @@ export interface AdministrationAuditLogView {
 }
 
 export interface AdministrationUserFormValue {
+  username?: string;
   firstName: string;
   paternalLastName: string;
   maternalLastName: string;

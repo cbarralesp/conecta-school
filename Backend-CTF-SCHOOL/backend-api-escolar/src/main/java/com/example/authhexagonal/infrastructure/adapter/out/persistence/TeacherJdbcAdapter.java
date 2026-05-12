@@ -9,6 +9,7 @@ import com.example.authhexagonal.domain.model.TeacherOverview;
 import com.example.authhexagonal.domain.model.TeacherRecord;
 import com.example.authhexagonal.domain.model.TeacherScheduleItem;
 import com.example.authhexagonal.domain.model.TeacherSummary;
+import com.example.authhexagonal.domain.model.TeacherSystemAccess;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -20,6 +21,8 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.text.Normalizer;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -46,6 +49,7 @@ public class TeacherJdbcAdapter {
                     return new TeacherRecord(
                             rs.getLong("ID"),
                             rs.getString("CODIGO"),
+                            rs.getString("TIPO_PERSONAL"),
                             rs.getString("NOMBRES"),
                             lastNames[0],
                             lastNames[1],
@@ -67,7 +71,12 @@ public class TeacherJdbcAdapter {
                             findSubjectsByTeacherId(rs.getLong("ID")),
                             findAssignedCoursesByTeacherId(rs.getLong("ID")),
                             findWeeklyScheduleByTeacherId(rs.getLong("ID")),
-                            findEmergencyContactByTeacherId(rs.getLong("ID"))
+                            findEmergencyContactByTeacherId(rs.getLong("ID")),
+                            findSystemAccessByRunAndStaffType(
+                                    rs.getString("RUN"),
+                                    rs.getString("TIPO_PERSONAL"),
+                                    rs.getString("CORREO_ELECTRONICO")
+                            )
                     );
                 }, teacherId).stream().findFirst();
     }
@@ -96,16 +105,17 @@ public class TeacherJdbcAdapter {
         return count != null && count > 0;
     }
 
-    public TeacherRecord createTeacher(TeacherCommand command) {
+    public TeacherRecord createTeacher(TeacherCommand command, String encodedPassword) {
         Long personId = insertPerson(command);
         Long teacherId = insertTeacher(personId, command);
         replaceTeacherSubjects(teacherId, command.subjectIds());
         syncTeacherCourseAssignments(teacherId, command.subjectIds(), command.courseIds());
         replaceEmergencyContact(teacherId, command);
+        maybeProvisionSystemAccess(personId, command, encodedPassword);
         return findById(teacherId).orElseThrow();
     }
 
-    public TeacherRecord updateTeacher(Long teacherId, TeacherCommand command) {
+    public TeacherRecord updateTeacher(Long teacherId, TeacherCommand command, String encodedPassword) {
         Long personId = jdbcTemplate.queryForObject(
                 "SELECT \"PERSONA_ID\" FROM \"PROFESORES\" WHERE \"ID\" = ?",
                 Long.class,
@@ -116,18 +126,49 @@ public class TeacherJdbcAdapter {
         replaceTeacherSubjects(teacherId, command.subjectIds());
         syncTeacherCourseAssignments(teacherId, command.subjectIds(), command.courseIds());
         replaceEmergencyContact(teacherId, command);
+        maybeProvisionSystemAccess(personId, command, encodedPassword);
         return findById(teacherId).orElseThrow();
     }
 
-    public void deactivateTeacher(Long teacherId) {
-        jdbcTemplate.update("UPDATE \"PROFESORES\" SET \"ACTIVO\" = FALSE, \"ESTADO_DOCENTE\" = 'Inactivo' WHERE \"ID\" = ?", teacherId);
+    public void deleteTeacherPermanently(Long teacherId) {
+        TeacherRecord teacher = findById(teacherId).orElseThrow();
+
+        if (tableExists("HORARIOS_CARGAS")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "HORARIOS_CARGAS"
+                    WHERE "CARGA_DOCENTE_ID" IN (
+                        SELECT "ID" FROM "CARGAS_DOCENTES" WHERE "PROFESOR_ID" = ?
+                    )
+                    """, teacherId);
+        }
+
+        jdbcTemplate.update("DELETE FROM \"CARGAS_DOCENTES\" WHERE \"PROFESOR_ID\" = ?", teacherId);
+
+        if (tableExists("CURSO_DOCENTES")) {
+            jdbcTemplate.update("DELETE FROM \"CURSO_DOCENTES\" WHERE \"PROFESOR_ID\" = ?", teacherId);
+        }
+
         if (tableExists("PROFESOR_ASIGNATURAS")) {
-            jdbcTemplate.update("UPDATE \"PROFESOR_ASIGNATURAS\" SET \"ACTIVO\" = FALSE WHERE \"PROFESOR_ID\" = ?", teacherId);
+            jdbcTemplate.update("DELETE FROM \"PROFESOR_ASIGNATURAS\" WHERE \"PROFESOR_ID\" = ?", teacherId);
         }
+
         if (tableExists("PROFESOR_CONTACTOS_EMERGENCIA")) {
-            jdbcTemplate.update("UPDATE \"PROFESOR_CONTACTOS_EMERGENCIA\" SET \"ACTIVO\" = FALSE WHERE \"PROFESOR_ID\" = ?", teacherId);
+            jdbcTemplate.update("DELETE FROM \"PROFESOR_CONTACTOS_EMERGENCIA\" WHERE \"PROFESOR_ID\" = ?", teacherId);
         }
-        jdbcTemplate.update("UPDATE \"CARGAS_DOCENTES\" SET \"ACTIVA\" = FALSE WHERE \"PROFESOR_ID\" = ?", teacherId);
+
+        deleteStaffSystemAccess(teacher.run(), teacher.staffType());
+
+        Long personId = jdbcTemplate.queryForObject(
+                "SELECT \"PERSONA_ID\" FROM \"PROFESORES\" WHERE \"ID\" = ?",
+                Long.class,
+                teacherId
+        );
+
+        jdbcTemplate.update("DELETE FROM \"PROFESORES\" WHERE \"ID\" = ?", teacherId);
+
+        if (personId != null && !personStillLinked(personId)) {
+            jdbcTemplate.update("DELETE FROM \"PERSONAS\" WHERE \"ID\" = ?", personId);
+        }
     }
 
     public List<AcademicSubject> findSubjectOptions() {
@@ -161,6 +202,7 @@ public class TeacherJdbcAdapter {
         return jdbcTemplate.query(sql, (rs, rowNum) -> new TeacherListItem(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
+                rs.getString("TIPO_PERSONAL"),
                 rs.getString("full_name"),
                 rs.getString("RUN"),
                 rs.getString("TITULO_PROFESIONAL"),
@@ -309,6 +351,104 @@ public class TeacherJdbcAdapter {
         ), teacherId).stream().findFirst().orElse(new TeacherEmergencyContact(null, "", "", ""));
     }
 
+    private TeacherSystemAccess findSystemAccessByRunAndStaffType(String run, String staffType, String fallbackEmail) {
+        String roleCode = resolveRoleCodeForStaffType(staffType);
+        return findUserRecordByRunAndRole(run, roleCode)
+                .map(record -> new TeacherSystemAccess(
+                        true,
+                        true,
+                        record.username() == null ? "" : record.username(),
+                        "",
+                        record.email() != null && !record.email().isBlank(),
+                        record.email() == null || record.email().isBlank() ? safeEmail(fallbackEmail) : record.email(),
+                        normalizeAccountStatus(record.status())
+                ))
+                .orElseGet(() -> new TeacherSystemAccess(
+                        false,
+                        false,
+                        "",
+                        "",
+                        false,
+                        safeEmail(fallbackEmail),
+                        "Sin cuenta"
+                ));
+    }
+
+    private void maybeProvisionSystemAccess(Long personId, TeacherCommand command, String encodedPassword) {
+        TeacherSystemAccess systemAccess = command.systemAccess();
+        if (systemAccess == null || !systemAccess.configureAccess() || !systemAccess.createAccount()) {
+            return;
+        }
+
+        provisionStaffAccess(
+                personId,
+                command.run(),
+                command.firstNames(),
+                command.paternalLastName(),
+                command.maternalLastName(),
+                command.institutionalEmail(),
+                encodedPassword,
+                systemAccess.notifyByEmail(),
+                normalizeStaffType(command.staffType())
+        );
+    }
+
+    private TeacherSystemAccess provisionStaffAccess(
+            Long personId,
+            String run,
+            String firstNames,
+            String paternalLastName,
+            String maternalLastName,
+            String institutionalEmail,
+            String encodedPassword,
+            boolean notifyByEmail,
+            String staffType
+    ) {
+        String roleCode = resolveRoleCodeForStaffType(staffType);
+        Long roleId = ensureRoleId(
+                roleCode,
+                roleCode.equals("PROFESOR") ? "Profesor" : "Secretaria",
+                roleCode.equals("PROFESOR")
+                        ? "Usuario docente con acceso a gestion academica y evaluacion."
+                        : "Usuario asistente con acceso administrativo interno.",
+                roleCode.equals("PROFESOR") ? "Nivel 4" : "Nivel 3",
+                roleCode.equals("PROFESOR")
+                        ? "Gestion de cursos, planificacion y seguimiento academico."
+                        : "Apoyo operativo, administracion y seguimiento institucional.",
+                roleCode.equals("PROFESOR") ? 4 : 5
+        );
+
+        Optional<AccessUserRecord> existingUser = findUserRecordByRunAndRole(run, roleCode);
+        String username = existingUser.map(AccessUserRecord::username)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> generateUniqueStaffUsername(firstNames, paternalLastName, maternalLastName, staffType));
+        String email = existingUser.map(AccessUserRecord::email)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> {
+                    String normalizedEmail = safeEmail(institutionalEmail);
+                    return normalizedEmail.isBlank() ? buildStaffEmail(username, staffType) : normalizedEmail;
+                });
+
+        Long userId = existingUser.map(AccessUserRecord::userId)
+                .orElseGet(() -> insertStaffUser(personId, username, encodedPassword));
+
+        if (existingUser.isPresent()) {
+            updateStaffUser(userId, personId, username, encodedPassword);
+        }
+
+        upsertStaffUserSettings(userId, roleId);
+
+        return new TeacherSystemAccess(
+                true,
+                true,
+                username,
+                "",
+                notifyByEmail,
+                email,
+                "Activo"
+        );
+    }
+
     private Long insertPerson(TeacherCommand command) {
         StringBuilder sql = new StringBuilder("""
                 INSERT INTO "PERSONAS" ("RUN", "NOMBRES", "APELLIDOS", "CORREO_ELECTRONICO", "DIRECCION", "TELEFONO"
@@ -349,7 +489,7 @@ public class TeacherJdbcAdapter {
             bindValues(statement, values);
             return statement;
         }, keyHolder);
-        return keyHolder.getKey().longValue();
+        return extractGeneratedId(keyHolder);
     }
 
     private Long insertTeacher(Long personId, TeacherCommand command) {
@@ -381,6 +521,10 @@ public class TeacherJdbcAdapter {
             sql.append(", \"ESTADO_DOCENTE\"");
             values.add(command.employmentStatus());
         }
+        if (columnExists("PROFESORES", "TIPO_PERSONAL")) {
+            sql.append(", \"TIPO_PERSONAL\"");
+            values.add(normalizeStaffType(command.staffType()));
+        }
         sql.append(", \"ACTIVO\") VALUES (");
         StringJoiner joiner = new StringJoiner(", ");
         for (int index = 0; index < values.size(); index++) {
@@ -394,7 +538,7 @@ public class TeacherJdbcAdapter {
             bindValues(statement, values);
             return statement;
         }, keyHolder);
-        return keyHolder.getKey().longValue();
+        return extractGeneratedId(keyHolder);
     }
 
     private void replaceTeacherSubjects(Long teacherId, List<Long> subjectIds) {
@@ -662,6 +806,7 @@ public class TeacherJdbcAdapter {
         return "SELECT " +
                 "pr.\"ID\", " +
                 "pr.\"CODIGO\", " +
+                selectColumnOrAlias("PROFESORES", "TIPO_PERSONAL", "pr", "'DOCENTE'", "TIPO_PERSONAL") + ", " +
                 "pr.\"PERSONA_ID\", " +
                 selectColumnOrAlias("PROFESORES", "TITULO_PROFESIONAL", "pr", "COALESCE(pr.\"ESPECIALIDAD\", '')", "TITULO_PROFESIONAL") + ", " +
                 selectColumnOrAlias("PROFESORES", "TIPO_CONTRATO", "pr", "'Jornada completa'", "TIPO_CONTRATO") + ", " +
@@ -732,6 +877,9 @@ public class TeacherJdbcAdapter {
         String employmentSelect = columnExists("PROFESORES", "ESTADO_DOCENTE")
                 ? "pr.\"ESTADO_DOCENTE\""
                 : "'Activo' AS \"ESTADO_DOCENTE\"";
+        String staffTypeSelect = columnExists("PROFESORES", "TIPO_PERSONAL")
+                ? "COALESCE(NULLIF(TRIM(pr.\"TIPO_PERSONAL\"), ''), 'DOCENTE') AS \"TIPO_PERSONAL\""
+                : "'DOCENTE' AS \"TIPO_PERSONAL\"";
         String titleSelect = columnExists("PROFESORES", "TITULO_PROFESIONAL")
                 ? "pr.\"TITULO_PROFESIONAL\""
                 : "COALESCE(pr.\"ESPECIALIDAD\", '') AS \"TITULO_PROFESIONAL\"";
@@ -750,6 +898,7 @@ public class TeacherJdbcAdapter {
         StringBuilder sql = new StringBuilder("SELECT DISTINCT " +
                 "pr.\"ID\", " +
                 "pr.\"CODIGO\", " +
+                staffTypeSelect + ", " +
                 titleSelect + ", " +
                 contractSelect + ", " +
                 hoursSelect + ", " +
@@ -780,12 +929,37 @@ public class TeacherJdbcAdapter {
                 args.add(subjectId);
             }
         }
-        if (status != null) {
+        String normalizedStatus = normalizeEmploymentStatus(status);
+        if (normalizedStatus != null) {
             sql.append("AND ").append(statusWhere).append(" = ? ");
-            args.add(status);
+            args.add(normalizedStatus);
         }
         sql.append("ORDER BY full_name");
         return sql.toString();
+    }
+
+    private String normalizeEmploymentStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+
+        return switch (status.trim().toUpperCase()) {
+            case "ACTIVE", "ACTIVO" -> "ACTIVO";
+            case "INACTIVE", "INACTIVO" -> "INACTIVO";
+            case "LICENSE", "LICENCIA" -> "LICENCIA";
+            default -> status.trim().toUpperCase();
+        };
+    }
+
+    private String normalizeStaffType(String staffType) {
+        if (staffType == null || staffType.isBlank()) {
+            return "DOCENTE";
+        }
+
+        return switch (staffType.trim().toUpperCase()) {
+            case "ASISTENTE", "ASSISTANT" -> "ASISTENTE";
+            default -> "DOCENTE";
+        };
     }
 
     private String subjectsByTeacherQuery() {
@@ -832,6 +1006,203 @@ public class TeacherJdbcAdapter {
                 WHERE cd."PROFESOR_ID" = ? AND cd."ACTIVA" = TRUE AND a."ACTIVA" = TRUE
                 ORDER BY a."NOMBRE"
                 """;
+    }
+
+    private Long ensureRoleId(
+            String code,
+            String name,
+            String description,
+            String levelLabel,
+            String scopeSummary,
+            int visualOrder
+    ) {
+        Optional<Long> existingRoleId = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "ADMIN_ROLES"
+                WHERE UPPER("CODIGO") = UPPER(?)
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), code).stream().findFirst();
+        if (existingRoleId.isPresent()) {
+            return existingRoleId.get();
+        }
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement("""
+                    INSERT INTO "ADMIN_ROLES" (
+                        "CODIGO", "NOMBRE", "DESCRIPCION", "ACTIVO",
+                        "NIVEL_LABEL", "RESUMEN_ALCANCE", "ORDEN_VISUAL"
+                    ) VALUES (?, ?, ?, TRUE, ?, ?, ?)
+                    """, Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, code);
+            statement.setString(2, name);
+            statement.setString(3, description);
+            statement.setString(4, levelLabel);
+            statement.setString(5, scopeSummary);
+            statement.setInt(6, visualOrder);
+            return statement;
+        }, keyHolder);
+        return extractGeneratedId(keyHolder);
+    }
+
+    private Optional<AccessUserRecord> findUserRecordByRunAndRole(String run, String roleCode) {
+        return jdbcTemplate.query("""
+                SELECT
+                    u."ID" AS user_id,
+                    u."PERSONA_ID",
+                    u."USUARIO",
+                    COALESCE(p."CORREO_ELECTRONICO", '') AS email,
+                    COALESCE(aus."ESTADO", CASE WHEN u."ACTIVO" THEN 'Activo' ELSE 'Inactivo' END) AS status
+                FROM "USUARIOS" u
+                JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                WHERE UPPER(p."RUN") = UPPER(?)
+                  AND UPPER(COALESCE(r."CODIGO", '')) = UPPER(?)
+                ORDER BY u."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> new AccessUserRecord(
+                rs.getLong("user_id"),
+                rs.getLong("PERSONA_ID"),
+                rs.getString("USUARIO"),
+                rs.getString("email"),
+                rs.getString("status")
+        ), run, roleCode).stream().findFirst();
+    }
+
+    private void deleteStaffSystemAccess(String run, String staffType) {
+        String roleCode = resolveRoleCodeForStaffType(staffType);
+        findUserRecordByRunAndRole(run, roleCode).ifPresent(record -> {
+            jdbcTemplate.update("DELETE FROM \"ADMIN_USER_SETTINGS\" WHERE \"USUARIO_ID\" = ?", record.userId());
+            jdbcTemplate.update("DELETE FROM \"USUARIOS\" WHERE \"ID\" = ?", record.userId());
+        });
+    }
+
+    private boolean personStillLinked(Long personId) {
+        Integer userCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "USUARIOS"
+                WHERE "PERSONA_ID" = ?
+                """, Integer.class, personId);
+        return userCount != null && userCount > 0;
+    }
+
+    private Long insertStaffUser(Long personId, String username, String encodedPassword) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement("""
+                    INSERT INTO "USUARIOS" ("PERSONA_ID", "USUARIO", "CLAVE", "ACTIVO")
+                    VALUES (?, ?, ?, TRUE)
+                    """, Statement.RETURN_GENERATED_KEYS);
+            statement.setLong(1, personId);
+            statement.setString(2, username);
+            statement.setString(3, encodedPassword);
+            return statement;
+        }, keyHolder);
+        return extractGeneratedId(keyHolder);
+    }
+
+    private void updateStaffUser(Long userId, Long personId, String username, String encodedPassword) {
+        jdbcTemplate.update("""
+                UPDATE "USUARIOS"
+                SET "PERSONA_ID" = ?,
+                    "USUARIO" = ?,
+                    "CLAVE" = ?,
+                    "ACTIVO" = TRUE
+                WHERE "ID" = ?
+                """, personId, username, encodedPassword, userId);
+    }
+
+    private void upsertStaffUserSettings(Long userId, Long roleId) {
+        Integer updated = jdbcTemplate.update("""
+                UPDATE "ADMIN_USER_SETTINGS"
+                SET "ROL_ID" = ?,
+                    "ESTADO" = 'Activo',
+                    "ACTUALIZADO_AT" = CURRENT_TIMESTAMP
+                WHERE "USUARIO_ID" = ?
+                """, roleId, userId);
+        if (updated != null && updated > 0) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "ADMIN_USER_SETTINGS" (
+                    "USUARIO_ID", "ROL_ID", "ESTADO", "FORZAR_CAMBIO_CLAVE", "REQUIERE_2FA", "ELIMINABLE"
+                ) VALUES (?, ?, 'Activo', TRUE, FALSE, TRUE)
+                """, userId, roleId);
+    }
+
+    private String generateUniqueStaffUsername(String firstNames, String paternalLastName, String maternalLastName, String staffType) {
+        String[] nameParts = (firstNames == null ? "" : firstNames.trim()).split("\\s+");
+        String normalizedFirstName = nameParts.length > 0 ? normalizeUsernamePart(nameParts[0]) : "";
+        String normalizedPaternalLastName = normalizeUsernamePart(paternalLastName);
+        String normalizedMaternalLastName = normalizeUsernamePart(maternalLastName);
+
+        String firstInitial = normalizedFirstName.isBlank() ? "" : normalizedFirstName.substring(0, 1);
+        String base = (firstInitial + normalizedPaternalLastName).toLowerCase(Locale.ROOT);
+        if (base.isBlank()) {
+            base = "ASISTENTE".equalsIgnoreCase(staffType) ? "asistente" : "docente";
+        }
+
+        String candidate = base;
+        if (!usernameExists(candidate)) {
+            return candidate;
+        }
+
+        String maternalInitial = normalizedMaternalLastName.isBlank() ? "" : normalizedMaternalLastName.substring(0, 1);
+        if (!maternalInitial.isBlank()) {
+            candidate = (base + maternalInitial).toLowerCase(Locale.ROOT);
+            if (!usernameExists(candidate)) {
+                return candidate;
+            }
+        }
+
+        int suffix = 2;
+        while (usernameExists(base + suffix)) {
+            suffix++;
+        }
+        return (base + suffix).toLowerCase(Locale.ROOT);
+    }
+
+    private boolean usernameExists(String username) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "USUARIOS"
+                WHERE UPPER("USUARIO") = UPPER(?)
+                """, Integer.class, username);
+        return count != null && count > 0;
+    }
+
+    private String buildStaffEmail(String username, String staffType) {
+        String domain = "ASISTENTE".equalsIgnoreCase(staffType) ? "asistentes.torrefuerte.cl" : "docentes.torrefuerte.cl";
+        return username.toLowerCase(Locale.ROOT) + "@" + domain;
+    }
+
+    private String resolveRoleCodeForStaffType(String staffType) {
+        return "ASISTENTE".equalsIgnoreCase(staffType) ? "SECRETARIA" : "PROFESOR";
+    }
+
+    private String normalizeAccountStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "Activo";
+        }
+        String normalized = status.trim().toLowerCase(Locale.ROOT);
+        return Character.toUpperCase(normalized.charAt(0)) + normalized.substring(1);
+    }
+
+    private String safeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeUsernamePart(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        return Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replaceAll("[^\\p{Alnum}]", "")
+                .toLowerCase(Locale.ROOT);
     }
 
     private void updatePerson(Long personId, TeacherCommand command) {
@@ -894,6 +1265,10 @@ public class TeacherJdbcAdapter {
             sql.append(", \"ESTADO_DOCENTE\" = ?");
             values.add(command.employmentStatus());
         }
+        if (columnExists("PROFESORES", "TIPO_PERSONAL")) {
+            sql.append(", \"TIPO_PERSONAL\" = ?");
+            values.add(normalizeStaffType(command.staffType()));
+        }
         sql.append(" WHERE \"ID\" = ?");
         values.add(teacherId);
         jdbcTemplate.update(sql.toString(), values.toArray());
@@ -913,6 +1288,25 @@ public class TeacherJdbcAdapter {
                 statement.setObject(parameterIndex, value);
             }
         }
+    }
+
+    private Long extractGeneratedId(KeyHolder keyHolder) {
+        Number directKey = keyHolder.getKeyList().stream()
+                .findFirst()
+                .map((keys) -> keys.get("ID"))
+                .filter(Number.class::isInstance)
+                .map(Number.class::cast)
+                .orElse(null);
+        if (directKey != null) {
+            return directKey.longValue();
+        }
+
+        Number fallbackKey = keyHolder.getKey();
+        if (fallbackKey != null) {
+            return fallbackKey.longValue();
+        }
+
+        throw new IllegalStateException("No fue posible obtener la llave generada del registro docente");
     }
 
     private String subjectCatalogJoin() {
@@ -975,5 +1369,8 @@ public class TeacherJdbcAdapter {
             return alias + ".\"" + columnName + "\"";
         }
         return fallbackExpression + " AS \"" + selectAlias + "\"";
+    }
+
+    private record AccessUserRecord(Long userId, Long personId, String username, String email, String status) {
     }
 }

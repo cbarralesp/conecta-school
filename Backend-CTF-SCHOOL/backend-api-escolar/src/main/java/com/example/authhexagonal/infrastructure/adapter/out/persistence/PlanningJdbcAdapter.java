@@ -149,6 +149,24 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
     }
 
     @Override
+    public boolean hasClasses(Long unitId) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "CLASES_PLANIFICACION"
+                WHERE "UNIDAD_ID" = ?
+                """, Integer.class, unitId);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public void deleteUnit(Long unitId) {
+        jdbcTemplate.update("""
+                DELETE FROM "UNIDADES_PLANIFICACION"
+                WHERE "ID" = ?
+                """, unitId);
+    }
+
+    @Override
     public List<PlanningUnitSummary> findUnitsByUsername(String username) {
         return jdbcTemplate.query("""
                 WITH app_user AS (

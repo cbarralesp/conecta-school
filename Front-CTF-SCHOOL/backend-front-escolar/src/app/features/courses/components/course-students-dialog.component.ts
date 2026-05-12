@@ -495,7 +495,9 @@ export class CourseStudentsDialogComponent {
     this.isLoading.set(true);
     this.enrollmentApiService.getOverview({ courseId: this.data.courseId }).subscribe({
       next: (overview) => {
-        this.students.set(overview.enrollments);
+        this.students.set(
+          overview.enrollments.filter((enrollment) => enrollment.courseId === this.data.courseId)
+        );
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {

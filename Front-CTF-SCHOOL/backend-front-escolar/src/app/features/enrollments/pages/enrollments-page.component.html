@@ -99,6 +99,11 @@
                   <td mat-cell *matCellDef="let item"><span class="course-pill">{{ item.courseName }}</span></td>
                 </ng-container>
 
+                <ng-container matColumnDef="enrollmentDate">
+                  <th mat-header-cell *matHeaderCellDef>Fecha matricula</th>
+                  <td mat-cell *matCellDef="let item">{{ formatEnrollmentDate(item.enrollmentDate) }}</td>
+                </ng-container>
+
                 <ng-container matColumnDef="guardian">
                   <th mat-header-cell *matHeaderCellDef>Apoderado</th>
                   <td mat-cell *matCellDef="let item">

@@ -11,7 +11,7 @@ type AdministrationTab = 'users' | 'roles' | 'matrix' | 'new-user' | 'audit';
   template: `
     <app-teacher-modern-layout
       [title]="toolbarTitle"
-      activeItem="users"
+      [activeItem]="sidebarActiveItem()"
       dashboardRoute="/dashboard"
       [userName]="userName()"
       [userRole]="userRole()"
@@ -44,6 +44,20 @@ export class AdministrationShellComponent {
   @Input() toolbarTitle = 'Administracion';
 
   protected readonly userName = computed(() => this.authStateService.user()?.nombre ?? 'Administrador');
+  protected readonly sidebarActiveItem = computed(() => {
+    switch (this.activeTab) {
+      case 'roles':
+        return 'roles';
+      case 'matrix':
+        return 'access-matrix';
+      case 'audit':
+        return 'audit';
+      case 'new-user':
+      case 'users':
+      default:
+        return 'users';
+    }
+  });
   protected readonly userRole = computed(() => {
     const roleCode = this.authStateService.user()?.roleCode ?? this.authStateService.user()?.rol ?? 'ADMIN';
     return roleCode === 'SUPERADMIN' ? 'Superadmin' : 'Administrador';

@@ -387,6 +387,25 @@
   overflow-x: hidden;
 }
 
+.book-empty-state {
+  padding: 1.35rem 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+  border-top: 1px solid #edf3fa;
+}
+
+.book-empty-state strong {
+  color: #18283f;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.book-empty-state span {
+  color: #71839d;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
 .gradebook-table__head,
 .gradebook-row {
   width: 100%;

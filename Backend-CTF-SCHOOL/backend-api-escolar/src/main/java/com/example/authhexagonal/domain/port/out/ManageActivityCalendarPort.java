@@ -16,12 +16,13 @@ public interface ManageActivityCalendarPort {
 
     Optional<SchoolActivity> findActiveById(Long activityId);
 
-    List<SchoolActivity> findActivitiesForRange(LocalDate startDate, LocalDate endDate);
+    List<SchoolActivity> findActivitiesForRange(LocalDate startDate, LocalDate endDate, Long courseId);
 
-    List<SchoolActivity> findUpcomingActivities(LocalDate startDate, int limit);
+    List<SchoolActivity> findUpcomingActivities(LocalDate startDate, int limit, Long courseId);
 
     SchoolActivity createActivity(
             Long activityTypeId,
+            Long courseId,
             String title,
             String description,
             LocalDate date,
@@ -33,6 +34,7 @@ public interface ManageActivityCalendarPort {
     SchoolActivity updateActivity(
             Long activityId,
             Long activityTypeId,
+            Long courseId,
             String title,
             String description,
             LocalDate date,

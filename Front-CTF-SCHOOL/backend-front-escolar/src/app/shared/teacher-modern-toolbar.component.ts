@@ -55,8 +55,8 @@ import { AuthStateService } from '../core/services/auth-state.service';
         </button>
 
         <span class="modern-toolbar__user">
-          <strong>{{ userName }}</strong>
-          <small>{{ userRole }}</small>
+          <strong>{{ resolvedUserName }}</strong>
+          <small>{{ resolvedUserRole }}</small>
         </span>
 
         <button
@@ -365,8 +365,31 @@ export class TeacherModernToolbarComponent {
     return this.title.trim().length > 0;
   }
 
+  protected get resolvedUserName(): string {
+    const sessionName = this.authStateService.user()?.nombre?.trim();
+    const inputName = this.userName.trim();
+
+    if (sessionName) {
+      return sessionName;
+    }
+
+    return inputName || 'Docente';
+  }
+
+  protected get resolvedUserRole(): string {
+    const sessionRole = this.authStateService.user()?.roleCode?.trim()
+      ?? this.authStateService.user()?.rol?.trim();
+    const inputRole = this.userRole.trim();
+
+    if (sessionRole) {
+      return sessionRole;
+    }
+
+    return inputRole || 'Docente';
+  }
+
   protected get initials(): string {
-    return this.userName
+    return this.resolvedUserName
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)

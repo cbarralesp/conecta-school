@@ -189,6 +189,20 @@
         </div>
 
         <div class="page-header__actions">
+          <label class="inline-field inline-field--header">
+            <span class="inline-field__label">Curso</span>
+            <div class="inline-field__control inline-field__control--course">
+              <div class="inline-select">
+                <mat-icon>school</mat-icon>
+                <select [value]="selectedCourseId() ?? ''" (change)="changeCourseFilter($any($event.target).value)">
+                  <option value="">Todos</option>
+              @for (course of courses(); track course.id) {
+                    <option [value]="course.id">{{ formatCourseLabel(course) }}</option>
+              }
+                </select>
+              </div>
+            </div>
+          </label>
           <button
             mat-stroked-button
             type="button"

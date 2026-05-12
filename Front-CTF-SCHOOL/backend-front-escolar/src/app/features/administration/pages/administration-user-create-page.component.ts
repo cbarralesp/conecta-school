@@ -1,15 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   AdministrationRoleCode,
@@ -26,15 +19,7 @@ import { AdministrationShellComponent } from '../components/administration-shell
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    RouterLink,
-    MatButtonModule,
-    MatCardModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
     MatIconModule,
-    MatInputModule,
-    MatNativeDateModule,
-    MatSelectModule,
     MatSnackBarModule,
     AdministrationShellComponent
   ],
@@ -43,6 +28,20 @@ import { AdministrationShellComponent } from '../components/administration-shell
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdministrationUserCreatePageComponent {
+  private static readonly EXPIRY_MODES = {
+    NONE: 'none',
+    MONTH_1: 'month_1',
+    MONTH_6: 'month_6',
+    YEAR_END: 'year_end',
+    CUSTOM: 'custom'
+  } as const;
+
+  private static readonly TWO_FACTOR_MODES = {
+    OPTIONAL: 'OPTIONAL',
+    REQUIRED: 'REQUIRED',
+    DISABLED: 'DISABLED'
+  } as const;
+
   private readonly fb = inject(FormBuilder);
   private readonly administrationApi = inject(AdministrationApiService);
   private readonly router = inject(Router);
@@ -52,14 +51,28 @@ export class AdministrationUserCreatePageComponent {
   readonly roleOptions = signal<AdministrationRoleOption[]>([]);
   readonly editingUserId = signal<number | null>(null);
   readonly isSaving = signal(false);
+  readonly expiryModes = AdministrationUserCreatePageComponent.EXPIRY_MODES;
+  readonly twoFactorModes = AdministrationUserCreatePageComponent.TWO_FACTOR_MODES;
+  readonly accountExpiryModeOptions = Object.values(AdministrationUserCreatePageComponent.EXPIRY_MODES);
+  readonly selectedRole = computed(() => {
+    const roleCode = this.form.controls.roleCode.value as AdministrationRoleCode;
+    return this.roleOptions().find((role) => role.code === roleCode) ?? null;
+  });
   readonly selectedRoleDescription = computed(() => {
     const roleCode = this.form.controls.roleCode.value as AdministrationRoleCode;
     return this.roleOptions().find((role) => role.code === roleCode)?.description ?? '';
   });
   readonly title = computed(() => this.editingUserId() ? 'Editar usuario' : 'Nuevo usuario');
+  readonly subtitle = computed(() =>
+    this.editingUserId() ? 'Actualiza los datos y permisos de acceso del usuario.' : 'Registra un nuevo usuario en el sistema.'
+  );
+  readonly currentStatusTone = computed(() => this.resolveStatusTone(this.form.controls.initialStatus.value));
+  readonly statusSwitchChecked = computed(() => this.form.controls.initialStatus.value === 'Activo');
 
   readonly form = this.fb.nonNullable.group({
+    username: [''],
     firstName: ['', [Validators.required, Validators.minLength(2)]],
+    secondName: [''],
     paternalLastName: ['', [Validators.required]],
     maternalLastName: [''],
     email: ['', [Validators.required, Validators.email]],
@@ -68,9 +81,10 @@ export class AdministrationUserCreatePageComponent {
     initialStatus: ['Activo' as AdministrationUserStatus, [Validators.required]],
     roleCode: ['PROFESOR' as AdministrationRoleCode, [Validators.required]],
     temporaryPassword: [''],
+    accountExpiryMode: [this.expiryModes.NONE as AccountExpiryMode],
+    customAccountExpiresAt: [''],
     forcePasswordChange: [true],
-    twoFactorRequired: [false],
-    accountExpiresAt: ['']
+    twoFactorMode: [this.twoFactorModes.OPTIONAL as TwoFactorMode]
   });
 
   constructor() {
@@ -82,12 +96,13 @@ export class AdministrationUserCreatePageComponent {
         this.loadUser(editId);
       } else {
         this.editingUserId.set(null);
+        this.resetForm();
       }
     });
   }
 
-  roleButtonClass(code: AdministrationRoleCode): string {
-    return this.form.controls.roleCode.value === code ? 'is-selected' : '';
+  roleButtonClass(code: AdministrationRoleCode): boolean {
+    return this.form.controls.roleCode.value === code;
   }
 
   selectRole(code: AdministrationRoleCode): void {
@@ -97,6 +112,11 @@ export class AdministrationUserCreatePageComponent {
 
   cancel(): void {
     void this.router.navigate(['/dashboard/administracion/usuarios']);
+  }
+
+  toggleActiveStatus(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.form.controls.initialStatus.setValue(checked ? 'Activo' : 'Inactivo');
   }
 
   submit(): void {
@@ -144,8 +164,12 @@ export class AdministrationUserCreatePageComponent {
   }
 
   private patchUser(user: AdministrationUserDetail): void {
+    const { primaryName, secondaryName } = this.splitGivenNames(user.firstName);
+    const expiryMode = this.detectExpiryMode(user.accountExpiresAt);
     this.form.patchValue({
-      firstName: user.firstName,
+      firstName: primaryName,
+      secondName: secondaryName,
+      username: user.username,
       paternalLastName: user.paternalLastName,
       maternalLastName: user.maternalLastName,
       email: user.email,
@@ -154,36 +178,137 @@ export class AdministrationUserCreatePageComponent {
       initialStatus: user.status as AdministrationUserStatus,
       roleCode: user.roleCode,
       temporaryPassword: '',
+      accountExpiryMode: expiryMode,
+      customAccountExpiresAt: user.accountExpiresAt ?? '',
       forcePasswordChange: user.forcePasswordChange,
-      twoFactorRequired: user.twoFactorRequired,
-      accountExpiresAt: user.accountExpiresAt ?? ''
+      twoFactorMode: user.twoFactorRequired ? this.twoFactorModes.REQUIRED : this.twoFactorModes.OPTIONAL
+    });
+  }
+
+  private resetForm(): void {
+    this.form.reset({
+      firstName: '',
+      secondName: '',
+      username: '',
+      paternalLastName: '',
+      maternalLastName: '',
+      email: '',
+      run: '',
+      phone: '',
+      initialStatus: 'Activo',
+      roleCode: 'PROFESOR',
+      temporaryPassword: '',
+      accountExpiryMode: this.expiryModes.NONE,
+      customAccountExpiresAt: '',
+      forcePasswordChange: true,
+      twoFactorMode: this.twoFactorModes.OPTIONAL
     });
   }
 
   private toPayload(): AdministrationUserFormValue {
+    const firstName = [this.form.controls.firstName.value, this.form.controls.secondName.value]
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .join(' ');
+
     return {
-      ...this.form.getRawValue(),
-      accountExpiresAt: this.normalizeDateControl(this.form.controls.accountExpiresAt.value)
+      username: this.form.controls.username.value.trim(),
+      firstName,
+      paternalLastName: this.form.controls.paternalLastName.value.trim(),
+      maternalLastName: this.form.controls.maternalLastName.value.trim(),
+      email: this.form.controls.email.value.trim(),
+      run: this.form.controls.run.value.trim(),
+      phone: this.form.controls.phone.value.trim(),
+      initialStatus: this.form.controls.initialStatus.value,
+      roleCode: this.form.controls.roleCode.value,
+      temporaryPassword: this.form.controls.temporaryPassword.value.trim(),
+      forcePasswordChange: this.form.controls.forcePasswordChange.value,
+      twoFactorRequired: this.form.controls.twoFactorMode.value === this.twoFactorModes.REQUIRED,
+      accountExpiresAt: this.resolveAccountExpiresAt()
     };
   }
 
-  private normalizeDateControl(value: string | Date | null): string | null {
+  private resolveAccountExpiresAt(): string | null {
+    const mode = this.form.controls.accountExpiryMode.value;
+    const today = new Date();
+
+    switch (mode) {
+      case this.expiryModes.MONTH_1:
+        return this.formatDate(this.addMonths(today, 1));
+      case this.expiryModes.MONTH_6:
+        return this.formatDate(this.addMonths(today, 6));
+      case this.expiryModes.YEAR_END:
+        return `${today.getFullYear()}-12-31`;
+      case this.expiryModes.CUSTOM:
+        return this.form.controls.customAccountExpiresAt.value || null;
+      case this.expiryModes.NONE:
+      default:
+        return null;
+    }
+  }
+
+  private splitGivenNames(value: string): { primaryName: string; secondaryName: string } {
+    const parts = normalizeWhitespace(value).split(' ').filter(Boolean);
+    return {
+      primaryName: parts[0] ?? '',
+      secondaryName: parts.slice(1).join(' ')
+    };
+  }
+
+  private detectExpiryMode(value: string | null): AccountExpiryMode {
     if (!value) {
-      return null;
+      return this.expiryModes.NONE;
     }
 
-    if (value instanceof Date) {
-      const month = `${value.getMonth() + 1}`.padStart(2, '0');
-      const day = `${value.getDate()}`.padStart(2, '0');
-      return `${value.getFullYear()}-${month}-${day}`;
+    const today = new Date();
+    const formattedOneMonth = this.formatDate(this.addMonths(today, 1));
+    const formattedSixMonths = this.formatDate(this.addMonths(today, 6));
+    const endOfYear = `${today.getFullYear()}-12-31`;
+
+    if (value === formattedOneMonth) {
+      return this.expiryModes.MONTH_1;
+    }
+    if (value === formattedSixMonths) {
+      return this.expiryModes.MONTH_6;
+    }
+    if (value === endOfYear) {
+      return this.expiryModes.YEAR_END;
     }
 
-    return value;
+    return this.expiryModes.CUSTOM;
+  }
+
+  private addMonths(baseDate: Date, months: number): Date {
+    const date = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    date.setMonth(date.getMonth() + months);
+    return date;
+  }
+
+  private formatDate(value: Date): string {
+    const month = `${value.getMonth() + 1}`.padStart(2, '0');
+    const day = `${value.getDate()}`.padStart(2, '0');
+    return `${value.getFullYear()}-${month}-${day}`;
+  }
+
+  private resolveStatusTone(status: AdministrationUserStatus): 'success' | 'danger' | 'warning' | 'neutral' {
+    switch (status) {
+      case 'Activo':
+        return 'success';
+      case 'Bloqueado':
+        return 'danger';
+      case 'Pendiente':
+        return 'warning';
+      case 'Inactivo':
+      default:
+        return 'neutral';
+    }
   }
 
   getControlError(
     controlName:
       | 'firstName'
+      | 'username'
+      | 'secondName'
       | 'paternalLastName'
       | 'email'
       | 'run'
@@ -211,7 +336,17 @@ export class AdministrationUserCreatePageComponent {
       if (controlName === 'phone') {
         return 'Usa formato +56 9 1234 5678.';
       }
+      if (controlName === 'username') {
+        return 'Usa al menos 3 caracteres sin espacios.';
+      }
     }
     return 'Revisa este campo.';
   }
 }
+
+function normalizeWhitespace(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+type AccountExpiryMode = 'none' | 'month_1' | 'month_6' | 'year_end' | 'custom';
+type TwoFactorMode = 'OPTIONAL' | 'REQUIRED' | 'DISABLED';

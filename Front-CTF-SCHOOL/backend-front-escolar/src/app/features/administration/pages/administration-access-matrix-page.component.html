@@ -75,7 +75,6 @@
                       <button
                         type="button"
                         [class]="accessMeta(row.permissions[role.code]).className"
-                        [disabled]="role.code === 'SUPERADMIN'"
                         (click)="cycleMatrixPermission(row.moduleCode, role.code)"
                       >
                         <mat-icon>{{ accessMeta(row.permissions[role.code]).icon }}</mat-icon>

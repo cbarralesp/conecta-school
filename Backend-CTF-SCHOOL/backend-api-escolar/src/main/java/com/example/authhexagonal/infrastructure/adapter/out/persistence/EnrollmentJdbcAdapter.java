@@ -4,9 +4,11 @@ import com.example.authhexagonal.domain.model.EnrollmentCourseOption;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
 import com.example.authhexagonal.domain.model.EnrollmentDocument;
 import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
+import com.example.authhexagonal.domain.model.EnrollmentGuardianAccess;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentListItem;
 import com.example.authhexagonal.domain.model.EnrollmentPickupContact;
+import com.example.authhexagonal.domain.model.EnrollmentStudentAccess;
 import com.example.authhexagonal.domain.model.EnrollmentSummary;
 import com.example.authhexagonal.domain.port.out.ManageEnrollmentsPort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,15 +65,38 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     @Override
     public List<EnrollmentCourseOption> findActiveCourses() {
         return jdbcTemplate.query("""
-                SELECT "ID", "CODIGO", "NOMBRE", "ANIO_ESCOLAR"
-                FROM "CURSOS"
-                WHERE "ACTIVO" = TRUE
-                ORDER BY "ANIO_ESCOLAR" DESC, "NOMBRE"
+                SELECT
+                    c."ID",
+                    c."CODIGO",
+                    TRIM(
+                        COALESCE(cg."NOMBRE", c."NOMBRE")
+                        || CASE
+                            WHEN COALESCE(c."LETRA", '') = '' THEN ''
+                            ELSE ' ' || c."LETRA"
+                        END
+                    ) AS "NOMBRE",
+                    COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
+                    COALESCE(c."LETRA", '') AS "LETRA",
+                    c."ANIO_ESCOLAR"
+                    ,
+                    COALESCE(cj."NOMBRE", c."JORNADA") AS "JORNADA"
+                FROM "CURSOS" c
+                LEFT JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = c."GRADO_ID"
+                LEFT JOIN "CURSO_NIVELES" cn
+                  ON cn."ID" = cg."NIVEL_ID"
+                LEFT JOIN "CURSO_JORNADAS" cj
+                  ON cj."ID" = c."JORNADA_ID"
+                WHERE c."ACTIVO" = TRUE
+                ORDER BY c."ANIO_ESCOLAR" DESC, COALESCE(cg."ORDEN", 999), c."LETRA", c."CODIGO"
                 """, (rs, rowNum) -> new EnrollmentCourseOption(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
                 rs.getString("NOMBRE"),
-                rs.getInt("ANIO_ESCOLAR")
+                rs.getString("NIVEL"),
+                rs.getString("LETRA"),
+                rs.getInt("ANIO_ESCOLAR"),
+                rs.getString("JORNADA")
         ));
     }
 
@@ -92,13 +118,20 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     a."NOMBRE",
                     a."APELLIDOS",
                     c."ID" AS course_id,
-                    c."NOMBRE" AS course_name,
+                    TRIM(
+                        COALESCE(cg."NOMBRE", c."NOMBRE")
+                        || CASE
+                            WHEN COALESCE(c."LETRA", '') = '' THEN ''
+                            ELSE ' ' || c."LETRA"
+                        END
+                    ) AS course_name,
                     COALESCE(ap."NOMBRE" || ' ' || ap."APELLIDOS", 'Sin apoderado') AS guardian_name,
                     m."ESTADO",
                     m."FECHA_MATRICULA"
                 FROM "MATRICULAS" m
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
+                LEFT JOIN "CURSO_GRADOS" cg ON cg."ID" = c."GRADO_ID"
                 LEFT JOIN "MATRICULA_APODERADOS" ap ON ap."MATRICULA_ID" = m."ID" AND ap."ACTIVO" = TRUE
                 WHERE m."ACTIVA" = TRUE
                   AND (? = '' OR UPPER(a."NOMBRE" || ' ' || a."APELLIDOS" || ' ' || a."RUN" || ' ' || COALESCE(ap."NOMBRE", '') || ' ' || COALESCE(ap."APELLIDOS", ''))
@@ -151,7 +184,13 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     a."FECHA_NACIMIENTO",
                     COALESCE(a."GENERO", '') AS genero,
                     c."ID" AS course_id,
-                    c."NOMBRE" AS course_name,
+                    TRIM(
+                        COALESCE(cg."NOMBRE", c."NOMBRE")
+                        || CASE
+                            WHEN COALESCE(c."LETRA", '') = '' THEN ''
+                            ELSE ' ' || c."LETRA"
+                        END
+                    ) AS course_name,
                     a."REGION_ID" AS region_id,
                     a."COMUNA_ID" AS comuna_id,
                     COALESCE(a."DIRECCION", '') AS direccion,
@@ -169,6 +208,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 FROM "MATRICULAS" m
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
+                LEFT JOIN "CURSO_GRADOS" cg ON cg."ID" = c."GRADO_ID"
                 WHERE m."ID" = ?
                 """, (rs, rowNum) -> new EnrollmentDetail(
                 rs.getLong("ID"),
@@ -191,7 +231,15 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                         null, "", "", "", "", "", "", false
                 )),
                 findPickupContactsByEnrollmentId(enrollmentId),
-                findDocumentsByEnrollmentId(enrollmentId)
+                findDocumentsByEnrollmentId(enrollmentId),
+                findStudentAccessByRun(rs.getString("RUN")).orElse(new EnrollmentStudentAccess(
+                        false, false, "", "", false, "", "Sin cuenta"
+                )),
+                findGuardianByEnrollmentId(enrollmentId)
+                        .flatMap(guardian -> findGuardianAccessByRun(guardian.run()))
+                        .orElse(new EnrollmentGuardianAccess(
+                                false, false, "", "", false, "", "Sin cuenta"
+                        ))
         ), enrollmentId);
 
         return details.stream().findFirst();
@@ -205,6 +253,58 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 WHERE UPPER("RUN") = UPPER(?)
                 LIMIT 1
                 """, (rs, rowNum) -> rs.getLong("ID"), run).stream().findFirst();
+    }
+
+    @Override
+    public Optional<EnrollmentStudentAccess> findStudentAccessByRun(String run) {
+        return jdbcTemplate.query("""
+                SELECT
+                    u."USUARIO",
+                    COALESCE(p."CORREO_ELECTRONICO", '') AS email,
+                    COALESCE(aus."ESTADO", 'Activo') AS estado
+                FROM "USUARIOS" u
+                JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                WHERE UPPER(p."RUN") = UPPER(?)
+                  AND UPPER(COALESCE(r."CODIGO", '')) = 'ALUMNO'
+                ORDER BY u."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> new EnrollmentStudentAccess(
+                true,
+                true,
+                rs.getString("USUARIO"),
+                "",
+                false,
+                rs.getString("email"),
+                rs.getString("estado")
+        ), run).stream().findFirst();
+    }
+
+    @Override
+    public Optional<EnrollmentGuardianAccess> findGuardianAccessByRun(String run) {
+        return jdbcTemplate.query("""
+                SELECT
+                    u."USUARIO",
+                    COALESCE(p."CORREO_ELECTRONICO", '') AS email,
+                    COALESCE(aus."ESTADO", 'Activo') AS estado
+                FROM "USUARIOS" u
+                JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                WHERE UPPER(p."RUN") = UPPER(?)
+                  AND UPPER(COALESCE(r."CODIGO", '')) = 'APODERADO'
+                ORDER BY u."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> new EnrollmentGuardianAccess(
+                true,
+                true,
+                rs.getString("USUARIO"),
+                "",
+                false,
+                rs.getString("email"),
+                rs.getString("estado")
+        ), run).stream().findFirst();
     }
 
     @Override
@@ -257,7 +357,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "NECESIDADES_ESPECIALES",
                     "ACTIVO"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 RETURNING "ID"
                 """, Long.class, run, name, lastName, address, birthDate, gender, regionId, communeId, specialNeeds);
     }
@@ -310,7 +410,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             LocalDate enrollmentDate,
             EnrollmentEstablishment establishment
     ) {
-        return jdbcTemplate.queryForObject("""
+        Long enrollmentId = jdbcTemplate.queryForObject("""
                 INSERT INTO "MATRICULAS" (
                     "ALUMNO_ID",
                     "CURSO_ID",
@@ -343,6 +443,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 establishment.commune(),
                 establishment.address()
         );
+        syncLegacyCourseStudent(courseId, studentId);
+        return enrollmentId;
     }
 
     @Override
@@ -384,10 +486,26 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 establishment.address(),
                 enrollmentId
         );
+        deactivateOtherLegacyCourseAssignments(studentId, courseId);
+        syncLegacyCourseStudent(courseId, studentId);
     }
 
     @Override
     public void deactivateEnrollment(Long enrollmentId) {
+        Long studentId = jdbcTemplate.query("""
+                SELECT "ALUMNO_ID"
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ALUMNO_ID"), enrollmentId).stream().findFirst().orElse(null);
+
+        Long courseId = jdbcTemplate.query("""
+                SELECT "CURSO_ID"
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("CURSO_ID"), enrollmentId).stream().findFirst().orElse(null);
+
         jdbcTemplate.update("""
                 UPDATE "MATRICULAS"
                 SET "ACTIVA" = FALSE,
@@ -404,6 +522,10 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 SET "ACTIVO" = FALSE
                 WHERE "MATRICULA_ID" = ?
                 """, enrollmentId);
+
+        if (studentId != null && courseId != null) {
+            deactivateLegacyCourseStudent(courseId, studentId);
+        }
     }
 
     @Override
@@ -479,6 +601,102 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     document.driveUrl()
             );
         }
+    }
+
+    @Override
+    public EnrollmentStudentAccess provisionStudentAccess(
+            String studentRun,
+            String studentName,
+            String studentLastName,
+            String guardianEmail,
+            String guardianPhone,
+            String encodedPassword,
+            boolean notifyByEmail
+    ) {
+        Long roleId = ensureRoleId(
+                "ALUMNO",
+                "Alumno",
+                "Usuario estudiante con acceso a su informacion academica.",
+                "Nivel 6",
+                "Visualizacion personal de cursos, horario, asistencia y calificaciones.",
+                7
+        );
+        Optional<AccessUserRecord> existingUser = findUserRecordByRunAndRole(studentRun, "ALUMNO");
+        String username = existingUser.map(AccessUserRecord::username)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> generateUniqueStudentUsername(studentName, studentLastName));
+        String email = existingUser.map(AccessUserRecord::email)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> buildStudentEmail(username));
+        Long personId = upsertPerson(studentRun, studentName, studentLastName, email, guardianPhone, existingUser.map(AccessUserRecord::personId).orElse(null));
+
+        Long userId = existingUser.map(AccessUserRecord::userId)
+                .orElseGet(() -> insertStudentUser(personId, username, encodedPassword));
+
+        if (existingUser.isPresent()) {
+            updateStudentUser(userId, personId, username, encodedPassword);
+        }
+
+        upsertStudentUserSettings(userId, roleId);
+
+        return new EnrollmentStudentAccess(
+                true,
+                true,
+                username,
+                "",
+                notifyByEmail,
+                notifyByEmail ? guardianEmail : email,
+                "Activo"
+        );
+    }
+
+    @Override
+    public EnrollmentGuardianAccess provisionGuardianAccess(
+            String guardianRun,
+            String guardianName,
+            String guardianLastName,
+            String guardianEmail,
+            String guardianPhone,
+            String encodedPassword,
+            boolean notifyByEmail
+    ) {
+        Long roleId = ensureRoleId(
+                "APODERADO",
+                "Apoderado",
+                "Usuario apoderado con acceso al seguimiento academico del estudiante.",
+                "Nivel 5",
+                "Visualizacion de informacion, asistencia y comunicacion con el establecimiento.",
+                6
+        );
+        Optional<AccessUserRecord> existingUser = findUserRecordByRunAndRole(guardianRun, "APODERADO");
+        String username = existingUser.map(AccessUserRecord::username)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> generateUniqueGuardianUsername(guardianName, guardianLastName));
+        String email = existingUser.map(AccessUserRecord::email)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> guardianEmail == null || guardianEmail.isBlank()
+                        ? buildGuardianEmail(username)
+                        : guardianEmail.trim().toLowerCase());
+        Long personId = upsertPerson(guardianRun, guardianName, guardianLastName, email, guardianPhone, existingUser.map(AccessUserRecord::personId).orElse(null));
+
+        Long userId = existingUser.map(AccessUserRecord::userId)
+                .orElseGet(() -> insertStudentUser(personId, username, encodedPassword));
+
+        if (existingUser.isPresent()) {
+            updateStudentUser(userId, personId, username, encodedPassword);
+        }
+
+        upsertStudentUserSettings(userId, roleId);
+
+        return new EnrollmentGuardianAccess(
+                true,
+                true,
+                username,
+                "",
+                notifyByEmail,
+                notifyByEmail ? email : email,
+                "Activo"
+        );
     }
 
     private Optional<EnrollmentGuardian> findGuardianByEnrollmentId(Long enrollmentId) {
@@ -560,5 +778,302 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     private Long readNullableLong(ResultSet rs, String column) throws SQLException {
         long value = rs.getLong(column);
         return rs.wasNull() ? null : value;
+    }
+
+    private void syncLegacyCourseStudent(Long courseId, Long studentId) {
+        if (!tableExists("CURSO_ALUMNOS")) {
+            return;
+        }
+
+        deactivateOtherLegacyCourseAssignments(studentId, courseId);
+
+        int updated = jdbcTemplate.update("""
+                UPDATE "CURSO_ALUMNOS"
+                SET "CURSO_ID" = ?,
+                    "ACTIVO" = TRUE,
+                    "FECHA_ASIGNACION" = COALESCE("FECHA_ASIGNACION", CURRENT_DATE)
+                WHERE "ALUMNO_ID" = ?
+                """, courseId, studentId);
+
+        if (updated == 0) {
+            jdbcTemplate.update("""
+                    INSERT INTO "CURSO_ALUMNOS" ("CURSO_ID", "ALUMNO_ID", "FECHA_ASIGNACION", "ACTIVO")
+                    VALUES (?, ?, CURRENT_DATE, TRUE)
+                    """, courseId, studentId);
+        }
+    }
+
+    private void deactivateOtherLegacyCourseAssignments(Long studentId, Long keepCourseId) {
+        if (!tableExists("CURSO_ALUMNOS")) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                UPDATE "CURSO_ALUMNOS"
+                SET "ACTIVO" = FALSE
+                WHERE "ALUMNO_ID" = ?
+                  AND "CURSO_ID" <> ?
+                """, studentId, keepCourseId);
+    }
+
+    private void deactivateLegacyCourseStudent(Long courseId, Long studentId) {
+        if (!tableExists("CURSO_ALUMNOS")) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                UPDATE "CURSO_ALUMNOS"
+                SET "ACTIVO" = FALSE
+                WHERE "CURSO_ID" = ?
+                  AND "ALUMNO_ID" = ?
+                """, courseId, studentId);
+    }
+
+    private boolean tableExists(String tableName) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = ?
+                """, Integer.class, tableName);
+        return count != null && count > 0;
+    }
+
+    private Long ensureRoleId(
+            String code,
+            String name,
+            String description,
+            String levelLabel,
+            String scopeSummary,
+            int visualOrder
+    ) {
+        jdbcTemplate.update("""
+                INSERT INTO "ADMIN_ROLES" (
+                    "CODIGO", "NOMBRE", "DESCRIPCION", "NIVEL_LABEL", "RESUMEN_ALCANCE", "ORDEN_VISUAL", "ACTIVO"
+                )
+                SELECT ?, ?, ?, ?, ?, ?, TRUE
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM "ADMIN_ROLES" WHERE UPPER("CODIGO") = UPPER(?)
+                )
+                """, code, name, description, levelLabel, scopeSummary, visualOrder, code);
+
+        return jdbcTemplate.queryForObject("""
+                SELECT "ID"
+                FROM "ADMIN_ROLES"
+                WHERE UPPER("CODIGO") = UPPER(?)
+                LIMIT 1
+                """, Long.class, code);
+    }
+
+    private Optional<AccessUserRecord> findUserRecordByRunAndRole(String run, String roleCode) {
+        return jdbcTemplate.query("""
+                SELECT
+                    u."ID" AS user_id,
+                    u."PERSONA_ID",
+                    u."USUARIO",
+                    COALESCE(p."CORREO_ELECTRONICO", '') AS email
+                FROM "USUARIOS" u
+                JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                WHERE UPPER(p."RUN") = UPPER(?)
+                  AND UPPER(COALESCE(r."CODIGO", '')) = UPPER(?)
+                ORDER BY u."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> new AccessUserRecord(
+                rs.getLong("user_id"),
+                rs.getLong("PERSONA_ID"),
+                rs.getString("USUARIO"),
+                rs.getString("email")
+        ), run, roleCode).stream().findFirst();
+    }
+
+    private Long upsertPerson(String run, String name, String lastName, String email, String phone, Long existingPersonId) {
+        if (existingPersonId != null) {
+            jdbcTemplate.update("""
+                    UPDATE "PERSONAS"
+                    SET "RUN" = ?,
+                        "NOMBRES" = ?,
+                        "APELLIDOS" = ?,
+                        "CORREO_ELECTRONICO" = CASE WHEN COALESCE("CORREO_ELECTRONICO", '') = '' THEN ? ELSE "CORREO_ELECTRONICO" END,
+                        "TELEFONO" = CASE WHEN COALESCE("TELEFONO", '') = '' THEN ? ELSE "TELEFONO" END
+                    WHERE "ID" = ?
+                    """, run, name, lastName, email, phone, existingPersonId);
+            return existingPersonId;
+        }
+
+        Optional<Long> personIdByRun = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "PERSONAS"
+                WHERE UPPER("RUN") = UPPER(?)
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), run).stream().findFirst();
+
+        if (personIdByRun.isPresent()) {
+            Long personId = personIdByRun.get();
+            jdbcTemplate.update("""
+                    UPDATE "PERSONAS"
+                    SET "NOMBRES" = ?,
+                        "APELLIDOS" = ?,
+                        "CORREO_ELECTRONICO" = CASE WHEN COALESCE("CORREO_ELECTRONICO", '') = '' THEN ? ELSE "CORREO_ELECTRONICO" END,
+                        "TELEFONO" = CASE WHEN COALESCE("TELEFONO", '') = '' THEN ? ELSE "TELEFONO" END
+                    WHERE "ID" = ?
+                    """, name, lastName, email, phone, personId);
+            return personId;
+        }
+
+        return jdbcTemplate.queryForObject("""
+                INSERT INTO "PERSONAS" (
+                    "RUN", "NOMBRES", "APELLIDOS", "CORREO_ELECTRONICO", "TELEFONO", "DIRECCION"
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING "ID"
+                """, Long.class, run, name, lastName, email, phone, null);
+    }
+
+    private Long insertStudentUser(Long personId, String username, String encodedPassword) {
+        return jdbcTemplate.queryForObject("""
+                INSERT INTO "USUARIOS" ("PERSONA_ID", "USUARIO", "CLAVE", "ACTIVO")
+                VALUES (?, ?, ?, TRUE)
+                RETURNING "ID"
+                """, Long.class, personId, username, encodedPassword);
+    }
+
+    private void updateStudentUser(Long userId, Long personId, String username, String encodedPassword) {
+        jdbcTemplate.update("""
+                UPDATE "USUARIOS"
+                SET "PERSONA_ID" = ?,
+                    "USUARIO" = ?,
+                    "CLAVE" = ?,
+                    "ACTIVO" = TRUE
+                WHERE "ID" = ?
+                """, personId, username, encodedPassword, userId);
+    }
+
+    private void upsertStudentUserSettings(Long userId, Long roleId) {
+        Integer existing = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "ADMIN_USER_SETTINGS"
+                WHERE "USUARIO_ID" = ?
+                """, Integer.class, userId);
+
+        if (existing != null && existing > 0) {
+            jdbcTemplate.update("""
+                    UPDATE "ADMIN_USER_SETTINGS"
+                    SET "ROL_ID" = ?,
+                        "ESTADO" = 'Activo',
+                        "FORZAR_CAMBIO_CLAVE" = FALSE,
+                        "REQUIERE_2FA" = FALSE,
+                        "ACTUALIZADO_AT" = CURRENT_TIMESTAMP
+                    WHERE "USUARIO_ID" = ?
+                    """, roleId, userId);
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "ADMIN_USER_SETTINGS" (
+                    "USUARIO_ID", "ROL_ID", "ESTADO", "FORZAR_CAMBIO_CLAVE", "REQUIERE_2FA", "VIGENCIA_HASTA", "ELIMINABLE"
+                ) VALUES (?, ?, 'Activo', FALSE, FALSE, NULL, TRUE)
+                """, userId, roleId);
+    }
+
+    private String generateUniqueStudentUsername(String studentName, String studentLastName) {
+        String[] nameParts = (studentName == null ? "" : studentName.trim()).split("\\s+");
+        String[] lastNameParts = (studentLastName == null ? "" : studentLastName.trim()).split("\\s+");
+
+        String normalizedFirstName = nameParts.length > 0 ? normalizeUsernamePart(nameParts[0]) : "";
+        String normalizedPaternalLastName = lastNameParts.length > 0 ? normalizeUsernamePart(lastNameParts[0]) : "";
+        String normalizedMaternalLastName = lastNameParts.length > 1 ? normalizeUsernamePart(lastNameParts[1]) : "";
+
+        String firstInitial = normalizedFirstName.isBlank() ? "" : normalizedFirstName.substring(0, 1);
+        String paternalLastName = normalizedPaternalLastName;
+        String maternalInitial = normalizedMaternalLastName.isBlank() ? "" : normalizedMaternalLastName.substring(0, 1);
+        String base = (firstInitial + paternalLastName).toLowerCase();
+        if (base.isBlank()) {
+            base = "alumno";
+        }
+
+        String candidate = base;
+        if (!usernameExists(candidate)) {
+            return candidate;
+        }
+
+        if (!maternalInitial.isBlank()) {
+            candidate = (base + maternalInitial).toLowerCase();
+            if (!usernameExists(candidate)) {
+                return candidate;
+            }
+        }
+
+        int suffix = 2;
+        while (usernameExists(base + suffix)) {
+            suffix++;
+        }
+        return base + suffix;
+    }
+
+    private String generateUniqueGuardianUsername(String guardianName, String guardianLastName) {
+        String[] nameParts = (guardianName == null ? "" : guardianName.trim()).split("\\s+");
+        String[] lastNameParts = (guardianLastName == null ? "" : guardianLastName.trim()).split("\\s+");
+
+        String normalizedFirstName = nameParts.length > 0 ? normalizeUsernamePart(nameParts[0]) : "";
+        String normalizedPaternalLastName = lastNameParts.length > 0 ? normalizeUsernamePart(lastNameParts[0]) : "";
+        String normalizedMaternalLastName = lastNameParts.length > 1 ? normalizeUsernamePart(lastNameParts[1]) : "";
+
+        String firstInitial = normalizedFirstName.isBlank() ? "" : normalizedFirstName.substring(0, 1);
+        String base = (firstInitial + normalizedPaternalLastName).toLowerCase();
+        if (base.isBlank()) {
+            base = "apoderado";
+        }
+
+        String candidate = base;
+        if (!usernameExists(candidate)) {
+            return candidate;
+        }
+
+        String maternalInitial = normalizedMaternalLastName.isBlank() ? "" : normalizedMaternalLastName.substring(0, 1);
+        if (!maternalInitial.isBlank()) {
+            candidate = (base + maternalInitial).toLowerCase();
+            if (!usernameExists(candidate)) {
+                return candidate;
+            }
+        }
+
+        int suffix = 2;
+        while (usernameExists(base + suffix)) {
+            suffix++;
+        }
+        return base + suffix;
+    }
+
+    private boolean usernameExists(String username) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "USUARIOS"
+                WHERE UPPER("USUARIO") = UPPER(?)
+                """, Integer.class, username);
+        return count != null && count > 0;
+    }
+
+    private String buildStudentEmail(String username) {
+        return username.toLowerCase() + "@alumnos.torrefuerte.cl";
+    }
+
+    private String buildGuardianEmail(String username) {
+        return username.toLowerCase() + "@apoderados.torrefuerte.cl";
+    }
+
+    private String normalizeUsernamePart(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replaceAll("[^\\p{Alnum}]", "")
+                .toLowerCase();
+        return normalized;
+    }
+
+    private record AccessUserRecord(Long userId, Long personId, String username, String email) {
     }
 }

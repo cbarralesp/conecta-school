@@ -14,11 +14,15 @@ export class AuthStateService {
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
 
   restoreSession(): void {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const user = localStorage.getItem(USER_KEY);
+    try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      const user = localStorage.getItem(USER_KEY);
 
-    this.tokenSignal.set(token);
-    this.userSignal.set(user ? this.normalizeStoredUser(JSON.parse(user) as Partial<AuthUser>) : null);
+      this.tokenSignal.set(token);
+      this.userSignal.set(user ? this.normalizeStoredUser(JSON.parse(user) as Partial<AuthUser>) : null);
+    } catch {
+      this.clearSession();
+    }
   }
 
   setSession(response: AuthResponse): void {

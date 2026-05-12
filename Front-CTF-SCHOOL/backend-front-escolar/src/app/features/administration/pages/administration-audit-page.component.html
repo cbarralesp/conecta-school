@@ -84,7 +84,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of view()?.items ?? []; track trackByAuditId($index, item)) {
+              @for (item of pagedItems(); track trackByAuditId($index, item)) {
                 <tr>
                   <td>
                     <div class="action-group">
@@ -113,6 +113,17 @@
             </tbody>
           </table>
         </div>
+
+        @if (shouldShowPaginator()) {
+          <mat-paginator
+            class="audit-paginator"
+            [length]="totalItems()"
+            [pageIndex]="pageIndex()"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[5, 10, 15]"
+            (page)="handlePageChange($event)"
+          />
+        }
       }
     </mat-card>
   </section>

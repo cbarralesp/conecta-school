@@ -7,7 +7,7 @@
   <main class="create-course-page">
     @if (currentStep() === 'configuration') {
       <mat-card appearance="outlined" class="create-course-card">
-        <mat-card-title>Configuracion principal</mat-card-title>
+        <mat-card-title>Configuración principal</mat-card-title>
         <mat-card-content>
           <section class="compact-section">
             <div class="form-section-heading">
@@ -18,19 +18,36 @@
 
             <form [formGroup]="form" class="create-course-form">
               <mat-form-field appearance="outline" class="compact-field compact-field--wide">
-                <mat-label>Curso a crear *</mat-label>
+                <mat-label>Curso a crear</mat-label>
                 <mat-select
                   [formControl]="form.controls.courseSearch"
                   (valueChange)="selectMasterCourse($event)">
                   <mat-option [value]="null">Seleccione...</mat-option>
-                  @for (course of masterCourseOptions(); track course.id) {
+                  @for (course of filteredMasterCourseOptions(); track course.id) {
                     <mat-option [value]="course">
-                      {{ formatMasterCourseLabel(course.description) }}
+                      {{ course.description }}
                     </mat-option>
                   }
                 </mat-select>
                 @if (getControlError('courseSearch')) {
                   <mat-error>{{ getControlError('courseSearch') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="compact-field compact-field--wide">
+                <mat-label>Nivel</mat-label>
+                <mat-select
+                  [formControl]="form.controls.levelSearch"
+                  (valueChange)="selectLevel($event)">
+                  <mat-option [value]="''">Seleccione...</mat-option>
+                  @for (level of levelOptions(); track level) {
+                    <mat-option [value]="level">
+                      {{ levelLabel(level) }}
+                    </mat-option>
+                  }
+                </mat-select>
+                @if (getControlError('levelSearch')) {
+                  <mat-error>{{ getControlError('levelSearch') }}</mat-error>
                 }
               </mat-form-field>
 
@@ -61,8 +78,8 @@
               <mat-form-field appearance="outline" class="compact-field compact-field--narrow">
                 <mat-label>Jornada *</mat-label>
                 <mat-select formControlName="scheduleType">
-                  @for (option of scheduleOptions; track option) {
-                    <mat-option [value]="option">{{ option }}</mat-option>
+                  @for (option of scheduleOptions; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
                   }
                 </mat-select>
                 @if (getControlError('scheduleType')) {
@@ -81,13 +98,13 @@
 
             <form [formGroup]="form" class="teacher-form-row">
               <mat-form-field appearance="outline" class="compact-field">
-                <mat-label>Profesor *</mat-label>
+                <mat-label>Profesor jefe *</mat-label>
                 <mat-select
                   [formControl]="form.controls.teacherSearch"
                   (valueChange)="selectTeacher($event)">
                   @for (teacher of teachers(); track teacher.id) {
                     <mat-option [value]="teacher">
-                      {{ teacherOptionLabel(teacher) }}
+                      {{ teacher.fullName }}
                     </mat-option>
                   }
                 </mat-select>
@@ -97,14 +114,14 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
-                <mat-label>Asistente</mat-label>
+                <mat-label>Asistente de curso</mat-label>
                 <mat-select
                   [value]="selectedAssistant()"
                   (valueChange)="selectAssistant($event)">
                   <mat-option [value]="null">Ninguno</mat-option>
                   @for (assistant of assistants(); track assistant.id) {
                     <mat-option [value]="assistant">
-                      {{ teacherOptionLabel(assistant) }}
+                      {{ assistant.fullName }}
                     </mat-option>
                   }
                 </mat-select>
@@ -115,7 +132,7 @@
           <div class="actions-row">
             <button mat-stroked-button type="button" routerLink="/dashboard/cursos">Volver</button>
             <button mat-flat-button type="button" (click)="goToAssignmentStep()" [disabled]="isLoadingStudents()">
-              Siguiente: Asignar Alumnos
+              Siguiente: Asignar alumnos
             </button>
           </div>
         </mat-card-content>
@@ -123,7 +140,7 @@
     } @else {
       <section class="assignment-heading">
         <div>
-          <h1>Asignar Alumnos</h1>
+          <h1>Asignar alumnos</h1>
           <p>{{ selectedCourseTitle() }}</p>
         </div>
         <button mat-stroked-button type="button" (click)="backToConfiguration()">Atrás</button>
@@ -176,7 +193,7 @@
 
               <div class="assignment-list-body">
                 @if (selectedStudents().length === 0) {
-                  <p class="assignment-empty">Todavia no has seleccionado alumnos.</p>
+                  <p class="assignment-empty">Todavía no has seleccionado alumnos.</p>
                 } @else {
                   @for (student of selectedStudents(); track student.id) {
                     <button
@@ -202,7 +219,7 @@
 
       <div class="actions-row actions-row--assignment">
         <button mat-flat-button type="button" (click)="createCourse()" [disabled]="isSaving()">
-          Crear Curso
+          Crear curso
         </button>
       </div>
     }

@@ -11,7 +11,9 @@ public record CourseResponse(
         int schoolYear,
         String scheduleType,
         Long teacherId,
+        String teacherName,
         Long assistantId,
+        String assistantName,
         boolean active,
         int studentCount
 ) {
@@ -25,7 +27,9 @@ public record CourseResponse(
                 course.schoolYear(),
                 course.scheduleType(),
                 course.teacherId(),
+                course.teacherName(),
                 course.assistantId(),
+                course.assistantName(),
                 course.active(),
                 course.studentCount()
         );

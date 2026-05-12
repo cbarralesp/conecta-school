@@ -1,6 +1,7 @@
 package com.example.authhexagonal.domain.port.out;
 
 import com.example.authhexagonal.domain.model.AdministrationAccessMatrixRow;
+import com.example.authhexagonal.domain.model.AdministrationCurrentModuleAccess;
 import com.example.authhexagonal.domain.model.AdministrationAuditLogItem;
 import com.example.authhexagonal.domain.model.AdministrationMetric;
 import com.example.authhexagonal.domain.model.AdministrationPermissionBullet;
@@ -49,6 +50,8 @@ public interface ManageAdministrationPort {
     List<AdministrationAccessMatrixRow> findAccessMatrixRows();
 
     List<AdministrationUserModuleOverride> findUserModuleOverrides();
+
+    AdministrationCurrentModuleAccess findCurrentModuleAccess(String username);
 
     void replaceAccessMatrixRows(List<AdministrationAccessMatrixRow> rows);
 

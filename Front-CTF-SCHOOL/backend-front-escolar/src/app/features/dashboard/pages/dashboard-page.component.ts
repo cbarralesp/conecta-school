@@ -147,14 +147,31 @@ export class DashboardPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.snackBar.open(
-          typeof error.error?.message === 'string'
-            ? error.error.message
-            : 'No fue posible cargar el dashboard del profesor',
-          'Cerrar',
-          { duration: 3500 }
-        );
+        const backendMessage = typeof error.error?.message === 'string' ? error.error.message : '';
+        if (backendMessage.toLowerCase().includes('teacher dashboard not found')) {
+          this.dashboard.set(this.buildFallbackDashboard());
+          return;
+        }
+
+        this.snackBar.open(backendMessage || 'No fue posible cargar el dashboard del profesor', 'Cerrar', {
+          duration: 3500
+        });
       }
     });
+  }
+
+  private buildFallbackDashboard(): TeacherDashboard {
+    return {
+      teacherCode: '',
+      teacherName: this.user()?.nombre ?? 'Docente',
+      specialty: 'Acceso docente habilitado',
+      assignedCoursesCount: 0,
+      plannedClassesCount: 0,
+      pendingPlanningCount: 0,
+      assignedCourses: [],
+      weeklySchedule: [],
+      todaySchedulePreview: [],
+      planningItems: []
+    };
   }
 }

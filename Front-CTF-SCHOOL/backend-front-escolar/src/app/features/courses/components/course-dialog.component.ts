@@ -1,13 +1,10 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { forkJoin } from 'rxjs';
 import { Course, CoursePayload, StudentCatalogItem } from '../../../core/models/course.models';
 import { EnrollmentListItem } from '../../../core/models/enrollment.models';
-import { CourseApiService } from '../../../core/services/course-api.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 
 interface CourseDialogData {
@@ -24,9 +21,9 @@ interface CourseDialogData {
         <div>
           <span class="dialog-panel__eyebrow">Cursos</span>
           <h2>{{ data.course ? 'Editar curso' : 'Nuevo curso' }}</h2>
-          <p>{{ data.course ? 'Actualiza la configuracion y la asignacion de alumnos del curso.' : 'Configura el curso y define su informacion principal.' }}</p>
+          <p>{{ data.course ? 'Actualiza la configuración y revisa los alumnos matriculados del curso.' : 'Configura el curso y define su información principal.' }}</p>
         </div>
-        <button type="button" class="dialog-panel__close" (click)="dialogRef.close()" aria-label="Cerrar dialogo">
+        <button type="button" class="dialog-panel__close" (click)="dialogRef.close()" aria-label="Cerrar diálogo">
           <mat-icon>close</mat-icon>
         </button>
       </header>
@@ -34,12 +31,12 @@ interface CourseDialogData {
       <div class="dialog-panel__body">
         <section class="dialog-section">
           <div class="dialog-section__title">
-            <h3>Configuracion principal</h3>
+            <h3>Configuración principal</h3>
           </div>
 
           <form [formGroup]="form" class="dialog-form">
             <label class="dialog-field">
-              <span>Codigo</span>
+              <span>Código</span>
               <input type="text" formControlName="code" />
             </label>
 
@@ -59,7 +56,7 @@ interface CourseDialogData {
             </label>
 
             <label class="dialog-field">
-              <span>Ano escolar</span>
+              <span>Año escolar</span>
               <input type="number" formControlName="schoolYear" />
             </label>
 
@@ -74,8 +71,8 @@ interface CourseDialogData {
           <section class="dialog-section">
             <div class="dialog-section__title dialog-section__title--spaced">
               <div>
-                <h3>Asignar alumnos</h3>
-                <p>{{ selectedStudents().length }} seleccionados · {{ availableStudents().length }} disponibles</p>
+                <h3>Alumnos matriculados</h3>
+                <p>{{ selectedStudents().length }} estudiante{{ selectedStudents().length === 1 ? '' : 's' }} asociado{{ selectedStudents().length === 1 ? '' : 's' }} a este curso</p>
               </div>
 
               <label class="students-search">
@@ -88,60 +85,21 @@ interface CourseDialogData {
               </label>
             </div>
 
-            <div class="assignment-layout">
-              <section class="assignment-list-box">
-                <header class="assignment-list-header">
-                  <h4>Disponibles</h4>
-                  <span>{{ filteredAvailableStudents().length }}</span>
+            <div class="assignment-layout assignment-layout--single">
+              <section class="assignment-list-box assignment-list-box--selected">
+                <header class="assignment-list-header assignment-list-header--selected">
+                  <h4>Matriculados en este curso</h4>
+                  <span>{{ filteredSelectedStudents().length }}</span>
                 </header>
 
                 <div class="assignment-list-body">
                   @if (isLoadingStudents()) {
                     <p class="assignment-empty">Cargando alumnos...</p>
-                  } @else if (filteredAvailableStudents().length === 0) {
-                    <p class="assignment-empty">No hay alumnos disponibles.</p>
-                  } @else {
-                    @for (student of filteredAvailableStudents(); track student.id) {
-                      <button
-                        type="button"
-                        class="assignment-student-row"
-                        [class.is-selected]="checkedAvailableIds().includes(student.id)"
-                        (click)="toggleAvailableStudent(student.id)">
-                        <div>
-                          <strong>{{ student.fullName }}</strong>
-                          <span>{{ student.run }}</span>
-                          @if (studentLocationLabel(student)) {
-                            <small>{{ studentLocationLabel(student) }}</small>
-                          }
-                        </div>
-                        <small>{{ student.age > 0 ? student.age + ' anos' : 'Sin edad' }}</small>
-                      </button>
-                    }
-                  }
-                </div>
-              </section>
-
-              <div class="assignment-controls">
-                <button type="button" class="assignment-circle-btn" (click)="moveCheckedToSelected()">&gt;&gt;</button>
-                <button type="button" class="assignment-circle-btn" (click)="moveCheckedToAvailable()">&lt;&lt;</button>
-              </div>
-
-              <section class="assignment-list-box assignment-list-box--selected">
-                <header class="assignment-list-header assignment-list-header--selected">
-                  <h4>Seleccionados</h4>
-                  <span>{{ filteredSelectedStudents().length }}</span>
-                </header>
-
-                <div class="assignment-list-body">
-                  @if (filteredSelectedStudents().length === 0) {
-                    <p class="assignment-empty">Todavia no hay alumnos seleccionados.</p>
+                  } @else if (filteredSelectedStudents().length === 0) {
+                    <p class="assignment-empty">Todavía no hay matrículas asociadas a este curso.</p>
                   } @else {
                     @for (student of filteredSelectedStudents(); track student.id) {
-                      <button
-                        type="button"
-                        class="assignment-student-row assignment-student-row--selected"
-                        [class.is-selected]="checkedSelectedIds().includes(student.id)"
-                        (click)="toggleSelectedStudent(student.id)">
+                      <article class="assignment-student-row assignment-student-row--selected">
                         <div>
                           <strong>{{ student.fullName }}</strong>
                           <span>{{ student.run }}</span>
@@ -149,8 +107,8 @@ interface CourseDialogData {
                             <small>{{ studentLocationLabel(student) }}</small>
                           }
                         </div>
-                        <small>{{ student.age > 0 ? student.age + ' anos' : 'Asignado' }}</small>
-                      </button>
+                        <small>{{ student.age > 0 ? student.age + ' años' : 'Matriculado' }}</small>
+                      </article>
                     }
                   }
                 </div>
@@ -320,7 +278,7 @@ interface CourseDialogData {
 
     .assignment-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 0.8rem;
       align-items: center;
     }
@@ -389,8 +347,6 @@ interface CourseDialogData {
       justify-content: space-between;
       gap: 0.8rem;
       text-align: left;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
     }
 
     .assignment-student-row div {
@@ -416,15 +372,6 @@ interface CourseDialogData {
       color: #7c8ca4;
     }
 
-    .assignment-student-row:hover {
-      background: #eef2ff;
-    }
-
-    .assignment-student-row.is-selected {
-      background: #e0e7ff;
-      box-shadow: inset 3px 0 0 #4338ca;
-    }
-
     .assignment-student-row--selected:hover {
       background: #f5f3ff;
     }
@@ -435,31 +382,6 @@ interface CourseDialogData {
       text-align: center;
       color: #6b7280;
       font-size: 0.78rem;
-    }
-
-    .assignment-controls {
-      display: grid;
-      gap: 0.7rem;
-      align-content: center;
-    }
-
-    .assignment-circle-btn {
-      width: 2.45rem;
-      height: 2.45rem;
-      border-radius: 999px;
-      border: 1px solid #d9dde5;
-      background: #ffffff;
-      color: #111827;
-      font-size: 0.88rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .assignment-circle-btn:hover {
-      background: #eef2ff;
-      border-color: #6366f1;
-      color: #4338ca;
     }
 
     .dialog-panel__footer {
@@ -496,10 +418,6 @@ interface CourseDialogData {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .assignment-layout {
-        grid-template-columns: 1fr;
-      }
-
       .assignment-list-box {
         min-height: 16rem;
       }
@@ -507,11 +425,6 @@ interface CourseDialogData {
       .assignment-list-body {
         min-height: 14rem;
         max-height: 14rem;
-      }
-
-      .assignment-controls {
-        grid-auto-flow: column;
-        justify-content: center;
       }
     }
 
@@ -543,7 +456,6 @@ interface CourseDialogData {
 })
 export class CourseDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly courseApiService = inject(CourseApiService);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
   readonly dialogRef = inject(MatDialogRef<CourseDialogComponent>);
   readonly data = inject<CourseDialogData>(MAT_DIALOG_DATA);
@@ -557,14 +469,10 @@ export class CourseDialogComponent {
     scheduleType: [this.data.course?.scheduleType ?? '', [Validators.required]]
   });
 
-  readonly availableStudents = signal<StudentCatalogItem[]>([]);
   readonly selectedStudents = signal<StudentCatalogItem[]>([]);
-  readonly checkedAvailableIds = signal<number[]>([]);
-  readonly checkedSelectedIds = signal<number[]>([]);
   readonly studentSearch = signal('');
   readonly isLoadingStudents = signal(false);
 
-  readonly filteredAvailableStudents = computed(() => this.filterStudents(this.availableStudents()));
   readonly filteredSelectedStudents = computed(() => this.filterStudents(this.selectedStudents()));
 
   constructor() {
@@ -587,60 +495,15 @@ export class CourseDialogComponent {
     this.dialogRef.close(payload);
   }
 
-  toggleAvailableStudent(studentId: number): void {
-    this.checkedAvailableIds.update((ids) =>
-      ids.includes(studentId) ? ids.filter((id) => id !== studentId) : [...ids, studentId]
-    );
-  }
-
-  toggleSelectedStudent(studentId: number): void {
-    this.checkedSelectedIds.update((ids) =>
-      ids.includes(studentId) ? ids.filter((id) => id !== studentId) : [...ids, studentId]
-    );
-  }
-
-  moveCheckedToSelected(): void {
-    const ids = new Set(this.checkedAvailableIds());
-    if (ids.size === 0) {
-      return;
-    }
-
-    const toMove = this.availableStudents().filter((student) => ids.has(student.id));
-    this.availableStudents.update((items) => items.filter((student) => !ids.has(student.id)));
-    this.selectedStudents.update((items) => [...items, ...toMove].sort((a, b) => a.fullName.localeCompare(b.fullName, 'es')));
-    this.checkedAvailableIds.set([]);
-  }
-
-  moveCheckedToAvailable(): void {
-    const ids = new Set(this.checkedSelectedIds());
-    if (ids.size === 0) {
-      return;
-    }
-
-    const toMove = this.selectedStudents().filter((student) => ids.has(student.id));
-    this.selectedStudents.update((items) => items.filter((student) => !ids.has(student.id)));
-    this.availableStudents.update((items) => [...items, ...toMove].sort((a, b) => a.fullName.localeCompare(b.fullName, 'es')));
-    this.checkedSelectedIds.set([]);
-  }
-
   private loadStudentAssignmentData(courseId: number): void {
     this.isLoadingStudents.set(true);
-    forkJoin({
-      enrolled: this.enrollmentApiService.getOverview({ courseId }),
-      available: this.courseApiService.searchAllUnassignedStudents('')
-    }).subscribe({
-      next: ({ enrolled, available }) => {
+    this.enrollmentApiService.getOverview({ courseId }).subscribe({
+      next: (enrolled) => {
         const selected = enrolled.enrollments.map((item) => this.mapEnrollmentToCatalog(item));
         this.selectedStudents.set(selected.sort((a, b) => a.fullName.localeCompare(b.fullName, 'es')));
-        this.availableStudents.set(
-          available
-            .filter((student) => !selected.some((selectedStudent) => selectedStudent.id === student.id))
-            .sort((a, b) => a.fullName.localeCompare(b.fullName, 'es'))
-        );
         this.isLoadingStudents.set(false);
       },
       error: () => {
-        this.availableStudents.set([]);
         this.selectedStudents.set([]);
         this.isLoadingStudents.set(false);
       }

@@ -10,6 +10,7 @@ import com.example.authhexagonal.domain.port.out.LoadMasterCoursesPort;
 import com.example.authhexagonal.domain.port.out.ManageCoursesPort;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,12 +51,10 @@ public class CourseService implements ManageCoursesUseCase {
         MasterCourse masterCourse = loadMasterCoursesPort.findById(masterCourseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Master course not found"));
 
-        int grade = gradeFromDescription(masterCourse.description());
-        int minAge = 5 + grade;
-        int maxAge = 6 + grade;
+        CourseLevelDefinition definition = resolveCourseLevel(masterCourse);
 
         return loadMasterCoursesPort.searchUnassignedStudents(query).stream()
-                .filter(student -> student.age() >= minAge && student.age() <= maxAge)
+                .filter(student -> student.age() >= definition.minAge() && student.age() <= definition.maxAge())
                 .toList();
     }
 
@@ -79,15 +78,15 @@ public class CourseService implements ManageCoursesUseCase {
         TeacherCatalogItem assistant = assistantId == null ? null : loadMasterCoursesPort.findTeacherById(assistantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Assistant not found"));
 
-        ParsedCourseDescription parsed = parseDescription(masterCourse.description());
+        CourseLevelDefinition definition = resolveCourseLevel(masterCourse);
         String normalizedParallel = normalizeParallel(parallel);
         String generatedCode = generateCourseCode(masterCourse, normalizedParallel, schoolYear);
         validateDuplicateCode(generatedCode, null);
 
         Course course = manageCoursesPort.create(
                 generatedCode,
-                formatCourseName(parsed.level()),
-                formatCourseName(parsed.level()),
+                definition.courseName(),
+                definition.levelName(),
                 normalizedParallel,
                 schoolYear,
                 scheduleType
@@ -129,66 +128,20 @@ public class CourseService implements ManageCoursesUseCase {
 
     private void validateDuplicateCode(String code, Long courseId) {
         boolean exists = courseId == null
-                ? manageCoursesPort.existsActiveByCode(code)
-                : manageCoursesPort.existsActiveByCodeExcludingId(code, courseId);
+                ? manageCoursesPort.existsByCode(code)
+                : manageCoursesPort.existsByCodeExcludingId(code, courseId);
 
         if (exists) {
             throw new IllegalArgumentException("Course code already exists");
         }
     }
 
-    private ParsedCourseDescription parseDescription(String description) {
-        int lastSpace = description.lastIndexOf(' ');
-        if (lastSpace <= 0 || lastSpace == description.length() - 1) {
-            throw new IllegalArgumentException("Invalid master course description");
-        }
-
-        return new ParsedCourseDescription(
-                description.substring(0, lastSpace).trim(),
-                description.substring(lastSpace + 1).trim()
-        );
-    }
-
     private String generateCourseCode(MasterCourse masterCourse, String parallel, int schoolYear) {
-        String normalizedMasterCode = masterCourse.code() == null ? "" : masterCourse.code().trim().toUpperCase();
-        if (normalizedMasterCode.startsWith("CUR-")) {
-            return courseCodeToken(masterCourse.description()) + parallel + "-" + schoolYear;
-        }
-
-        return courseCodeToken(masterCourse.description()) + parallel + "-" + schoolYear;
+        return courseCodeToken(masterCourse) + parallel + "-" + schoolYear;
     }
 
-    private int gradeFromDescription(String description) {
-        String normalized = description.toLowerCase();
-        if (normalized.startsWith("primero")) {
-            return 1;
-        }
-        if (normalized.startsWith("segundo")) {
-            return 2;
-        }
-        if (normalized.startsWith("tercero")) {
-            return 3;
-        }
-        if (normalized.startsWith("cuarto")) {
-            return 4;
-        }
-        if (normalized.startsWith("quinto")) {
-            return 5;
-        }
-        if (normalized.startsWith("sexto")) {
-            return 6;
-        }
-        if (normalized.startsWith("septimo")) {
-            return 7;
-        }
-        if (normalized.startsWith("octavo")) {
-            return 8;
-        }
-        throw new IllegalArgumentException("Unsupported master course description");
-    }
-
-    private String courseCodeToken(String description) {
-        return String.valueOf(gradeFromDescription(description));
+    private String courseCodeToken(MasterCourse masterCourse) {
+        return resolveCourseLevel(masterCourse).codeToken();
     }
 
     private String normalizeParallel(String parallel) {
@@ -199,21 +152,57 @@ public class CourseService implements ManageCoursesUseCase {
         return normalized;
     }
 
-    private String formatCourseName(String level) {
-        return level
-                .replaceFirst("(?i)^PRIMERO\\b", "1")
-                .replaceFirst("(?i)^SEGUNDO\\b", "2")
-                .replaceFirst("(?i)^TERCERO\\b", "3")
-                .replaceFirst("(?i)^CUARTO\\b", "4")
-                .replaceFirst("(?i)^QUINTO\\b", "5")
-                .replaceFirst("(?i)^SEXTO\\b", "6")
-                .replaceFirst("(?i)^SEPTIMO\\b", "7")
-                .replaceFirst("(?i)^OCTAVO\\b", "8")
-                .replaceFirst("(?i)^NOVENO\\b", "9")
-                .replaceFirst("(?i)^DECIMO\\b", "10")
-                .replaceAll("(?i)\\bBASICO\\b", "Básico")
-                .replaceAll("(?i)\\bMEDIO\\b", "Medio")
-                .trim();
+    private CourseLevelDefinition resolveCourseLevel(MasterCourse masterCourse) {
+        String courseName = normalizeCourseName(masterCourse.description());
+        String levelName = normalizeLevelName(masterCourse.level());
+
+        return switch ((masterCourse.codeToken() == null ? "" : masterCourse.codeToken().trim().toUpperCase())) {
+            case "PK" -> new CourseLevelDefinition(courseName, levelName, "PK", 4, 5);
+            case "K" -> new CourseLevelDefinition(courseName, levelName, "K", 5, 6);
+            case "1" -> new CourseLevelDefinition(courseName, levelName, "1", 6, 7);
+            case "2" -> new CourseLevelDefinition(courseName, levelName, "2", 7, 8);
+            case "3" -> new CourseLevelDefinition(courseName, levelName, "3", 8, 9);
+            case "4" -> new CourseLevelDefinition(courseName, levelName, "4", 9, 10);
+            case "5" -> new CourseLevelDefinition(courseName, levelName, "5", 10, 11);
+            case "6" -> new CourseLevelDefinition(courseName, levelName, "6", 11, 12);
+            case "7" -> new CourseLevelDefinition(courseName, levelName, "7", 12, 13);
+            case "8" -> new CourseLevelDefinition(courseName, levelName, "8", 13, 14);
+            case "1M" -> new CourseLevelDefinition(courseName, levelName, "1M", 14, 15);
+            case "2M" -> new CourseLevelDefinition(courseName, levelName, "2M", 15, 16);
+            case "3M" -> new CourseLevelDefinition(courseName, levelName, "3M", 16, 17);
+            case "4M" -> new CourseLevelDefinition(courseName, levelName, "4M", 17, 18);
+            default -> throw new IllegalArgumentException("Unsupported master course description");
+        };
+    }
+
+    private String normalizeCourseName(String description) {
+        if (description == null || description.isBlank()) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(description.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "");
+
+        return switch (normalized.toUpperCase()) {
+            case "PRE KINDER", "PRE-KINDER", "PREKINDER", "NT1" -> "Prekinder";
+            case "KINDER", "KINDER ", "NT2" -> "Kinder";
+            default -> normalized.replaceAll("\\s+", " ").trim();
+        };
+    }
+
+    private String normalizeLevelName(String level) {
+        if (level == null || level.isBlank()) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(level.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "");
+        return switch (normalized.toUpperCase()) {
+            case "INICIAL" -> "Inicial";
+            case "BASICO" -> "Basico";
+            case "MEDIO" -> "Medio";
+            default -> normalized.replaceAll("\\s+", " ").trim();
+        };
     }
 
     private void validateStudents(List<Long> studentIds) {
@@ -247,6 +236,6 @@ public class CourseService implements ManageCoursesUseCase {
         }
     }
 
-    private record ParsedCourseDescription(String level, String letter) {
+    private record CourseLevelDefinition(String courseName, String levelName, String codeToken, int minAge, int maxAge) {
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 public record TeacherListItem(
         Long id,
         String teacherCode,
+        String staffType,
         String fullName,
         String run,
         String professionalTitle,

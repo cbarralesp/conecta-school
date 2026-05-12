@@ -5,6 +5,7 @@ import { forkJoin, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
@@ -17,7 +18,9 @@ import {
   PlanningUnitCatalogAssignment,
   PlanningUnitCatalogs
 } from '../../../core/models/planning.models';
+import { Course } from '../../../core/models/course.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { CourseApiService } from '../../../core/services/course-api.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
 import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
@@ -68,6 +71,7 @@ type ContentUnitView = {
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     SummaryMetricCardComponent,
@@ -79,6 +83,7 @@ type ContentUnitView = {
 })
 export class ContentPageComponent {
   private readonly authStateService = inject(AuthStateService);
+  private readonly courseApiService = inject(CourseApiService);
   private readonly planningApiService = inject(PlanningApiService);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -90,8 +95,11 @@ export class ContentPageComponent {
   readonly selectedSemester = signal<SemesterFilter>('all');
   readonly units = signal<ContentUnitView[]>([]);
   readonly summary = signal<PlanningSummary | null>(null);
+  readonly courses = signal<Course[]>([]);
   readonly unitCatalogs = signal<PlanningUnitCatalogs | null>(null);
   readonly classCatalogs = signal<PlanningClassCatalogs | null>(null);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
 
   readonly unitTitleDraft = signal('');
   readonly unitAssignmentId = signal<number | null>(null);
@@ -128,7 +136,7 @@ export class ContentPageComponent {
       },
       {
         label: 'Unidades activas',
-        value: summary?.totalUnits ?? 0,
+        value: this.units().length,
         icon: 'layers',
         tone: 'yellow'
       },
@@ -178,14 +186,10 @@ export class ContentPageComponent {
 
   readonly assignmentOptions = computed(() => this.unitCatalogs()?.teachingAssignments ?? []);
   readonly courseOptions = computed(() => {
-    const courses = new Map<number, string>();
-    for (const assignment of this.assignmentOptions()) {
-      if (!courses.has(assignment.courseId)) {
-        courses.set(assignment.courseId, assignment.courseName);
-      }
-    }
-
-    return Array.from(courses.entries()).map(([id, name]) => ({ id, name }));
+    return this.courses().map((course) => ({
+      id: course.id,
+      name: course.letter ? `${course.name} ${course.letter}` : course.name
+    }));
   });
   readonly subjectOptions = computed(() => {
     const selectedCourse = this.selectedCourse();
@@ -205,14 +209,22 @@ export class ContentPageComponent {
   readonly unitNumberOptions = computed(() => this.unitCatalogs()?.unitNumbers ?? []);
   readonly durationOptions = computed(() => this.classCatalogs()?.durationOptions ?? []);
   readonly selectedClassFileName = computed(() => this.classFile()?.name ?? 'Click para subir un archivo compatible');
+  readonly totalUnits = computed(() => this.units().length);
+  readonly shouldShowPaginator = computed(() => this.totalUnits() > this.pageSize());
+  readonly pagedUnits = computed(() => {
+    const start = this.pageIndex() * this.pageSize();
+    return this.units().slice(start, start + this.pageSize());
+  });
 
   constructor() {
+    this.loadCourses();
     this.loadCatalogs();
     this.loadContent();
   }
 
   setFilter(value: ContentFilter): void {
     this.filter.set(value);
+    this.pageIndex.set(0);
     this.loadContent();
   }
 
@@ -222,17 +234,25 @@ export class ContentPageComponent {
     if (!hasSelectedSubject) {
       this.selectedSubject.set('all');
     }
+    this.pageIndex.set(0);
     this.loadContent();
   }
 
   setSubjectFilter(value: number | 'all'): void {
     this.selectedSubject.set(value);
+    this.pageIndex.set(0);
     this.loadContent();
   }
 
   setSemesterFilter(value: SemesterFilter): void {
     this.selectedSemester.set(this.selectedSemester() === value ? 'all' : value);
+    this.pageIndex.set(0);
     this.loadContent();
+  }
+
+  handlePageChange(event: PageEvent): void {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
   }
 
   toggleUnit(unitId: number): void {
@@ -280,11 +300,43 @@ export class ContentPageComponent {
     this.isEditUnitDialogOpen.set(true);
   }
 
+  deleteUnit(unit: ContentUnitView, event?: Event): void {
+    event?.stopPropagation();
+    const confirmed = window.confirm(`Eliminar la unidad "${unit.title}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.planningApiService.deleteUnit(unit.id).subscribe({
+      next: () => {
+        this.snackBar.open('Unidad eliminada correctamente', 'Cerrar', { duration: 2600 });
+        this.loadContent();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar la unidad')
+    });
+  }
+
   openEditClassDialog(contentClass: ContentClassView, event?: Event): void {
     event?.stopPropagation();
     this.editingClassId.set(contentClass.id);
     this.editingClassTitleDraft.set(contentClass.title);
     this.isEditClassDialogOpen.set(true);
+  }
+
+  deleteClass(contentClass: ContentClassView, event?: Event): void {
+    event?.stopPropagation();
+    const confirmed = window.confirm(`Eliminar la clase "${contentClass.title}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.planningApiService.deleteClass(contentClass.id).subscribe({
+      next: () => {
+        this.snackBar.open('Clase eliminada correctamente', 'Cerrar', { duration: 2600 });
+        this.loadContent();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar la clase')
+    });
   }
 
   closeDialogs(): void {
@@ -472,7 +524,7 @@ export class ContentPageComponent {
   }
 
   visibleUnits(): ContentUnitView[] {
-    return this.units();
+    return this.pagedUnits();
   }
 
   private loadCatalogs(): void {
@@ -485,6 +537,13 @@ export class ContentPageComponent {
         this.classCatalogs.set(classCatalogs);
       },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los catalogos de contenido')
+    });
+  }
+
+  private loadCourses(): void {
+    this.courseApiService.findAll().subscribe({
+      next: (courses) => this.courses.set(courses.filter((course) => course.active)),
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos')
     });
   }
 
@@ -522,11 +581,14 @@ export class ContentPageComponent {
 
     const palette: ContentUnitView['color'][] = ['blue', 'purple', 'green', 'orange'];
 
-    return summary.units.map((unit, index) => {
+    return summary.units.flatMap((unit, index) => {
       const unitClasses = (classesByUnit.get(unit.id) ?? []).map((planningClass) => this.mapClass(planningClass));
+      if (unitClasses.length === 0) {
+        return [];
+      }
       const totalDocuments = unitClasses.reduce((count, contentClass) => count + contentClass.documents.length, 0);
 
-      return {
+      return [{
         id: unit.id,
         courseId: this.resolveCourseId(unit.courseName),
         numberLabel: unit.code,
@@ -538,7 +600,7 @@ export class ContentPageComponent {
         expanded: index === 0,
         classes: unitClasses,
         totalDocuments
-      };
+      }];
     });
   }
 

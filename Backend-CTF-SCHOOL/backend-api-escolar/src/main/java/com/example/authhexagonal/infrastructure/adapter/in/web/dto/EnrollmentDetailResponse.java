@@ -23,7 +23,9 @@ public record EnrollmentDetailResponse(
         EnrollmentEstablishmentResponse establishment,
         EnrollmentGuardianResponse guardian,
         List<EnrollmentPickupContactResponse> pickupContacts,
-        List<EnrollmentDocumentResponse> documents
+        List<EnrollmentDocumentResponse> documents,
+        EnrollmentStudentAccessResponse studentAccess,
+        EnrollmentGuardianAccessResponse guardianAccess
 ) {
     public static EnrollmentDetailResponse fromDomain(EnrollmentDetail detail) {
         return new EnrollmentDetailResponse(
@@ -45,7 +47,9 @@ public record EnrollmentDetailResponse(
                 EnrollmentEstablishmentResponse.fromDomain(detail.establishment()),
                 EnrollmentGuardianResponse.fromDomain(detail.guardian()),
                 detail.pickupContacts().stream().map(EnrollmentPickupContactResponse::fromDomain).toList(),
-                detail.documents().stream().map(EnrollmentDocumentResponse::fromDomain).toList()
+                detail.documents().stream().map(EnrollmentDocumentResponse::fromDomain).toList(),
+                EnrollmentStudentAccessResponse.fromDomain(detail.studentAccess()),
+                EnrollmentGuardianAccessResponse.fromDomain(detail.guardianAccess())
         );
     }
 }

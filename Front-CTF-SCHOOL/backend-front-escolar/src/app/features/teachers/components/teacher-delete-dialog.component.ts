@@ -11,11 +11,11 @@ import { MatIconModule } from '@angular/material/icon';
       <div class="dialog-icon">
         <mat-icon>warning</mat-icon>
       </div>
-      <h2 mat-dialog-title>Eliminar profesor</h2>
+      <h2 mat-dialog-title>Eliminar docente</h2>
       <mat-dialog-content>
         <p>
-          Estas por eliminar a <strong>{{ data.fullName }}</strong>. La accion desactivara su perfil docente y sus
-          relaciones activas con horario, cursos y asignaturas.
+          Estas por eliminar permanentemente a <strong>{{ data.fullName }}</strong>. La accion eliminara su ficha,
+          sus relaciones de cursos y asignaturas, y su acceso asociado al sistema si existe.
         </p>
       </mat-dialog-content>
       <mat-dialog-actions align="end">

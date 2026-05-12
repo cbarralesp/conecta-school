@@ -21,6 +21,8 @@ public record EnrollmentDetail(
         EnrollmentEstablishment establishment,
         EnrollmentGuardian guardian,
         List<EnrollmentPickupContact> pickupContacts,
-        List<EnrollmentDocument> documents
+        List<EnrollmentDocument> documents,
+        EnrollmentStudentAccess studentAccess,
+        EnrollmentGuardianAccess guardianAccess
 ) {
 }

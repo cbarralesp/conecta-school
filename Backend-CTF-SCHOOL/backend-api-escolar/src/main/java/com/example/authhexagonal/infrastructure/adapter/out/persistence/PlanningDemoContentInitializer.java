@@ -338,6 +338,8 @@ public class PlanningDemoContentInitializer implements CommandLineRunner {
             return existingId.orElseThrow();
         }
 
+        syncSequence("UNIDADES_PLANIFICACION", "ID");
+
         return jdbcTemplate.queryForObject("""
                 INSERT INTO "UNIDADES_PLANIFICACION" (
                     "CARGA_DOCENTE_ID",
@@ -399,6 +401,8 @@ public class PlanningDemoContentInitializer implements CommandLineRunner {
         if (existingId.isPresent()) {
             return existingId.orElseThrow();
         }
+
+        syncSequence("CLASES_PLANIFICACION", "ID");
 
         return jdbcTemplate.queryForObject("""
                 INSERT INTO "CLASES_PLANIFICACION" (
@@ -462,6 +466,8 @@ public class PlanningDemoContentInitializer implements CommandLineRunner {
             return;
         }
 
+        syncSequence("CLASES_PLANIFICACION_DOCUMENTOS", "ID");
+
         long sizeBytes;
         try {
             sizeBytes = Files.size(filePath);
@@ -523,6 +529,16 @@ public class PlanningDemoContentInitializer implements CommandLineRunner {
             case "ppt", "pptx" -> "PPT";
             default -> "OTRO";
         };
+    }
+
+    private void syncSequence(String tableName, String columnName) {
+        jdbcTemplate.execute("""
+                SELECT setval(
+                    pg_get_serial_sequence('"%s"', '%s'),
+                    COALESCE((SELECT MAX("%s") FROM "%s"), 0) + 1,
+                    false
+                )
+                """.formatted(tableName, columnName, columnName, tableName));
     }
 
     private record SeedContext(Long loadId, Long userId) {

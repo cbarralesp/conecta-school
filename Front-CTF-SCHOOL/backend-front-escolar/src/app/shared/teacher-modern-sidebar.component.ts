@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,12 +7,15 @@ import { MatListModule } from '@angular/material/list';
 import { ApplicationRole } from '../core/models/auth.models';
 import { AuthService } from '../core/services/auth.service';
 import { AuthStateService } from '../core/services/auth-state.service';
+import { UserModuleAccessService } from '../core/services/user-module-access.service';
+import { UserModuleAccessView } from '../core/models/module-access.models';
 
 type ModernNavItem = {
   label: string;
   icon: string;
   route: string;
   key: string;
+  moduleCode?: string;
   badge?: number;
 };
 
@@ -274,9 +278,11 @@ type ModernNavSection = {
 export class TeacherModernSidebarComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly authService = inject(AuthService);
+  private readonly userModuleAccessService = inject(UserModuleAccessService);
   private readonly router = inject(Router);
   private readonly currentUrl = signal(this.router.url);
   private readonly expandedSections = signal<Record<string, boolean>>(this.loadExpandedSections());
+  private readonly moduleAccessView = toSignal(this.userModuleAccessService.getSafeAccessView(), { initialValue: null });
 
   @Input() activeItem = 'dashboard';
   @Input() dashboardRoute = '/dashboard/moderno';
@@ -287,7 +293,8 @@ export class TeacherModernSidebarComponent {
   protected readonly currentRole = computed<ApplicationRole>(() => this.authService.getUserRole() ?? 'TEACHER');
 
   protected readonly sections = computed<ModernNavSection[]>(() => {
-    switch (this.currentRole()) {
+    const sections = (() => {
+      switch (this.currentRole()) {
       case 'STUDENT':
         return [
           {
@@ -308,39 +315,41 @@ export class TeacherModernSidebarComponent {
           {
             title: 'General',
             collapsible: false,
-            items: [{ key: 'dashboard', label: 'Dashboard', icon: 'space_dashboard', route: this.dashboardRoute }]
+            items: this.visibleTeacherItems([
+              { key: 'dashboard', label: 'Dashboard', icon: 'space_dashboard', route: this.dashboardRoute, moduleCode: 'DASHBOARD' }
+            ])
           },
           {
             title: 'Gestion academica',
             collapsible: true,
-            items: [
-              { key: 'enrollments', label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas' },
-              { key: 'teachers', label: 'Profesores', icon: 'school', route: '/dashboard/profesores' },
-              { key: 'courses', label: 'Cursos', icon: 'class', route: '/dashboard/cursos', badge: this.coursesBadge },
-              { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/dashboard/horario' },
-              { key: 'subjects', label: 'Asignaturas', icon: 'menu_book', route: '/dashboard/asignaturas' }
-            ]
+            items: this.visibleTeacherItems([
+              { key: 'enrollments', label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas', moduleCode: 'MATRICULAS' },
+              { key: 'teachers', label: 'Docentes', icon: 'school', route: '/dashboard/profesores', moduleCode: 'PROFESORES' },
+              { key: 'courses', label: 'Cursos', icon: 'class', route: '/dashboard/cursos', badge: this.coursesBadge, moduleCode: 'CURSOS' },
+              { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/dashboard/horario', moduleCode: 'HORARIO' },
+              { key: 'subjects', label: 'Asignaturas', icon: 'menu_book', route: '/dashboard/asignaturas', moduleCode: 'ASIGNATURAS' }
+            ])
           },
           {
             title: 'Docencia',
             collapsible: true,
-            items: [
-              { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia' },
-              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones' },
-              { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades' },
-              { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido' },
-              { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge }
-            ]
+            items: this.visibleTeacherItems([
+              { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
+              { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
+              { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
+              { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge, moduleCode: 'PLANIFICACION' }
+            ])
           },
           {
             title: 'Administracion',
             collapsible: true,
-            items: [
-              { key: 'users', label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios' },
-              { key: 'roles', label: 'Roles', icon: 'admin_panel_settings', route: '/dashboard/administracion/roles' },
-              { key: 'access-matrix', label: 'Matriz de acceso', icon: 'table_chart', route: '/dashboard/administracion/matriz-acceso' },
-              { key: 'audit', label: 'Auditoria', icon: 'receipt_long', route: '/dashboard/administracion/auditoria' }
-            ]
+            items: this.visibleTeacherItems([
+              { key: 'users', label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios', moduleCode: 'USUARIOS' },
+              { key: 'roles', label: 'Roles', icon: 'admin_panel_settings', route: '/dashboard/administracion/roles', moduleCode: 'ROLES' },
+              { key: 'access-matrix', label: 'Matriz de acceso', icon: 'table_chart', route: '/dashboard/administracion/matriz-acceso', moduleCode: 'MATRIZ_ACCESO' },
+              { key: 'audit', label: 'Auditoria', icon: 'receipt_long', route: '/dashboard/administracion/auditoria', moduleCode: 'AUDITORIA' }
+            ])
           }
         ];
       case 'TEACHER':
@@ -349,24 +358,47 @@ export class TeacherModernSidebarComponent {
           {
             title: 'General',
             collapsible: false,
-            items: [{ key: 'dashboard', label: 'Dashboard', icon: 'space_dashboard', route: this.dashboardRoute }]
+            items: this.visibleTeacherItems([
+              { key: 'dashboard', label: 'Dashboard', icon: 'space_dashboard', route: this.dashboardRoute, moduleCode: 'DASHBOARD' }
+            ])
+          },
+          {
+            title: 'Gestion academica',
+            collapsible: true,
+            items: this.visibleTeacherItems([
+              { key: 'enrollments', label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas', moduleCode: 'MATRICULAS' },
+              { key: 'teachers', label: 'Docentes', icon: 'school', route: '/dashboard/profesores', moduleCode: 'PROFESORES' },
+              { key: 'courses', label: 'Cursos', icon: 'class', route: '/dashboard/cursos', moduleCode: 'CURSOS' },
+              { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/dashboard/horario', moduleCode: 'HORARIO' },
+              { key: 'subjects', label: 'Asignaturas', icon: 'menu_book', route: '/dashboard/asignaturas', moduleCode: 'ASIGNATURAS' }
+            ])
           },
           {
             title: 'Docencia',
             collapsible: true,
-            items: [
-              { key: 'courses', label: 'Cursos', icon: 'class', route: '/dashboard/cursos', badge: this.coursesBadge },
-              { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/dashboard/horario' },
-              { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia' },
-              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones' },
-              { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades' },
-              { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido' },
-              { key: 'subjects', label: 'Asignaturas', icon: 'menu_book', route: '/dashboard/asignaturas' },
-              { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge }
-            ]
+            items: this.visibleTeacherItems([
+              { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
+              { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
+              { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
+              { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION', badge: this.planningBadge }
+            ])
+          },
+          {
+            title: 'Administracion',
+            collapsible: true,
+            items: this.visibleTeacherItems([
+              { key: 'users', label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios', moduleCode: 'USUARIOS' },
+              { key: 'roles', label: 'Roles', icon: 'admin_panel_settings', route: '/dashboard/administracion/roles', moduleCode: 'ROLES' },
+              { key: 'access-matrix', label: 'Matriz de acceso', icon: 'table_chart', route: '/dashboard/administracion/matriz-acceso', moduleCode: 'MATRIZ_ACCESO' },
+              { key: 'audit', label: 'Auditoria', icon: 'receipt_long', route: '/dashboard/administracion/auditoria', moduleCode: 'AUDITORIA' }
+            ])
           }
         ];
-    }
+      }
+    })();
+
+    return sections.filter((section) => section.items.length > 0);
   });
 
   constructor() {
@@ -427,5 +459,9 @@ export class TeacherModernSidebarComponent {
     } catch {
       // Ignore storage write errors and keep the UI functional.
     }
+  }
+
+  private visibleTeacherItems(items: ModernNavItem[]): ModernNavItem[] {
+    return this.userModuleAccessService.visibleItems(items, this.moduleAccessView() as UserModuleAccessView | null);
   }
 }

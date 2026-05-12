@@ -14,7 +14,7 @@
       <div class="courses-page__actions">
         <button mat-flat-button type="button" routerLink="/dashboard/cursos/nuevo">
           <mat-icon>add</mat-icon>
-          Nuevo Curso
+          Nuevo curso
         </button>
       </div>
     </section>
@@ -55,9 +55,10 @@
               <span class="select-shell">
                 <mat-icon>school</mat-icon>
                 <select class="filter-select" [value]="levelFilter()" (change)="updateLevelFilter(($any($event.target).value ?? 'all').toString())">
-                  <option value="all">Todos los Niveles</option>
-                  <option value="basico">Ensenanza Basica</option>
-                  <option value="media">Ensenanza Media</option>
+                  <option value="all">Todos los niveles</option>
+                  <option value="inicial">Inicial</option>
+                  <option value="basico">Basico</option>
+                  <option value="media">Medio</option>
                 </select>
               </span>
             </label>
@@ -67,9 +68,10 @@
               <span class="select-shell">
                 <mat-icon>wb_sunny</mat-icon>
                 <select class="filter-select" [value]="scheduleFilter()" (change)="updateScheduleFilter(($any($event.target).value ?? 'all').toString())">
-                  <option value="all">Todas las Jornadas</option>
-                  <option value="manana">Jornada Manana</option>
-                  <option value="tarde">Jornada Tarde</option>
+                  <option value="all">Todas las jornadas</option>
+                  <option value="manana">Jornada manana</option>
+                  <option value="tarde">Jornada tarde</option>
+                  <option value="completa">Jornada completa</option>
                 </select>
               </span>
             </label>
@@ -97,7 +99,7 @@
               </ng-container>
 
               <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>Nombre del Curso</th>
+                <th mat-header-cell *matHeaderCellDef>Nombre del curso</th>
                 <td mat-cell *matCellDef="let course">
                   <div class="course-name-cell">
                     <div class="course-title-row">
@@ -161,6 +163,9 @@
                   </button>
                   <button mat-icon-button (click)="openEditDialog(course)" aria-label="Editar curso">
                     <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="confirmDelete(course)" aria-label="Eliminar curso">
+                    <mat-icon>delete</mat-icon>
                   </button>
                 </td>
               </ng-container>

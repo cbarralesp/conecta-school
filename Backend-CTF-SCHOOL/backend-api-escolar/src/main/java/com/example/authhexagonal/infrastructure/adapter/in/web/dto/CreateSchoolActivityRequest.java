@@ -8,6 +8,7 @@ import java.time.LocalTime;
 
 public record CreateSchoolActivityRequest(
         @NotNull Long activityTypeId,
+        Long courseId,
         @NotBlank String title,
         String description,
         @NotNull LocalDate date,

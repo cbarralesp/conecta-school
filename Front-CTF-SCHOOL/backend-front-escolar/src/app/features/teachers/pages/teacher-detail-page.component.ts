@@ -8,6 +8,15 @@ import { TeacherApiService } from '../../../core/services/teacher-api.service';
 import { TeacherDetail } from '../../../core/models/teacher.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
+interface TeacherCourseGroup {
+  id: number;
+  courseName: string;
+  courseCode: string;
+  subjects: string[];
+  weeklyHours: number;
+  homeroomTeacher: boolean;
+}
+
 @Component({
   selector: 'app-teacher-detail-page',
   imports: [
@@ -31,6 +40,38 @@ export class TeacherDetailPageComponent {
   readonly user = this.authStateService.user;
   readonly teacher = signal<TeacherDetail | null>(null);
   readonly isLoading = signal(true);
+  readonly selectedCourse = signal<TeacherCourseGroup | null>(null);
+  readonly staffTypeLabel = computed(() => this.teacher()?.staffType === 'ASISTENTE' ? 'Asistente' : 'Docente');
+  readonly assignedCourseGroups = computed<TeacherCourseGroup[]>(() => {
+    const teacher = this.teacher();
+    if (!teacher) {
+      return [];
+    }
+
+    const grouped = new Map<number, TeacherCourseGroup>();
+    teacher.assignedCourses.forEach((course) => {
+      const current = grouped.get(course.id);
+      if (!current) {
+        grouped.set(course.id, {
+          id: course.id,
+          courseName: course.courseName,
+          courseCode: course.courseCode,
+          subjects: [course.subjectName],
+          weeklyHours: course.weeklyHours,
+          homeroomTeacher: course.homeroomTeacher
+        });
+        return;
+      }
+
+      if (!current.subjects.includes(course.subjectName)) {
+        current.subjects.push(course.subjectName);
+      }
+      current.weeklyHours = Math.max(current.weeklyHours, course.weeklyHours);
+      current.homeroomTeacher = current.homeroomTeacher || course.homeroomTeacher;
+    });
+
+    return Array.from(grouped.values()).sort((left, right) => left.courseName.localeCompare(right.courseName));
+  });
 
   readonly ageLabel = computed(() => {
     const teacher = this.teacher();
@@ -120,6 +161,14 @@ export class TeacherDetailPageComponent {
     window.location.href = `mailto:${teacher.institutionalEmail}`;
   }
 
+  openCourseSubjects(course: TeacherCourseGroup): void {
+    this.selectedCourse.set(course);
+  }
+
+  closeCourseSubjects(): void {
+    this.selectedCourse.set(null);
+  }
+
   private loadTeacher(): void {
     this.teacherApiService.getById(this.teacherId).subscribe({
       next: (teacher) => {
@@ -128,7 +177,7 @@ export class TeacherDetailPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar la ficha del profesor');
+        this.showError(error, 'No fue posible cargar la ficha del docente');
       }
     });
   }

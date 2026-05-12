@@ -6,8 +6,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { forkJoin } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { Course } from '../../../core/models/course.models';
+import { Course, TeacherCatalogItem } from '../../../core/models/course.models';
+import { formatCourseLevelLabel, formatScheduleLabel, normalizeCourseDisplayName } from '../../../core/constants/course-levels';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
@@ -38,6 +40,7 @@ export class CoursesPageComponent {
   readonly user = this.authStateService.user;
   readonly displayedColumns = ['code', 'name', 'letter', 'schoolYear', 'scheduleType', 'students', 'actions'];
   readonly courses = signal<Course[]>([]);
+  readonly teachers = signal<TeacherCatalogItem[]>([]);
   readonly searchTerm = signal('');
   readonly levelFilter = signal('all');
   readonly scheduleFilter = signal('all');
@@ -57,7 +60,7 @@ export class CoursesPageComponent {
         tone: 'primary'
       },
       {
-        label: 'Ano principal',
+        label: 'Año principal',
         value: schoolYears[0] ?? '-',
         ring: 'ANO',
         icon: 'calendar_month',
@@ -148,30 +151,44 @@ export class CoursesPageComponent {
   }
 
   courseDisplayName(course: Course): string {
-    return `${course.name} ${course.letter}`.trim();
+    return normalizeCourseDisplayName(course.name, course.letter);
   }
 
-  courseLeadLabel(_course: Course): string {
-    return 'Jefe de Curso: Por definir';
+  courseLeadLabel(course: Course): string {
+    const resolvedTeacher = course.teacherName?.trim() || this.findTeacherName(course.teacherId ?? null);
+    return resolvedTeacher
+      ? `Profesor jefe: ${resolvedTeacher}`
+      : 'Profesor jefe: Por definir';
   }
 
   courseLevelLabel(course: Course): string {
-    return course.level || course.name;
+    return formatCourseLevelLabel(course.level || course.name);
   }
 
   courseShiftLabel(course: Course): string {
-    const schedule = this.normalizeSchedule(course.scheduleType);
-    return schedule === 'manana' ? 'Manana' : schedule === 'tarde' ? 'Tarde' : course.scheduleType;
+    return formatScheduleLabel(course.scheduleType);
   }
 
   courseShiftIcon(course: Course): string {
-    return this.normalizeSchedule(course.scheduleType) === 'tarde' ? 'dark_mode' : 'light_mode';
+    const schedule = this.normalizeSchedule(course.scheduleType);
+    if (schedule === 'tarde') {
+      return 'dark_mode';
+    }
+    if (schedule === 'completa') {
+      return 'schedule';
+    }
+    return 'light_mode';
   }
 
   courseShiftClass(course: Course): string {
-    return this.normalizeSchedule(course.scheduleType) === 'tarde'
-      ? 'shift-badge shift-badge--tarde'
-      : 'shift-badge shift-badge--manana';
+    const schedule = this.normalizeSchedule(course.scheduleType);
+    if (schedule === 'tarde') {
+      return 'shift-badge shift-badge--tarde';
+    }
+    if (schedule === 'completa') {
+      return 'shift-badge';
+    }
+    return 'shift-badge shift-badge--manana';
   }
 
   courseCapacityTone(course: Course): string {
@@ -195,22 +212,47 @@ export class CoursesPageComponent {
   }
 
   courseMaxCapacity(course: Course): number {
-    return this.normalizeLevel(course.level) === 'media' ? 35 : 30;
+    const normalizedLevel = this.normalizeLevel(course.level);
+    if (normalizedLevel === 'media') {
+      return 35;
+    }
+    if (normalizedLevel === 'inicial') {
+      return 25;
+    }
+    return 30;
   }
 
   courseIcon(course: Course): string {
-    return this.normalizeLevel(course.level) === 'media' ? 'school' : 'child_care';
+    const normalizedLevel = this.normalizeLevel(course.level);
+    if (normalizedLevel === 'media') {
+      return 'school';
+    }
+    if (normalizedLevel === 'inicial') {
+      return 'toys';
+    }
+    return 'child_care';
   }
 
   courseIconClass(course: Course): string {
-    return this.normalizeLevel(course.level) === 'media'
-      ? 'course-icon course-icon--media'
-      : 'course-icon course-icon--basic';
+    const normalizedLevel = this.normalizeLevel(course.level);
+    if (normalizedLevel === 'media') {
+      return 'course-icon course-icon--media';
+    }
+    if (normalizedLevel === 'inicial') {
+      return 'course-icon course-icon--primary';
+    }
+    return 'course-icon course-icon--basic';
   }
 
   private loadCourses(): void {
-    this.courseApiService.findAll().subscribe({
-      next: (courses) => this.courses.set(courses),
+    forkJoin({
+      courses: this.courseApiService.findAll(),
+      teachers: this.courseApiService.searchTeachers('')
+    }).subscribe({
+      next: ({ courses, teachers }) => {
+        this.courses.set(courses);
+        this.teachers.set(teachers);
+      },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos')
     });
   }
@@ -221,14 +263,23 @@ export class CoursesPageComponent {
 
   private normalizeLevel(level: string): string {
     const normalized = (level || '').toLowerCase();
+    if (normalized.includes('prek') || normalized.includes('kinder') || normalized.includes('parv') || normalized.includes('nt1') || normalized.includes('nt2')) {
+      return 'inicial';
+    }
     if (normalized.includes('medio') || normalized.includes('media')) {
       return 'media';
+    }
+    if (normalized.includes('basico') || normalized.includes('básico')) {
+      return 'basico';
     }
     return 'basico';
   }
 
   private normalizeSchedule(scheduleType: string): string {
     const normalized = (scheduleType || '').toLowerCase();
+    if (normalized.includes('completa')) {
+      return 'completa';
+    }
     if (normalized.includes('tarde')) {
       return 'tarde';
     }
@@ -239,5 +290,13 @@ export class CoursesPageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private findTeacherName(teacherId: number | null): string {
+    if (!teacherId) {
+      return '';
+    }
+
+    return this.teachers().find((teacher) => teacher.id === teacherId)?.fullName ?? '';
   }
 }

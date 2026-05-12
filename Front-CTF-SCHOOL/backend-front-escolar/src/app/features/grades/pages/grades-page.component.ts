@@ -76,6 +76,7 @@ export class GradesPageComponent {
   readonly selectedProfileStudentId = signal<number | null>(null);
   readonly profileRunSearchTerm = signal('');
   readonly gradeBook = signal<GradeBookView | null>(null);
+  readonly gradeBookNotice = signal<string | null>(null);
   readonly studentProfile = signal<StudentGradeProfileView | null>(null);
   readonly reports = signal<GradeReportView | null>(null);
   readonly isLoading = signal(false);
@@ -167,6 +168,7 @@ export class GradesPageComponent {
   updateCourse(courseId: number | null): void {
     this.selectedCourseId.set(courseId);
     this.selectedSubjectId.set(null);
+    this.gradeBookNotice.set(null);
     this.gradeBookSearch.set('');
     this.closeDraftEvaluationDialog();
     this.closeEvaluationDetails();
@@ -176,6 +178,7 @@ export class GradesPageComponent {
   updatePeriod(periodId: number | null): void {
     this.selectedPeriodId.set(periodId);
     this.selectedSubjectId.set(null);
+    this.gradeBookNotice.set(null);
     this.gradeBookSearch.set('');
     this.closeDraftEvaluationDialog();
     this.closeEvaluationDetails();
@@ -184,6 +187,7 @@ export class GradesPageComponent {
 
   selectSubject(subjectId: number): void {
     this.selectedSubjectId.set(subjectId);
+    this.gradeBookNotice.set(null);
     this.closeEvaluationDetails();
     this.loadGradeBook();
   }
@@ -590,6 +594,7 @@ export class GradesPageComponent {
     this.gradeApiService.getGradeBook(courseId, periodId, this.selectedSubjectId()).subscribe({
       next: (view) => {
         this.gradeBook.set(view);
+        this.gradeBookNotice.set(null);
         this.selectedSubjectId.set(view.subjectId);
         this.gradeBookSearch.set('');
         this.closeDraftEvaluationDialog();
@@ -598,6 +603,17 @@ export class GradesPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
+        const translatedMessage = this.translateGradeErrorMessage(error.error?.message);
+        if (translatedMessage) {
+          this.gradeBook.set(null);
+          this.gradeBookNotice.set(translatedMessage);
+          this.selectedSubjectId.set(null);
+          this.gradeBookSearch.set('');
+          this.closeDraftEvaluationDialog();
+          this.closeEvaluationDetails();
+          this.snackBar.open(translatedMessage, 'Cerrar', { duration: 3600 });
+          return;
+        }
         this.showError(error, 'No fue posible cargar las evaluaciones');
       }
     });
@@ -757,9 +773,22 @@ export class GradesPageComponent {
     return new Date().toISOString().slice(0, 10);
   }
 
+  private translateGradeErrorMessage(message: unknown): string | null {
+    if (typeof message !== 'string') {
+      return null;
+    }
+
+    const normalized = message.trim().toLowerCase();
+    if (normalized.includes('no active subjects found for the selected course')) {
+      return 'No se encontraron asignaturas activas para el curso seleccionado.';
+    }
+
+    return null;
+  }
 
   private showError(error: HttpErrorResponse, fallback: string): void {
-    this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
+    const translatedMessage = this.translateGradeErrorMessage(error.error?.message);
+    this.snackBar.open(translatedMessage ?? (typeof error.error?.message === 'string' ? error.error.message : fallback), 'Cerrar', {
       duration: 3600
     });
   }

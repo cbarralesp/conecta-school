@@ -44,7 +44,7 @@ public class TeacherDashboardJdbcAdapter implements LoadTeacherDashboardPort {
                 """, username);
 
         if (teacherRows.isEmpty()) {
-            return Optional.empty();
+            return findDashboardFallbackByUsername(username);
         }
 
         Map<String, Object> teacher = teacherRows.getFirst();
@@ -151,6 +151,58 @@ public class TeacherDashboardJdbcAdapter implements LoadTeacherDashboardPort {
                 List.of(),
                 planningItems
         ));
+    }
+
+    private Optional<TeacherDashboard> findDashboardFallbackByUsername(String username) {
+        return jdbcTemplate.query("""
+                SELECT
+                    u."USUARIO" AS username,
+                    COALESCE(p."NOMBRES", '') AS first_names,
+                    COALESCE(p."APELLIDOS", '') AS last_names,
+                    COALESCE(r."CODIGO", '') AS role_code,
+                    COALESCE(r."NOMBRE", '') AS role_name
+                FROM "USUARIOS" u
+                JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                WHERE UPPER(u."USUARIO") = UPPER(?)
+                  AND u."ACTIVO" = TRUE
+                ORDER BY u."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> new TeacherDashboard(
+                rs.getString("username"),
+                buildDisplayName(rs.getString("first_names"), rs.getString("last_names")),
+                buildFallbackSpecialty(rs.getString("role_code"), rs.getString("role_name")),
+                0,
+                0,
+                0,
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of()
+        ), username).stream().findFirst();
+    }
+
+    private String buildDisplayName(String firstNames, String lastNames) {
+        String displayName = (safeValue(firstNames) + " " + safeValue(lastNames)).trim();
+        return displayName.isBlank() ? "Usuario" : displayName;
+    }
+
+    private String buildFallbackSpecialty(String roleCode, String roleName) {
+        String normalizedRoleCode = safeValue(roleCode).trim().toUpperCase();
+        if ("PROFESOR".equals(normalizedRoleCode)) {
+            return "Perfil docente activo";
+        }
+        if ("ADMIN".equals(normalizedRoleCode) || "SUPERADMIN".equals(normalizedRoleCode)) {
+            return "Perfil administrativo activo";
+        }
+
+        String fallback = safeValue(roleName).trim();
+        return fallback.isBlank() ? "Acceso institucional activo" : fallback;
+    }
+
+    private String safeValue(String value) {
+        return value == null ? "" : value;
     }
 
     private String formatTime(LocalTime localTime) {

@@ -58,7 +58,7 @@ export class TeachersPageComponent {
   readonly filtersForm = this.formBuilder.nonNullable.group({
     search: [''],
     subjectId: [0],
-    status: ['']
+    status: ['ACTIVO']
   });
 
   readonly summary = computed<TeacherSummary>(() => this.overview()?.summary ?? {
@@ -84,6 +84,10 @@ export class TeachersPageComponent {
     void this.router.navigate(['/dashboard/profesores/nuevo']);
   }
 
+  goToCreateAssistant(): void {
+    void this.router.navigate(['/dashboard/profesores/nuevo-asistente']);
+  }
+
   goToDetail(teacherId: number): void {
     void this.router.navigate(['/dashboard/profesores', teacherId]);
   }
@@ -107,12 +111,12 @@ export class TeachersPageComponent {
       if (!confirmed) {
         return;
       }
-      this.teacherApiService.delete(item.id).subscribe({
+          this.teacherApiService.delete(item.id).subscribe({
         next: () => {
-          this.snackBar.open('Profesor eliminado correctamente', 'Cerrar', { duration: 2600 });
+          this.snackBar.open('Docente eliminado correctamente', 'Cerrar', { duration: 2600 });
           this.loadOverview();
         },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el profesor')
+        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el docente')
       });
     });
   }
@@ -140,7 +144,7 @@ export class TeachersPageComponent {
       error: (error: HttpErrorResponse) => {
         this.overview.set(null);
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar los profesores');
+        this.showError(error, 'No fue posible cargar los docentes');
       }
     });
   }

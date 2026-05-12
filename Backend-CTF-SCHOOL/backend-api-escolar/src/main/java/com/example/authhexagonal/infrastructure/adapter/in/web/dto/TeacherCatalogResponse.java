@@ -6,6 +6,7 @@ import java.util.List;
 
 public record TeacherCatalogResponse(
         Long id,
+        String staffType,
         String firstName,
         String lastName,
         String fullName,
@@ -21,6 +22,7 @@ public record TeacherCatalogResponse(
     public static TeacherCatalogResponse fromDomain(TeacherCatalogItem item) {
         return new TeacherCatalogResponse(
                 item.id(),
+                item.staffType(),
                 item.firstName(),
                 item.lastName(),
                 item.fullName(),

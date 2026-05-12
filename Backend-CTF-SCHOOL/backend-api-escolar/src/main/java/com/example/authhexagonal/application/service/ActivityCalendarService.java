@@ -29,13 +29,13 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
     }
 
     @Override
-    public ActivityCalendar getMonthlyCalendar(int year, int month) {
+    public ActivityCalendar getMonthlyCalendar(int year, int month, Long courseId) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         LocalDate today = LocalDate.now();
-        List<SchoolActivity> monthlyActivities = manageActivityCalendarPort.findActivitiesForRange(startDate, endDate);
-        List<SchoolActivity> upcomingActivities = manageActivityCalendarPort.findUpcomingActivities(today, 6);
+        List<SchoolActivity> monthlyActivities = manageActivityCalendarPort.findActivitiesForRange(startDate, endDate, courseId);
+        List<SchoolActivity> upcomingActivities = manageActivityCalendarPort.findUpcomingActivities(today, 6, courseId);
 
         return new ActivityCalendar(
                 year,
@@ -65,6 +65,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
     @Override
     public SchoolActivity createActivity(
             Long activityTypeId,
+            Long courseId,
             String title,
             String description,
             LocalDate date,
@@ -82,6 +83,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
 
         return manageActivityCalendarPort.createActivity(
                 activityTypeId,
+                courseId,
                 title,
                 description,
                 date,
@@ -95,6 +97,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
     public SchoolActivity updateActivity(
             Long activityId,
             Long activityTypeId,
+            Long courseId,
             String title,
             String description,
             LocalDate date,
@@ -114,6 +117,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
         return manageActivityCalendarPort.updateActivity(
                 activityId,
                 activityTypeId,
+                courseId,
                 title,
                 description,
                 date,

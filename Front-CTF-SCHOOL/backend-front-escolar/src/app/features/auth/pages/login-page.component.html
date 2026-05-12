@@ -1,105 +1,164 @@
 <div class="login-shell">
+  <aside class="brand-panel">
+    <div class="brand-panel__photo"></div>
+    <div class="brand-panel__overlay brand-panel__overlay--main"></div>
+    <div class="brand-panel__overlay brand-panel__overlay--accent"></div>
+    <div class="brand-panel__line"></div>
 
-  <aside class="showcase-panel">
-    <div class="showcase-overlay"></div>
-    <div class="showcase-content">
-      <div class="brand-mark">
-        <img src="/tfs-shield-light.svg" alt="Torre Fuerte School" />
+    <div class="brand-panel__content">
+      <div class="brand-panel__logo">
+        <img
+          src="/Logo-toolbar-transparent-cropped.png"
+          alt="Torre Fuerte School"
+          class="brand-panel__logo-image" />
+        <div class="brand-panel__logo-copy">
+          <div class="brand-panel__school">Torre Fuerte School</div>
+          <div class="brand-panel__slogan">CRECIMIENTO SIN LIMITES</div>
+        </div>
       </div>
-      <div class="showcase-copy">
-        <h1>Torre Fuerte School</h1>
-        <p>Plataforma escolar institucional para gestión académica, seguimiento docente y operación diaria.</p>
-      </div>
-    </div>
 
-    <svg class="showcase-wave" viewBox="0 0 700 100" preserveAspectRatio="none">
-      <path d="M0 0 C100 80, 200 100, 350 55 C500 10, 600 70, 700 50 L700 100 L0 100 Z" fill="#1e40af" />
-    </svg>
+      <div class="brand-panel__hero">
+        <div class="brand-panel__eyebrow">
+          <span class="brand-panel__eyebrow-dot"></span>
+          Plataforma institucional · Est. 2024
+        </div>
+        <h1 class="brand-panel__title">
+          Forma hoy<br />
+          <em>El futuro.</em>
+        </h1>
+        <p class="brand-panel__description">
+          Gestión académica integrada, seguimiento docente y operación diaria en una sola herramienta moderna.
+        </p>
+      </div>
 
-    <div class="feature-cards">
-      <div class="feature-card">
-        <div class="fc-icon"><mat-icon>school</mat-icon></div>
-        <strong>Gestión académica</strong>
-        <span>Cursos y progreso.</span>
-      </div>
-      <div class="feature-card">
-        <div class="fc-icon"><mat-icon>show_chart</mat-icon></div>
-        <strong>Seguimiento</strong>
-        <span>Planificación docente.</span>
-      </div>
-      <div class="feature-card">
-        <div class="fc-icon"><mat-icon>security</mat-icon></div>
-        <strong>Seguro</strong>
-        <span>Datos protegidos.</span>
-      </div>
-    </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <span class="feature-card__icon feature-card__icon--blue">🎓</span>
+          <strong>Gestión</strong>
+          <span>Cursos y notas.</span>
+        </article>
 
-    <div class="showcase-footer">
-      <mat-icon>emoji_events</mat-icon>
-      <strong>Crecimiento sin límites</strong>
-      <span>© 2026</span>
-      <a href="#">Privacidad</a>
+        <article class="feature-card">
+          <span class="feature-card__icon feature-card__icon--gold">📊</span>
+          <strong>Progreso</strong>
+          <span>Reportes en tiempo real.</span>
+        </article>
+
+        <article class="feature-card">
+          <span class="feature-card__icon feature-card__icon--green">🔒</span>
+          <strong>Seguro</strong>
+          <span>Datos encriptados.</span>
+        </article>
+      </div>
+
+      <div class="brand-panel__footer">
+        <div class="brand-panel__footer-copy">
+          <span class="brand-panel__footer-star">☆</span>
+          <span>Plataforma desarrollada por conecta school</span>
+        </div>
+        <div class="brand-panel__footer-links">
+          <span>&copy; 2026</span>
+          <span>&middot;</span>
+          <a href="#">Privacidad</a>
+        </div>
+      </div>
     </div>
   </aside>
 
   <section class="form-panel">
-    <mat-card class="login-card">
-      <div class="heading-block">
-        <h2>Bienvenido de nuevo 👋</h2>
-        <p>Ingresa para continuar</p>
-      </div>
+    <div class="form-panel__box">
+      <header class="form-panel__header">
+        <h2>Bienvenido de nuevo</h2>
+        <p>Ingresa tus credenciales para acceder al campus.</p>
+      </header>
 
-      <div class="info-banner">
-        <mat-icon class="info-icon">info</mat-icon>
-        <span><strong>Prueba:</strong> nramirez / nramirez123</span>
-      </div>
-
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Usuario o email</mat-label>
-          <mat-icon matPrefix>person_outline</mat-icon>
-          <input matInput formControlName="email" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Contraseña</mat-label>
-          <mat-icon matPrefix>lock_outline</mat-icon>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" />
-          <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button">
-            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
-          </button>
-        </mat-form-field>
-
-        <div class="helper-row">
-          <mat-checkbox [checked]="rememberMe()" (change)="rememberMe.set($event.checked)">Recordarme</mat-checkbox>
-          <a class="forgot-link" href="#">¿Olvidaste la clave?</a>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+        <div class="input-group">
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 21V19C20 16.79 18.21 15 16 15H8C5.79 15 4 16.79 4 19V21" />
+                <circle cx="12" cy="8" r="4" />
+              </svg>
+            </span>
+            <input id="email" type="text" placeholder=" " formControlName="email" autocomplete="username" />
+            <label for="email" class="input-label">Usuario o email</label>
+          </div>
         </div>
 
-        <button mat-flat-button type="submit" class="submit-button" [disabled]="isLoading()">
+        <div class="input-group">
+          <div class="input-wrapper">
+            <span class="input-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <rect x="4" y="11" width="16" height="10" rx="2" />
+                <path d="M8 11V8C8 5.79 9.79 4 12 4C14.21 4 16 5.79 16 8V11" />
+              </svg>
+            </span>
+            <input
+              id="password"
+              [type]="hidePassword() ? 'password' : 'text'"
+              placeholder=" "
+              formControlName="password"
+              autocomplete="current-password" />
+            <label for="password" class="input-label">Contraseña</label>
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="hidePassword.set(!hidePassword())"
+              [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+              @if (hidePassword()) {
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M2 12C3.73 8.64 7.12 6.5 12 6.5C16.88 6.5 20.27 8.64 22 12C20.27 15.36 16.88 17.5 12 17.5C7.12 17.5 3.73 15.36 2 12Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M3 3L21 21" />
+                  <path d="M10.58 10.58C10.21 10.95 10 11.46 10 12C10 13.1 10.9 14 12 14C12.54 14 13.05 13.79 13.42 13.42" />
+                  <path d="M9.88 5.09C10.56 4.86 11.26 4.75 12 4.75C16.88 4.75 20.27 6.89 22 10.25C21.18 11.84 20.02 13.18 18.54 14.23" />
+                  <path d="M6.32 6.32C4.53 7.25 3.05 8.6 2 10.25C3.73 13.61 7.12 15.75 12 15.75C13.45 15.75 14.77 15.56 15.96 15.2" />
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="login-form__helpers">
+          <label class="checkbox-wrapper">
+            <input
+              type="checkbox"
+              [checked]="rememberMe()"
+              (change)="rememberMe.set($any($event.target).checked)" />
+            <span>Recordarme</span>
+          </label>
+          <a href="#" class="login-form__forgot">¿Olvidaste la clave?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
           @if (isLoading()) {
-          <mat-spinner diameter="22"></mat-spinner>
+            <span class="spinner" aria-hidden="true"></span>
           } @else {
-          <ng-container>
             <span>Iniciar sesión</span>
-          </ng-container>
           }
         </button>
 
-        <mat-divider style="margin: 1rem 0 !important;"></mat-divider>
+        <div class="login-form__divider" aria-hidden="true">
+          <span></span>
+          <small>o continúa con</small>
+          <span></span>
+        </div>
 
-        <button mat-stroked-button type="button" class="google-button" disabled>
-          <span>Continuar con Google</span>
-          <span class="prox-badge">Pronto</span>
+        <button type="button" class="btn btn-google" disabled>
+          <span class="google-icon">G</span>
+          <span>Google</span>
+          <span class="badge-soon">Pronto</span>
         </button>
       </form>
 
       <div class="security-banner">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="sec-check-icon"><mat-icon>check</mat-icon></div>
-          <span>Información protegida con cifrado SSL.</span>
-        </div>
-        <mat-icon class="sec-shield-icon">shield</mat-icon>
+        <div class="security-icon">✓</div>
+        <span class="security-text">Conexión protegida con cifrado SSL de 256-bits</span>
       </div>
-    </mat-card>
+    </div>
   </section>
 </div>

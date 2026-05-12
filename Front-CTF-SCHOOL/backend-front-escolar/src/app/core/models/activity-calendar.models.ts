@@ -11,6 +11,8 @@ export interface ActivityType {
 export interface SchoolActivity {
   id: number;
   activityTypeId: number;
+  courseId: number | null;
+  courseName: string | null;
   activityTypeCode: string;
   activityTypeName: string;
   title: string;
@@ -52,6 +54,7 @@ export interface ActivityCalendar {
 
 export interface CreateSchoolActivityRequest {
   activityTypeId: number;
+  courseId: number | null;
   title: string;
   description: string;
   date: string;

@@ -3,6 +3,7 @@ package com.example.authhexagonal.domain.model;
 import java.time.LocalDate;
 
 public record AdministrationUserCommand(
+        String username,
         String firstName,
         String paternalLastName,
         String maternalLastName,
