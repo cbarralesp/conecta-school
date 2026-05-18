@@ -1,0 +1,2627 @@
+{
+  "documento": {
+    "asignatura": "Lenguaje y Comunicación",
+    "grado": "3° Básico",
+    "decreto": "D.S. 439/2012",
+    "fuente": "Programa de Estudio Tercer Año Básico - Mineduc",
+    "edicion": "Segunda Edición 2018",
+    "total_unidades": 4,
+    "total_oas": 31,
+    "horas_total": 304,
+    "ejes": [
+      "Lectura",
+      "Escritura",
+      "Comunicación Oral"
+    ]
+  },
+  "actitudes": [
+    {
+      "codigo": "a",
+      "descripcion": "Demostrar interés y una actitud activa frente a la lectura, orientada al disfrute de la misma y a la valoración del conocimiento que se puede obtener a partir de ella."
+    },
+    {
+      "codigo": "b",
+      "descripcion": "Demostrar disposición e interés por compartir ideas, experiencias y opiniones con otros."
+    },
+    {
+      "codigo": "c",
+      "descripcion": "Demostrar disposición e interés por expresarse de manera creativa por medio de la comunicación oral y escrita."
+    },
+    {
+      "codigo": "d",
+      "descripcion": "Realizar tareas y trabajos de forma rigurosa y perseverante, con el fin de desarrollarlos de manera adecuada a los propósitos de la asignatura."
+    },
+    {
+      "codigo": "e",
+      "descripcion": "Reflexionar sobre sí mismo, sus ideas y sus intereses para comprenderse y valorarse."
+    },
+    {
+      "codigo": "f",
+      "descripcion": "Demostrar empatía hacia los demás, comprendiendo el contexto en el que se sitúan."
+    },
+    {
+      "codigo": "g",
+      "descripcion": "Demostrar respeto por las diversas opiniones y puntos de vista, reconociendo el diálogo como una herramienta de enriquecimiento personal y social."
+    }
+  ],
+  "objetivos_de_aprendizaje": [
+    {
+      "codigo": "OA1",
+      "eje": "Lectura",
+      "descripcion": "Leer en voz alta de manera fluida variados textos apropiados a su edad:",
+      "sub_items": [
+        "pronunciando cada palabra con precisión",
+        "respetando la coma, el punto y los signos de exclamación e interrogación",
+        "leyendo con velocidad adecuada para el nivel"
+      ]
+    },
+    {
+      "codigo": "OA2",
+      "eje": "Lectura",
+      "descripcion": "Comprender textos aplicando estrategias de comprensión lectora; por ejemplo:",
+      "sub_items": [
+        "relacionar la información del texto con sus experiencias y conocimientos",
+        "releer lo que no fue comprendido",
+        "visualizar lo que describe el texto",
+        "recapitular",
+        "formular preguntas sobre lo leído y responderlas",
+        "subrayar información relevante en un texto"
+      ]
+    },
+    {
+      "codigo": "OA3",
+      "eje": "Lectura",
+      "descripcion": "Leer y familiarizarse con un amplio repertorio de literatura para aumentar su conocimiento del mundo y desarrollar su imaginación; por ejemplo:",
+      "sub_items": [
+        "poemas",
+        "cuentos folclóricos y de autor",
+        "fábulas",
+        "leyendas",
+        "mitos",
+        "novelas",
+        "historietas",
+        "otros"
+      ]
+    },
+    {
+      "codigo": "OA4",
+      "eje": "Lectura",
+      "descripcion": "Profundizar su comprensión de las narraciones leídas:",
+      "sub_items": [
+        "extrayendo información explícita e implícita",
+        "reconstruyendo la secuencia de las acciones en la historia",
+        "describiendo a los personajes",
+        "describiendo el ambiente en que ocurre la acción",
+        "expresando opiniones fundamentadas sobre hechos y situaciones del texto",
+        "emitiendo una opinión sobre los personajes"
+      ]
+    },
+    {
+      "codigo": "OA5",
+      "eje": "Lectura",
+      "descripcion": "Comprender poemas adecuados al nivel e interpretar el lenguaje figurado presente en ellos.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA6",
+      "eje": "Lectura",
+      "descripcion": "Leer independientemente y comprender textos no literarios (cartas, biografías, relatos históricos, instrucciones, libros y artículos informativos, noticias, etc.) para ampliar su conocimiento del mundo y formarse una opinión:",
+      "sub_items": [
+        "extrayendo información explícita e implícita",
+        "utilizando los organizadores de textos expositivos (títulos, subtítulos, índice y glosario) para encontrar información específica",
+        "comprendiendo la información que aportan las ilustraciones, símbolos y pictogramas a un texto",
+        "formulando una opinión sobre algún aspecto de la lectura",
+        "fundamentando su opinión con información del texto o sus conocimientos previos"
+      ]
+    },
+    {
+      "codigo": "OA7",
+      "eje": "Lectura",
+      "descripcion": "Desarrollar el gusto por la lectura, leyendo habitualmente diversos textos.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA8",
+      "eje": "Lectura",
+      "descripcion": "Asistir habitualmente a la biblioteca para satisfacer diversos propósitos (encontrar información, elegir libros, estudiar o trabajar), cuidando el material en favor del uso común.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA9",
+      "eje": "Lectura",
+      "descripcion": "Buscar información sobre un tema en libros, internet, diarios, revistas, enciclopedias, atlas, etc., para llevar a cabo una investigación.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA10",
+      "eje": "Lectura",
+      "descripcion": "Determinar el significado de palabras desconocidas, usando claves contextuales o el conocimiento de raíces (morfemas de base), prefijos y sufijos.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA11",
+      "eje": "Lectura",
+      "descripcion": "Determinar el significado de palabras desconocidas, usando el orden alfabético para encontrarlas en un diccionario infantil o ilustrado.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA12",
+      "eje": "Escritura",
+      "descripcion": "Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, cuentos, anécdotas, cartas, comentarios sobre sus lecturas, etc.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA13",
+      "eje": "Escritura",
+      "descripcion": "Escribir creativamente narraciones (experiencias personales, relatos de hechos, cuentos, etc.) que incluyan:",
+      "sub_items": [
+        "una secuencia lógica de eventos",
+        "inicio, desarrollo y desenlace",
+        "conectores adecuados"
+      ]
+    },
+    {
+      "codigo": "OA14",
+      "eje": "Escritura",
+      "descripcion": "Escribir artículos informativos para comunicar información sobre un tema:",
+      "sub_items": [
+        "organizando las ideas en párrafos",
+        "desarrollando las ideas mediante información que explica el tema"
+      ]
+    },
+    {
+      "codigo": "OA15",
+      "eje": "Escritura",
+      "descripcion": "Escribir cartas, instrucciones, afiches, reportes de una experiencia, entre otros, para lograr diferentes propósitos:",
+      "sub_items": [
+        "usando un formato adecuado",
+        "transmitiendo el mensaje con claridad"
+      ]
+    },
+    {
+      "codigo": "OA16",
+      "eje": "Escritura",
+      "descripcion": "Escribir con letra clara para que pueda ser leída por otros con facilidad.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA17",
+      "eje": "Escritura",
+      "descripcion": "Planificar la escritura:",
+      "sub_items": [
+        "estableciendo propósito y destinatario",
+        "generando ideas a partir de conversaciones, investigaciones, lluvia de ideas u otra estrategia"
+      ]
+    },
+    {
+      "codigo": "OA18",
+      "eje": "Escritura",
+      "descripcion": "Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso:",
+      "sub_items": [
+        "organizan las ideas en párrafos separados con punto aparte",
+        "utilizan conectores apropiados",
+        "utilizan un vocabulario variado",
+        "mejoran la redacción del texto a partir de sugerencias de los pares y el docente",
+        "corrigen la ortografía y la presentación"
+      ]
+    },
+    {
+      "codigo": "OA19",
+      "eje": "Escritura",
+      "descripcion": "Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA20",
+      "eje": "Escritura",
+      "descripcion": "Comprender la función de los artículos, sustantivos y adjetivos en textos orales y escritos, y reemplazarlos o combinarlos de diversas maneras para enriquecer o precisar sus producciones.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA21",
+      "eje": "Escritura",
+      "descripcion": "Comprender la función de los pronombres en textos orales y escritos, y usarlos para ampliar las posibilidades de referirse a un sustantivo en sus producciones.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA22",
+      "eje": "Escritura",
+      "descripcion": "Escribir correctamente para facilitar la comprensión por parte del lector, aplicando lo aprendido en años anteriores y usando de manera apropiada:",
+      "sub_items": [
+        "mayúsculas al iniciar una oración y al escribir sustantivos propios",
+        "punto al finalizar una oración y punto aparte al finalizar un párrafo",
+        "plurales de palabras terminadas en z",
+        "palabras con ge-gi, je-ji",
+        "palabras terminadas en cito-cita",
+        "coma en enumeración"
+      ]
+    },
+    {
+      "codigo": "OA23",
+      "eje": "Comunicación Oral",
+      "descripcion": "Comprender y disfrutar versiones completas de obras de la literatura, narradas o leídas por un adulto, como:",
+      "sub_items": [
+        "cuentos folclóricos y de autor",
+        "poemas",
+        "fábulas",
+        "mitos y leyendas"
+      ]
+    },
+    {
+      "codigo": "OA24",
+      "eje": "Comunicación Oral",
+      "descripcion": "Comprender textos orales (explicaciones, instrucciones, noticias, documentales, películas, relatos, anécdotas, etc.) para obtener información y desarrollar su curiosidad por el mundo:",
+      "sub_items": [
+        "estableciendo conexiones con sus propias experiencias",
+        "identificando el propósito",
+        "formulando preguntas para obtener información adicional, aclarar dudas y profundizar la comprensión",
+        "estableciendo relaciones entre distintos textos",
+        "respondiendo preguntas sobre información explícita e implícita",
+        "formulando una opinión sobre lo escuchado"
+      ]
+    },
+    {
+      "codigo": "OA25",
+      "eje": "Comunicación Oral",
+      "descripcion": "Disfrutar de la experiencia de asistir a obras de teatro infantiles o representaciones para ampliar sus posibilidades de expresión, desarrollar su creatividad y familiarizarse con el género.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA26",
+      "eje": "Comunicación Oral",
+      "descripcion": "Participar activamente en conversaciones grupales sobre textos leídos o escuchados en clases o temas de su interés:",
+      "sub_items": [
+        "manteniendo el foco de la conversación",
+        "expresando sus ideas u opiniones",
+        "formulando preguntas para aclarar dudas",
+        "demostrando interés ante lo escuchado",
+        "mostrando empatía frente a situaciones expresadas por otros",
+        "respetando turnos"
+      ]
+    },
+    {
+      "codigo": "OA27",
+      "eje": "Comunicación Oral",
+      "descripcion": "Interactuar de acuerdo con las convenciones sociales en diferentes situaciones:",
+      "sub_items": [
+        "presentarse a sí mismo y a otros",
+        "saludar",
+        "preguntar",
+        "expresar opiniones, sentimientos e ideas",
+        "situaciones que requieren el uso de fórmulas de cortesía como por favor, gracias, perdón, permiso"
+      ]
+    },
+    {
+      "codigo": "OA28",
+      "eje": "Comunicación Oral",
+      "descripcion": "Expresarse de manera coherente y articulada sobre temas de su interés:",
+      "sub_items": [
+        "organizando las ideas en introducción y desarrollo",
+        "incorporando descripciones y ejemplos que ilustren las ideas",
+        "utilizando un vocabulario variado",
+        "reemplazando los pronombres por construcciones sintácticas que expliciten o describan al referente",
+        "usando gestos y posturas acordes a la situación",
+        "usando material de apoyo (power point, papelógrafo, objetos, etc.) si es pertinente"
+      ]
+    },
+    {
+      "codigo": "OA29",
+      "eje": "Comunicación Oral",
+      "descripcion": "Incorporar de manera pertinente en sus intervenciones orales el vocabulario nuevo extraído de textos escuchados o leídos.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA30",
+      "eje": "Comunicación Oral",
+      "descripcion": "Caracterizar distintos personajes para desarrollar su lenguaje y autoestima, y aprender a trabajar en equipo.",
+      "sub_items": []
+    },
+    {
+      "codigo": "OA31",
+      "eje": "Comunicación Oral",
+      "descripcion": "Recitar poemas con entonación y expresión para fortalecer la confianza en sí mismos, aumentar el vocabulario y desarrollar su capacidad expresiva.",
+      "sub_items": []
+    }
+  ],
+  "oas_todas_las_unidades": {
+    "descripcion": "Estos OAs se trabajan de manera permanente en todas las unidades del año escolar.",
+    "codigos": [
+      "OA1",
+      "OA7",
+      "OA8",
+      "OA12",
+      "OA16",
+      "OA17",
+      "OA18",
+      "OA19",
+      "OA23",
+      "OA27",
+      "OA29"
+    ],
+    "oas": [
+      {
+        "eje": "Lectura",
+        "descripcion": "Leer en voz alta de manera fluida variados textos apropiados a su edad:",
+        "sub_items": [
+          "pronunciando cada palabra con precisión",
+          "respetando la coma, el punto y los signos de exclamación e interrogación",
+          "leyendo con velocidad adecuada para el nivel"
+        ],
+        "codigo": "OA1",
+        "indicadores_evaluacion": [
+          "Leen en voz alta: diciendo las palabras sin error ú respetando los signos de puntuación (punto, coma, signos ú de exclamación y de interrogación) manteniendo una velocidad adecuada a su nivel lector ú"
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Lectura dramatizada",
+            "descripcion": "A partir de un texto seleccionado por el docente, los alumnos forman grupos de lectura y leen en voz alta por turnos, enfatizan- do la entonación. El profesor les indica que complementen sus lecturas con gestos faciales y corporales y con efectos de sonido, como haría un cuentacuentos, sin perder de vista que lo central es leer adecuadamente la historia para que los demás compañe- ros la comprendan. Los estudiantes preparan la lectura y luego la presentan frente al curso. Objetivos para abordar Lenguaje y Comunicación en todas las unidades 69",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Leer a otro",
+            "descripcion": "Los alumnos seleccionan una lectura para leerle en voz alta a un compañero de curso. Esto se puede realizar también como proyecto de comunidad, en que los estudiantes eligen a algún familiar, vecino o amigo y le leen un texto a la semana seleccio- nado por ellos mismos.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "grabar la lectura",
+            "descripcion": "El docente graba las lecturas de los alumnos para que luego cada uno se escuche y evalúe su fluidez usando una pauta que incluya aspectos relacionados con la precisión, la prosodia y la velocidad. Una vez que han leído y escuchado sus grabaciones, los estudian- tes escriben un propósito para mejorar la lectura. Se sugiere, para asegurar el éxito de la actividad, realizar esta práctica de manera periódica, para que los estudiantes puedan observar y autoeva- luar sus avances.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 5,
+            "titulo": "Leer y registrar las lecturas",
+            "descripcion": "El docente crea un calendario de lecturas durante el semestre, para que cada estudiante prepare un texto y lo presente frente a sus compañeros. Para la preparación, los alumnos deben leer sus textos muchas veces, marcando las palabras que presentan ma- yor dificultad y respetando los signos de puntuación. El docente entrega un registro a los estudiantes, en el que deben anotar cada vez que leen el texto a otra persona. Cada alumno debe leer su texto a 10 personas y pedirles que pongan su nombre y firma, para constatar la cantidad de lecturas realizadas. El día de la presentación, el estudiante muestra su registro y lee el texto a sus compañeros, quienes le entregan un certificado de lectura.",
+            "observacion_docente": null
+          }
+        ]
+      },
+      {
+        "eje": "Lectura",
+        "descripcion": "Desarrollar el gusto por la lectura, leyendo habitualmente diversos textos.",
+        "sub_items": [],
+        "codigo": "OA7",
+        "indicadores_evaluacion": [
+          "Escogen textos en el aula, la biblioteca o internet para inves- tigar o entretenerse.",
+          "Leen periódicos, revistas y artículos en internet para infor- marse sobre temas de su interés.",
+          "Leen durante un tiempo definido (15 a 20 minutos), mante- niendo la atención en el texto.",
+          "Comentan los libros que han leído.",
+          "Comparten los libros que les han gustado.",
+          "Expresan por qué les gustó un texto leído."
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Bitácora de lectura",
+            "descripcion": "El docente invita a los alumnos a crear una bitácora de lectura. Para esto, cada uno escoge un cuaderno en el que anotará los libros que lee semanalmente fuera del horario de clases. En la bitácora, los estudiantes deben registrar los títulos, los autores y una breve descripción de sus lecturas, que pueden complemen- tar con ilustraciones relacionadas. Al final de cada mes, el profe- sor los invita a mostrar sus bitácoras y a recomendar sus textos favoritos a los compañeros. Esta actividad también sirve para desarrollar el OA 12.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Lectura individual",
+            "descripcion": "Periódicamente (una vez a la semana o cada dos semanas) los estudiantes escogen en la biblioteca un texto para leer de ma- nera silenciosa durante los 15 o 20 primeros minutos de la clase. Antes de iniciar la lectura, el docente les recuerda que este es un espacio en el que cada uno leerá de manera independiente, por lo que deben mantener el silencio para concentrarse. Conviene realizar esta actividad de manera constante para que sea efectiva. Se sugiere al profesor que el día viernes de cada semana escoja a dos alumnos para que comenten sus lecturas al curso.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "invitación a la lectura",
+            "descripcion": "El docente redacta invitaciones individuales o grupales para los alumnos, en las que un libro invita a cada estudiante a leer sus páginas. En dicha invitación, el libro destaca las fortalezas de cada alumno como lector y hace una recomendación de sí mismo, di- ciendo por qué les gustará leerlo. Luego de un periodo previamen- te establecido, el profesor les pide que respondan a la invitación del libro, comentando si les gustó o no, qué aprendieron, a qué otro texto se parece, u otro aspecto que quieran destacar de la lectura. Objetivos para abordar Lenguaje y Comunicación en todas las unidades 67",
+            "observacion_docente": null
+          },
+          {
+            "numero": 5,
+            "titulo": "Textos del hogar",
+            "descripcion": "El docente solicita a los estudiantes que lleven a la clase al menos tres textos que encuentren en sus casas y que sirvan a su familia para comunicarse, como recados, postales o cartas de familiares o amigos que viven lejos, mensajes de texto, correos electrónicos y otros. En clases establecen para qué sirve cada texto, describen la situación en que fue escrito y por qué fue importante para los miembros de la familia.",
+            "observacion_docente": null
+          }
+        ]
+      },
+      {
+        "eje": "Lectura",
+        "descripcion": "Asistir habitualmente a la biblioteca para satisfacer diversos propósitos (encontrar información, elegir libros, estudiar o trabajar), cuidando el material en favor del uso común.",
+        "sub_items": [],
+        "codigo": "OA8",
+        "indicadores_evaluacion": [
+          "Visitan la biblioteca frecuentemente para buscar informa- ú ción o leer textos de su interés.",
+          "Acuden a la biblioteca para trabajar en grupos o estudiar. ú",
+          "Solicitan o buscan por su cuenta libros sobre algún tema ú determinado.",
+          "Piden sugerencias de libros al encargado del CRA o al do- ú cente que los acompaña.",
+          "Manipulan los libros de manera cuidadosa. ú",
+          "Respetan las normas de conducta asociadas a las diversas ú actividades que se realizan en la biblioteca."
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Visita semanal a la biblioteca",
+            "descripcion": "En coordinación con el encargado del CRA, el profesor organiza visitas semanales a la biblioteca para ofrecer a los estudiantes una gran variedad de libros y materiales de lectura. Durante las visitas, los alumnos tienen tiempo para explorar, sacar libros para llevar a casa, leer en silencio o escuchar cuentos leídos por el profesor.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Búsqueda de material informativo",
+            "descripcion": "El profesor organiza una visita a la biblioteca para mostrar a los alumnos los materiales informativos de la colección. En coordi- nación con el encargado del CRA, propone un tema para que los estudiantes revisen revistas y periódicos, busquen información en enciclopedias y libros de referencia y, en grupos, escriban un texto en el que anoten lo que aprendieron sobre el tema. Esta actividad se puede realizar frecuentemente para que los alumnos investiguen temas relacionados con sus lecturas de clases.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "rutinas de cuidado y devolución de los libros",
+            "descripcion": "El docente o el encargado del CRA explica a los estudiantes las reglas que deben seguir cuando usan la biblioteca. Después de enunciar cada regla, les pregunta para qué servirá y guía una discusión sobre sus beneficios y costos. Luego firman un certifi- cado de que comprenden las normas de uso de la biblioteca y se comprometen a seguirlas para cuidar el material de todos.",
+            "observacion_docente": null
+          }
+        ]
+      },
+      {
+        "eje": "Escritura",
+        "descripcion": "Escribir frecuentemente, para desarrollar la creatividad y expresar sus ideas, textos como poemas, diarios de vida, cuentos, anécdotas, cartas, comentarios sobre sus lecturas, etc.",
+        "sub_items": [],
+        "codigo": "OA12",
+        "indicadores_evaluacion": [
+          "Escriben al menos una vez a la semana un texto con un ú formato que se adecue a sus necesidades.",
+          "Escriben para expresar lo que han descubierto en los textos ú leídos, ya sea emulando estilos de escritura, comentando la información leída o comentando los recuerdos o las emocio- nes que les gatillan.",
+          "Expresan sus preocupaciones, sentimientos o experiencias ú en un blog, diario de vida, agenda, bitácora, etc."
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "describir para que otro adivine",
+            "descripcion": "El profesor guía una lluvia de ideas sobre la vista, el tacto, el oído, el olfato y el gusto, para que los alumnos sugieran palabras que se usan para describir a partir de estos sentidos. Posteriormente, cada estudiante escoge un objeto y lo describe sin nombrarlo, siguiendo este modelo: Si lo toco es y Su olor es y Si lo veo es y Si lo pruebo es y Si lo oigo suena y Este objeto se usa para Objetivos para abordar Lenguaje y Comunicación en todas las unidades 71 El docente finaliza la actividad escogiendo algunas descripciones al azar y pidiendo a sus creadores que las lean para que el resto del curso adivine el objeto descrito. Esta actividad se puede realizar con variaciones para que los alumnos ejerciten su habilidad de describir y comprendan que es importante tener en cuenta al lector para transmitirle el mensaje con claridad. Por ejemplo, el profesor lleva varias láminas de pai- sajes y los alumnos escogen una para describirla, los estudiantes escriben sobre un compañero de curso o sobre un personaje de un cuento leído en clases, etc.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Carta a un personaje",
+            "descripcion": "Luego de la lectura de un cuento o un poema, el profesor pide a los alumnos que le escriban una carta al villano de la historia y le den un consejo. Finaliza la actividad con la lectura voluntaria de algunas cartas. Esta actividad se puede realizar varias veces con variaciones, dependiendo del texto que se trabaje en clases.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "Escribir poemas temáticos",
+            "descripcion": "A partir de la lectura de varios poemas sobre un tema puntual (por ejemplo, poemas sobre la luna) el docente invita a los alum- nos a crear sus propios poemas sobre el tema presentado.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 5,
+            "titulo": "diario del curso ilustrado",
+            "descripcion": "El docente invita a los estudiantes a crear un diario de vida del curso, en el que, cada semana, un grupo se encargará de escribir e ilustrar una anécdota escogida por ellos. Antes de escribir la versión final en el diario, redactan un borrador en una hoja aparte para poder revisarlo y rehacerlo hasta que se entienda clara- mente. Antes de que termine el año, el profesor hace circular el diario del curso por las casas de los alumnos para que los padres o apoderados puedan ver el trabajo de sus hijos.",
+            "observacion_docente": null
+          }
+        ]
+      },
+      {
+        "eje": "Escritura",
+        "descripcion": "Escribir con letra clara para que pueda ser leída por otros con facilidad.",
+        "sub_items": [],
+        "codigo": "OA16",
+        "indicadores_evaluacion": [
+          "Escriben con letra ligada o imprenta, sin mezclar estilos.",
+          "Escriben con letra clara que otros lectores entienden fácil- mente. en todas las unidades"
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Tarjeta de felicitación",
+            "descripcion": "El profesor recuerda con una semana de anticipación los cum- pleaños de cada estudiante y lleva una tarjeta en la que cada alumno escribe un mensaje al cumpleañero. Primero deben es- cribir en una hoja suelta y luego pasar en limpio, preocupándose de hacerlo con letra clara y ordenada para que el cumpleañero lo pueda leer con facilidad.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Carta al director de la escuela",
+            "descripcion": "Cada estudiante escribe una carta al director de la escuela, con- tándole qué es lo que más le gusta del colegio, qué le gustaría cambiar y por qué. Después de revisar su carta, los alumnos la pa- san en limpio con letra clara y ordenada y se la envían al director a través de una comisión elegida por el curso.",
+            "observacion_docente": "Las actividades sugeridas sirven para que los alumnos desarrollen la conciencia de que la letra clara es un requisito importante para que los lectores comprendan los escritos. Sin embargo, aquellos alumnos que tienen una caligrafía deficiente y los que aún escriben en carro deben realizar tareas de caligrafía y copia hasta lograr escribir con una letra ordenada y comprensible, separando las palabras adecuadamente."
+          }
+        ]
+      },
+      {
+        "eje": "Escritura",
+        "descripcion": "Planificar la escritura:",
+        "sub_items": [
+          "estableciendo propósito y destinatario",
+          "generando ideas a partir de conversaciones, investigaciones, lluvia de ideas u otra estrategia"
+        ],
+        "codigo": "OA17",
+        "indicadores_evaluacion": [
+          "Conversan sobre lo que van a escribir.",
+          "Explican para quién y para qué van a escribir.",
+          "Recopilan en su cuaderno la información necesaria para escribir sus textos.",
+          "Explican cómo o dónde encontraron la información que incluirán en sus textos."
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Lluvia de ideas",
+            "descripcion": "Antes de realizar una actividad de escritura, el docente realiza una lluvia de ideas con los alumnos para ayudarlos a reflexionar sobre lo que quieren comunicar. Esta actividad puede variar, dependiendo de lo que los alumnos escriban. Por ejemplo: ú Antes de describir un objeto, los estudiantes discuten en voz alta cómo es y el profesor anota en el pizarrón los aportes de los alumnos, ordenándolos según un criterio preestablecido: de lo general a lo particular, de arriba hacia abajo, del centro hacia fuera, etc. ú Antes de escribir un artículo informativo, el docente propone un tema y luego establece los aspectos sobre los cuales los alumnos deberán investigar. ú Antes de escribir un cuento, el profesor dibuja una tabla en el pizarrón como la siguiente: protagonista problema o situación que enfrenta pirata encuentra una máquina del tiempo aviador vuelve del colegio y descubre que su casa ha desaparecido Los alumnos proponen ideas para cada espacio en blanco de la tabla y luego eligen un personaje para escribir su cuento.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Establecer el destinatario y el propósito del texto",
+            "descripcion": "Antes de escribir artículos, cartas, noticias o afiches, los estudian- tes completan una guía de planificación en la que responden las siguientes preguntas: ú ¿Sobre qué voy escribir? ú ¿Para quién voy a escribir? ú ¿Para qué quiero comunicarle este tema a ese lector? ú ¿Qué sabe esa persona sobre el tema que quiero comunicarle? ú ¿Qué aspectos debo explicarle para que comprenda lo que quiero transmitir? Es importante que, antes de escribir, el profesor haga reflexionar Objetivos para abordar Lenguaje y Comunicación en todas las unidades 73 a los alumnos sobre su propósito y su destinatario, para evitar que las actividades de escritura se conviertan en tareas rutinarias cuyo único fin es obtener una nota.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "modelo de escritura",
+            "descripcion": "Antes de realizar un trabajo de escritura, el docente muestra a los estudiantes dos o tres textos bien escritos que tienen una estruc- tura similar a la que se espera que ellos desarrollen, de manera que se familiaricen con el formato y las características del texto que van a escribir.",
+            "observacion_docente": "Una de las principales causas por la que los estudiantes se desmo- tivan frente a la escritura es porque no saben sobre qué escribir. Por esta razón, se recomienda que el profesor ayude a los estudiantes a pensar temas interesantes durante la planificación de sus textos, en el caso de la escritura de textos literarios, y a buscar información, en el caso de la escritura de artículos informativos. Mientras los alumnos más saben sobre lo que escribirán, más fácil les resulta elaborar los textos, por lo que es fundamental conversar con ellos sobre los temas escogidos e incentivarlos a recopilar información antes de escribir."
+          }
+        ]
+      },
+      {
+        "eje": "Escritura",
+        "descripcion": "Escribir, revisar y editar sus textos para satisfacer un propósito y transmitir sus ideas con claridad. Durante este proceso:",
+        "sub_items": [
+          "organizan las ideas en párrafos separados con punto aparte",
+          "utilizan conectores apropiados",
+          "utilizan un vocabulario variado",
+          "mejoran la redacción del texto a partir de sugerencias de los pares y el docente",
+          "corrigen la ortografía y la presentación"
+        ],
+        "codigo": "OA18",
+        "indicadores_evaluacion": [
+          "Desarrollan ideas que tienen relación con el tema.",
+          "Separan las ideas en párrafos.",
+          "Utilizan conectores para relacionar las ideas del texto, como primero, luego, después, entonces, por eso, pero, así, por- que, entre otros.",
+          "Utilizan un vocabulario variado e incorporan palabras que han aprendido en clases.",
+          "Mejoran los textos: - agregando datos o descripciones para ilustrar las ideas - reescribiendo oraciones que no se comprenden",
+          "Aclaran sus dudas de ortografía a medida que redactan el texto.",
+          "Reescriben sus textos, corrigiendo la ortografía literal y pun- tual.",
+          "Mejoran la presentación del texto para publicarlo."
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "modelar la revisión",
+            "descripcion": "El profesor escoge un texto escrito por alguno de los alum- nos y lo proyecta frente al curso. Lo lee en voz alta y corrige, en conjunto con los estudiantes, un aspecto para mejorar la escritura. Luego les pide que revisen el mismo elemento en sus textos y corrijan si es necesario. Para finalizar la actividad, da la palabra a algunos alumnos para que expliquen cómo corrigieron sus escritos siguiendo el ejemplo del profesor. Es importante que, mientras realiza la corrección, el docente destaque que los errores son necesarios, ya que nos permiten aprender y mejorar, y que incluso los escritores expertos deben corregir varias veces lo que escriben. Esta actividad debe realizarse de manera frecuente, de tal forma que el docente pueda modelar diversos aspectos que se deben tomar en cuenta para mejorar la escritura. Esta práctica también servirá para que los alumnos vean la crítica como un elemento positivo que les permite aprender.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Pauta de revisión",
+            "descripcion": "El docente entrega una pauta de escritura que considera los siguientes aspectos: claridad de las ideas, puntuación, uso de co- nectores, variedad del vocabulario, ortografía y presentación. Los estudiantes leen y corrigen su texto, siguiendo lo especificado en la pauta. Esta actividad se debe realizar frecuentemente para que los estudiantes adquieran el hábito de releer y corregir sus textos.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "Corrección entre pares",
+            "descripcion": "Los alumnos se forman en parejas e intercambian sus escritos para revisarlos siguiendo una pauta elaborada por el docente. El objetivo es que ayuden al compañero a comunicar efectivamente su mensaje. Cada criterio de la pauta tiene un número, para que los estudiantes puedan anotarlos en el texto del compañero en los pasajes que se pueden mejorar. Por ejemplo, si en una oración está repetida la misma palabra, el alumno anota un cuatro, que en la pauta corresponde a vocabulario. Una vez que la revisión termina, los estudiantes se devuelven los escritos y los reescriben considerando las observaciones del compañero.",
+            "observacion_docente": "Se sugiere al profesor destinar una hora a la semana para realizar ta- lleres de escritura, en los cuales los alumnos planifiquen, escriban, revi- sen y editen una amplia variedad de textos sobre temas de su interés. Se recomienda, en cada actividad de escritura, fomentar el uso del colgador de palabras, el jardín de sinónimos y el diccionario personal (ver actividades de los OA 19 y 29), de manera que los alumnos incor- poren en sus textos el vocabulario aprendido en clases. Objetivos para abordar Lenguaje y Comunicación en todas las unidades 75"
+          }
+        ]
+      },
+      {
+        "eje": "Escritura",
+        "descripcion": "Incorporar de manera pertinente en la escritura el vocabulario nuevo extraído de textos escuchados o leídos.",
+        "sub_items": [],
+        "codigo": "OA19",
+        "indicadores_evaluacion": [
+          "Usan adecuadamente en la escritura de textos, las palabras ú aprendidas.",
+          "Utilizan un vocabulario variado y preciso para transmitir ú mensajes."
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Colgador de palabras",
+            "descripcion": "El profesor instala un colgador que simula un tendedero de ropa, en el cual se cuelgan las palabras de vocabulario aprendidas en clases, idealmente organizadas por tema. En un lado de la tarjeta el docente escribe una palabras y en el otro anota una definición amistosa, luego la cuelga en el tendedero junto a las otras tarje- tas. Se sugiere al profesor utilizar las palabras constantemente en su discurso e incentivar a los alumnos a usarlas cada vez que surja una oportunidad, por ejemplo, pidiendo que precisen lo que han dicho con un término recién aprendido, haciendo preguntas (oralmente o por escrito) que necesitan alguna palabra específica en su respuesta, solicitando la escritura de textos sobre temas que sean propicios para el uso de ciertos términos, etc. El profe- sor puede renovar los términos que los estudiantes ya dominan por otros nuevos cada vez que lo estime conveniente.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "jardín de sinónimos",
+            "descripcion": "El profesor dibuja un jardín con flores que tienen en su centro una palabra de uso frecuente. Luego pide a los alumnos que busquen sinónimos y los escriban en los pétalos. Pide que, en parejas, los estudiantes piensen oraciones con los sinónimos y escriban las mejores. Cada pareja comparte con el curso una oración y el docente las escribe en el pizarrón. El profesor hace referencia al jardín de sinónimos cuando los estudiantes realizan actividades de escritura o expresión oral, invitándolos a utilizar las palabras del cartel.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 4,
+            "titulo": "diccionario personal",
+            "descripcion": "Luego de cada lectura, el docente invita a los alumnos a registrar en su cuaderno de vocabulario dos o tres palabras desconocidas que encontraron en el texto leído. Luego pide a algunos estu- Objetivos para abordar Lenguaje y Comunicación en todas las unidades 77 diantes que señalen qué palabras anotaron y guía una conversa- ción para que los alumnos, con ayuda del diccionario o a partir de varios ejemplos de oraciones en las que se use esa palabra, descubran su significado. Una vez que los alumnos comprenden el término, el docente les da una definición amigable para que la anoten en sus cuadernos y les pide que inventen dos oracio- nes por palabra. El profesor recuerda a los alumnos que pueden utilizar su diccionario personal cada vez que realicen actividades de escritura o expresión oral.",
+            "observacion_docente": "Es importante destacar que, para que un estudiante incorpore una palabra a su repertorio, es necesario que se encuentre con ella en con- textos diferentes y que tenga la oportunidad de usarla en varias oca- siones. Dado lo anterior, es fundamental que una palabra nueva se trabaje al menos en tres actividades diferentes; por ejemplo, definirla, usarla en oraciones variadas, leer textos diferentes que la contengan o visualizarla a través de imágenes o descripciones."
+          }
+        ]
+      },
+      {
+        "eje": "Comunicación Oral",
+        "descripcion": "Comprender y disfrutar versiones completas de obras de la literatura, narradas o leídas por un adulto, como:",
+        "sub_items": [
+          "cuentos folclóricos y de autor",
+          "poemas",
+          "fábulas",
+          "mitos y leyendas"
+        ],
+        "codigo": "OA23",
+        "indicadores_evaluacion": [
+          "Solicitan que les lean o relean un cuento.",
+          "Mencionan emociones experimentadas a partir de un texto escuchado.",
+          "Mencionan textos que les hayan gustado.",
+          "Relacionan el texto con sus experiencias o conocimientos previos.",
+          "Emiten opiniones frente a textos escuchados y las justifican.",
+          "Describen su parte favorita de un texto escuchado y justifi- can su elección.",
+          "Nombran personajes que les gustan de un texto escuchado y justifican su elección.",
+          "Nombran personajes que no son de su agrado y explican qué les disgusta de ellos. en todas las unidades"
+        ],
+        "actividades": [
+          {
+            "numero": 2,
+            "titulo": "Cuento de regalo",
+            "descripcion": "El docente inicia la actividad mencionando el nombre del alumno que está de cumpleaños. Luego le dice que le dará un regalo lec- tor, un cuento especialmente escogido para él o ella. A continua- ción lee el cuento en voz alta a todo el curso, poniendo especial atención al cumpleañero. Finalmente, dirige una conversación acerca del cuento leído, interrogando a los alumnos sobre el texto para verificar su comprensión. Se recomienda realizar esta actividad durante todo el año, para regalar un cuento a cada niño el día de su cumpleaños. Conviene incluir en el calendario de regalos lectores a los estudiantes que estén de cumpleaños en vacaciones o fines de semana, para que todos reciban una lectura especialmente seleccionada.",
+            "observacion_docente": null
+          },
+          {
+            "numero": 3,
+            "titulo": "Cuento de otro país",
+            "descripcion": "El docente escoge un cuento en el que se relate alguna historia ambientada en otro país o, si existen alumnos extranjeros en el curso, pide que ellos traigan uno de su país de proveniencia. Inicia la actividad introduciendo algunas características del lugar o la cultura a que pertenece el texto seleccionado y luego lee en voz alta el cuento a los alumnos. Finaliza la actividad conversando acerca de los temas, los hechos y los personajes del texto escuchado y si tienen relación con la información entregada al principio.",
+            "observacion_docente": "Esta misma actividad se puede realizar con cuentos o leyendas en que se destaque algún elemento del territorio nacional o se muestre alguna costumbre o característica propia de Chile. El docente puede encontrar textos y actividades en el sitio web www.chileparaninos.cl También hay videos de cuentos folclóricos chilenos en el sitio www. educarchile.cl, en el link “aula visual”."
+          },
+          {
+            "numero": 4,
+            "titulo": "recapitulación de un cuento",
+            "descripcion": "Luego de escuchar un relato narrado o leído por el docente, los alumnos escriben o dibujan en el pizarrón los personajes, los acontecimientos o los episodios clave. Para esto, se organizan en grupos que pueden ir a la pizarra cuantas veces quieran si mantienen silencio durante la actividad. Una vez completo el pizarrón, el profesor pide a algunos estudiantes que recuenten la historia sin ver lo escrito y dibujado. Tras el recuento, sus compa- ñeros, apoyados por las notas del pizarrón, comentan si les faltó mencionar algún aspecto importante. Entre todos reconstruyen lo que falta para completar la narración.",
+            "observacion_docente": null
+          }
+        ]
+      },
+      {
+        "eje": "Comunicación Oral",
+        "descripcion": "Interactuar de acuerdo con las convenciones sociales en diferentes situaciones:",
+        "sub_items": [
+          "presentarse a sí mismo y a otros",
+          "saludar",
+          "preguntar",
+          "expresar opiniones, sentimientos e ideas",
+          "situaciones que requieren el uso de fórmulas de cortesía como por favor, gracias, perdón, permiso"
+        ],
+        "codigo": "OA27",
+        "indicadores_evaluacion": [
+          "Se presentan a sí mismos o a la persona con la que están. ú",
+          "Usan las convenciones de cortesía en sus interacciones de la ú vida cotidiana.",
+          "Adecuan su registro y vocabulario a la situación comunicativa. ú el año aborde la enseñanza de vocabulario siempre en de relación con los textos leídos y escuchados en clases, de modo que el aprendizaje sea signifi- cativo para los estudiantes. Para asegurarse de en la que los alumnos incorporan las palabras nuevas, el un requisito esencial es que las encuentren en diversos textos y tengan la oportunidad de usarlas en situaciones variadas.",
+          "HáBiTOs dE LECTUrA",
+          "En la escuela los estudiantes leen para aprender, los para participar de una comunidad de lectores y para entretenerse. La actitud y los hábitos que tienen hacia la lectura son determinantes para su capacidad de aprender. Hay que considerar que los alumnos se motivan cuando la lectura es tema de conversación cotidiana, por lo que no basta con tener los textos a su disposición, sino que es",
+          "En necesario guiar conversaciones sobre lo que están pla- leyendo, hacer mención permanente a lo que han leído y comparar personajes y situaciones de las los lecturas con la vida cotidiana de la escuela y el hogar. En resumen, para formar los hábitos lec- tores de los alumnos en la escuela, hay que crear una comunidad de lectores dentro de la sala de clases que converse sobre lo que se lee y manten- ga una actitud positiva frente a la lectura. PLANifiCACióN y mOdELOs",
+          "En general, los niños que leen en abundancia que pueden redactar con mayor facilidad, ya que me- diante la lectura han internalizado léxico, modelos sintácticos y estructuras textuales variadas. Por otra parte, los alumnos que han tenido múltiples experiencias con un mismo género tienen una mejor idea de cómo debe ser el producto final y de una tarea de escritura. Sin embargo, para los estudiantes que han tenido menos experiencia que con la lectura, es necesario suplir esta carencia mostrándoles buenos ejemplos de textos antes de de que escriban. Por ejemplo, antes de dedicar- se a escribir una carta, conviene que lean varios ejemplos de cartas; si se les pide crear un poema, deben conocer primero poemas diversos para no encasillarse en un modelo único. Además, leer"
+        ],
+        "actividades": [
+          {
+            "numero": 3,
+            "titulo": "Expresar opiniones",
+            "descripcion": "A partir de la lectura de una fábula, el docente dirige una con- versación centrada en la manera en que actuaron los personajes. Pregunta a los alumnos cómo consideran que se comportaron en la historia y les pide que fundamenten sus respuestas.",
+            "observacion_docente": "Es importante elegir personajes que permitan discutir acerca de la importancia de respetar a los demás sin importar su proveniencia, sus características o sus creencias."
+          },
+          {
+            "numero": 4,
+            "titulo": "seguridad vial",
+            "descripcion": "El profesor guía una lluvia de ideas sobre los deberes que tienen los ciudadanos que circulan por la vía pública, centrándose en los aspectos que deben respetar los peatones, los conductores y los ciclistas. Para esto, completan una tabla como la siguiente: Peatones Conductores Ciclistas Una vez que entre todos completaron la tabla, conversan sobre la importancia de las normas del tránsito y la necesidad de respe- tarlas para cuidar la vida propia y de los demás. Para finalizar la actividad, escriben carteles que inviten al resto de la comunidad escolar a seguir las reglas del tránsito y los pegan en diversos lugares de la escuela. (Historia, geografía y Ciencias sociales)",
+            "observacion_docente": null
+          },
+          {
+            "numero": 5,
+            "titulo": "Palabras que nunca pueden faltar",
+            "descripcion": "El docente inicia la actividad con la pregunta “¿Qué palabras no pueden faltar cuando pedimos, preguntamos o agradecemos algo?” A medida que los alumnos mencionan las fórmulas de cor- tesía básicas –por favor, gracias, perdón, permiso–, las anota en el pizarrón. Luego divide al curso en grupos, asignando una palabra a cada uno. Les entrega una cartulina o un papel y les pide que dibujen una viñeta de cómic donde la palabra se use en el diálogo.",
+            "observacion_docente": "Se sugiere al docente pegar los carteles en un lugar visible de la clase e invitar, de manera constante, a los alumnos a utilizar estas palabras."
+          },
+          {
+            "numero": 6,
+            "titulo": "juegos de rol",
+            "descripcion": "El docente pide a los alumnos que, en grupos, representen situa- ciones en que las personas no usan fórmulas de cortesía. Después de cada presentación, los estudiantes escriben qué personaje debiese haber usado una de las fórmulas y qué reacción tuvieron las personas que recibieron su mensaje. Después de observar una presentación, el profesor pide al grupo que vuelva a presentar la situación, pero esta vez con la cortesía adecuada. Para finalizar la actividad, dirige una conversación centrada en la importancia del uso de las convenciones sociales en ciertas situaciones. Lenguaje y Comunicación 79",
+            "observacion_docente": "Las actividades descritas para este objetivo son importantes porque hacen reflexionar sobre para qué y por qué existen las convenciones sociales. Sin embargo, además de estas actividades –que se pueden hacer una o dos veces al año–, es importante generar una cultura en la escuela que apoye este objetivo. Esto significa que el docente, junto con los apoderados y el resto de los miembros de la escuela, modelan, fo- mentan y refuerzan positivamente el uso de las convenciones sociales. En tercero básico, se espera que los estudiantes vayan integrando estos aprendizajes y que entre ellos mismos se corrijan de manera respetuosa. De esta forma se va traspasando la responsabilidad pau- latinamente al curso."
+          },
+          {
+            "numero": 1,
+            "titulo": "ertsemes",
+            "descripcion": "",
+            "observacion_docente": null
+          },
+          {
+            "numero": 1,
+            "titulo": "dadinU",
+            "descripcion": "",
+            "observacion_docente": null
+          }
+        ]
+      },
+      {
+        "eje": "Comunicación Oral",
+        "descripcion": "Incorporar de manera pertinente en sus intervenciones orales el vocabulario nuevo extraído de textos escuchados o leídos.",
+        "sub_items": [],
+        "codigo": "OA29",
+        "indicadores_evaluacion": [
+          "Usan adecuadamente en sus intervenciones orales las pala- ú bras aprendidas.",
+          "Conversan con otras personas acerca de las nuevas palabras ú aprendidas.",
+          "Recuentan historias, hechos noticiosos o nuevos contenidos ú leídos y escuchados, utilizando el vocabulario del texto de origen.",
+          "Utilizan un vocabulario variado y preciso para transmitir ú mensajes."
+        ],
+        "actividades": []
+      }
+    ]
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "nombre": "Unidad 1",
+      "semestre": 1,
+      "horas_estimadas": 79,
+      "proposito": {
+        "general": "Los estudiantes ejercitan sus habilidades de comprensión lectora a través de la lectura de narraciones literarias y textos no literarios, y ponen en práctica estrategias de lectura como herramientas para la comprensión. Aprenden a usar el diccionario y a usar adecuadamente el punto y la coma. En escritura y comunicación oral, continúan desarrollando su capacidad expresiva por medio de artículos informativos y conversaciones sobre textos leídos.",
+        "lectura": "Lectura de narraciones literarias (cuentos, leyendas, historietas) y textos no literarios. Uso del diccionario. Estrategias de comprensión lectora.",
+        "escritura": "Artículos informativos. Función de artículos, sustantivos y adjetivos. Ortografía: punto y coma.",
+        "comunicacion_oral": "Conversaciones grupales sobre textos leídos. Interacción social según convenciones."
+      },
+      "actitudes": [
+        {
+          "codigo": "a",
+          "descripcion": "Demostrar interés y una actitud activa frente a la lectura, orientada al disfrute de la misma y a la valoración del conocimiento que se puede obtener a partir de ella."
+        },
+        {
+          "codigo": "b",
+          "descripcion": "Demostrar disposición e interés por compartir ideas, experiencias y opiniones con otros."
+        },
+        {
+          "codigo": "g",
+          "descripcion": "Demostrar respeto por las diversas opiniones y puntos de vista, reconociendo el diálogo como una herramienta de enriquecimiento personal y social."
+        }
+      ],
+      "lecturas_sugeridas": {
+        "narraciones": [
+          {
+            "titulo": "Kilikilis y Golagolas",
+            "autor": "Themo Lobos"
+          },
+          {
+            "titulo": "Mata-Ki-Te-Rangui",
+            "autor": "Themo Lobos"
+          },
+          {
+            "titulo": "¡Sésamo, abre!",
+            "autor": "Themo Lobos"
+          },
+          {
+            "titulo": "Astérix el galo",
+            "autor": "René Goscinny, Albert Uderzo"
+          },
+          {
+            "titulo": "El rey pico de tordo",
+            "autor": "Versión de los hermanos Grimm"
+          },
+          {
+            "titulo": "Los tres deseos",
+            "autor": "Versión de Fernán Caballero"
+          },
+          {
+            "titulo": "El amigo del duende Melodía",
+            "autor": "Alicia Morel"
+          },
+          {
+            "titulo": "Patas de Hilo",
+            "autor": "Consuelo Hayden y otros"
+          },
+          {
+            "titulo": "Chorlitos en la cabeza",
+            "autor": "Saúl Schkolnik"
+          },
+          {
+            "titulo": "Degas y la pequeña bailarina",
+            "autor": "Laurence Anholt"
+          },
+          {
+            "titulo": "Cuando san Pedro viajó en tren",
+            "autor": "Liliana Bodoc"
+          },
+          {
+            "titulo": "El enojo del rey",
+            "autor": "Saúl Scholnik"
+          },
+          {
+            "titulo": "Carlota y la Mona Lisa",
+            "autor": "James Mayhew"
+          },
+          {
+            "titulo": "Carlota descubre a los impresionistas",
+            "autor": "James Mayhew"
+          },
+          {
+            "titulo": "Pequeñas historias zen (antología)",
+            "autor": "Jon J. Muth"
+          },
+          {
+            "titulo": "Mini es la mejor",
+            "autor": "Christine Nöstlinger"
+          },
+          {
+            "titulo": "El gallo embrujado",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "Las lamparitas del pillán (leyenda mapuche)",
+            "autor": "Anónimo"
+          },
+          {
+            "titulo": "El diablo y el boxeador",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "Las hadas",
+            "autor": "Charles Perrault"
+          },
+          {
+            "titulo": "Cenicienta",
+            "autor": "Charles Perrault"
+          },
+          {
+            "titulo": "El gato con botas",
+            "autor": "Charles Perrault"
+          },
+          {
+            "titulo": "La princesa que gastaba siete pares de zapatos por noche",
+            "autor": "Anónimo"
+          }
+        ],
+        "textos_no_literarios": [
+          {
+            "titulo": "Insectos (colección Pequeños lectores)",
+            "autor": "Jennifer Dussling"
+          },
+          {
+            "titulo": "La historia de Pocahontas (colección Pequeños Lectores)",
+            "autor": "Caryn Jenner"
+          },
+          {
+            "titulo": "Un paseo matemático por el museo",
+            "autor": "Majungmul"
+          },
+          {
+            "titulo": "Wangari y los árboles de la paz",
+            "autor": "Jeanette Winter"
+          },
+          {
+            "titulo": "El libro del libro",
+            "autor": "Dimitri Inkiow"
+          },
+          {
+            "titulo": "Me llamo Marco Polo",
+            "autor": "Nuria Barba y Xavier Salomó"
+          }
+        ]
+      },
+      "oas": [
+        {
+          "eje": "Lectura",
+          "descripcion": "Comprender textos aplicando estrategias de comprensión lectora; por ejemplo:",
+          "sub_items": [
+            "relacionar la información del texto con sus experiencias y conocimientos",
+            "releer lo que no fue comprendido",
+            "visualizar lo que describe el texto",
+            "recapitular",
+            "formular preguntas sobre lo leído y responderlas",
+            "subrayar información relevante en un texto"
+          ],
+          "codigo": "OA2",
+          "indicadores_evaluacion": [
+            "Explican lo que saben de un tema antes de leer un texto ú sobre el mismo.",
+            "Comparan la información que encuentran en textos leídos ú con sus propios conocimientos sobre el tema.",
+            "Marcan los párrafos que no comprenden y los releen. ú",
+            "Detienen la lectura para evaluar si recuerdan lo leído. ú",
+            "Subrayan la información más relevante de cada párrafo. ú"
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Tarjetas de lectura",
+              "descripcion": "El docente invita a los alumnos a completar tarjetas de lectura de un texto leído. Estas pueden elaborarse de acuerdo con el modelo siguiente: Leí el texto \" \" que habla sobre . Lo que yo sabía sobre eso es que . Luego de leer el texto, aprendí que .",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Conocimientos previos",
+              "descripcion": "Antes de leer un texto con los estudiantes, el docente men- ciona el título, en el que se hace referencia al tema del mismo. Les pregunta qué saben sobre eso, anota en el pizarrón lo que los alumnos le dicen y agrega información si la que saben los estudiantes es muy poca. Luego lee el texto con los estudiantes y comenta en voz alta cada vez que alguna información del texto se relaciona con algo que los estudiantes mencionaron al inicio de la clase. También les llama la atención si hay algo que no concuerda y guía a los alumnos para que reflexionen si se trata de un error del texto o de ellos. Para solucionar las dudas, los estudiantes in- vestigan en internet y en la biblioteca hasta dar con una respues- ta. Al final de esta actividad, el docente explica la importancia de recordar qué se sabe sobre un tema antes de leer sobre él y de relacionar lo que se lee con lo que uno ya sabía. De esta manera, los alumnos podrán aprender nuevos conocimientos o reparar aquellos equivocados.",
+              "observacion_docente": "Esta estrategia debe reforzarse frecuentemente con los estudiantes, para lo cual el profesor primero debe modelar y luego guiar la prácti- ca de este ejercicio hasta que los alumnos sean capaces de realizarlo de manera autónoma. Es conveniente que, cuando los estudiantes realicen actividades como esta de manera independiente, el profesor los invite a verbalizar su pensamiento. Así podrá conocer su razona- miento y guiarlos si tienen dificultades."
+            },
+            {
+              "numero": 4,
+              "titulo": "releer",
+              "descripcion": "El profesor entrega al curso un texto y pide a un estudiante que lea el primer párrafo en voz alta. Luego le indica que explique con sus palabras lo que acaba de leer. Si el alumno no es capaz de hacerlo o recuerda solo parte de la información, el profesor vuel- ve a leer el párrafo junto con él y le da una segunda oportunidad para responder. Luego realiza el mismo ejercicio con el segundo párrafo y otro alumno y así sucesivamente. El docente explica que, si uno no prestó atención o no entendió un pasaje del texto, lo primero que debe hacer es releerlo con detención para poder revisar dónde está el problema.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "subrayar",
+              "descripcion": "El profesor proyecta un texto en el pizarrón y entrega copias a sus estudiantes. Primero lee el texto completo y luego explica que volverá a leer cada párrafo para buscar la información más importante. Modela cómo hacerlo subrayando las ideas princi- pales y explicando cómo las distingue. Luego entrega otro texto a los estudiantes y pide a uno que repita el ejercicio en el primer párrafo; después otro alumno subraya las ideas del segundo y así sucesivamente hasta que terminan el texto. Es conveniente repetir esta actividad varias veces y entregar progresivamente autonomía a los alumnos para que lo hagan por sí solos, ya que a esta edad aún les es muy difícil distinguir las ideas principales de la información accesoria. En este nivel conviene centrarse en la información de cada párrafo, para que más adelante puedan enfocarse en las ideas principales de todo el texto.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer y familiarizarse con un amplio repertorio de literatura para aumentar su conocimiento del mundo y desarrollar su imaginación; por ejemplo:",
+          "sub_items": [
+            "poemas",
+            "cuentos folclóricos y de autor",
+            "fábulas",
+            "leyendas",
+            "mitos",
+            "novelas",
+            "historietas",
+            "otros"
+          ],
+          "codigo": "OA3",
+          "indicadores_evaluacion": [
+            "Relacionan situaciones de la vida cotidiana con personajes o acciones de los textos leídos en clases o independientemente.",
+            "Mencionan textos y autores que han leído.",
+            "Relacionan aspectos de un texto leído y comentado en cla- ses con otros textos leídos previamente.",
+            "Releen textos que ya conocen.",
+            "Seleccionan textos para leer por su cuenta.",
+            "Recomiendan textos a otros."
+          ],
+          "actividades": []
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Profundizar su comprensión de las narraciones leídas:",
+          "sub_items": [
+            "extrayendo información explícita e implícita",
+            "reconstruyendo la secuencia de las acciones en la historia",
+            "describiendo a los personajes",
+            "describiendo el ambiente en que ocurre la acción",
+            "expresando opiniones fundamentadas sobre hechos y situaciones del texto",
+            "emitiendo una opinión sobre los personajes"
+          ],
+          "codigo": "OA4",
+          "indicadores_evaluacion": [
+            "Aluden, en sus comentarios orales y escritos, a información explícita de un texto.",
+            "Contestan, oralmente o por escrito, preguntas que aluden a información implícita del texto.",
+            "Describen a un personaje, mencionando características físi- cas y sentimientos que experimenta en algunas situaciones, si es relevante.",
+            "Explican, oralmente o por escrito, los problemas a los cuales se enfrentan los personajes y cómo se resuelven.",
+            "Comunican qué sentirían ellos si estuviesen en el lugar de determinado personaje mediante comentarios orales o escritos, dramatizaciones, dibujos u otras manifestaciones artísticas.",
+            "Subrayan adjetivos o frases en el texto que describen el ambiente.",
+            "Describen, dibujan o recrean el lugar donde ocurre el relato.",
+            "Expresan, oralmente o por escrito, su opinión sobre un per- sonaje."
+          ],
+          "actividades": [
+            {
+              "numero": 5,
+              "titulo": "Álbum fotográfico de mi lectura",
+              "descripcion": "Después de la lectura de un texto seleccionado por el docente, los alumnos, en grupos, crean un álbum fotográfico en el que incluyen dibujos o fotografías que representan los lugares y los personajes de la historia leída. Al lado de cada imagen escriben una descripción de lo que ahí aparece. Esta actividad también sirve para desarrollar el OA 12.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 6,
+              "titulo": "ficha de lectura",
+              "descripcion": "Los estudiantes escogen en la biblioteca algún relato que les interesa leer y luego responden una lista de preguntas entregada previamente por el profesor. Se sugiere incluir preguntas como: ú Título y autor del texto leído. ú ¿Por qué eligió este relato? ú ¿Le resultó conocido algún elemento del cuento, como un personaje, un ambiente, un acontecimiento? ¿Se parecía a algún elemento de otro cuento? ¿Se parecía a algo de la vida real? Explique. ú Describa el ambiente en que sucede el cuento. ú Elija uno de los personajes y descríbalo. Explique por qué escogió a ese personaje. ú ¿Leería otros textos de este autor? ¿Por qué? ú ¿Qué fue lo que más le gustó de la historia? ú ¿Qué aprendió luego de la lectura del relato? ú Si pudiera cambiar una parte del cuento, ¿cuál sería?, ¿cómo lo haría? Esta actividad también puede realizarse en forma grupal luego de la lectura de una novela.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer independientemente y comprender textos no literarios (cartas, biografías, relatos históricos, instrucciones, libros y artículos informativos, noticias, etc.) para ampliar su conocimiento del mundo y formarse una opinión:",
+          "sub_items": [
+            "extrayendo información explícita e implícita",
+            "utilizando los organizadores de textos expositivos (títulos, subtítulos, índice y glosario) para encontrar información específica",
+            "comprendiendo la información que aportan las ilustraciones, símbolos y pictogramas a un texto",
+            "formulando una opinión sobre algún aspecto de la lectura",
+            "fundamentando su opinión con información del texto o sus conocimientos previos"
+          ],
+          "codigo": "OA6",
+          "indicadores_evaluacion": [
+            "Explican, oralmente o por escrito, información que han ú aprendido o descubierto en los textos que leen.",
+            "Responden por escrito preguntas que aluden a información ú explícita e implícita de un texto leído.",
+            "Cumplen exitosamente las tareas descritas en instrucciones ú leídas.",
+            "Encuentran información usando títulos, subtítulos, índices o ú glosarios.",
+            "Describen los textos discontinuos que aparecen en un texto ú leído y los relacionan con la lectura.",
+            "Expresan opiniones y las justifican mencionando informa- ú ción extraída de textos leídos."
+          ],
+          "actividades": [
+            {
+              "numero": 4,
+              "titulo": "Entrevista a un personaje histórico",
+              "descripcion": "Los estudiantes leen en silencio la biografía de un personaje histórico. Cuando terminan, guiados por el docente, recuerdan y registran los principales acontecimientos de la vida del personaje. Luego el profesor pide a cada uno que escriba cinco preguntas que le gustaría hacerle y que puedan contestarse con la lectura del texto. Algunos alumnos pasan adelante y leen sus preguntas para que el resto del curso busque las respuestas en la biografía leída. El profesor finaliza la actividad pidiendo a los estudiantes que dibujen un episodio de la vida de dicho personaje. Este debe simular ser una fotografía tomada por un periodista. Cada alumno debe escri- bir bajo ella la fecha y el nombre del acontecimiento dibujado. (Historia, geografía y Ciencias sociales)",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "Buzón de textos",
+              "descripcion": "El docente mantiene en la sala de clases un buzón en el cual los estudiantes introducen el título y el autor de textos no literarios que hayan leído por su cuenta y que les gustaría leer y comentar en clases. El profesor selecciona uno una vez a la semana o cada quince días y entrega copias a los alumnos. Cada uno lee el texto en silencio y después comentan lo leído. El docente primero da la palabra a quien había sugerido el texto para que comience la discusión explicando por qué le pareció interesante esta lectura. Posteriormente guía la conversación mediante preguntas como: ú ¿Qué datos o elementos mencionados en el texto eran conoci- dos? ¿Qué aspectos nuevos sobre eso aprendimos luego de la lectura? ú En el texto se menciona X y se explica qué es. ¿Quién es capaz de explicarlo con sus propias palabras? ú ¿Qué información aportan las imágenes que aparecen?",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Determinar el significado de palabras desconocidas, usando el orden alfabético para encontrarlas en un diccionario infantil o ilustrado.",
+          "sub_items": [],
+          "codigo": "OA11",
+          "indicadores_evaluacion": [
+            "Subrayan en un texto palabras que no entienden para bus- carlas en el diccionario.",
+            "Encuentran las palabras que buscan en el diccionario usan- do el orden alfabético.",
+            "Explican los significados de palabras nuevas que han encon- trado en el diccionario."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Confección de un glosario",
+              "descripcion": "Después de la lectura de un texto, el docente invita a los estu- diantes a confeccionar un glosario. Cada alumno elige cinco pala- bras que no conoce del texto y cuyo significado quiere aprender, las ordena alfabéticamente y busca sus definiciones en el diccio- nario. Anotan las palabras con sus significados respectivos en una hoja que añaden al final del texto leído, a modo de glosario.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Encontrar palabras rápidamente en el diccionario",
+              "descripcion": "El docente escribe en el pizarrón una palabra de vocabulario tomada de un texto que ha sido leído recientemente y pide a los alumnos que busquen su significado en el diccionario lo más rápido posible. Una vez que esta fue encontrada, el alumno que lo hizo lee su significado y, de manera colectiva, todo el curso crea tres oraciones para ponerla en contexto. Luego, se repite la actividad con otras cuatro palabras extraídas del texto.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Colección de palabras",
+              "descripcion": "El docente da la instrucción a los estudiantes de que, durante una semana, cada uno registre una palabra escuchada o leída cuyo significado le gustaría aprender porque piensa que le puede servir para comunicarse mejor en su vida cotidiana. A la semana siguiente, cada alumno indica qué palabra escogió y, entre todos, confeccionan una lista ordenada alfabéticamente. Los estudiantes buscan en el diccionario los significados de las palabras reunidas y confeccionan una ficha con cada término, en la que registran la palabra, la definición, un dibujo y dos oraciones en que se use la palabra. Guardan las fichas en una caja siguiendo el orden alfabético. Esta actividad puede realizarse más de una vez, para aumentar la colección y tener un registro físico de las palabras que aprenden los estudiantes en clases. Esta actividad sirve para desarrollar el OA 19.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Escribir artículos informativos para comunicar información sobre un tema:",
+          "sub_items": [
+            "organizando las ideas en párrafos",
+            "desarrollando las ideas mediante información que explica el tema"
+          ],
+          "codigo": "OA14",
+          "indicadores_evaluacion": [
+            "Eligen un tema interesante para escribir.",
+            "Buscan y registran información para desarrollarlo.",
+            "Desarrollan el tema en párrafos en los que: - elaboran un subtema por párrafo y lo ilustran con ejem- plos, datos o explicaciones - la información seleccionada se relaciona con el tema desarrollado - incluyen palabras y expresiones específicas del tema tratado"
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Elaboración de un folleto turístico",
+              "descripcion": "Cada estudiante elige un lugar del mundo que le gustaría conocer para investigar sobre él. Investiga en la biblioteca y en internet y, con la información recolectada, elabora un folleto turístico para promocionar las visitas a ese lugar. El folleto debe organizarse de la siguiente manera: ú Nombre del lugar ú Ubicación geográfica: continente, país, límites ú Descripción de las características del lugar, como su relieve y su clima ú Descripción de otros aspectos interesantes del lugar, como la fauna, las costumbres de sus habitantes o sus edificaciones ú Descripción del principal atractivo turístico del lugar ú Recorte o dibujo que lo represente Los estudiantes presentan sus folletos oralmente frente al curso y los exponen a la salida de la sala o en la biblioteca. (Historia, geografía y Ciencias sociales)",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Comprender la función de los artículos, sustantivos y adjetivos en textos orales y escritos, y reemplazarlos o combinarlos de diversas maneras para enriquecer o precisar sus producciones.",
+          "sub_items": [],
+          "codigo": "OA20",
+          "indicadores_evaluacion": [
+            "Seleccionan el artículo que concuerda con un sustantivo en un texto.",
+            "Usan adecuadamente los artículos definidos e indefinidos, según el contexto.",
+            "Eligen el artículo (definido o indefinido) que mejor calza con una situación descrita.",
+            "Usan, en sus producciones orales y escritas, sustantivos preci- sos para nombrar objetos, personas y lugares.",
+            "Sintetizan una frase nominal con un sustantivo. Por ejemplo: reemplazan \"El hijo de la hermana de mi mamá\" por \"mi primo\".",
+            "Precisan un sustantivo utilizando adjetivos y complementos.",
+            "Buscan sinónimos de los sustantivos usados en sus textos para evitar la repetición o para precisar sus ideas.",
+            "Señalan en un texto qué palabras caracterizan a un objeto, lugar, animal o persona.",
+            "Usan adjetivos para especificar las características de un obje- to, animal o persona en una descripción."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Concordancia entre artículo y sustantivo",
+              "descripcion": "El docente entrega a los estudiantes una guía con oraciones en las que hay errores de concordancia entre el sustantivo y el artículo. Explica cómo concuerdan los artículos con los sustantivos y, en conjunto, corrigen la primera oración. Los estudiantes terminan de hacer la guía y luego corrigen entre todos.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "La llave de roma",
+              "descripcion": "El docente enseña a los estudiantes el juego “La llave de Roma” y les explica que para jugar tendrán que inventar nuevos versos con sustantivos relacionados con un tema específico, por ejemplo: ani- males, cosas de la casa, prendas de vestir, medios de transportes u otro. Los estudiantes que se equivocan proponen un nuevo tema y quedan fuera del juego. El objetivo de esta actividad es que los alumnos distingan a los sustantivos de otro tipo de palabras y que amplíen su vocabulario.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Lista de compras",
+              "descripcion": "A partir de una conversación sobre la experiencia de hacer las compras en el supermercado o la feria, el docente escribe en el pizarrón su propia lista de compras. Luego pide a los alumnos que escriban una lista de todo lo que se les ocurra que pueden comprar en: ú la ferretería ú la farmacia ú la verdulería Posteriormente, el profesor menciona diversas cosas para que los es- tudiantes le digan dónde las puede conseguir. Finalmente, reflexio- nan sobre si podrían haber hecho esta lista sin usar sustantivos.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "síntesis y ampliación de oraciones mediante sustantivos",
+              "descripcion": "El docente pide a los estudiantes que elijan, de un texto leído, una oración que tenga muchos sustantivos. Eligen una y la escriben en el pizarrón, para buscar cómo resumirla, por ejemplo, “Juan, José, Martina y Ana fueron al estadio ayer.” Les pregunta cómo se puede achicar esta oración sin que pierda el mensaje original. Po- sibles respuestas: “Los niños fueron al estadio ayer”, “los jóvenes fueron al estadio”, “un grupo fue al estadio”, etc. En esta misma línea, se puede elegir oraciones de textos leídos o escritos por los mismos estudiantes para que las amplíen, preci- sando el sustantivo mediante adjetivos y complementos. Esta actividad sirve para desarrollar el OA 18.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 6,
+              "titulo": "Adjetivos en una descripción",
+              "descripcion": "El docente selecciona una parte de algún texto leído en clases y que contenga alguna descripción interesante o llamativa. La reproduce para los estudiantes y les explica qué son los adjetivos y qué efecto tienen en los sustantivos. Luego, en conjunto, van borrando todos los adjetivos. Leen cómo queda el texto sin ellos. A continuación, agregan adjetivos que ellos elijan y vuelven a leer. Comparan la diferencia de sentido y la calidad de la información que transmiten los dos textos resultantes.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 7,
+              "titulo": "describir una imagen",
+              "descripcion": "El docente muestra a los estudiantes una lámina en la que se representen variados personajes y elementos y les pide que la observen con detención y que anoten en su cuaderno todo lo que aparece en la imagen, escribiendo solo sustantivos. Poste- riormente, para cada sustantivo que seleccionaron, escriben una oración, agregando adjetivos que describan a los objetos.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 8,
+              "titulo": "Adjetivos para describir un animal",
+              "descripcion": "El docente anota los cinco sentidos en el pizarrón y luego hace una lluvia de ideas con los estudiantes, anotando adjetivos que se perciben con cada sentido: por ejemplo, vista-brillante, oído- fuerte, tacto-áspero, etc. Luego muestra a los alumnos varias imágenes de animales y pide que escriban una descripción deta- llada de un animal, utilizando estas palabras y otros adjetivos que sirvan para esta tarea. Los alumnos escriben sus descripciones sin nombrar al animal elegido y luego la leen al compañero de banco, quien debe adivinar de qué animal se trata. Esta actividad sirve para desarrollar el OA 12.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 9,
+              "titulo": "Enriquecer un cuento escrito",
+              "descripcion": "El profesor pide a los alumnos que escojan un texto escrito durante la unidad y que elijan algún elemento que les gustaría describir con más detalle. Los alumnos amplían sus descripciones, utilizando adjetivos que aludan al menos a dos sentidos. Compa- ran la redacción inicial con el texto más detallado y describen si el cambio fue positivo o no.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Escribir correctamente para facilitar la comprensión por parte del lector, aplicando lo aprendido en años anteriores y usando de manera apropiada:",
+          "sub_items": [
+            "mayúsculas al iniciar una oración y al escribir sustantivos propios",
+            "punto al finalizar una oración y punto aparte al finalizar un párrafo",
+            "plurales de palabras terminadas en z",
+            "palabras con ge-gi, je-ji",
+            "palabras terminadas en cito-cita",
+            "coma en enumeración"
+          ],
+          "codigo": "OA22",
+          "indicadores_evaluacion": [
+            "Escriben textos en los que utilizan mayúscula al iniciar una ú oración y al escribir sustantivos propios.",
+            "Explican por qué determinadas palabras en un texto se ú escriben con mayúscula o minúscula.",
+            "Escriben textos añadiendo punto seguido y punto aparte ú donde corresponde.",
+            "Agregan coma cuando escriben enumeraciones en sus textos. ú"
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "revisar la ortografía de los propios escritos",
+              "descripcion": "Después de haber realizado un ejercicio de puntuación y uso de mayúsculas, el profesor modela en el pizarrón la corrección de este aspecto en un texto escrito por un alumno de años ante- riores. Comentan qué problemas de comprensión se producen cuando falta algún signo. Luego, los estudiantes corrigen sus propios textos, siguiendo el ejemplo del profesor.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Participar activamente en conversaciones grupales sobre textos leídos o escuchados en clases o temas de su interés:",
+          "sub_items": [
+            "manteniendo el foco de la conversación",
+            "expresando sus ideas u opiniones",
+            "formulando preguntas para aclarar dudas",
+            "demostrando interés ante lo escuchado",
+            "mostrando empatía frente a situaciones expresadas por otros",
+            "respetando turnos"
+          ],
+          "codigo": "OA26",
+          "indicadores_evaluacion": [
+            "Aportan información que se relaciona con el tema sobre el ú cual se conversa.",
+            "Se ciñen al tema de la conversación. ú",
+            "Formulan preguntas para aclarar dudas. ú",
+            "Expresan desacuerdo frente a opiniones emitidas por otros, ú sin descalificar las ideas ni al emisor.",
+            "Hacen comentarios que demuestran empatía por lo que ú expresa un compañero.",
+            "Esperan que el interlocutor termine una idea para comple- ú mentar lo dicho.",
+            "Práctica guiada: los estudiantes realizan ac- ú tividades en las que deben poner en práctica la estrategia aprendida, primero en grupo y luego de forma individual. Durante este proce- so son guiados por el profesor quien, para orientarlos, les pide que expliquen cada paso que realizan.",
+            "Práctica independiente: los estudiantes rea- ú lizan actividades en las que deben aplicar la estrategia aprendida, pero de manera inde- pendiente, sin la guía del profesor. Esta etapa o es muy importante ya que, por medio de la lean, práctica independiente, los alumnos internali- de zan la estrategia aprendida.",
+            "Muchas veces, la cantidad de estudiantes co- dificulta la enseñanza de las estrategias, pues los más avanzados se aburren y distraen a los demás. Frente a este problema, se recomien- son da formar parejas o grupos en los que se junte a alumnos de distinto nivel. De esta manera, de quienes dominan una estrategia pueden ayudar a los que tienen más dificultades en la etapa de la práctica guiada. VOCABULAriO",
+            "Algunas veces es posible inferir el significado de de una palabra a partir del contexto en que se encuentra. Esto permite leer sin interrupciones y ampliar el vocabulario de manera autónoma.",
+            "No todos los estudiantes hacen este proceso sin instrucción directa, por lo que hay que ense- ñarles estrategias para que sepan cómo hacerlo.",
+            "Una forma de introducir la enseñanza de esta estrategia es plantear una pregunta metacog- nitiva, por ejemplo: ¿qué hago yo cuando me encuentro frente a una palabra desconocida?",
+            "Primero el docente modela cuál es el razona- miento que sigue para inferir el significado de una palabra en un texto dado. Durante este para proceso, verbaliza cada uno de los pensamientos que lo ayudaron a inferir el significado de un tér- mino, lo que da herramientas a los estudiantes para que, frente a una palabra que no conocen, puedan hacer las conexiones lógicas que les per-"
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Entrevista periodística grupal",
+              "descripcion": "Los estudiantes leen el cuento Chorlitos en la cabeza, de Saúl Schkolnik. El docente divide al curso en grupos y los organiza de modo que, en cada uno, debe haber dos estudiantes que asuman el rol de periodistas y dos o tres estudiantes que representen personajes del cuento. Trabajando en conjunto, los periodistas planifican una entrevista a los personajes, planeando pregun- tas diferentes para cada uno y también preguntas que puedan responder todos. Algunas preguntas modelo pueden ser: ú A Robertito: ¿qué problema tenía originalmente con la ducha? ¿Cómo no se dio cuenta de que había pájaros anidando en su cabeza? Además de juntar mucha mugre, ¿qué otra conse- cuencia negativa podía tener su conducta? ú A Eloísa: si usted trabaja en la Junta Nacional de Niños Desvali- dos ¿cómo es que nunca se preocupó de su propio hijo? Los alumnos que representan a los personajes se imaginan qué contestarían estos y los periodistas toman notas de las respuestas. Luego presentan una entrevista escrita al profesor, en la que están anotadas las preguntas y las respuestas de cada periodista y perso- naje junto a los nombres de los estudiantes que los representaron. Esta actividad también sirve para desarrollar el OA 4.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Círculos literarios",
+              "descripcion": "Luego de leer un cuento, un mito o una leyenda, el docente invita a los alumnos a formar grupos de un máximo de cinco alumnos para discutir sobre lo leído. El profesor asigna tres roles distintos por grupo: ú Un moderador que se encarga de dar la palabra a los compa- ñeros y reforzar positivamente a quien participa. El moderador guía la conversación usando las tarjetas con preguntas sobre lo leído que le entregó el profesor. ú Dos o tres conversadores, que serán los que contesten y esta- blezcan un diálogo a partir de las preguntas planteadas. ú Un secretario, que anotará bajo cada respuesta la conclusión a la que llega el grupo después de la discusión. Ejemplos de evaluación Ejemplo 1 OA_14 Escribir artículos informativos para comunicar información sobre un tema: ú organizando las ideas en párrafos ú desarrollando las ideas mediante información que explica el tema iNdiCAdOrEs dE EVALUACióN ú Desarrollan el tema en párrafos en los que: - elaboran un subtema por párrafo y lo ilustran con ejemplos, datos o explicaciones - la información seleccionada se relaciona con el tema desarrollado - incluyen palabras y expresiones específicas del tema tratado Actividad El docente evalúa la estructuración de un párrafo, considerando planteamiento de un tema y su desarrollo, para lo cual solicita a los estudiantes que escriban un párrafo en el que expliquen en qué trabaja un pariente y qué hace en su trabajo. Para esto, deben: ú mencionar el trabajo que realiza el pariente en la primera oración ú mencionar y describir al menos tres aspectos del trabajo que realiza su pariente CriTEriOs dE EVALUACióN En este caso, la evaluación formativa pretende dilucidar si los estudiantes son capaces de establecer un tema, describirlo y ceñirse a él en un párrafo, por lo que la pauta debe circuns- cribirse a la coherencia. La pauta puede seguir una estructura como la siguiente: Presenta el tema en la primera oración 1 punto Escribe solo una oración que describe el trabajo 1 punto Escribe dos oraciones que describen el trabajo 2 puntos Escribe tres oraciones que describen el trabajo 3 puntos Es importante realizar una serie de evaluaciones formativas como la anterior, que entreguen información sobre diferentes aspectos de la escritura, dado que así el estudiante se puede ir enfocando en un aspecto a la vez y obteniendo retroalimentación oportuna sobre cómo progresa en él. Ejemplo 2 OA_14 Escribir artículos informativos para comunicar información sobre un tema: ú organizando las ideas en párrafos ú desarrollando las ideas mediante información que explica el tema iNdiCAdOrEs dE EVALUACióN ú Buscan y registran información para desarrollar el tema. ú Desarrollan el tema en párrafos en los que: - elaboran un subtema por párrafo y lo ilustran con ejemplos, datos o explicaciones - la información seleccionada se relaciona con el tema desarrollado - incluyen palabras y expresiones específicas del tema tratado Actividad Cada estudiante elabora un artículo informativo para una revista sobre juegos tradicionales o uno de los temas propuestos en las actividades de la unidad. Para esto, el docente entrega la siguiente pauta de instrucciones: instrucciones: Escriba un artículo sobre un juego tradicional chileno. Para esto incluya la siguiente información: ú Nombre del juego ú Origen del juego ú Qué se necesita para jugarlo (número de participantes, elementos requeridos) ú Cómo se juega ú Datos históricos o llamativos relacionados con el juego ú Aportes del juego (sirve para desarrollar el trabajo en equipo, sirve para hacer ejercicio, sirve para desarrollar la puntería, sirve para trabajar la paciencia, etc.) ú Ilustración del juego CriTEriOs dE EVALUACióN indicaciones : Para realizar esta evaluación, es importante que los alumnos hayan realizado varias activida- des de escritura con la respectiva retroalimentación del profesor. También es conveniente que el docente muestre algunos modelos de textos informativos similares a los de la activi- dad y adecuados para la edad de los estudiantes, para que estos conozcan ejemplos de lo que se les está pidiendo.",
+              "observacion_docente": null
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oa": "OA14",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "El docente evalúa la estructuración de un párrafo, considerando planteamiento de un tema y su desarrollo, para lo cual solicita a los estudiantes que escriban un párrafo en el que expliquen en qué trabaja un pariente y qué hace en su trabajo. Para esto, deben: ú mencionar el trabajo que realiza el pariente en la primera oración ú mencionar y describir al menos tres aspectos del trabajo que realiza su pariente CriTEriOs dE EVALUACióN En este caso, la evaluación formativa pretende dilucidar si los estudiantes son capaces de establecer un tema, describirlo y ceñirse a él en un párrafo, por lo que",
+          "criterios_evaluacion": ""
+        },
+        {
+          "numero": 2,
+          "oa": "OA14",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "Cada estudiante elabora un artículo informativo para una revista sobre juegos tradicionales o uno de los temas propuestos en las actividades de la unidad. Para esto, el docente entrega la siguiente pauta de instrucciones: instrucciones: Escriba un artículo sobre un juego tradicional chileno. Para esto incluya la siguiente información: ú Nombre del juego ú Origen del juego ú Qué se necesita para jugarlo (número de participantes, elementos requeridos) ú Cómo se juega ú Datos históricos o llamativos relacionados con el juego ú Aportes del juego (sirve para desarrollar el trabajo en equipo, sirve ",
+          "criterios_evaluacion": "Separación en párrafos Escribe un informe Escribe un informe 1 Escribe un texto en separado en párrafos y separado en párrafos, el que se distingue cada párrafo desarrolla pero en ellos se mez- un párrafo que inte- un subtema. clan ideas sin orden. gra ideas diferentes, o bien 2 Escribe un texto que corresponde a una descripción, una lista de ideas o un con- junto de oraciones sin conexión. Organi"
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "nombre": "Unidad 2",
+      "semestre": 1,
+      "horas_estimadas": 75,
+      "proposito": {
+        "general": "Los estudiantes continúan desarrollando el gusto por la lectura mediante el trabajo con fábulas y poemas y textos no literarios. Desarrollan habilidades de comprensión lectora y se familiarizan con el lenguaje figurado. Llevan a cabo una investigación, practican la escritura de artículos informativos y realizan exposiciones orales.",
+        "lectura": "Fábulas, poemas y textos no literarios variados. Comprensión del lenguaje figurado. Nuevas estrategias de comprensión lectora.",
+        "escritura": "Artículos informativos. Ortografía: combinaciones ge-gi, je-ji.",
+        "comunicacion_oral": "Exposiciones orales. Comprensión de textos orales."
+      },
+      "actitudes": [
+        {
+          "codigo": "a",
+          "descripcion": "Demostrar interés y una actitud activa frente a la lectura, orientada al disfrute de la misma y a la valoración del conocimiento que se puede obtener a partir de ella."
+        },
+        {
+          "codigo": "d",
+          "descripcion": "Realizar tareas y trabajos de forma rigurosa y perseverante, con el fin de desarrollarlos de manera adecuada a los propósitos de la asignatura."
+        },
+        {
+          "codigo": "f",
+          "descripcion": "Demostrar empatía hacia los demás, comprendiendo el contexto en el que se sitúan."
+        }
+      ],
+      "lecturas_sugeridas": {
+        "narraciones": [
+          {
+            "titulo": "El mono periodista",
+            "autor": "Beatriz Ferro"
+          },
+          {
+            "titulo": "El león y el ratón",
+            "autor": "Félix María Samaniego"
+          },
+          {
+            "titulo": "El zorro y las uvas",
+            "autor": "Félix María Samaniego"
+          },
+          {
+            "titulo": "La lechera",
+            "autor": "Félix María Samaniego"
+          },
+          {
+            "titulo": "Los dos amigos y el oso",
+            "autor": "Félix María Samaniego"
+          },
+          {
+            "titulo": "El pato y la serpiente",
+            "autor": "Tomás de Iriarte"
+          },
+          {
+            "titulo": "El perro pasando el río con un pedazo de carne en la boca",
+            "autor": "Fedro"
+          },
+          {
+            "titulo": "La gallina de los huevos de oro",
+            "autor": "Esopo"
+          },
+          {
+            "titulo": "Ratón de campo y ratón de ciudad",
+            "autor": "Esopo"
+          },
+          {
+            "titulo": "La zorra y la liebre",
+            "autor": "Esopo"
+          },
+          {
+            "titulo": "Los dos conejos",
+            "autor": "Tomás de Iriarte"
+          },
+          {
+            "titulo": "El expreso polar",
+            "autor": "Chris Van Allsburg"
+          },
+          {
+            "titulo": "El canto de las ballenas",
+            "autor": "Dyan Sheldon"
+          },
+          {
+            "titulo": "La pandilla del ángel",
+            "autor": "Graciela Beatriz Cabal"
+          },
+          {
+            "titulo": "La bella durmiente",
+            "autor": "Versión de Charles Perrault"
+          },
+          {
+            "titulo": "El gran libro verde",
+            "autor": "Robert Graves"
+          }
+        ],
+        "poemas": [
+          {
+            "titulo": "A la quinta quinta",
+            "autor": "Anónimo"
+          },
+          {
+            "titulo": "Viva la Cordillera de los Andes",
+            "autor": "Nicanor Parra"
+          },
+          {
+            "titulo": "Oda a la tortuga",
+            "autor": "Pablo Neruda"
+          },
+          {
+            "titulo": "Antología de poesía infantil",
+            "autor": "Dorys Zeballos"
+          },
+          {
+            "titulo": "Setiembre (en La luna traviesa y otros poemas)",
+            "autor": "Graciela Genta"
+          },
+          {
+            "titulo": "Trompo de siete colores",
+            "autor": "Alejandro Galaz"
+          },
+          {
+            "titulo": "A, eme, o, erre",
+            "autor": "Gerardo Diego"
+          },
+          {
+            "titulo": "El aire",
+            "autor": "Gabriela Mistral"
+          },
+          {
+            "titulo": "El payaso",
+            "autor": "Andrés Díaz Marrero"
+          },
+          {
+            "titulo": "El sol quería bañarse",
+            "autor": "Salvador de Madariaga"
+          },
+          {
+            "titulo": "La tierra",
+            "autor": "Gabriela Mistral"
+          },
+          {
+            "titulo": "Madre, notabre, sipilitabre",
+            "autor": "Anónimo"
+          },
+          {
+            "titulo": "Brebaje mágico para todo uso",
+            "autor": "Graciela Genta"
+          }
+        ],
+        "textos_no_literarios": [
+          {
+            "titulo": "La prehistoria",
+            "autor": "Jean-Philippe Chabot"
+          },
+          {
+            "titulo": "Los secretos del mamut",
+            "autor": "Sophie Philippo"
+          },
+          {
+            "titulo": "¿Por qué se rayó la cebra?",
+            "autor": "Carla Baredes e Ileana Lotersztain"
+          },
+          {
+            "titulo": "Cómo viven los animales en invierno",
+            "autor": "Catherine de Sairigné y Agnés Mathieu"
+          },
+          {
+            "titulo": "El fruto (Colección ¿Quién eres?)",
+            "autor": "Valerie Guidoux"
+          },
+          {
+            "titulo": "El oso, un gigante no muy tranquilo",
+            "autor": "Pierre Pfeffer"
+          },
+          {
+            "titulo": "Los animales de la noche",
+            "autor": "Claude Delafosse"
+          }
+        ]
+      },
+      "oas": [
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer y familiarizarse con un amplio repertorio de literatura para aumentar su conocimiento del mundo y desarrollar su imaginación; por ejemplo:",
+          "sub_items": [
+            "poemas",
+            "cuentos folclóricos y de autor",
+            "fábulas",
+            "leyendas",
+            "mitos",
+            "novelas",
+            "historietas",
+            "otros"
+          ],
+          "codigo": "OA3",
+          "indicadores_evaluacion": [
+            "Relacionan situaciones de la vida cotidiana con personajes o acciones de los textos leídos en clases o independientemente.",
+            "Mencionan textos y autores que han leído.",
+            "Relacionan aspectos de un texto leído y comentado en clases con otros textos leídos previamente.",
+            "Releen textos que ya conocen.",
+            "Recomiendan textos a otros."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "ilustrar una fábula",
+              "descripcion": "Los estudiantes leen en silencio una fábula entregada por el docente y luego, en grupos, elaboran un cómic de tres viñetas en el que se plasme la historia y la moraleja. El profesor expone los mejores trabajos afuera de la sala para que el resto de la comunidad escolar pueda apreciarlos.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Aportar una fábula para la clase",
+              "descripcion": "Los estudiantes buscan en la biblioteca, internet o en sus casas alguna fábula que no haya sido leída en clases. Copian la fábula en una hoja de bloc y escriben la moraleja con sus propias palabras. Ilustran su trabajo con un dibujo que represente algún elemento de la narración. El profesor expone los trabajos en la clase y guía una conversación con los alumnos sobre los relatos que más les gustaron.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Escribir una fábula",
+              "descripcion": "El profesor lee una fábula a los estudiantes y luego les pide que inventen otra situación que sirva para llegar a la misma moraleja. En parejas, los estudiantes inventan su versión de la fábula y copian la moraleja al final. Esta actividad sirve para desarrollar el OA 12.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "Conversación en torno a una fábula",
+              "descripcion": "Los estudiantes leen una fábula dada por el docente y luego responden en su cuaderno algunas preguntas que sirvan para profundizar en la historia. Por ejemplo, si leen La zorra y la liebre de Esopo, el profesor les puede hacer preguntas como: ú ¿Qué le hace creer la zorra a la liebre cuando la invita a su casa? ú ¿Cuál es el verdadero motivo de la zorra al invitar a la liebre a su casa? ú ¿Por qué la liebre acepta ir a la casa de la zorra? ú Explique qué le pasa a la liebre al final de la narración. ú Explique la moraleja de la fábula con sus propias palabras. Al final de la actividad, el docente pide a algunos estudiantes que lean sus respuestas y guía una discusión en torno a ellas.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 2,
+              "titulo": "El poema de los viernes",
+              "descripcion": "El docente invita a los alumnos a escoger un poema para leer el viernes. Ese día, a partir de un sorteo, el profesor lee en voz alta el poema elegido y luego involucra a los estudiantes en una actividad orientada a profundizar la comprensión del mismo, por ejemplo: ú conversaciones grupales en que los alumnos discuten lo que transmite el poema y luego escriben un párrafo para explicar con sus palabras lo escuchado ú dibujos de las imágenes más llamativas que evoca el poema ú subrayar oraciones con sentido figurado y explicar qué quieren decir Se sugiere recordar los días miércoles y jueves a los alumnos que visiten la biblioteca en busca del poema que les gustaría leer antes de terminar la semana.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Poemas que describen",
+              "descripcion": "A partir de la lectura del poema El payaso de Andrés Díaz Marrero, el docente pide a los estudiantes que escriban con sus propias palabras una descripción del payaso en la que plasmen las mismas características del poema. Luego dibujan este personaje y, a cada lado del dibujo, ponen el poema y su propia descripción. Esta actividad se puede realizar con cualquier poema adecuado a la edad de los alumnos en que se describan las características físicas de un objeto, lugar, animal o persona. Esta actividad sirve para desarrollar el OA 12.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "El poema escogido",
+              "descripcion": "El profesor lee tres poemas a los alumnos y luego pide que escriban en su cuaderno cuál poema les gustó más y por qué. Para finalizar la actividad, pide a algunos estudiantes que expliquen al resto del curso las razones de su elección.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "Profundizar la comprensión de un poema",
+              "descripcion": "Los estudiantes leen un poema dado por el docente y luego responden en su cuaderno algunas preguntas que sirvan para profundizar en él. Por ejemplo, si leen El mono periodista de Beatriz Ferro, el profesor les puede hacer preguntas como: ú ¿Cómo contaba el mono los hechos que veía? ú De acuerdo con su opinión, ¿era el mono un buen periodista? ¿Por qué? ú ¿Qué consecuencias tenían las noticias que escribía el mono? ú De acuerdo con lo expresado en el poema, ¿qué quiere decir “sensacionalista”? ú Explique con sus palabras por qué el león se come al mono. Al final de la actividad, el docente pide a algunos estudiantes que lean sus respuestas y guía una discusión en torno a ellas.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 6,
+              "titulo": "declamar el poema favorito",
+              "descripcion": "El profesor pide a los estudiantes que elijan su poema favorito, de los leídos en clases o por su cuenta, para recitar al final de la unidad. Los estudiantes memorizan y ensayan el poema y, un día previamente establecido, declaman los textos elegidos. Para dar importancia a la ocasión, el profesor puede invitar a otros profesores o a autoridades de la escuela. Esta actividad también sirve para desarrollar el OA 31.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Comprender poemas adecuados al nivel e interpretar el lenguaje figurado presente en ellos.",
+          "sub_items": [],
+          "codigo": "OA5",
+          "indicadores_evaluacion": [
+            "Dibujan imágenes de poemas que les gusten.",
+            "Explican con sus propias palabras un poema leído en clases.",
+            "Explican versos del poema.",
+            "Subrayan y leen en voz alta versos de los poemas leídos en clases que les llaman la atención por su contenido o sonoridad.",
+            "Describen qué reacción les produce un poema (susto, sorpresa, risa, etc.) y explican qué versos les produjeron esa sensación."
+          ],
+          "actividades": []
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer independientemente y comprender textos no literarios (cartas, biografías, relatos históricos, instrucciones, libros y artículos informativos, noticias, etc.) para ampliar su conocimiento del mundo y formarse una opinión:",
+          "sub_items": [
+            "extrayendo información explícita e implícita",
+            "utilizando los organizadores de textos expositivos (títulos, subtítulos, índice y glosario) para encontrar información específica",
+            "comprendiendo la información que aportan las ilustraciones, símbolos y pictogramas a un texto",
+            "formulando una opinión sobre algún aspecto de la lectura",
+            "fundamentando su opinión con información del texto o sus conocimientos previos"
+          ],
+          "codigo": "OA6",
+          "indicadores_evaluacion": [
+            "Explican, oralmente o por escrito, información que han ú aprendido o descubierto en los textos que leen.",
+            "Responden por escrito preguntas que aluden a información ú explícita o implícita de un texto leído.",
+            "Cumplen exitosamente la tarea descrita en las instrucciones ú leídas.",
+            "Encuentran información usando títulos, subtítulos, índices o ú glosarios",
+            "Describen los textos discontinuos que aparecen en un texto ú leído y los relacionan con la lectura.",
+            "Expresan opiniones y las justifican mencionando informa- ú ción extraída de textos leídos."
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Traducir el lenguaje figurado a lenguaje literal",
+              "descripcion": "Luego de leer un artículo informativo en el que aparezca alguna expresión en lenguaje figurado, el docente hace que los alumnos reparen en ella y les pide que anoten al margen una expresión que tenga significado equivalente, pero que no emplee el lenguaje figurado. Comparan la diferencia y comentan el efecto que producen ambas maneras de expresar lo mismo. Esta actividad se puede repetir numerosas veces en diversos textos, de manera que los estudiantes aprendan a interpretar el lenguaje figurado.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "s-q-A",
+              "descripcion": "El profesor pide a los estudiantes que escriban en una hoja suelta un tema sobre el que les gustaría aprender. Luego selecciona una de las sugerencias y busca dos o tres textos sobre el tema, apropiados para la edad de los alumnos. En clases, antes de repartir los textos, el profesor les pide que completen las dos primeras columnas de la siguiente tabla: Qué sé sobre el tema Qué quiero saber Qué aprendí (S) (Q) (A) Después de discutir brevemente con los estudiantes sobre lo que saben y lo que desean averiguar, el docente les pide que lean los textos y completen la tercera columna de la tabla. Para finalizar la actividad, el profesor guía una conversación sobre si los textos les permitieron averiguar lo que querían o si es necesario investigar en más fuentes.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "formarse una opinión",
+              "descripcion": "El docente elige un texto como La prehistoria, de Jean-Philippe Chabot. Los alumnos leen en silencio y luego, con ayuda del profesor, ordenan la información aprendida en un organizador en el pizarrón. El profesor les pregunta: ¿Era más difícil sobrevivir en la época de la prehistoria o en nuestra época? Para responder, los estudiantes deben anotar al menos tres datos que aparezcan en el texto que ellos consideren que hacen más difícil o más fácil la vida en la prehistoria. Finalmente, escriben un párrafo en el cual expresen su opinión.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Buscar información sobre un tema en libros, internet, diarios, revistas, enciclopedias, atlas, etc., para llevar a cabo una investigación.",
+          "sub_items": [],
+          "codigo": "OA9",
+          "indicadores_evaluacion": [
+            "Encuentran fuentes sobre el tema que quieren investigar. ú",
+            "Encuentran información sobre un tema en una fuente. ú",
+            "Navegan en la página de internet señalada por el docente ú para encontrar la información que necesitan.",
+            "Anotan información que les llama la atención. ú",
+            "Escriben un párrafo para comunicar lo aprendido. ú"
+          ],
+          "actividades": []
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Determinar el significado de palabras desconocidas, usando claves contextuales o el conocimiento de raíces (morfemas de base), prefijos y sufijos.",
+          "sub_items": [],
+          "codigo": "OA10",
+          "indicadores_evaluacion": [
+            "Usan información del contexto para inferir o aproximarse al significado de una palabra.",
+            "Identifican la raíz (morfema base) de una palabra.",
+            "Explican el significado de palabras que tienen prefijo o sufijo como des, anti, re; oso, ito, ble, entre otros.",
+            "Usan el significado de la raíz o de los prefijos o sufijos para inferir o aproximarse al significado de una palabra."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "detectives de palabras",
+              "descripcion": "El docente entrega un texto a los alumnos que tiene destacadas las palabras desconocidas. Luego de leer el texto, escribe en el pizarrón las oraciones con las palabras marcadas y pide a los alumnos que le ayuden a descubrir el significado de estos términos. Para esto, los estudiantes buscan las pistas en el texto y las dicen al profesor, quien los guía para que se acerquen al significado de la palabra. Para verificar las respuestas de los alumnos, el docente entrega una definición amistosa de la palabra destacada, relacionándola con las pistas descubiertas por los alumnos.",
+              "observacion_docente": "Es importante que el profesor escoja textos que tengan palabras que permitan desarrollar esta actividad, ya que no es posible determinar el significado de cualquier palabra a partir de las claves contextua- les. Para esto, el docente debe comprobar que se trata de palabras desconocidas para los estudiantes, pero que en el texto se encuentran pistas que permitirán descubrir su significado o, al menos, aproxi- marse a él."
+            },
+            {
+              "numero": 3,
+              "titulo": "Raíces, prefijos y sufijos",
+              "descripcion": "El docente selecciona o adapta un texto relacionado con algún tema de clases y subraya varias palabras con prefijos y sufijos. Luego de leer el texto, anota un término en el pizarrón y da varios ejemplos de palabras que compartan la misma raíz. Por ejemplo: ocupar, desocupar, ocupado, preocupado. Luego pregunta a los estudiantes qué tienen en común estas palabras y, posteriormen- te, les explica qué es la raíz y qué son los prefijos y los sufijos. Los estudiantes reconocen los prefijos y los sufijos del resto de las palabras seleccionadas en el texto y las anotan en una tabla de la siguiente manera: palabras con palabras con palabras con prefiJos sufiJos prefiJo Y sufiJo prehistoria submarino marino Luego anotan palabras que tengan los mismos prefijos y sufijos que las palabras encontradas. Por ejemplo, prehistoria, precoci- do, prenatal, predecir. A partir de los ejemplos y guiados por el docente, determinan el significado de cada afijo.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Utilizar los conocimientos sobre raíces, prefijos y",
+              "descripcion": "sufijos Una vez que los estudiantes saben qué son las raíces, los prefijos y los sufijos y que conocen los principales significados de estas par- tículas, el profesor les entrega un texto y les pide que subrayen las palabras que están formadas con un prefijo y/o un sufijo y una raíz. Al lado de cada palabra, los alumnos anotan su significado de acuerdo con lo que agrega cada afijo. Se recomienda realizar esta actividad durante todo el año para que los alumnos tengan la oportunidad de conocer nuevos prefijos y sufijos y, de esta manera, amplíen su vocabulario.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Escribir artículos informativos para comunicar información sobre un tema:",
+          "sub_items": [
+            "organizando las ideas en párrafos",
+            "desarrollando las ideas mediante información que explica el tema"
+          ],
+          "codigo": "OA14",
+          "indicadores_evaluacion": [
+            "Eligen un tema interesante para escribir.",
+            "Buscan y registran información para desarrollarlo.",
+            "Desarrollan el tema en párrafos en los que: - elaboran un subtema por párrafo y lo ilustran con ejem- plos, datos o explicaciones - la información seleccionada se relaciona con el tema desarrollado - incluyen palabras y expresiones específicas del tema tratado"
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "El lugar favorito",
+              "descripcion": "El docente pide a algunos alumnos que piensen cuál es su lugar favorito y escriban un texto contando a sus compañeros cómo es. El profesor finaliza la actividad pidiendo a los estudiantes que presenten a sus compañeros una foto o un dibujo del lugar des- crito y les pregunten si era así como se lo imaginaron. Esta activi- dad se puede realizar abordando temas similares como el juguete favorito, el personaje de cuento o de película favorito, etc.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Escribir para aprender y comunicar un tema de interés",
+              "descripcion": "A partir de una investigación previa, los estudiantes escriben un artículo para comunicar al resto de la comunidad escolar un tema que les parezca interesante. Si se toma como punto de partida la actividad 4 del OA 6, los alumnos, divididos en grupos, pueden desarrollar distintos subtemas y, entre todo el curso, armar una revista para donar a la biblioteca. Por ejemplo, si escriben sobre los volcanes, cada grupo puede investigar sobre uno de los siguientes aspectos: ú características de los volcanes ú grandes desastres naturales provocados por volcanes en el mundo ú principales volcanes activos de Chile ú principales volcanes inactivos de Chile ú efectos de una erupción volcánica en el medio ambiente (Ciencias Naturales)",
+              "observacion_docente": "Para desarrollar las actividades de escritura, es muy importante que el docente aborde los procesos de planificación y revisión, de manera que los alumnos puedan reflexionar y mejorar sus textos a medida que los escriben."
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Escribir correctamente para facilitar la comprensión por parte del lector, aplicando lo aprendido en años anteriores y usando de manera apropiada:",
+          "sub_items": [
+            "mayúsculas al iniciar una oración y al escribir sustantivos propios",
+            "punto al finalizar una oración y punto aparte al finalizar un párrafo",
+            "plurales de palabras terminadas en z",
+            "palabras con ge-gi, je-ji",
+            "palabras terminadas en cito-cita",
+            "coma en enumeración"
+          ],
+          "codigo": "OA22",
+          "indicadores_evaluacion": [
+            "Escriben correctamente los plurales de las palabras que ter- minan en z.",
+            "Escriben correctamente palabras con ge-gi, je-ji.",
+            "Escriben correctamente palabras con sufijo cito-cita."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Palabras con ge-gi, je-ji",
+              "descripcion": "El profesor entrega a los estudiantes una tabla para que la com- pleten con palabras que encuentren en sus textos de acuerdo con los siguientes criterios: Palabras con ge o gi Palabras con je o ji Los estudiantes pegan esta tabla en la parte de atrás de sus cua- dernos o en sus bancos, de manera que la puedan completar luego de leer un texto y utilizarla para consultar dudas mientras escriben.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Achicar o agrandar las cosas",
+              "descripcion": "El docente pregunta a los estudiantes: ¿qué herramienta tiene el lenguaje para achicar las cosas? Si es que nadie llega a la res- puesta correcta, anota en el pizarrón ejemplos de sustantivos y sus diminutivos. Comentan si les gusta o no que los traten con un diminutivo, por ejemplo, Pedrito, y que expliquen por qué. Luego, a partir de un listado de sustantivos entregados por el docente, los alumnos achican o agrandan cada objeto, añadiendo los diminutivos cito-cita o los aumentativos ón/ona u ote/ota. Luego, pide a los alumnos que escojan cinco diminutivos y cinco aumentativos y escriban oraciones con ellos en que sea relevante el tamaño del objeto.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Resumen de ayuda memoria ortográfico",
+              "descripcion": "Los estudiantes escriben una ficha en la que registran todas las reglas de ortografía aprendidas durante el año y algunos ejemplos para cada una. Utilizan su ficha resumen cada vez que escriben o revisan sus textos.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Comprender textos orales (explicaciones, instrucciones, noticias, documentales, películas, relatos, anécdotas, etc.) para obtener información y desarrollar su curiosidad por el mundo:",
+          "sub_items": [
+            "estableciendo conexiones con sus propias experiencias",
+            "identificando el propósito",
+            "formulando preguntas para obtener información adicional, aclarar dudas y profundizar la comprensión",
+            "estableciendo relaciones entre distintos textos",
+            "respondiendo preguntas sobre información explícita e implícita",
+            "formulando una opinión sobre lo escuchado"
+          ],
+          "codigo": "OA24",
+          "indicadores_evaluacion": [
+            "Relacionan algún tema o aspecto del texto con sus expe- ú riencias o conocimientos previos u otros textos escuchados o leídos anteriormente.",
+            "Señalan qué aprendieron de los textos escuchados o vistos ú en clases.",
+            "Identifican el propósito del texto escuchado. ú",
+            "Formulan preguntas para ampliar sus conocimientos sobre ú lo que escucharon.",
+            "Comparan en una tabla la información que entrega un texto ú escuchado con la información que aporta otro texto sobre el mismo tema.",
+            "Responden preguntas usando de manera pertinente la ú información escuchada.",
+            "Expresan una opinión sobre un aspecto del texto y dan una ú razón de por qué piensan así."
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Opinión sobre un documental",
+              "descripcion": "Luego de ver un documental, el docente pide a los estudiantes que den un consejo a los autores del mismo. Para esto, los alum- nos deben describir la parte que mejorarían, explicar por qué y ofrecer una sugerencia de cómo mejorarla.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Comprender explicaciones",
+              "descripcion": "Para reforzar la cooperación entre los alumnos, el profesor, luego de explicar algún tema nuevo, pregunta quién tiene dudas. Da la palabra a un estudiante para que formule su duda y luego pregunta quién puede resolver el problema del compañero. Si el alumno que se ofrece explica satisfactoriamente lo que acaba de decir el profesor, este lo premia poniendo una estrella junto a su nombre en una lista que ha puesto en el diario mural especial- mente para este propósito. Es importante que el profesor dé la oportunidad de ganar estrellas a todos los alumnos, aun cuando no siempre se presenten dudas. De esta manera, se los motiva a estar atentos a las explicaciones de la clase.",
+              "observacion_docente": "El docente puede encontrar videos y documentales interesantes en los siguientes links: http://www.mundofox.com/la/shows/natgeo http://www.tudiscovery.com/video/"
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Expresarse de manera coherente y articulada sobre temas de su interés:",
+          "sub_items": [
+            "organizando las ideas en introducción y desarrollo",
+            "incorporando descripciones y ejemplos que ilustren las ideas",
+            "utilizando un vocabulario variado",
+            "reemplazando los pronombres por construcciones sintácticas que expliciten o describan al referente",
+            "usando gestos y posturas acordes a la situación",
+            "usando material de apoyo (power point, papelógrafo, objetos, etc.) si es pertinente"
+          ],
+          "codigo": "OA28",
+          "indicadores_evaluacion": [
+            "Exponen sobre un tema.",
+            "Presentan el tema sobre el que van a hablar.",
+            "Expresan al menos cuatro ideas relacionadas con el tema elegido.",
+            "Explican algún aspecto del tema que requiera mayor elabo- ración.",
+            "Expresan las ideas sobre el tema sin hacer digresiones.",
+            "Comunican sus ideas sin recurrir a gestos ni al contexto.",
+            "Incorporan un vocabulario variado en sus intervenciones.",
+            "Incorporan, si es pertinente, palabras aprendidas reciente- mente.",
+            "Ajustan el volumen de la voz para que escuche toda la au- diencia.",
+            "Mantienen una postura formal y hacen contacto visual con la audiencia.",
+            "Usan material de apoyo para complementar su exposición. oportunidad de usar en otras asignaturas o más adelante en la clase de Lenguaje y Comunicación. que el EsCriTUrA dE ArTÍCULOs",
+            "Poner por escrito las ideas es un proceso complejo y y desafiante para los estudiantes y, para facilitar rela- esta tarea, el docente debe tener en considera- los ción varios aspectos al momento de planificar: elegir temas interesantes y adecuados para la ú se edad leer y analizar con los estudiantes ejemplos de ú textos similares a los que ellos escribirán para que se familiaricen con la estructura y el len- guaje que se utiliza y asegurarse de que hayan leído sobre el tema o ú que hayan investigado en documentales, internet, de enciclopedias o libros, de manera que tengan in- están formación que compartir a través de la escritura fábulas modelar la planificación de un artículo infor- ú es mativo vocabu- revisar la planificación que hacen los estu- ú con diantes antes de que escriban, ya que es más de otro eficiente solucionar problemas en esa etapa que obstácu- una vez que está escrito el texto comu- hacer lecciones cortas sobre cómo mejorar la ú escritura, usando ejemplos extraídos de los tex- vez en tos que están escribiendo los mismos alumnos ayudarlos a centrarse en el plano de las ideas y ú en la expresión efectiva de ellas la"
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "La noticia de la semana",
+              "descripcion": "El docente explica a los estudiantes que los días lunes tres alumnos presentarán la noticia que más les llamó la atención de la semana pasada. Luego de que los estudiantes realizan sus pre- sentaciones, el curso escoge cuál de las tres noticias es “la noticia de la semana” y explican por qué consideran que la seleccionada es más relevante que las otras.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Exponer un tema investigado",
+              "descripcion": "El profesor entrega y explica una pauta de exposición oral para que los estudiantes preparen la presentación de sus trabajos escritos. A cada grupo le asigna una fecha y determina el tiempo que debe durar la exposición. Ejemplos de evaluación Ejemplo 1 OA_28 Expresarse de manera coherente y articulada sobre temas de su interés: ú organizando las ideas en introducción y desarrollo ú incorporando descripciones y ejemplos que ilustren las ideas ú utilizando un vocabulario variado ú usando gestos y posturas acordes a la situación iNdiCAdOrEs dE EVALUACióN ú Exponen sobre un tema. ú Expresan al menos cuatro ideas relacionadas con el tema elegido. ú Explican algún aspecto del tema que requiera mayor elaboración. ú Expresan las ideas sobre el tema sin hacer digresiones. ú Comunican sus ideas sin recurrir a gestos ni al contexto. Actividad El docente solicita a los estudiantes que expliquen a un compañero qué hacen cuando llegan a sus casas después de la escuela. En parejas se retroalimentan siguiendo una pauta como la siguiente: ú Me puedo imaginar lo que hace mi compañero cuando llega a su casa: - no me lo puedo imaginar, porque fue muy enredada la explicación o se alejó del tema - me lo puedo imaginar, pero me cuesta, porque no había mucho detalle - me puedo imaginar muy bien las acciones que realiza cuando llega a su casa, porque fue- ron bien descritas y ordenadas ú Cuando mi compañero habla: - se detiene muchas veces para corregirse o porque se le olvidó decir algo - explica lo que hace, pero repite algunas cosas o se sale del tema - explica como si estuviéramos conversando y no cuesta nada entenderlo ú Mientras mi compañero habla: - usa demasiados gestos y usa mucho el cuerpo para explicar lo que quiere decir - hace algunos gestos y movimientos que, aunque distraen, se relacionan con lo que dice - hace algunos gestos o movimientos que ayudan a entender lo que está diciendo Ejemplo 2 OA_28 Expresarse de manera coherente y articulada sobre temas de su interés: ú organizando las ideas en introducción y desarrollo ú incorporando descripciones y ejemplos que ilustren las ideas ú utilizando un vocabulario variado ú reemplazando los pronombres por construcciones sintácticas que expliciten o describan al referente ú usando gestos y posturas acordes a la situación ú usando material de apoyo (power point, papelógrafo, objetos, etc.) si es pertinente iNdiCAdOrEs dE EVALUACióN ú Exponen sobre un tema. ú Presentan el tema sobre el que van a hablar. ú Expresan al menos cuatro ideas relacionadas con el tema elegido. ú Explican algún aspecto del tema que requiera mayor elaboración. ú Expresan las ideas sobre el tema sin hacer digresiones. ú Comunican sus ideas sin recurrir a gestos ni al contexto. ú Incorporan un vocabulario variado en sus intervenciones. ú Incorporan, si es pertinente, palabras aprendidas recientemente. ú Ajustan el volumen de la voz para que escuche toda la audiencia. ú Mantienen una postura formal y hacen contacto visual con la audiencia. ú Usan material de apoyo para complementar su exposición. Actividad Los estudiantes, organizados en grupos, realizan una exposición de tres a cuatro minutos en la que presentan al curso una investigación desarrollada durante la unidad. Para esto, el docente les da las siguientes instrucciones: Prepare una exposición para compartir con sus compañeros lo que aprendió sobre el tema que investigó durante la unidad. La presentación debe durar entre tres y cuatro minutos y cumplir todos los requisitos mencionados en la pauta de evaluación2.",
+              "observacion_docente": null
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oa": "OA28",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "El docente solicita a los estudiantes que expliquen a un compañero qué hacen cuando llegan a sus casas después de la escuela. En parejas se retroalimentan siguiendo una pauta como la siguiente: ú Me puedo imaginar lo que hace mi compañero cuando llega a su casa: - no me lo puedo imaginar, porque fue muy enredada la explicación o se alejó del tema - me lo puedo imaginar, pero me cuesta, porque no había mucho detalle - me puedo imaginar muy bien las acciones que realiza cuando llega a su casa, porque fue- ron bien descritas y ordenadas ú Cuando mi compañero habla: - se detiene muchas veces para ",
+          "criterios_evaluacion": ""
+        },
+        {
+          "numero": 2,
+          "oa": "OA28",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "Los estudiantes, organizados en grupos, realizan una exposición de tres a cuatro minutos en la que presentan al curso una investigación desarrollada durante la unidad. Para esto, el docente les da las siguientes instrucciones: Prepare una exposición para compartir con sus compañeros lo que aprendió sobre el tema que investigó durante la unidad. La presentación debe durar entre tres y cuatro minutos y cumplir todos los requisitos mencionados en la pauta de evaluación2. CriTEriOs dE EVALUACióN El docente entrega previamente la pauta con que va a evaluar la presentación y la explica punto por pun",
+          "criterios_evaluacion": "antes de que expongan, de manera que sepan lo que se espera de ellos y puedan prepararse de manera adecuada. Antes de dar inicio a las presentaciones, el docente da una hora para que los alumnos ensayen en la clase y aprovecha esta instancia para realizar una evaluación formativa y retroalimentarlos. En esta oportunidad, los ayuda a pensar qué material de apoyo pueden usar y cómo incorporarlo adec"
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "nombre": "Unidad 3",
+      "semestre": 2,
+      "horas_estimadas": 75,
+      "proposito": {
+        "general": "Los alumnos continúan desarrollando sus habilidades de comprensión, escritura y comunicación oral en torno a cuentos y poemas. Aprenden y ejercitan estrategias de comprensión que les permiten profundizar la comprensión de textos. Comprenden la función de adjetivos y pronombres para enriquecer sus producciones orales y escritas.",
+        "lectura": "Cuentos, poemas. Estrategias de comprensión lectora avanzadas.",
+        "escritura": "Narraciones creativas. Función de pronombres y adjetivos. Cohesión textual.",
+        "comunicacion_oral": "Conversaciones grupales. Expresión de opiniones fundamentadas."
+      },
+      "actitudes": [
+        {
+          "codigo": "a",
+          "descripcion": "Demostrar interés y una actitud activa frente a la lectura, orientada al disfrute de la misma y a la valoración del conocimiento que se puede obtener a partir de ella."
+        },
+        {
+          "codigo": "d",
+          "descripcion": "Realizar tareas y trabajos de forma rigurosa y perseverante, con el fin de desarrollarlos de manera adecuada a los propósitos de la asignatura."
+        },
+        {
+          "codigo": "e",
+          "descripcion": "Reflexionar sobre sí mismo, sus ideas y sus intereses para comprenderse y valorarse."
+        },
+        {
+          "codigo": "g",
+          "descripcion": "Demostrar respeto por las diversas opiniones y puntos de vista, reconociendo el diálogo como una herramienta de enriquecimiento personal y social."
+        }
+      ],
+      "lecturas_sugeridas": {
+        "narraciones": [
+          {
+            "titulo": "El loro pelado",
+            "autor": "Horacio Quiroga"
+          },
+          {
+            "titulo": "La abeja haragana",
+            "autor": "Horacio Quiroga"
+          },
+          {
+            "titulo": "Las medias de los flamencos",
+            "autor": "Horacio Quiroga"
+          },
+          {
+            "titulo": "El libro de las virtudes para niños",
+            "autor": "William Bennett"
+          },
+          {
+            "titulo": "Piedras de fuego",
+            "autor": "Ana María Pavez y Constanza Recart"
+          },
+          {
+            "titulo": "El flojo, el sabio y el lobo",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "El pescador y el pececito dorado",
+            "autor": "Versión de Alexander Pushkin"
+          },
+          {
+            "titulo": "El tesoro que la tierra oculta",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "El rey tiene cachito",
+            "autor": "Ramón Laval"
+          },
+          {
+            "titulo": "El sombrerito",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "Buen pagador",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "La nunca contada historia de cómo Petronila Urdemales construyó el Puente de la viuda en una sola noche",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "Juan Pereza",
+            "autor": "Versión de Floridor Pérez"
+          },
+          {
+            "titulo": "¿Yo y mi gato?",
+            "autor": "Satoshi Kitamura"
+          },
+          {
+            "titulo": "Voces en el parque",
+            "autor": "Anthony Browne"
+          },
+          {
+            "titulo": "La señorita Emilia",
+            "autor": "Bárbara Cooney"
+          },
+          {
+            "titulo": "El pájaro del alma",
+            "autor": "Mijak Snunit"
+          },
+          {
+            "titulo": "Encender la noche",
+            "autor": "Ray Bradbury"
+          },
+          {
+            "titulo": "Los cinco horribles",
+            "autor": "Wolf Erlbruch"
+          }
+        ],
+        "poemas": [
+          {
+            "titulo": "La ardilla",
+            "autor": "Amado Nervo"
+          },
+          {
+            "titulo": "Vamos a contar mentiras",
+            "autor": "Anónimo"
+          },
+          {
+            "titulo": "El deporte al revés",
+            "autor": "Antonio de Benito Monge"
+          },
+          {
+            "titulo": "Chamario",
+            "autor": "Eduardo Polo"
+          },
+          {
+            "titulo": "Carta al señor astronauta",
+            "autor": "Elsa Bornemann"
+          },
+          {
+            "titulo": "El ángel guardián",
+            "autor": "Gabriela Mistral"
+          },
+          {
+            "titulo": "Canción (en La luna traviesa y otros poemas)",
+            "autor": "Graciela Genta"
+          },
+          {
+            "titulo": "Navidad en el mar",
+            "autor": "Jacqueline Balcells"
+          },
+          {
+            "titulo": "Iba tocando mi flauta",
+            "autor": "Juan Ramón Jiménez"
+          },
+          {
+            "titulo": "El reino del revés",
+            "autor": "María Elena Walsh"
+          },
+          {
+            "titulo": "El mundo al revés",
+            "autor": "Marta Brunet"
+          },
+          {
+            "titulo": "Los castillos",
+            "autor": "María Elena Walsh"
+          },
+          {
+            "titulo": "En una cajita de fósforos",
+            "autor": "María Elena Walsh"
+          },
+          {
+            "titulo": "La niña que se va a la mar",
+            "autor": "Rafael Alberti"
+          },
+          {
+            "titulo": "Por qué me miras tan serio",
+            "autor": "Rafael Alberti"
+          },
+          {
+            "titulo": "Qué asco de bichos",
+            "autor": "Roald Dahl"
+          },
+          {
+            "titulo": "Las palabras",
+            "autor": "Robinson Saavedra"
+          },
+          {
+            "titulo": "Bota, bota, bella niña",
+            "autor": "Rubén Darío"
+          },
+          {
+            "titulo": "Para que no me olvides",
+            "autor": "Danielle Ball"
+          }
+        ]
+      },
+      "oas": [
+        {
+          "eje": "Lectura",
+          "descripcion": "Comprender textos aplicando estrategias de comprensión lectora; por ejemplo:",
+          "sub_items": [
+            "relacionar la información del texto con sus experiencias y conocimientos",
+            "releer lo que no fue comprendido",
+            "visualizar lo que describe el texto",
+            "recapitular",
+            "formular preguntas sobre lo leído y responderlas",
+            "subrayar información relevante en un texto"
+          ],
+          "codigo": "OA2",
+          "indicadores_evaluacion": [
+            "Dibujan o describen lo que visualizan a partir de una lectura. ú",
+            "Parafreasean episodios o información leída en un texto. ú",
+            "Preguntan el significado de palabras o expresiones que no ú comprenden.",
+            "Preguntan para ampliar la información leída. ú",
+            "Formulan preguntas para especular a partir de información ú del texto, por ejemplo, ¿qué pasaría si…?, y responden a par- tir de información del texto."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "recapitular",
+              "descripcion": "Luego de leer un cuento junto con los alumnos, el profesor pide a un estudiante que parafrasee con sus palabras lo leído. Esta actividad se puede realizar frecuentemente y pidiendo cada vez a distintos estudiantes que realicen una recapitulación, de manera que ejerciten su atención al leer.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "formular preguntas",
+              "descripcion": "El profesor modela frente a los alumnos cómo leer un texto activamente. Para esto, ha preparado la lectura de un cuento pensando en las preguntas que surgen a medida que conoce la historia. Por ejemplo, si escoge el cuento El tesoro que la tierra oculta en la versión de Floridor Pérez, a medida que lee el cuento al curso, se pregunta en voz alta: ú ¿Por qué al padre campesino le preocupará que sus hijos ven- dan la tierra? ú ¿Por qué los hermanos habrán puesto tanto empeño en encontrar el tesoro, si mientras su padre vivía nunca quisieron cavar la tierra? ú ¿Será verdad que para que crezca una parra solo es necesario cavar muy bien la tierra? El profesor explica a los alumnos que estas preguntas muchas veces se pueden responder a medida que se avanza en la lectura y, otras veces, es necesario investigar más para saber la respuesta (como el caso de la pregunta sobre la parra). Al leer un cuento, también es normal preguntarse por cosas que no tienen respues- ta o que tienen más de una respuesta posible. Les enseña que lo importante es pensar en lo que se está diciendo en la historia y lo que esta transmite. Luego de realizar este modelado, el docente lee otro cuento a los alumnos y se detiene en algunos párra- fos para preguntar al curso si se les ocurre alguna pregunta. Va anotando las sugerencias de los estudiantes en el pizarrón y, una vez que terminan el cuento, intentan responderlas. Posterior- mente los estudiantes pueden realizar esta actividad en grupos, monitoreados por el profesor, luego en parejas y, finalmente, de manera individual. La idea es repetir el ejercicio con variaciones, dando autonomía progresiva a los estudiantes, de manera que se habitúen a hacer preguntas sobre lo que leen. Esta actividad también sirve para desarrollar el OA 26.",
+              "observacion_docente": "CriTeriOs pArA elAbOrAr pregunTAs Enseñar a los estudiantes a ser lectores activos tiene como pre- rrequisito lograr que aprendan a preguntar al texto y a cuestionar diferentes aspectos. Es importante recalcar que las preguntas tienen que surgir de los alumnos, para lo que se requiere el modelado per- manente por parte del docente, quien se hace a sí mismo múltiples preguntas durante la lectura de un texto. Luego de la observación, los alumnos ponen en práctica esta estrategia de manera independiente con otros textos. Las preguntas al texto sirven como una manera de mejorar la com- prensión lectora, pero, a la larga, esta manera de leer se convierte en una actitud que genera un lector activo y crítico. Los buenos lectores de tercero básico preguntan al texto para: ú aclarar significados ú especular sobre lo que sucederá y luego contrastarlo con lo que realmente sucedió ú localizar un dato específico en el texto ú establecer para qué sirve un dato o un recurso utilizado por quien escribe ú establecer relaciones con otros temas e investigarlos para satisfa- cer su curiosidad"
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer y familiarizarse con un amplio repertorio de literatura para aumentar su conocimiento del mundo y desarrollar su imaginación; por ejemplo:",
+          "sub_items": [
+            "poemas",
+            "cuentos folclóricos y de autor",
+            "fábulas",
+            "leyendas",
+            "mitos",
+            "novelas",
+            "historietas",
+            "otros"
+          ],
+          "codigo": "OA3",
+          "indicadores_evaluacion": [
+            "Relacionan situaciones de la vida cotidiana con personajes o acciones de los textos leídos en clases o independientemente.",
+            "Mencionan textos y autores que han leído.",
+            "Relacionan aspectos de un texto leído y comentado en clases con otros textos leídos previamente.",
+            "Solicitan recomendaciones de textos similares a los leídos en clase.",
+            "Seleccionan textos para leer por su cuenta.",
+            "Recomiendan textos a otros."
+          ],
+          "actividades": []
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Profundizar su comprensión de las narraciones leídas:",
+          "sub_items": [
+            "extrayendo información explícita e implícita",
+            "reconstruyendo la secuencia de las acciones en la historia",
+            "describiendo a los personajes",
+            "describiendo el ambiente en que ocurre la acción",
+            "expresando opiniones fundamentadas sobre hechos y situaciones del texto",
+            "emitiendo una opinión sobre los personajes"
+          ],
+          "codigo": "OA4",
+          "indicadores_evaluacion": [
+            "Aluden, en sus comentarios orales y escritos, a información explícita de un texto.",
+            "Contestan, oralmente o por escrito, preguntas que aluden a información implícita del texto.",
+            "Describen a un personaje, mencionando características físi- cas y sentimientos que experimenta en algunas situaciones, si es relevante.",
+            "Explican, oralmente o por escrito, los problemas a los cuales se enfrentan los personajes y cómo se resuelven.",
+            "Comunican qué sentirían ellos si estuviesen en el lugar de determinado personaje a través de comentarios orales o escritos, dramatizaciones, dibujos u otras manifestaciones artísticas.",
+            "Subrayan adjetivos o frases en el texto que describen el ambiente.",
+            "Describen, dibujan o recrean el lugar donde ocurre el relato.",
+            "Expresan, oralmente o por escrito, su opinión sobre un per- sonaje."
+          ],
+          "actividades": [
+            {
+              "numero": 4,
+              "titulo": "Modificar y actuar un episodio",
+              "descripcion": "El profesor lee junto con sus alumnos el cuento folclórico Juan Pereza y, luego de comentar la historia de Juan Pérez, pide a los estudiantes que, en parejas, inventen otra forma en la que el protagonista, de acuerdo con su locura, pudo haber hecho reír a la niña muda. Después de terminar, el profesor indica a algunas parejas que pasen adelante y actúen sin hablar el episodio que inventaron, para que el resto del curso pueda adivinar en qué consiste la confusión de Juan. Esta actividad también sirve para desarrollar el OA 30.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Comprender poemas adecuados al nivel e interpretar el lenguaje figurado presente en ellos.",
+          "sub_items": [],
+          "codigo": "OA5",
+          "indicadores_evaluacion": [
+            "Dibujan imágenes de poemas que les gusten. ú",
+            "Explican con sus propias palabras un poema leído en clases. ú",
+            "Explican versos del poema. ú",
+            "Subrayan y leen en voz alta versos de los poemas leídos ú en clases que les llaman la atención por su contenido o su sonoridad.",
+            "Describen qué reacción les produce un poema (susto, ú sorpresa, risa, etc.) y explican qué versos les produjeron esa sensación."
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Expandir un poema",
+              "descripcion": "El profesor lee en voz alta el poema anónimo Vamos a contar mentiras y luego pide a los alumnos que escriban en grupos una estrofa con mentiras para agregar al poema, imitando la rima del mismo. Luego, en un papel kraft o en una cartulina, los estu- diantes copian al final del poema las estrofas creadas por ellos y exponen su trabajo fuera de la biblioteca. Esta actividad sirve para desarrollar el OA 12.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Traducir el lenguaje figurado a imágenes",
+              "descripcion": "Luego de leer un poema o una fábula en el que aparezcan al menos tres expresiones en lenguaje figurado, el profesor destaca dichas oraciones y pide a los alumnos que escojan una y dibu- jen una imagen para expresar lo que transmite. Antes de que comiencen a dibujar, les pide que expliquen con sus palabras qué quiere decir la expresión escogida. Para finalizar la actividad, el profesor expone afuera de la sala los mejores dibujos con las oraciones correspondientes.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Escribir creativamente narraciones (experiencias personales, relatos de hechos, cuentos, etc.) que incluyan:",
+          "sub_items": [
+            "una secuencia lógica de eventos",
+            "inicio, desarrollo y desenlace",
+            "conectores adecuados"
+          ],
+          "codigo": "OA13",
+          "indicadores_evaluacion": [
+            "Escriben uno o más párrafos para narrar una experiencia o ú un evento imaginado.",
+            "Escriben narraciones en las cuales se desarrolla la historia ú por medio de varias acciones.",
+            "Escriben narraciones que tienen un desenlace. ú",
+            "Usan conectores para relacionar las ideas y ordenar los ú acontecimientos, por ejemplo: luego, después, mientras tanto, entre otros."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Transformar imágenes en relatos",
+              "descripcion": "El profesor muestra una secuencia de imágenes al curso y guía una discusión sobre ellas, en la que pide a los alumnos que des- criban a los personajes que participan, las acciones que realizan y el lugar en que se encuentran. Posteriormente, el docente explica qué son los conectores y da ejemplos de los más frecuentes que se utilizan en cuentos y narraciones: luego, después, mientras, más tarde, finalmente. Luego pide a los alumnos que, organiza- dos en grupos, escriban una narración considerando la secuencia de imágenes comentada al inicio de la clase. Algunos relatos que se pueden utilizar para esta actividad son: ú Voces en el parque de Anthony Browne ú Los cinco horribles de Wolf Erlbruch ú ¿Yo y mi gato? de Satoshi Kitamura",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Narrar un día común",
+              "descripcion": "El docente dibuja una línea del tiempo en el pizarrón y escribe diez acciones que realiza todos los días de semana. Narra a los alumnos su día, utilizando conectores de orden como primero, luego, después, posteriormente, más tarde, por último. Luego los estudiantes, tomando como punto de partida el ejemplo del docente, crean sus propias líneas de tiempo y registran las actividades que realizan habitualmente en un día de semana. Finalmente, redactan su texto, relacionando las acciones a través de conectores y utilizando los signos de puntuación.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Crear una historia del mundo del revés:",
+              "descripcion": "Luego de la lectura del poema El reino del revés de María Elena Walsh, u otro similar, el docente invita a los alumnos a escribir un cuento acerca de cosas que suceden en este reino. Para esto, los alumnos se imaginan un día común y corriente del rey del reino del revés y lo describen en sus cuadernos, usando los conecto- res aprendidos. Finalmente, presentan sus cuentos de manera voluntaria al curso.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Comprender la función de los pronombres en textos orales y escritos, y usarlos para ampliar las posibilidades de referirse a un sustantivo en sus producciones.",
+          "sub_items": [],
+          "codigo": "OA21",
+          "indicadores_evaluacion": [
+            "Reemplazan en textos algunos sustantivos por pronombres personales para evitar la repetición."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Correferencia",
+              "descripcion": "El profesor proyecta en el pizarrón un texto escrito por un alumno de cursos anteriores en el que haya varias repeticiones. Lo leen en voz alta y comentan qué efecto les produce la repetición de las mismas palabras una y otra vez. Luego el docente usa los pronom- bres para reemplazar algunos sustantivos y así evitar la repetición. Leen en voz alta nuevamente y comprueban si queda mejor sin repeticiones. Posteriormente, los alumnos realizan el mismo ejer- cicio, mejorando alguno de sus textos. El profesor puede recordar la utilidad de los pronombres como elementos de correferencia cada vez que los estudiantes revisan sus textos escritos.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Participar activamente en conversaciones grupales sobre textos leídos o escuchados en clases o temas de su interés:",
+          "sub_items": [
+            "manteniendo el foco de la conversación",
+            "expresando sus ideas u opiniones",
+            "formulando preguntas para aclarar dudas",
+            "demostrando interés ante lo escuchado",
+            "mostrando empatía frente a situaciones expresadas por otros",
+            "respetando turnos"
+          ],
+          "codigo": "OA26",
+          "indicadores_evaluacion": [
+            "Aportan información que se relaciona con el tema sobre el cual se conversa.",
+            "Se ciñen al tema de la conversación.",
+            "Formulan preguntas para aclarar dudas.",
+            "Expresan desacuerdo frente a opiniones expresadas por otros, sin descalificar las ideas ni al emisor.",
+            "Hacen comentarios que demuestran empatía por lo que expresa un compañero.",
+            "Esperan que el interlocutor termine una idea para comple- mentar lo dicho."
+          ],
+          "actividades": []
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Recitar poemas con entonación y expresión para fortalecer la confianza en sí mismos, aumentar el vocabulario y desarrollar su capacidad expresiva.",
+          "sub_items": [],
+          "codigo": "OA31",
+          "indicadores_evaluacion": [
+            "Recitan poemas o versos de memoria.",
+            "Recitan poemas con entonación.",
+            "Pronuncian adecuadamente las palabras. a los estudiantes a reflexionar sobre los pasos que realizan para resolver distintos desafíos: cómo averiguar el significado de una palabra, que cómo llegar a una conclusión, cómo conectar pero varias informaciones para hacer una inferencia o cómo encontrar la idea central de un texto. que",
+            "Estas preguntas tienen que ser contextualizadas y no genéricas, de manera que el alumno pueda se reflexionar para luego solucionar un problema concreto. Por ejemplo, no es conducente pedir a los estudiantes que contesten una pregunta y como “¿les costó entender el cuento?” si no son que, de conscientes de los problemas de comprensión que tuvieron durante la lectura. Es más fácil si se anterior parte de una situación específica, por ejemplo: a “¿Alguien tuvo problemas para comprender de quién se hablaba cuando…? ¿De quién se habló en el párrafo anterior? Entonces, ¿a quién se refiere de la la frase «esa sucia rata»?”. Luego de plantear estas es- preguntas y resolver el problema, el profesor verbaliza la estrategia utilizada: “Tal como nos acaba de pasar, muchas veces sucede que no entendemos de quién se habla en una determina- da oración. En estos casos, conviene volver a leer las oraciones anteriores para recordar a quién se hacía mención”. A partir de preguntas e indicacio- nes como las del ejemplo anterior, los estudiantes aprenden estrategias, aplicándolas en situaciones concretas, para luego utilizarlas autónomamente se les frente a problemas de comprensión similares. y, de",
+            "La habilidad de pensar metacognitivamente no solo sirve para resolver dificultades de com- mo- prensión. También permite solucionar otros desafíos y desarrollar habilidades comunicativas. modelaje",
+            "Por ejemplo, para enseñar a revisar un texto, el verba- docente puede plantear preguntas y afirmaciones que ayuden a reflexionar sobre las estrategias que se utilizan para durante la revisión. Para enseñar a los estudiantes a revisar la coherencia de las apren- descripciones que integran en sus escritos, el do- cente toma un texto escrito por algún alumno de años anteriores y lo lee en voz alta. Se detiene la se primera vez que aparece un personaje y reflexiona de la siguiente manera: “Para que los lectores en- tiendan y se entretengan con lo que quiero decir, es tengo que explicarles bien lo que yo me imaginé"
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Concurso de poesía",
+              "descripcion": "El profesor organiza un concurso de declamación al que invi- ta a participar a otros cursos. Todos los estudiantes escogen y memorizan un poema y lo presentan frente al curso, cuidando el volumen y la expresión. El docente de Lenguaje escoge a los tres mejores declamadores de cada curso para que participen en el certamen. El día del recital, un grupo de profesores se organiza y evalúa a los participantes, eligiendo al primer, segundo y tercer lugar. Para dar mayor importancia a esta ceremonia, puede parti- cipar todo el colegio organizado en categorías de acuerdo con las edades de los concursantes.",
+              "observacion_docente": "El concurso de declamación es una buena forma de acercar a los alumnos a la poesía y de dar a conocer poemas diversos a la comuni- dad escolar. Para aprovechar esta actividad al máximo, se recomien- da situar el concurso en el marco de una fiesta o del día del libro, en que los alumnos se involucren en diversas actividades mediante las cuales den a conocer sus textos y autores favoritos, al mismo tiempo que invitan al resto del colegio a leerlos. Ejemplos de evaluación Ejemplo 1 OA_4 Profundizar su comprensión de las narraciones leídas: ú extrayendo información explícita e implícita ú describiendo a los personajes ú expresando opiniones fundamentadas sobre hechos y situaciones del texto ú emitiendo una opinión sobre los personajes iNdiCAdOrEs dE EVALUACióN ú Aluden, en sus comentarios orales y escritos, a información explícita de un texto. ú Expresan, oralmente o por escrito, su opinión sobre un personaje. Actividad Evaluación de la capacidad de argumentación de los estudiantes. El docente entrega a los estudiantes un cuento, que puede ser Las medias de los flamencos, de Horacio Quiroga, y les pide que escriban una oración siguiendo el siguiente ejemplo: Yo creo que la lechuza era traicionera porque 1 No le advierte a los flamencos que las medias estaban hechas con los cueros de serpientes. 2 Se aprovecha de la poca inteligencia de los flamencos y no les dice por qué tienen que bailar sin detenerse. El docente repara en la fundamentación que dan para sustentar su opinión y usa los siguien- tes parámetros: ú pertinencia del argumento con la opinión vertida ú uso de ejemplos del texto o conocimientos previos ú variedad de los argumentos Ejemplo 2 OA_4 Profundizar su comprensión de las narraciones leídas: ú extrayendo información explícita e implícita ú describiendo a los personajes ú expresando opiniones fundamentadas sobre hechos y situaciones del texto ú emitiendo una opinión sobre los personajes iNdiCAdOrEs dE EVALUACióN ú Aluden, en sus comentarios orales y escritos, a información explícita de un texto. ú Contestan, oralmente o por escrito, preguntas que aluden a información implícita del texto. ú Describen a un personaje. ú Explican, oralmente o por escrito, los problemas a los cuales se enfrentan los personajes y cómo se resuelven. ú Expresan, oralmente o por escrito, su opinión sobre un personaje. Actividad Los estudiantes leen el cuento El flojo, el sabio y el lobo en la versión de Floridor Pérez. Resuel- ven oralmente las dudas de vocabulario y luego el profesor entrega la siguiente guía: instrucciones: 1 Explique con sus palabras cuál es el problema del lobo, del manzano y del pez. (3 puntos). 2 Explique cuál es la causa del problema del manzano. (1 punto). 3 ¿Por qué el protagonista tiene tanto interés en ser rico? (1 punto). 4 ¿Por qué el hombre no ayuda al pez ni al manzano cuando vuelve a su casa, aun cuando podría haberse hecho rico? (1 punto). 5 Señale cuál es la principal característica del protagonista del cuento y explique qué conse- cuencias le trae esta característica. (1 punto). 6 ¿Comprendió el hombre la lección del sabio? Justifique su respuesta dando al menos una razón sustentada en el cuento. (1 punto). 7 ¿Por qué se puede afirmar que el viejo era realmente un hombre sabio, aun cuando no acertó en su predicción sobre el hombre pobre? (2 puntos). El docente da tiempo suficiente a los estudiantes para que respondan en una clase todas las preguntas por escrito. CriTEriOs dE EVALUACióN Al momento de evaluar, el docente debe considerar que, en las preguntas que se refieren a extracción de información explícita (1 y 2), el estudiante recoja lo que se dice en el cuento, ya sea con sus palabras o citando textualmente la lectura. En el caso de las preguntas 3 y 4, los estudiantes deben hacer referencia a la principal carac- terística del protagonista: su flojera. En la pregunta 5, se espera que los estudiantes infieran que la flojera trae solo malas con- secuencias al protagonista, entre las que pueden nombrar: no se vuelve rico aun cuando tuvo dos oportunidades para hacerlo; se lo come el lobo porque es el primer holgazán que encuentra en el camino. En las preguntas 6 y 7, se espera que los estudiantes justifiquen sus respuestas a partir del cuento leído."
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oa": "OA4",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "Evaluación de la capacidad de argumentación de los estudiantes. El docente entrega a los estudiantes un cuento, que puede ser Las medias de los flamencos, de Horacio Quiroga, y les pide que escriban una oración siguiendo el siguiente ejemplo: Yo creo que la lechuza era traicionera porque 1 No le advierte a los flamencos que las medias estaban hechas con los cueros de serpientes. 2 Se aprovecha de la poca inteligencia de los flamencos y no les dice por qué tienen que bailar sin detenerse. El docente repara en la fundamentación que dan para sustentar su opinión y usa los siguien- tes parámetros:",
+          "criterios_evaluacion": ""
+        },
+        {
+          "numero": 2,
+          "oa": "OA4",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "Los estudiantes leen el cuento El flojo, el sabio y el lobo en la versión de Floridor Pérez. Resuel- ven oralmente las dudas de vocabulario y luego el profesor entrega la siguiente guía: instrucciones: 1 Explique con sus palabras cuál es el problema del lobo, del manzano y del pez. (3 puntos). 2 Explique cuál es la causa del problema del manzano. (1 punto). 3 ¿Por qué el protagonista tiene tanto interés en ser rico? (1 punto). 4 ¿Por qué el hombre no ayuda al pez ni al manzano cuando vuelve a su casa, aun cuando podría haberse hecho rico? (1 punto). 5 Señale cuál es la principal característica",
+          "criterios_evaluacion": ""
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "nombre": "Unidad 4",
+      "semestre": 2,
+      "horas_estimadas": 75,
+      "proposito": {
+        "general": "Los estudiantes continúan desarrollando sus habilidades de comprensión lectora a través de cuentos, novelas y textos no literarios, y se familiarizan con el teatro mediante la dramatización y juegos de roles. Ejercitan habilidades de escritura en textos con distintos formatos. En comunicación oral, desarrollan la comprensión mediante la apreciación de obras de teatro.",
+        "lectura": "Cuentos, novelas y textos no literarios. Familiarización con el teatro.",
+        "escritura": "Textos con distintos formatos: cartas, instrucciones, afiches, reportes.",
+        "comunicacion_oral": "Apreciación de obras de teatro. Caracterización de personajes."
+      },
+      "actitudes": [
+        {
+          "codigo": "a",
+          "descripcion": "Demostrar interés y una actitud activa frente a la lectura, orientada al disfrute de la misma y a la valoración del conocimiento que se puede obtener a partir de ella."
+        },
+        {
+          "codigo": "c",
+          "descripcion": "Demostrar disposición e interés por expresarse de manera creativa por medio de la comunicación oral y escrita."
+        },
+        {
+          "codigo": "d",
+          "descripcion": "Realizar tareas y trabajos de forma rigurosa y perseverante, con el fin de desarrollarlos de manera adecuada a los propósitos de la asignatura."
+        }
+      ],
+      "lecturas_sugeridas": {
+        "novelas": [
+          {
+            "titulo": "Amigos del alma",
+            "autor": "Elvira Lindo"
+          },
+          {
+            "titulo": "El secreto de Lena",
+            "autor": "Michael Ende"
+          },
+          {
+            "titulo": "Ay, samurai",
+            "autor": "Jon Scieszka"
+          },
+          {
+            "titulo": "Tut Tut",
+            "autor": "Jon Scieszka"
+          },
+          {
+            "titulo": "El pirata Barbanegra",
+            "autor": "Jon Scieszka"
+          },
+          {
+            "titulo": "El secuestro de la bibliotecaria",
+            "autor": "Margaret Mahy"
+          },
+          {
+            "titulo": "El zorrito abandonado",
+            "autor": "Irina Korschunow"
+          },
+          {
+            "titulo": "La puerta olvidada",
+            "autor": "Paul Maar"
+          },
+          {
+            "titulo": "Ramón García Solomán",
+            "autor": "Domínguez"
+          },
+          {
+            "titulo": "El zorro y el sabueso",
+            "autor": "Daniel P. Mannix"
+          },
+          {
+            "titulo": "Papelucho",
+            "autor": "Marcela Paz"
+          },
+          {
+            "titulo": "Papelucho y el marciano",
+            "autor": "Marcela Paz"
+          },
+          {
+            "titulo": "El dragón de Jano",
+            "autor": "Irina Korschunow"
+          },
+          {
+            "titulo": "Cuentos de Ada",
+            "autor": "Pepe Pelayo"
+          },
+          {
+            "titulo": "Gallito Jazz",
+            "autor": "Felipe Jordán"
+          }
+        ],
+        "narraciones": [
+          {
+            "titulo": "Bolita",
+            "autor": "León Tolstoi"
+          },
+          {
+            "titulo": "Doña Eremita sobre ruedas",
+            "autor": "Quentin Blake"
+          },
+          {
+            "titulo": "La peineta colorada",
+            "autor": "Fernando Picó"
+          },
+          {
+            "titulo": "La doncella de las estrellas",
+            "autor": "Versión de Barbara Juster Esbensen"
+          },
+          {
+            "titulo": "La invernada de los animales",
+            "autor": "Versión de Aleksandr Afanasiev"
+          },
+          {
+            "titulo": "Los buenos cuentos (antología en 8 tomos)",
+            "autor": "Loreto Fontaine y Magdalena Vial"
+          },
+          {
+            "titulo": "La astuta hija del campesino",
+            "autor": "Versión de los hermanos Grimm"
+          },
+          {
+            "titulo": "Blancanieve y Rojaflor",
+            "autor": "Versión de los hermanos Grimm"
+          },
+          {
+            "titulo": "Pulgarcita",
+            "autor": "Hans Christian Andersen"
+          },
+          {
+            "titulo": "Cuentos por teléfono",
+            "autor": "Gianni Rodari"
+          },
+          {
+            "titulo": "Cuentos con algo de mermelada",
+            "autor": "Cecilia Beuchat"
+          },
+          {
+            "titulo": "Una mágica víspera de carnaval",
+            "autor": "Carmen Muñoz"
+          },
+          {
+            "titulo": "Mamá Condorina y mamá Suaves-lanas",
+            "autor": "Marta Brunet"
+          },
+          {
+            "titulo": "La manzana de oro (cuento tradicional de Armenia)",
+            "autor": "Anónimo"
+          }
+        ],
+        "textos_no_literarios": [
+          {
+            "titulo": "Abejas, hormigas, termitas: insectos que viven en familia",
+            "autor": "Marie Saint-Dizier y Jarrie Martin"
+          },
+          {
+            "titulo": "Cómo están hechas las cosas",
+            "autor": "Peter Lafferty"
+          },
+          {
+            "titulo": "Curioseando el mundo",
+            "autor": "Osvaldo Schencke"
+          },
+          {
+            "titulo": "Atlas ilustrado con solapas",
+            "autor": "Helen Lee, Sam Chandler, Kate Fearn y otros"
+          },
+          {
+            "titulo": "Enciclopedia del cuerpo humano",
+            "autor": "Editorial Dorling Kindersley"
+          },
+          {
+            "titulo": "Preguntas que ponen los pelos de punta 1",
+            "autor": "Carla Baredes e Ileana Lotersztain"
+          },
+          {
+            "titulo": "Preguntas que ponen los pelos de punta 2",
+            "autor": "Carla Baredes e Ileana Lotersztain"
+          }
+        ]
+      },
+      "oas": [
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer y familiarizarse con un amplio repertorio de literatura para aumentar su conocimiento del mundo y desarrollar su imaginación; por ejemplo:",
+          "sub_items": [
+            "poemas",
+            "cuentos folclóricos y de autor",
+            "fábulas",
+            "leyendas",
+            "mitos",
+            "novelas",
+            "historietas",
+            "otros"
+          ],
+          "codigo": "OA3",
+          "indicadores_evaluacion": [
+            "Relacionan situaciones de la vida cotidiana con personajes o acciones de los textos leídos en clases o independientemente.",
+            "Mencionan textos y autores que han leído.",
+            "Relacionan aspectos de un texto leído y comentado en clases con otros textos leídos previamente.",
+            "Solicitan recomendaciones de textos similares a los leídos en clase.",
+            "Seleccionan textos para leer por su cuenta.",
+            "Recomiendan textos a otros."
+          ],
+          "actividades": []
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Profundizar su comprensión de las narraciones leídas:",
+          "sub_items": [
+            "extrayendo información explícita e implícita",
+            "reconstruyendo la secuencia de las acciones en la historia",
+            "describiendo a los personajes",
+            "describiendo el ambiente en que ocurre la acción",
+            "expresando opiniones fundamentadas sobre hechos y situaciones del texto",
+            "emitiendo una opinión sobre los personajes"
+          ],
+          "codigo": "OA4",
+          "indicadores_evaluacion": [
+            "Aluden, en sus comentarios orales y escritos, a información explícita de un texto.",
+            "Contestan, oralmente o por escrito, preguntas que aluden a información implícita del texto.",
+            "Describen a un personaje, mencionando características físi- cas y sentimientos que experimenta en algunas situaciones, si es relevante.",
+            "Explican, oralmente o por escrito, los problemas a los cuales se enfrentan los personajes y cómo se resuelven.",
+            "Comunican qué sentirían ellos si estuviesen en el lugar de determinado personaje a través de comentarios orales o escritos, dramatizaciones, dibujos u otras manifestaciones artísticas.",
+            "Subrayan adjetivos o frases en el texto que describen el ambiente.",
+            "Describen, dibujan o recrean el lugar donde ocurre el relato.",
+            "Expresan, oralmente o por escrito, su opinión sobre un per- sonaje."
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Comentar una novela",
+              "descripcion": "Los estudiantes leen en sus casas una novela previamente acor- dada con el profesor. Durante las dos semanas que los alumnos tienen para leer el libro, el docente da algunos momentos de las clases para que ellos comenten qué les ha parecido la obra hasta el momento, relacionen el texto con otro, describan a los personajes o hagan preguntas. Una vez que los estudiantes han terminado de leer la novela, el profesor dedica una hora completa a una actividad orientada a profundizar la comprensión del texto y a compartir impresiones.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "¿Verdad o mentira?",
+              "descripcion": "Los estudiantes leen en silencio un cuento dado por el profesor. Luego este dice una serie de afirmaciones, algunas verdaderas y otras falsas, sobre los acontecimientos, los personajes y los lugares mencionados en la lectura. Cada vez que el docente las menciona, los alumnos deberán decir a coro “verdad” o “mentira”. Cuando los estudiantes dicen “mentira”, el docente pide a un vo- luntario que explique las razones de su respuesta. Para que esta actividad promueva la comprensión de lectura, se recomienda elaborar afirmaciones que no aborden únicamente información explícita del relato, sino que exijan una fundamentación por par- te de los estudiantes. Incluso se puede hacer afirmaciones que den pie a opiniones divididas, para que los estudiantes practi- quen la argumentación.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "Completar la secuencia",
+              "descripcion": "Cuando los alumnos han terminado de leer una novela, el do- cente entrega a cada estudiante un organizador gráfico con las principales acciones del relato, omitiendo varios episodios clave. Los estudiantes completan la secuencia en forma individual. Para finalizar, revisan entre todos.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 6,
+              "titulo": "describir los elementos de un texto leído",
+              "descripcion": "En sus cuadernos, los estudiantes describen con sus palabras los aspectos que más les gustaron del ambiente y de un personaje de un cuento leído en clases. Para realizar esta actividad, el docente les da las siguientes indicaciones: ú Para referirse al ambiente, primero marque en el texto todas las descripciones o los pasajes en que se mencione el lugar en que suceden los hechos. ú Para referirse a los personajes, marque con un color todas las descripciones que el narrador hace de ese personaje. Luego marque con otro color las acciones y los diálogos en que se muestran otras características de él. Después de que los alumnos terminan sus descripciones, hacen un dibujo para ilustrarlas. Esta actividad también sirve para desarrollar el OA 12.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Lectura",
+          "descripcion": "Leer independientemente y comprender textos no literarios (cartas, biografías, relatos históricos, instrucciones, libros y artículos informativos, noticias, etc.) para ampliar su conocimiento del mundo y formarse una opinión:",
+          "sub_items": [
+            "extrayendo información explícita e implícita",
+            "utilizando los organizadores de textos expositivos (títulos, subtítulos, índice y glosario) para encontrar información específica",
+            "comprendiendo la información que aportan las ilustraciones, símbolos y pictogramas a un texto",
+            "formulando una opinión sobre algún aspecto de la lectura",
+            "fundamentando su opinión con información del texto o sus conocimientos previos"
+          ],
+          "codigo": "OA6",
+          "indicadores_evaluacion": [
+            "Explican, oralmente o por escrito, información que han ú aprendido o descubierto en los textos que leen.",
+            "Responden por escrito preguntas que aluden a información ú explícita o implícita de un texto leído.",
+            "Cumplen exitosamente la tarea descrita en las instrucciones ú leídas.",
+            "Encuentran información usando títulos, subtítulos, índices o ú glosarios.",
+            "Describen los textos discontinuos que aparecen en un texto ú leído y los relacionan con la lectura.",
+            "Expresan opiniones y las justifican mencionando informa- ú ción extraída de textos leídos."
+          ],
+          "actividades": [
+            {
+              "numero": 4,
+              "titulo": "juicio sobre un accidente",
+              "descripcion": "Los estudiantes leen una noticia sobre algún accidente de tránsito y, luego de determinar las causas y las consecuencias del hecho, comentan cómo se podría haber evitado y establecen cuáles son las acciones cometidas que dieron lugar al accidente. Luego proponen las acciones que se debió llevar a cabo para evitar la situación. (Historia, geografía y Ciencias sociales)",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "Cambios que producen los avances tecnológicos",
+              "descripcion": "El profesor selecciona o adapta un texto sobre el descubrimiento de la electricidad. Los estudiantes leen el texto en silencio y luego escriben en sus cuadernos tres diferencias entre la vida de una persona que vive en una casa con luz y de una persona que no tiene acceso a la electricidad. Para finalizar, el docente guía una conversación en que los alumnos comparten sus reflexiones y comentan cómo diversos avances tecnológicos han modificado la vida de los seres humanos. Finalmente, el docente les solicita que pregunten en sus hogares si alguna persona entre ellos recuerda cómo era la vida cuando no había electricidad. Al día siguiente en la clase, algunos estu- diantes cuentan las experiencias de sus familiares.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Escritura",
+          "descripcion": "Escribir cartas, instrucciones, afiches, reportes de una experiencia, entre otros, para lograr diferentes propósitos:",
+          "sub_items": [
+            "usando un formato adecuado",
+            "transmitiendo el mensaje con claridad"
+          ],
+          "codigo": "OA15",
+          "indicadores_evaluacion": [
+            "Eligen un formato adecuado a su propósito. ú",
+            "Comunican observaciones sobre una experiencia usando un ú formato elegido por ellos.",
+            "Escriben todos los pasos necesarios para llevar a cabo un ú procedimiento.",
+            "Secuencian cronológicamente los procedimientos necesa- ú rios para llevar a cabo una tarea.",
+            "Incluyen diagramas o dibujos para complementar informa- ú ción, si es pertinente."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "instrucciones para encontrar un tesoro escondido",
+              "descripcion": "Luego de realizar la actividad “Búsqueda del tesoro escondido” del objetivo anterior, el docente guía una conversación sobre la ne- cesidad de que las instrucciones sean claras y ordenadas para que el lector pueda comprenderlas y ponerlas en práctica. Posterior- mente pide a los estudiantes que, en grupos, elaboren su propio instructivo para encontrar un tesoro en el patio del colegio. Una vez que cada grupo ha escondido un tesoro (un dibujo, un poema, un diploma) en el lugar elegido, se intercambian las instrucciones para encontrar el que escondió el otro grupo.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "Cartas al amigo secreto",
+              "descripcion": "El docente invita a los estudiantes a jugar al amigo secreto. Les explica las siguientes reglas del juego: ú cada alumno saca un papel con el nombre de un compañero, que deberá mantener en secreto ú todos los días le escribe una carta, sin revelar su nombre Los estudiantes deben tener claro que el objetivo de estas cartas es hacer pasar un buen rato a su lector. Todos los días de la sema- na en que se realiza la actividad, el docente explica el tema sobre el que escribirán y las características que debe tener la carta. El viernes, cada alumno nombra al compañero que cree que es su amigo secreto y éste dice si es así o no.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "recontar un texto en palabras propias",
+              "descripcion": "Lo estudiantes han escuchado la lectura de un texto. Luego el docente los invita a relatarlo de manera colectiva. Después les pide que, de manera individual, escriban un reporte o informe sobre el texto. Finalmente, los alumnos leen sus reportes al curso y el docente dirige una conversación, comparándolos con el texto escuchado al inicio de la actividad.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 5,
+              "titulo": "Carta a un marciano",
+              "descripcion": "Después de la lectura de un texto sobre extraterrestres o en el que aparezca un personaje extraterreste, como Papelucho y el marciano de Marcela Paz, el docente pide a los estudiantes que escriban un texto de dos o tres párrafos en el que le cuenten a un marciano acerca de las características del planeta Tierra y que describan en detalle al menos un aspecto de la vida terrestre. Fi- nalmente, les pide que lean sus presentaciones a sus compañeros. (Ciencias Naturales)",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Comprender textos orales (explicaciones, instrucciones, noticias, documentales, películas, relatos, anécdotas, etc.) para obtener información y desarrollar su curiosidad por el mundo:",
+          "sub_items": [
+            "estableciendo conexiones con sus propias experiencias",
+            "identificando el propósito",
+            "formulando preguntas para obtener información adicional, aclarar dudas y profundizar la comprensión",
+            "estableciendo relaciones entre distintos textos",
+            "respondiendo preguntas sobre información explícita e implícita",
+            "formulando una opinión sobre lo escuchado"
+          ],
+          "codigo": "OA24",
+          "indicadores_evaluacion": [
+            "Relacionan algún tema o aspecto del texto con sus expe- riencias o conocimientos previos u otros textos escuchados o leídos anteriormente.",
+            "Señalan qué aprendieron de los textos escuchados o vistos en clases.",
+            "Identifican el propósito del texto escuchado.",
+            "Formulan preguntas para ampliar sus conocimientos sobre lo que escucharon.",
+            "Comparan, en una tabla, la información que entrega un texto escuchado con la información que aporta otro texto sobre el mismo tema.",
+            "Responden preguntas usando de manera pertinente la información escuchada.",
+            "Expresan una opinión sobre un aspecto del texto y dan una razón de por qué piensan así."
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Cuentacuentos",
+              "descripcion": "El docente invita a un cuentacuentos para que relate una historia a los estudiantes. El cuentacuentos puede ser el bibliotecario, el mismo docente, un estudiante de un nivel mayor o una persona externa. Es importante que, independientemente de quien sea: ú esté vestido de manera distinta ú su narración sea expresiva, con cambios en los tonos de voz, los gestos y las posturas corporales Al finalizar, el profesor guía una conversación sobre la historia narrada por el cuentacuentos.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Disfrutar de la experiencia de asistir a obras de teatro infantiles o representaciones para ampliar sus posibilidades de expresión, desarrollar su creatividad y familiarizarse con el género.",
+          "sub_items": [],
+          "codigo": "OA25",
+          "indicadores_evaluacion": [
+            "Relatan una parte de la obra de teatro vista.",
+            "Describen, oralmente o por escrito, la parte que más les gus- tó de una obra de teatro o representación vista.",
+            "Nombran personajes favoritos de una obra de teatro o repre- sentación vista.",
+            "Explican qué sintieron en un determinado momento de la obra de teatro o representación vista."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Comentar una obra de teatro",
+              "descripcion": "Los estudiantes asisten a una obra de teatro o, en su defecto, ven una grabación de alguna. Luego, el profesor les pide que elijan dos de las preguntas que se presentan a continuación y las respondan por escrito: ú ¿De qué se trataba la obra? ú ¿Le gustó el final de la obra o hubiera preferido otro? ¿Cuál y por qué? ú ¿Qué personaje le llamó la atención por su apariencia, por su modo de hablar o por la forma en que se movía? Justifique su respuesta ú ¿Qué le pareció la escenografía? ¿Qué le cambiaría? ú ¿Qué emociones le provocó la obra y en qué escenas? ¿Qué ele- mentos piensa usted que contribuyeron a crear esta emoción? El profesor guía una conversación sobre la obra vista, tomando como punto de partida las respuestas de los alumnos.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Participar activamente en conversaciones grupales sobre textos leídos o escuchados en clases o temas de su interés:",
+          "sub_items": [
+            "manteniendo el foco de la conversación",
+            "expresando sus ideas u opiniones",
+            "formulando preguntas para aclarar dudas",
+            "demostrando interés ante lo escuchado",
+            "mostrando empatía frente a situaciones expresadas por otros",
+            "respetando turnos"
+          ],
+          "codigo": "OA26",
+          "indicadores_evaluacion": [
+            "Aportan información que se relaciona con el tema sobre el ú cual se conversa.",
+            "Se ciñen al tema de la conversación. ú",
+            "Formulan preguntas para aclarar dudas. ú",
+            "Expresan desacuerdo frente a opiniones expresadas por ú otros, sin descalificar las ideas ni al emisor.",
+            "Hacen comentarios que demuestran empatía por lo que ú expresa un compañero.",
+            "Esperan que el interlocutor termine una idea para comple- ú mentar lo dicho."
+          ],
+          "actividades": [
+            {
+              "numero": 3,
+              "titulo": "Organización de una obra de teatro",
+              "descripcion": "El docente selecciona previamente un texto dramático con varios personajes y al menos cuatro escenas. En clases, invita y orienta a los estudiantes para que lean la obra en conjunto, in- terpretando las distintas voces en forma de diálogo. Luego divide al curso en grupos y le encarga a cada uno una escena para que la represente. Guiados por el profesor, se ponen de acuerdo para repartir roles y tareas. Después de un período de preparación y ensayo que debe estar organizado por el profesor, los alumnos montan la obra de manera colectiva y la presentan a otros cursos o a los apoderados. Esta actividad también sirve para desarrollar el OA 30.",
+              "observacion_docente": null
+            }
+          ]
+        },
+        {
+          "eje": "Comunicación Oral",
+          "descripcion": "Caracterizar distintos personajes para desarrollar su lenguaje y autoestima, y aprender a trabajar en equipo.",
+          "sub_items": [],
+          "codigo": "OA30",
+          "indicadores_evaluacion": [
+            "Representan un personaje de un texto leído, actuando sus ú principales características.",
+            "Imitan el lenguaje que usa el personaje que están interpre- ú tando.",
+            "Resuelven los conflictos que se originan al trabajar en grupos. ú coherencia. A los estudiantes les cuesta revisar sus propios escritos y encontrar fallas de coherencia, sobre todo durante los primeros años, dado que les cuesta ponerse en el lugar del lector. Por esto, cla- de primero a cuarto básico es recomendable que los el profesor ponga énfasis en que el alumno logre la coherencia local, es decir, de cada oración o sigan párrafo, de manera que, en los cursos mayores, los con estudiantes puedan abordar la coherencia global, es decir, del texto como una totalidad. a la rELACiONAr LOs TExTOs ANALizAdOs la EN CLAsEs que Esta unidad supone una excelente oportunidad para que el docente ejercite con sus estudiantes las habilidades de comparación y de relación de información. Para esto, se recomienda que los textos que seleccione para trabajar en clases tengan elementos comunes, de manera que se pueda enriquecer el análisis por medio de la comparación, por ejemplo, se puede leer una se novela y luego ver la película basada en ese texto, o comparar los elementos del teatro con los del cine."
+          ],
+          "actividades": [
+            {
+              "numero": 2,
+              "titulo": "Adivinar personajes de un cuento",
+              "descripcion": "El docente invita a los estudiantes a escribir en distintos papeles nombres de personajes de cuentos y novelas que han leído. Los junta todos en una bolsa y luego invita a un voluntario a sacar uno e interpretarlo, actuando frente al curso, para que sus compañeros lo adivinen. El estudiante que adivina el personaje es el que pasará a representar al siguiente personaje. Para evitar los gritos en esta actividad, el profesor puede dividir al curso en cinco grupos para que un representante de cada grupo pase al pizarrón y, si adivina, escriba el nombre del personaje en vez de decirlo en voz alta.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 3,
+              "titulo": "representación e improvisación",
+              "descripcion": "Esta actividad consta de dos etapas. En la primera, el docente invita a algunos voluntarios a caracterizar a determinados personajes de un texto. Antes de que comiencen, les dice que lean otra vez el relato o un fragmento de él, fijándose en los modos de hablar, las actitudes y la personalidad. Los estudiantes lo hacen y luego interpretan al personaje frente al curso. En la segunda etapa, el docente sitúa a los personajes en una situación hipotética y les pide a los voluntarios que actúen otra vez, improvisando. Antes de que comiencen, les dice que tomen en consideración los modos de hablar, las actitudes y la personalidad de los personajes que han interpretado anteriormente. Esta actividad también sirve para desarrollar el OA 4.",
+              "observacion_docente": null
+            },
+            {
+              "numero": 4,
+              "titulo": "Los estudiantes son los cuentacuentos",
+              "descripcion": "Los estudiantes han escuchado el relato de un cuentacuentos. Luego seleccionan un relato que les haya gustado para presentarlo al curso en forma individual o en grupos, imitando el estilo del cuentacuentos. Para esto, es necesario que el docente los guíe en la preparación, ayudándolos a aprenderse el cuento, a expresarse de manera creativa y a comunicar su mensaje por medio de las palabras, de los gestos y de la postura corporal. Ejemplos de evaluación Ejemplo 1 OA_24 Comprender textos orales (explicaciones, instrucciones, noticias, documentales, películas, relatos, anécdotas, etc.) para obtener información y desarrollar su curiosidad por el mundo: ú estableciendo conexiones con sus propias experiencias ú respondiendo preguntas sobre información explícita e implícita iNdiCAdOrEs dE EVALUACióN ú Señalan qué aprendieron de los textos escuchados o vistos en clases. ú Responden preguntas usando de manera pertinente la información escuchada. Actividad Evaluación de las preguntas que realizan los estudiantes para aclarar o profundizar diferentes aspectos de una noticia. El docente lee una noticia en voz alta, se va deteniendo después de cada párrafo y los alumnos anotan preguntas sobre: ú información que en la que quisieran profundizar ú información que no comprenden ú palabras que no conocen ú antecedentes de la noticia Al final hacen una puesta en común de las preguntas, responden algunas y el docente evalúa cuáles son las más comunes y qué alumnos tienen mayores dificultades. Ejemplo 2 OA_24 Comprender textos orales (explicaciones, instrucciones, noticias, documentales, películas, relatos, anécdotas, etc.) para obtener información y desarrollar su curiosidad por el mundo: ú estableciendo conexiones con sus propias experiencias ú respondiendo preguntas sobre información explícita e implícita ú formulando una opinión sobre lo escuchado iNdiCAdOrEs dE EVALUACióN ú Responden preguntas usando de manera pertinente la información escuchada. ú Expresan una opinión sobre un aspecto del texto y dan una razón de por qué piensan así. Actividad Los estudiantes escuchan la narración del cuento La invernada de los animales, de Aleksandr Nikoláyevich Afanasiev. Luego responden por escrito la siguiente evaluación de compren- sión oral: Responda las siguientes preguntas y justifique sus respuestas: 1 ¿Por qué razón se reúnen en un principio los cinco animales: el Toro, el Cordero, el Cerdo, el Ganso y el Gallo? 2 ¿Por qué razón el Toro queda solo otra vez, poco después? 3 ¿Qué opina usted de la actitud del Toro cuando deja entrar al resto de los animales a su cabaña? 4 ¿Qué consecuencias tuvo para el Toro dejar entrar a tantos animales a su cabaña? 5 Señale qué le cuenta el Oso al Lobo sobre lo que le sucedió y explique lo que pasó real- mente. 6 Señale una característica del Gallo y explique en qué se nota esta característica. CriTEriOs dE EVALUACióN Para evaluar, el docente debe considerar que la información que entregan los alumnos esté debidamente fundamentada con información el cuento.",
+              "observacion_docente": null
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oa": "OA24",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "Evaluación de las preguntas que realizan los estudiantes para aclarar o profundizar diferentes aspectos de una noticia. El docente lee una noticia en voz alta, se va deteniendo después de cada párrafo y los alumnos anotan preguntas sobre: ú información que en la que quisieran profundizar ú información que no comprenden ú palabras que no conocen ú antecedentes de la noticia Al final hacen una puesta en común de las preguntas, responden algunas y el docente evalúa cuáles son las más comunes y qué alumnos tienen mayores dificultades.",
+          "criterios_evaluacion": ""
+        },
+        {
+          "numero": 2,
+          "oa": "OA24",
+          "indicadores_evaluados": [],
+          "descripcion_actividad": "Los estudiantes escuchan la narración del cuento La invernada de los animales, de Aleksandr Nikoláyevich Afanasiev. Luego responden por escrito la siguiente evaluación de compren- sión oral: Responda las siguientes preguntas y justifique sus respuestas: 1 ¿Por qué razón se reúnen en un principio los cinco animales: el Toro, el Cordero, el Cerdo, el Ganso y el Gallo? 2 ¿Por qué razón el Toro queda solo otra vez, poco después? 3 ¿Qué opina usted de la actitud del Toro cuando deja entrar al resto de los animales a su cabaña? 4 ¿Qué consecuencias tuvo para el Toro dejar entrar a tantos animales a ",
+          "criterios_evaluacion": ""
+        }
+      ]
+    }
+  ]
+}

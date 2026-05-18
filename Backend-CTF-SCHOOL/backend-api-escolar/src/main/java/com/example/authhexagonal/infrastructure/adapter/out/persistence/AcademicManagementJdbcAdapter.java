@@ -641,18 +641,45 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     }
 
     @Override
-    public boolean hasActiveTeachingLoad(Long subjectId) {
-        Integer count = jdbcTemplate.queryForObject("""
-                SELECT COUNT(1)
-                FROM "CARGAS_DOCENTES"
-                WHERE "ASIGNATURA_ID" = ?
-                  AND "ACTIVA" = TRUE
-                """, Integer.class, subjectId);
-        return count != null && count > 0;
-    }
-
-    @Override
     public void deactivateSubject(Long subjectId) {
+        if (tableExists("PROFESOR_ASIGNATURAS")) {
+            if (columnExists("PROFESOR_ASIGNATURAS", "ACTIVO")) {
+                jdbcTemplate.update("""
+                        UPDATE "PROFESOR_ASIGNATURAS"
+                        SET "ACTIVO" = FALSE
+                        WHERE "ASIGNATURA_ID" = ?
+                        """, subjectId);
+            } else {
+                jdbcTemplate.update("""
+                        DELETE FROM "PROFESOR_ASIGNATURAS"
+                        WHERE "ASIGNATURA_ID" = ?
+                        """, subjectId);
+            }
+        }
+
+        if (tableExists("CURSO_ASIGNATURAS")) {
+            if (columnExists("CURSO_ASIGNATURAS", "ACTIVA")) {
+                jdbcTemplate.update("""
+                        UPDATE "CURSO_ASIGNATURAS"
+                        SET "ACTIVA" = FALSE
+                        WHERE "ASIGNATURA_ID" = ?
+                        """, subjectId);
+            } else {
+                jdbcTemplate.update("""
+                        DELETE FROM "CURSO_ASIGNATURAS"
+                        WHERE "ASIGNATURA_ID" = ?
+                        """, subjectId);
+            }
+        }
+
+        if (tableExists("CARGAS_DOCENTES")) {
+            jdbcTemplate.update("""
+                    UPDATE "CARGAS_DOCENTES"
+                    SET "ACTIVA" = FALSE
+                    WHERE "ASIGNATURA_ID" = ?
+                    """, subjectId);
+        }
+
         jdbcTemplate.update("""
                 UPDATE "ASIGNATURAS"
                 SET "ACTIVA" = FALSE
@@ -668,6 +695,27 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     false
                 )
                 """.formatted(tableName, columnName, columnName, tableName));
+    }
+
+    private boolean tableExists(String tableName) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = ?
+                """, Integer.class, tableName);
+        return count != null && count > 0;
+    }
+
+    private boolean columnExists(String tableName, String columnName) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name = ?
+                  AND column_name = ?
+                """, Integer.class, tableName, columnName);
+        return count != null && count > 0;
     }
 
     private ScheduleEntry mapScheduleEntry(ResultSet rs) throws SQLException {

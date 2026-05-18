@@ -119,6 +119,13 @@ export class AdministrationUserCreatePageComponent {
     this.form.controls.initialStatus.setValue(checked ? 'Activo' : 'Inactivo');
   }
 
+  formatPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatChileanMobile(input.value);
+    this.form.controls.phone.setValue(formatted, { emitEvent: false });
+    input.value = formatted;
+  }
+
   submit(): void {
     if (this.form.invalid || this.isSaving()) {
       this.form.markAllAsTouched();
@@ -174,7 +181,7 @@ export class AdministrationUserCreatePageComponent {
       maternalLastName: user.maternalLastName,
       email: user.email,
       run: user.run,
-      phone: user.phone,
+      phone: this.formatChileanMobile(user.phone),
       initialStatus: user.status as AdministrationUserStatus,
       roleCode: user.roleCode,
       temporaryPassword: '',
@@ -341,6 +348,34 @@ export class AdministrationUserCreatePageComponent {
       }
     }
     return 'Revisa este campo.';
+  }
+
+  private formatChileanMobile(rawValue: string): string {
+    const digits = rawValue.replace(/\D/g, '');
+    if (!digits) {
+      return '';
+    }
+
+    let normalized = digits;
+    if (normalized.startsWith('56')) {
+      normalized = normalized.slice(2);
+    }
+    if (normalized.startsWith('9')) {
+      normalized = normalized.slice(1);
+    }
+
+    normalized = normalized.slice(0, 8);
+
+    const first = normalized.slice(0, 4);
+    const second = normalized.slice(4, 8);
+
+    if (!first) {
+      return '+56 9';
+    }
+    if (!second) {
+      return `+56 9 ${first}`;
+    }
+    return `+56 9 ${first} ${second}`;
   }
 }
 

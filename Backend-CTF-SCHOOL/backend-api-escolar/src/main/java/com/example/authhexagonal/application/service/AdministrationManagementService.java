@@ -124,6 +124,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long userId, String actorUsername) {
         AdministrationUserDetail user = findUserById(userId);
         manageAdministrationPort.deleteUser(userId);

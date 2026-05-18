@@ -76,7 +76,7 @@
           <label class="form-group form-group--half">
             <span class="form-label">Telefono</span>
             <span class="input-with-icon">
-              <input class="form-input" type="tel" formControlName="phone" />
+              <input class="form-input" type="tel" formControlName="phone" (input)="formatPhoneInput($event)" />
               <mat-icon>phone</mat-icon>
             </span>
             @if (getControlError('phone')) {

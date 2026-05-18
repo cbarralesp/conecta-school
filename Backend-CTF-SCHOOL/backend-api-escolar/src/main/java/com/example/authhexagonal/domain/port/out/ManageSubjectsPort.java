@@ -36,7 +36,5 @@ public interface ManageSubjectsPort {
             int suggestedHours
     );
 
-    boolean hasActiveTeachingLoad(Long subjectId);
-
     void deactivateSubject(Long subjectId);
 }

@@ -1,0 +1,189 @@
+<app-teacher-modern-layout
+  title=""
+  activeItem="plannings"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="planning-page">
+    <section class="page-header">
+      <div class="page-header__left">
+        <h1 class="page-header__title">Unidades</h1>
+        <p class="page-header__subtitle">Gestiona las unidades de aprendizaje.</p>
+      </div>
+
+      <div class="page-header__actions">
+        <button type="button" class="inline-filter-button">
+          <mat-icon>calendar_today</mat-icon>
+          {{ selectedYearLabel() }}
+          <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
+        </button>
+
+        <button type="button" class="inline-filter-button">
+          <mat-icon>groups</mat-icon>
+          {{ selectedCourseLabel() }}
+          <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
+        </button>
+
+        <button type="button" class="inline-filter-button">
+          <mat-icon>menu_book</mat-icon>
+          {{ selectedSubjectLabel() }}
+          <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
+        </button>
+
+        <button type="button" class="inline-filter-button">
+          <mat-icon>schedule</mat-icon>
+          {{ selectedSemesterLabel() }}
+          <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
+        </button>
+
+        <a routerLink="/dashboard/planificaciones-nuevo/nueva-unidad" class="header-button header-button--primary">
+          <mat-icon>add</mat-icon>
+          Crear unidad
+        </a>
+      </div>
+    </section>
+
+    <section class="planning-tabs-card">
+      <nav class="planning-tabs" aria-label="Secciones de planificaciones">
+        @for (tab of tabs; track tab.id) {
+          <button
+            type="button"
+            class="planning-tabs__item"
+            [class.is-active]="activeTab() === tab.id"
+            (click)="setTab(tab.id)">
+            {{ tab.label }}
+          </button>
+        }
+      </nav>
+    </section>
+
+    @if (activeTab() === 'units') {
+      <section class="planning-shell">
+        <div class="planning-shell__main">
+          <div class="units-list">
+            @for (unit of units(); track unit.id) {
+              <article class="unit-card">
+                <button type="button" class="unit-card__header" (click)="toggleUnit(unit.id)">
+                  <div class="unit-card__identity">
+                    <div class="unit-card__number" [class]="'tone-' + unit.tone">
+                      {{ unit.id }}
+                    </div>
+
+                    <div class="unit-card__copy">
+                      <div class="unit-card__title-row">
+                        <h3>{{ unit.title }}</h3>
+                        <span class="unit-card__period" [class]="'tone-' + unit.tone">{{ unit.period }}</span>
+                      </div>
+                      <p>{{ unit.description }}</p>
+                    </div>
+                  </div>
+
+                  <div class="unit-card__metrics">
+                    <div class="mini-metric">
+                      <strong>{{ unit.classes }}</strong>
+                      <span>Clases</span>
+                    </div>
+                    <div class="mini-metric">
+                      <strong>{{ unit.objectives }}</strong>
+                      <span>Objetivos</span>
+                    </div>
+                    <div class="coverage-box">
+                      <div class="coverage-box__labels">
+                        <span>Cobertura OA</span>
+                        <strong>{{ unit.coverage }}%</strong>
+                      </div>
+                      <div class="coverage-box__bar">
+                        <div
+                          class="coverage-box__fill"
+                          [style.width.%]="unit.coverage"
+                          [class]="'tone-' + unit.tone"></div>
+                      </div>
+                    </div>
+                    <mat-icon class="unit-card__chevron" [class.is-open]="isUnitOpen(unit.id)">expand_more</mat-icon>
+                  </div>
+                </button>
+
+                @if (isUnitOpen(unit.id)) {
+                  <div class="unit-card__body">
+                    <div class="unit-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Clase</th>
+                            <th>Objetivo de aprendizaje</th>
+                            <th>Estado</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (row of unit.rows; track row.number) {
+                            <tr>
+                              <td>
+                                <div class="class-pill" [class]="'tone-' + unit.tone">{{ row.number }}</div>
+                              </td>
+                              <td class="objective-cell">{{ row.objective }}</td>
+                              <td>
+                                <span class="status-badge" [class]="'status-' + row.status">
+                                  {{ statusLabel(row.status) }}
+                                </span>
+                              </td>
+                              <td class="actions-cell">
+                                <button type="button" class="row-action" aria-label="Mas acciones de clase">
+                                  <mat-icon>more_horiz</mat-icon>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        </div>
+
+        <aside class="planning-shell__summary">
+          <section class="summary-card">
+            <h3>Resumen de unidades</h3>
+
+            <div class="summary-donut">
+              <div class="summary-donut__ring"></div>
+              <div class="summary-donut__center">
+                <strong>{{ averageCoverage() }}%</strong>
+                <span>Cobertura OA promedio</span>
+              </div>
+            </div>
+
+            <div class="summary-stats">
+              @for (item of summaryItems(); track item.label) {
+                <div class="summary-stat">
+                  <div class="summary-stat__icon" [class]="'tone-' + item.tone">
+                    <mat-icon>{{ item.icon }}</mat-icon>
+                  </div>
+                  <div class="summary-stat__copy">
+                    <span>{{ item.label }}</span>
+                    <strong>{{ item.value }}</strong>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="summary-card__button">
+              Ver programa base
+            </button>
+          </section>
+        </aside>
+      </section>
+    } @else {
+      <section class="placeholder-state">
+        <div class="placeholder-state__icon">
+          <mat-icon>construction</mat-icon>
+        </div>
+        <h2>{{ currentTabLabel() }}</h2>
+        <p>Esta pestaña quedo reservada para la siguiente iteracion del nuevo modulo de Planificaciones.</p>
+      </section>
+    }
+  </main>
+</app-teacher-modern-layout>

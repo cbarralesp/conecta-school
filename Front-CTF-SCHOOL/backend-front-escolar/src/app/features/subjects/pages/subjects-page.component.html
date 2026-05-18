@@ -1,4 +1,4 @@
-﻿<app-teacher-modern-layout
+<app-teacher-modern-layout
   title=""
   activeItem="subjects"
   dashboardRoute="/dashboard"
@@ -69,60 +69,57 @@
           </section>
         } @else {
           <div class="table-shell">
-            <table mat-table [dataSource]="filteredSubjects()" class="subjects-table">
-              <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef>Codigo</th>
-                <td mat-cell *matCellDef="let subject"><span class="code-pill">{{ subject.code }}</span></td>
-              </ng-container>
-
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>Asignatura</th>
-                <td mat-cell *matCellDef="let subject">
-                  <div class="subject-name-cell">
-                    <strong>{{ subject.name }}</strong>
-                    <small>{{ subject.description }}</small>
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="area">
-                <th mat-header-cell *matHeaderCellDef>Area</th>
-                <td mat-cell *matCellDef="let subject">{{ subject.area }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="referenceLevel">
-                <th mat-header-cell *matHeaderCellDef>Nivel</th>
-                <td mat-cell *matCellDef="let subject">
-                  <span class="soft-badge">{{ subject.referenceLevel }}</span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="suggestedHours">
-                <th mat-header-cell *matHeaderCellDef>Horas</th>
-                <td mat-cell *matCellDef="let subject">{{ subject.suggestedHours }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="colorHex">
-                <th mat-header-cell *matHeaderCellDef>Color</th>
-                <td mat-cell *matCellDef="let subject">
-                  <span class="color-chip" [style.background]="subject.colorHex"></span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>Acciones</th>
-                <td mat-cell *matCellDef="let subject" class="actions-cell">
-                  <button mat-icon-button (click)="openEditDialog(subject)" aria-label="Editar asignatura">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="confirmDelete(subject)" aria-label="Eliminar asignatura">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <table class="subjects-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Asignatura</th>
+                  <th>Área</th>
+                  <th>Nivel</th>
+                  <th>Estado</th>
+                  <th class="actions-head">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (subject of filteredSubjects(); track subject.id) {
+                  <tr>
+                    <td>
+                      <div class="subject-code-cell">
+                        <span class="color-dot" [style.background-color]="subject.colorHex"></span>
+                        <span class="subject-code-ref">{{ subject.code }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="subject-title">{{ subject.name }}</span>
+                    </td>
+                    <td>{{ subject.area }}</td>
+                    <td>
+                      <span
+                        class="badge"
+                        [class.badge-basic]="subject.referenceLevel.toLowerCase().includes('bas')"
+                        [class.badge-media]="subject.referenceLevel.toLowerCase().includes('med')">
+                        {{ subject.referenceLevel }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="status-indicator">
+                        <span class="dot" [class.active]="subject.active" [class.inactive]="!subject.active"></span>
+                        <span [class.text-active]="subject.active" [class.text-inactive]="!subject.active">
+                          {{ subject.active ? 'Activo' : 'Inactivo' }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="actions-cell">
+                      <button class="icon-btn" type="button" (click)="openEditDialog(subject)" aria-label="Editar asignatura">
+                        <mat-icon>edit_square</mat-icon>
+                      </button>
+                      <button class="icon-btn icon-btn--danger" type="button" (click)="confirmDelete(subject)" aria-label="Eliminar asignatura">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
             </table>
           </div>
         }
@@ -130,4 +127,3 @@
     </mat-card>
   </main>
 </app-teacher-modern-layout>
-

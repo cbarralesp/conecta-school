@@ -283,6 +283,8 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 RETURNING "ID"
                 """, Long.class, code, normalizedName, normalizedLevel, letter, schoolYear, normalizedSchedule, gradeId, scheduleId);
 
+        ensureCourseSubjectsFromReference(id, gradeId);
+
         return findActiveById(id).orElseThrow();
     }
 
@@ -301,6 +303,9 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     VALUES (?, ?, ?)
                     """, courseId, teacherId, assistantId);
         }
+
+        ensureCourseSubjectsFromReference(courseId, null);
+        ensureTeacherLoadsForCourse(courseId, teacherId);
     }
 
     @Override
@@ -410,6 +415,8 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     "JORNADA_ID" = ?
                 WHERE "ID" = ?
                 """, code, normalizedName, normalizedLevel, letter, schoolYear, normalizedSchedule, gradeId, scheduleId, courseId);
+
+        ensureCourseSubjectsFromReference(courseId, gradeId);
 
         return findActiveById(courseId).orElseThrow();
     }
@@ -852,6 +859,190 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     INSERT INTO "CURSO_ALUMNOS" ("CURSO_ID", "ALUMNO_ID", "FECHA_ASIGNACION", "ACTIVO")
                     VALUES (?, ?, CURRENT_DATE, TRUE)
                     """, courseId, studentId);
+        }
+    }
+
+    private void ensureCourseSubjectsFromReference(Long courseId, Long gradeId) {
+        if (!tableExists("CURSO_ASIGNATURAS")) {
+            return;
+        }
+
+        Integer currentCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "CURSO_ASIGNATURAS"
+                WHERE "CURSO_ID" = ?
+                  AND "ACTIVA" = TRUE
+                """, Integer.class, courseId);
+
+        if (currentCount != null && currentCount > 0) {
+            return;
+        }
+
+        Long resolvedGradeId = gradeId != null ? gradeId : jdbcTemplate.query("""
+                SELECT "GRADO_ID"
+                FROM "CURSOS"
+                WHERE "ID" = ?
+                """, (rs, rowNum) -> (Long) rs.getObject("GRADO_ID"), courseId).stream().findFirst().orElse(null);
+
+        Long referenceCourseId = findReferenceCourseId(courseId, resolvedGradeId);
+        if (referenceCourseId == null) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "CURSO_ASIGNATURAS" ("CURSO_ID", "ASIGNATURA_ID", "ACTIVA")
+                SELECT ?, source."ASIGNATURA_ID", TRUE
+                FROM (
+                    SELECT DISTINCT ca."ASIGNATURA_ID"
+                    FROM "CURSO_ASIGNATURAS" ca
+                    WHERE ca."CURSO_ID" = ?
+                      AND ca."ACTIVA" = TRUE
+                    UNION
+                    SELECT DISTINCT cd."ASIGNATURA_ID"
+                    FROM "CARGAS_DOCENTES" cd
+                    WHERE cd."CURSO_ID" = ?
+                      AND cd."ACTIVA" = TRUE
+                ) source
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM "CURSO_ASIGNATURAS" target
+                    WHERE target."CURSO_ID" = ?
+                      AND target."ASIGNATURA_ID" = source."ASIGNATURA_ID"
+                )
+                """, courseId, referenceCourseId, referenceCourseId, courseId);
+    }
+
+    private Long findReferenceCourseId(Long courseId, Long gradeId) {
+        if (gradeId != null) {
+            List<Long> sameGrade = jdbcTemplate.query("""
+                    SELECT c."ID"
+                    FROM "CURSOS" c
+                    WHERE c."ID" <> ?
+                      AND c."ACTIVO" = TRUE
+                      AND c."GRADO_ID" = ?
+                      AND EXISTS (
+                          SELECT 1
+                          FROM "CURSO_ASIGNATURAS" ca
+                          WHERE ca."CURSO_ID" = c."ID"
+                            AND ca."ACTIVA" = TRUE
+                      )
+                    ORDER BY c."ANIO_ESCOLAR" DESC, c."ID"
+                    LIMIT 1
+                    """, (rs, rowNum) -> rs.getLong("ID"), courseId, gradeId);
+            if (!sameGrade.isEmpty()) {
+                return sameGrade.getFirst();
+            }
+
+            List<Long> nearestGrade = jdbcTemplate.query("""
+                    SELECT c."ID"
+                    FROM "CURSOS" c
+                    WHERE c."ID" <> ?
+                      AND c."ACTIVO" = TRUE
+                      AND c."GRADO_ID" IS NOT NULL
+                      AND EXISTS (
+                          SELECT 1
+                          FROM "CURSO_ASIGNATURAS" ca
+                          WHERE ca."CURSO_ID" = c."ID"
+                            AND ca."ACTIVA" = TRUE
+                      )
+                    ORDER BY ABS(c."GRADO_ID" - ?), c."ANIO_ESCOLAR" DESC, c."ID"
+                    LIMIT 1
+                    """, (rs, rowNum) -> rs.getLong("ID"), courseId, gradeId);
+            if (!nearestGrade.isEmpty()) {
+                return nearestGrade.getFirst();
+            }
+        }
+
+        List<Long> anyReference = jdbcTemplate.query("""
+                SELECT c."ID"
+                FROM "CURSOS" c
+                WHERE c."ID" <> ?
+                  AND c."ACTIVO" = TRUE
+                  AND EXISTS (
+                      SELECT 1
+                      FROM "CURSO_ASIGNATURAS" ca
+                      WHERE ca."CURSO_ID" = c."ID"
+                        AND ca."ACTIVA" = TRUE
+                  )
+                ORDER BY c."ANIO_ESCOLAR" DESC, c."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), courseId);
+        return anyReference.isEmpty() ? null : anyReference.getFirst();
+    }
+
+    private void ensureTeacherLoadsForCourse(Long courseId, Long teacherId) {
+        if (teacherId == null || !tableExists("CARGAS_DOCENTES") || !tableExists("CURSO_ASIGNATURAS")) {
+            return;
+        }
+
+        Integer schoolYear = jdbcTemplate.queryForObject("""
+                SELECT COALESCE("ANIO_ESCOLAR", EXTRACT(YEAR FROM CURRENT_DATE)::INTEGER)
+                FROM "CURSOS"
+                WHERE "ID" = ?
+                """, Integer.class, courseId);
+
+        List<Long> subjectIds = jdbcTemplate.query("""
+                SELECT DISTINCT "ASIGNATURA_ID"
+                FROM "CURSO_ASIGNATURAS"
+                WHERE "CURSO_ID" = ?
+                  AND "ACTIVA" = TRUE
+                ORDER BY "ASIGNATURA_ID"
+                """, (rs, rowNum) -> rs.getLong("ASIGNATURA_ID"), courseId);
+
+        for (Long subjectId : subjectIds) {
+            Integer suggestedHours = jdbcTemplate.queryForObject("""
+                    SELECT COALESCE("HORAS_SUGERIDAS", 1)
+                    FROM "ASIGNATURAS"
+                    WHERE "ID" = ?
+                    """, Integer.class, subjectId);
+
+            Long loadId = jdbcTemplate.query("""
+                    SELECT "ID"
+                    FROM "CARGAS_DOCENTES"
+                    WHERE "CURSO_ID" = ?
+                      AND "ASIGNATURA_ID" = ?
+                    ORDER BY "ACTIVA" DESC, "ID"
+                    LIMIT 1
+                    """, (rs, rowNum) -> rs.getLong("ID"), courseId, subjectId)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (loadId == null) {
+                jdbcTemplate.update("""
+                        INSERT INTO "CARGAS_DOCENTES" (
+                            "PROFESOR_ID",
+                            "CURSO_ID",
+                            "ASIGNATURA_ID",
+                            "ANIO_ESCOLAR",
+                            "HORAS_SEMANALES",
+                            "ES_PROFESOR_JEFE",
+                            "ACTIVA"
+                        )
+                        VALUES (?, ?, ?, ?, ?, FALSE, TRUE)
+                        """,
+                        teacherId,
+                        courseId,
+                        subjectId,
+                        schoolYear == null ? LocalDate.now().getYear() : schoolYear,
+                        suggestedHours == null ? 1 : suggestedHours
+                );
+                continue;
+            }
+
+            jdbcTemplate.update("""
+                    UPDATE "CARGAS_DOCENTES"
+                    SET "PROFESOR_ID" = ?,
+                        "ANIO_ESCOLAR" = ?,
+                        "HORAS_SEMANALES" = ?,
+                        "ACTIVA" = TRUE
+                    WHERE "ID" = ?
+                    """,
+                    teacherId,
+                    schoolYear == null ? LocalDate.now().getYear() : schoolYear,
+                    suggestedHours == null ? 1 : suggestedHours,
+                    loadId
+            );
         }
     }
 

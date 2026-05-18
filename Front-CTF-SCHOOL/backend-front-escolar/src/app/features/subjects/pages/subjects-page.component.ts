@@ -5,7 +5,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SubjectApiService } from '../../../core/services/subject-api.service';
 import { Subject, SubjectPayload } from '../../../core/models/subject.models';
@@ -21,7 +20,6 @@ import { SubjectDialogComponent } from '../components/subject-dialog.component';
     MatDialogModule,
     MatIconModule,
     MatSnackBarModule,
-    MatTableModule,
     SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
@@ -36,7 +34,7 @@ export class SubjectsPageComponent {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly user = this.authStateService.user;
-  readonly displayedColumns = ['code', 'name', 'area', 'referenceLevel', 'suggestedHours', 'colorHex', 'actions'];
+  readonly displayedColumns = ['subject', 'area', 'referenceLevel', 'status', 'actions'];
   readonly subjects = signal<Subject[]>([]);
   readonly searchTerm = signal('');
   readonly levelFilter = signal<'all' | 'basic' | 'media'>('all');

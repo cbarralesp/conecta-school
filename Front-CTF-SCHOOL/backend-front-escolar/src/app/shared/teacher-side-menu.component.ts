@@ -262,6 +262,7 @@ export class TeacherSideMenuComponent {
               { label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
               { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
               { label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
+              { label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', exact: true, moduleCode: 'PLANIFICACION' },
               { label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
               { label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION' }
             ])
@@ -304,6 +305,7 @@ export class TeacherSideMenuComponent {
               { label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
               { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
               { label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
+              { label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', exact: true, moduleCode: 'PLANIFICACION' },
               { label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
               { label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION' }
             ])

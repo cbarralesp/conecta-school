@@ -78,9 +78,6 @@ public class SubjectService implements ManageSubjectsUseCase {
     @Override
     public void delete(Long subjectId) {
         findById(subjectId);
-        if (manageSubjectsPort.hasActiveTeachingLoad(subjectId)) {
-            throw new IllegalArgumentException("Subject has active schedule loads and cannot be deactivated");
-        }
         manageSubjectsPort.deactivateSubject(subjectId);
     }
 

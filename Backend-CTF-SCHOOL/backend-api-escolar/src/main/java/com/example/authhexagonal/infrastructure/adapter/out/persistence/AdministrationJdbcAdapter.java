@@ -242,6 +242,11 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
     @Override
     public void deleteUser(Long userId) {
+        if (isInactiveUser(userId)) {
+            hardDeleteUser(userId);
+            return;
+        }
+
         jdbcTemplate.update("UPDATE \"USUARIOS\" SET \"ACTIVO\" = FALSE WHERE \"ID\" = ?", userId);
         jdbcTemplate.update("""
                 UPDATE "ADMIN_USER_SETTINGS"
@@ -790,6 +795,73 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                 command.accountExpiresAt() == null ? null : Date.valueOf(command.accountExpiresAt()),
                 userId
         );
+    }
+
+    private boolean isInactiveUser(Long userId) {
+        return jdbcTemplate.query("""
+                SELECT
+                    NOT COALESCE(u."ACTIVO", FALSE) AS inactive_by_flag,
+                    COALESCE(aus."ESTADO", '') AS status
+                FROM "USUARIOS" u
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                WHERE u."ID" = ?
+                """, rs -> {
+            if (!rs.next()) {
+                return false;
+            }
+            return rs.getBoolean("inactive_by_flag")
+                    || "INACTIVO".equalsIgnoreCase(rs.getString("status"));
+        }, userId);
+    }
+
+    private void hardDeleteUser(Long userId) {
+        Long personId = jdbcTemplate.queryForObject("""
+                SELECT "PERSONA_ID"
+                FROM "USUARIOS"
+                WHERE "ID" = ?
+                """, Long.class, userId);
+
+        detachUserFromOwnedContent(userId);
+        jdbcTemplate.update("DELETE FROM \"ADMIN_USER_MODULE_ACCESS\" WHERE \"USUARIO_ID\" = ?", userId);
+        jdbcTemplate.update("DELETE FROM \"ADMIN_USER_SETTINGS\" WHERE \"USUARIO_ID\" = ?", userId);
+        jdbcTemplate.update("DELETE FROM \"ADMIN_AUDIT_LOGS\" WHERE \"USUARIO_ID\" = ?", userId);
+        jdbcTemplate.update("DELETE FROM \"USUARIOS\" WHERE \"ID\" = ?", userId);
+
+        if (!personStillLinked(personId)) {
+            jdbcTemplate.update("DELETE FROM \"PERSONAS\" WHERE \"ID\" = ?", personId);
+        }
+    }
+
+    private void detachUserFromOwnedContent(Long userId) {
+        jdbcTemplate.update("""
+                UPDATE "CLASES_PLANIFICACION_DOCUMENTOS"
+                SET "CREADO_POR_USUARIO_ID" = NULL
+                WHERE "CREADO_POR_USUARIO_ID" = ?
+                """, userId);
+        jdbcTemplate.update("""
+                UPDATE "CLASES_PLANIFICACION"
+                SET "CREADO_POR_USUARIO_ID" = NULL
+                WHERE "CREADO_POR_USUARIO_ID" = ?
+                """, userId);
+        jdbcTemplate.update("""
+                UPDATE "UNIDADES_PLANIFICACION"
+                SET "CREADO_POR_USUARIO_ID" = NULL
+                WHERE "CREADO_POR_USUARIO_ID" = ?
+                """, userId);
+    }
+
+    private boolean personStillLinked(Long personId) {
+        Integer userCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "USUARIOS"
+                WHERE "PERSONA_ID" = ?
+                """, Integer.class, personId);
+        Integer teacherCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "PROFESORES"
+                WHERE "PERSONA_ID" = ?
+                """, Integer.class, personId);
+        return (userCount != null && userCount > 0) || (teacherCount != null && teacherCount > 0);
     }
 
     public Optional<String> findEffectiveRoleCodeByUsername(String username) {
