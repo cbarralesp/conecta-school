@@ -2,15 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict JF4vzF3dVIknOjtaheOOO8aJwzjBlIwdJCgWLTilchueIVI2cM8PK3XQPd0nVOP
-
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -13109,6 +13106,4 @@ ALTER TABLE ONLY public.planning_class_curriculum_objectives
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict JF4vzF3dVIknOjtaheOOO8aJwzjBlIwdJCgWLTilchueIVI2cM8PK3XQPd0nVOP
 
