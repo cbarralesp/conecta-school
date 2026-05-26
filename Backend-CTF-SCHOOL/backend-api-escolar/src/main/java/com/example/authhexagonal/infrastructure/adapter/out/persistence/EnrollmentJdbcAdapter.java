@@ -4,6 +4,7 @@ import com.example.authhexagonal.domain.model.EnrollmentCourseOption;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
 import com.example.authhexagonal.domain.model.EnrollmentDocument;
 import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
+import com.example.authhexagonal.domain.model.EnrollmentFamilyContact;
 import com.example.authhexagonal.domain.model.EnrollmentGuardianAccess;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentListItem;
@@ -33,7 +34,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     @Override
     public EnrollmentSummary summarizeEnrollments(String search, Long courseId, String status) {
         String normalizedSearch = search == null ? "" : search.trim();
-        String normalizedStatus = status == null ? "" : status.trim();
+        String normalizedStatus = normalizeStatusFilter(status);
+        boolean inactiveFilter = "INACTIVA".equals(normalizedStatus);
         long normalizedCourseId = courseId == null ? -1L : courseId;
 
         return jdbcTemplate.queryForObject("""
@@ -46,11 +48,18 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
                 LEFT JOIN "MATRICULA_APODERADOS" ap ON ap."MATRICULA_ID" = m."ID" AND ap."ACTIVO" = TRUE
-                WHERE m."ACTIVA" = TRUE
+                WHERE (
+                        (? = TRUE AND COALESCE(m."ACTIVA", FALSE) = FALSE)
+                     OR (? = FALSE AND m."ACTIVA" = TRUE)
+                )
                   AND (? = '' OR UPPER(a."NOMBRE" || ' ' || a."APELLIDOS" || ' ' || a."RUN" || ' ' || COALESCE(ap."NOMBRE", '') || ' ' || COALESCE(ap."APELLIDOS", ''))
                         LIKE '%' || UPPER(?) || '%')
                   AND (? = -1 OR c."ID" = ?)
-                  AND (? = '' OR UPPER(m."ESTADO") = UPPER(?))
+                  AND (
+                        ? = ''
+                     OR (? = 'INACTIVA' AND UPPER(COALESCE(m."ESTADO", '')) IN ('INACTIVA', 'INACTIVO'))
+                     OR UPPER(COALESCE(m."ESTADO", '')) = UPPER(?)
+                  )
                 """,
                 (rs, rowNum) -> new EnrollmentSummary(
                         rs.getInt("total"),
@@ -58,7 +67,10 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                         rs.getInt("pending_count"),
                         rs.getInt("course_count")
                 ),
-                normalizedSearch, normalizedSearch, normalizedCourseId, normalizedCourseId, normalizedStatus, normalizedStatus
+                inactiveFilter, inactiveFilter,
+                normalizedSearch, normalizedSearch,
+                normalizedCourseId, normalizedCourseId,
+                normalizedStatus, normalizedStatus, normalizedStatus
         );
     }
 
@@ -69,7 +81,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     c."ID",
                     c."CODIGO",
                     TRIM(
-                        COALESCE(cg."NOMBRE", c."NOMBRE")
+                        COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE")
                         || CASE
                             WHEN COALESCE(c."LETRA", '') = '' THEN ''
                             ELSE ' ' || c."LETRA"
@@ -103,7 +115,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     @Override
     public List<EnrollmentListItem> findEnrollments(String search, Long courseId, String status, Integer page, Integer size) {
         String normalizedSearch = search == null ? "" : search.trim();
-        String normalizedStatus = status == null ? "" : status.trim();
+        String normalizedStatus = normalizeStatusFilter(status);
+        boolean inactiveFilter = "INACTIVA".equals(normalizedStatus);
         long normalizedCourseId = courseId == null ? -1L : courseId;
         boolean paginated = page != null && size != null;
         int normalizedPage = page == null ? 0 : Math.max(page, 0);
@@ -119,25 +132,35 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     a."APELLIDOS",
                     c."ID" AS course_id,
                     TRIM(
-                        COALESCE(cg."NOMBRE", c."NOMBRE")
+                        COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE")
                         || CASE
                             WHEN COALESCE(c."LETRA", '') = '' THEN ''
                             ELSE ' ' || c."LETRA"
                         END
                     ) AS course_name,
                     COALESCE(ap."NOMBRE" || ' ' || ap."APELLIDOS", 'Sin apoderado') AS guardian_name,
-                    m."ESTADO",
+                    CASE
+                        WHEN COALESCE(m."ACTIVA", FALSE) = FALSE THEN 'INACTIVA'
+                        ELSE UPPER(COALESCE(NULLIF(BTRIM(m."ESTADO"), ''), 'ACTIVO'))
+                    END AS "ESTADO",
                     m."FECHA_MATRICULA"
                 FROM "MATRICULAS" m
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
                 LEFT JOIN "CURSO_GRADOS" cg ON cg."ID" = c."GRADO_ID"
                 LEFT JOIN "MATRICULA_APODERADOS" ap ON ap."MATRICULA_ID" = m."ID" AND ap."ACTIVO" = TRUE
-                WHERE m."ACTIVA" = TRUE
+                WHERE (
+                        (? = TRUE AND COALESCE(m."ACTIVA", FALSE) = FALSE)
+                     OR (? = FALSE AND m."ACTIVA" = TRUE)
+                )
                   AND (? = '' OR UPPER(a."NOMBRE" || ' ' || a."APELLIDOS" || ' ' || a."RUN" || ' ' || COALESCE(ap."NOMBRE", '') || ' ' || COALESCE(ap."APELLIDOS", ''))
                         LIKE '%' || UPPER(?) || '%')
                   AND (? = -1 OR c."ID" = ?)
-                  AND (? = '' OR UPPER(m."ESTADO") = UPPER(?))
+                  AND (
+                        ? = ''
+                     OR (? = 'INACTIVA' AND UPPER(COALESCE(m."ESTADO", '')) IN ('INACTIVA', 'INACTIVO'))
+                     OR UPPER(COALESCE(m."ESTADO", '')) = UPPER(?)
+                  )
                 ORDER BY a."NOMBRE", a."APELLIDOS"
                 """;
 
@@ -150,11 +173,17 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
 
         Object[] params = paginated
                 ? new Object[] {
-                normalizedSearch, normalizedSearch, normalizedCourseId, normalizedCourseId, normalizedStatus, normalizedStatus,
+                inactiveFilter, inactiveFilter,
+                normalizedSearch, normalizedSearch,
+                normalizedCourseId, normalizedCourseId,
+                normalizedStatus, normalizedStatus, normalizedStatus,
                 normalizedSize, offset
         }
                 : new Object[] {
-                normalizedSearch, normalizedSearch, normalizedCourseId, normalizedCourseId, normalizedStatus, normalizedStatus
+                inactiveFilter, inactiveFilter,
+                normalizedSearch, normalizedSearch,
+                normalizedCourseId, normalizedCourseId,
+                normalizedStatus, normalizedStatus, normalizedStatus
         };
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new EnrollmentListItem(
@@ -185,17 +214,28 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     COALESCE(a."GENERO", '') AS genero,
                     c."ID" AS course_id,
                     TRIM(
-                        COALESCE(cg."NOMBRE", c."NOMBRE")
+                        COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE")
                         || CASE
                             WHEN COALESCE(c."LETRA", '') = '' THEN ''
                             ELSE ' ' || c."LETRA"
                         END
                     ) AS course_name,
+                    COALESCE(cn."NOMBRE", c."NIVEL") AS course_level,
+                    COALESCE(c."LETRA", '') AS course_letter,
+                    c."ANIO_ESCOLAR" AS course_school_year,
+                    COALESCE(cj."NOMBRE", c."JORNADA") AS course_schedule_type,
                     a."REGION_ID" AS region_id,
                     a."COMUNA_ID" AS comuna_id,
                     COALESCE(a."DIRECCION", '') AS direccion,
+                    COALESCE(a."CONVIVE_CON", '') AS vive_con,
+                    COALESCE(a."ALERGIAS", '') AS alergias,
+                    COALESCE(a."DIAGNOSTICOS_ESPECIALISTAS", '') AS diagnosticos_especialistas,
+                    COALESCE(a."CONTACTO_EMERGENCIA", '') AS contacto_emergencia,
                     COALESCE(a."NECESIDADES_ESPECIALES", 'No') AS necesidades,
-                    m."ESTADO",
+                    CASE
+                        WHEN COALESCE(m."ACTIVA", FALSE) = FALSE THEN 'INACTIVA'
+                        ELSE UPPER(COALESCE(NULLIF(BTRIM(m."ESTADO"), ''), 'ACTIVO'))
+                    END AS "ESTADO",
                     m."FECHA_MATRICULA",
                     m."ESTABLECIMIENTO_REGION_ID" AS establecimiento_region_id,
                     m."ESTABLECIMIENTO_COMUNA_ID" AS establecimiento_comuna_id,
@@ -209,6 +249,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
                 LEFT JOIN "CURSO_GRADOS" cg ON cg."ID" = c."GRADO_ID"
+                LEFT JOIN "CURSO_NIVELES" cn ON cn."ID" = cg."NIVEL_ID"
+                LEFT JOIN "CURSO_JORNADAS" cj ON cj."ID" = c."JORNADA_ID"
                 WHERE m."ID" = ?
                 """, (rs, rowNum) -> new EnrollmentDetail(
                 rs.getLong("ID"),
@@ -220,16 +262,26 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 rs.getString("genero"),
                 rs.getLong("course_id"),
                 rs.getString("course_name"),
+                rs.getString("course_level"),
+                rs.getString("course_letter"),
+                rs.getInt("course_school_year"),
+                rs.getString("course_schedule_type"),
                 readNullableLong(rs, "region_id"),
                 readNullableLong(rs, "comuna_id"),
                 rs.getString("direccion"),
+                rs.getString("vive_con"),
+                rs.getString("alergias"),
+                rs.getString("diagnosticos_especialistas"),
+                rs.getString("contacto_emergencia"),
                 rs.getString("necesidades"),
                 rs.getString("ESTADO"),
                 rs.getObject("FECHA_MATRICULA", LocalDate.class).toString(),
                 mapEstablishment(rs),
                 findGuardianByEnrollmentId(enrollmentId).orElse(new EnrollmentGuardian(
-                        null, "", "", "", "", "", "", false
+                        null, "", "", "", "", "", "", "", "", "", false
                 )),
+                findFatherByEnrollmentId(enrollmentId).orElse(emptyFamilyContact()),
+                findMotherByEnrollmentId(enrollmentId).orElse(emptyFamilyContact()),
                 findPickupContactsByEnrollmentId(enrollmentId),
                 findDocumentsByEnrollmentId(enrollmentId),
                 findStudentAccessByRun(rs.getString("RUN")).orElse(new EnrollmentStudentAccess(
@@ -342,6 +394,10 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             Long regionId,
             Long communeId,
             String address,
+            String livesWith,
+            String allergies,
+            String specialistDiagnoses,
+            String emergencyContact,
             String specialNeeds
     ) {
         return jdbcTemplate.queryForObject("""
@@ -354,12 +410,16 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "GENERO",
                     "REGION_ID",
                     "COMUNA_ID",
+                    "CONVIVE_CON",
+                    "ALERGIAS",
+                    "DIAGNOSTICOS_ESPECIALISTAS",
+                    "CONTACTO_EMERGENCIA",
                     "NECESIDADES_ESPECIALES",
                     "ACTIVO"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 RETURNING "ID"
-                """, Long.class, run, name, lastName, address, birthDate, gender, regionId, communeId, specialNeeds);
+                """, Long.class, run, name, lastName, address, birthDate, gender, regionId, communeId, livesWith, allergies, specialistDiagnoses, emergencyContact, specialNeeds);
     }
 
     @Override
@@ -373,6 +433,10 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             Long regionId,
             Long communeId,
             String address,
+            String livesWith,
+            String allergies,
+            String specialistDiagnoses,
+            String emergencyContact,
             String specialNeeds
     ) {
         jdbcTemplate.update("""
@@ -385,10 +449,14 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "GENERO" = ?,
                     "REGION_ID" = ?,
                     "COMUNA_ID" = ?,
+                    "CONVIVE_CON" = ?,
+                    "ALERGIAS" = ?,
+                    "DIAGNOSTICOS_ESPECIALISTAS" = ?,
+                    "CONTACTO_EMERGENCIA" = ?,
                     "NECESIDADES_ESPECIALES" = ?,
                     "ACTIVO" = TRUE
                 WHERE "ID" = ?
-                """, run, name, lastName, address, birthDate, gender, regionId, communeId, specialNeeds, studentId);
+                """, run, name, lastName, address, birthDate, gender, regionId, communeId, livesWith, allergies, specialistDiagnoses, emergencyContact, specialNeeds, studentId);
     }
 
     @Override
@@ -400,6 +468,45 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                   AND "ACTIVO" = TRUE
                 """, Integer.class, courseId);
         return count != null && count > 0;
+    }
+
+
+    @Override
+    public Long findOrCreateCourse(String baseName, String level, String letter, int schoolYear, String scheduleType) {
+        String normalizedName = normalizeGradeDisplayName(baseName);
+        String normalizedLevel = normalizeLevelDisplayName(level);
+        String normalizedLetter = letter == null ? "" : letter.trim().toUpperCase();
+        String normalizedSchedule = normalizeScheduleDisplayName(scheduleType);
+
+        List<Long> existingIds = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "CURSOS"
+                WHERE UPPER(TRANSLATE("NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(?, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
+                  AND UPPER(TRANSLATE("NIVEL", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(?, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
+                  AND UPPER(COALESCE("LETRA", '')) = UPPER(?)
+                  AND "ANIO_ESCOLAR" = ?
+                  AND UPPER(TRANSLATE("JORNADA", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(?, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
+                  AND "ACTIVO" = TRUE
+                ORDER BY "ID"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), normalizedName, normalizedLevel, normalizedLetter, schoolYear, normalizedSchedule);
+
+        if (!existingIds.isEmpty()) {
+            return existingIds.getFirst();
+        }
+
+        Long gradeId = resolveGradeId(normalizedName);
+        Long scheduleId = resolveScheduleId(normalizedSchedule);
+        String code = buildCourseCode(gradeId, normalizedName, normalizedLetter, schoolYear);
+
+        Long courseId = jdbcTemplate.queryForObject("""
+                INSERT INTO "CURSOS" ("CODIGO", "NOMBRE", "NIVEL", "LETRA", "ANIO_ESCOLAR", "JORNADA", "GRADO_ID", "JORNADA_ID", "ACTIVO")
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                RETURNING "ID"
+                """, Long.class, code, normalizedName, normalizedLevel, normalizedLetter, schoolYear, normalizedSchedule, gradeId, scheduleId);
+
+        ensureCourseSubjectsFromReference(courseId, gradeId);
+        return courseId;
     }
 
     @Override
@@ -491,6 +598,23 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     @Override
+    public boolean isEnrollmentInactive(Long enrollmentId) {
+        return jdbcTemplate.query("""
+                SELECT
+                    NOT COALESCE("ACTIVA", FALSE) AS inactive_by_flag,
+                    COALESCE("ESTADO", '') AS status
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                """, rs -> {
+            if (!rs.next()) {
+                return false;
+            }
+            return rs.getBoolean("inactive_by_flag")
+                    || "INACTIVA".equalsIgnoreCase(rs.getString("status"));
+        }, enrollmentId);
+    }
+
+    @Override
     public void deactivateEnrollment(Long enrollmentId) {
         Long studentId = jdbcTemplate.query("""
                 SELECT "ALUMNO_ID"
@@ -529,6 +653,114 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     @Override
+    public void reactivateEnrollment(Long enrollmentId) {
+        Long studentId = jdbcTemplate.query("""
+                SELECT "ALUMNO_ID"
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ALUMNO_ID"), enrollmentId).stream().findFirst().orElse(null);
+
+        Long courseId = jdbcTemplate.query("""
+                SELECT "CURSO_ID"
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("CURSO_ID"), enrollmentId).stream().findFirst().orElse(null);
+
+        jdbcTemplate.update("""
+                UPDATE "MATRICULAS"
+                SET "ACTIVA" = TRUE,
+                    "ESTADO" = 'ACTIVO'
+                WHERE "ID" = ?
+                """, enrollmentId);
+        jdbcTemplate.update("""
+                UPDATE "MATRICULA_APODERADOS"
+                SET "ACTIVO" = TRUE
+                WHERE "MATRICULA_ID" = ?
+                """, enrollmentId);
+        jdbcTemplate.update("""
+                UPDATE "MATRICULA_RETIRO_RESPONSABLES"
+                SET "ACTIVO" = TRUE
+                WHERE "MATRICULA_ID" = ?
+                """, enrollmentId);
+
+        if (studentId != null && courseId != null) {
+            deactivateOtherLegacyCourseAssignments(studentId, courseId);
+            syncLegacyCourseStudent(courseId, studentId);
+        }
+    }
+
+    @Override
+    public void hardDeleteEnrollment(Long enrollmentId) {
+        Long studentId = jdbcTemplate.query("""
+                SELECT "ALUMNO_ID"
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ALUMNO_ID"), enrollmentId).stream().findFirst().orElse(null);
+
+        Long courseId = jdbcTemplate.query("""
+                SELECT "CURSO_ID"
+                FROM "MATRICULAS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("CURSO_ID"), enrollmentId).stream().findFirst().orElse(null);
+
+        if (studentId == null) {
+            jdbcTemplate.update("DELETE FROM \"MATRICULAS\" WHERE \"ID\" = ?", enrollmentId);
+            return;
+        }
+
+        deleteEnrollmentChildren(enrollmentId);
+        jdbcTemplate.update("DELETE FROM \"MATRICULAS\" WHERE \"ID\" = ?", enrollmentId);
+
+        if (courseId != null) {
+            jdbcTemplate.update("""
+                    DELETE FROM "CURSO_ALUMNOS"
+                    WHERE "CURSO_ID" = ?
+                      AND "ALUMNO_ID" = ?
+                    """, courseId, studentId);
+        }
+
+        Integer remainingEnrollments = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "MATRICULAS"
+                WHERE "ALUMNO_ID" = ?
+                """, Integer.class, studentId);
+
+        if (remainingEnrollments != null && remainingEnrollments > 0) {
+            return;
+        }
+
+        String studentRun = jdbcTemplate.query("""
+                SELECT "RUN"
+                FROM "ALUMNOS"
+                WHERE "ID" = ?
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getString("RUN"), studentId).stream().findFirst().orElse(null);
+
+        if (tableExists("CURSO_ALUMNOS")) {
+            jdbcTemplate.update("DELETE FROM \"CURSO_ALUMNOS\" WHERE \"ALUMNO_ID\" = ?", studentId);
+        }
+        if (tableExists("CALIFICACIONES")) {
+            jdbcTemplate.update("DELETE FROM \"CALIFICACIONES\" WHERE \"ALUMNO_ID\" = ?", studentId);
+        }
+        if (tableExists("ASISTENCIA_DETALLES")) {
+            jdbcTemplate.update("DELETE FROM \"ASISTENCIA_DETALLES\" WHERE \"ALUMNO_ID\" = ?", studentId);
+        }
+        if (tableExists("ALUMNO_DOCUMENTO_ESTADO")) {
+            jdbcTemplate.update("DELETE FROM \"ALUMNO_DOCUMENTO_ESTADO\" WHERE \"ALUMNO_ID\" = ?", studentId);
+        }
+
+        jdbcTemplate.update("DELETE FROM \"ALUMNOS\" WHERE \"ID\" = ?", studentId);
+
+        if (studentRun != null && !studentRun.isBlank()) {
+            deleteStudentAccessUser(studentRun);
+        }
+    }
+
+    @Override
     public void replaceGuardian(Long enrollmentId, EnrollmentGuardian guardian) {
         jdbcTemplate.update("""
                 DELETE FROM "MATRICULA_APODERADOS"
@@ -540,15 +772,38 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "RUN",
                     "NOMBRE",
                     "APELLIDOS",
+                    "FECHA_NACIMIENTO",
+                    "DIRECCION",
                     "TELEFONO",
                     "EMAIL",
+                    "ESCOLARIDAD",
                     "RELACION",
                     "AUTORIZADO_RETIRO",
                     "ACTIVO"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
-                """, enrollmentId, guardian.run(), guardian.name(), guardian.lastName(), guardian.phone(),
-                guardian.email(), guardian.relation(), guardian.authorizedPickup());
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                """,
+                enrollmentId,
+                nullIfBlank(guardian.run()),
+                nullIfBlank(guardian.name()),
+                nullIfBlank(guardian.lastName()),
+                parseNullableDate(guardian.birthDate()),
+                nullIfBlank(guardian.address()),
+                nullIfBlank(guardian.phone()),
+                nullIfBlank(guardian.email()),
+                nullIfBlank(guardian.education()),
+                nullIfBlank(guardian.relation()),
+                guardian.authorizedPickup());
+    }
+
+    @Override
+    public void replaceFather(Long enrollmentId, EnrollmentFamilyContact father) {
+        replaceFamilyContact("MATRICULA_PADRES", enrollmentId, father);
+    }
+
+    @Override
+    public void replaceMother(Long enrollmentId, EnrollmentFamilyContact mother) {
+        replaceFamilyContact("MATRICULA_MADRES", enrollmentId, mother);
     }
 
     @Override
@@ -701,13 +956,22 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
 
     private Optional<EnrollmentGuardian> findGuardianByEnrollmentId(Long enrollmentId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "RUN", "NOMBRE", "APELLIDOS", "TELEFONO", COALESCE("EMAIL", '') AS "EMAIL",
+                SELECT "ID", "RUN", "NOMBRE", "APELLIDOS", "FECHA_NACIMIENTO", COALESCE("DIRECCION", '') AS "DIRECCION",
+                       "TELEFONO", COALESCE("EMAIL", '') AS "EMAIL", COALESCE("ESCOLARIDAD", '') AS "ESCOLARIDAD",
                        "RELACION", "AUTORIZADO_RETIRO"
                 FROM "MATRICULA_APODERADOS"
                 WHERE "MATRICULA_ID" = ?
                   AND "ACTIVO" = TRUE
                 LIMIT 1
                 """, (rs, rowNum) -> mapGuardian(rs), enrollmentId).stream().findFirst();
+    }
+
+    private Optional<EnrollmentFamilyContact> findFatherByEnrollmentId(Long enrollmentId) {
+        return findFamilyContactByEnrollmentId("MATRICULA_PADRES", enrollmentId);
+    }
+
+    private Optional<EnrollmentFamilyContact> findMotherByEnrollmentId(Long enrollmentId) {
+        return findFamilyContactByEnrollmentId("MATRICULA_MADRES", enrollmentId);
     }
 
     private List<EnrollmentPickupContact> findPickupContactsByEnrollmentId(Long enrollmentId) {
@@ -756,11 +1020,112 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 rs.getString("RUN"),
                 rs.getString("NOMBRE"),
                 rs.getString("APELLIDOS"),
+                rs.getDate("FECHA_NACIMIENTO") == null ? "" : rs.getDate("FECHA_NACIMIENTO").toLocalDate().toString(),
+                rs.getString("DIRECCION"),
                 rs.getString("TELEFONO"),
                 rs.getString("EMAIL"),
+                rs.getString("ESCOLARIDAD"),
                 rs.getString("RELACION"),
                 rs.getBoolean("AUTORIZADO_RETIRO")
         );
+    }
+
+    private Optional<EnrollmentFamilyContact> findFamilyContactByEnrollmentId(String tableName, Long enrollmentId) {
+        if (!tableExists(tableName)) {
+            return Optional.empty();
+        }
+
+        String sql = """
+                SELECT "ID", "RUN", "NOMBRE", "APELLIDOS", "FECHA_NACIMIENTO", COALESCE("DIRECCION", '') AS "DIRECCION",
+                       COALESCE("TELEFONO", '') AS "TELEFONO", COALESCE("EMAIL", '') AS "EMAIL", COALESCE("ESCOLARIDAD", '') AS "ESCOLARIDAD"
+                FROM "%s"
+                WHERE "MATRICULA_ID" = ?
+                  AND "ACTIVO" = TRUE
+                LIMIT 1
+                """.formatted(tableName);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapFamilyContact(rs), enrollmentId).stream().findFirst();
+    }
+
+    private EnrollmentFamilyContact mapFamilyContact(ResultSet rs) throws SQLException {
+        return new EnrollmentFamilyContact(
+                rs.getLong("ID"),
+                rs.getString("RUN"),
+                rs.getString("NOMBRE"),
+                rs.getString("APELLIDOS"),
+                rs.getDate("FECHA_NACIMIENTO") == null ? "" : rs.getDate("FECHA_NACIMIENTO").toLocalDate().toString(),
+                rs.getString("DIRECCION"),
+                rs.getString("TELEFONO"),
+                rs.getString("EMAIL"),
+                rs.getString("ESCOLARIDAD")
+        );
+    }
+
+    private EnrollmentFamilyContact emptyFamilyContact() {
+        return new EnrollmentFamilyContact(null, "", "", "", "", "", "", "", "");
+    }
+
+    private void replaceFamilyContact(String tableName, Long enrollmentId, EnrollmentFamilyContact contact) {
+        if (!tableExists(tableName)) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                DELETE FROM "%s"
+                WHERE "MATRICULA_ID" = ?
+                """.formatted(tableName), enrollmentId);
+
+        if (isBlankFamilyContact(contact)) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "%s" (
+                    "MATRICULA_ID",
+                    "RUN",
+                    "NOMBRE",
+                    "APELLIDOS",
+                    "FECHA_NACIMIENTO",
+                    "DIRECCION",
+                    "TELEFONO",
+                    "EMAIL",
+                    "ESCOLARIDAD",
+                    "ACTIVO"
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                """.formatted(tableName),
+                enrollmentId,
+                nullIfBlank(contact.run()),
+                nullIfBlank(contact.name()),
+                nullIfBlank(contact.lastName()),
+                parseNullableDate(contact.birthDate()),
+                nullIfBlank(contact.address()),
+                nullIfBlank(contact.phone()),
+                nullIfBlank(contact.email()),
+                nullIfBlank(contact.education()));
+    }
+
+    private boolean isBlankFamilyContact(EnrollmentFamilyContact contact) {
+        return contact == null
+                || (isBlank(contact.run())
+                && isBlank(contact.name())
+                && isBlank(contact.lastName())
+                && isBlank(contact.birthDate())
+                && isBlank(contact.address())
+                && isBlank(contact.phone())
+                && isBlank(contact.email())
+                && isBlank(contact.education()));
+    }
+
+    private java.sql.Date parseNullableDate(String value) {
+        return isBlank(value) ? null : java.sql.Date.valueOf(value.trim());
+    }
+
+    private String nullIfBlank(String value) {
+        return isBlank(value) ? null : value.trim();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     private EnrollmentPickupContact mapPickupContact(ResultSet rs) throws SQLException {
@@ -829,6 +1194,273 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 """, courseId, studentId);
     }
 
+    private void deleteEnrollmentChildren(Long enrollmentId) {
+        if (tableExists("MATRICULA_DOCUMENTOS")) {
+            jdbcTemplate.update("DELETE FROM \"MATRICULA_DOCUMENTOS\" WHERE \"MATRICULA_ID\" = ?", enrollmentId);
+        }
+        if (tableExists("MATRICULA_MADRES")) {
+            jdbcTemplate.update("DELETE FROM \"MATRICULA_MADRES\" WHERE \"MATRICULA_ID\" = ?", enrollmentId);
+        }
+        if (tableExists("MATRICULA_PADRES")) {
+            jdbcTemplate.update("DELETE FROM \"MATRICULA_PADRES\" WHERE \"MATRICULA_ID\" = ?", enrollmentId);
+        }
+        if (tableExists("MATRICULA_RETIRO_RESPONSABLES")) {
+            jdbcTemplate.update("DELETE FROM \"MATRICULA_RETIRO_RESPONSABLES\" WHERE \"MATRICULA_ID\" = ?", enrollmentId);
+        }
+        if (tableExists("MATRICULA_APODERADOS")) {
+            jdbcTemplate.update("DELETE FROM \"MATRICULA_APODERADOS\" WHERE \"MATRICULA_ID\" = ?", enrollmentId);
+        }
+    }
+
+    private void deleteStudentAccessUser(String studentRun) {
+        findUserRecordByRunAndRole(studentRun, "ALUMNO").ifPresent(record -> {
+            Long userId = record.userId();
+            Long personId = record.personId();
+            detachUserFromOwnedContent(userId);
+            jdbcTemplate.update("DELETE FROM \"ADMIN_USER_MODULE_ACCESS\" WHERE \"USUARIO_ID\" = ?", userId);
+            jdbcTemplate.update("DELETE FROM \"ADMIN_USER_SETTINGS\" WHERE \"USUARIO_ID\" = ?", userId);
+            jdbcTemplate.update("DELETE FROM \"ADMIN_AUDIT_LOGS\" WHERE \"USUARIO_ID\" = ?", userId);
+            jdbcTemplate.update("DELETE FROM \"USUARIOS\" WHERE \"ID\" = ?", userId);
+
+            if (!personStillLinked(personId)) {
+                jdbcTemplate.update("DELETE FROM \"PERSONAS\" WHERE \"ID\" = ?", personId);
+            }
+        });
+    }
+
+    private void detachUserFromOwnedContent(Long userId) {
+        if (tableExists("CLASES_PLANIFICACION_DOCUMENTOS")) {
+            jdbcTemplate.update("""
+                    UPDATE "CLASES_PLANIFICACION_DOCUMENTOS"
+                    SET "CREADO_POR_USUARIO_ID" = NULL
+                    WHERE "CREADO_POR_USUARIO_ID" = ?
+                    """, userId);
+        }
+        if (tableExists("CLASES_PLANIFICACION")) {
+            jdbcTemplate.update("""
+                    UPDATE "CLASES_PLANIFICACION"
+                    SET "CREADO_POR_USUARIO_ID" = NULL
+                    WHERE "CREADO_POR_USUARIO_ID" = ?
+                    """, userId);
+        }
+        if (tableExists("UNIDADES_PLANIFICACION")) {
+            jdbcTemplate.update("""
+                    UPDATE "UNIDADES_PLANIFICACION"
+                    SET "CREADO_POR_USUARIO_ID" = NULL
+                    WHERE "CREADO_POR_USUARIO_ID" = ?
+                    """, userId);
+        }
+    }
+
+    private boolean personStillLinked(Long personId) {
+        Integer userCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "USUARIOS"
+                WHERE "PERSONA_ID" = ?
+                """, Integer.class, personId);
+        Integer teacherCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "PROFESORES"
+                WHERE "PERSONA_ID" = ?
+                """, Integer.class, personId);
+        return (userCount != null && userCount > 0) || (teacherCount != null && teacherCount > 0);
+    }
+
+    private void ensureCourseSubjectsFromReference(Long courseId, Long gradeId) {
+        if (courseId == null || !tableExists("CURSO_ASIGNATURAS")) {
+            return;
+        }
+
+        Long referenceCourseId = findReferenceCourseId(courseId, gradeId);
+        if (referenceCourseId == null) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "CURSO_ASIGNATURAS" ("CURSO_ID", "ASIGNATURA_ID", "ACTIVA")
+                SELECT ?, source."ASIGNATURA_ID", TRUE
+                FROM (
+                    SELECT DISTINCT ca."ASIGNATURA_ID"
+                    FROM "CURSO_ASIGNATURAS" ca
+                    WHERE ca."CURSO_ID" = ?
+                      AND ca."ACTIVA" = TRUE
+                    UNION
+                    SELECT DISTINCT cd."ASIGNATURA_ID"
+                    FROM "CARGAS_DOCENTES" cd
+                    WHERE cd."CURSO_ID" = ?
+                      AND cd."ACTIVA" = TRUE
+                ) source
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM "CURSO_ASIGNATURAS" target
+                    WHERE target."CURSO_ID" = ?
+                      AND target."ASIGNATURA_ID" = source."ASIGNATURA_ID"
+                )
+                """, courseId, referenceCourseId, referenceCourseId, courseId);
+    }
+
+    private Long findReferenceCourseId(Long courseId, Long gradeId) {
+        if (gradeId != null) {
+            List<Long> sameGrade = jdbcTemplate.query("""
+                    SELECT c."ID"
+                    FROM "CURSOS" c
+                    WHERE c."ID" <> ?
+                      AND c."ACTIVO" = TRUE
+                      AND c."GRADO_ID" = ?
+                      AND EXISTS (
+                          SELECT 1
+                          FROM "CURSO_ASIGNATURAS" ca
+                          WHERE ca."CURSO_ID" = c."ID"
+                            AND ca."ACTIVA" = TRUE
+                      )
+                    ORDER BY c."ANIO_ESCOLAR" DESC, c."ID"
+                    LIMIT 1
+                    """, (rs, rowNum) -> rs.getLong("ID"), courseId, gradeId);
+            if (!sameGrade.isEmpty()) {
+                return sameGrade.getFirst();
+            }
+        }
+
+        List<Long> anyReference = jdbcTemplate.query("""
+                SELECT c."ID"
+                FROM "CURSOS" c
+                WHERE c."ID" <> ?
+                  AND c."ACTIVO" = TRUE
+                  AND EXISTS (
+                      SELECT 1
+                      FROM "CURSO_ASIGNATURAS" ca
+                      WHERE ca."CURSO_ID" = c."ID"
+                        AND ca."ACTIVA" = TRUE
+                  )
+                ORDER BY c."ANIO_ESCOLAR" DESC, c."ID"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), courseId);
+        return anyReference.isEmpty() ? null : anyReference.getFirst();
+    }
+
+    private Long resolveGradeId(String courseName) {
+        if (courseName == null || courseName.isBlank() || !tableExists("CURSO_GRADOS")) {
+            return null;
+        }
+
+        List<Long> ids = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "CURSO_GRADOS"
+                WHERE UPPER(TRANSLATE("NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(?, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
+                  AND "ACTIVO" = TRUE
+                ORDER BY "ORDEN"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), courseName);
+
+        return ids.isEmpty() ? null : ids.getFirst();
+    }
+
+    private Long resolveScheduleId(String scheduleType) {
+        if (scheduleType == null || scheduleType.isBlank() || !tableExists("CURSO_JORNADAS")) {
+            return null;
+        }
+
+        List<Long> ids = jdbcTemplate.query("""
+                SELECT "ID"
+                FROM "CURSO_JORNADAS"
+                WHERE (
+                    UPPER(TRANSLATE("NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(?, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
+                    OR UPPER(TRANSLATE("CODIGO", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(?, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
+                )
+                  AND "ACTIVO" = TRUE
+                ORDER BY "ID"
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getLong("ID"), scheduleType, scheduleType);
+
+        return ids.isEmpty() ? null : ids.getFirst();
+    }
+
+    private String normalizeGradeDisplayName(String value) {
+        return switch (normalizeText(value)) {
+            case "PREKINDER" -> "Prekínder";
+            case "KINDER" -> "Kínder";
+            case "1 BASICO" -> "1 Básico";
+            case "2 BASICO" -> "2 Básico";
+            case "3 BASICO" -> "3 Básico";
+            case "4 BASICO" -> "4 Básico";
+            case "5 BASICO" -> "5 Básico";
+            case "6 BASICO" -> "6 Básico";
+            case "7 BASICO" -> "7 Básico";
+            case "8 BASICO" -> "8 Básico";
+            case "1 MEDIO" -> "1 Medio";
+            case "2 MEDIO" -> "2 Medio";
+            case "3 MEDIO" -> "3 Medio";
+            case "4 MEDIO" -> "4 Medio";
+            default -> value == null ? "" : value.trim();
+        };
+    }
+
+    private String normalizeLevelDisplayName(String value) {
+        return switch (normalizeText(value)) {
+            case "INICIAL" -> "Inicial";
+            case "BASICO" -> "Básico";
+            case "MEDIO" -> "Medio";
+            default -> value == null ? "" : value.trim();
+        };
+    }
+
+    private String normalizeScheduleDisplayName(String value) {
+        return switch (normalizeText(value)) {
+            case "MANANA" -> "Mañana";
+            case "TARDE" -> "Tarde";
+            case "COMPLETA" -> "Completa";
+            default -> value == null ? "" : value.trim();
+        };
+    }
+
+    private String normalizeText(String value) {
+        return Normalizer.normalize(value == null ? "" : value.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toUpperCase();
+    }
+
+    private String buildCourseCode(Long gradeId, String courseName, String letter, int schoolYear) {
+        String token = resolveCourseCodeToken(gradeId, courseName);
+        String normalizedLetter = (letter == null || letter.isBlank()) ? "A" : letter.trim().toUpperCase();
+        String baseCode = token + normalizedLetter + "-" + schoolYear;
+
+        if (!courseCodeExists(baseCode)) {
+            return baseCode;
+        }
+
+        int suffix = 2;
+        while (courseCodeExists(baseCode + "-" + suffix)) {
+            suffix += 1;
+        }
+        return baseCode + "-" + suffix;
+    }
+
+    private String resolveCourseCodeToken(Long gradeId, String courseName) {
+        if (gradeId != null) {
+            List<String> tokens = jdbcTemplate.query("""
+                    SELECT COALESCE(NULLIF("CODIGO_TOKEN", ''), REGEXP_REPLACE(UPPER("NOMBRE"), '[^A-Z0-9]', '', 'g'))
+                    FROM "CURSO_GRADOS"
+                    WHERE "ID" = ?
+                    LIMIT 1
+                    """, (rs, rowNum) -> rs.getString(1), gradeId);
+            if (!tokens.isEmpty() && tokens.getFirst() != null && !tokens.getFirst().isBlank()) {
+                return tokens.getFirst().trim().toUpperCase();
+            }
+        }
+
+        String normalized = normalizeText(courseName).replaceAll("[^A-Z0-9]", "");
+        return normalized.isBlank() ? "CUR" : normalized;
+    }
+
+    private boolean courseCodeExists(String code) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "CURSOS"
+                WHERE UPPER("CODIGO") = UPPER(?)
+                """, Integer.class, code);
+        return count != null && count > 0;
+    }
+
     private boolean tableExists(String tableName) {
         Integer count = jdbcTemplate.queryForObject("""
                 SELECT COUNT(1)
@@ -837,6 +1469,18 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                   AND table_name = ?
                 """, Integer.class, tableName);
         return count != null && count > 0;
+    }
+
+    private String normalizeStatusFilter(String status) {
+        if (status == null || status.isBlank()) {
+            return "";
+        }
+
+        String normalized = status.trim().toUpperCase();
+        if ("INACTIVO".equals(normalized)) {
+            return "INACTIVA";
+        }
+        return normalized;
     }
 
     private Long ensureRoleId(

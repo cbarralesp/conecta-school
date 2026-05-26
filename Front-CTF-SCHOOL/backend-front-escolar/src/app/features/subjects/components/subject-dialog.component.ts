@@ -1,11 +1,15 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal, ViewEncapsulation, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { startWith } from 'rxjs';
+import { TeacherCatalogItem } from '../../../core/models/course.models';
 import { Subject } from '../../../core/models/subject.models';
+import { CourseApiService } from '../../../core/services/course-api.service';
 
 interface SubjectDialogData {
   subject?: Subject;
@@ -19,7 +23,8 @@ interface SubjectDialogData {
     MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
-    MatInputModule
+    MatInputModule,
+    MatSelectModule
   ],
   template: `
     <div class="dialog-shell">
@@ -74,21 +79,56 @@ interface SubjectDialogData {
             }
           </mat-form-field>
 
-          <div class="span-2 color-palette">
-            <span class="palette-label">Sugerencias pastel</span>
-            <div class="palette-grid">
-              @for (color of pastelColors; track color) {
-                <button
-                  type="button"
-                  class="color-swatch"
-                  [class.selected]="form.controls.colorHex.value === color"
-                  [style.background]="color"
-                  [attr.aria-label]="'Seleccionar color ' + color"
-                  (click)="selectColor(color)">
-                </button>
-              }
+          <div class="span-2 color-picker-panel">
+            <div class="color-picker-panel__copy">
+              <span class="palette-label">Selector de color</span>
+              <p>Elige cualquier tono con el selector. Puedes ir desde colores intensos hasta pasteles suaves.</p>
+            </div>
+            <div class="color-picker-panel__controls">
+              <label class="color-picker-trigger" aria-label="Abrir selector de color">
+                <input type="color" [value]="normalizedColor()" (input)="onColorPickerInput($event)" />
+                <span class="color-picker-trigger__swatch" [style.background]="normalizedColor()"></span>
+              </label>
+              <div class="color-picker-panel__preview">
+                <span class="color-picker-panel__hex">{{ normalizedColor() }}</span>
+                <span class="color-picker-panel__sample" [style.background]="normalizedColor()"></span>
+              </div>
             </div>
           </div>
+
+          <section class="span-2 teacher-picker">
+            <div class="teacher-picker__header">
+              <div>
+                <span class="teacher-picker__title">Profesores asignados</span>
+                <p>Selecciona uno o mas docentes para esta asignatura.</p>
+              </div>
+              <span class="teacher-picker__count">{{ selectedTeachers().length }} seleccionados</span>
+            </div>
+
+            <mat-form-field appearance="outline" class="teacher-picker__field">
+              <mat-label>Profesores</mat-label>
+              <mat-select formControlName="teacherIds" multiple>
+                @for (teacher of teachers(); track teacher.id) {
+                  <mat-option [value]="teacher.id">
+                    {{ teacher.fullName }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            @if (selectedTeachers().length > 0) {
+              <div class="teacher-picker__selected">
+                @for (teacher of selectedTeachers(); track teacher.id) {
+                  <button type="button" class="teacher-chip" (click)="removeTeacher(teacher.id)">
+                    <span>{{ teacher.fullName }}</span>
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="teacher-picker__empty">No hay profesores seleccionados.</div>
+            }
+          </section>
 
           <mat-form-field appearance="outline" class="span-2">
             <mat-label>Descripcion</mat-label>
@@ -176,36 +216,176 @@ interface SubjectDialogData {
     .span-2 {
       grid-column: span 2;
     }
-    .color-palette {
+    .color-picker-panel {
       display: grid;
-      gap: 0.35rem;
-      margin-top: -0.1rem;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.85rem;
+      align-items: center;
+      padding: 0.9rem 0.95rem;
+      border: 1px solid #dbe5f0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fcfdff 0%, #f6f9fd 100%);
+    }
+    .color-picker-panel__copy {
+      display: grid;
+      gap: 0.16rem;
     }
     .palette-label {
+      color: #18283f;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .color-picker-panel__copy p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .color-picker-panel__controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .color-picker-trigger {
+      position: relative;
+      display: inline-flex;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(23, 53, 83, 0.08), 0 12px 24px rgba(15, 23, 42, 0.08);
+      background: #ffffff;
+    }
+    .color-picker-trigger input[type='color'] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .color-picker-trigger__swatch {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: #d7e8fb;
+    }
+    .color-picker-panel__preview {
+      display: grid;
+      gap: 0.32rem;
+      justify-items: start;
+    }
+    .color-picker-panel__hex {
+      color: #28415f;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .color-picker-panel__sample {
+      width: 92px;
+      height: 18px;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1px rgba(23, 53, 83, 0.08);
+    }
+    @media (max-width: 720px) {
+      .color-picker-panel {
+        grid-template-columns: 1fr;
+      }
+      .color-picker-panel__controls {
+        justify-content: space-between;
+      }
+    }
+    .teacher-picker {
+      display: grid;
+      gap: 0.7rem;
+      padding: 0.9rem 0.95rem;
+      border: 1px solid #dbe5f0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fcfdff 0%, #f6f9fd 100%);
+    }
+    .teacher-picker__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .teacher-picker__title {
+      display: block;
+      color: #18283f;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+    .teacher-picker__header p {
+      margin: 0.18rem 0 0;
       color: #64748b;
       font-size: 0.76rem;
-      font-weight: 700;
+      line-height: 1.45;
+      font-weight: 500;
     }
-    .palette-grid {
+    .teacher-picker__count {
+      color: #0f9d6b;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+    .teacher-picker__search {
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 0.75rem;
+      border: 1px solid #dbe5f0;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+    .teacher-picker__search mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+      color: #7e91ac;
+    }
+    .teacher-picker__search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #28415f;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
+    }
+    .teacher-picker__field {
+      width: 100%;
+    }
+    .teacher-picker__selected {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.42rem;
+      gap: 0.45rem;
     }
-    .color-swatch {
-      width: 24px;
-      height: 24px;
+    .teacher-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.45rem 0.7rem;
+      border: 0;
       border-radius: 999px;
-      border: 2px solid rgba(23, 53, 83, 0.08);
+      background: #e8f3ec;
+      color: #126749;
+      font-size: 0.74rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     }
-    .color-swatch:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    .teacher-chip mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
     }
-    .color-swatch.selected {
-      border-color: #1f5faa;
-      box-shadow: 0 0 0 3px rgba(31, 95, 170, 0.16);
+    .teacher-picker__empty {
+      padding: 0.2rem 0;
+      color: #71839d;
+      font-size: 0.76rem;
+      font-weight: 600;
     }
     mat-dialog-actions {
       position: sticky;
@@ -250,21 +430,11 @@ interface SubjectDialogData {
 })
 export class SubjectDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly courseApiService = inject(CourseApiService);
   readonly dialogRef = inject(MatDialogRef<SubjectDialogComponent>);
   readonly data = inject<SubjectDialogData | null>(MAT_DIALOG_DATA, { optional: true }) ?? {};
-  readonly pastelColors = [
-    '#D7E8FB',
-    '#E7F4D8',
-    '#FCE7C8',
-    '#F9DDE2',
-    '#E8DDFC',
-    '#D8F1EE',
-    '#FBE8F2',
-    '#FFF0C9',
-    '#DCEAF7',
-    '#E9E4D8'
-  ];
-
+  readonly teachers = signal<TeacherCatalogItem[]>([]);
+  readonly selectedTeacherIds = signal<number[]>(this.data.subject?.assignedTeachers.map((teacher) => teacher.id) ?? []);
   readonly form = this.formBuilder.nonNullable.group({
     code: [this.data.subject?.code ?? '', [Validators.required, Validators.maxLength(30)]],
     name: [this.data.subject?.name ?? '', [Validators.required, Validators.maxLength(120)]],
@@ -275,8 +445,23 @@ export class SubjectDialogComponent {
     ],
     description: [this.data.subject?.description ?? '', [Validators.maxLength(500)]],
     referenceLevel: [this.data.subject?.referenceLevel ?? 'Ensenanza basica', [Validators.maxLength(80)]],
-    suggestedHours: [this.data.subject?.suggestedHours ?? 2, [Validators.required, Validators.min(1), Validators.max(20)]]
+    suggestedHours: [this.data.subject?.suggestedHours ?? 2, [Validators.required, Validators.min(1), Validators.max(20)]],
+    teacherIds: [this.data.subject?.assignedTeachers.map((teacher) => teacher.id) ?? []]
   });
+  readonly selectedTeachers = computed(() => {
+    const selectedIds = new Set(this.selectedTeacherIds());
+    return this.teachers().filter((teacher) => selectedIds.has(teacher.id));
+  });
+
+  constructor() {
+    this.courseApiService.searchTeachers('').subscribe({
+      next: (teachers) => this.teachers.set(teachers),
+      error: () => this.teachers.set([])
+    });
+    this.form.controls.teacherIds.valueChanges
+      .pipe(startWith(this.form.controls.teacherIds.value))
+      .subscribe((teacherIds) => this.selectedTeacherIds.set(teacherIds));
+  }
 
   submit(): void {
     if (this.form.invalid) {
@@ -287,10 +472,26 @@ export class SubjectDialogComponent {
     this.dialogRef.close(this.form.getRawValue());
   }
 
+  normalizedColor(): string {
+    const value = this.form.controls.colorHex.value.trim();
+    return /^#[0-9A-Fa-f]{6}$/.test(value) ? value.toUpperCase() : '#D7E8FB';
+  }
+
+  onColorPickerInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.selectColor(value);
+  }
+
   selectColor(colorHex: string): void {
     this.form.controls.colorHex.setValue(colorHex);
     this.form.controls.colorHex.markAsDirty();
     this.form.controls.colorHex.markAsTouched();
+  }
+  removeTeacher(teacherId: number): void {
+    this.form.controls.teacherIds.setValue(
+      this.form.controls.teacherIds.value.filter((id) => id !== teacherId)
+    );
+    this.form.controls.teacherIds.markAsDirty();
   }
 
   getControlError(

@@ -4,6 +4,7 @@ import com.example.authhexagonal.domain.model.EnrollmentCourseOption;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
 import com.example.authhexagonal.domain.model.EnrollmentDocument;
 import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
+import com.example.authhexagonal.domain.model.EnrollmentFamilyContact;
 import com.example.authhexagonal.domain.model.EnrollmentGuardianAccess;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentListItem;
@@ -42,6 +43,10 @@ public interface ManageEnrollmentsPort {
             Long regionId,
             Long communeId,
             String address,
+            String livesWith,
+            String allergies,
+            String specialistDiagnoses,
+            String emergencyContact,
             String specialNeeds
     );
 
@@ -55,10 +60,22 @@ public interface ManageEnrollmentsPort {
             Long regionId,
             Long communeId,
             String address,
+            String livesWith,
+            String allergies,
+            String specialistDiagnoses,
+            String emergencyContact,
             String specialNeeds
     );
 
     boolean existsActiveCourse(Long courseId);
+
+    Long findOrCreateCourse(
+            String baseName,
+            String level,
+            String letter,
+            int schoolYear,
+            String scheduleType
+    );
 
     Long createEnrollment(
             Long studentId,
@@ -77,9 +94,19 @@ public interface ManageEnrollmentsPort {
             EnrollmentEstablishment establishment
     );
 
+    boolean isEnrollmentInactive(Long enrollmentId);
+
     void deactivateEnrollment(Long enrollmentId);
 
+    void reactivateEnrollment(Long enrollmentId);
+
+    void hardDeleteEnrollment(Long enrollmentId);
+
     void replaceGuardian(Long enrollmentId, EnrollmentGuardian guardian);
+
+    void replaceFather(Long enrollmentId, EnrollmentFamilyContact father);
+
+    void replaceMother(Long enrollmentId, EnrollmentFamilyContact mother);
 
     void replacePickupContacts(Long enrollmentId, List<EnrollmentPickupContact> contacts);
 

@@ -8,7 +8,9 @@ public record AcademicSubject(
         String colorHex,
         String description,
         String referenceLevel,
+        String displayLevel,
         int suggestedHours,
-        boolean active
+        boolean active,
+        java.util.List<SubjectAssignedTeacher> assignedTeachers
 ) {
 }

@@ -1,3 +1,9 @@
+export interface SubjectAssignedTeacher {
+  id: number;
+  code: string;
+  fullName: string;
+}
+
 export interface Subject {
   id: number;
   code: string;
@@ -6,8 +12,10 @@ export interface Subject {
   colorHex: string;
   description: string;
   referenceLevel: string;
+  displayLevel?: string;
   suggestedHours: number;
   active: boolean;
+  assignedTeachers: SubjectAssignedTeacher[];
 }
 
 export interface SubjectPayload {
@@ -18,4 +26,5 @@ export interface SubjectPayload {
   description: string;
   referenceLevel: string;
   suggestedHours: number;
+  teacherIds: number[];
 }

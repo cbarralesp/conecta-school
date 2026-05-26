@@ -88,7 +88,7 @@ export class TeacherDetailPageComponent {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age -= 1;
     }
-    return `${age} ${age === 1 ? 'Ano' : 'Anos'}`;
+    return `${age} ${age === 1 ? 'Año' : 'Años'}`;
   });
 
   readonly formattedBirthDate = computed(() => {

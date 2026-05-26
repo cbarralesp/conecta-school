@@ -2,6 +2,8 @@ package com.example.authhexagonal.infrastructure.adapter.in.web.dto;
 
 import com.example.authhexagonal.domain.model.AcademicSubject;
 
+import java.util.List;
+
 public record SubjectResponse(
         Long id,
         String code,
@@ -10,8 +12,10 @@ public record SubjectResponse(
         String colorHex,
         String description,
         String referenceLevel,
+        String displayLevel,
         int suggestedHours,
-        boolean active
+        boolean active,
+        List<SubjectAssignedTeacherResponse> assignedTeachers
 ) {
     public static SubjectResponse fromDomain(AcademicSubject subject) {
         return new SubjectResponse(
@@ -22,8 +26,12 @@ public record SubjectResponse(
                 subject.colorHex(),
                 subject.description(),
                 subject.referenceLevel(),
+                subject.displayLevel(),
                 subject.suggestedHours(),
-                subject.active()
+                subject.active(),
+                subject.assignedTeachers().stream()
+                        .map(SubjectAssignedTeacherResponse::fromDomain)
+                        .toList()
         );
     }
 }

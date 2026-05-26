@@ -121,6 +121,18 @@
   border: 1px solid #a7f3d0;
 }
 
+.status-badge-large--pending {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.status-badge-large--inactive {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+
 .profile-meta {
   border-top: 1px solid #e2e8f0;
   padding-top: 1rem;
@@ -238,6 +250,10 @@
 .info-value--muted {
   color: #64748b;
   font-weight: 400;
+}
+
+.info-value--warning {
+  color: #b45309;
 }
 
 .info-value--link {
@@ -523,6 +539,16 @@
 .btn-primary:hover {
   background: #2563eb;
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn-warning:hover {
+  background: #d97706;
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.28);
 }
 
 .empty-state,

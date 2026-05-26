@@ -180,8 +180,10 @@ public class TeacherJdbcAdapter {
                 rs.getString("COLOR_HEX"),
                 rs.getString("DESCRIPCION"),
                 rs.getString("NIVEL_REFERENCIA"),
+                rs.getString("NIVEL_REFERENCIA"),
                 rs.getInt("HORAS_SUGERIDAS"),
-                rs.getBoolean("ACTIVA")
+                rs.getBoolean("ACTIVA"),
+                List.of()
         ));
     }
 
@@ -223,7 +225,8 @@ public class TeacherJdbcAdapter {
         return jdbcTemplate.query(sql, (rs, rowNum) -> new AcademicSubject(
                 rs.getLong("ID"), rs.getString("CODIGO"), rs.getString("NOMBRE"), rs.getString("AREA"),
                 rs.getString("COLOR_HEX"), rs.getString("DESCRIPCION"), rs.getString("NIVEL_REFERENCIA"),
-                rs.getInt("HORAS_SUGERIDAS"), rs.getBoolean("ACTIVA")
+                rs.getString("NIVEL_REFERENCIA"),
+                rs.getInt("HORAS_SUGERIDAS"), rs.getBoolean("ACTIVA"), List.of()
         ), args);
     }
 

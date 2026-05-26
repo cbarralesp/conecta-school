@@ -51,11 +51,16 @@ export class EditCoursePageComponent {
   readonly course = signal<Course | null>(null);
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
+  readonly availableStudents = signal<StudentCatalogItem[]>([]);
   readonly selectedStudents = signal<StudentCatalogItem[]>([]);
   readonly teachers = signal<TeacherCatalogItem[]>([]);
   readonly assistants = signal<TeacherCatalogItem[]>([]);
   readonly masterCourses = signal<MasterCourse[]>([]);
   readonly studentSearch = signal('');
+  readonly checkedAvailableIds = signal<number[]>([]);
+  readonly checkedSelectedIds = signal<number[]>([]);
+  readonly availableCount = computed(() => this.filterStudents(this.availableStudents()).length);
+  readonly selectedCount = computed(() => this.filteredSelectedStudents().length);
   readonly scheduleOptions = [
     { value: 'Mañana', label: 'Mañana' },
     { value: 'Tarde', label: 'Tarde' },
@@ -87,6 +92,7 @@ export class EditCoursePageComponent {
   });
 
   readonly filteredSelectedStudents = computed(() => this.filterStudents(this.selectedStudents()));
+  readonly filteredAvailableStudents = computed(() => this.filterStudents(this.availableStudents()));
 
   constructor() {
     this.loadPage();
@@ -164,6 +170,46 @@ export class EditCoursePageComponent {
     return this.locationLabel(student.regionName, student.communeName);
   }
 
+  toggleAvailableStudent(studentId: number): void {
+    this.checkedAvailableIds.update((ids) =>
+      ids.includes(studentId) ? ids.filter((id) => id !== studentId) : [...ids, studentId]
+    );
+  }
+
+  toggleSelectedStudent(studentId: number): void {
+    this.checkedSelectedIds.update((ids) =>
+      ids.includes(studentId) ? ids.filter((id) => id !== studentId) : [...ids, studentId]
+    );
+  }
+
+  moveCheckedToSelected(): void {
+    const selectedIds = new Set(this.checkedAvailableIds());
+    if (!selectedIds.size) {
+      return;
+    }
+
+    const moving = this.availableStudents().filter((student) => selectedIds.has(student.id));
+    this.availableStudents.update((current) =>
+      this.sortStudents(current.filter((student) => !selectedIds.has(student.id)))
+    );
+    this.selectedStudents.update((current) => this.sortStudents([...current, ...moving]));
+    this.checkedAvailableIds.set([]);
+  }
+
+  moveCheckedToAvailable(): void {
+    const selectedIds = new Set(this.checkedSelectedIds());
+    if (!selectedIds.size) {
+      return;
+    }
+
+    const moving = this.selectedStudents().filter((student) => selectedIds.has(student.id));
+    this.selectedStudents.update((current) =>
+      this.sortStudents(current.filter((student) => !selectedIds.has(student.id)))
+    );
+    this.availableStudents.update((current) => this.sortStudents([...current, ...moving]));
+    this.checkedSelectedIds.set([]);
+  }
+
   private loadPage(): void {
     if (!Number.isFinite(this.courseId) || this.courseId <= 0) {
       this.isLoading.set(false);
@@ -176,10 +222,11 @@ export class EditCoursePageComponent {
     forkJoin({
       course: this.courseApiService.findById(this.courseId),
       enrolled: this.enrollmentApiService.getOverview({ courseId: this.courseId }),
+      unassigned: this.courseApiService.searchAllUnassignedStudents(''),
       teachers: this.courseApiService.searchTeachers(''),
       masterCourses: this.courseApiService.searchMasterCourses('')
     }).subscribe({
-      next: ({ course, enrolled, teachers, masterCourses }) => {
+      next: ({ course, enrolled, unassigned, teachers, masterCourses }) => {
         this.course.set(course);
         this.teachers.set(this.resolveTeacherCatalog(teachers));
         this.assistants.set(this.resolveAssistantCatalog(teachers));
@@ -195,12 +242,21 @@ export class EditCoursePageComponent {
           assistantId: course.assistantId ?? null
         });
 
-        const selected = enrolled.enrollments
+        const selected = this.sortStudents(
+          enrolled.enrollments
           .filter((item) => item.courseId === this.courseId)
           .map((item) => this.mapEnrollmentToStudent(item))
-          .sort((a, b) => a.fullName.localeCompare(b.fullName, 'es'));
+        );
 
+        const selectedIds = new Set(selected.map((student) => student.id));
+        const available = this.sortStudents(
+          unassigned.filter((student) => !selectedIds.has(student.id))
+        );
+
+        this.availableStudents.set(available);
         this.selectedStudents.set(selected);
+        this.checkedAvailableIds.set([]);
+        this.checkedSelectedIds.set([]);
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -237,6 +293,10 @@ export class EditCoursePageComponent {
     return students.filter((student) =>
       student.fullName.toLowerCase().includes(query) || student.run.toLowerCase().includes(query)
     );
+  }
+
+  private sortStudents(students: StudentCatalogItem[]): StudentCatalogItem[] {
+    return [...students].sort((a, b) => a.fullName.localeCompare(b.fullName, 'es'));
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {

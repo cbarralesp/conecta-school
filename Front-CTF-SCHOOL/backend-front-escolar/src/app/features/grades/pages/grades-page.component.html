@@ -19,12 +19,36 @@
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informes de notas</button>
           </section>
 
-          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportGradeBook()">
-            <mat-icon>download</mat-icon>
-            Exportar Excel
+          <button
+            mat-stroked-button
+            type="button"
+            class="header-button header-button--ghost"
+            [matMenuTriggerFor]="exportMenu"
+            [disabled]="isExporting()">
+            <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+            Exportar
           </button>
         </div>
       </section>
+
+      <mat-menu #exportMenu="matMenu" xPosition="before" class="export-menu">
+        <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
+          <mat-icon>data_object</mat-icon>
+          <span>JSON</span>
+        </button>
+        <button mat-menu-item type="button" (click)="exportGradeBook()">
+          <mat-icon>table_view</mat-icon>
+          <span>Excel</span>
+        </button>
+        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('word')">
+          <mat-icon>description</mat-icon>
+          <span>Word</span>
+        </button>
+        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('pdf')">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>PDF</span>
+        </button>
+      </mat-menu>
 
       <section class="summary-grid">
         <mat-card appearance="outlined" class="summary-card sc-blue">
@@ -95,18 +119,6 @@
           </label>
 
           <label class="inline-field">
-            <span class="inline-field__label">Semestre:</span>
-            <label class="inline-select inline-field__control inline-field__control--date">
-              <mat-icon>calendar_month</mat-icon>
-              <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
-                @for (period of periods(); track period.id) {
-                  <option [value]="period.id">{{ period.name }}</option>
-                }
-              </select>
-            </label>
-          </label>
-
-          <label class="inline-field">
             <span class="inline-field__label">Asignatura:</span>
             <label class="inline-select inline-field__control inline-field__control--subject">
               <mat-icon>menu_book</mat-icon>
@@ -120,6 +132,18 @@
                   @for (subject of subjectTabs(); track subject.id) {
                     <option [value]="subject.id">{{ subject.name }}</option>
                   }
+                }
+              </select>
+            </label>
+          </label>
+
+          <label class="inline-field">
+            <span class="inline-field__label">Semestre:</span>
+            <label class="inline-select inline-field__control inline-field__control--date">
+              <mat-icon>calendar_month</mat-icon>
+              <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
+                @for (period of periods(); track period.id) {
+                  <option [value]="period.id">{{ period.name }}</option>
                 }
               </select>
             </label>
@@ -443,7 +467,7 @@
       <div class="dialog-panel__body">
         <label class="dialog-field">
           <span>Código</span>
-          <input type="text" [value]="dialog.code" (input)="updateDraftEvaluationCode($any($event.target).value)" placeholder="EVAL. 3" />
+          <input type="text" [value]="dialog.code" (input)="updateDraftEvaluationCode($any($event.target).value)" placeholder="N3" />
         </label>
 
         <label class="dialog-field">

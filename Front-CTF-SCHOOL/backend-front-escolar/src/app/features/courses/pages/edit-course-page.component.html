@@ -9,7 +9,7 @@
       <mat-card appearance="outlined" class="edit-course-card edit-course-card--loading">
         <mat-card-content>
           <strong>Cargando curso...</strong>
-          <p>Estamos preparando la configuración y los alumnos matriculados del curso.</p>
+          <p>Estamos preparando la configuracion y los alumnos matriculados del curso.</p>
         </mat-card-content>
       </mat-card>
     } @else {
@@ -19,13 +19,13 @@
           <section class="compact-section">
             <div class="form-section-heading">
               <div>
-                <h3>Configuración principal</h3>
+                <h3>Configuracion principal</h3>
               </div>
             </div>
 
             <form [formGroup]="form" class="edit-course-form">
               <mat-form-field appearance="outline" class="compact-field">
-                <mat-label>Código</mat-label>
+                <mat-label>Codigo</mat-label>
                 <input matInput formControlName="code" />
                 @if (getControlError('code')) {
                   <mat-error>{{ getControlError('code') }}</mat-error>
@@ -61,7 +61,7 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="compact-field">
-                <mat-label>Año escolar</mat-label>
+                <mat-label>Ano escolar</mat-label>
                 <input matInput type="number" formControlName="schoolYear" />
                 @if (getControlError('schoolYear')) {
                   <mat-error>{{ getControlError('schoolYear') }}</mat-error>
@@ -121,27 +121,65 @@
               </label>
             </div>
 
-            <div class="assignment-layout assignment-layout--single">
-              <section class="assignment-list-box assignment-list-box--selected">
-                <header class="assignment-list-header assignment-list-header--selected">
-                  <h4>Matriculados en este curso</h4>
-                  <span>{{ filteredSelectedStudents().length }}</span>
+            <div class="assignment-layout">
+              <section class="assignment-list-box">
+                <header class="assignment-list-header">
+                  <h4>Disponibles</h4>
+                  <span>{{ availableCount() }}</span>
                 </header>
 
                 <div class="assignment-list-body">
-                  @if (filteredSelectedStudents().length === 0) {
-                    <p class="assignment-empty">Este curso todavía no tiene matrículas asociadas.</p>
+                  @if (filteredAvailableStudents().length === 0) {
+                    <p class="assignment-empty">No hay alumnos disponibles para agregar a este curso.</p>
                   } @else {
-                    @for (student of filteredSelectedStudents(); track student.id) {
-                      <article class="assignment-student-row assignment-student-row--selected">
-                        <div>
+                    @for (student of filteredAvailableStudents(); track student.id) {
+                      <button
+                        type="button"
+                        class="assignment-student-row"
+                        [class.is-selected]="checkedAvailableIds().includes(student.id)"
+                        (click)="toggleAvailableStudent(student.id)">
+                        <div class="assignment-student-copy">
                           <strong>{{ student.fullName }}</strong>
                           <span>{{ student.run }}</span>
                           @if (studentLocationLabel(student)) {
                             <small>{{ studentLocationLabel(student) }}</small>
                           }
                         </div>
-                      </article>
+                      </button>
+                    }
+                  }
+                </div>
+              </section>
+
+              <div class="assignment-controls">
+                <button type="button" class="assignment-circle-btn" (click)="moveCheckedToSelected()">&gt;&gt;</button>
+                <button type="button" class="assignment-circle-btn" (click)="moveCheckedToAvailable()">&lt;&lt;</button>
+              </div>
+
+              <section class="assignment-list-box assignment-list-box--selected">
+                <header class="assignment-list-header assignment-list-header--selected">
+                  <h4>Matriculados en este curso</h4>
+                  <span>{{ selectedCount() }}</span>
+                </header>
+
+                <div class="assignment-list-body">
+                  @if (filteredSelectedStudents().length === 0) {
+                    <p class="assignment-empty">Este curso todavia no tiene matriculas asociadas.</p>
+                  } @else {
+                    @for (student of filteredSelectedStudents(); track student.id) {
+                      <button
+                        type="button"
+                        class="assignment-student-row assignment-student-row--selected"
+                        [class.is-selected]="checkedSelectedIds().includes(student.id)"
+                        (click)="toggleSelectedStudent(student.id)">
+                        <div class="assignment-student-copy">
+                          <strong>{{ student.fullName }}</strong>
+                          <span>{{ student.run }}</span>
+                          @if (studentLocationLabel(student)) {
+                            <small>{{ studentLocationLabel(student) }}</small>
+                          }
+                        </div>
+                      </button>
                     }
                   }
                 </div>

@@ -49,7 +49,8 @@ public class SubjectController {
                         request.colorHex(),
                         request.description(),
                         request.referenceLevel(),
-                        request.suggestedHours()
+                        request.suggestedHours(),
+                        request.teacherIds()
                 )
         );
     }
@@ -65,7 +66,8 @@ public class SubjectController {
                         request.colorHex(),
                         request.description(),
                         request.referenceLevel(),
-                        request.suggestedHours()
+                        request.suggestedHours(),
+                        request.teacherIds()
                 )
         );
     }

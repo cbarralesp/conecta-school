@@ -34,10 +34,25 @@ export interface EnrollmentGuardian {
   run: string;
   name: string;
   lastName: string;
+  birthDate: string;
+  address: string;
   phone: string;
   email: string;
+  education: string;
   relation: string;
   authorizedPickup: boolean;
+}
+
+export interface EnrollmentFamilyContact {
+  id: number | null;
+  run: string;
+  name: string;
+  lastName: string;
+  birthDate: string;
+  address: string;
+  phone: string;
+  email: string;
+  education: string;
 }
 
 export interface EnrollmentPickupContact {
@@ -59,6 +74,14 @@ export interface EnrollmentEstablishment {
   region: string;
   commune: string;
   address: string;
+}
+
+export interface EnrollmentCourseSelection {
+  baseName: string;
+  level: string;
+  letter: string;
+  schoolYear: string;
+  scheduleType: string;
 }
 
 export interface EnrollmentDocument {
@@ -101,12 +124,22 @@ export interface EnrollmentDetail {
   regionId: number | null;
   communeId: number | null;
   courseName: string;
+  courseLevel: string;
+  courseLetter: string;
+  courseSchoolYear: number | null;
+  courseScheduleType: string;
   address: string;
+  livesWith: string;
+  allergies: string;
+  specialistDiagnoses: string;
+  emergencyContact: string;
   specialNeeds: string;
   status: string;
   enrollmentDate: string;
   establishment: EnrollmentEstablishment;
   guardian: EnrollmentGuardian;
+  father: EnrollmentFamilyContact;
+  mother: EnrollmentFamilyContact;
   pickupContacts: EnrollmentPickupContact[];
   documents: EnrollmentDocument[];
   studentAccess: EnrollmentStudentAccess;
@@ -134,14 +167,21 @@ export interface EnrollmentPayload {
   birthDate: string;
   gender: string;
   courseId: number;
+  courseSelection: EnrollmentCourseSelection;
   regionId: number | null;
   communeId: number | null;
   address: string;
+  livesWith: string;
+  allergies: string;
+  specialistDiagnoses: string;
+  emergencyContact: string;
   specialNeeds: string;
   status: string;
   enrollmentDate: string;
   establishment: EnrollmentEstablishment;
   guardian: EnrollmentGuardian;
+  father: EnrollmentFamilyContact;
+  mother: EnrollmentFamilyContact;
   pickupContacts: EnrollmentPickupContact[];
   documents: EnrollmentDocument[];
   studentAccess: EnrollmentStudentAccess;

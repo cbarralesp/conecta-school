@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, TemplateRef, ViewChild,
 import { ActivatedRoute, Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { catchError, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -77,6 +78,7 @@ export class ActivitiesCalendarPageComponent {
 
   readonly isLoading = signal(false);
   readonly isExportingPdf = signal(false);
+  readonly isExportingJson = signal(false);
   readonly calendar = signal<ActivityCalendar | null>(null);
   readonly courses = signal<Course[]>([]);
   readonly selectedCourseId = signal<number | null>(null);
@@ -264,6 +266,58 @@ export class ActivitiesCalendarPageComponent {
     } finally {
       this.isExportingPdf.set(false);
     }
+  }
+
+  exportJson(): void {
+    if (this.isExportingJson()) {
+      return;
+    }
+
+    const year = this.visibleYear();
+    const selectedCourseId = this.selectedCourseId();
+    const selectedCourseName = this.selectedCourseName();
+
+    this.isExportingJson.set(true);
+    forkJoin(
+      Array.from({ length: 12 }, (_, index) =>
+        this.activityCalendarApiService.getCalendar(year, index + 1, selectedCourseId).pipe(
+          catchError(() => of(null))
+        )
+      )
+    ).subscribe({
+      next: (months) => {
+        const payload = {
+          generatedAt: new Date().toISOString(),
+          generatedBy: this.user()?.nombre ?? 'Usuario',
+          filters: {
+            year,
+            courseId: selectedCourseId,
+            courseName: selectedCourseName
+          },
+          currentMonth: {
+            year: this.visibleYear(),
+            month: this.visibleMonth(),
+            selectedDate: this.selectedDate()
+          },
+          yearHistory: {
+            year,
+            months: months.map((calendar, index) => ({
+              month: index + 1,
+              calendar
+            })),
+            monthsWithData: months.filter((calendar) => !!calendar).length
+          }
+        };
+
+        this.downloadJsonFile(payload, year, selectedCourseName);
+        this.isExportingJson.set(false);
+        this.snackBar.open('JSON anual descargado correctamente', 'Cerrar', { duration: 2600 });
+      },
+      error: () => {
+        this.isExportingJson.set(false);
+        this.snackBar.open('No fue posible exportar el JSON anual de actividades', 'Cerrar', { duration: 3200 });
+      }
+    });
   }
 
   openNewActivityDialog(selectedDate?: string): void {
@@ -465,6 +519,23 @@ export class ActivitiesCalendarPageComponent {
 
   private buildPdfFileName(monthLabel: string): string {
     return `calendario-${monthLabel.toLowerCase().replaceAll(' ', '-')}.pdf`;
+  }
+
+  private downloadJsonFile(payload: unknown, year: number, courseName: string): void {
+    const slug = courseName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'todos-los-cursos';
+    const fileName = `actividades-export-${year}-${slug}.json`;
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
   }
 
   private resolveActivityStatus(activity: SchoolActivity, todayIso: string): 'UPCOMING' | 'IN_PROGRESS' | 'DONE' {

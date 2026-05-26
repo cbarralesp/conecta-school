@@ -7,8 +7,11 @@ public record EnrollmentGuardianResponse(
         String run,
         String name,
         String lastName,
+        String birthDate,
+        String address,
         String phone,
         String email,
+        String education,
         String relation,
         boolean authorizedPickup
 ) {
@@ -18,8 +21,11 @@ public record EnrollmentGuardianResponse(
                 guardian.run(),
                 guardian.name(),
                 guardian.lastName(),
+                guardian.birthDate(),
+                guardian.address(),
                 guardian.phone(),
                 guardian.email(),
+                guardian.education(),
                 guardian.relation(),
                 guardian.authorizedPickup()
         );

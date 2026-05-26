@@ -1,5 +1,7 @@
 import { Subject } from './subject.models';
 
+export type ScheduleBlockType = 'CLASE' | 'RECREO';
+
 export interface ScheduleCourseOption {
   id: number;
   code: string;
@@ -28,7 +30,7 @@ export interface ScheduleBlock {
   startTime: string;
   endTime: string;
   order: number;
-  blockType: string;
+  blockType: ScheduleBlockType;
 }
 
 export interface ScheduleEntry {
@@ -50,7 +52,7 @@ export interface ScheduleEntry {
   startTime: string;
   endTime: string;
   order: number;
-  blockType: string;
+  blockType: ScheduleBlockType;
   room: string | null;
 }
 
@@ -74,4 +76,8 @@ export interface SchedulePayload {
 export interface ScheduleRowTimePayload {
   startTime: string;
   endTime: string;
+}
+
+export interface ScheduleBlockCreatePayload extends ScheduleRowTimePayload {
+  blockType: ScheduleBlockType;
 }

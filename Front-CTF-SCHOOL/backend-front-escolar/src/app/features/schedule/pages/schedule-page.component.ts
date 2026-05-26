@@ -7,10 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
-import { ScheduleBlock, ScheduleCatalog, ScheduleEntry, SchedulePeriodOption } from '../../../core/models/schedule.models';
+import { ScheduleBlock, ScheduleBlockType, ScheduleCatalog, ScheduleEntry, SchedulePeriodOption } from '../../../core/models/schedule.models';
 import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import {
@@ -39,6 +40,7 @@ interface ScheduleBoardRow {
     MatCardModule,
     MatDialogModule,
     MatIconModule,
+    MatMenuModule,
     MatSnackBarModule,
     SummaryMetricCardComponent,
     TeacherModernLayoutComponent
@@ -63,6 +65,7 @@ export class SchedulePageComponent {
   readonly selectedSemesterId = signal<number | null>(null);
   readonly scheduleEntries = signal<ScheduleEntry[]>([]);
   readonly isExportingPdf = signal(false);
+  readonly isPreviewOpen = signal(false);
 
   readonly selectedCourse = computed(() =>
     this.catalog()?.courses.find((course) => course.id === this.selectedCourseId()) ?? null
@@ -96,7 +99,19 @@ export class SchedulePageComponent {
       }
     }
 
-    return Array.from(baseRows.values()).sort((left, right) => left.order - right.order);
+    return Array.from(baseRows.values()).sort((left, right) => {
+      const startDiff = this.timeToMinutes(left.startTime) - this.timeToMinutes(right.startTime);
+      if (startDiff !== 0) {
+        return startDiff;
+      }
+
+      const endDiff = this.timeToMinutes(left.endTime) - this.timeToMinutes(right.endTime);
+      if (endDiff !== 0) {
+        return endDiff;
+      }
+
+      return left.order - right.order;
+    });
   });
 
   readonly scheduledClassCount = computed(() => this.scheduleEntries().length);
@@ -138,7 +153,7 @@ export class SchedulePageComponent {
       return;
     }
     this.selectedCourseId.set(courseId);
-    this.reloadSelectedCourse();
+    this.reloadCatalogAndCourse();
   }
 
   updateSemester(periodId: number | null): void {
@@ -194,6 +209,26 @@ export class SchedulePageComponent {
   }
 
   openAddBreakDialog(): void {
+    this.openAddRowDialog('RECREO');
+  }
+
+  openPreview(): void {
+    if (!this.selectedCourse() || this.boardRows().length === 0) {
+      this.snackBar.open('Selecciona un curso con horario para ver la vista previa', 'Cerrar', { duration: 2600 });
+      return;
+    }
+    this.isPreviewOpen.set(true);
+  }
+
+  closePreview(): void {
+    this.isPreviewOpen.set(false);
+  }
+
+  openAddClassDialog(): void {
+    this.openAddRowDialog('CLASE');
+  }
+
+  openAddRowDialog(blockType: ScheduleBlockType): void {
     const courseId = this.selectedCourseId();
     const catalog = this.catalog();
     if (!courseId || !catalog) {
@@ -207,8 +242,8 @@ export class SchedulePageComponent {
       rowKey: `custom-${anchorOrder + 1}`,
       order: anchorOrder + 1,
       startTime: previousRow?.endTime ?? '10:00',
-      endTime: this.addMinutes(previousRow?.endTime ?? '10:00', 15),
-      blockType: 'RECREO',
+      endTime: this.addMinutes(previousRow?.endTime ?? '10:00', blockType === 'RECREO' ? 15 : 45),
+      blockType,
       isCustom: true,
       sourceOrder: null
     };
@@ -303,6 +338,53 @@ export class SchedulePageComponent {
     }
   }
 
+  exportScheduleJson(): void {
+    const course = this.selectedCourse();
+    const period = this.periodOptions().find((item) => item.id === this.selectedSemesterId()) ?? null;
+    const rows = this.boardRows();
+    if (!course || !period || rows.length === 0) {
+      this.snackBar.open('El horario todavia no esta listo para exportar', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      course,
+      period,
+      rows: rows.map((row) => ({
+        order: row.order,
+        startTime: row.startTime,
+        endTime: row.endTime,
+        blockType: row.blockType,
+        days: this.days.map((day) => {
+          const entry = this.entryFor(day, row);
+          return {
+            day,
+            entry: entry
+              ? {
+                  id: entry.id,
+                  subjectId: entry.subjectId,
+                  subjectName: entry.subjectName,
+                  teacherId: entry.teacherId,
+                  teacherFullName: entry.teacherFullName,
+                  room: entry.room
+                }
+              : null
+          };
+        })
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = this.buildJsonFileName(course.name);
+    link.click();
+    URL.revokeObjectURL(objectUrl);
+    this.snackBar.open('Horario escolar exportado en JSON', 'Cerrar', { duration: 2400 });
+  }
+
   blockFor(day: DayKey, row: ScheduleBoardRow): ScheduleBlock | undefined {
     if (row.sourceOrder === null) {
       return undefined;
@@ -318,8 +400,8 @@ export class SchedulePageComponent {
   slotStyles(entry: ScheduleEntry): Record<string, string> {
     return {
       '--slot-accent': entry.subjectColorHex,
-      '--slot-background': this.toRgba(entry.subjectColorHex, 0.12),
-      '--slot-border': this.toRgba(entry.subjectColorHex, 0.24)
+      '--slot-background': this.toRgba(entry.subjectColorHex, 0.18),
+      '--slot-border': this.toRgba(entry.subjectColorHex, 0.34)
     };
   }
 
@@ -375,32 +457,51 @@ export class SchedulePageComponent {
       if (!row) {
         return;
       }
-      this.scheduleApiService.deleteBreakRow(row.order).subscribe({
+      const courseId = this.selectedCourseId();
+      if (!courseId) {
+        return;
+      }
+      this.scheduleApiService.deleteRow(row.order, courseId).subscribe({
         next: () => {
-          this.snackBar.open('Recreo eliminado del horario institucional', 'Cerrar', { duration: 2500 });
+          this.snackBar.open('Bloque eliminado del horario institucional', 'Cerrar', { duration: 2500 });
           this.reloadCatalogAndCourse();
         },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el recreo')
+        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el bloque')
       });
       return;
     }
 
     if (result.rowPayload) {
       if (result.rowPayload.isCustom) {
-        this.scheduleApiService.createBreakRow({
+        this.scheduleApiService.createRow({
+          courseId: this.selectedCourseId()!,
+          blockType: result.rowPayload.blockType,
           startTime: result.rowPayload.startTime,
           endTime: result.rowPayload.endTime
         }).subscribe({
           next: () => {
-            this.snackBar.open('Recreo agregado al horario institucional', 'Cerrar', { duration: 2500 });
+            this.snackBar.open(
+              result.rowPayload?.blockType === 'RECREO'
+                ? 'Recreo agregado al horario institucional'
+                : 'Bloque horario agregado correctamente',
+              'Cerrar',
+              { duration: 2500 }
+            );
             this.reloadCatalogAndCourse();
           },
-          error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible agregar el recreo')
+          error: (error: HttpErrorResponse) =>
+            this.showError(
+              error,
+              result.rowPayload?.blockType === 'RECREO'
+                ? 'No fue posible agregar el recreo'
+                : 'No fue posible agregar el bloque horario'
+            )
         });
         return;
       }
 
       this.scheduleApiService.updateRowTime(result.rowPayload.order, {
+        courseId: this.selectedCourseId()!,
         startTime: result.rowPayload.startTime,
         endTime: result.rowPayload.endTime
       }).subscribe({
@@ -416,12 +517,11 @@ export class SchedulePageComponent {
   private loadCatalog(): void {
     this.scheduleApiService.getCatalog().subscribe({
         next: (catalog) => {
-          this.catalog.set(catalog);
           this.selectedSemesterId.set(this.resolvePreferredSemesterId(catalog));
           const preferredCourseId = this.resolvePreferredCourseId(catalog);
           this.selectedCourseId.set(preferredCourseId);
-          if (preferredCourseId && this.selectedSemesterId()) {
-            this.loadSchedule(preferredCourseId, this.selectedSemesterId()!);
+          if (preferredCourseId) {
+            this.loadScopedCatalog(preferredCourseId, catalog);
           }
         },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar el catalogo horario')
@@ -502,9 +602,19 @@ export class SchedulePageComponent {
     return `horario-escolar-${safeCourse}-${this.selectedSemesterId() ?? 'periodo'}.pdf`;
   }
 
+  private buildJsonFileName(courseName: string): string {
+    const safeCourse = courseName
+      .toLowerCase()
+      .replaceAll(' ', '-')
+      .replaceAll('/', '-')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    return `horario-escolar-${safeCourse}-${this.selectedSemesterId() ?? 'periodo'}.json`;
+  }
+
   private reloadCatalogAndCourse(): void {
     const currentCourseId = this.selectedCourseId();
-    this.scheduleApiService.getCatalog().subscribe({
+    this.scheduleApiService.getCatalog(currentCourseId).subscribe({
       next: (catalog) => {
         this.catalog.set(catalog);
         if (!catalog.periods.some((period) => period.id === this.selectedSemesterId())) {
@@ -534,20 +644,27 @@ export class SchedulePageComponent {
       (left, right) => this.courseSortWeight(left.name) - this.courseSortWeight(right.name)
     );
 
-    const preferredMorningBasicCourse = orderedCourses.find(
-      (course) => this.isBasicCourse(course.name) && this.isMorningSchedule(course.scheduleType)
-    );
-
-    if (preferredMorningBasicCourse) {
-      return preferredMorningBasicCourse.id;
-    }
-
-    const preferredBasicCourse = orderedCourses.find((course) => this.isBasicCourse(course.name));
-    if (preferredBasicCourse) {
-      return preferredBasicCourse.id;
-    }
-
     return orderedCourses[0]?.id ?? null;
+  }
+
+  private loadScopedCatalog(courseId: number, baseCatalog?: ScheduleCatalog): void {
+    this.scheduleApiService.getCatalog(courseId).subscribe({
+      next: (catalog) => {
+        const scopedCatalog: ScheduleCatalog = {
+          ...catalog,
+          courses: baseCatalog?.courses ?? catalog.courses,
+          periods: baseCatalog?.periods ?? catalog.periods,
+          teachers: baseCatalog?.teachers ?? catalog.teachers,
+          subjects: baseCatalog?.subjects ?? catalog.subjects
+        };
+        this.catalog.set(scopedCatalog);
+        const periodId = this.selectedSemesterId();
+        if (periodId) {
+          this.loadSchedule(courseId, periodId);
+        }
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar la malla horaria del curso')
+    });
   }
 
   private resolvePreferredSemesterId(catalog: ScheduleCatalog): number | null {

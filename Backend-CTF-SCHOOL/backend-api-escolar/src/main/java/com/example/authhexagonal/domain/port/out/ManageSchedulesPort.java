@@ -34,11 +34,15 @@ public interface ManageSchedulesPort {
 
     Optional<AcademicSubject> findAvailableScheduleSubjectById(Long subjectId);
 
-    List<ScheduleBlock> findWeeklyScheduleBlocks();
+    List<ScheduleBlock> findWeeklyScheduleBlocks(Long courseId);
+
+    int findMaxScheduleBlockOrder();
+
+    void shiftScheduleBlockOrdersFrom(Long courseId, int order);
 
     Optional<ScheduleBlock> findActiveScheduleBlockById(Long blockId);
 
-    List<ScheduleBlock> findActiveScheduleBlocksByOrder(int order);
+    List<ScheduleBlock> findActiveScheduleBlocksByOrder(Long courseId, int order);
 
     boolean hasCourseConflict(Long courseId, Long periodId, Long blockId, Long excludeScheduleId);
 
@@ -54,11 +58,15 @@ public interface ManageSchedulesPort {
 
     void syncWeeklyHours(Long loadId);
 
-    void updateScheduleBlocksTimeByOrder(int order, String startTime, String endTime);
+    void updateScheduleBlocksTimeByOrder(Long courseId, int order, String startTime, String endTime);
 
-    void createBreakBlocks(String startTime, String endTime, int order);
+    void createScheduleBlocks(Long courseId, String startTime, String endTime, int order, String blockType);
 
-    void deactivateScheduleBlocksByOrder(int order);
+    void createBreakBlocks(Long courseId, String startTime, String endTime, int order);
 
-    boolean hasScheduleEntriesForOrder(int order);
+    void deactivateScheduleBlocksByOrder(Long courseId, int order);
+
+    boolean hasScheduleEntriesForOrder(Long courseId, int order);
+
+    void ensureCourseSpecificScheduleBlocks(Long courseId);
 }

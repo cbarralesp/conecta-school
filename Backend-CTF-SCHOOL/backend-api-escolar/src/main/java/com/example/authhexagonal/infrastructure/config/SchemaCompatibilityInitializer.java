@@ -23,10 +23,12 @@ public class SchemaCompatibilityInitializer {
         LOGGER.info("Verificando compatibilidad minima de esquema para horarios y calificaciones");
         ensureTeacherStaffType();
         ensureSchedulePeriodColumn();
+        ensureScheduleCourseScope();
         ensureGradeEvaluationColumns();
         ensureCourseNormalizationSchema();
         ensureCourseEnrollmentConsistency();
         ensureActivityCourseScope();
+        ensureEnrollmentExtendedContacts();
     }
 
     private void ensureTeacherStaffType() {
@@ -90,7 +92,121 @@ public class SchemaCompatibilityInitializer {
                 """);
     }
 
+    private void ensureScheduleCourseScope() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para horarios por curso");
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "BLOQUES_HORARIOS"
+                ADD COLUMN IF NOT EXISTS "CURSO_ID" BIGINT
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_BLOQUES_HORARIOS_CURSO_ID"
+                ON "BLOQUES_HORARIOS" ("CURSO_ID")
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'FK_BLOQUES_HORARIOS_CURSO'
+                    ) THEN
+                        ALTER TABLE "BLOQUES_HORARIOS"
+                        ADD CONSTRAINT "FK_BLOQUES_HORARIOS_CURSO"
+                        FOREIGN KEY ("CURSO_ID") REFERENCES "CURSOS" ("ID");
+                    END IF;
+                END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'UK_BLOQUES_HORARIOS'
+                    ) THEN
+                        ALTER TABLE "BLOQUES_HORARIOS"
+                        DROP CONSTRAINT "UK_BLOQUES_HORARIOS";
+                    END IF;
+                END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                DROP INDEX IF EXISTS "UK_BLOQUES_HORARIOS"
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS "UK_BLOQUES_HORARIOS_CURSO_DIA_ORDEN"
+                ON "BLOQUES_HORARIOS" (COALESCE("CURSO_ID", 0), "DIA_SEMANA", "ORDEN")
+                """);
+
+        jdbcTemplate.execute("""
+                INSERT INTO "BLOQUES_HORARIOS" (
+                    "DIA_SEMANA",
+                    "HORA_INICIO",
+                    "HORA_FIN",
+                    "ORDEN",
+                    "TIPO_BLOQUE",
+                    "CURSO_ID",
+                    "ACTIVO"
+                )
+                SELECT
+                    base."DIA_SEMANA",
+                    base."HORA_INICIO",
+                    base."HORA_FIN",
+                    base."ORDEN",
+                    base."TIPO_BLOQUE",
+                    c."ID",
+                    base."ACTIVO"
+                FROM "CURSOS" c
+                JOIN "BLOQUES_HORARIOS" base
+                  ON base."CURSO_ID" IS NULL
+                 AND base."ACTIVO" = TRUE
+                WHERE c."ACTIVO" = TRUE
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM "BLOQUES_HORARIOS" scoped
+                      WHERE scoped."CURSO_ID" = c."ID"
+                        AND scoped."ACTIVO" = TRUE
+                  )
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "HORARIOS_CARGAS" hc
+                SET "BLOQUE_HORARIO_ID" = scoped."ID"
+                FROM "CARGAS_DOCENTES" cd,
+                     "BLOQUES_HORARIOS" original,
+                     "BLOQUES_HORARIOS" scoped
+                WHERE cd."ID" = hc."CARGA_DOCENTE_ID"
+                  AND original."ID" = hc."BLOQUE_HORARIO_ID"
+                  AND original."CURSO_ID" IS NULL
+                  AND scoped."CURSO_ID" = cd."CURSO_ID"
+                  AND scoped."DIA_SEMANA" = original."DIA_SEMANA"
+                  AND scoped."ORDEN" = original."ORDEN"
+                  AND scoped."ACTIVO" = TRUE
+                """);
+    }
+
     private void ensureGradeEvaluationColumns() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "EVALUACIONES"
+                ADD COLUMN IF NOT EXISTS "ACTIVA" BOOLEAN
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "EVALUACIONES"
+                SET "ACTIVA" = TRUE
+                WHERE "ACTIVA" IS NULL
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "EVALUACIONES"
+                ALTER COLUMN "ACTIVA" SET DEFAULT TRUE
+                """);
+
         jdbcTemplate.execute("""
                 ALTER TABLE "EVALUACIONES"
                 ADD COLUMN IF NOT EXISTS "PONDERACION" NUMERIC(5,2)
@@ -99,6 +215,91 @@ public class SchemaCompatibilityInitializer {
         jdbcTemplate.execute("""
                 ALTER TABLE "EVALUACIONES"
                 ADD COLUMN IF NOT EXISTS "FECHA_EVALUACION" DATE
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "EVALUACIONES"
+                ADD COLUMN IF NOT EXISTS "CREADO_EN" TIMESTAMP
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "EVALUACIONES"
+                SET "CREADO_EN" = CURRENT_TIMESTAMP
+                WHERE "CREADO_EN" IS NULL
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "EVALUACIONES"
+                ALTER COLUMN "CREADO_EN" SET DEFAULT CURRENT_TIMESTAMP
+                """);
+    }
+
+    private void ensureEnrollmentExtendedContacts() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "ALUMNOS"
+                ADD COLUMN IF NOT EXISTS "CONVIVE_CON" character varying(120)
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "ALUMNOS"
+                ADD COLUMN IF NOT EXISTS "ALERGIAS" character varying(500)
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "ALUMNOS"
+                ADD COLUMN IF NOT EXISTS "DIAGNOSTICOS_ESPECIALISTAS" text
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "ALUMNOS"
+                ADD COLUMN IF NOT EXISTS "CONTACTO_EMERGENCIA" character varying(255)
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "MATRICULA_APODERADOS"
+                ADD COLUMN IF NOT EXISTS "FECHA_NACIMIENTO" DATE
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "MATRICULA_APODERADOS"
+                ADD COLUMN IF NOT EXISTS "DIRECCION" character varying(255)
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "MATRICULA_APODERADOS"
+                ADD COLUMN IF NOT EXISTS "ESCOLARIDAD" character varying(120)
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "MATRICULA_PADRES" (
+                    "ID" bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    "MATRICULA_ID" bigint NOT NULL,
+                    "RUN" character varying(20),
+                    "NOMBRE" character varying(120),
+                    "APELLIDOS" character varying(120),
+                    "FECHA_NACIMIENTO" DATE,
+                    "DIRECCION" character varying(255),
+                    "TELEFONO" character varying(40),
+                    "EMAIL" character varying(160),
+                    "ESCOLARIDAD" character varying(120),
+                    "ACTIVO" boolean DEFAULT TRUE NOT NULL
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "MATRICULA_MADRES" (
+                    "ID" bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+                    "MATRICULA_ID" bigint NOT NULL,
+                    "RUN" character varying(20),
+                    "NOMBRE" character varying(120),
+                    "APELLIDOS" character varying(120),
+                    "FECHA_NACIMIENTO" DATE,
+                    "DIRECCION" character varying(255),
+                    "TELEFONO" character varying(40),
+                    "EMAIL" character varying(160),
+                    "ESCOLARIDAD" character varying(120),
+                    "ACTIVO" boolean DEFAULT TRUE NOT NULL
+                )
                 """);
     }
 

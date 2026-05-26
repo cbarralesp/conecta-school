@@ -22,7 +22,8 @@ public interface ManageSubjectsPort {
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     );
 
     AcademicSubject updateSubject(
@@ -33,7 +34,8 @@ public interface ManageSubjectsPort {
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     );
 
     void deactivateSubject(Long subjectId);

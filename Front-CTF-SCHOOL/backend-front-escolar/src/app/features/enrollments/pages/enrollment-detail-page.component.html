@@ -13,6 +13,12 @@
         <p>Visualizacion de informacion matriculada</p>
       </div>
       <div class="page-header__actions">
+        @if (statusBadgeLabel() === 'Inactiva') {
+          <button class="btn btn-warning" type="button" (click)="reactivateEnrollment()">
+            <mat-icon>restart_alt</mat-icon>
+            Reactivar
+          </button>
+        }
         <button class="btn btn-primary" type="button" (click)="goToEdit()">
           <mat-icon>edit</mat-icon>
           Editar
@@ -37,7 +43,7 @@
               <div class="profile-img profile-img--placeholder">{{ avatar() }}</div>
               <div class="profile-name">{{ fullName() }}</div>
               <div class="profile-run">{{ student.studentRun }}</div>
-              <span class="status-badge-large">{{ statusBadgeLabel() }}</span>
+              <span [class]="statusBadgeClass()">{{ statusBadgeLabel() }}</span>
             </div>
 
             <div class="profile-meta">
@@ -183,7 +189,12 @@
                   </div>
                   <div class="info-item">
                     <span class="info-label">Estado</span>
-                    <span class="info-value info-value--success">{{ student.status }}</span>
+                    <span
+                      class="info-value"
+                      [class.info-value--success]="student.status === 'ACTIVO'"
+                      [class.info-value--warning]="statusBadgeLabel() === 'Inactiva'">
+                      {{ student.status }}
+                    </span>
                   </div>
                   <div class="info-item">
                     <span class="info-label">Codigo registro</span>

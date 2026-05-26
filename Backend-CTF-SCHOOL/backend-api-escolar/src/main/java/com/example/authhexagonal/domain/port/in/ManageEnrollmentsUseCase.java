@@ -15,4 +15,6 @@ public interface ManageEnrollmentsUseCase {
     EnrollmentDetail update(Long enrollmentId, EnrollmentRequest request);
 
     void delete(Long enrollmentId);
+
+    EnrollmentDetail reactivate(Long enrollmentId);
 }

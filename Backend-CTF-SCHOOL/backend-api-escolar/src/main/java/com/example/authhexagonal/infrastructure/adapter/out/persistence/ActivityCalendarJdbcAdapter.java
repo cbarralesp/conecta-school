@@ -144,10 +144,7 @@ public class ActivityCalendarJdbcAdapter implements ManageActivityCalendarPort {
             sql.append(" AND a.\"CURSO_ID\" = ?");
             args.add(courseId);
         }
-        sql.append("""
-                ORDER BY a."FECHA", a."HORA" NULLS LAST, a."TITULO"
-                LIMIT ?
-                """);
+        sql.append(" ORDER BY a.\"FECHA\", a.\"HORA\" NULLS LAST, a.\"TITULO\" LIMIT ?");
         args.add(limit);
 
         return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapActivity(rs), args.toArray());

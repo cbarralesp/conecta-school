@@ -62,7 +62,7 @@ export class EnrollmentDetailPageComponent {
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age -= 1;
     }
-    return `${age} ${age === 1 ? 'Ano' : 'Anos'}`;
+    return `${age} ${age === 1 ? 'Año' : 'Años'}`;
   });
 
   readonly formattedBirthDate = computed(() => {
@@ -83,7 +83,24 @@ export class EnrollmentDetailPageComponent {
 
   readonly statusBadgeLabel = computed(() => {
     const student = this.detail();
-    return student?.status === 'PENDIENTE' ? 'Pendiente' : 'Activo';
+    const status = `${student?.status ?? 'ACTIVO'}`.trim().toUpperCase();
+    if (status === 'PENDIENTE') {
+      return 'Pendiente';
+    }
+    if (this.isInactiveStatus(status)) {
+      return 'Inactiva';
+    }
+    return 'Activa';
+  });
+  readonly statusBadgeClass = computed(() => {
+    const status = `${this.detail()?.status ?? 'ACTIVO'}`.trim().toUpperCase();
+    if (status === 'PENDIENTE') {
+      return 'status-badge-large status-badge-large--pending';
+    }
+    if (this.isInactiveStatus(status)) {
+      return 'status-badge-large status-badge-large--inactive';
+    }
+    return 'status-badge-large';
   });
 
   readonly documents = computed(() => this.detail()?.documents ?? []);
@@ -131,6 +148,20 @@ export class EnrollmentDetailPageComponent {
 
   goToEdit(): void {
     void this.router.navigate(['/dashboard/matriculas', this.enrollmentId, 'editar']);
+  }
+
+  reactivateEnrollment(): void {
+    this.enrollmentApiService.reactivate(this.enrollmentId).subscribe({
+      next: (detail) => {
+        this.detail.set(detail);
+        this.snackBar.open('Matricula reactivada correctamente', 'Cerrar', {
+          duration: 2500
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.showError(error, 'No fue posible reactivar la matricula');
+      }
+    });
   }
 
   printProfile(): void {
@@ -246,5 +277,9 @@ export class EnrollmentDetailPageComponent {
   private extractSchoolYear(enrollmentDate: string): string {
     const match = /^(\d{4})-/.exec(enrollmentDate || '');
     return match?.[1] ?? '-';
+  }
+
+  private isInactiveStatus(status: string): boolean {
+    return ['INACTIVA', 'INACTIVO'].includes((status || '').trim().toUpperCase());
   }
 }

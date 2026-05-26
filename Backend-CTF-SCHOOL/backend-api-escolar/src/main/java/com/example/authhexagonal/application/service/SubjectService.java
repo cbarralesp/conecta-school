@@ -36,7 +36,8 @@ public class SubjectService implements ManageSubjectsUseCase {
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     ) {
         validateDuplicateCode(code, null);
         return manageSubjectsPort.createSubject(
@@ -46,7 +47,8 @@ public class SubjectService implements ManageSubjectsUseCase {
                 colorHex,
                 description,
                 referenceLevel,
-                suggestedHours
+                suggestedHours,
+                teacherIds == null ? List.of() : teacherIds
         );
     }
 
@@ -59,7 +61,8 @@ public class SubjectService implements ManageSubjectsUseCase {
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     ) {
         findById(subjectId);
         validateDuplicateCode(code, subjectId);
@@ -71,7 +74,8 @@ public class SubjectService implements ManageSubjectsUseCase {
                 colorHex,
                 description,
                 referenceLevel,
-                suggestedHours
+                suggestedHours,
+                teacherIds == null ? List.of() : teacherIds
         );
     }
 
@@ -97,7 +101,7 @@ public class SubjectService implements ManageSubjectsUseCase {
         }
 
         String normalized = levelGroup.trim().toLowerCase();
-        if (!"basic".equals(normalized) && !"media".equals(normalized)) {
+        if (!"initial".equals(normalized) && !"basic".equals(normalized) && !"media".equals(normalized)) {
             throw new IllegalArgumentException("Invalid subject level filter");
         }
 

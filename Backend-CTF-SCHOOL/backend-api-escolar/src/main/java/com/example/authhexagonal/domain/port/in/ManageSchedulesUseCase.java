@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ManageSchedulesUseCase {
 
-    ScheduleCatalog getCatalog();
+    ScheduleCatalog getCatalog(Long courseId);
 
     List<ScheduleEntry> findByCourse(Long courseId, Long periodId);
 
@@ -17,9 +17,11 @@ public interface ManageSchedulesUseCase {
 
     void delete(Long scheduleId);
 
-    void updateRowTime(int order, String startTime, String endTime);
+    void updateRowTime(Long courseId, int order, String startTime, String endTime);
 
-    void createBreakRow(String startTime, String endTime);
+    void createRow(Long courseId, String startTime, String endTime, String blockType);
 
-    void deleteBreakRow(int order);
+    void createBreakRow(Long courseId, String startTime, String endTime);
+
+    void deleteRow(Long courseId, int order);
 }

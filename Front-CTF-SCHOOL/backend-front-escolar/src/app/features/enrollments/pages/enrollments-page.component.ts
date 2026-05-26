@@ -2,16 +2,17 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, forkJoin, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
-import { EnrollmentListItem, EnrollmentOverview, EnrollmentPagination, EnrollmentSummary } from '../../../core/models/enrollment.models';
+import { EnrollmentDetail, EnrollmentListItem, EnrollmentOverview, EnrollmentPagination, EnrollmentSummary } from '../../../core/models/enrollment.models';
 import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
@@ -23,6 +24,7 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatMenuModule,
     MatPaginatorModule,
     MatSnackBarModule,
     MatTableModule,
@@ -46,9 +48,11 @@ export class EnrollmentsPageComponent {
   readonly displayedColumns = ['student', 'course', 'enrollmentDate', 'guardian', 'status', 'actions'];
   readonly overview = signal<EnrollmentOverview | null>(null);
   readonly isLoading = signal(true);
+  readonly isExporting = signal(false);
   readonly pageIndex = signal(0);
   readonly filtersForm = this.formBuilder.nonNullable.group({
     search: [''],
+    courseId: [''],
     status: ['']
   });
 
@@ -95,6 +99,80 @@ export class EnrollmentsPageComponent {
     void this.router.navigate(['/dashboard/matriculas/nueva']);
   }
 
+  courseFilterLabel(course: EnrollmentOverview['courses'][number]): string {
+    return course.name;
+  }
+
+  exportJson(): void {
+    if (this.isExporting()) {
+      return;
+    }
+
+    this.isExporting.set(true);
+    const currentFilters = {
+      search: this.filtersForm.controls.search.value,
+      courseId: this.selectedCourseId(),
+      status: this.filtersForm.controls.status.value || null
+    };
+
+    this.enrollmentApiService.getOverview({
+      ...currentFilters,
+      page: 0,
+      size: Math.max(this.totalItems(), this.pageSize, 1)
+    }).pipe(
+      switchMap((overview) => {
+        if (overview.enrollments.length === 0) {
+          return of({ overview, details: [] as EnrollmentDetail[] });
+        }
+
+        return forkJoin(
+          overview.enrollments.map((item) => this.enrollmentApiService.getById(item.id))
+        ).pipe(
+          switchMap((details) => of({ overview, details }))
+        );
+      })
+    ).subscribe({
+      next: ({ overview, details }) => {
+        if (details.length === 0) {
+          this.isExporting.set(false);
+          this.snackBar.open('No hay matrículas para exportar con los filtros actuales', 'Cerrar', {
+            duration: 2800
+          });
+          return;
+        }
+
+        const exportPayload = {
+          generatedAt: new Date().toISOString(),
+          generatedBy: this.user()?.nombre ?? 'Usuario',
+          filters: {
+            search: currentFilters.search?.trim() || '',
+            status: currentFilters.status || 'TODOS'
+          },
+          summary: overview.summary,
+          totalRecords: details.length,
+          enrollments: details
+        };
+
+        this.downloadJsonFile(exportPayload);
+        this.isExporting.set(false);
+        this.snackBar.open('JSON descargado correctamente', 'Cerrar', {
+          duration: 2400
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isExporting.set(false);
+        this.showError(error, 'No fue posible exportar las matrículas en JSON');
+      }
+    });
+  }
+
+  exportPlaceholder(format: 'excel' | 'word' | 'pdf'): void {
+    const label = format.toUpperCase();
+    this.snackBar.open(`${label} estará disponible próximamente. Por ahora puedes usar JSON.`, 'Cerrar', {
+      duration: 2800
+    });
+  }
+
   goToDetail(enrollmentId: number): void {
     void this.router.navigate(['/dashboard/matriculas', enrollmentId]);
   }
@@ -104,16 +182,45 @@ export class EnrollmentsPageComponent {
   }
 
   confirmDelete(item: EnrollmentListItem): void {
-    const ref = this.snackBar.open(`Eliminar matricula de ${item.fullName}?`, 'Confirmar', {
+    const isInactive = this.isInactive(item.status);
+    const ref = this.snackBar.open(
+      isInactive
+        ? `Eliminar definitivamente la matricula de ${item.fullName}?`
+        : `Inactivar matricula de ${item.fullName}?`,
+      'Confirmar',
+      {
       duration: 5000
-    });
+      }
+    );
     ref.onAction().subscribe(() => {
       this.enrollmentApiService.delete(item.id).subscribe({
         next: () => {
-          this.snackBar.open('Matricula eliminada correctamente', 'Cerrar', { duration: 2500 });
+          this.snackBar.open(
+            isInactive ? 'Matricula eliminada correctamente' : 'Matricula inactivada correctamente',
+            'Cerrar',
+            { duration: 2500 }
+          );
           this.loadOverview();
         },
-        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar la matricula')
+        error: (error: HttpErrorResponse) => this.showError(
+          error,
+          isInactive ? 'No fue posible eliminar la matricula' : 'No fue posible inactivar la matricula'
+        )
+      });
+    });
+  }
+
+  reactivateEnrollment(item: EnrollmentListItem): void {
+    const ref = this.snackBar.open(`Reactivar matricula de ${item.fullName}?`, 'Confirmar', {
+      duration: 5000
+    });
+    ref.onAction().subscribe(() => {
+      this.enrollmentApiService.reactivate(item.id).subscribe({
+        next: () => {
+          this.snackBar.open('Matricula reactivada correctamente', 'Cerrar', { duration: 2500 });
+          this.loadOverview();
+        },
+        error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible reactivar la matricula')
       });
     });
   }
@@ -140,10 +247,15 @@ export class EnrollmentsPageComponent {
     this.loadOverview();
   }
 
+  isInactive(status: string): boolean {
+    return ['INACTIVA', 'INACTIVO'].includes(`${status ?? ''}`.trim().toUpperCase());
+  }
+
   private loadOverview(): void {
     this.isLoading.set(true);
     this.enrollmentApiService.getOverview({
       search: this.filtersForm.controls.search.value,
+      courseId: this.selectedCourseId(),
       status: this.filtersForm.controls.status.value || null,
       page: this.pageIndex(),
       size: this.pageSize
@@ -164,5 +276,32 @@ export class EnrollmentsPageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private downloadJsonFile(payload: unknown): void {
+    const fileName = this.buildExportFileName();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private buildExportFileName(): string {
+    const now = new Date();
+    const date = `${now.getFullYear()}-${`${now.getMonth() + 1}`.padStart(2, '0')}-${`${now.getDate()}`.padStart(2, '0')}`;
+    return `matriculas-export-${date}.json`;
+  }
+
+  private selectedCourseId(): number | null {
+    const value = this.filtersForm.controls.courseId.value.trim();
+    if (!value) {
+      return null;
+    }
+
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
   }
 }

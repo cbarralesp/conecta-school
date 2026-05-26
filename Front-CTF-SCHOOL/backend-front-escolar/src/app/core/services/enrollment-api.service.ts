@@ -56,6 +56,12 @@ export class EnrollmentApiService {
     return this.http.delete<void>(`${API_CONFIG.baseUrl}/matriculas/${enrollmentId}`);
   }
 
+  reactivate(enrollmentId: number): Observable<EnrollmentDetail> {
+    return this.http.post<EnrollmentDetail>(`${API_CONFIG.baseUrl}/matriculas/${enrollmentId}/reactivar`, {}).pipe(
+      map((detail) => this.normalizeDetail(detail))
+    );
+  }
+
   private normalizeOverview(overview: EnrollmentOverview): EnrollmentOverview {
     return {
       ...overview,
@@ -94,7 +100,15 @@ export class EnrollmentApiService {
       studentLastName: normalizeDashboardText(detail.studentLastName),
       gender: normalizeDashboardText(detail.gender),
       courseName: normalizeDashboardText(detail.courseName),
+      courseLevel: normalizeDashboardText(detail.courseLevel ?? ''),
+      courseLetter: normalizeDashboardText(detail.courseLetter ?? ''),
+      courseSchoolYear: detail.courseSchoolYear ?? null,
+      courseScheduleType: normalizeDashboardText(detail.courseScheduleType ?? ''),
       address: normalizeDashboardText(detail.address),
+      livesWith: normalizeDashboardText(detail.livesWith ?? ''),
+      allergies: normalizeDashboardText(detail.allergies ?? ''),
+      specialistDiagnoses: normalizeDashboardText(detail.specialistDiagnoses ?? ''),
+      emergencyContact: normalizeDashboardText(detail.emergencyContact ?? ''),
       specialNeeds: normalizeDashboardText(detail.specialNeeds),
       status: normalizeDashboardText(detail.status),
       establishment: {
@@ -112,9 +126,34 @@ export class EnrollmentApiService {
         run: normalizeDashboardText(detail.guardian.run),
         name: normalizeDashboardText(detail.guardian.name),
         lastName: normalizeDashboardText(detail.guardian.lastName),
+        birthDate: normalizeDashboardText(detail.guardian.birthDate),
+        address: normalizeDashboardText(detail.guardian.address),
         phone: normalizeDashboardText(detail.guardian.phone),
         email: normalizeDashboardText(detail.guardian.email),
+        education: normalizeDashboardText(detail.guardian.education),
         relation: normalizeDashboardText(detail.guardian.relation)
+      },
+      father: {
+        ...detail.father,
+        run: normalizeDashboardText(detail.father?.run ?? ''),
+        name: normalizeDashboardText(detail.father?.name ?? ''),
+        lastName: normalizeDashboardText(detail.father?.lastName ?? ''),
+        birthDate: normalizeDashboardText(detail.father?.birthDate ?? ''),
+        address: normalizeDashboardText(detail.father?.address ?? ''),
+        phone: normalizeDashboardText(detail.father?.phone ?? ''),
+        email: normalizeDashboardText(detail.father?.email ?? ''),
+        education: normalizeDashboardText(detail.father?.education ?? '')
+      },
+      mother: {
+        ...detail.mother,
+        run: normalizeDashboardText(detail.mother?.run ?? ''),
+        name: normalizeDashboardText(detail.mother?.name ?? ''),
+        lastName: normalizeDashboardText(detail.mother?.lastName ?? ''),
+        birthDate: normalizeDashboardText(detail.mother?.birthDate ?? ''),
+        address: normalizeDashboardText(detail.mother?.address ?? ''),
+        phone: normalizeDashboardText(detail.mother?.phone ?? ''),
+        email: normalizeDashboardText(detail.mother?.email ?? ''),
+        education: normalizeDashboardText(detail.mother?.education ?? '')
       },
       pickupContacts: detail.pickupContacts.map((contact) => ({
         ...contact,

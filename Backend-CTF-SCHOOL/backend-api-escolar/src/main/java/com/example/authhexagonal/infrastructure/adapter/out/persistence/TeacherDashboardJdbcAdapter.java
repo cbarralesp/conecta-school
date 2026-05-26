@@ -139,11 +139,17 @@ public class TeacherDashboardJdbcAdapter implements LoadTeacherDashboardPort {
                 .filter(item -> !"COMPLETADA".equalsIgnoreCase(item.status()))
                 .count();
 
+        int assignedCoursesCount = (int) assignedCourses.stream()
+                .map(TeacherAssignedCourse::courseCode)
+                .filter(courseCode -> courseCode != null && !courseCode.isBlank())
+                .distinct()
+                .count();
+
         return Optional.of(new TeacherDashboard(
                 (String) teacher.get("teacher_code"),
                 teacher.get("first_names") + " " + teacher.get("last_names"),
                 (String) teacher.get("specialty"),
-                assignedCourses.size(),
+                assignedCoursesCount,
                 planningItems.size(),
                 pendingPlanningCount,
                 assignedCourses,

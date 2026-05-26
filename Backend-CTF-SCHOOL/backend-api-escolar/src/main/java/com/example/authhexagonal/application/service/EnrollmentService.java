@@ -4,6 +4,7 @@ import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.EnrollmentDetail;
 import com.example.authhexagonal.domain.model.EnrollmentDocument;
 import com.example.authhexagonal.domain.model.EnrollmentEstablishment;
+import com.example.authhexagonal.domain.model.EnrollmentFamilyContact;
 import com.example.authhexagonal.domain.model.EnrollmentGuardianAccess;
 import com.example.authhexagonal.domain.model.EnrollmentGuardian;
 import com.example.authhexagonal.domain.model.EnrollmentOverview;
@@ -13,6 +14,7 @@ import com.example.authhexagonal.domain.model.EnrollmentSummary;
 import com.example.authhexagonal.domain.model.EnrollmentStudentAccess;
 import com.example.authhexagonal.domain.port.in.ManageEnrollmentsUseCase;
 import com.example.authhexagonal.domain.port.out.ManageEnrollmentsPort;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentFamilyContactRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentPickupContactRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,7 +63,7 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
     @Override
     @Transactional
     public EnrollmentDetail create(EnrollmentRequest request) {
-        validateCourse(request.courseId());
+        Long resolvedCourseId = resolveCourseId(request);
 
         Long studentId = manageEnrollmentsPort.findStudentIdByRun(request.studentRun())
                 .map(existingId -> {
@@ -78,6 +80,10 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                             request.regionId(),
                             request.communeId(),
                             request.address(),
+                            blankToEmpty(request.livesWith()),
+                            blankToEmpty(request.allergies()),
+                            blankToEmpty(request.specialistDiagnoses()),
+                            blankToEmpty(request.emergencyContact()),
                             normalizeText(request.specialNeeds())
                     );
                     return existingId;
@@ -91,12 +97,16 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                         request.regionId(),
                         request.communeId(),
                         request.address(),
+                        blankToEmpty(request.livesWith()),
+                        blankToEmpty(request.allergies()),
+                        blankToEmpty(request.specialistDiagnoses()),
+                        blankToEmpty(request.emergencyContact()),
                         normalizeText(request.specialNeeds())
                 ));
 
         Long enrollmentId = manageEnrollmentsPort.createEnrollment(
                 studentId,
-                request.courseId(),
+                resolvedCourseId,
                 request.status(),
                 request.enrollmentDate(),
                 mapEstablishment(request)
@@ -111,7 +121,7 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
     @Transactional
     public EnrollmentDetail update(Long enrollmentId, EnrollmentRequest request) {
         EnrollmentDetail current = findById(enrollmentId);
-        validateCourse(request.courseId());
+        Long resolvedCourseId = resolveCourseId(request);
 
         Long studentId = manageEnrollmentsPort.findStudentIdByRun(request.studentRun())
                 .map(existingId -> {
@@ -133,12 +143,16 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 request.regionId(),
                 request.communeId(),
                 request.address(),
+                blankToEmpty(request.livesWith()),
+                blankToEmpty(request.allergies()),
+                blankToEmpty(request.specialistDiagnoses()),
+                blankToEmpty(request.emergencyContact()),
                 normalizeText(request.specialNeeds())
         );
         manageEnrollmentsPort.updateEnrollment(
                 enrollmentId,
                 studentId,
-                request.courseId(),
+                resolvedCourseId,
                 request.status(),
                 request.enrollmentDate(),
                 mapEstablishment(request)
@@ -153,7 +167,19 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
     @Transactional
     public void delete(Long enrollmentId) {
         findById(enrollmentId);
+        if (manageEnrollmentsPort.isEnrollmentInactive(enrollmentId)) {
+            manageEnrollmentsPort.hardDeleteEnrollment(enrollmentId);
+            return;
+        }
         manageEnrollmentsPort.deactivateEnrollment(enrollmentId);
+    }
+
+    @Override
+    @Transactional
+    public EnrollmentDetail reactivate(Long enrollmentId) {
+        findById(enrollmentId);
+        manageEnrollmentsPort.reactivateEnrollment(enrollmentId);
+        return findById(enrollmentId);
     }
 
     private void validateCourse(Long courseId) {
@@ -162,17 +188,55 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
         }
     }
 
+    private Long resolveCourseId(EnrollmentRequest request) {
+        if (request.courseId() != null && request.courseId() > 0 && manageEnrollmentsPort.existsActiveCourse(request.courseId())) {
+            return request.courseId();
+        }
+
+        if (request.courseSelection() == null) {
+            throw new IllegalArgumentException("Selected course is not available");
+        }
+
+        String baseName = request.courseSelection().baseName() == null ? "" : request.courseSelection().baseName().trim();
+        String level = request.courseSelection().level() == null ? "" : request.courseSelection().level().trim();
+        String letter = request.courseSelection().letter() == null ? "" : request.courseSelection().letter().trim();
+        String schoolYearValue = request.courseSelection().schoolYear() == null ? "" : request.courseSelection().schoolYear().trim();
+        String scheduleType = request.courseSelection().scheduleType() == null ? "" : request.courseSelection().scheduleType().trim();
+
+        if (baseName.isBlank() || level.isBlank() || letter.isBlank() || schoolYearValue.isBlank() || scheduleType.isBlank()) {
+            throw new IllegalArgumentException("Selected course is not available");
+        }
+
+        int schoolYear;
+        try {
+            schoolYear = Integer.parseInt(schoolYearValue);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException("Selected course is not available");
+        }
+
+        if (schoolYear < 2000 || schoolYear > 2100) {
+            throw new IllegalArgumentException("Selected course is not available");
+        }
+
+        return manageEnrollmentsPort.findOrCreateCourse(baseName, level, letter, schoolYear, scheduleType);
+    }
+
     private void saveContacts(Long enrollmentId, EnrollmentRequest request) {
         manageEnrollmentsPort.replaceGuardian(enrollmentId, new EnrollmentGuardian(
                 null,
                 request.guardian().run(),
                 request.guardian().name(),
                 request.guardian().lastName(),
+                request.guardian().birthDate(),
+                request.guardian().address(),
                 request.guardian().phone(),
                 request.guardian().email(),
+                request.guardian().education(),
                 request.guardian().relation(),
                 request.guardian().authorizedPickup()
         ));
+        manageEnrollmentsPort.replaceFather(enrollmentId, mapFamilyContact(request.father()));
+        manageEnrollmentsPort.replaceMother(enrollmentId, mapFamilyContact(request.mother()));
         manageEnrollmentsPort.replacePickupContacts(enrollmentId, mapPickupContacts(request.pickupContacts()));
         manageEnrollmentsPort.replaceDocuments(enrollmentId, mapDocuments(request));
     }
@@ -225,6 +289,23 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 .toList();
     }
 
+    private EnrollmentFamilyContact mapFamilyContact(EnrollmentFamilyContactRequest request) {
+        if (request == null) {
+            return new EnrollmentFamilyContact(null, "", "", "", "", "", "", "", "");
+        }
+        return new EnrollmentFamilyContact(
+                null,
+                blankToEmpty(request.run()),
+                blankToEmpty(request.name()),
+                blankToEmpty(request.lastName()),
+                blankToEmpty(request.birthDate()),
+                blankToEmpty(request.address()),
+                blankToEmpty(request.phone()),
+                blankToEmpty(request.email()),
+                blankToEmpty(request.education())
+        );
+    }
+
     private List<EnrollmentDocument> mapDocuments(EnrollmentRequest request) {
         if (request.documents() == null || request.documents().isEmpty()) {
             return List.of();
@@ -256,6 +337,10 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
 
     private String normalizeText(String value) {
         return value == null || value.isBlank() ? "No" : value;
+    }
+
+    private String blankToEmpty(String value) {
+        return value == null ? "" : value.trim();
     }
 
     private EnrollmentStudentAccess resolveStudentAccess(EnrollmentRequest request) {

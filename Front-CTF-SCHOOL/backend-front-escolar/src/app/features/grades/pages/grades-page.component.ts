@@ -4,13 +4,16 @@ import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, in
 import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
 import {
@@ -48,8 +51,10 @@ const DEFAULT_EVALUATION_WEIGHT = 20;
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatTooltipModule,
     TeacherModernLayoutComponent
   ],
   templateUrl: './grades-page.component.html',
@@ -224,7 +229,7 @@ export class GradesPageComponent {
     this.evaluationDialog.set({
       mode: 'create',
       evaluationId: null,
-      code: `EVAL. ${nextNumber}`,
+      code: `N${nextNumber}`,
       name: `Evaluación ${nextNumber}`,
       weight: DEFAULT_EVALUATION_WEIGHT,
       evaluationDate: this.todayIso()
@@ -470,6 +475,60 @@ export class GradesPageComponent {
       `libro-notas-${this.slug(this.selectedCourse()?.name ?? 'curso')}-${this.slug(this.selectedPeriod()?.name ?? 'periodo')}.csv`
     );
     this.snackBar.open('Evaluaciones exportadas', 'Cerrar', { duration: 2400 });
+  }
+
+  exportJson(): void {
+    const selectedCourse = this.selectedCourse();
+    if (!selectedCourse || this.isExporting()) {
+      return;
+    }
+
+    const periods = this.periods().filter((period) => period.schoolYear === selectedCourse.schoolYear);
+    if (periods.length === 0) {
+      this.snackBar.open('No hay periodos del ano escolar para exportar', 'Cerrar', { duration: 2800 });
+      return;
+    }
+
+    this.isExporting.set(true);
+    forkJoin(
+      periods.map((period) => this.buildPeriodExport(selectedCourse.id, period.id))
+    ).subscribe({
+      next: (periodExports) => {
+        const payload = {
+          generatedAt: new Date().toISOString(),
+          generatedBy: this.user()?.nombre ?? 'Usuario',
+          course: {
+            id: selectedCourse.id,
+            name: selectedCourse.name,
+            schoolYear: selectedCourse.schoolYear
+          },
+          currentSelection: {
+            periodId: this.selectedPeriodId(),
+            subjectId: this.selectedSubjectId(),
+            tab: this.activeTab()
+          },
+          yearHistory: {
+            schoolYear: selectedCourse.schoolYear,
+            periods: periodExports
+          }
+        };
+
+        this.downloadBlob(
+          new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' }),
+          `evaluaciones-export-${this.slug(selectedCourse.name)}-${selectedCourse.schoolYear}.json`
+        );
+        this.isExporting.set(false);
+        this.snackBar.open('JSON anual descargado correctamente', 'Cerrar', { duration: 2600 });
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.snackBar.open('No fue posible exportar el JSON anual de evaluaciones', 'Cerrar', { duration: 3200 });
+      }
+    });
+  }
+
+  exportDisabledMessage(format: 'word' | 'pdf'): string {
+    return `${format.toUpperCase()} estara disponible proximamente. Por ahora puedes usar JSON o Excel.`;
   }
 
   async exportStudentPdf(student: StudentGradeCard): Promise<void> {
@@ -745,6 +804,59 @@ export class GradesPageComponent {
 
   private waitForRender(): Promise<void> {
     return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  }
+
+  private buildPeriodExport(courseId: number, periodId: number) {
+    return this.gradeApiService.getGradeBook(courseId, periodId, null).pipe(
+      switchMap((initialBook) => {
+        const subjects = initialBook.subjects ?? [];
+        const remainingSubjectRequests = subjects
+          .filter((subject) => subject.id !== initialBook.subjectId)
+          .map((subject) =>
+            this.gradeApiService.getGradeBook(courseId, periodId, subject.id).pipe(
+              catchError(() => of(null))
+            )
+          );
+
+        return forkJoin({
+          initialBook: of(initialBook),
+          additionalBooks: remainingSubjectRequests.length > 0 ? forkJoin(remainingSubjectRequests) : of([]),
+          profile: this.gradeApiService.getStudentProfile(courseId, periodId).pipe(catchError(() => of(null))),
+          reports: this.gradeApiService.getReports(courseId, periodId).pipe(catchError(() => of(null)))
+        });
+      }),
+      map(({ initialBook, additionalBooks, profile, reports }) => {
+        const books = [initialBook, ...additionalBooks.filter((book): book is GradeBookView => book != null)];
+        return {
+          period: {
+            id: periodId,
+            name: initialBook.periodName,
+            semester: this.periods().find((item) => item.id === periodId)?.semester ?? null
+          },
+          subjects: books.map((book) => ({
+            subjectId: book.subjectId,
+            subjectName: book.subjectName,
+            evaluations: book.evaluations,
+            summary: book.summary,
+            students: book.students
+          })),
+          profile,
+          reports
+        };
+      }),
+      catchError(() =>
+        of({
+          period: {
+            id: periodId,
+            name: this.periods().find((item) => item.id === periodId)?.name ?? `Periodo ${periodId}`,
+            semester: this.periods().find((item) => item.id === periodId)?.semester ?? null
+          },
+          subjects: [],
+          profile: null,
+          reports: null
+        })
+      )
+    );
   }
 
   private downloadBlob(blob: Blob, fileName: string): void {

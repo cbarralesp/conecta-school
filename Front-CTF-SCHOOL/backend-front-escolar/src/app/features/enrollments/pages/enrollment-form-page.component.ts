@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -5,6 +6,7 @@ import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { startWith } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import {
@@ -41,6 +43,7 @@ export class EnrollmentFormPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly locationApiService = inject(LocationApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
 
   private readonly routeEnrollmentId = this.route.snapshot.paramMap.get('id');
 
@@ -51,8 +54,10 @@ export class EnrollmentFormPageComponent {
   readonly isLoading = signal(true);
   readonly isSaving = signal(false);
   readonly currentStep = signal(1);
+  readonly enrollmentStatus = signal('ACTIVO');
   readonly courses = signal<EnrollmentCourseOption[]>([]);
   readonly chileRegions = signal<ChileRegion[]>([]);
+  readonly academicYearOptions = Array.from({ length: 4 }, (_, index) => `${new Date().getFullYear() + index}`);
   readonly createCourseBase = signal('');
   readonly createCourseLevel = signal('');
   readonly createCourseLetter = signal('');
@@ -71,12 +76,24 @@ export class EnrollmentFormPageComponent {
       : 'Registrando información del estudiante'
   );
   readonly statusBadgeLabel = computed(() => {
-    const status = (this.form.controls.status.value || 'ACTIVO').toUpperCase();
-    return status === 'PENDIENTE' ? 'Pendiente' : 'Activo';
+    const status = this.enrollmentStatus();
+    if (status === 'PENDIENTE') {
+      return 'Pendiente';
+    }
+    if (this.isInactiveStatus(status)) {
+      return 'Inactiva';
+    }
+    return 'Activa';
   });
   readonly statusBadgeClass = computed(() => {
-    const status = (this.form.controls.status.value || 'ACTIVO').toUpperCase();
-    return status === 'PENDIENTE' ? 'status-badge status-badge--pending' : 'status-badge';
+    const status = this.enrollmentStatus();
+    if (status === 'PENDIENTE') {
+      return 'status-badge status-badge--pending';
+    }
+    if (this.isInactiveStatus(status)) {
+      return 'status-badge status-badge--inactive';
+    }
+    return 'status-badge';
   });
   readonly selectedCourseOption = computed(() =>
     this.courses().find((course) => course.id === Number(this.form.controls.courseId.value)) ?? null
@@ -105,14 +122,17 @@ export class EnrollmentFormPageComponent {
         unique.set(baseName.toUpperCase(), baseName);
       }
     }
-    return Array.from(unique.values());
+    return this.withSelectedCourseOption(Array.from(unique.values()), this.createCourseBase());
   });
   readonly availableLevelOptions = computed(() => {
     const selectedBase = this.createCourseBase().trim().toUpperCase();
     const source = this.courses().filter((course) =>
       !selectedBase || this.baseCourseName(course).trim().toUpperCase() === selectedBase
     );
-    return Array.from(new Map(source.map((course) => [course.level.toUpperCase(), course.level])).values());
+    return this.withSelectedCourseOption(
+      Array.from(new Map(source.map((course) => [course.level.toUpperCase(), course.level])).values()),
+      this.createCourseLevel()
+    );
   });
   readonly availableLetterOptions = computed(() => {
     const selectedBase = this.createCourseBase().trim().toUpperCase();
@@ -121,7 +141,10 @@ export class EnrollmentFormPageComponent {
       (!selectedBase || this.baseCourseName(course).trim().toUpperCase() === selectedBase) &&
       (!selectedLevel || course.level.trim().toUpperCase() === selectedLevel)
     );
-    return Array.from(new Map(source.map((course) => [course.letter.toUpperCase(), course.letter])).values());
+    return this.withSelectedCourseOption(
+      Array.from(new Map(source.map((course) => [course.letter.toUpperCase(), course.letter])).values()),
+      this.createCourseLetter()
+    );
   });
   readonly availableScheduleOptions = computed(() => {
     const selectedBase = this.createCourseBase().trim().toUpperCase();
@@ -132,7 +155,10 @@ export class EnrollmentFormPageComponent {
       (!selectedLevel || course.level.trim().toUpperCase() === selectedLevel) &&
       (!selectedLetter || course.letter.trim().toUpperCase() === selectedLetter)
     );
-    return Array.from(new Map(source.map((course) => [course.scheduleType.toUpperCase(), course.scheduleType])).values());
+    return this.withSelectedCourseOption(
+      Array.from(new Map(source.map((course) => [course.scheduleType.toUpperCase(), course.scheduleType])).values()),
+      this.createCourseSchedule()
+    );
   });
   readonly pickupRelationOptions = [
     'Madre',
@@ -193,34 +219,59 @@ export class EnrollmentFormPageComponent {
   ] as const;
 
   readonly form = this.formBuilder.nonNullable.group({
-    studentRun: ['', [Validators.required]],
-    studentFirstName: ['', [Validators.required]],
+    studentRun: [''],
+    studentFirstName: [''],
     studentMiddleName: [''],
-    studentLastNameFather: ['', [Validators.required]],
-    studentLastNameMother: ['', [Validators.required]],
-    birthDate: ['', [Validators.required]],
-    courseId: [0, [Validators.required, Validators.min(1)]],
+    studentLastNameFather: [''],
+    studentLastNameMother: [''],
+    birthDate: [''],
+    courseId: [0],
     courseBase: this.formBuilder.nonNullable.group({
       baseName: [{ value: '', disabled: true }],
       level: [{ value: '', disabled: true }],
       letter: [{ value: '', disabled: true }],
-      schoolYear: [{ value: '', disabled: true }],
+      schoolYear: [`${new Date().getFullYear()}`],
       scheduleType: [{ value: '', disabled: true }]
     }),
-    gender: ['Femenino', [Validators.required]],
+    gender: ['Femenino'],
     regionId: [0],
     communeId: [0],
-    address: ['', [Validators.required]],
+    address: [''],
+    livesWith: [''],
+    allergies: [''],
+    specialistDiagnoses: [''],
+    emergencyContact: [''],
     specialNeeds: ['Regular'],
-    status: ['ACTIVO', [Validators.required]],
-    enrollmentDate: [new Date().toISOString().slice(0, 10), [Validators.required]],
+    status: ['ACTIVO'],
+    enrollmentDate: [new Date().toISOString().slice(0, 10)],
     guardian: this.formBuilder.nonNullable.group({
-      run: ['', [Validators.required]],
-      fullName: ['', [Validators.required]],
-      phone: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      relation: ['Madre', [Validators.required]],
+      run: [''],
+      fullName: [''],
+      birthDate: [''],
+      address: [''],
+      phone: [''],
+      email: ['', [Validators.email]],
+      education: [''],
+      relation: ['Madre'],
       authorizedPickup: [true]
+    }),
+    father: this.formBuilder.nonNullable.group({
+      run: [''],
+      fullName: [''],
+      birthDate: [''],
+      address: [''],
+      phone: [''],
+      email: ['', [Validators.email]],
+      education: ['']
+    }),
+    mother: this.formBuilder.nonNullable.group({
+      run: [''],
+      fullName: [''],
+      birthDate: [''],
+      address: [''],
+      phone: [''],
+      email: ['', [Validators.email]],
+      education: ['']
     }),
     studentAccess: this.formBuilder.nonNullable.group({
       configureAccess: [false],
@@ -240,7 +291,7 @@ export class EnrollmentFormPageComponent {
       contactEmail: [''],
       status: ['Sin cuenta']
     }),
-    pickupContacts: this.formBuilder.array([this.createPickupContactGroup()]),
+    pickupContacts: this.formBuilder.array([]),
     establishment: this.formBuilder.nonNullable.group({
       regionId: [0],
       communeId: [0],
@@ -254,6 +305,7 @@ export class EnrollmentFormPageComponent {
   });
 
   constructor() {
+    this.observeEnrollmentStatus();
     this.observeLocationSelection();
     this.observeCourseSelection();
     this.loadCoursesAndData();
@@ -269,6 +321,14 @@ export class EnrollmentFormPageComponent {
 
   get courseBaseGroup() {
     return this.form.controls.courseBase;
+  }
+
+  get fatherGroup() {
+    return this.form.controls.father;
+  }
+
+  get motherGroup() {
+    return this.form.controls.mother;
   }
 
   get establishmentGroup() {
@@ -319,7 +379,38 @@ export class EnrollmentFormPageComponent {
     this.pickupContacts.push(this.createPickupContactGroup());
   }
 
-  useGuardianAsPickupContact(): void {
+  hasGuardianPickupContact(): boolean {
+    const guardianRun = this.normalizeComparableRun(this.guardianGroup.controls.run.value);
+    if (!guardianRun) {
+      return false;
+    }
+
+    return this.pickupContacts.controls.some(
+      (control) => this.normalizeComparableRun(`${control.get('run')?.value ?? ''}`) === guardianRun
+    );
+  }
+
+  toggleGuardianPickupContact(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.addGuardianAsPickupContact();
+      return;
+    }
+
+    const guardianRun = this.normalizeComparableRun(this.guardianGroup.controls.run.value);
+    if (!guardianRun) {
+      return;
+    }
+
+    for (let index = this.pickupContacts.length - 1; index >= 0; index -= 1) {
+      const currentRun = this.normalizeComparableRun(`${this.pickupContacts.at(index)?.get('run')?.value ?? ''}`);
+      if (currentRun === guardianRun) {
+        this.pickupContacts.removeAt(index);
+      }
+    }
+  }
+
+  private addGuardianAsPickupContact(): void {
     const guardian = this.guardianGroup.getRawValue();
     if (!guardian.run.trim() || !guardian.fullName.trim() || !guardian.phone.trim() || !guardian.relation.trim()) {
       this.guardianGroup.markAllAsTouched();
@@ -329,26 +420,14 @@ export class EnrollmentFormPageComponent {
       return;
     }
 
-    const guardianName = this.splitGuardianName(guardian.fullName);
-    const existingIndex = this.pickupContacts.controls.findIndex(
-      (control) => `${control.get('run')?.value ?? ''}`.trim().toUpperCase() === guardian.run.trim().toUpperCase()
-    );
-
-    if (existingIndex >= 0) {
-      this.pickupContacts.at(existingIndex).patchValue({
-        run: guardian.run.trim(),
-        name: guardianName.name,
-        lastName: guardianName.lastName,
-        phone: guardian.phone.trim(),
-        relation: guardian.relation.trim(),
-        authorizedPickup: true
-      });
-      this.pickupContacts.at(existingIndex).markAsDirty();
-      this.snackBar.open('Se actualizaron los datos del apoderado en responsables de retiro', 'Cerrar', {
+    if (this.hasGuardianPickupContact()) {
+      this.snackBar.open('El apoderado principal ya esta agregado como responsable de retiro', 'Cerrar', {
         duration: 2500
       });
       return;
     }
+
+    const guardianName = this.splitGuardianName(guardian.fullName);
 
     if (this.pickupContacts.length >= 5) {
       this.snackBar.open('Ya alcanzaste el maximo de responsables de retiro', 'Cerrar', {
@@ -362,7 +441,7 @@ export class EnrollmentFormPageComponent {
         run: guardian.run.trim(),
         name: guardianName.name,
         lastName: guardianName.lastName,
-        phone: guardian.phone.trim(),
+        phone: this.formatChileanMobile(guardian.phone.trim()),
         relation: guardian.relation.trim(),
         authorizedPickup: true
       })
@@ -373,9 +452,6 @@ export class EnrollmentFormPageComponent {
   }
 
   removePickupContact(index: number): void {
-    if (this.pickupContacts.length === 1) {
-      return;
-    }
     this.pickupContacts.removeAt(index);
   }
 
@@ -421,6 +497,7 @@ export class EnrollmentFormPageComponent {
       return;
     }
     this.currentStep.set(Math.min(Math.max(step, 1), this.wizardSteps.length));
+    this.scrollWizardToTop();
   }
 
   nextStep(): void {
@@ -428,6 +505,7 @@ export class EnrollmentFormPageComponent {
       return;
     }
     this.currentStep.set(Math.min(this.currentStep() + 1, this.wizardSteps.length));
+    this.scrollWizardToTop();
   }
 
   previousStep(): void {
@@ -435,11 +513,38 @@ export class EnrollmentFormPageComponent {
       return;
     }
     this.currentStep.set(Math.max(this.currentStep() - 1, 1));
+    this.scrollWizardToTop();
   }
 
   saveWithStatus(status: 'PENDIENTE' | 'ACTIVO'): void {
     this.form.controls.status.setValue(status);
     this.save();
+  }
+
+  reactivateEnrollment(): void {
+    if (!this.isEditMode || !this.enrollmentId || this.isSaving()) {
+      return;
+    }
+
+    const confirmed = window.confirm('Deseas reactivar esta matricula? El estudiante volvera a quedar activo en el curso.');
+    if (!confirmed) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.enrollmentApiService.reactivate(this.enrollmentId).subscribe({
+      next: (detail) => {
+        this.isSaving.set(false);
+        this.patchForm(detail);
+        this.snackBar.open('Matricula reactivada correctamente', 'Cerrar', {
+          duration: 2500
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSaving.set(false);
+        this.showError(error, 'No fue posible reactivar la matricula');
+      }
+    });
   }
 
   cancelCreate(): void {
@@ -585,45 +690,76 @@ export class EnrollmentFormPageComponent {
     this.createCourseLevel.set('');
     this.createCourseLetter.set('');
     this.createCourseSchedule.set('');
-    this.form.controls.courseId.setValue(0);
+    this.courseBaseGroup.patchValue({
+      baseName: value,
+      level: '',
+      letter: '',
+      scheduleType: ''
+    }, { emitEvent: false });
+    this.syncSelectedCourseFromComposer();
   }
 
   onCreateCourseLevelChange(value: string): void {
     this.createCourseLevel.set(value);
     this.createCourseLetter.set('');
     this.createCourseSchedule.set('');
-    this.form.controls.courseId.setValue(0);
+    this.courseBaseGroup.patchValue({
+      level: value,
+      letter: '',
+      scheduleType: ''
+    }, { emitEvent: false });
+    this.syncSelectedCourseFromComposer();
   }
 
   onCreateCourseLetterChange(value: string): void {
     this.createCourseLetter.set(value);
     this.createCourseSchedule.set('');
-    this.form.controls.courseId.setValue(0);
+    this.courseBaseGroup.patchValue({
+      letter: value,
+      scheduleType: ''
+    }, { emitEvent: false });
+    this.syncSelectedCourseFromComposer();
   }
 
   onCreateCourseScheduleChange(value: string): void {
     this.createCourseSchedule.set(value);
-    const match = this.courses().find((course) =>
-      this.baseCourseName(course).trim().toUpperCase() === this.createCourseBase().trim().toUpperCase()
-      && course.level.trim().toUpperCase() === this.createCourseLevel().trim().toUpperCase()
-      && course.letter.trim().toUpperCase() === this.createCourseLetter().trim().toUpperCase()
-      && course.scheduleType.trim().toUpperCase() === this.createCourseSchedule().trim().toUpperCase()
-    );
-    this.form.controls.courseId.setValue(match?.id ?? 0);
+    this.courseBaseGroup.patchValue({
+      scheduleType: value
+    }, { emitEvent: false });
+    this.syncSelectedCourseFromComposer();
+  }
+
+  onCreateCourseSchoolYearChange(value: string): void {
+    const normalizedValue = value.replace(/\D/g, '').slice(0, 4);
+    this.courseBaseGroup.controls.schoolYear.setValue(normalizedValue, { emitEvent: false });
+    this.syncSelectedCourseFromComposer();
   }
 
   save(): void {
-    if (this.form.invalid || this.isSaving()) {
-      this.form.markAllAsTouched();
-      if (!this.isSaving()) {
-        this.snackBar.open('Completa los campos obligatorios para guardar la matricula', 'Cerrar', {
-          duration: 2800
-        });
-      }
+    if (this.isSaving()) {
       return;
     }
 
     const payload = this.toPayload();
+    if (!this.hasMinimumRequiredData(payload)) {
+      this.form.markAllAsTouched();
+      this.snackBar.open('Completa los datos minimos requeridos para guardar la matricula', 'Cerrar', {
+        duration: 2800
+      });
+      return;
+    }
+    if (!payload.courseId && !this.hasCompleteCourseSelection(payload)) {
+      this.snackBar.open('Selecciona un curso valido para matricular al estudiante', 'Cerrar', {
+        duration: 2800
+      });
+      return;
+    }
+    if (!payload.pickupContacts.length) {
+      this.snackBar.open('Agrega al menos un responsable de retiro completo', 'Cerrar', {
+        duration: 2800
+      });
+      return;
+    }
     this.isSaving.set(true);
     const request$ = this.isEditMode
       ? this.enrollmentApiService.update(this.enrollmentId!, payload)
@@ -651,7 +787,12 @@ export class EnrollmentFormPageComponent {
       return;
     }
 
-    const confirmed = window.confirm('Deseas inactivar esta matricula? Esta accion dejara al estudiante fuera de la matricula activa.');
+    const isAlreadyInactive = this.isInactiveStatus(`${this.form.controls.status.value ?? ''}`);
+    const confirmed = window.confirm(
+      isAlreadyInactive
+        ? 'Esta matricula ya esta inactiva. Si continuas, se eliminara completamente de la base de datos junto con el alumno si no tiene otras matriculas. Deseas continuar?'
+        : 'Deseas inactivar esta matricula? Esta accion dejara al estudiante fuera de la matricula activa.'
+    );
     if (!confirmed) {
       return;
     }
@@ -660,12 +801,16 @@ export class EnrollmentFormPageComponent {
     this.enrollmentApiService.delete(this.enrollmentId).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.snackBar.open('Matricula inactivada correctamente', 'Cerrar', { duration: 2500 });
+        this.snackBar.open(
+          isAlreadyInactive ? 'Matricula eliminada correctamente' : 'Matricula inactivada correctamente',
+          'Cerrar',
+          { duration: 2500 }
+        );
         void this.router.navigate(['/dashboard/matriculas']);
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
-        this.showError(error, 'No fue posible inactivar la matricula');
+        this.showError(error, isAlreadyInactive ? 'No fue posible eliminar la matricula' : 'No fue posible inactivar la matricula');
       }
     });
   }
@@ -694,6 +839,15 @@ export class EnrollmentFormPageComponent {
     }
 
     control.setValue(this.formatRun(`${control.value ?? ''}`));
+  }
+
+  formatPhoneValue(path: string): void {
+    const control = this.form.get(path);
+    if (!control) {
+      return;
+    }
+
+    control.setValue(this.formatChileanMobile(`${control.value ?? ''}`));
   }
 
   private loadCoursesAndData(): void {
@@ -733,6 +887,7 @@ export class EnrollmentFormPageComponent {
   }
 
   private patchForm(detail: EnrollmentDetail): void {
+    const normalizedStatus = this.normalizeEnrollmentStatus(detail.status);
     const studentNames = this.splitFullName(detail.studentName);
     const studentLastNames = this.splitLastNames(detail.studentLastName);
     const guardianFullName = [detail.guardian.name, detail.guardian.lastName].filter(Boolean).join(' ').trim();
@@ -749,16 +904,41 @@ export class EnrollmentFormPageComponent {
       regionId: detail.regionId ?? 0,
       communeId: detail.communeId ?? 0,
       address: detail.address,
+      livesWith: detail.livesWith,
+      allergies: detail.allergies,
+      specialistDiagnoses: detail.specialistDiagnoses,
+      emergencyContact: detail.emergencyContact,
       specialNeeds: detail.specialNeeds,
-      status: detail.status,
+      status: normalizedStatus,
       enrollmentDate: detail.enrollmentDate,
       guardian: {
         run: detail.guardian.run,
         fullName: guardianFullName,
-        phone: detail.guardian.phone,
+        birthDate: detail.guardian.birthDate,
+        address: detail.guardian.address,
+        phone: this.formatChileanMobile(detail.guardian.phone),
         email: detail.guardian.email,
+        education: detail.guardian.education,
         relation: detail.guardian.relation,
         authorizedPickup: detail.guardian.authorizedPickup
+      },
+      father: {
+        run: detail.father.run,
+        fullName: [detail.father.name, detail.father.lastName].filter(Boolean).join(' ').trim(),
+        birthDate: detail.father.birthDate,
+        address: detail.father.address,
+        phone: this.formatChileanMobile(detail.father.phone),
+        email: detail.father.email,
+        education: detail.father.education
+      },
+      mother: {
+        run: detail.mother.run,
+        fullName: [detail.mother.name, detail.mother.lastName].filter(Boolean).join(' ').trim(),
+        birthDate: detail.mother.birthDate,
+        address: detail.mother.address,
+        phone: this.formatChileanMobile(detail.mother.phone),
+        email: detail.mother.email,
+        education: detail.mother.education
       },
       studentAccess: {
         configureAccess: detail.studentAccess.configureAccess || detail.guardianAccess.configureAccess,
@@ -790,7 +970,7 @@ export class EnrollmentFormPageComponent {
       }
     });
 
-    this.syncCourseBaseFields(detail.courseId);
+    this.hydrateCourseComposer(detail);
 
     this.uploadedDocuments.set(
       Object.fromEntries(
@@ -807,11 +987,11 @@ export class EnrollmentFormPageComponent {
     const contacts = detail.pickupContacts.length > 0 ? detail.pickupContacts : [this.emptyPickupContact()];
     contacts.forEach((contact) => {
       this.pickupContacts.push(this.formBuilder.nonNullable.group({
-        run: [contact.run, [Validators.required]],
-        name: [contact.name, [Validators.required]],
-        lastName: [contact.lastName, [Validators.required]],
-        phone: [contact.phone, [Validators.required]],
-        relation: [contact.relation, [Validators.required]],
+        run: [contact.run],
+        name: [contact.name],
+        lastName: [contact.lastName],
+        phone: [this.formatChileanMobile(contact.phone)],
+        relation: [contact.relation],
         authorizedPickup: [contact.authorizedPickup]
       }));
     });
@@ -820,11 +1000,11 @@ export class EnrollmentFormPageComponent {
   private createPickupContactGroup(contact?: Partial<ReturnType<EnrollmentFormPageComponent['emptyPickupContact']>>) {
     const initialContact = { ...this.emptyPickupContact(), ...(contact ?? {}) };
     return this.formBuilder.nonNullable.group({
-      run: [initialContact.run, [Validators.required]],
-      name: [initialContact.name, [Validators.required]],
-      lastName: [initialContact.lastName, [Validators.required]],
-      phone: [initialContact.phone, [Validators.required]],
-      relation: [initialContact.relation, [Validators.required]],
+      run: [initialContact.run],
+      name: [initialContact.name],
+      lastName: [initialContact.lastName],
+      phone: [this.formatChileanMobile(initialContact.phone)],
+      relation: [initialContact.relation],
       authorizedPickup: [initialContact.authorizedPickup]
     });
   }
@@ -832,8 +1012,30 @@ export class EnrollmentFormPageComponent {
   private toPayload(): EnrollmentPayload {
     const value = this.form.getRawValue();
     const guardianName = this.splitGuardianName(value.guardian.fullName);
+    const fatherName = this.splitGuardianName(value.father.fullName);
+    const motherName = this.splitGuardianName(value.mother.fullName);
     const establishmentRegionId = value.establishment.regionId > 0 ? Number(value.establishment.regionId) : null;
     const establishmentCommuneId = value.establishment.communeId > 0 ? Number(value.establishment.communeId) : null;
+    const pickupContacts = (value.pickupContacts as Array<{
+      run: string;
+      name: string;
+      lastName: string;
+      phone: string;
+      relation: string;
+      authorizedPickup: boolean;
+    }>)
+      .map((contact) => ({
+        id: null,
+        run: contact.run.trim(),
+        name: contact.name.trim(),
+        lastName: contact.lastName.trim(),
+        phone: contact.phone.trim(),
+        relation: contact.relation.trim(),
+        authorizedPickup: contact.authorizedPickup
+      }))
+      .filter((contact) =>
+        contact.run || contact.name || contact.lastName || contact.phone || contact.relation
+      );
 
     return {
       studentRun: value.studentRun.trim(),
@@ -842,9 +1044,20 @@ export class EnrollmentFormPageComponent {
       birthDate: value.birthDate,
       gender: this.normalizeBinaryGender(value.gender, 'Femenino'),
       courseId: Number(value.courseId),
+      courseSelection: {
+        baseName: value.courseBase.baseName.trim(),
+        level: value.courseBase.level.trim(),
+        letter: value.courseBase.letter.trim(),
+        schoolYear: value.courseBase.schoolYear.trim(),
+        scheduleType: value.courseBase.scheduleType.trim()
+      },
       regionId: value.regionId > 0 ? Number(value.regionId) : null,
       communeId: value.communeId > 0 ? Number(value.communeId) : null,
       address: value.address.trim(),
+      livesWith: value.livesWith.trim(),
+      allergies: value.allergies.trim(),
+      specialistDiagnoses: value.specialistDiagnoses.trim(),
+      emergencyContact: value.emergencyContact.trim(),
       specialNeeds: value.specialNeeds.trim(),
       status: value.status,
       enrollmentDate: value.enrollmentDate,
@@ -863,20 +1076,37 @@ export class EnrollmentFormPageComponent {
         run: value.guardian.run.trim(),
         name: guardianName.name,
         lastName: guardianName.lastName,
+        birthDate: value.guardian.birthDate.trim(),
+        address: value.guardian.address.trim(),
         phone: value.guardian.phone.trim(),
-        email: value.guardian.email.trim(),
+        email: this.normalizeOptionalEmail(value.guardian.email),
+        education: value.guardian.education.trim(),
         relation: value.guardian.relation.trim(),
         authorizedPickup: value.guardian.authorizedPickup
       },
-      pickupContacts: value.pickupContacts.map((contact) => ({
+      father: {
         id: null,
-        run: contact.run.trim(),
-        name: contact.name.trim(),
-        lastName: contact.lastName.trim(),
-        phone: contact.phone.trim(),
-        relation: contact.relation.trim(),
-        authorizedPickup: contact.authorizedPickup
-      })),
+        run: value.father.run.trim(),
+        name: fatherName.name,
+        lastName: fatherName.lastName,
+        birthDate: value.father.birthDate.trim(),
+        address: value.father.address.trim(),
+        phone: value.father.phone.trim(),
+        email: this.normalizeOptionalEmail(value.father.email),
+        education: value.father.education.trim()
+      },
+      mother: {
+        id: null,
+        run: value.mother.run.trim(),
+        name: motherName.name,
+        lastName: motherName.lastName,
+        birthDate: value.mother.birthDate.trim(),
+        address: value.mother.address.trim(),
+        phone: value.mother.phone.trim(),
+        email: this.normalizeOptionalEmail(value.mother.email),
+        education: value.mother.education.trim()
+      },
+      pickupContacts,
       documents: Object.entries(this.uploadedDocuments()).map(([documentKey, fileName]) => ({
         id: null,
         documentKey,
@@ -937,6 +1167,38 @@ export class EnrollmentFormPageComponent {
     }
 
     return `${parts.reverse().join('')}-${verifier}`;
+  }
+
+  private normalizeComparableRun(value: string): string {
+    return `${value ?? ''}`.replace(/[^0-9kK]/g, '').toUpperCase().trim();
+  }
+
+  private formatChileanMobile(rawValue: string): string {
+    const digits = rawValue.replace(/\D/g, '');
+    if (!digits) {
+      return '';
+    }
+
+    let normalized = digits;
+    if (normalized.startsWith('56')) {
+      normalized = normalized.slice(2);
+    }
+    if (normalized.startsWith('9')) {
+      normalized = normalized.slice(1);
+    }
+
+    normalized = normalized.slice(0, 8);
+
+    const first = normalized.slice(0, 4);
+    const second = normalized.slice(4, 8);
+
+    if (!first) {
+      return '+56 9';
+    }
+    if (!second) {
+      return `+56 9 ${first}`;
+    }
+    return `+56 9 ${first} ${second}`;
   }
 
   private emptyPickupContact() {
@@ -1015,6 +1277,34 @@ export class EnrollmentFormPageComponent {
       .toLowerCase();
   }
 
+  private hasMinimumRequiredData(payload: EnrollmentPayload): boolean {
+    return !!payload.studentRun
+      && !!payload.studentName
+      && !!payload.studentLastName
+      && !!payload.birthDate
+      && !!payload.gender
+      && !!payload.address
+      && !!payload.status
+      && !!payload.enrollmentDate
+      && !!payload.guardian.run
+      && !!payload.guardian.name
+      && !!payload.guardian.lastName
+      && !!payload.guardian.phone
+      && !!payload.guardian.relation;
+  }
+
+  private normalizeOptionalEmail(value: string): string {
+    const normalized = `${value ?? ''}`.trim();
+    if (!normalized) {
+      return '';
+    }
+    return this.isValidEmail(normalized) ? normalized : '';
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
   private observeLocationSelection(): void {
     this.form.controls.regionId.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1029,6 +1319,17 @@ export class EnrollmentFormPageComponent {
       });
   }
 
+  private observeEnrollmentStatus(): void {
+    this.form.controls.status.valueChanges
+      .pipe(
+        startWith(this.form.controls.status.value),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((status) => {
+        this.enrollmentStatus.set(this.normalizeEnrollmentStatus(`${status ?? ''}`));
+      });
+  }
+
   private observeCourseSelection(): void {
     this.form.controls.courseId.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1039,17 +1340,165 @@ export class EnrollmentFormPageComponent {
 
   private syncCourseBaseFields(courseId: number): void {
     const course = this.courses().find((item) => item.id === Number(courseId)) ?? null;
-    this.createCourseBase.set(course ? this.baseCourseName(course) : '');
-    this.createCourseLevel.set(course?.level ?? '');
-    this.createCourseLetter.set(course?.letter ?? '');
-    this.createCourseSchedule.set(course?.scheduleType ?? '');
+    if (!course) {
+      this.courseBaseGroup.patchValue({
+        baseName: this.createCourseBase(),
+        level: this.createCourseLevel(),
+        letter: this.createCourseLetter(),
+        schoolYear: this.courseBaseGroup.controls.schoolYear.value,
+        scheduleType: this.createCourseSchedule()
+      }, { emitEvent: false });
+      return;
+    }
+
+    this.createCourseBase.set(this.baseCourseName(course));
+    this.createCourseLevel.set(course.level ?? '');
+    this.createCourseLetter.set(course.letter ?? '');
+    this.createCourseSchedule.set(course.scheduleType ?? '');
     this.courseBaseGroup.patchValue({
-      baseName: course ? this.baseCourseName(course) : '',
+      baseName: this.baseCourseName(course),
       level: course?.level ?? '',
       letter: course?.letter ?? '',
-      schoolYear: course ? `${course.schoolYear}` : '',
+      schoolYear: `${course.schoolYear}`,
       scheduleType: course?.scheduleType ?? ''
     }, { emitEvent: false });
+  }
+
+  private hydrateCourseComposer(detail: EnrollmentDetail): void {
+    const matchedCourseById = this.courses().find((item) => item.id === Number(detail.courseId)) ?? null;
+    if (matchedCourseById) {
+      this.syncCourseBaseFields(matchedCourseById.id);
+      return;
+    }
+
+    const parsedCourse = this.buildCourseComposerSnapshot(detail);
+    this.createCourseBase.set(parsedCourse.baseName);
+    this.createCourseLevel.set(parsedCourse.level);
+    this.createCourseLetter.set(parsedCourse.letter);
+    this.createCourseSchedule.set(parsedCourse.scheduleType);
+    this.courseBaseGroup.patchValue({
+      baseName: parsedCourse.baseName,
+      level: parsedCourse.level,
+      letter: parsedCourse.letter,
+      schoolYear: parsedCourse.schoolYear,
+      scheduleType: parsedCourse.scheduleType
+    }, { emitEvent: false });
+
+    const matchedCourseByAttributes = this.findCourseMatchByComposer(parsedCourse);
+    if (matchedCourseByAttributes) {
+      this.form.controls.courseId.setValue(matchedCourseByAttributes.id, { emitEvent: false });
+      this.syncCourseBaseFields(matchedCourseByAttributes.id);
+    }
+  }
+
+  private buildCourseComposerSnapshot(detail: EnrollmentDetail): {
+    baseName: string;
+    level: string;
+    letter: string;
+    schoolYear: string;
+    scheduleType: string;
+  } {
+    const parsedName = this.parseCourseName(detail.courseName, detail.courseLetter);
+    const schoolYear = `${detail.courseSchoolYear ?? this.courseBaseGroup.controls.schoolYear.value ?? new Date().getFullYear()}`;
+    const matchedCourse = this.courses().find((course) =>
+      this.baseCourseName(course).trim().toUpperCase() === parsedName.baseName.trim().toUpperCase()
+      && (!parsedName.letter || course.letter.trim().toUpperCase() === parsedName.letter.trim().toUpperCase())
+      && `${course.schoolYear}` === schoolYear
+    ) ?? null;
+
+    return {
+      baseName: parsedName.baseName,
+      level: detail.courseLevel || matchedCourse?.level || '',
+      letter: parsedName.letter,
+      schoolYear,
+      scheduleType: detail.courseScheduleType || matchedCourse?.scheduleType || ''
+    };
+  }
+
+  private findCourseMatchByComposer(courseComposer: {
+    baseName: string;
+    level: string;
+    letter: string;
+    schoolYear: string;
+    scheduleType: string;
+  }): EnrollmentCourseOption | null {
+    return this.courses().find((course) =>
+      this.baseCourseName(course).trim().toUpperCase() === courseComposer.baseName.trim().toUpperCase()
+      && (!courseComposer.level || course.level.trim().toUpperCase() === courseComposer.level.trim().toUpperCase())
+      && (!courseComposer.letter || course.letter.trim().toUpperCase() === courseComposer.letter.trim().toUpperCase())
+      && (!courseComposer.scheduleType || course.scheduleType.trim().toUpperCase() === courseComposer.scheduleType.trim().toUpperCase())
+      && `${course.schoolYear}` === `${courseComposer.schoolYear}`
+    ) ?? null;
+  }
+
+  private parseCourseName(courseName: string, explicitLetter: string): { baseName: string; letter: string } {
+    const normalizedCourseName = `${courseName ?? ''}`.trim();
+    const normalizedExplicitLetter = `${explicitLetter ?? ''}`.trim().toUpperCase();
+    if (!normalizedCourseName) {
+      return { baseName: '', letter: normalizedExplicitLetter };
+    }
+
+    if (normalizedExplicitLetter) {
+      const suffix = ` ${normalizedExplicitLetter}`;
+      if (normalizedCourseName.toUpperCase().endsWith(suffix)) {
+        return {
+          baseName: normalizedCourseName.slice(0, -suffix.length).trim(),
+          letter: normalizedExplicitLetter
+        };
+      }
+      return {
+        baseName: normalizedCourseName,
+        letter: normalizedExplicitLetter
+      };
+    }
+
+    const parts = normalizedCourseName.split(/\s+/).filter(Boolean);
+    const lastPart = parts.at(-1)?.trim().toUpperCase() ?? '';
+    if (/^[A-Z]$/.test(lastPart) && parts.length > 1) {
+      return {
+        baseName: parts.slice(0, -1).join(' ').trim(),
+        letter: lastPart
+      };
+    }
+
+    return {
+      baseName: normalizedCourseName,
+      letter: ''
+    };
+  }
+
+  private syncSelectedCourseFromComposer(): void {
+    const schoolYear = Number(this.courseBaseGroup.controls.schoolYear.value);
+    const match = this.courses().find((course) =>
+      this.baseCourseName(course).trim().toUpperCase() === this.createCourseBase().trim().toUpperCase()
+      && course.level.trim().toUpperCase() === this.createCourseLevel().trim().toUpperCase()
+      && course.letter.trim().toUpperCase() === this.createCourseLetter().trim().toUpperCase()
+      && course.scheduleType.trim().toUpperCase() === this.createCourseSchedule().trim().toUpperCase()
+      && course.schoolYear === schoolYear
+    );
+    this.form.controls.courseId.setValue(match?.id ?? 0);
+  }
+
+  private withSelectedCourseOption(options: string[], selectedValue: string): string[] {
+    const normalizedSelectedValue = `${selectedValue ?? ''}`.trim();
+    if (!normalizedSelectedValue) {
+      return options;
+    }
+
+    const alreadyIncluded = options.some((option) => option.trim().toUpperCase() === normalizedSelectedValue.toUpperCase());
+    if (alreadyIncluded) {
+      return options;
+    }
+
+    return [normalizedSelectedValue, ...options];
+  }
+
+  private hasCompleteCourseSelection(payload: EnrollmentPayload): boolean {
+    return !!payload.courseSelection.baseName
+      && !!payload.courseSelection.level
+      && !!payload.courseSelection.letter
+      && !!payload.courseSelection.scheduleType
+      && /^\d{4}$/.test(payload.courseSelection.schoolYear);
   }
 
   private resetCommuneIfMissing(control: FormControl<number>, regionId: number): void {
@@ -1087,6 +1536,18 @@ export class EnrollmentFormPageComponent {
     });
   }
 
+  private normalizeEnrollmentStatus(status: string): string {
+    const normalized = `${status ?? ''}`.trim().toUpperCase();
+    if (normalized === 'INACTIVO') {
+      return 'INACTIVA';
+    }
+    return normalized || 'ACTIVO';
+  }
+
+  private isInactiveStatus(status: string): boolean {
+    return ['INACTIVA', 'INACTIVO'].includes((status || '').trim().toUpperCase());
+  }
+
   private resolveControlError(control: import('@angular/forms').AbstractControl | null): string {
     if (!control || !control.invalid || (!control.touched && !control.dirty)) {
       return '';
@@ -1101,6 +1562,33 @@ export class EnrollmentFormPageComponent {
       return 'Selecciona una opcion valida.';
     }
     return 'Revisa este campo.';
+  }
+
+  private scrollWizardToTop(): void {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const anchor = this.document.getElementById('enrollment-form-top');
+        if (!anchor) {
+          this.document.defaultView?.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        let current: HTMLElement | null = anchor;
+        while (current) {
+          const { overflowY } = getComputedStyle(current);
+          const isScrollable = ['auto', 'scroll', 'overlay'].includes(overflowY) && current.scrollHeight > current.clientHeight;
+          if (isScrollable) {
+            current.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          current = current.parentElement;
+        }
+
+        this.document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+        this.document.body.scrollTo({ top: 0, behavior: 'smooth' });
+        this.document.defaultView?.scrollTo({ top: 0, behavior: 'smooth' });
+        anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
   private validateStep(step: number): boolean {

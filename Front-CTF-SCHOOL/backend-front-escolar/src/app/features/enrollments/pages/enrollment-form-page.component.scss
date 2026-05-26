@@ -209,6 +209,21 @@
   padding-top: 0.85rem;
 }
 
+.subform-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.subform-card__title {
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
 .access-config {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
@@ -502,6 +517,12 @@ label {
   color: #b45309;
 }
 
+.status-badge--inactive {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #b45309;
+}
+
 .meta-panel {
   border-top: 1px solid #e2e8f0;
   padding-top: 1rem;
@@ -588,6 +609,16 @@ label {
 .btn-primary:hover:not(:disabled) {
   background: #2563eb;
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: #d97706;
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.28);
 }
 
 .btn-pending {
@@ -749,10 +780,43 @@ label {
   background: #eff6ff;
 }
 
-.section-inline-actions {
+.pickup-sync-card {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #dbeafe;
+  background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+  border-radius: 10px;
+}
+
+.pickup-sync-toggle {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.85rem;
+  align-items: flex-start;
+  gap: 0.8rem;
+  cursor: pointer;
+}
+
+.pickup-sync-toggle input[type='checkbox'] {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.18rem;
+  accent-color: #2563eb;
+  flex-shrink: 0;
+}
+
+.pickup-sync-toggle__copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.pickup-sync-toggle__copy strong {
+  font-size: 0.86rem;
+  color: #1e293b;
+}
+
+.pickup-sync-toggle__copy small {
+  color: #64748b;
+  font-size: 0.77rem;
+  line-height: 1.4;
 }
 
 .doc-section + .doc-section {

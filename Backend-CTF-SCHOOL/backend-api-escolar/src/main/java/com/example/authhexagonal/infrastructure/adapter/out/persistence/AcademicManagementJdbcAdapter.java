@@ -6,6 +6,7 @@ import com.example.authhexagonal.domain.model.ScheduleCourseOption;
 import com.example.authhexagonal.domain.model.ScheduleEntry;
 import com.example.authhexagonal.domain.model.SchedulePeriodOption;
 import com.example.authhexagonal.domain.model.ScheduleTeacherOption;
+import com.example.authhexagonal.domain.model.SubjectAssignedTeacher;
 import com.example.authhexagonal.domain.port.out.ManageSchedulesPort;
 import com.example.authhexagonal.domain.port.out.ManageSubjectsPort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, ManageSubjectsPort {
@@ -256,11 +258,32 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     }
 
     @Override
-    public List<ScheduleBlock> findWeeklyScheduleBlocks() {
+    public List<ScheduleBlock> findWeeklyScheduleBlocks(Long courseId) {
+        if (!scheduleCourseScopeAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT "ID", "DIA_SEMANA", "HORA_INICIO", "HORA_FIN", "ORDEN", "TIPO_BLOQUE"
+                    FROM "BLOQUES_HORARIOS"
+                    WHERE "ACTIVO" = TRUE
+                    ORDER BY "ORDEN",
+                        CASE "DIA_SEMANA"
+                            WHEN 'LUNES' THEN 1
+                            WHEN 'MARTES' THEN 2
+                            WHEN 'MIERCOLES' THEN 3
+                            WHEN 'JUEVES' THEN 4
+                            WHEN 'VIERNES' THEN 5
+                            ELSE 6
+                        END
+                    """, (rs, rowNum) -> mapBlock(rs));
+        }
+
+        boolean hasScopedBlocks = hasCourseSpecificBlocks(courseId);
+        String scopeCondition = hasScopedBlocks ? "\"CURSO_ID\" = ?" : "\"CURSO_ID\" IS NULL";
+        List<Object> args = hasScopedBlocks ? List.of(courseId) : List.of();
         return jdbcTemplate.query("""
                 SELECT "ID", "DIA_SEMANA", "HORA_INICIO", "HORA_FIN", "ORDEN", "TIPO_BLOQUE"
                 FROM "BLOQUES_HORARIOS"
                 WHERE "ACTIVO" = TRUE
+                  AND %s
                 ORDER BY "ORDEN",
                     CASE "DIA_SEMANA"
                         WHEN 'LUNES' THEN 1
@@ -270,7 +293,48 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                         WHEN 'VIERNES' THEN 5
                         ELSE 6
                     END
-                """, (rs, rowNum) -> mapBlock(rs));
+                """.formatted(scopeCondition), (rs, rowNum) -> mapBlock(rs), args.toArray());
+    }
+
+    @Override
+    public int findMaxScheduleBlockOrder() {
+        Integer maxOrder = jdbcTemplate.queryForObject("""
+                SELECT COALESCE(MAX("ORDEN"), 0)
+                FROM "BLOQUES_HORARIOS"
+                """, Integer.class);
+        return maxOrder == null ? 0 : maxOrder;
+    }
+
+    @Override
+    public void shiftScheduleBlockOrdersFrom(Long courseId, int order) {
+        if (!scheduleCourseScopeAvailable()) {
+            jdbcTemplate.update("""
+                    UPDATE "BLOQUES_HORARIOS"
+                    SET "ORDEN" = -"ORDEN"
+                    WHERE "ORDEN" >= ?
+                    """, order);
+
+            jdbcTemplate.update("""
+                    UPDATE "BLOQUES_HORARIOS"
+                    SET "ORDEN" = ABS("ORDEN") + 1
+                    WHERE "ORDEN" <= -?
+                    """, order);
+            return;
+        }
+
+        jdbcTemplate.update("""
+                UPDATE "BLOQUES_HORARIOS"
+                SET "ORDEN" = -"ORDEN"
+                WHERE "ORDEN" >= ?
+                  AND "CURSO_ID" = ?
+                """, order, courseId);
+
+        jdbcTemplate.update("""
+                UPDATE "BLOQUES_HORARIOS"
+                SET "ORDEN" = ABS("ORDEN") + 1
+                WHERE "ORDEN" <= -?
+                  AND "CURSO_ID" = ?
+                """, order, courseId);
     }
 
     @Override
@@ -284,12 +348,37 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     }
 
     @Override
-    public List<ScheduleBlock> findActiveScheduleBlocksByOrder(int order) {
+    public List<ScheduleBlock> findActiveScheduleBlocksByOrder(Long courseId, int order) {
+        if (!scheduleCourseScopeAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT "ID", "DIA_SEMANA", "HORA_INICIO", "HORA_FIN", "ORDEN", "TIPO_BLOQUE"
+                    FROM "BLOQUES_HORARIOS"
+                    WHERE "ORDEN" = ?
+                      AND "ACTIVO" = TRUE
+                    ORDER BY CASE "DIA_SEMANA"
+                        WHEN 'LUNES' THEN 1
+                        WHEN 'MARTES' THEN 2
+                        WHEN 'MIERCOLES' THEN 3
+                        WHEN 'JUEVES' THEN 4
+                        WHEN 'VIERNES' THEN 5
+                        ELSE 6
+                    END
+                    """, (rs, rowNum) -> mapBlock(rs), order);
+        }
+
+        boolean hasScopedBlocks = hasCourseSpecificBlocks(courseId);
+        String scopeCondition = hasScopedBlocks ? "\"CURSO_ID\" = ?" : "\"CURSO_ID\" IS NULL";
+        List<Object> args = new ArrayList<>();
+        args.add(order);
+        if (hasScopedBlocks) {
+            args.add(courseId);
+        }
         return jdbcTemplate.query("""
                 SELECT "ID", "DIA_SEMANA", "HORA_INICIO", "HORA_FIN", "ORDEN", "TIPO_BLOQUE"
                 FROM "BLOQUES_HORARIOS"
                 WHERE "ORDEN" = ?
                   AND "ACTIVO" = TRUE
+                  AND %s
                 ORDER BY CASE "DIA_SEMANA"
                     WHEN 'LUNES' THEN 1
                     WHEN 'MARTES' THEN 2
@@ -298,7 +387,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     WHEN 'VIERNES' THEN 5
                     ELSE 6
                 END
-                """, (rs, rowNum) -> mapBlock(rs), order);
+                """.formatted(scopeCondition), (rs, rowNum) -> mapBlock(rs), args.toArray());
     }
 
     @Override
@@ -433,19 +522,53 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     }
 
     @Override
-    public void updateScheduleBlocksTimeByOrder(int order, String startTime, String endTime) {
+    public void updateScheduleBlocksTimeByOrder(Long courseId, int order, String startTime, String endTime) {
+        if (!scheduleCourseScopeAvailable()) {
+            jdbcTemplate.update("""
+                    UPDATE "BLOQUES_HORARIOS"
+                    SET "HORA_INICIO" = CAST(? AS TIME),
+                        "HORA_FIN" = CAST(? AS TIME)
+                    WHERE "ORDEN" = ?
+                      AND "ACTIVO" = TRUE
+                    """, startTime, endTime, order);
+            return;
+        }
+
         jdbcTemplate.update("""
                 UPDATE "BLOQUES_HORARIOS"
                 SET "HORA_INICIO" = CAST(? AS TIME),
                     "HORA_FIN" = CAST(? AS TIME)
                 WHERE "ORDEN" = ?
                   AND "ACTIVO" = TRUE
-                """, startTime, endTime, order);
+                  AND "CURSO_ID" = ?
+                """, startTime, endTime, order, courseId);
     }
 
     @Override
-    public void createBreakBlocks(String startTime, String endTime, int order) {
+    public void createBreakBlocks(Long courseId, String startTime, String endTime, int order) {
+        createScheduleBlocks(courseId, startTime, endTime, order, "RECREO");
+    }
+
+    @Override
+    public void createScheduleBlocks(Long courseId, String startTime, String endTime, int order, String blockType) {
         List<String> weekdays = List.of("LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES");
+        if (!scheduleCourseScopeAvailable()) {
+            for (String weekday : weekdays) {
+                jdbcTemplate.update("""
+                        INSERT INTO "BLOQUES_HORARIOS" (
+                            "DIA_SEMANA",
+                            "HORA_INICIO",
+                            "HORA_FIN",
+                            "ORDEN",
+                            "TIPO_BLOQUE",
+                            "ACTIVO"
+                        )
+                        VALUES (?, CAST(? AS TIME), CAST(? AS TIME), ?, ?, TRUE)
+                        """, weekday, startTime, endTime, order, blockType);
+            }
+            return;
+        }
+
         for (String weekday : weekdays) {
             jdbcTemplate.update("""
                     INSERT INTO "BLOQUES_HORARIOS" (
@@ -454,31 +577,119 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                         "HORA_FIN",
                         "ORDEN",
                         "TIPO_BLOQUE",
+                        "CURSO_ID",
                         "ACTIVO"
                     )
-                    VALUES (?, CAST(? AS TIME), CAST(? AS TIME), ?, 'RECREO', TRUE)
-                    """, weekday, startTime, endTime, order);
+                    VALUES (?, CAST(? AS TIME), CAST(? AS TIME), ?, ?, ?, TRUE)
+                    """, weekday, startTime, endTime, order, blockType, courseId);
         }
     }
 
     @Override
-    public void deactivateScheduleBlocksByOrder(int order) {
+    public void deactivateScheduleBlocksByOrder(Long courseId, int order) {
+        if (!scheduleCourseScopeAvailable()) {
+            jdbcTemplate.update("""
+                    UPDATE "BLOQUES_HORARIOS"
+                    SET "ACTIVO" = FALSE
+                    WHERE "ORDEN" = ?
+                    """, order);
+            return;
+        }
+
         jdbcTemplate.update("""
                 UPDATE "BLOQUES_HORARIOS"
                 SET "ACTIVO" = FALSE
                 WHERE "ORDEN" = ?
-                """, order);
+                  AND "CURSO_ID" = ?
+                """, order, courseId);
     }
 
     @Override
-    public boolean hasScheduleEntriesForOrder(int order) {
+    public boolean hasScheduleEntriesForOrder(Long courseId, int order) {
+        if (!scheduleCourseScopeAvailable()) {
+            Integer count = jdbcTemplate.queryForObject("""
+                    SELECT COUNT(1)
+                    FROM "HORARIOS_CARGAS" hc
+                    JOIN "BLOQUES_HORARIOS" bh ON bh."ID" = hc."BLOQUE_HORARIO_ID"
+                    WHERE bh."ORDEN" = ?
+                      AND bh."ACTIVO" = TRUE
+                    """, Integer.class, order);
+            return count != null && count > 0;
+        }
+
         Integer count = jdbcTemplate.queryForObject("""
                 SELECT COUNT(1)
                 FROM "HORARIOS_CARGAS" hc
                 JOIN "BLOQUES_HORARIOS" bh ON bh."ID" = hc."BLOQUE_HORARIO_ID"
                 WHERE bh."ORDEN" = ?
                   AND bh."ACTIVO" = TRUE
-                """, Integer.class, order);
+                  AND bh."CURSO_ID" = ?
+                """, Integer.class, order, courseId);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public void ensureCourseSpecificScheduleBlocks(Long courseId) {
+        if (!scheduleCourseScopeAvailable()) {
+            return;
+        }
+
+        if (courseId == null || hasCourseSpecificBlocks(courseId)) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                INSERT INTO "BLOQUES_HORARIOS" (
+                    "DIA_SEMANA",
+                    "HORA_INICIO",
+                    "HORA_FIN",
+                    "ORDEN",
+                    "TIPO_BLOQUE",
+                    "CURSO_ID",
+                    "ACTIVO"
+                )
+                SELECT
+                    "DIA_SEMANA",
+                    "HORA_INICIO",
+                    "HORA_FIN",
+                    "ORDEN",
+                    "TIPO_BLOQUE",
+                    ?,
+                    "ACTIVO"
+                FROM "BLOQUES_HORARIOS"
+                WHERE "CURSO_ID" IS NULL
+                  AND "ACTIVO" = TRUE
+                """, courseId);
+
+        jdbcTemplate.update("""
+                UPDATE "HORARIOS_CARGAS" hc
+                SET "BLOQUE_HORARIO_ID" = scoped."ID"
+                FROM "CARGAS_DOCENTES" cd,
+                     "BLOQUES_HORARIOS" original,
+                     "BLOQUES_HORARIOS" scoped
+                WHERE cd."ID" = hc."CARGA_DOCENTE_ID"
+                  AND cd."CURSO_ID" = ?
+                  AND original."ID" = hc."BLOQUE_HORARIO_ID"
+                  AND original."CURSO_ID" IS NULL
+                  AND scoped."CURSO_ID" = cd."CURSO_ID"
+                  AND scoped."DIA_SEMANA" = original."DIA_SEMANA"
+                  AND scoped."ORDEN" = original."ORDEN"
+                """, courseId);
+    }
+
+    private boolean hasCourseSpecificBlocks(Long courseId) {
+        if (!scheduleCourseScopeAvailable()) {
+            return false;
+        }
+        if (courseId == null) {
+            return false;
+        }
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "BLOQUES_HORARIOS"
+                WHERE "CURSO_ID" = ?
+                  AND "ACTIVO" = TRUE
+                """, Integer.class, courseId);
         return count != null && count > 0;
     }
 
@@ -499,68 +710,84 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
 
     @Override
     public List<AcademicSubject> findAllActiveSubjects(String search, String levelGroup) {
+        String displayLevelExpression = subjectDisplayLevelExpression("a");
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    "ID",
-                    "CODIGO",
-                    "NOMBRE",
-                    "AREA",
-                    "COLOR_HEX",
-                    COALESCE("DESCRIPCION", '') AS "DESCRIPCION",
-                    COALESCE("NIVEL_REFERENCIA", '') AS "NIVEL_REFERENCIA",
-                    COALESCE("HORAS_SUGERIDAS", 2) AS "HORAS_SUGERIDAS",
-                    "ACTIVA"
-                FROM "ASIGNATURAS"
-                WHERE "ACTIVA" = TRUE
+                    a."ID",
+                    a."CODIGO",
+                    a."NOMBRE",
+                    a."AREA",
+                    a."COLOR_HEX",
+                    COALESCE(a."DESCRIPCION", '') AS "DESCRIPCION",
+                    COALESCE(a."NIVEL_REFERENCIA", '') AS "NIVEL_REFERENCIA",
+                    %s AS "DISPLAY_LEVEL",
+                    COALESCE(a."HORAS_SUGERIDAS", 2) AS "HORAS_SUGERIDAS",
+                    a."ACTIVA"
+                FROM "ASIGNATURAS" a
+                """.formatted(displayLevelExpression));
+        appendSubjectLevelJoin(sql);
+        sql.append("""
+                WHERE a."ACTIVA" = TRUE
                 """);
 
         List<Object> args = new java.util.ArrayList<>();
         if (search != null && !search.isBlank()) {
             sql.append("""
                      AND (
-                        UPPER("CODIGO") LIKE UPPER(?)
-                        OR UPPER("NOMBRE") LIKE UPPER(?)
-                        OR UPPER("AREA") LIKE UPPER(?)
-                        OR UPPER(COALESCE("NIVEL_REFERENCIA", '')) LIKE UPPER(?)
-                        OR UPPER(COALESCE("DESCRIPCION", '')) LIKE UPPER(?)
+                        UPPER(a."CODIGO") LIKE UPPER(?)
+                        OR UPPER(a."NOMBRE") LIKE UPPER(?)
+                        OR UPPER(a."AREA") LIKE UPPER(?)
+                        OR UPPER(%s) LIKE UPPER(?)
+                        OR UPPER(COALESCE(a."NIVEL_REFERENCIA", '')) LIKE UPPER(?)
+                        OR UPPER(COALESCE(a."DESCRIPCION", '')) LIKE UPPER(?)
                     )
-                    """);
+                    """.formatted(displayLevelExpression));
             String pattern = "%" + search.trim() + "%";
             args.add(pattern);
             args.add(pattern);
             args.add(pattern);
             args.add(pattern);
             args.add(pattern);
+            args.add(pattern);
         }
 
-        if ("basic".equalsIgnoreCase(levelGroup)) {
-            sql.append(" AND UPPER(COALESCE(\"NIVEL_REFERENCIA\", '')) LIKE UPPER('%BASICA%')");
+        String normalizedDisplayLevelExpression = normalizedSubjectLevelExpression(displayLevelExpression);
+        if ("initial".equalsIgnoreCase(levelGroup)) {
+            sql.append(" AND ").append(normalizedDisplayLevelExpression).append(" LIKE '%INICIAL%'");
+        } else if ("basic".equalsIgnoreCase(levelGroup)) {
+            sql.append(" AND ").append(normalizedDisplayLevelExpression).append(" LIKE '%BASICO%'");
         } else if ("media".equalsIgnoreCase(levelGroup)) {
-            sql.append(" AND UPPER(COALESCE(\"NIVEL_REFERENCIA\", '')) LIKE UPPER('%MEDIA%')");
+            sql.append(" AND ").append(normalizedDisplayLevelExpression).append(" LIKE '%MEDIA%'");
         }
 
-        sql.append(" ORDER BY \"NOMBRE\"");
+        sql.append(" ORDER BY a.\"NOMBRE\"");
 
         return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapSubject(rs), args.toArray());
     }
 
     @Override
     public Optional<AcademicSubject> findActiveSubjectById(Long subjectId) {
-        return jdbcTemplate.query("""
+        String displayLevelExpression = subjectDisplayLevelExpression("a");
+        StringBuilder sql = new StringBuilder("""
                 SELECT
-                    "ID",
-                    "CODIGO",
-                    "NOMBRE",
-                    "AREA",
-                    "COLOR_HEX",
-                    COALESCE("DESCRIPCION", '') AS "DESCRIPCION",
-                    COALESCE("NIVEL_REFERENCIA", '') AS "NIVEL_REFERENCIA",
-                    COALESCE("HORAS_SUGERIDAS", 2) AS "HORAS_SUGERIDAS",
-                    "ACTIVA"
-                FROM "ASIGNATURAS"
-                WHERE "ID" = ?
-                  AND "ACTIVA" = TRUE
-                """, (rs, rowNum) -> mapSubject(rs), subjectId).stream().findFirst();
+                    a."ID",
+                    a."CODIGO",
+                    a."NOMBRE",
+                    a."AREA",
+                    a."COLOR_HEX",
+                    COALESCE(a."DESCRIPCION", '') AS "DESCRIPCION",
+                    COALESCE(a."NIVEL_REFERENCIA", '') AS "NIVEL_REFERENCIA",
+                    %s AS "DISPLAY_LEVEL",
+                    COALESCE(a."HORAS_SUGERIDAS", 2) AS "HORAS_SUGERIDAS",
+                    a."ACTIVA"
+                FROM "ASIGNATURAS" a
+                """.formatted(displayLevelExpression));
+        appendSubjectLevelJoin(sql);
+        sql.append("""
+                WHERE a."ID" = ?
+                  AND a."ACTIVA" = TRUE
+                """);
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapSubject(rs), subjectId).stream().findFirst();
     }
 
     @Override
@@ -594,7 +821,8 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     ) {
         Long subjectId = jdbcTemplate.queryForObject("""
                 INSERT INTO "ASIGNATURAS" (
@@ -611,6 +839,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 RETURNING "ID"
                 """, Long.class, code, name, area, colorHex, description, referenceLevel, suggestedHours);
 
+        replaceSubjectTeachers(subjectId, name, null, teacherIds);
         return findActiveSubjectById(subjectId).orElseThrow();
     }
 
@@ -623,8 +852,15 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     ) {
+        String previousName = jdbcTemplate.queryForObject("""
+                SELECT "NOMBRE"
+                FROM "ASIGNATURAS"
+                WHERE "ID" = ?
+                """, String.class, subjectId);
+
         jdbcTemplate.update("""
                 UPDATE "ASIGNATURAS"
                 SET "CODIGO" = ?,
@@ -637,6 +873,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 WHERE "ID" = ?
                 """, code, name, area, colorHex, description, referenceLevel, suggestedHours, subjectId);
 
+        replaceSubjectTeachers(subjectId, name, previousName, teacherIds);
         return findActiveSubjectById(subjectId).orElseThrow();
     }
 
@@ -718,6 +955,10 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
         return count != null && count > 0;
     }
 
+    private boolean scheduleCourseScopeAvailable() {
+        return columnExists("BLOQUES_HORARIOS", "CURSO_ID");
+    }
+
     private ScheduleEntry mapScheduleEntry(ResultSet rs) throws SQLException {
         return new ScheduleEntry(
                 rs.getLong("schedule_id"),
@@ -755,20 +996,199 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
     }
 
     private AcademicSubject mapSubject(ResultSet rs) throws SQLException {
+        Long subjectId = rs.getLong("ID");
+        String subjectName = rs.getString("NOMBRE");
         return new AcademicSubject(
-                rs.getLong("ID"),
+                subjectId,
                 rs.getString("CODIGO"),
-                rs.getString("NOMBRE"),
+                subjectName,
                 rs.getString("AREA"),
                 rs.getString("COLOR_HEX"),
                 rs.getString("DESCRIPCION"),
                 rs.getString("NIVEL_REFERENCIA"),
+                rs.getString("DISPLAY_LEVEL"),
                 rs.getInt("HORAS_SUGERIDAS"),
-                rs.getBoolean("ACTIVA")
+                rs.getBoolean("ACTIVA"),
+                findAssignedTeachersBySubjectId(subjectId, subjectName)
         );
+    }
+
+    private void appendSubjectLevelJoin(StringBuilder sql) {
+        if (!tableExists("CARGAS_DOCENTES")
+                || !tableExists("CURSOS")
+                || !columnExists("CARGAS_DOCENTES", "ASIGNATURA_ID")
+                || !columnExists("CARGAS_DOCENTES", "CURSO_ID")) {
+            return;
+        }
+
+        String levelSource = courseNormalizationAvailable()
+                ? "COALESCE(cn.\"NOMBRE\", c.\"NIVEL\")"
+                : "COALESCE(c.\"NIVEL\", '')";
+
+        sql.append("""
+                LEFT JOIN (
+                    SELECT
+                        cd."ASIGNATURA_ID" AS "SUBJECT_ID",
+                        STRING_AGG(DISTINCT %s, ', ' ORDER BY %s) AS "DISPLAY_LEVEL"
+                    FROM "CARGAS_DOCENTES" cd
+                    JOIN "CURSOS" c
+                      ON c."ID" = cd."CURSO_ID"
+                     AND c."ACTIVO" = TRUE
+                """.formatted(levelSource, levelSource));
+
+        if (courseNormalizationAvailable()) {
+            sql.append("""
+                    LEFT JOIN "CURSO_GRADOS" cg
+                      ON cg."ID" = c."GRADO_ID"
+                    LEFT JOIN "CURSO_NIVELES" cn
+                      ON cn."ID" = cg."NIVEL_ID"
+                    """);
+        }
+
+        sql.append("""
+                    WHERE cd."ACTIVA" = TRUE
+                    GROUP BY cd."ASIGNATURA_ID"
+                ) course_levels
+                  ON course_levels."SUBJECT_ID" = a."ID"
+                """);
+    }
+
+    private String subjectDisplayLevelExpression(String subjectAlias) {
+        String fallbackReferenceLevel = "COALESCE(" + subjectAlias + ".\"NIVEL_REFERENCIA\", '')";
+        if (tableExists("CARGAS_DOCENTES")
+                && tableExists("CURSOS")
+                && columnExists("CARGAS_DOCENTES", "ASIGNATURA_ID")
+                && columnExists("CARGAS_DOCENTES", "CURSO_ID")) {
+            return "COALESCE(NULLIF(course_levels.\"DISPLAY_LEVEL\", ''), NULLIF(" + fallbackReferenceLevel + ", ''), 'Sin nivel')";
+        }
+        return "COALESCE(NULLIF(" + fallbackReferenceLevel + ", ''), 'Sin nivel')";
+    }
+
+    private String normalizedSubjectLevelExpression(String expression) {
+        return "UPPER(TRANSLATE(" + expression + ", 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU'))";
+    }
+
+    private boolean courseNormalizationAvailable() {
+        return tableExists("CURSO_GRADOS")
+                && tableExists("CURSO_NIVELES")
+                && columnExists("CURSOS", "GRADO_ID");
     }
 
     private String formatTime(LocalTime localTime) {
         return localTime.format(TIME_FORMATTER);
+    }
+
+    private List<SubjectAssignedTeacher> findAssignedTeachersBySubjectId(Long subjectId, String subjectName) {
+        if (!tableExists("PROFESOR_ASIGNATURAS") || !tableExists("PROFESORES") || !tableExists("PERSONAS")) {
+            return List.of();
+        }
+
+        if (columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA_ID")) {
+            return jdbcTemplate.query("""
+                    SELECT DISTINCT
+                        pr."ID",
+                        pr."CODIGO",
+                        TRIM(COALESCE(pe."NOMBRES", '') || ' ' || COALESCE(pe."APELLIDOS", '')) AS full_name
+                    FROM "PROFESOR_ASIGNATURAS" pa
+                    JOIN "PROFESORES" pr ON pr."ID" = pa."PROFESOR_ID"
+                    JOIN "PERSONAS" pe ON pe."ID" = pr."PERSONA_ID"
+                    WHERE pa."ASIGNATURA_ID" = ?
+                      AND pa."ACTIVO" = TRUE
+                      AND pr."ACTIVO" = TRUE
+                    ORDER BY full_name
+                    """, (row, rowNum) -> new SubjectAssignedTeacher(
+                    row.getLong("ID"),
+                    row.getString("CODIGO"),
+                    row.getString("full_name")
+            ), subjectId);
+        }
+
+        if (!columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT DISTINCT
+                    pr."ID",
+                    pr."CODIGO",
+                    TRIM(COALESCE(pe."NOMBRES", '') || ' ' || COALESCE(pe."APELLIDOS", '')) AS full_name
+                FROM "PROFESOR_ASIGNATURAS" pa
+                JOIN "PROFESORES" pr ON pr."ID" = pa."PROFESOR_ID"
+                JOIN "PERSONAS" pe ON pe."ID" = pr."PERSONA_ID"
+                WHERE UPPER(TRIM(pa."ASIGNATURA")) = UPPER(TRIM(?))
+                  AND pa."ACTIVO" = TRUE
+                  AND pr."ACTIVO" = TRUE
+                ORDER BY full_name
+                """, (row, rowNum) -> new SubjectAssignedTeacher(
+                row.getLong("ID"),
+                row.getString("CODIGO"),
+                row.getString("full_name")
+        ), subjectName);
+    }
+
+    private void replaceSubjectTeachers(Long subjectId, String subjectName, String previousSubjectName, List<Long> teacherIds) {
+        if (!tableExists("PROFESOR_ASIGNATURAS")) {
+            return;
+        }
+
+        List<Long> distinctTeacherIds = teacherIds == null ? List.of() : teacherIds.stream()
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA_ID")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "PROFESOR_ASIGNATURAS"
+                    WHERE "ASIGNATURA_ID" = ?
+                    """, subjectId);
+
+            if (distinctTeacherIds.isEmpty()) {
+                return;
+            }
+
+            boolean hasSubjectNameColumn = columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA");
+            for (Long teacherId : distinctTeacherIds) {
+                if (hasSubjectNameColumn) {
+                    jdbcTemplate.update("""
+                            INSERT INTO "PROFESOR_ASIGNATURAS" ("PROFESOR_ID", "ASIGNATURA", "ASIGNATURA_ID", "ACTIVO")
+                            VALUES (?, ?, ?, TRUE)
+                            """, teacherId, subjectName, subjectId);
+                } else {
+                    jdbcTemplate.update("""
+                            INSERT INTO "PROFESOR_ASIGNATURAS" ("PROFESOR_ID", "ASIGNATURA_ID", "ACTIVO")
+                            VALUES (?, ?, TRUE)
+                            """, teacherId, subjectId);
+                }
+            }
+            return;
+        }
+
+        if (!columnExists("PROFESOR_ASIGNATURAS", "ASIGNATURA")) {
+            return;
+        }
+
+        List<String> assignmentNames = new ArrayList<>();
+        if (previousSubjectName != null && !previousSubjectName.isBlank()) {
+            assignmentNames.add(previousSubjectName.trim());
+        }
+        if (subjectName != null && !subjectName.isBlank() && assignmentNames.stream().noneMatch(name -> name.equalsIgnoreCase(subjectName.trim()))) {
+            assignmentNames.add(subjectName.trim());
+        }
+
+        if (!assignmentNames.isEmpty()) {
+            String placeholders = assignmentNames.stream().map(name -> "?").collect(Collectors.joining(", "));
+            List<Object> deleteArgs = new ArrayList<>(assignmentNames);
+            jdbcTemplate.update("""
+                    DELETE FROM "PROFESOR_ASIGNATURAS"
+                    WHERE UPPER(TRIM("ASIGNATURA")) IN (%s)
+                    """.formatted(placeholders), deleteArgs.toArray());
+        }
+
+        for (Long teacherId : distinctTeacherIds) {
+            jdbcTemplate.update("""
+                    INSERT INTO "PROFESOR_ASIGNATURAS" ("PROFESOR_ID", "ASIGNATURA", "ACTIVO")
+                    VALUES (?, ?, TRUE)
+                    """, teacherId, subjectName);
+        }
     }
 }

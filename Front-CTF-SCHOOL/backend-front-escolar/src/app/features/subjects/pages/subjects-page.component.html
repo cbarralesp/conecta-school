@@ -46,7 +46,8 @@
 
           <div class="subjects-levels" role="tablist" aria-label="Filtrar por nivel">
             <button type="button" [class.active]="levelFilter() === 'all'" (click)="setLevelFilter('all')">Todas</button>
-            <button type="button" [class.active]="levelFilter() === 'basic'" (click)="setLevelFilter('basic')">Básica</button>
+            <button type="button" [class.active]="levelFilter() === 'initial'" (click)="setLevelFilter('initial')">Inicial</button>
+            <button type="button" [class.active]="levelFilter() === 'basic'" (click)="setLevelFilter('basic')">Basica</button>
             <button type="button" [class.active]="levelFilter() === 'media'" (click)="setLevelFilter('media')">Media</button>
           </div>
         </div>
@@ -59,22 +60,22 @@
           <section class="empty-state empty-state--compact">
             <mat-icon>search_off</mat-icon>
             <strong>No encontramos coincidencias</strong>
-            <p>Ajusta la búsqueda o cambia el filtro de nivel para ver más asignaturas.</p>
+            <p>Ajusta la busqueda o cambia el filtro de nivel para ver mas asignaturas.</p>
           </section>
         } @else if (subjects().length === 0) {
           <section class="empty-state">
             <mat-icon>library_books</mat-icon>
             <strong>No hay asignaturas registradas</strong>
-            <p>Crea la primera asignatura del catálogo académico.</p>
+            <p>Crea la primera asignatura del catalogo academico.</p>
           </section>
         } @else {
           <div class="table-shell">
             <table class="subjects-table">
               <thead>
                 <tr>
-                  <th>Código</th>
+                  <th>Codigo</th>
                   <th>Asignatura</th>
-                  <th>Área</th>
+                  <th>Profesor asignado</th>
                   <th>Nivel</th>
                   <th>Estado</th>
                   <th class="actions-head">Acciones</th>
@@ -92,13 +93,25 @@
                     <td>
                       <span class="subject-title">{{ subject.name }}</span>
                     </td>
-                    <td>{{ subject.area }}</td>
+                    <td>
+                      @if (subject.assignedTeachers.length > 0) {
+                        <div class="teacher-cell">
+                          <span class="teacher-primary">{{ subject.assignedTeachers[0]?.fullName }}</span>
+                          @if (subject.assignedTeachers.length > 1) {
+                            <span class="teacher-secondary">+{{ subject.assignedTeachers.length - 1 }} mas</span>
+                          }
+                        </div>
+                      } @else {
+                        <span class="teacher-empty">Sin asignar</span>
+                      }
+                    </td>
                     <td>
                       <span
                         class="badge"
-                        [class.badge-basic]="subject.referenceLevel.toLowerCase().includes('bas')"
-                        [class.badge-media]="subject.referenceLevel.toLowerCase().includes('med')">
-                        {{ subject.referenceLevel }}
+                        [class.badge-initial]="isInitialLevel(subject)"
+                        [class.badge-basic]="isBasicLevel(subject)"
+                        [class.badge-media]="isMediaLevel(subject)">
+                        {{ getLevelLabel(subject) }}
                       </span>
                     </td>
                     <td>

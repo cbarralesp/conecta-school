@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ScheduleBlock, ScheduleCatalog, ScheduleEntry, SchedulePayload } from '../../../core/models/schedule.models';
+import { ScheduleBlock, ScheduleBlockType, ScheduleCatalog, ScheduleEntry, SchedulePayload } from '../../../core/models/schedule.models';
 
 export type ScheduleDialogMode = 'entry-create' | 'entry-edit' | 'row-create' | 'row-edit';
 
@@ -122,6 +122,14 @@ export interface ScheduleDialogCloseResult {
         } @else {
           <form [formGroup]="rowForm" class="dialog-form dialog-form--row">
             <mat-form-field appearance="outline">
+              <mat-label>Tipo de bloque</mat-label>
+              <mat-select formControlName="blockType">
+                <mat-option value="CLASE">Bloque de clase</mat-option>
+                <mat-option value="RECREO">Recreo</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
               <mat-label>Hora inicio</mat-label>
               <input matInput type="time" formControlName="startTime" />
               @if (getRowControlError('startTime')) {
@@ -138,7 +146,7 @@ export interface ScheduleDialogCloseResult {
             </mat-form-field>
 
             <div class="dialog-note span-2">
-              @if (isBreakRow()) {
+              @if (currentRowBlockType() === 'RECREO') {
                 <mat-icon>coffee</mat-icon>
                 <div>
                   <strong>Recreo del horario</strong>
@@ -163,13 +171,13 @@ export interface ScheduleDialogCloseResult {
           </button>
         }
 
-        @if (isBreakRow()) {
+        @if (isRowEditMode()) {
           <button
             mat-stroked-button
             color="warn"
             type="button"
             (click)="dialogRef.close({ deleteRow: true, rowPayload: data.row })">
-            Eliminar recreo
+            {{ isBreakRow() ? 'Eliminar recreo' : 'Eliminar bloque' }}
           </button>
         }
 
@@ -330,6 +338,7 @@ export class ScheduleDialogComponent {
   readonly mode = this.data.mode ?? (this.data.schedule ? 'entry-edit' : 'entry-create');
   readonly isEntryMode = computed(() => this.mode === 'entry-create' || this.mode === 'entry-edit');
   readonly isEditEntryMode = computed(() => this.mode === 'entry-edit');
+  readonly isRowEditMode = computed(() => this.mode === 'row-edit');
   readonly isBreakRow = computed(() => this.mode === 'row-edit' && this.data.row?.blockType === 'RECREO');
 
   readonly classBlocks = computed(() =>
@@ -346,6 +355,7 @@ export class ScheduleDialogComponent {
   });
 
   readonly rowForm = this.formBuilder.group({
+    blockType: [this.data.row?.blockType ?? 'CLASE', [Validators.required]],
     startTime: [this.data.row?.startTime ?? '', [Validators.required]],
     endTime: [this.data.row?.endTime ?? '', [Validators.required]]
   });
@@ -355,7 +365,7 @@ export class ScheduleDialogComponent {
       return 'Horario';
     }
     if (this.mode === 'row-create') {
-      return 'Recreo';
+      return this.currentRowBlockType() === 'RECREO' ? 'Recreo' : 'Bloque';
     }
     if (this.mode === 'row-edit') {
       return this.data.row?.blockType === 'RECREO' ? 'Recreo' : 'Hora';
@@ -368,7 +378,7 @@ export class ScheduleDialogComponent {
       return 'Editar bloque horario';
     }
     if (this.mode === 'row-create') {
-      return 'Agregar recreo';
+      return this.currentRowBlockType() === 'RECREO' ? 'Agregar recreo' : 'Agregar bloque horario';
     }
     if (this.mode === 'row-edit') {
       return this.data.row?.blockType === 'RECREO' ? 'Editar recreo' : 'Editar hora del bloque';
@@ -380,10 +390,12 @@ export class ScheduleDialogComponent {
     if (this.mode === 'entry-edit' || this.mode === 'entry-create') {
       return 'Asigna una asignatura, su docente y el bloque semanal en el que debe dictarse la clase.';
     }
-    if (this.data.row?.blockType === 'RECREO') {
+    if (this.currentRowBlockType() === 'RECREO') {
       return 'Configura la hora del recreo adicional que quieres mostrar en el horario semanal.';
     }
-    return 'Ajusta el tramo horario que se muestra en esta fila del horario para este curso.';
+    return this.mode === 'row-create'
+      ? 'Crea un nuevo bloque de clase para dejar disponible otra fila en la grilla semanal.'
+      : 'Ajusta el tramo horario que se muestra en esta fila del horario para este curso.';
   }
 
   submitLabel(): string {
@@ -394,9 +406,13 @@ export class ScheduleDialogComponent {
       return 'Guardar cambios';
     }
     if (this.mode === 'row-create') {
-      return 'Agregar recreo';
+      return this.currentRowBlockType() === 'RECREO' ? 'Agregar recreo' : 'Agregar bloque';
     }
     return 'Guardar hora';
+  }
+
+  currentRowBlockType(): ScheduleBlockType {
+    return (this.rowForm.controls.blockType.value ?? this.data.row?.blockType ?? 'CLASE') as ScheduleBlockType;
   }
 
   blockLabel(block: ScheduleBlock): string {
@@ -414,7 +430,7 @@ export class ScheduleDialogComponent {
     return 'Revisa este campo.';
   }
 
-  getRowControlError(controlName: 'startTime' | 'endTime'): string {
+  getRowControlError(controlName: 'startTime' | 'endTime' | 'blockType'): string {
     const control = this.rowForm.controls[controlName];
     if (!control.invalid || (!control.touched && !control.dirty)) {
       return '';
@@ -454,6 +470,7 @@ export class ScheduleDialogComponent {
     const value = this.rowForm.getRawValue();
     const rowPayload: ScheduleRowDraft = {
       ...this.data.row,
+      blockType: (value.blockType ?? this.data.row.blockType) as ScheduleBlockType,
       startTime: value.startTime!,
       endTime: value.endTime!
     };

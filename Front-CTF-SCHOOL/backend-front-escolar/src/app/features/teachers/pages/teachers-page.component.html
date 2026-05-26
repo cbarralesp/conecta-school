@@ -12,6 +12,15 @@
       </div>
 
       <div class="page-header__actions">
+        <button
+          mat-stroked-button
+          type="button"
+          class="export-button"
+          [matMenuTriggerFor]="exportMenu"
+          [disabled]="isExporting()">
+          <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+          Exportar
+        </button>
         <button mat-flat-button type="button" class="create-button create-button--header create-button--assistant" (click)="goToCreateAssistant()">
           <mat-icon>support</mat-icon>
           Nuevo asistente
@@ -22,6 +31,25 @@
         </button>
       </div>
     </section>
+
+    <mat-menu #exportMenu="matMenu" xPosition="before" class="export-menu">
+      <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
+        <mat-icon>data_object</mat-icon>
+        <span>JSON</span>
+      </button>
+      <button mat-menu-item type="button" disabled [matTooltip]="buildDisabledExportMessage('excel')">
+        <mat-icon>table_view</mat-icon>
+        <span>Excel</span>
+      </button>
+      <button mat-menu-item type="button" disabled [matTooltip]="buildDisabledExportMessage('word')">
+        <mat-icon>description</mat-icon>
+        <span>Word</span>
+      </button>
+      <button mat-menu-item type="button" disabled [matTooltip]="buildDisabledExportMessage('pdf')">
+        <mat-icon>picture_as_pdf</mat-icon>
+        <span>PDF</span>
+      </button>
+    </mat-menu>
 
     <section class="summary-grid">
       <app-summary-metric-card label="Total docentes" [value]="summary().totalTeachers" icon="school" tone="blue" />

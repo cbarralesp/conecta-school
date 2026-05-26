@@ -12,6 +12,7 @@ import {
 import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { catchError, forkJoin, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
@@ -19,6 +20,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
@@ -70,6 +72,7 @@ class MondayFirstDateAdapter extends NativeDateAdapter {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatMenuModule,
     MatNativeDateModule,
     MatSelectModule,
     MatSnackBarModule,
@@ -539,6 +542,53 @@ export class AttendancePageComponent {
     }
   }
 
+  exportJson(): void {
+    if (this.isExporting()) {
+      return;
+    }
+
+    const selectedCourse = this.selectedCourse();
+    const currentPayload = this.buildCurrentJsonExportPayload();
+    if (!selectedCourse || !currentPayload) {
+      this.snackBar.open('No hay datos de asistencia para exportar', 'Cerrar', { duration: 2800 });
+      return;
+    }
+
+    this.isExporting.set(true);
+    const yearMonths = this.buildSchoolYearMonths(selectedCourse.schoolYear);
+    forkJoin(
+      yearMonths.map((month) =>
+        this.attendanceApiService.getMonthly(selectedCourse.id, month).pipe(
+          catchError(() => of(null))
+        )
+      )
+    ).subscribe({
+      next: (monthlyViews) => {
+        const payload = {
+          ...currentPayload,
+          yearHistory: {
+            schoolYear: selectedCourse.schoolYear,
+            months: yearMonths.map((month, index) => ({
+              month,
+              attendance: monthlyViews[index]
+            })),
+            monthsWithData: monthlyViews.filter((view) => !!view).length
+          }
+        };
+
+        this.downloadJsonFile(payload);
+        this.isExporting.set(false);
+        this.snackBar.open('JSON descargado correctamente', 'Cerrar', { duration: 2400 });
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.snackBar.open('No fue posible exportar el historial anual de asistencia', 'Cerrar', {
+          duration: 3200
+        });
+      }
+    });
+  }
+
   statusLabel(status: string): string {
     switch (status) {
       case 'PRESENTE':
@@ -613,6 +663,10 @@ export class AttendancePageComponent {
 
   monthlyOverallPercentage(student: MonthlyAttendanceStudent): number {
     return Math.min(100, student.presentPercentage + student.latePercentage);
+  }
+
+  exportDisabledMessage(format: 'excel' | 'word' | 'pdf'): string {
+    return `${format.toUpperCase()} estara disponible proximamente. Por ahora puedes usar JSON.`;
   }
 
   monthlyCellClass(cell: MonthlyCalendarCell): string {
@@ -822,5 +876,87 @@ export class AttendancePageComponent {
     const year = date.getFullYear();
     const month = `${date.getMonth() + 1}`.padStart(2, '0');
     return `${year}-${month}`;
+  }
+
+  private buildCurrentJsonExportPayload(): unknown | null {
+    const course = this.selectedCourse();
+    const basePayload = {
+      generatedAt: new Date().toISOString(),
+      generatedBy: this.user()?.nombre ?? 'Usuario',
+      tab: this.activeTab(),
+      course: course ? { id: course.id, name: course.name, schoolYear: course.schoolYear } : null
+    };
+
+    if (this.activeTab() === 'daily') {
+      const dailyView = this.dailyView();
+      if (!dailyView) {
+        return null;
+      }
+
+      return {
+        ...basePayload,
+        filters: {
+          date: this.selectedDate(),
+          search: this.dailySearch().trim()
+        },
+        attendance: dailyView
+      };
+    }
+
+    if (this.activeTab() === 'weekly') {
+      const weeklyView = this.weeklyView();
+      if (!weeklyView) {
+        return null;
+      }
+
+      return {
+        ...basePayload,
+        filters: {
+          startDate: this.selectedWeekStart()
+        },
+        attendance: weeklyView
+      };
+    }
+
+    const monthlyView = this.monthlyView();
+    if (!monthlyView) {
+      return null;
+    }
+
+    return {
+      ...basePayload,
+      filters: {
+        month: this.selectedMonth(),
+        search: this.monthlySearch().trim(),
+        selectedStudentId: this.selectedMonthlyStudentId()
+      },
+      attendance: monthlyView,
+      selectedStudent: this.selectedMonthlyStudent()
+    };
+  }
+
+  private buildSchoolYearMonths(schoolYear: number): string[] {
+    return Array.from({ length: 12 }, (_, index) => {
+      const month = `${index + 1}`.padStart(2, '0');
+      return `${schoolYear}-${month}`;
+    });
+  }
+
+  private downloadJsonFile(payload: unknown): void {
+    const fileName = this.buildExportFileName();
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private buildExportFileName(): string {
+    const now = new Date();
+    const date = `${now.getFullYear()}-${`${now.getMonth() + 1}`.padStart(2, '0')}-${`${now.getDate()}`.padStart(2, '0')}`;
+    const tab = this.activeTab();
+    return `asistencia-${tab}-${date}.json`;
   }
 }

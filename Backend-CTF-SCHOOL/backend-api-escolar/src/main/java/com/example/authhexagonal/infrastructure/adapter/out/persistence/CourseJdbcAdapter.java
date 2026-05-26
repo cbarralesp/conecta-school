@@ -90,7 +90,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 SELECT
                     c."ID",
                     c."CODIGO",
-                    COALESCE(cg."NOMBRE", c."NOMBRE") AS "NOMBRE",
+                    COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE") AS "NOMBRE",
                     COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
                     c."LETRA",
                     c."ANIO_ESCOLAR",
@@ -124,7 +124,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                  AND m."ACTIVA" = TRUE
                 WHERE c."ACTIVO" = TRUE
                 GROUP BY c."ID", c."CODIGO", c."NOMBRE", c."NIVEL", c."LETRA", c."ANIO_ESCOLAR", c."JORNADA", cg."NOMBRE", cn."NOMBRE", cj."NOMBRE", cd."PROFESOR_ID", tp."NOMBRES", tp."APELLIDOS", cd."ASISTENTE_ID", ta."NOMBRES", ta."APELLIDOS", c."ACTIVO"
-                ORDER BY c."ANIO_ESCOLAR", COALESCE(cg."NOMBRE", c."NOMBRE"), c."LETRA"
+                ORDER BY c."ANIO_ESCOLAR", COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE"), c."LETRA"
                 """, (rs, rowNum) -> new Course(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
@@ -198,7 +198,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 SELECT
                     c."ID",
                     c."CODIGO",
-                    COALESCE(cg."NOMBRE", c."NOMBRE") AS "NOMBRE",
+                    COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE") AS "NOMBRE",
                     COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
                     c."LETRA",
                     c."ANIO_ESCOLAR",

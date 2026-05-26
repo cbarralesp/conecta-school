@@ -15,6 +15,25 @@
           <mat-icon>add</mat-icon>
           Nuevo horario
         </button>
+        <button
+          mat-stroked-button
+          type="button"
+          class="header-button header-button--ghost"
+          [matMenuTriggerFor]="scheduleExportMenu"
+          [disabled]="isExportingPdf() || !selectedCourse()">
+          <mat-icon>download</mat-icon>
+          {{ isExportingPdf() ? 'Generando...' : 'Exportar' }}
+        </button>
+        <mat-menu #scheduleExportMenu="matMenu" xPosition="before">
+          <button mat-menu-item type="button" (click)="downloadSchedulePdf()" [disabled]="isExportingPdf()">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>Exportar PDF</span>
+          </button>
+          <button mat-menu-item type="button" (click)="exportScheduleJson()">
+            <mat-icon>data_object</mat-icon>
+            <span>Exportar JSON</span>
+          </button>
+        </mat-menu>
       </div>
     </section>
 
@@ -57,18 +76,17 @@
           </div>
 
           <div class="schedule-card__tools">
-            <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openAddBreakDialog()">
+            <button mat-stroked-button type="button" class="header-button header-button--ghost schedule-tool-button" (click)="openAddClassDialog()">
+              <mat-icon>calendar_view_week</mat-icon>
+              Agregar bloque
+            </button>
+            <button mat-stroked-button type="button" class="header-button header-button--ghost schedule-tool-button schedule-tool-button--compact" (click)="openPreview()">
+              <mat-icon>visibility</mat-icon>
+              Ver
+            </button>
+            <button mat-stroked-button type="button" class="header-button header-button--ghost schedule-tool-button schedule-tool-button--accent" (click)="openAddBreakDialog()">
               <mat-icon>free_breakfast</mat-icon>
               Agregar recreo
-            </button>
-            <button
-              mat-stroked-button
-              type="button"
-              class="header-button header-button--ghost"
-              (click)="downloadSchedulePdf()"
-              [disabled]="isExportingPdf() || !selectedCourse()">
-              <mat-icon>download</mat-icon>
-              {{ isExportingPdf() ? 'Generando PDF...' : 'Exportar PDF' }}
             </button>
           </div>
         </div>
@@ -174,7 +192,7 @@
                     @let entry = entryFor(day, row);
                     <div class="pdf-export-slot">
                       @if (entry) {
-                        <div class="pdf-export-pill" [style.background]="toRgba(entry.subjectColorHex, 0.12)">
+                        <div class="pdf-export-pill" [style.background]="toRgba(entry.subjectColorHex, 0.18)">
                           <strong [style.color]="entry.subjectColorHex">{{ entry.subjectName }}</strong>
                           <span>{{ entry.teacherFullName }}</span>
                           <small>{{ entry.room || 'Sala por definir' }}</small>
@@ -188,6 +206,54 @@
           </section>
         </article>
       </section>
+    }
+
+    @if (isPreviewOpen() && selectedCourse(); as previewCourse) {
+      <div class="preview-overlay" (click)="closePreview()">
+        <section class="preview-modal" (click)="$event.stopPropagation()">
+          <header class="preview-modal__header">
+            <div class="preview-modal__heading">
+              <h3>Ver horario</h3>
+              <p>{{ previewCourse.name }} - {{ selectedSemesterLabel() }}</p>
+            </div>
+            <button mat-icon-button type="button" class="preview-close-button" (click)="closePreview()" aria-label="Cerrar vista previa">
+              <mat-icon>close</mat-icon>
+            </button>
+          </header>
+
+          <div class="preview-board">
+            <div class="preview-board__head">
+              <div class="preview-board__label preview-board__label--time">Hora</div>
+              @for (day of days; track day) {
+                <div class="preview-board__label">{{ day }}</div>
+              }
+            </div>
+
+            <div class="preview-board__body">
+              @for (row of boardRows(); track trackRow($index, row)) {
+                <div class="preview-board__time">
+                  <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
+                </div>
+
+                @if (row.blockType === 'RECREO') {
+                  <div class="preview-board__break">Recreo</div>
+                } @else {
+                  @for (day of days; track day) {
+                    @let entry = entryFor(day, row);
+                    <div class="preview-board__cell">
+                      @if (entry) {
+                        <div class="preview-pill" [style.background]="toRgba(entry.subjectColorHex, 0.2)">
+                          <strong>{{ entry.subjectName }}</strong>
+                        </div>
+                      }
+                    </div>
+                  }
+                }
+              }
+            </div>
+          </div>
+        </section>
+      </div>
     }
   </main>
 </app-teacher-modern-layout>

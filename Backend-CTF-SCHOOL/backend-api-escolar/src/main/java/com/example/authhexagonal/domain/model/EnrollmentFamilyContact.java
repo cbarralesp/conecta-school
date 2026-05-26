@@ -1,6 +1,6 @@
 package com.example.authhexagonal.domain.model;
 
-public record EnrollmentGuardian(
+public record EnrollmentFamilyContact(
         Long id,
         String run,
         String name,
@@ -9,8 +9,6 @@ public record EnrollmentGuardian(
         String address,
         String phone,
         String email,
-        String education,
-        String relation,
-        boolean authorizedPickup
+        String education
 ) {
 }

@@ -55,8 +55,7 @@ import { AuthStateService } from '../core/services/auth-state.service';
         </button>
 
         <span class="modern-toolbar__user">
-          <strong>{{ resolvedUserName }}</strong>
-          <small>{{ resolvedUserRole }}</small>
+          <strong>{{ shortUserName }}</strong>
         </span>
 
         <button
@@ -396,6 +395,19 @@ export class TeacherModernToolbarComponent {
       .map((chunk) => chunk.charAt(0).toUpperCase())
       .join('');
   }
+
+  protected get shortUserName(): string {
+    const parts = this.resolvedUserName.split(' ').filter(Boolean);
+    if (parts.length <= 1) {
+      return this.resolvedUserName;
+    }
+    if (parts.length === 2) {
+      return `${parts[0]} ${parts[1]}`;
+    }
+
+    return `${parts[0]} ${parts[parts.length - 2]}`;
+  }
+
 
   protected toggleFullscreen(): void {
     if (typeof document === 'undefined') {

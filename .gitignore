@@ -40,6 +40,33 @@ tmp/
 temp/
 *.tmp
 *.swp
+*.bak
+*.backup
+*.dump
+*.sql.bak
+*.sql.backup
+*.sql.dump
+
+# Database / private data
+deploy/db/private/
+deploy/db/backups/
+deploy/db/tmp/
+/data/
+/db/
+**/data/db/
+**/postgres_data/
+**/pgdata/
+uploads/
+tmp_db_*.sql
+*_backup.sql
+*_dump.sql
+
+# Local companion projects / scratch files
+conecta-school-corp-web/
+CONTEXTO_CHAT_NUEVO_*.md
+DeleteStudent*.java
+FindPersonByName.java
+Inspect*.java
 
 # IDE / browser embedded caches
 **/EBWebView/

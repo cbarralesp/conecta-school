@@ -5,13 +5,19 @@
   [userName]="user()?.nombre ?? 'Administracion'"
   userRole="Administracion">
   <main class="content-area">
-    <section class="page-header">
+    <section id="enrollment-form-top" class="page-header">
       <div>
         <span class="page-header__overline">Administracion</span>
         <h2>{{ pageTitle() }}</h2>
         <p>{{ subtitle() }}</p>
       </div>
       <div class="page-header__actions">
+        @if (isEditMode && statusBadgeLabel() === 'Inactiva') {
+          <button class="btn btn-warning" type="button" (click)="reactivateEnrollment()">
+            <mat-icon>restart_alt</mat-icon>
+            Reactivar
+          </button>
+        }
         <a class="btn btn-ghost" routerLink="/dashboard/matriculas">
           <mat-icon>arrow_back</mat-icon>
           Volver al Listado
@@ -154,6 +160,26 @@
                   @if (getControlError('address')) {
                     <span class="field-error">{{ getControlError('address') }}</span>
                   }
+                </div>
+
+                <div class="form-group">
+                  <label for="student-lives-with">Con quien vive el estudiante</label>
+                  <input id="student-lives-with" type="text" class="form-input" formControlName="livesWith" placeholder="Ej: Madre y abuela">
+                </div>
+
+                <div class="form-group">
+                  <label for="student-emergency-contact">En caso de emergencia llamar a...</label>
+                  <input id="student-emergency-contact" type="text" class="form-input" formControlName="emergencyContact" placeholder="Nombre y telefono de contacto">
+                </div>
+
+                <div class="form-group full">
+                  <label for="student-allergies">Alergias</label>
+                  <input id="student-allergies" type="text" class="form-input" formControlName="allergies" placeholder="Ej: Penicilina, mani, picaduras">
+                </div>
+
+                <div class="form-group full">
+                  <label for="student-diagnoses">Diagnosticos de especialistas</label>
+                  <textarea id="student-diagnoses" class="form-input form-input--textarea" formControlName="specialistDiagnoses" placeholder="Informes medicos, terapeuticos o diagnosticos relevantes"></textarea>
                 </div>
               </div>
 
@@ -308,8 +334,18 @@
                 </div>
 
                 <div class="form-group">
+                  <label for="guardian-birth-date">Fecha de nacimiento</label>
+                  <input id="guardian-birth-date" type="date" class="form-input" formControlName="birthDate">
+                </div>
+
+                <div class="form-group">
+                  <label for="guardian-education">Escolaridad</label>
+                  <input id="guardian-education" type="text" class="form-input" formControlName="education" placeholder="Ej: Enseñanza media completa">
+                </div>
+
+                <div class="form-group">
                   <label for="guardian-phone">Telefono *</label>
-                  <input id="guardian-phone" type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.phone')" formControlName="phone" placeholder="+56 9...">
+                  <input id="guardian-phone" type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.phone')" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('guardian.phone')">
                   @if (getControlError('guardian.phone')) {
                     <span class="field-error">{{ getControlError('guardian.phone') }}</span>
                   }
@@ -322,11 +358,96 @@
                     <span class="field-error">{{ getControlError('guardian.email') }}</span>
                   }
                 </div>
+
+                <div class="form-group full">
+                  <label for="guardian-address">Direccion</label>
+                  <input id="guardian-address" type="text" class="form-input" formControlName="address" placeholder="Direccion del apoderado">
+                </div>
               </div>
 
               <div class="guardian-toggle">
                 <input id="guardian-authorized" type="checkbox" formControlName="authorizedPickup">
                 <label for="guardian-authorized">Autorizado para retiro del alumno</label>
+              </div>
+
+              <div class="subform-card" [formGroup]="fatherGroup">
+                <div class="subform-card__title">Datos del Padre</div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="father-run">RUN</label>
+                    <input id="father-run" type="text" class="form-input" formControlName="run" placeholder="RUN" (input)="formatRunValue('father.run')">
+                  </div>
+
+                  <div class="form-group full">
+                    <label for="father-full-name">Nombre Completo</label>
+                    <input id="father-full-name" type="text" class="form-input" formControlName="fullName" placeholder="Nombres y apellidos">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="father-birth-date">Fecha de nacimiento</label>
+                    <input id="father-birth-date" type="date" class="form-input" formControlName="birthDate">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="father-education">Escolaridad</label>
+                    <input id="father-education" type="text" class="form-input" formControlName="education" placeholder="Escolaridad">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="father-phone">Telefono</label>
+                    <input id="father-phone" type="tel" class="form-input" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('father.phone')">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="father-email">Correo</label>
+                    <input id="father-email" type="email" class="form-input" formControlName="email" placeholder="correo@ejemplo.com">
+                  </div>
+
+                  <div class="form-group full">
+                    <label for="father-address">Direccion</label>
+                    <input id="father-address" type="text" class="form-input" formControlName="address" placeholder="Direccion del padre">
+                  </div>
+                </div>
+              </div>
+
+              <div class="subform-card" [formGroup]="motherGroup">
+                <div class="subform-card__title">Datos de la Madre</div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="mother-run">RUN</label>
+                    <input id="mother-run" type="text" class="form-input" formControlName="run" placeholder="RUN" (input)="formatRunValue('mother.run')">
+                  </div>
+
+                  <div class="form-group full">
+                    <label for="mother-full-name">Nombre Completo</label>
+                    <input id="mother-full-name" type="text" class="form-input" formControlName="fullName" placeholder="Nombres y apellidos">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="mother-birth-date">Fecha de nacimiento</label>
+                    <input id="mother-birth-date" type="date" class="form-input" formControlName="birthDate">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="mother-education">Escolaridad</label>
+                    <input id="mother-education" type="text" class="form-input" formControlName="education" placeholder="Escolaridad">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="mother-phone">Telefono</label>
+                    <input id="mother-phone" type="tel" class="form-input" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('mother.phone')">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="mother-email">Correo</label>
+                    <input id="mother-email" type="email" class="form-input" formControlName="email" placeholder="correo@ejemplo.com">
+                  </div>
+
+                  <div class="form-group full">
+                    <label for="mother-address">Direccion</label>
+                    <input id="mother-address" type="text" class="form-input" formControlName="address" placeholder="Direccion de la madre">
+                  </div>
+                </div>
               </div>
 
               @if (isCreateMode) {
@@ -352,11 +473,14 @@
               </div>
               <p class="card-subtitle">Autoriza a terceros para retirar al estudiante.</p>
 
-              <div class="section-inline-actions">
-                <button class="btn btn-secondary" type="button" (click)="useGuardianAsPickupContact()">
-                  <mat-icon>content_copy</mat-icon>
-                  Usar datos del apoderado principal
-                </button>
+              <div class="pickup-sync-card">
+                <label class="pickup-sync-toggle">
+                  <input type="checkbox" [checked]="hasGuardianPickupContact()" (change)="toggleGuardianPickupContact($event)">
+                  <span class="pickup-sync-toggle__copy">
+                    <strong>Usar datos del apoderado principal</strong>
+                    <small>Crea un responsable de retiro nuevo con el RUN, nombre, telefono y relacion del apoderado.</small>
+                  </span>
+                </label>
               </div>
 
               <div formArrayName="pickupContacts" class="authorized-list">
@@ -399,7 +523,7 @@
 
                       <div class="form-group">
                         <label>Telefono *</label>
-                        <input type="tel" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'phone')" formControlName="phone" placeholder="+56 9...">
+                        <input type="tel" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'phone')" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('pickupContacts.' + $index + '.phone')">
                         @if (getArrayControlError($index, 'phone')) {
                           <span class="field-error">{{ getArrayControlError($index, 'phone') }}</span>
                         }
@@ -461,8 +585,8 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="establishment-year">Ano Academico</label>
-                  <input id="establishment-year" type="text" class="form-input" formControlName="academicYear" placeholder="2026">
+                  <label for="establishment-year">Año Académico</label>
+                  <input id="establishment-year" type="text" class="form-input" formControlName="academicYear" placeholder="Ej: 2025">
                 </div>
 
                 <div class="form-group">
@@ -507,53 +631,54 @@
               }
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="course-base-name">Curso *</label>
-                  <select id="course-base-name" class="form-input" [value]="createCourseBase()" (change)="onCreateCourseBaseChange($any($event.target).value)">
-                    <option value="">Seleccionar...</option>
-                    @for (baseName of availableCourseBaseOptions(); track baseName) {
-                      <option [value]="baseName">{{ baseName }}</option>
-                    }
-                  </select>
-                </div>
+              <label for="course-base-name">Curso *</label>
+              <select id="course-base-name" class="form-input" [value]="courseBaseGroup.controls.baseName.value" (change)="onCreateCourseBaseChange($any($event.target).value)">
+                <option value="" [selected]="!courseBaseGroup.controls.baseName.value">Seleccionar...</option>
+                @for (baseName of availableCourseBaseOptions(); track baseName) {
+                  <option [value]="baseName" [selected]="baseName === courseBaseGroup.controls.baseName.value">{{ baseName }}</option>
+                }
+              </select>
+            </div>
 
                 <div class="form-group">
-                  <label for="course-base-level">Nivel *</label>
-                  <select id="course-base-level" class="form-input" [value]="createCourseLevel()" (change)="onCreateCourseLevelChange($any($event.target).value)">
-                    <option value="">Seleccionar...</option>
-                    @for (level of availableLevelOptions(); track level) {
-                      <option [value]="level">{{ level }}</option>
-                    }
-                  </select>
-                </div>
+              <label for="course-base-level">Nivel *</label>
+              <select id="course-base-level" class="form-input" [value]="courseBaseGroup.controls.level.value" (change)="onCreateCourseLevelChange($any($event.target).value)">
+                <option value="" [selected]="!courseBaseGroup.controls.level.value">Seleccionar...</option>
+                @for (level of availableLevelOptions(); track level) {
+                  <option [value]="level" [selected]="level === courseBaseGroup.controls.level.value">{{ level }}</option>
+                }
+              </select>
+            </div>
 
                 <div class="form-group">
-                  <label for="course-base-letter">Paralelo *</label>
-                  <select id="course-base-letter" class="form-input" [value]="createCourseLetter()" (change)="onCreateCourseLetterChange($any($event.target).value)">
-                    <option value="">Seleccionar...</option>
-                    @for (letter of availableLetterOptions(); track letter) {
-                      <option [value]="letter">{{ letter }}</option>
-                    }
-                  </select>
-                </div>
+              <label for="course-base-letter">Paralelo *</label>
+              <select id="course-base-letter" class="form-input" [value]="courseBaseGroup.controls.letter.value" (change)="onCreateCourseLetterChange($any($event.target).value)">
+                <option value="" [selected]="!courseBaseGroup.controls.letter.value">Seleccionar...</option>
+                @for (letter of availableLetterOptions(); track letter) {
+                  <option [value]="letter" [selected]="letter === courseBaseGroup.controls.letter.value">{{ letter }}</option>
+                }
+              </select>
+            </div>
 
                 <div class="form-group">
-                  <label for="course-base-schedule">Jornada *</label>
-                  <select id="course-base-schedule" class="form-input" [value]="createCourseSchedule()" (change)="onCreateCourseScheduleChange($any($event.target).value)">
-                    <option value="">Seleccionar...</option>
-                    @for (schedule of availableScheduleOptions(); track schedule) {
-                      <option [value]="schedule">{{ schedule }}</option>
-                    }
-                  </select>
-                </div>
+              <label for="course-base-schedule">Jornada *</label>
+              <select id="course-base-schedule" class="form-input" [value]="courseBaseGroup.controls.scheduleType.value" (change)="onCreateCourseScheduleChange($any($event.target).value)">
+                <option value="" [selected]="!courseBaseGroup.controls.scheduleType.value">Seleccionar...</option>
+                @for (schedule of availableScheduleOptions(); track schedule) {
+                  <option [value]="schedule" [selected]="schedule === courseBaseGroup.controls.scheduleType.value">{{ schedule }}</option>
+                }
+              </select>
+            </div>
 
                 <div class="form-group">
-                  <label for="course-base-school-year">Ano Academico</label>
+                  <label for="course-base-school-year">Año Académico</label>
                   <input
                     id="course-base-school-year"
                     type="text"
                     class="form-input"
-                    [value]="courseBaseGroup.controls.schoolYear.value || ''"
-                    readonly
+                    [formControl]="courseBaseGroup.controls.schoolYear"
+                    placeholder="Ej: 2027"
+                    (input)="onCreateCourseSchoolYearChange($any($event.target).value)"
                   >
                 </div>
 
@@ -561,7 +686,6 @@
                   <input type="hidden" formControlName="baseName">
                   <input type="hidden" formControlName="level">
                   <input type="hidden" formControlName="letter">
-                  <input type="hidden" formControlName="schoolYear">
                   <input type="hidden" formControlName="scheduleType">
                   @if (getControlError('courseId')) {
                     <span class="field-error">{{ getControlError('courseId') }}</span>
@@ -698,10 +822,17 @@
                   <mat-icon>save</mat-icon>
                   {{ isSaving() ? 'Guardando...' : 'Guardar Cambios' }}
                 </button>
+                @if (statusBadgeLabel() === 'Inactiva') {
+                  <button class="btn btn-warning" type="button" (click)="reactivateEnrollment()" [disabled]="isSaving()">
+                    <mat-icon>restart_alt</mat-icon>
+                    Reactivar Matricula
+                  </button>
+                } @else {
                   <button class="btn btn-danger" type="button" (click)="anularMatricula()" [disabled]="isSaving()">
                     <mat-icon>person_remove</mat-icon>
                     Inactivar Matricula
                   </button>
+                }
               }
             </div>
           </section>

@@ -12,6 +12,7 @@ import com.example.authhexagonal.domain.port.out.ManageSchedulesPort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -24,20 +25,25 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
     }
 
     @Override
-    public ScheduleCatalog getCatalog() {
+    public ScheduleCatalog getCatalog(Long courseId) {
+        if (courseId != null) {
+            validateCourseScope(courseId);
+            manageSchedulesPort.ensureCourseSpecificScheduleBlocks(courseId);
+        }
         return new ScheduleCatalog(
                 manageSchedulesPort.findActiveScheduleCourses(),
                 manageSchedulesPort.findActiveSchedulePeriods(),
                 manageSchedulesPort.findActiveScheduleTeachers(),
                 manageSchedulesPort.findAvailableScheduleSubjects(),
-                manageSchedulesPort.findWeeklyScheduleBlocks()
+                manageSchedulesPort.findWeeklyScheduleBlocks(courseId)
         );
     }
 
     @Override
     public List<ScheduleEntry> findByCourse(Long courseId, Long periodId) {
-        findCourse(courseId);
+        validateCourseScope(courseId);
         findPeriod(periodId);
+        manageSchedulesPort.ensureCourseSpecificScheduleBlocks(courseId);
         return manageSchedulesPort.findSchedulesByCourseIdAndPeriodId(courseId, periodId);
     }
 
@@ -87,41 +93,49 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
     }
 
     @Override
-    public void updateRowTime(int order, String startTime, String endTime) {
-        List<ScheduleBlock> blocks = manageSchedulesPort.findActiveScheduleBlocksByOrder(order);
+    public void updateRowTime(Long courseId, int order, String startTime, String endTime) {
+        validateCourseScope(courseId);
+        manageSchedulesPort.ensureCourseSpecificScheduleBlocks(courseId);
+        List<ScheduleBlock> blocks = manageSchedulesPort.findActiveScheduleBlocksByOrder(courseId, order);
         if (blocks.isEmpty()) {
             throw new ResourceNotFoundException("Schedule row not found");
         }
 
         validateTimeRange(startTime, endTime);
-        manageSchedulesPort.updateScheduleBlocksTimeByOrder(order, normalizeTime(startTime), normalizeTime(endTime));
+        manageSchedulesPort.updateScheduleBlocksTimeByOrder(courseId, order, normalizeTime(startTime), normalizeTime(endTime));
     }
 
     @Override
-    public void createBreakRow(String startTime, String endTime) {
-        validateTimeRange(startTime, endTime);
-        int nextOrder = manageSchedulesPort.findWeeklyScheduleBlocks().stream()
-                .mapToInt(ScheduleBlock::order)
-                .max()
-                .orElse(0) + 1;
-        manageSchedulesPort.createBreakBlocks(normalizeTime(startTime), normalizeTime(endTime), nextOrder);
+    public void createRow(Long courseId, String startTime, String endTime, String blockType) {
+        validateCourseScope(courseId);
+        manageSchedulesPort.ensureCourseSpecificScheduleBlocks(courseId);
+        String normalizedStartTime = normalizeTime(startTime);
+        String normalizedEndTime = normalizeTime(endTime);
+        validateTimeRange(normalizedStartTime, normalizedEndTime);
+        String normalizedBlockType = normalizeBlockType(blockType);
+        int insertionOrder = resolveInsertionOrder(courseId, normalizedStartTime, normalizedEndTime, normalizedBlockType);
+        manageSchedulesPort.shiftScheduleBlockOrdersFrom(courseId, insertionOrder);
+        manageSchedulesPort.createScheduleBlocks(courseId, normalizedStartTime, normalizedEndTime, insertionOrder, normalizedBlockType);
     }
 
     @Override
-    public void deleteBreakRow(int order) {
-        List<ScheduleBlock> blocks = manageSchedulesPort.findActiveScheduleBlocksByOrder(order);
+    public void createBreakRow(Long courseId, String startTime, String endTime) {
+        createRow(courseId, startTime, endTime, "RECREO");
+    }
+
+    @Override
+    public void deleteRow(Long courseId, int order) {
+        validateCourseScope(courseId);
+        manageSchedulesPort.ensureCourseSpecificScheduleBlocks(courseId);
+        List<ScheduleBlock> blocks = manageSchedulesPort.findActiveScheduleBlocksByOrder(courseId, order);
         if (blocks.isEmpty()) {
-            throw new ResourceNotFoundException("Break row not found");
+            throw new ResourceNotFoundException("Schedule row not found");
         }
 
-        boolean breakRow = blocks.stream().allMatch(block -> "RECREO".equalsIgnoreCase(block.blockType()));
-        if (!breakRow) {
-            throw new IllegalArgumentException("Solo se pueden eliminar filas de recreo");
-        }
-        if (manageSchedulesPort.hasScheduleEntriesForOrder(order)) {
+        if (manageSchedulesPort.hasScheduleEntriesForOrder(courseId, order)) {
             throw new IllegalArgumentException("No se puede eliminar una fila que tiene horarios asignados");
         }
-        manageSchedulesPort.deactivateScheduleBlocksByOrder(order);
+        manageSchedulesPort.deactivateScheduleBlocksByOrder(courseId, order);
     }
 
     private ScheduleCourseOption findCourse(Long courseId) {
@@ -154,9 +168,6 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
         if (manageSchedulesPort.hasCourseConflict(courseId, periodId, blockId, scheduleId)) {
             throw new IllegalArgumentException("El curso ya tiene una clase asignada en ese bloque");
         }
-        if (manageSchedulesPort.hasTeacherConflict(teacherId, periodId, blockId, scheduleId)) {
-            throw new IllegalArgumentException("El profesor ya tiene otra clase asignada en ese bloque");
-        }
     }
 
     private String normalizeRoom(String room) {
@@ -176,5 +187,61 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
 
     private String normalizeTime(String value) {
         return LocalTime.parse(value).toString();
+    }
+
+    private String normalizeBlockType(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Debes indicar el tipo de bloque");
+        }
+
+        String normalized = value.trim().toUpperCase();
+        if (!"CLASE".equals(normalized) && !"RECREO".equals(normalized)) {
+            throw new IllegalArgumentException("Tipo de bloque no valido");
+        }
+        return normalized;
+    }
+
+    private int resolveInsertionOrder(Long courseId, String startTime, String endTime, String blockType) {
+        LocalTime start = LocalTime.parse(startTime);
+        LocalTime end = LocalTime.parse(endTime);
+
+        List<ScheduleBlock> orderedRows = manageSchedulesPort.findWeeklyScheduleBlocks(courseId).stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        ScheduleBlock::order,
+                        block -> block,
+                        (left, right) -> left
+                ))
+                .values()
+                .stream()
+                .sorted(Comparator
+                        .comparing((ScheduleBlock block) -> LocalTime.parse(block.startTime()))
+                        .thenComparing(block -> LocalTime.parse(block.endTime()))
+                        .thenComparingInt(ScheduleBlock::order))
+                .toList();
+
+        for (ScheduleBlock row : orderedRows) {
+            LocalTime rowStart = LocalTime.parse(row.startTime());
+            LocalTime rowEnd = LocalTime.parse(row.endTime());
+
+            if (rowStart.equals(start) && rowEnd.equals(end) && row.blockType().equalsIgnoreCase(blockType)) {
+                throw new IllegalArgumentException("Ya existe un bloque activo con ese horario");
+            }
+
+            if (start.isBefore(rowStart) || (start.equals(rowStart) && end.isBefore(rowEnd))) {
+                return row.order();
+            }
+        }
+
+        return orderedRows.stream()
+                .mapToInt(ScheduleBlock::order)
+                .max()
+                .orElse(0) + 1;
+    }
+
+    private void validateCourseScope(Long courseId) {
+        if (courseId == null) {
+            throw new IllegalArgumentException("Debes seleccionar un curso");
+        }
+        findCourse(courseId);
     }
 }

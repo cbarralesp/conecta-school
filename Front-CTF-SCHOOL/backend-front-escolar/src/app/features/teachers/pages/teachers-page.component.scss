@@ -230,11 +230,29 @@
   font-weight: 700;
 }
 
+.export-button {
+  height: 42px;
+  padding: 0 1rem !important;
+  border-radius: 14px !important;
+  border: 1.5px solid #d8e3f0 !important;
+  background: #ffffff !important;
+  color: #244061 !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: none !important;
+}
+
+.export-button .mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  margin-right: 0.25rem;
+}
+
 .create-button--header {
   height: 42px !important;
   min-height: 42px !important;
   padding: 0 1.2rem !important;
-  min-width: 180px;
   border-radius: 14px !important;
   font-size: 0.82rem;
   line-height: 42px;
@@ -586,6 +604,7 @@
     gap: 0.6rem;
   }
 
+  .export-button,
   .teachers-search,
   .create-button {
     min-width: 100%;

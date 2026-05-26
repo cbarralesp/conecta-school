@@ -60,6 +60,30 @@ export class DashboardPageComponent {
 
   readonly todaySchedulePreview = computed(() => this.dashboard()?.todaySchedulePreview ?? []);
 
+  readonly greetingLabel = computed(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return 'Buenos dias';
+    }
+    if (hour < 19) {
+      return 'Buenas tardes';
+    }
+    return 'Buenas noches';
+  });
+
+  readonly shortTeacherName = computed(() => {
+    const fullName = this.dashboard()?.teacherName?.trim() || this.user()?.nombre?.trim() || 'Docente';
+    const parts = fullName.split(' ').filter(Boolean);
+    if (parts.length <= 1) {
+      return fullName;
+    }
+    if (parts.length === 2) {
+      return `${parts[0]} ${parts[1]}`;
+    }
+
+    return `${parts[0]} ${parts[parts.length - 2]}`;
+  });
+
   readonly quickLinks = computed(() => [
     {
       title: 'Ver horario completo',

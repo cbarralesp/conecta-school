@@ -34,10 +34,10 @@ export class SubjectsPageComponent {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly user = this.authStateService.user;
-  readonly displayedColumns = ['subject', 'area', 'referenceLevel', 'status', 'actions'];
+  readonly displayedColumns = ['subject', 'teachers', 'referenceLevel', 'status', 'actions'];
   readonly subjects = signal<Subject[]>([]);
   readonly searchTerm = signal('');
-  readonly levelFilter = signal<'all' | 'basic' | 'media'>('all');
+  readonly levelFilter = signal<'all' | 'initial' | 'basic' | 'media'>('all');
   readonly hasActiveFilters = computed(() => this.searchTerm().trim().length > 0 || this.levelFilter() !== 'all');
   readonly summaryCards = computed(() => {
     const subjects = this.subjects();
@@ -56,8 +56,8 @@ export class SubjectsPageComponent {
         tone: 'success'
       },
       {
-        label: 'Niveles de referencia',
-        value: Array.from(new Set(subjects.map((subject) => subject.referenceLevel))).length,
+        label: 'Niveles de cursos',
+        value: Array.from(new Set(subjects.map((subject) => this.getLevelLabel(subject)))).length,
         icon: 'layers',
         tone: 'warning'
       },
@@ -69,7 +69,22 @@ export class SubjectsPageComponent {
       }
     ];
   });
-  readonly filteredSubjects = computed(() => this.subjects());
+  readonly filteredSubjects = computed(() => {
+    const currentFilter = this.levelFilter();
+    if (currentFilter === 'all') {
+      return this.subjects();
+    }
+
+    return this.subjects().filter((subject) => {
+      if (currentFilter === 'initial') {
+        return this.isInitialLevel(subject);
+      }
+      if (currentFilter === 'basic') {
+        return this.isBasicLevel(subject);
+      }
+      return this.isMediaLevel(subject);
+    });
+  });
 
   constructor() {
     this.loadSubjects();
@@ -142,15 +157,31 @@ export class SubjectsPageComponent {
     this.loadSubjects();
   }
 
-  setLevelFilter(level: 'all' | 'basic' | 'media'): void {
+  setLevelFilter(level: 'all' | 'initial' | 'basic' | 'media'): void {
     this.levelFilter.set(level);
     this.loadSubjects();
   }
 
+  getLevelLabel(subject: Subject): string {
+    const level = subject.displayLevel?.trim() || subject.referenceLevel?.trim();
+    return level || 'Sin nivel';
+  }
+
+  isInitialLevel(subject: Subject): boolean {
+    return this.getNormalizedLevel(subject).includes('inicial');
+  }
+
+  isBasicLevel(subject: Subject): boolean {
+    return this.getNormalizedLevel(subject).includes('basic');
+  }
+
+  isMediaLevel(subject: Subject): boolean {
+    return this.getNormalizedLevel(subject).includes('media');
+  }
+
   private loadSubjects(): void {
     this.subjectApiService.findAll({
-      search: this.searchTerm(),
-      level: this.levelFilter()
+      search: this.searchTerm()
     }).subscribe({
       next: (subjects) => this.subjects.set(subjects),
       error: (error: HttpErrorResponse) =>
@@ -162,5 +193,12 @@ export class SubjectsPageComponent {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private getNormalizedLevel(subject: Subject): string {
+    return this.getLevelLabel(subject)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 }

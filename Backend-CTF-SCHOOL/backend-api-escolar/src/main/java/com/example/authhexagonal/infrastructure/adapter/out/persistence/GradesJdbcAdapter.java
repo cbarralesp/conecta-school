@@ -219,10 +219,9 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                     "ORDEN",
                     "PONDERACION",
                     "FECHA_EVALUACION",
-                    "ACTIVA",
-                    "CREADO_EN"
+                    "ACTIVA"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE, CURRENT_TIMESTAMP)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 """,
                 command.courseId(),
                 command.periodId(),

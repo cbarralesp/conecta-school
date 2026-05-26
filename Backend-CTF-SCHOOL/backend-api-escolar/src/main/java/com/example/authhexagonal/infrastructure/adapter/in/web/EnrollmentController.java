@@ -64,4 +64,9 @@ public class EnrollmentController {
     public void delete(@PathVariable("enrollmentId") Long enrollmentId) {
         manageEnrollmentsUseCase.delete(enrollmentId);
     }
+
+    @PostMapping("/{enrollmentId}/reactivar")
+    public EnrollmentDetailResponse reactivate(@PathVariable("enrollmentId") Long enrollmentId) {
+        return EnrollmentDetailResponse.fromDomain(manageEnrollmentsUseCase.reactivate(enrollmentId));
+    }
 }

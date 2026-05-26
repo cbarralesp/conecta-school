@@ -27,14 +27,43 @@
           </button>
         </section>
 
+        <button
+          mat-stroked-button
+          type="button"
+          class="header-button header-button--ghost"
+          [matMenuTriggerFor]="exportMenu"
+          [disabled]="isExporting()">
+          <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+          Exportar
+        </button>
+
         @if (activeTab() === 'monthly') {
           <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportMonthlyReport()" [disabled]="isExporting()">
-            <mat-icon>download</mat-icon>
+            <mat-icon>picture_as_pdf</mat-icon>
             {{ isExporting() ? 'Exportando...' : 'Exportar reporte' }}
           </button>
         }
       </div>
     </section>
+
+    <mat-menu #exportMenu="matMenu" xPosition="before" class="export-menu">
+      <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
+        <mat-icon>data_object</mat-icon>
+        <span>JSON</span>
+      </button>
+      <button mat-menu-item type="button" disabled>
+        <mat-icon>table_view</mat-icon>
+        <span>Excel</span>
+      </button>
+      <button mat-menu-item type="button" disabled>
+        <mat-icon>description</mat-icon>
+        <span>Word</span>
+      </button>
+      <button mat-menu-item type="button" disabled>
+        <mat-icon>picture_as_pdf</mat-icon>
+        <span>PDF</span>
+      </button>
+    </mat-menu>
 
     @if (activeTab() === 'daily') {
       <section class="summary-grid">

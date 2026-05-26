@@ -2,6 +2,7 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.port.in.ManageSchedulesUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleCatalogResponse;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleBlockCreateRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleRowTimeRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.ScheduleResponse;
@@ -31,8 +32,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/catalogo")
-    public ScheduleCatalogResponse catalog() {
-        return ScheduleCatalogResponse.fromDomain(manageSchedulesUseCase.getCatalog());
+    public ScheduleCatalogResponse catalog(@RequestParam(required = false) Long courseId) {
+        return ScheduleCatalogResponse.fromDomain(manageSchedulesUseCase.getCatalog(courseId));
     }
 
     @GetMapping
@@ -81,18 +82,24 @@ public class ScheduleController {
     @PutMapping("/bloques/{order}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateRowTime(@PathVariable int order, @Valid @RequestBody ScheduleRowTimeRequest request) {
-        manageSchedulesUseCase.updateRowTime(order, request.startTime(), request.endTime());
+        manageSchedulesUseCase.updateRowTime(request.courseId(), order, request.startTime(), request.endTime());
+    }
+
+    @PostMapping("/bloques")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createRow(@Valid @RequestBody ScheduleBlockCreateRequest request) {
+        manageSchedulesUseCase.createRow(request.courseId(), request.startTime(), request.endTime(), request.blockType());
     }
 
     @PostMapping("/bloques/recreo")
     @ResponseStatus(HttpStatus.CREATED)
     public void createBreakRow(@Valid @RequestBody ScheduleRowTimeRequest request) {
-        manageSchedulesUseCase.createBreakRow(request.startTime(), request.endTime());
+        manageSchedulesUseCase.createBreakRow(request.courseId(), request.startTime(), request.endTime());
     }
 
     @DeleteMapping("/bloques/{order}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBreakRow(@PathVariable int order) {
-        manageSchedulesUseCase.deleteBreakRow(order);
+    public void deleteRow(@PathVariable int order, @RequestParam Long courseId) {
+        manageSchedulesUseCase.deleteRow(courseId, order);
     }
 }

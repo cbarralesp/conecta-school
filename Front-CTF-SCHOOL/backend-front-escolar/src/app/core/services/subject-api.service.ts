@@ -9,7 +9,7 @@ import { normalizeDashboardText } from '../utils/text-normalizer';
 export class SubjectApiService {
   private readonly http = inject(HttpClient);
 
-  findAll(filters?: { search?: string; level?: 'all' | 'basic' | 'media' }): Observable<Subject[]> {
+  findAll(filters?: { search?: string; level?: 'all' | 'initial' | 'basic' | 'media' }): Observable<Subject[]> {
     let params = new HttpParams();
     if (filters?.search?.trim()) {
       params = params.set('search', filters.search.trim());
@@ -46,7 +46,13 @@ export class SubjectApiService {
       name: normalizeDashboardText(subject.name),
       area: normalizeDashboardText(subject.area),
       description: normalizeDashboardText(subject.description),
-      referenceLevel: normalizeDashboardText(subject.referenceLevel)
+      referenceLevel: normalizeDashboardText(subject.referenceLevel),
+      displayLevel: normalizeDashboardText(subject.displayLevel ?? ''),
+      assignedTeachers: (subject.assignedTeachers ?? []).map((teacher) => ({
+        ...teacher,
+        code: normalizeDashboardText(teacher.code),
+        fullName: normalizeDashboardText(teacher.fullName)
+      }))
     };
   }
 }

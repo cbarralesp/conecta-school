@@ -17,7 +17,8 @@ public interface ManageSubjectsUseCase {
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     );
 
     AcademicSubject update(
@@ -28,7 +29,8 @@ public interface ManageSubjectsUseCase {
             String colorHex,
             String description,
             String referenceLevel,
-            int suggestedHours
+            int suggestedHours,
+            List<Long> teacherIds
     );
 
     void delete(Long subjectId);

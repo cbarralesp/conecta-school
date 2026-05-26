@@ -176,9 +176,9 @@
 }
 
 .subjects-levels {
-  width: 21rem;
+  width: 28rem;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.45rem;
 }
 
@@ -259,17 +259,17 @@
 
 .subjects-table th:nth-child(2),
 .subjects-table td:nth-child(2) {
-  width: 28%;
+  width: 24%;
 }
 
 .subjects-table th:nth-child(3),
 .subjects-table td:nth-child(3) {
-  width: 18%;
+  width: 28%;
 }
 
 .subjects-table th:nth-child(4),
 .subjects-table td:nth-child(4) {
-  width: 12%;
+  width: 14%;
 }
 
 .subjects-table th:nth-child(5),
@@ -337,6 +337,27 @@
   letter-spacing: 0.02em;
 }
 
+.teacher-cell {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.teacher-primary {
+  color: #1e2f47;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.teacher-secondary,
+.teacher-empty {
+  color: #7a8ea8;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -350,6 +371,11 @@
 .badge-basic {
   background: #eff6ff;
   color: #2563eb;
+}
+
+.badge-initial {
+  background: #ecfeff;
+  color: #0f766e;
 }
 
 .badge-media {
