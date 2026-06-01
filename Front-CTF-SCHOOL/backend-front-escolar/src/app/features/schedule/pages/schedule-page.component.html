@@ -109,15 +109,7 @@
         <div class="schedule-board-body">
           @for (row of boardRows(); track trackRow($index, row)) {
             <button type="button" class="time-cell" (click)="openRowDialog(row)">
-              <strong>{{ row.startTime }}</strong>
-              <span>{{ row.endTime }}</span>
-              <small>
-                @if (row.blockType === 'RECREO') {
-                  Recreo
-                } @else {
-                  Editar hora
-                }
-              </small>
+              <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
             </button>
 
             @if (row.blockType === 'RECREO') {
@@ -139,7 +131,7 @@
                       (click)="openEditDialog(entry)">
                       <div class="schedule-slot__bar"></div>
                       <strong>{{ entry.subjectName }}</strong>
-                      <span>{{ entry.teacherFullName }}</span>
+                      <span>{{ shortTeacherName(entry.teacherFullName) }}</span>
                       <small>{{ entry.room || 'Sala por definir' }}</small>
                     </button>
                   } @else if (block) {
@@ -181,20 +173,27 @@
             <div class="pdf-export-body">
               @for (row of boardRows(); track trackRow($index, row)) {
                 <div class="pdf-export-time">
-                  <strong>{{ row.startTime }}</strong>
-                  <span>{{ row.endTime }}</span>
+                  <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
                 </div>
 
                 @if (row.blockType === 'RECREO') {
-                  <div class="pdf-export-break">Recreo</div>
+                  <div class="pdf-export-break">
+                    <mat-icon>free_breakfast</mat-icon>
+                    <span>{{ row.isCustom ? 'Recreo agregado' : 'Recreo institucional' }}</span>
+                    <small>{{ row.startTime }} - {{ row.endTime }}</small>
+                  </div>
                 } @else {
                   @for (day of days; track day) {
                     @let entry = entryFor(day, row);
                     <div class="pdf-export-slot">
                       @if (entry) {
-                        <div class="pdf-export-pill" [style.background]="toRgba(entry.subjectColorHex, 0.18)">
+                        <div
+                          class="pdf-export-pill"
+                          [style.background]="toRgba(entry.subjectColorHex, 0.18)"
+                          [style.border-color]="toRgba(entry.subjectColorHex, 0.34)">
+                          <div class="pdf-export-pill__bar" [style.background]="entry.subjectColorHex"></div>
                           <strong [style.color]="entry.subjectColorHex">{{ entry.subjectName }}</strong>
-                          <span>{{ entry.teacherFullName }}</span>
+                          <span>{{ shortTeacherName(entry.teacherFullName) }}</span>
                           <small>{{ entry.room || 'Sala por definir' }}</small>
                         </div>
                       }
@@ -212,46 +211,73 @@
       <div class="preview-overlay" (click)="closePreview()">
         <section class="preview-modal" (click)="$event.stopPropagation()">
           <header class="preview-modal__header">
+            <div class="preview-modal__icon">
+              <mat-icon>calendar_view_week</mat-icon>
+            </div>
             <div class="preview-modal__heading">
-              <h3>Ver horario</h3>
-              <p>{{ previewCourse.name }} - {{ selectedSemesterLabel() }}</p>
+              <h3>Horario semanal</h3>
+              <p>{{ previewCourse.name }} · {{ selectedSemesterLabel() }}</p>
             </div>
             <button mat-icon-button type="button" class="preview-close-button" (click)="closePreview()" aria-label="Cerrar vista previa">
               <mat-icon>close</mat-icon>
             </button>
           </header>
 
-          <div class="preview-board">
-            <div class="preview-board__head">
-              <div class="preview-board__label preview-board__label--time">Hora</div>
-              @for (day of days; track day) {
-                <div class="preview-board__label">{{ day }}</div>
-              }
-            </div>
+          <div class="preview-body">
+            <div class="preview-board">
+              <div class="preview-board__head">
+                <div class="preview-board__label preview-board__label--time">Hora</div>
+                @for (day of days; track day) {
+                  <div class="preview-board__label">{{ day }}</div>
+                }
+              </div>
 
-            <div class="preview-board__body">
-              @for (row of boardRows(); track trackRow($index, row)) {
-                <div class="preview-board__time">
-                  <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
-                </div>
+              <div class="preview-board__body">
+                @for (row of boardRows(); track trackRow($index, row)) {
+                  <div class="preview-board__time">
+                    <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
+                  </div>
 
-                @if (row.blockType === 'RECREO') {
-                  <div class="preview-board__break">Recreo</div>
-                } @else {
-                  @for (day of days; track day) {
-                    @let entry = entryFor(day, row);
-                    <div class="preview-board__cell">
-                      @if (entry) {
-                        <div class="preview-pill" [style.background]="toRgba(entry.subjectColorHex, 0.2)">
-                          <strong>{{ entry.subjectName }}</strong>
-                        </div>
-                      }
+                  @if (row.blockType === 'RECREO') {
+                    <div class="preview-board__break">
+                      <mat-icon>free_breakfast</mat-icon>
+                      <span>{{ row.isCustom ? 'Recreo agregado' : 'Recreo institucional' }}</span>
                     </div>
+                  } @else {
+                    @for (day of days; track day) {
+                      @let entry = entryFor(day, row);
+                      <div class="preview-board__cell">
+                        @if (entry) {
+                          <div
+                            class="preview-pill"
+                            [style.background]="toRgba(entry.subjectColorHex, 0.15)"
+                            [style.border-color]="toRgba(entry.subjectColorHex, 0.3)">
+                            <strong [style.color]="entry.subjectColorHex">{{ entry.subjectName }}</strong>
+                          </div>
+                        }
+                      </div>
+                    }
                   }
                 }
-              }
+              </div>
             </div>
           </div>
+
+          <footer class="preview-modal__footer">
+            <button
+              mat-stroked-button
+              type="button"
+              class="header-button header-button--ghost"
+              (click)="downloadSchedulePdf(); closePreview()"
+              [disabled]="isExportingPdf()">
+              <mat-icon>download</mat-icon>
+              {{ isExportingPdf() ? 'Generando...' : 'Exportar PDF' }}
+            </button>
+            <button mat-flat-button type="button" class="header-button header-button--primary" (click)="closePreview()">
+              <mat-icon>check</mat-icon>
+              Cerrar
+            </button>
+          </footer>
         </section>
       </div>
     }

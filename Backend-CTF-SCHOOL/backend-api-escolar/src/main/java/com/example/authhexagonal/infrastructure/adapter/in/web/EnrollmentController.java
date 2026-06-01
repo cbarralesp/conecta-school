@@ -2,6 +2,8 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.port.in.ManageEnrollmentsUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentDetailResponse;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentAccessPreviewRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentAccessPreviewResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentOverviewResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentRequest;
 import jakarta.validation.Valid;
@@ -57,6 +59,11 @@ public class EnrollmentController {
             @Valid @RequestBody EnrollmentRequest request
     ) {
         return EnrollmentDetailResponse.fromDomain(manageEnrollmentsUseCase.update(enrollmentId, request));
+    }
+
+    @PostMapping("/access-preview")
+    public EnrollmentAccessPreviewResponse previewAccess(@RequestBody EnrollmentAccessPreviewRequest request) {
+        return manageEnrollmentsUseCase.previewAccess(request);
     }
 
     @DeleteMapping("/{enrollmentId}")

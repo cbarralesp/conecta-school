@@ -1,9 +1,9 @@
 .course-students-page {
   display: grid;
-  gap: 1rem;
+  gap: 0.95rem;
 }
 
-.course-students-page__heading {
+.page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -11,71 +11,97 @@
   flex-wrap: wrap;
 }
 
-.course-students-page__copy {
+.page-header__left {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.18rem;
+  min-width: 0;
 }
 
-.back-button {
-  justify-self: flex-start;
-  min-height: 2.6rem;
-  border-radius: 0.9rem;
-  padding-inline: 1rem;
-  font-weight: 700;
-}
-
-.course-students-page__copy h1 {
-  margin: 0;
-  color: #173553;
-  font-size: 1.55rem;
-  line-height: 1.1;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.course-students-page__copy p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-
-.students-search {
-  min-height: 3.1rem;
-  min-width: min(320px, 100%);
-  padding: 0 1rem;
+.page-header__actions {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
-  border-radius: 1rem;
-  border: 1px solid #dde5ef;
-  background: #ffffff;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.page-header__title {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #12233d;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.page-header__subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.back-button {
+  min-height: 42px;
+  border-radius: 14px;
+  padding-inline: 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-color: #d8e3ef !important;
+  color: #51667f !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.students-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 34px;
+  min-width: min(320px, 100%);
+  padding: 0 0.7rem;
+  border-radius: 10px;
+  border: 1.5px solid #dbe5f0;
+  background: #f8fbff;
+  transition: 0.2s ease;
 }
 
 .students-search mat-icon {
-  color: #87a0bf;
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  color: #9aa9bf;
+}
+
+.students-search:focus-within {
+  border-color: #c8d7ea;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
 .students-search input {
   width: 100%;
+  min-height: 32px;
+  height: 32px;
   border: 0;
   outline: 0;
   background: transparent;
-  color: #425872;
+  color: #485d77;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
 .students-card {
-  border-radius: 1.2rem;
-  background: #ffffff;
-  border-color: #e5ecf4;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  border-radius: 16px;
+  border-color: #e5ecf4 !important;
+  background: #ffffff !important;
+  box-shadow: none;
 }
 
 .students-card :where(.mat-mdc-card-content) {
-  padding: 1.35rem;
+  padding: 1rem 1.05rem;
 }
 
 .table-shell {
@@ -84,95 +110,165 @@
 
 .students-table {
   width: 100%;
+  table-layout: fixed;
 }
 
 .students-table th {
   color: #5f7090;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   background: #f8fafc;
+  white-space: nowrap;
 }
 
 .students-table td {
   border-bottom-color: rgba(23, 53, 83, 0.08);
   color: #173553;
-  font-size: 0.92rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding-top: 0.78rem;
+  padding-bottom: 0.78rem;
+}
+
+.students-table th:nth-child(1),
+.students-table td:nth-child(1) {
+  width: 128px;
+}
+
+.students-table th:nth-child(2),
+.students-table td:nth-child(2) {
+  width: 300px;
+}
+
+.students-table th:nth-child(3),
+.students-table td:nth-child(3) {
+  width: 270px;
+}
+
+.students-table th:nth-child(4),
+.students-table td:nth-child(4) {
+  width: 132px;
+}
+
+.students-table th:nth-child(5),
+.students-table td:nth-child(5) {
+  width: 118px;
+}
+
+.students-table th:nth-child(6),
+.students-table td:nth-child(6) {
+  width: 90px;
+}
+
+.run-cell,
+.guardian-cell {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .student-name-cell {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.72rem;
+  min-width: 0;
 }
 
 .student-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   background: #eaf3ff;
   color: #174976;
   display: grid;
   place-items: center;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 800;
   flex-shrink: 0;
 }
 
 .student-name-copy {
   display: grid;
-  gap: 0.14rem;
+  gap: 0.1rem;
+  min-width: 0;
 }
 
 .student-name-copy strong {
   color: #173553;
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 800;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .student-name-copy span {
   color: #7487a3;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.45rem 0.85rem;
+  min-height: 30px;
+  padding: 0 0.72rem;
   border-radius: 999px;
   background: #ecfdf5;
   color: #0f9d6b;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .actions-cell {
   white-space: nowrap;
 }
 
+.actions-cell .mat-mdc-icon-button {
+  width: 34px;
+  height: 34px;
+}
+
 .empty-state {
-  min-height: 18rem;
+  min-height: 15rem;
   display: grid;
   place-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
   text-align: center;
   color: #61728d;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 .empty-state mat-icon {
-  width: 42px;
-  height: 42px;
-  font-size: 42px;
+  width: 38px;
+  height: 38px;
+  font-size: 38px;
   color: #2e6fca;
 }
 
 .empty-state strong {
   color: #173553;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .page-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 900px) {
@@ -183,7 +279,7 @@
 }
 
 @media (max-width: 720px) {
-  .course-students-page__copy h1 {
+  .page-header__title {
     font-size: 1.35rem;
   }
 

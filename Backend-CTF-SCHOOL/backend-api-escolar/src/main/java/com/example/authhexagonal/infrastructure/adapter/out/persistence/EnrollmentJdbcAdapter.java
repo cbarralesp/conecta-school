@@ -360,6 +360,22 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     @Override
+    public String previewStudentUsername(String studentRun, String studentName, String studentLastName) {
+        return findUserRecordByRunAndRole(studentRun, "ALUMNO")
+                .map(AccessUserRecord::username)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> generateUniqueStudentUsername(studentName, studentLastName));
+    }
+
+    @Override
+    public String previewGuardianUsername(String guardianRun, String guardianName, String guardianLastName) {
+        return findUserRecordByRunAndRole(guardianRun, "APODERADO")
+                .map(AccessUserRecord::username)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> generateUniqueGuardianUsername(guardianName, guardianLastName));
+    }
+
+    @Override
     public boolean hasActiveEnrollmentForStudent(Long studentId, Long excludeEnrollmentId) {
         String sql = """
                 SELECT COUNT(1)

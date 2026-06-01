@@ -1,178 +1,144 @@
 @if (isReadOnly()) {
-  <mat-sidenav-container class="activities-shell student-shell">
-    <mat-sidenav mode="side" opened class="activities-sidenav student-sidenav">
-      <app-teacher-side-menu></app-teacher-side-menu>
-    </mat-sidenav>
+  <app-teacher-modern-layout
+    title=""
+    activeItem="activities"
+    dashboardRoute="/alumno"
+    [userName]="user()?.nombre ?? 'Estudiante'"
+    userRole="Alumno"
+    searchPlaceholder="Buscar actividades, horario, asignaturas...">
+    <main class="activities-content student-content">
+      <div class="student-content__inner">
+        <section class="page-heading page-heading--student">
+          <div class="page-heading__copy">
+            <span class="page-heading__eyebrow">Calendario academico</span>
+            <h1>{{ pageTitle() }}</h1>
+            <p>{{ pageDescription() }}</p>
+          </div>
+        </section>
 
-    <mat-sidenav-content class="student-main-shell">
-      <header class="student-toolbar">
-        <button mat-icon-button type="button" class="student-toolbar__menu" aria-label="Abrir navegacion">
-          <mat-icon>menu</mat-icon>
-        </button>
-
-        <label class="student-toolbar__search" aria-label="Buscar en el portal del estudiante">
-          <mat-icon>search</mat-icon>
-          <input
-            type="text"
-            placeholder="Buscar..."
-            [value]="studentSearch()"
-            (input)="studentSearch.set(($any($event.target).value ?? '').toString())"
-          />
-        </label>
-
-        <div class="student-toolbar__actions">
-          <button
-            mat-button
-            type="button"
-            class="student-toolbar__profile"
-            [matMenuTriggerFor]="studentProfileMenu"
-            aria-label="Abrir menu de perfil del estudiante"
-          >
-            <span class="student-toolbar__avatar">{{ studentDisplayName().charAt(0) | uppercase }}</span>
-            <mat-icon>expand_more</mat-icon>
-          </button>
-        </div>
-      </header>
-
-      <mat-menu #studentProfileMenu="matMenu" xPosition="before">
-        <button mat-menu-item type="button" disabled>
-          <mat-icon>person</mat-icon>
-          <span>{{ studentDisplayName() }}</span>
-        </button>
-        <button mat-menu-item type="button" (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Cerrar sesion</span>
-        </button>
-      </mat-menu>
-
-      <main class="activities-content student-content">
-        <div class="student-content__inner">
-          <section class="page-heading page-heading--student">
-            <div class="page-heading__copy">
-              <span class="page-heading__eyebrow">Calendario academico</span>
-              <h1>{{ pageTitle() }}</h1>
-              <p>{{ pageDescription() }}</p>
+        <mat-card appearance="outlined" class="calendar-card">
+          <section class="calendar-controls">
+            <div class="calendar-nav">
+              <button mat-stroked-button type="button" (click)="goToPreviousMonth()">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button mat-stroked-button type="button" (click)="goToToday()">Hoy</button>
+              <button mat-stroked-button type="button" (click)="goToNextMonth()">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
             </div>
+
+            <div class="month-label">
+              <strong>{{ monthLabel() }}</strong>
+              <mat-icon>calendar_month</mat-icon>
+            </div>
+
+            <button
+              mat-stroked-button
+              type="button"
+              class="download-button"
+              (click)="downloadCurrentMonthPdf()"
+              [disabled]="isExportingPdf()"
+            >
+              <mat-icon>download</mat-icon>
+              {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
+            </button>
           </section>
 
-          <mat-card appearance="outlined" class="calendar-card">
-            <section class="calendar-controls">
-              <div class="calendar-nav">
-                <button mat-stroked-button type="button" (click)="goToPreviousMonth()">
-                  <mat-icon>chevron_left</mat-icon>
-                </button>
-                <button mat-stroked-button type="button" (click)="goToToday()">Hoy</button>
-                <button mat-stroked-button type="button" (click)="goToNextMonth()">
-                  <mat-icon>chevron_right</mat-icon>
-                </button>
+          <section class="calendar-grid">
+            <div class="weekdays-row">
+              @for (weekDay of weekDays; track weekDay) {
+                <span>{{ weekDay }}</span>
+              }
+            </div>
+
+            @if (isLoading()) {
+              <div class="loading-copy">Cargando actividades del calendario...</div>
+            } @else {
+              @for (week of monthGrid(); track $index) {
+                <div class="calendar-week">
+                  @for (day of week; track day.isoDate) {
+                    <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth" (dblclick)="handleDayDoubleClick(day.isoDate)">
+                      <header class="day-header">
+                        <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
+                      </header>
+
+                      <div class="day-events">
+                        @for (activity of visibleDayActivities(day); track activity.id) {
+                          <article
+                            class="activity-pill activity-pill--readonly"
+                            [style.background]="activity.backgroundColor"
+                            [style.color]="activity.textColor"
+                          >
+                            <strong>{{ activity.title }}</strong>
+                            <span>{{ formatTime(activity.time) }}</span>
+                          </article>
+                        }
+
+                        @if (hiddenActivityCount(day) > 0) {
+                          <button type="button" class="activity-pill activity-pill--more" (click)="selectDate(day.isoDate)">
+                            +{{ hiddenActivityCount(day) }}
+                          </button>
+                        }
+                      </div>
+                    </article>
+                  }
+                </div>
+              }
+            }
+          </section>
+        </mat-card>
+      </div>
+
+      @if (calendar(); as exportCalendar) {
+        <section class="pdf-export-shell" aria-hidden="true">
+          <article #pdfCalendar class="pdf-export-card">
+            <header class="pdf-export-header">
+              <div class="pdf-export-brand">
+                <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
+                <div>
+                  <span>Calendario escolar</span>
+                  <strong>Torre Fuerte School</strong>
+                  <small>Vista mensual para impresion institucional</small>
+                </div>
               </div>
+              <div class="pdf-export-month">{{ exportCalendar.monthLabel }}</div>
+            </header>
 
-              <div class="month-label">
-                <strong>{{ monthLabel() }}</strong>
-                <mat-icon>calendar_month</mat-icon>
-              </div>
-
-              <button
-                mat-stroked-button
-                type="button"
-                class="download-button"
-                (click)="downloadCurrentMonthPdf()"
-                [disabled]="isExportingPdf()"
-              >
-                <mat-icon>download</mat-icon>
-                {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
-              </button>
-            </section>
-
-            <section class="calendar-grid">
-              <div class="weekdays-row">
+            <section class="pdf-export-grid">
+              <div class="pdf-export-weekdays">
                 @for (weekDay of weekDays; track weekDay) {
                   <span>{{ weekDay }}</span>
                 }
               </div>
 
-              @if (isLoading()) {
-                <div class="loading-copy">Cargando actividades del calendario...</div>
-              } @else {
-                @for (week of monthGrid(); track $index) {
-                  <div class="calendar-week">
-                    @for (day of week; track day.isoDate) {
-                      <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
-                        <header class="day-header">
-                          <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
-                        </header>
-
-                        <div class="day-events">
-                          @for (activity of day.activities; track activity.id) {
-                            <article
-                              class="activity-pill activity-pill--readonly"
-                              [style.background]="activity.backgroundColor"
-                              [style.color]="activity.textColor"
-                            >
-                              <strong>{{ activity.title }}</strong>
-                              <span>{{ formatTime(activity.time) }}</span>
-                            </article>
-                          }
-                        </div>
-                      </article>
-                    }
-                  </div>
-                }
-              }
-            </section>
-          </mat-card>
-        </div>
-
-        @if (calendar(); as exportCalendar) {
-          <section class="pdf-export-shell" aria-hidden="true">
-            <article #pdfCalendar class="pdf-export-card">
-              <header class="pdf-export-header">
-                <div class="pdf-export-brand">
-                  <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
-                  <div>
-                    <span>Calendario escolar</span>
-                    <strong>Torre Fuerte School</strong>
-                    <small>Vista mensual para impresion institucional</small>
-                  </div>
-                </div>
-                <div class="pdf-export-month">{{ exportCalendar.monthLabel }}</div>
-              </header>
-
-              <section class="pdf-export-grid">
-                <div class="pdf-export-weekdays">
-                  @for (weekDay of weekDays; track weekDay) {
-                    <span>{{ weekDay }}</span>
+              @for (week of monthGrid(); track $index) {
+                <div class="pdf-export-week">
+                  @for (day of week; track day.isoDate) {
+                    <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
+                      <header>{{ day.dayOfMonth }}</header>
+                      <div class="pdf-export-events">
+                        @for (activity of day.activities; track activity.id) {
+                          <div
+                            class="pdf-export-activity"
+                            [style.background]="activity.backgroundColor"
+                            [style.color]="activity.textColor"
+                          >
+                            <strong>{{ activity.title }}</strong>
+                            <span>{{ formatTime(activity.time) }}</span>
+                          </div>
+                        }
+                      </div>
+                    </article>
                   }
                 </div>
-
-                @for (week of monthGrid(); track $index) {
-                  <div class="pdf-export-week">
-                    @for (day of week; track day.isoDate) {
-                      <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
-                        <header>{{ day.dayOfMonth }}</header>
-                        <div class="pdf-export-events">
-                          @for (activity of day.activities; track activity.id) {
-                            <div
-                              class="pdf-export-activity"
-                              [style.background]="activity.backgroundColor"
-                              [style.color]="activity.textColor"
-                            >
-                              <strong>{{ activity.title }}</strong>
-                              <span>{{ formatTime(activity.time) }}</span>
-                            </div>
-                          }
-                        </div>
-                      </article>
-                    }
-                  </div>
-                }
-              </section>
-            </article>
-          </section>
-        }
-      </main>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+              }
+            </section>
+          </article>
+        </section>
+      }
+    </main>
+  </app-teacher-modern-layout>
 } @else {
   <app-teacher-modern-layout
     title=""
@@ -310,13 +276,14 @@
                       [class.calendar-board__day--other]="!day.inCurrentMonth"
                       [class.calendar-board__day--weekend]="dayIndex >= 5"
                       (click)="selectDate(day.isoDate)"
+                      (dblclick)="handleDayDoubleClick(day.isoDate)"
                     >
                       <header class="calendar-board__day-header">
                         <span class="calendar-board__number">{{ day.dayOfMonth }}</span>
                       </header>
 
                       <div class="calendar-board__events">
-                        @for (activity of day.activities.slice(0, 1); track activity.id) {
+                        @for (activity of visibleDayActivities(day); track activity.id) {
                           <button
                             type="button"
                             class="calendar-board__event-pill"
@@ -328,9 +295,9 @@
                           </button>
                         }
 
-                        @if (day.activities.length > 1) {
+                        @if (hiddenActivityCount(day) > 0) {
                           <button type="button" class="calendar-board__event-more" (click)="$event.stopPropagation(); openSelectedDayDetails()">
-                            +{{ day.activities.length - 1 }}
+                            +{{ hiddenActivityCount(day) }}
                           </button>
                         }
                       </div>
@@ -459,13 +426,13 @@
               @for (week of monthGrid(); track $index) {
                 <div class="calendar-week">
                   @for (day of week; track day.isoDate) {
-                    <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth">
+                    <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth" (dblclick)="handleDayDoubleClick(day.isoDate)">
                       <header class="day-header">
                         <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
                       </header>
 
                       <div class="day-events">
-                        @for (activity of day.activities; track activity.id) {
+                        @for (activity of visibleDayActivities(day); track activity.id) {
                           <article
                             class="activity-pill"
                             [style.background]="activity.backgroundColor"
@@ -475,6 +442,12 @@
                             <strong>{{ activity.title }}</strong>
                             <span>{{ formatTime(activity.time) }}</span>
                           </article>
+                        }
+
+                        @if (hiddenActivityCount(day) > 0) {
+                          <button type="button" class="activity-pill activity-pill--more" (click)="selectDate(day.isoDate)">
+                            +{{ hiddenActivityCount(day) }}
+                          </button>
                         }
                       </div>
                     </article>

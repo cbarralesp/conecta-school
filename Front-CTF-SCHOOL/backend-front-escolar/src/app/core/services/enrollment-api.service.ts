@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
 import { formatCourseLevelLabel, formatScheduleLabel } from '../constants/course-levels';
-import { EnrollmentDetail, EnrollmentOverview, EnrollmentPayload } from '../models/enrollment.models';
+import { EnrollmentAccessPreview, EnrollmentAccessPreviewPayload, EnrollmentDetail, EnrollmentOverview, EnrollmentPayload } from '../models/enrollment.models';
 import { normalizeDashboardText } from '../utils/text-normalizer';
 
 @Injectable({ providedIn: 'root' })
@@ -43,6 +43,15 @@ export class EnrollmentApiService {
   create(payload: EnrollmentPayload): Observable<EnrollmentDetail> {
     return this.http.post<EnrollmentDetail>(`${API_CONFIG.baseUrl}/matriculas`, payload).pipe(
       map((detail) => this.normalizeDetail(detail))
+    );
+  }
+
+  previewAccess(payload: EnrollmentAccessPreviewPayload): Observable<EnrollmentAccessPreview> {
+    return this.http.post<EnrollmentAccessPreview>(`${API_CONFIG.baseUrl}/matriculas/access-preview`, payload).pipe(
+      map((preview) => ({
+        studentUsername: normalizeDashboardText(preview.studentUsername ?? ''),
+        guardianUsername: normalizeDashboardText(preview.guardianUsername ?? '')
+      }))
     );
   }
 

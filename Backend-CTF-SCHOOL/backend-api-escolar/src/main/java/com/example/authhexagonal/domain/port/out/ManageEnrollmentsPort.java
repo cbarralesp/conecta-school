@@ -32,6 +32,10 @@ public interface ManageEnrollmentsPort {
 
     Optional<EnrollmentGuardianAccess> findGuardianAccessByRun(String run);
 
+    String previewStudentUsername(String studentRun, String studentName, String studentLastName);
+
+    String previewGuardianUsername(String guardianRun, String guardianName, String guardianLastName);
+
     boolean hasActiveEnrollmentForStudent(Long studentId, Long excludeEnrollmentId);
 
     Long createStudent(

@@ -15,6 +15,8 @@ import com.example.authhexagonal.domain.model.EnrollmentStudentAccess;
 import com.example.authhexagonal.domain.port.in.ManageEnrollmentsUseCase;
 import com.example.authhexagonal.domain.port.out.ManageEnrollmentsPort;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentFamilyContactRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentAccessPreviewRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentAccessPreviewResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentPickupContactRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.EnrollmentRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -161,6 +163,22 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
         provisionStudentAccessIfNeeded(request);
         provisionGuardianAccessIfNeeded(request);
         return findById(enrollmentId);
+    }
+
+    @Override
+    public EnrollmentAccessPreviewResponse previewAccess(EnrollmentAccessPreviewRequest request) {
+        return new EnrollmentAccessPreviewResponse(
+                manageEnrollmentsPort.previewStudentUsername(
+                        request.studentRun(),
+                        request.studentName(),
+                        request.studentLastName()
+                ),
+                manageEnrollmentsPort.previewGuardianUsername(
+                        request.guardianRun(),
+                        request.guardianName(),
+                        request.guardianLastName()
+                )
+        );
     }
 
     @Override

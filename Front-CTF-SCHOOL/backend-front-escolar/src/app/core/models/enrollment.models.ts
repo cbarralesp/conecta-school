@@ -112,6 +112,20 @@ export interface EnrollmentGuardianAccess {
   status: string;
 }
 
+export interface EnrollmentAccessPreview {
+  studentUsername: string;
+  guardianUsername: string;
+}
+
+export interface EnrollmentAccessPreviewPayload {
+  studentRun: string;
+  studentName: string;
+  studentLastName: string;
+  guardianRun: string;
+  guardianName: string;
+  guardianLastName: string;
+}
+
 export interface EnrollmentDetail {
   id: number;
   studentId: number;

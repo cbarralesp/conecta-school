@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { catchError, debounceTime, merge, of, startWith, switchMap } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { Course } from '../../../core/models/course.models';
 import { CourseApiService } from '../../../core/services/course-api.service';
@@ -51,6 +52,7 @@ export class TeacherFormPageComponent {
   readonly chileRegions = signal<ChileRegion[]>([]);
   readonly assignedCourses = signal<TeacherAssignedCourse[]>([]);
   readonly staffType = signal<'DOCENTE' | 'ASISTENTE'>(this.requestedStaffType);
+  readonly generatedUsernamePreview = signal('');
   readonly staffTypeLabel = computed(() => this.staffType() === 'ASISTENTE' ? 'Asistente' : 'Docente');
   readonly pageTitle = computed(() => this.isEditMode ? `Editar ${this.staffTypeLabel()}` : `Nuevo ${this.staffTypeLabel()}`);
   readonly pageSubtitle = computed(() =>
@@ -96,6 +98,7 @@ export class TeacherFormPageComponent {
   constructor() {
     this.loadCatalog();
     this.observeLocationSelection();
+    this.observeAccessPreview();
     if (this.isEditMode) {
       this.loadTeacher();
     }
@@ -233,22 +236,7 @@ export class TeacherFormPageComponent {
     if (existingUsername) {
       return existingUsername;
     }
-
-    const firstName = this.normalizeAccessPart(this.form.controls.firstNames.value).split(/\s+/).filter(Boolean)[0] ?? '';
-    const paternalLastName = this.normalizeAccessPart(this.form.controls.paternalLastName.value);
-    const maternalLastName = this.normalizeAccessPart(this.form.controls.maternalLastName.value);
-
-    let candidate = `${firstName.charAt(0)}${paternalLastName}`.toLowerCase();
-    if (!candidate) {
-      candidate = this.staffType() === 'ASISTENTE' ? 'asistente' : 'docente';
-    }
-    if (candidate.length < 4 && paternalLastName) {
-      candidate = `${candidate}${paternalLastName}`.slice(0, 12);
-    }
-    if (maternalLastName) {
-      return `${candidate}${maternalLastName.charAt(0)}`.slice(0, 16);
-    }
-    return candidate.slice(0, 16);
+    return this.generatedUsernamePreview() || this.buildBaseAccessUsernamePreview();
   }
 
   accessPasswordPreview(): string {
@@ -462,6 +450,20 @@ export class TeacherFormPageComponent {
     return `Tfs${initial}${suffix}!`;
   }
 
+  private buildBaseAccessUsernamePreview(): string {
+    const firstName = this.normalizeAccessPart(this.form.controls.firstNames.value).split(/\s+/).filter(Boolean)[0] ?? '';
+    const paternalLastName = this.normalizeAccessPart(this.form.controls.paternalLastName.value);
+
+    let candidate = `${firstName.charAt(0)}${paternalLastName}`.toLowerCase();
+    if (!candidate) {
+      candidate = this.staffType() === 'ASISTENTE' ? 'asistente' : 'docente';
+    }
+    if (candidate.length < 4 && paternalLastName) {
+      candidate = `${candidate}${paternalLastName}`.slice(0, 12);
+    }
+    return candidate.slice(0, 16);
+  }
+
   private normalizeAccessPart(value: string): string {
     return `${value ?? ''}`
       .normalize('NFD')
@@ -492,6 +494,46 @@ export class TeacherFormPageComponent {
           this.form.controls.communeId.setValue(0);
         }
       });
+  }
+
+  private observeAccessPreview(): void {
+    merge(
+      this.form.controls.run.valueChanges,
+      this.form.controls.firstNames.valueChanges,
+      this.form.controls.paternalLastName.valueChanges,
+      this.form.controls.maternalLastName.valueChanges,
+      this.systemAccessGroup.controls.configureAccess.valueChanges,
+      this.systemAccessGroup.controls.createAccount.valueChanges,
+      this.systemAccessGroup.controls.username.valueChanges
+    ).pipe(
+      startWith(null),
+      debounceTime(120),
+      switchMap(() => {
+        if (!this.shouldShowStaffAccountBlock()) {
+          return of('');
+        }
+
+        const firstNames = this.form.controls.firstNames.value.trim();
+        const paternalLastName = this.form.controls.paternalLastName.value.trim();
+        if (!firstNames && !paternalLastName) {
+          return of('');
+        }
+
+        return this.teacherApiService.previewSystemAccessUsername({
+          run: this.form.controls.run.value.trim(),
+          firstNames,
+          paternalLastName,
+          maternalLastName: this.form.controls.maternalLastName.value.trim(),
+          staffType: this.staffType()
+        }).pipe(
+          switchMap((preview) => of(preview.username ?? '')),
+          catchError(() => of(this.buildBaseAccessUsernamePreview()))
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((preview) => {
+      this.generatedUsernamePreview.set(preview ?? '');
+    });
   }
 
   private findCommunesByRegionId(regionId: number): ChileCommune[] {

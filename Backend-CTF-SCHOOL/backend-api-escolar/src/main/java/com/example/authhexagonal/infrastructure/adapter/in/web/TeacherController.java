@@ -1,6 +1,8 @@
 package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.application.service.TeacherManagementService;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.TeacherAccessPreviewRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.TeacherAccessPreviewResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.TeacherDetailResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.TeacherOverviewResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.TeacherRequest;
@@ -47,6 +49,17 @@ public class TeacherController {
     @ResponseStatus(HttpStatus.CREATED)
     public TeacherDetailResponse create(@Valid @RequestBody TeacherRequest request) {
         return TeacherDetailResponse.fromDomain(teacherManagementService.create(request.toDomain()));
+    }
+
+    @PostMapping("/access-preview")
+    public TeacherAccessPreviewResponse previewAccess(@RequestBody TeacherAccessPreviewRequest request) {
+        return teacherManagementService.previewSystemAccessUsername(
+                request.run(),
+                request.firstNames(),
+                request.paternalLastName(),
+                request.maternalLastName(),
+                request.staffType()
+        );
     }
 
     @PutMapping("/{teacherId}")

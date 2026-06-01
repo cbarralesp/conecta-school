@@ -15,8 +15,8 @@
         <div class="page-header__actions">
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
-            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Ficha por estudiante</button>
-            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informes de notas</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Ficha estudiante</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
           </section>
 
           <button
@@ -236,22 +236,608 @@
     }
 
     @if (activeTab() === 'profile') {
-      <section class="hero-box">
-        <div class="hero-copy">
-          <span class="hero-tag">Ficha estudiante</span>
-          <h1>Rendimiento individual</h1>
-          <p>Consulta el historial de notas y el promedio por asignatura de cada estudiante.</p>
+      <section class="page-header">
+        <div class="page-header__left">
+          <h1 class="page-header__title">Evaluaciones</h1>
+          <p class="page-header__subtitle">Gestiona notas por curso, semestre y asignatura.</p>
+        </div>
+
+        <div class="page-header__actions">
+          <section class="grades-tabs-bar">
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Ficha estudiante</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
+          </section>
+
+          <button
+            mat-stroked-button
+            type="button"
+            class="header-button header-button--ghost"
+            [matMenuTriggerFor]="profileExportMenu"
+            [disabled]="isExporting()">
+            <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+            Exportar
+          </button>
         </div>
       </section>
 
-      <section class="metric-grid">
-        <article class="metric-card"><span>Promedio general</span><strong>{{ formatScore(profileSummary().overallAverage) }}</strong></article>
-        <article class="metric-card"><span>Destacados</span><strong class="metric-success">{{ profileSummary().outstanding }}</strong></article>
-        <article class="metric-card"><span>En riesgo</span><strong class="metric-danger">{{ profileSummary().atRisk }}</strong></article>
-        <article class="metric-card"><span>Sin notas</span><strong class="metric-warning">{{ profileSummary().ungraded }}</strong></article>
+      <mat-menu #profileExportMenu="matMenu" xPosition="before" class="export-menu">
+        <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
+          <mat-icon>data_object</mat-icon>
+          <span>JSON</span>
+        </button>
+        <button mat-menu-item type="button" (click)="exportGradeBook()">
+          <mat-icon>table_view</mat-icon>
+          <span>Excel</span>
+        </button>
+        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('word')">
+          <mat-icon>description</mat-icon>
+          <span>Word</span>
+        </button>
+        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('pdf')">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>PDF</span>
+        </button>
+      </mat-menu>
+
+      <section class="summary-grid">
+        <mat-card appearance="outlined" class="summary-card sc-blue">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>calculate</mat-icon>
+            </div>
+            <div class="summary-card__ring">100%</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ formatScore(profileDisplaySummary().overallAverage) }}</strong>
+            <span>Promedio del curso</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="summary-card sc-green">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>emoji_events</mat-icon>
+            </div>
+            <div class="summary-card__ring">100%</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ profileDisplaySummary().outstanding }}</strong>
+            <span>Destacados</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="summary-card sc-red">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>warning</mat-icon>
+            </div>
+            <div class="summary-card__ring">0%</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ profileDisplaySummary().atRisk }}</strong>
+            <span>En riesgo</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="summary-card sc-amber">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>remove_circle_outline</mat-icon>
+            </div>
+            <div class="summary-card__ring">0%</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ profileDisplaySummary().ungraded }}</strong>
+            <span>Sin notas</span>
+          </div>
+        </mat-card>
       </section>
 
-      <mat-card appearance="outlined" class="panel-card">
+      <section class="profile-filters-bar">
+        <label class="inline-field">
+          <span class="inline-field__label">Curso</span>
+          <label class="inline-select inline-field__control inline-field__control--course">
+            <mat-icon>school</mat-icon>
+            <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+              @for (course of courses(); track course.id) {
+                <option [value]="course.id">{{ course.name }}</option>
+              }
+            </select>
+          </label>
+        </label>
+
+        <label class="inline-field">
+          <span class="inline-field__label">Asignatura</span>
+          <label class="inline-select inline-field__control inline-field__control--subject">
+            <mat-icon>menu_book</mat-icon>
+            <select [value]="selectedSubjectId() ?? ''" (change)="updateProfileSubject($any($event.target).value ? +$any($event.target).value : null)">
+              <option value="">Todas las asignaturas</option>
+              @for (subject of profileSubjectOptions(); track subject.id) {
+                <option [value]="subject.id">{{ subject.name }}</option>
+              }
+            </select>
+          </label>
+        </label>
+
+        <label class="inline-field">
+          <span class="inline-field__label">Semestre</span>
+          <label class="inline-select inline-field__control inline-field__control--date">
+            <mat-icon>calendar_month</mat-icon>
+            <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
+              @for (period of periods(); track period.id) {
+                <option [value]="period.id">{{ period.name }}</option>
+              }
+            </select>
+          </label>
+        </label>
+
+        <div class="profile-filters-bar__actions">
+          <button
+            mat-stroked-button
+            type="button"
+            class="header-button header-button--ghost"
+            (click)="openReportPreview(activeProfileStudent())"
+            [disabled]="!activeProfileStudent()">
+            <mat-icon>visibility</mat-icon>
+            Ficha
+          </button>
+
+          <button
+            mat-stroked-button
+            type="button"
+            class="header-button header-button--ghost"
+            (click)="activeProfileStudent() && exportStudentPdf(activeProfileStudent()!)"
+            [disabled]="!activeProfileStudent()">
+            <mat-icon>download</mat-icon>
+            PDF
+          </button>
+        </div>
+
+      </section>
+
+      <section class="profile-layout">
+        <aside class="profile-student-list">
+          <div class="profile-student-list__head">
+            <strong>Estudiantes</strong>
+            <small>{{ profileListStudents().length }} alumnos</small>
+          </div>
+
+          <div class="profile-student-search">
+            <label class="search-field search-field--profile" aria-label="Buscar estudiante">
+              <mat-icon>search</mat-icon>
+              <input
+                type="text"
+                [value]="profileRunSearchTerm()"
+                (input)="updateProfileRunSearch($any($event.target).value)"
+                placeholder="Buscar estudiante..."
+              />
+            </label>
+          </div>
+
+          <div class="profile-student-items">
+            @for (student of profileListStudents(); track trackStudent($index, student)) {
+              <button
+                type="button"
+                class="profile-student-item"
+                [class.is-active]="activeProfileStudent()?.studentId === student.studentId"
+                (click)="updateProfileStudent(student.studentId)">
+                <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                <div class="student-copy">
+                  <strong>{{ student.fullName }}</strong>
+                  <small>{{ student.run }}</small>
+                </div>
+                <span class="profile-student-item__score" [ngClass]="scoreToneClass(profileStudentAverage(student))">
+                  {{ formatScore(profileStudentAverage(student)) }}
+                </span>
+              </button>
+            } @empty {
+              <div class="profile-empty-state">
+                <strong>No hay estudiantes</strong>
+                <span>Ajusta los filtros para ver la ficha.</span>
+              </div>
+            }
+          </div>
+        </aside>
+
+        <article class="profile-ficha-card">
+          @if (activeProfileStudent(); as student) {
+            <header class="profile-ficha-card__head">
+              <div class="profile-ficha-card__identity">
+                <div class="profile-ficha-card__avatar">{{ initials(student.fullName) }}</div>
+                <div>
+                  <h2>{{ student.fullName }}</h2>
+                  <p>{{ selectedCourse()?.name }} · RUN {{ student.run }} · {{ selectedPeriod()?.name }}</p>
+                </div>
+              </div>
+
+              <div class="profile-ficha-card__stats">
+                <div class="profile-stat">
+                  <strong>{{ formatScore(profileStudentAverage(student)) }}</strong>
+                  <span>Promedio</span>
+                </div>
+                <div class="profile-stat">
+                  <strong>{{ profileCompletedSubjects(student) }}/{{ profileSubjectsFor(student).length }}</strong>
+                  <span>Asignaturas</span>
+                </div>
+                <div class="profile-stat">
+                  <strong class="profile-stat__value--danger">{{ profileAtRiskSubjects(student) }}</strong>
+                  <span>En riesgo</span>
+                </div>
+              </div>
+            </header>
+
+            <div class="profile-ficha-card__body">
+              <section class="profile-subject-section">
+                <div class="profile-section-title">
+                  <mat-icon>assignment</mat-icon>
+                  <span>Notas por asignatura</span>
+                </div>
+
+                <div class="profile-subject-list">
+                  @for (subject of profileSubjectsFor(student); track subject.subjectId) {
+                    <div class="profile-subject-row">
+                      <span class="profile-subject-row__accent" [style.background]="subject.colorHex"></span>
+                      <span class="profile-subject-row__name">{{ subject.subjectName }}</span>
+                      <div class="profile-subject-row__chips">
+                        <span class="profile-score-pill" [ngClass]="scoreToneClass(subject.average)">{{ formatScore(subject.average) }}</span>
+                      </div>
+                      <div class="profile-subject-row__track">
+                        <span class="profile-subject-row__bar" [style.width.%]="profileAverageWidth(subject.average)" [style.background]="subject.colorHex"></span>
+                      </div>
+                      <strong class="profile-subject-row__average" [ngClass]="scoreToneClass(subject.average)">
+                        {{ formatScore(subject.average) }}
+                      </strong>
+                    </div>
+                  }
+                </div>
+              </section>
+
+              <section class="profile-chart-section">
+                <div class="profile-section-title">
+                  <mat-icon>bar_chart</mat-icon>
+                  <span>Rendimiento por asignatura</span>
+                </div>
+
+                <div class="profile-mini-chart">
+                  @for (subject of profileSubjectsFor(student); track subject.subjectId) {
+                    <div class="profile-bar-column">
+                      <span class="profile-bar-column__value">{{ formatScore(subject.average) }}</span>
+                      <span
+                        class="profile-bar-column__bar"
+                        [style.height.%]="profileAverageWidth(subject.average)"
+                        [style.background]="subject.colorHex">
+                      </span>
+                      <span class="profile-bar-column__label">{{ shortSubjectName(subject.subjectName) }}</span>
+                    </div>
+                  }
+                </div>
+
+                <p class="profile-trend-note">{{ profileTrendLabel(student) }}</p>
+              </section>
+            </div>
+          } @else {
+            <div class="profile-empty-state profile-empty-state--card">
+              <strong>Sin ficha disponible</strong>
+              <span>No hay datos de estudiantes para el curso y periodo seleccionados.</span>
+            </div>
+          }
+        </article>
+      </section>
+
+      <section class="pdf-export-shell" aria-hidden="true">
+        <article #reportPdfTemplate class="pdf-report-card">
+          @if (pdfStudent(); as student) {
+            <div class="pdf-bulletin">
+              <header class="pdf-bulletin__header">
+                <div class="pdf-bulletin__brand">
+                  <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                  <div>
+                    <strong>Colegio Torre Fuerte School</strong>
+                    <span>Control institucional · Plataforma ConectaSchool</span>
+                  </div>
+                </div>
+                <div class="pdf-bulletin__meta">
+                  <strong>Bolet&iacute;n de notas</strong>
+                  <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
+                </div>
+              </header>
+
+              <section class="pdf-bulletin__student-band">
+                <div class="pdf-bulletin__field">
+                  <span>Nombre del estudiante</span>
+                  <strong>{{ pdfText(student.fullName) }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>RUN</span>
+                  <strong>{{ pdfText(student.run) }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>Curso</span>
+                  <strong>{{ pdfCourseLabel() }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>Profesor jefe</span>
+                  <strong>{{ pdfTeacherName() }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>A&ntilde;o escolar</span>
+                  <strong>{{ pdfSchoolYear() }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>N° de lista</span>
+                  <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                </div>
+              </section>
+
+              <section class="pdf-bulletin__status-row">
+                <div class="pdf-bulletin__status-box">
+                  <strong>{{ pdfScore(student.overallAverage) }}</strong>
+                  <span>Promedio general</span>
+                  <div class="pdf-bulletin__mini-bar">
+                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                  </div>
+                </div>
+                <div class="pdf-bulletin__status-box">
+                  <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
+                  <span>Ranking del curso</span>
+                  <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
+                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                  </div>
+                </div>
+                <div class="pdf-bulletin__status-box">
+                  <strong class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</strong>
+                  <span>Estado acad&eacute;mico</span>
+                </div>
+              </section>
+
+              <section class="pdf-bulletin__section">
+                <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
+
+                <table class="pdf-bulletin__table">
+                  <thead>
+                    <tr>
+                      <th class="left">Asignatura</th>
+                      <th>N1</th>
+                      <th>N2</th>
+                      <th>N3</th>
+                      <th>Promedio</th>
+                      <th>Concepto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (subject of student.subjects; track subject.subjectId) {
+                      <tr>
+                        <td class="left">
+                          <strong>{{ pdfText(subject.subjectName) }}</strong>
+                          <span>Prof. {{ pdfTeacherName() }}</span>
+                        </td>
+                        <td class="is-empty">-</td>
+                        <td class="is-empty">-</td>
+                        <td class="is-empty">-</td>
+                        <td>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                        </td>
+                        <td>
+                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td class="left">Promedio general semestral</td>
+                      <td colspan="3"></td>
+                      <td>
+                        <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
+                      </td>
+                      <td>
+                        <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </section>
+
+              <section class="pdf-bulletin__section">
+                <h3>Observaciones del profesor jefe</h3>
+                <div class="pdf-bulletin__observations">
+                  <div class="pdf-bulletin__observation-row">
+                    <span class="pdf-bulletin__observation-dot is-green"></span>
+                    <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
+                  </div>
+                  <div class="pdf-bulletin__observation-row">
+                    <span class="pdf-bulletin__observation-dot is-amber"></span>
+                    <p>{{ pdfText(profileTrendLabel(student)) }}</p>
+                  </div>
+                  <div class="pdf-bulletin__observation-row">
+                    <span class="pdf-bulletin__observation-dot is-blue"></span>
+                    <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="pdf-bulletin__section">
+                <h3>Firmas</h3>
+                <div class="pdf-bulletin__signatures">
+                  <div>Profesor Jefe<br />{{ pdfTeacherName() }}</div>
+                  <div>Director/a<br />Torre Fuerte School</div>
+                  <div>Apoderado/a<br />Recibido conforme</div>
+                </div>
+              </section>
+
+              <footer class="pdf-bulletin__footer">
+                Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
+              </footer>
+            </div>
+          }
+        </article>
+      </section>
+
+      @if (isReportPreviewOpen() && previewStudent(); as student) {
+        <div class="report-preview-overlay" (click)="closeReportPreview()">
+          <section class="report-preview-modal" (click)="$event.stopPropagation()">
+            <header class="report-preview-modal__header">
+              <div>
+                <h3>Vista previa del boletín</h3>
+                <p>{{ pdfText(student.fullName) }} · {{ pdfPeriodLabel() }}</p>
+              </div>
+              <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
+                <mat-icon>close</mat-icon>
+              </button>
+            </header>
+
+            <div class="report-preview-modal__body">
+              <article class="pdf-report-card report-preview-sheet">
+                <div class="pdf-bulletin">
+                  <header class="pdf-bulletin__header">
+                    <div class="pdf-bulletin__brand">
+                      <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                      <div>
+                        <strong>Colegio Torre Fuerte School</strong>
+                        <span>Control institucional · Plataforma ConectaSchool</span>
+                      </div>
+                    </div>
+                    <div class="pdf-bulletin__meta">
+                      <strong>Bolet&iacute;n de notas</strong>
+                      <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
+                    </div>
+                  </header>
+
+                  <section class="pdf-bulletin__student-band">
+                    <div class="pdf-bulletin__field">
+                      <span>Nombre del estudiante</span>
+                      <strong>{{ pdfText(student.fullName) }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>RUN</span>
+                      <strong>{{ pdfText(student.run) }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>Curso</span>
+                      <strong>{{ pdfCourseLabel() }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>Profesor jefe</span>
+                      <strong>{{ pdfTeacherName() }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>A&ntilde;o escolar</span>
+                      <strong>{{ pdfSchoolYear() }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>N° de lista</span>
+                      <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                    </div>
+                  </section>
+
+                  <section class="pdf-bulletin__status-row">
+                    <div class="pdf-bulletin__status-box">
+                      <strong>{{ pdfScore(student.overallAverage) }}</strong>
+                      <span>Promedio general</span>
+                      <div class="pdf-bulletin__mini-bar">
+                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                      </div>
+                    </div>
+                    <div class="pdf-bulletin__status-box">
+                      <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
+                      <span>Ranking del curso</span>
+                      <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
+                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                      </div>
+                    </div>
+                    <div class="pdf-bulletin__status-box">
+                      <strong class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</strong>
+                      <span>Estado acad&eacute;mico</span>
+                    </div>
+                  </section>
+
+                  <section class="pdf-bulletin__section">
+                    <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
+
+                    <table class="pdf-bulletin__table">
+                      <thead>
+                        <tr>
+                          <th class="left">Asignatura</th>
+                          <th>N1</th>
+                          <th>N2</th>
+                          <th>N3</th>
+                          <th>Promedio</th>
+                          <th>Concepto</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (subject of student.subjects; track subject.subjectId) {
+                          <tr>
+                            <td class="left">
+                              <strong>{{ pdfText(subject.subjectName) }}</strong>
+                              <span>Prof. {{ pdfTeacherName() }}</span>
+                            </td>
+                            <td class="is-empty">-</td>
+                            <td class="is-empty">-</td>
+                            <td class="is-empty">-</td>
+                            <td>
+                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                            </td>
+                            <td>
+                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td class="left">Promedio general semestral</td>
+                          <td colspan="3"></td>
+                          <td>
+                            <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
+                          </td>
+                          <td>
+                            <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </section>
+
+                  <section class="pdf-bulletin__section">
+                    <h3>Observaciones del profesor jefe</h3>
+                    <div class="pdf-bulletin__observations">
+                      <div class="pdf-bulletin__observation-row">
+                        <span class="pdf-bulletin__observation-dot is-green"></span>
+                        <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
+                      </div>
+                      <div class="pdf-bulletin__observation-row">
+                        <span class="pdf-bulletin__observation-dot is-amber"></span>
+                        <p>{{ pdfText(profileTrendLabel(student)) }}</p>
+                      </div>
+                      <div class="pdf-bulletin__observation-row">
+                        <span class="pdf-bulletin__observation-dot is-blue"></span>
+                        <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section class="pdf-bulletin__section">
+                    <h3>Firmas</h3>
+                    <div class="pdf-bulletin__signatures">
+                      <div>Profesor Jefe<br />{{ pdfTeacherName() }}</div>
+                      <div>Director/a<br />Torre Fuerte School</div>
+                      <div>Apoderado/a<br />Recibido conforme</div>
+                    </div>
+                  </section>
+
+                  <footer class="pdf-bulletin__footer">
+                    Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
+                  </footer>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      }
+
+      <mat-card appearance="outlined" class="panel-card profile-legacy">
         <div class="filters-grid report-filters-layout">
           <mat-form-field appearance="outline">
             <mat-label>Curso</mat-label>
@@ -326,68 +912,303 @@
     }
 
     @if (activeTab() === 'reports') {
-      <section class="hero-box">
-        <div class="hero-head">
-          <div class="hero-copy">
-            <span class="hero-tag">Informes</span>
-            <h1>Informe de notas por estudiante</h1>
-            <p>Vista consolidada de todas las asignaturas para entrega a apoderados.</p>
-          </div>
-          <button mat-flat-button type="button" class="hero-action-button" (click)="exportMassivePdf()" [disabled]="isExporting()">
-            {{ isExporting() ? 'Exportando...' : 'Descargar PDF masivo' }}
+      <section class="page-header">
+        <div class="page-header__left">
+          <h1 class="page-header__title">Evaluaciones</h1>
+          <p class="page-header__subtitle">Informes, promedios y rankings del curso por periodo.</p>
+        </div>
+
+        <div class="page-header__actions">
+          <section class="grades-tabs-bar">
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Ficha estudiante</button>
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
+          </section>
+
+          <button mat-flat-button type="button" class="header-button header-button--primary reports-massive-button" (click)="exportMassivePdf()" [disabled]="isExporting()">
+            <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+            {{ isExporting() ? 'Exportando...' : 'PDF masivo' }}
           </button>
         </div>
       </section>
 
-      <section class="metric-grid">
-        <article class="metric-card"><span>Promedio curso</span><strong>{{ formatScore(reportSummary().overallAverage) }}</strong></article>
-        <article class="metric-card"><span>Destacados</span><strong class="metric-success">{{ reportSummary().outstanding }}</strong></article>
-        <article class="metric-card"><span>En riesgo</span><strong class="metric-danger">{{ reportSummary().atRisk }}</strong></article>
-        <article class="metric-card"><span>Sin notas</span><strong class="metric-warning">{{ reportSummary().ungraded }}</strong></article>
+      <section class="summary-grid">
+        <mat-card appearance="outlined" class="summary-card sc-blue">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>leaderboard</mat-icon>
+            </div>
+            <div class="summary-card__ring">100%</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ formatScore(reportSummary().overallAverage) }}</strong>
+            <span>Promedio del curso</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="summary-card sc-green">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>military_tech</mat-icon>
+            </div>
+            <div class="summary-card__ring">TOP</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ reportSummary().outstanding }}</strong>
+            <span>Destacados</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="summary-card sc-red">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>warning</mat-icon>
+            </div>
+            <div class="summary-card__ring">R</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ reportSummary().atRisk }}</strong>
+            <span>En riesgo</span>
+          </div>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="summary-card sc-amber">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>analytics</mat-icon>
+            </div>
+            <div class="summary-card__ring">{{ reportSubjectAverages().length }}</div>
+          </div>
+          <div class="summary-card__copy">
+            <strong>{{ reportSummary().ungraded }}</strong>
+            <span>Sin notas</span>
+          </div>
+        </mat-card>
       </section>
 
-      <mat-card appearance="outlined" class="panel-card">
-        <div class="filters-grid report-filters-layout">
-          <mat-form-field appearance="outline">
-            <mat-label>Curso</mat-label>
-            <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
+      <section class="profile-filters-bar">
+        <label class="inline-field">
+          <span class="inline-field__label">Curso</span>
+          <label class="inline-select inline-field__control inline-field__control--course">
+            <mat-icon>school</mat-icon>
+            <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
               @for (course of courses(); track course.id) {
-                <mat-option [value]="course.id">{{ course.name }}</mat-option>
+                <option [value]="course.id">{{ course.name }}</option>
               }
-            </mat-select>
-          </mat-form-field>
+            </select>
+          </label>
+        </label>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Periodo</mat-label>
-            <mat-select [value]="selectedPeriodId()" (valueChange)="updatePeriod($event)">
+        <label class="inline-field">
+          <span class="inline-field__label">Estudiante</span>
+          <label class="inline-select inline-field__control inline-field__control--subject">
+            <mat-icon>person</mat-icon>
+            <select [value]="selectedReportStudentId() ?? ''" (change)="updateReportStudent($any($event.target).value ? +$any($event.target).value : null)">
+              <option value="">Todos los estudiantes</option>
+              @for (student of reportListStudents(); track student.studentId) {
+                <option [value]="student.studentId">{{ student.fullName }}</option>
+              }
+            </select>
+          </label>
+        </label>
+
+        <label class="inline-field">
+          <span class="inline-field__label">Semestre</span>
+          <label class="inline-select inline-field__control inline-field__control--date">
+            <mat-icon>calendar_month</mat-icon>
+            <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
               @for (period of periods(); track period.id) {
-                <mat-option [value]="period.id">{{ period.name }}</mat-option>
+                <option [value]="period.id">{{ period.name }}</option>
               }
-            </mat-select>
-          </mat-form-field>
+            </select>
+          </label>
+        </label>
+      </section>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Estudiante</mat-label>
-            <mat-select [value]="selectedProfileStudentId()" (valueChange)="updateProfileStudent($event)">
-              <mat-option [value]="null">Todos los estudiantes</mat-option>
-              @for (student of profileStudentOptions(); track student.studentId) {
-                <mat-option [value]="student.studentId">{{ student.fullName }}</mat-option>
+      <section class="reports-layout">
+        <aside class="reports-sidebar">
+          <section class="reports-panel">
+            <div class="reports-panel__head">
+              <strong>Ranking del curso</strong>
+              <small>{{ reportRankedStudents().length }} alumnos</small>
+            </div>
+
+            <div class="profile-student-search">
+              <label class="search-field search-field--profile" aria-label="Buscar estudiante">
+                <mat-icon>search</mat-icon>
+                <input
+                  type="text"
+                  [value]="reportRunSearchTerm()"
+                  (input)="updateReportRunSearch($any($event.target).value)"
+                  placeholder="Buscar estudiante..."
+                />
+              </label>
+            </div>
+
+            <div class="reports-ranking-list">
+              @for (student of reportListStudents(); track trackStudent($index, student)) {
+                <button
+                  type="button"
+                  class="reports-ranking-item"
+                  [class.is-active]="activeReportStudent()?.studentId === student.studentId"
+                  (click)="updateReportStudent(student.studentId)">
+                  <span class="reports-ranking-item__place">#{{ reportStudentRank(student) ?? '—' }}</span>
+                  <div class="student-cell compact">
+                    <div class="avatar-chip">{{ initials(student.fullName) }}</div>
+                    <div class="student-copy">
+                      <strong>{{ student.fullName }}</strong>
+                      <small>{{ student.run }}</small>
+                    </div>
+                  </div>
+                  <span class="profile-student-item__score" [ngClass]="scoreToneClass(student.overallAverage)">
+                    {{ formatScore(student.overallAverage) }}
+                  </span>
+                </button>
+              } @empty {
+                <div class="profile-empty-state">
+                  <strong>Sin ranking disponible</strong>
+                  <span>No hay estudiantes con datos para este periodo.</span>
+                </div>
               }
-            </mat-select>
-          </mat-form-field>
+            </div>
+          </section>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Buscar por RUN</mat-label>
-            <input
-              matInput
-              [value]="profileRunSearchTerm()"
-              (input)="updateProfileRunSearch($any($event.target).value)"
-              placeholder="12.345.678-9"
-            />
-          </mat-form-field>
-        </div>
+          <section class="reports-panel">
+            <div class="reports-panel__head">
+              <strong>Promedios por asignatura</strong>
+              <small>{{ reportSubjectAverages().length }} asignaturas</small>
+            </div>
 
-        <section class="reports-grid">
+            <div class="reports-subject-averages">
+              @for (subject of reportSubjectAverages(); track subject.subjectId) {
+                <div class="reports-subject-averages__item">
+                  <div class="reports-subject-averages__copy">
+                    <strong>{{ subject.subjectName }}</strong>
+                    <small>{{ subject.count }} con nota · {{ subject.outstanding }} destacados</small>
+                  </div>
+                  <div class="reports-subject-averages__track">
+                    <span class="reports-subject-averages__bar" [style.width.%]="profileAverageWidth(subject.average)" [style.background]="subject.colorHex"></span>
+                  </div>
+                  <span class="reports-subject-averages__value" [ngClass]="scoreToneClass(subject.average)">{{ formatScore(subject.average) }}</span>
+                </div>
+              } @empty {
+                <div class="profile-empty-state">
+                  <strong>Sin promedios disponibles</strong>
+                  <span>No hay asignaturas con evaluaciones registradas.</span>
+                </div>
+              }
+            </div>
+          </section>
+        </aside>
+
+        <article class="reports-main-card reports-main-card--new">
+          @if (activeReportStudent(); as student) {
+            <header class="reports-main-card__head">
+              <div class="reports-main-card__identity">
+                <div class="profile-ficha-card__avatar">{{ initials(student.fullName) }}</div>
+                <div>
+                  <h2>{{ student.fullName }}</h2>
+                  <p>{{ selectedCourse()?.name }} · RUN {{ student.run }} · {{ selectedPeriod()?.name }}</p>
+                </div>
+              </div>
+
+              <div class="reports-main-card__actions">
+                <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openReportPreview()">
+                  <mat-icon>visibility</mat-icon>
+                  Vista previa
+                </button>
+                <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportStudentPdf(student)">
+                  <mat-icon>download</mat-icon>
+                  Exportar ficha
+                </button>
+              </div>
+            </header>
+
+            <div class="reports-main-card__body">
+              <section class="reports-main-card__section">
+                <div class="reports-main-card__section-head">
+                  <div class="profile-section-title">
+                    <mat-icon>receipt_long</mat-icon>
+                    <span>Resumen por asignatura</span>
+                  </div>
+
+                  <div class="reports-main-card__stats reports-main-card__stats--inline">
+                    <div class="profile-stat">
+                      <strong>{{ formatScore(student.overallAverage) }}</strong>
+                      <span>Promedio</span>
+                    </div>
+                    <div class="profile-stat">
+                      <strong>#{{ reportStudentRank(student) ?? '—' }}</strong>
+                      <span>Ranking</span>
+                    </div>
+                    <div class="profile-stat">
+                      <strong>{{ profileCompletedSubjects(student) }}/{{ student.subjects.length }}</strong>
+                      <span>Asignaturas</span>
+                    </div>
+                    <div class="profile-stat">
+                      <strong class="profile-stat__value--danger">{{ profileAtRiskSubjects(student) }}</strong>
+                      <span>En riesgo</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="reports-subject-grid">
+                  @for (subject of student.subjects; track subject.subjectId) {
+                    <article class="reports-subject-card">
+                      <span class="reports-subject-card__accent" [style.background]="subject.colorHex"></span>
+                      <div class="reports-subject-card__copy">
+                        <strong>{{ subject.subjectName }}</strong>
+                        <small>{{ subject.average != null && subject.average >= 6 ? 'Destacado' : subject.average != null && subject.average < 4 ? 'En riesgo' : 'En seguimiento' }}</small>
+                      </div>
+                      <span class="reports-subject-card__score" [ngClass]="scoreToneClass(subject.average)">
+                        {{ formatScore(subject.average) }}
+                      </span>
+                    </article>
+                  }
+                </div>
+              </section>
+
+              <section class="reports-main-card__section reports-main-card__section--split">
+                <div>
+                  <div class="profile-section-title">
+                    <mat-icon>bar_chart</mat-icon>
+                    <span>Rendimiento del estudiante</span>
+                  </div>
+
+                  <div class="profile-mini-chart">
+                    @for (subject of student.subjects; track subject.subjectId) {
+                      <div class="profile-bar-column">
+                        <span class="profile-bar-column__value">{{ formatScore(subject.average) }}</span>
+                        <span class="profile-bar-column__bar" [style.height.%]="profileAverageWidth(subject.average)" [style.background]="subject.colorHex"></span>
+                        <span class="profile-bar-column__label">{{ shortSubjectName(subject.subjectName) }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div>
+                  <div class="profile-section-title">
+                    <mat-icon>insights</mat-icon>
+                    <span>Lectura del informe</span>
+                  </div>
+
+                  <div class="reports-summary-card">
+                    <strong>{{ reportCompletionLabel(student) }}</strong>
+                    <p>{{ profileTrendLabel(student) }}</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+          } @else {
+            <div class="profile-empty-state profile-empty-state--card">
+              <strong>Sin informe disponible</strong>
+              <span>No hay datos de estudiantes para el curso y periodo seleccionados.</span>
+            </div>
+          }
+        </article>
+
+        <div class="reports-legacy">
+        <article class="reports-main-card">
           @for (student of displayedReports(); track trackStudent($index, student)) {
             <article class="report-card">
               <div class="report-head">
@@ -417,12 +1238,157 @@
               <span>Ajusta el filtro para ver informes de notas disponibles.</span>
             </article>
           }
-        </section>
-      </mat-card>
+        </article>
+        </div>
+      </section>
 
       <section class="pdf-export-shell" aria-hidden="true">
         <article #reportPdfTemplate class="pdf-report-card">
           @if (pdfStudent(); as student) {
+            <div class="pdf-bulletin">
+              <header class="pdf-bulletin__header">
+                <div class="pdf-bulletin__brand">
+                  <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                  <div>
+                    <strong>Colegio Torre Fuerte School</strong>
+                    <span>Control institucional · Plataforma ConectaSchool</span>
+                  </div>
+                </div>
+                <div class="pdf-bulletin__meta">
+                  <strong>Bolet&iacute;n de notas</strong>
+                  <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
+                </div>
+              </header>
+
+              <section class="pdf-bulletin__student-band">
+                <div class="pdf-bulletin__field">
+                  <span>Nombre del estudiante</span>
+                  <strong>{{ pdfText(student.fullName) }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>RUN</span>
+                  <strong>{{ pdfText(student.run) }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>Curso</span>
+                  <strong>{{ pdfCourseLabel() }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>Profesor jefe</span>
+                  <strong>{{ pdfTeacherName() }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>A&ntilde;o escolar</span>
+                  <strong>{{ pdfSchoolYear() }}</strong>
+                </div>
+                <div class="pdf-bulletin__field">
+                  <span>N° de lista</span>
+                  <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                </div>
+              </section>
+
+              <section class="pdf-bulletin__status-row">
+                <div class="pdf-bulletin__status-box">
+                  <strong>{{ pdfScore(student.overallAverage) }}</strong>
+                  <span>Promedio general</span>
+                  <div class="pdf-bulletin__mini-bar">
+                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                  </div>
+                </div>
+                <div class="pdf-bulletin__status-box">
+                  <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
+                  <span>Ranking del curso</span>
+                  <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
+                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                  </div>
+                </div>
+                <div class="pdf-bulletin__status-box">
+                  <strong class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</strong>
+                  <span>Estado acad&eacute;mico</span>
+                </div>
+              </section>
+
+              <section class="pdf-bulletin__section">
+                <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
+
+                <table class="pdf-bulletin__table">
+                  <thead>
+                    <tr>
+                      <th class="left">Asignatura</th>
+                      <th>N1</th>
+                      <th>N2</th>
+                      <th>N3</th>
+                      <th>Promedio</th>
+                      <th>Concepto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (subject of student.subjects; track subject.subjectId) {
+                      <tr>
+                        <td class="left">
+                          <strong>{{ pdfText(subject.subjectName) }}</strong>
+                          <span>Prof. {{ pdfTeacherName() }}</span>
+                        </td>
+                        <td class="is-empty">-</td>
+                        <td class="is-empty">-</td>
+                        <td class="is-empty">-</td>
+                        <td>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                        </td>
+                        <td>
+                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td class="left">Promedio general semestral</td>
+                      <td colspan="3"></td>
+                      <td>
+                        <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
+                      </td>
+                      <td>
+                        <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </section>
+
+              <section class="pdf-bulletin__section">
+                <h3>Observaciones del profesor jefe</h3>
+                <div class="pdf-bulletin__observations">
+                  <div class="pdf-bulletin__observation-row">
+                    <span class="pdf-bulletin__observation-dot is-green"></span>
+                    <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
+                  </div>
+                  <div class="pdf-bulletin__observation-row">
+                    <span class="pdf-bulletin__observation-dot is-amber"></span>
+                    <p>{{ pdfText(profileTrendLabel(student)) }}</p>
+                  </div>
+                  <div class="pdf-bulletin__observation-row">
+                    <span class="pdf-bulletin__observation-dot is-blue"></span>
+                    <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="pdf-bulletin__section">
+                <h3>Firmas</h3>
+                <div class="pdf-bulletin__signatures">
+                  <div>Profesor Jefe<br />{{ pdfTeacherName() }}</div>
+                  <div>Director/a<br />Torre Fuerte School</div>
+                  <div>Apoderado/a<br />Recibido conforme</div>
+                </div>
+              </section>
+
+              <footer class="pdf-bulletin__footer">
+                Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
+              </footer>
+            </div>
+
+            <div class="pdf-report-legacy">
             <header class="pdf-report-header">
               <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
               <div>
@@ -445,9 +1411,173 @@
                 </article>
               }
             </section>
+            </div>
           }
         </article>
       </section>
+
+      @if (isReportPreviewOpen() && previewStudent(); as student) {
+        <div class="report-preview-overlay" (click)="closeReportPreview()">
+          <section class="report-preview-modal" (click)="$event.stopPropagation()">
+            <header class="report-preview-modal__header">
+              <div>
+                <h3>Vista previa del boletín</h3>
+                <p>{{ pdfText(student.fullName) }} · {{ pdfPeriodLabel() }}</p>
+              </div>
+              <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
+                <mat-icon>close</mat-icon>
+              </button>
+            </header>
+
+            <div class="report-preview-modal__body">
+              <article class="pdf-report-card report-preview-sheet">
+                <div class="pdf-bulletin">
+                  <header class="pdf-bulletin__header">
+                    <div class="pdf-bulletin__brand">
+                      <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                      <div>
+                        <strong>Colegio Torre Fuerte School</strong>
+                        <span>Control institucional · Plataforma ConectaSchool</span>
+                      </div>
+                    </div>
+                    <div class="pdf-bulletin__meta">
+                      <strong>Bolet&iacute;n de notas</strong>
+                      <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
+                    </div>
+                  </header>
+
+                  <section class="pdf-bulletin__student-band">
+                    <div class="pdf-bulletin__field">
+                      <span>Nombre del estudiante</span>
+                      <strong>{{ pdfText(student.fullName) }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>RUN</span>
+                      <strong>{{ pdfText(student.run) }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>Curso</span>
+                      <strong>{{ pdfCourseLabel() }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>Profesor jefe</span>
+                      <strong>{{ pdfTeacherName() }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>A&ntilde;o escolar</span>
+                      <strong>{{ pdfSchoolYear() }}</strong>
+                    </div>
+                    <div class="pdf-bulletin__field">
+                      <span>N° de lista</span>
+                      <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                    </div>
+                  </section>
+
+                  <section class="pdf-bulletin__status-row">
+                    <div class="pdf-bulletin__status-box">
+                      <strong>{{ pdfScore(student.overallAverage) }}</strong>
+                      <span>Promedio general</span>
+                      <div class="pdf-bulletin__mini-bar">
+                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                      </div>
+                    </div>
+                    <div class="pdf-bulletin__status-box">
+                      <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
+                      <span>Ranking del curso</span>
+                      <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
+                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                      </div>
+                    </div>
+                    <div class="pdf-bulletin__status-box">
+                      <strong class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</strong>
+                      <span>Estado acad&eacute;mico</span>
+                    </div>
+                  </section>
+
+                  <section class="pdf-bulletin__section">
+                    <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
+
+                    <table class="pdf-bulletin__table">
+                      <thead>
+                        <tr>
+                          <th class="left">Asignatura</th>
+                          <th>N1</th>
+                          <th>N2</th>
+                          <th>N3</th>
+                          <th>Promedio</th>
+                          <th>Concepto</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (subject of student.subjects; track subject.subjectId) {
+                          <tr>
+                            <td class="left">
+                              <strong>{{ pdfText(subject.subjectName) }}</strong>
+                              <span>Prof. {{ pdfTeacherName() }}</span>
+                            </td>
+                            <td class="is-empty">-</td>
+                            <td class="is-empty">-</td>
+                            <td class="is-empty">-</td>
+                            <td>
+                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                            </td>
+                            <td>
+                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td class="left">Promedio general semestral</td>
+                          <td colspan="3"></td>
+                          <td>
+                            <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
+                          </td>
+                          <td>
+                            <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </section>
+
+                  <section class="pdf-bulletin__section">
+                    <h3>Observaciones del profesor jefe</h3>
+                    <div class="pdf-bulletin__observations">
+                      <div class="pdf-bulletin__observation-row">
+                        <span class="pdf-bulletin__observation-dot is-green"></span>
+                        <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
+                      </div>
+                      <div class="pdf-bulletin__observation-row">
+                        <span class="pdf-bulletin__observation-dot is-amber"></span>
+                        <p>{{ pdfText(profileTrendLabel(student)) }}</p>
+                      </div>
+                      <div class="pdf-bulletin__observation-row">
+                        <span class="pdf-bulletin__observation-dot is-blue"></span>
+                        <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section class="pdf-bulletin__section">
+                    <h3>Firmas</h3>
+                    <div class="pdf-bulletin__signatures">
+                      <div>Profesor Jefe<br />{{ pdfTeacherName() }}</div>
+                      <div>Director/a<br />Torre Fuerte School</div>
+                      <div>Apoderado/a<br />Recibido conforme</div>
+                    </div>
+                  </section>
+
+                  <footer class="pdf-bulletin__footer">
+                    Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
+                  </footer>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      }
     }
   </main>
 
@@ -567,3 +1697,5 @@
     </section>
   }
 </app-teacher-modern-layout>
+
+

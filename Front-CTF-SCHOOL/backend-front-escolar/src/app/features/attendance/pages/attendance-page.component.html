@@ -34,19 +34,18 @@
           [matMenuTriggerFor]="exportMenu"
           [disabled]="isExporting()">
           <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
-          Exportar
+          {{ activeTab() === 'monthly' ? 'Exportar reporte' : 'Exportar' }}
         </button>
-
-        @if (activeTab() === 'monthly') {
-          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportMonthlyReport()" [disabled]="isExporting()">
-            <mat-icon>picture_as_pdf</mat-icon>
-            {{ isExporting() ? 'Exportando...' : 'Exportar reporte' }}
-          </button>
-        }
       </div>
     </section>
 
     <mat-menu #exportMenu="matMenu" xPosition="before" class="export-menu">
+      @if (activeTab() === 'monthly') {
+        <button mat-menu-item type="button" (click)="exportMonthlyReport()" [disabled]="isExporting()">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>Reporte PDF</span>
+        </button>
+      }
       <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
         <mat-icon>data_object</mat-icon>
         <span>JSON</span>

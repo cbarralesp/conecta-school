@@ -58,6 +58,18 @@ export interface TeacherSystemAccess {
   status: string;
 }
 
+export interface TeacherAccessPreview {
+  username: string;
+}
+
+export interface TeacherAccessPreviewPayload {
+  run: string;
+  firstNames: string;
+  paternalLastName: string;
+  maternalLastName: string;
+  staffType: string;
+}
+
 export interface TeacherDetail {
   id: number;
   teacherCode: string;

@@ -4,6 +4,7 @@ import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.TeacherCommand;
 import com.example.authhexagonal.domain.model.TeacherOverview;
 import com.example.authhexagonal.domain.model.TeacherRecord;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.TeacherAccessPreviewResponse;
 import com.example.authhexagonal.infrastructure.adapter.out.persistence.TeacherJdbcAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,18 @@ public class TeacherManagementService {
         findById(teacherId);
         validateRun(command.run(), teacherId);
         return teacherJdbcAdapter.updateTeacher(teacherId, command, encodePassword(command));
+    }
+
+    public TeacherAccessPreviewResponse previewSystemAccessUsername(
+            String run,
+            String firstNames,
+            String paternalLastName,
+            String maternalLastName,
+            String staffType
+    ) {
+        return new TeacherAccessPreviewResponse(
+                teacherJdbcAdapter.previewStaffUsername(run, firstNames, paternalLastName, maternalLastName, staffType)
+        );
     }
 
     @Transactional

@@ -5,15 +5,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { StudentAttendanceDetail } from '../../../core/models/student.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-student-attendance-page',
@@ -22,12 +20,10 @@ import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.comp
     MatCardModule,
     MatChipsModule,
     MatIconModule,
-    MatMenuModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './student-attendance-page.component.html',
   styleUrl: './student-attendance-page.component.scss',

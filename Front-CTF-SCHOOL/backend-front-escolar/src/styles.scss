@@ -61,6 +61,8 @@
   --app-line-height-tight: 1.18;
 }
 
+
+
 html,
 body {
   min-height: 100%;
@@ -280,6 +282,465 @@ body {
   .mat-toolbar[class*='toolbar'] > .mat-mdc-button-base:last-child,
   .mat-toolbar[class*='toolbar'] > button:last-child {
     margin-left: auto;
+  }
+}
+
+.pdf-export-shell {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 900px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pdf-report-card {
+  padding: 0;
+  background: #fff;
+  color: #172033;
+}
+
+.pdf-report-legacy {
+  display: none;
+}
+
+.pdf-bulletin {
+  padding: 30px 34px;
+  background: #ffffff;
+  color: #0b1220;
+}
+
+.pdf-bulletin__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #0f1e3c;
+  margin-bottom: 16px;
+}
+
+.pdf-bulletin__brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.pdf-bulletin__brand img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pdf-bulletin__brand strong,
+.pdf-bulletin__meta strong {
+  display: block;
+  font-weight: 800;
+}
+
+.pdf-bulletin__brand strong {
+  font-size: 17px;
+}
+
+.pdf-bulletin__brand span,
+.pdf-bulletin__meta span {
+  display: block;
+  color: #64748b;
+}
+
+.pdf-bulletin__brand span {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.pdf-bulletin__meta {
+  margin-left: auto;
+  text-align: right;
+}
+
+.pdf-bulletin__meta strong {
+  font-size: 14px;
+  color: #0f1e3c;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pdf-bulletin__meta span {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.pdf-bulletin__student-band {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pdf-bulletin__field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pdf-bulletin__field span {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pdf-bulletin__field strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0b1220;
+}
+
+.pdf-bulletin__status-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pdf-bulletin__status-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.pdf-bulletin__status-box > strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 2px;
+  color: #059669;
+}
+
+.pdf-bulletin__status-box:nth-child(2) > strong {
+  color: #2563eb;
+}
+
+.pdf-bulletin__status-box > span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pdf-bulletin__mini-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.pdf-bulletin__mini-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #10b981;
+}
+
+.pdf-bulletin__mini-bar--blue span {
+  background: #3b82f6;
+}
+
+.pdf-bulletin__status-pill,
+.pdf-bulletin__avg-chip,
+.pdf-bulletin__concept-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.pdf-bulletin__status-pill {
+  min-width: 86px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.pdf-bulletin__status-pill.is-approved {
+  background: #0f1e3c;
+  color: #d4a017;
+}
+
+.pdf-bulletin__status-pill.is-review {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.pdf-bulletin__section {
+  margin-bottom: 16px;
+}
+
+.pdf-bulletin__section h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f1e3c;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pdf-bulletin__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pdf-bulletin__table thead tr {
+  background: #0f1e3c;
+}
+
+.pdf-bulletin__table thead th {
+  padding: 7px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pdf-bulletin__table thead th.left,
+.pdf-bulletin__table td.left {
+  text-align: left;
+}
+
+.pdf-bulletin__table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.pdf-bulletin__table tbody td {
+  padding: 7px 10px;
+  font-size: 12px;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: center;
+}
+
+.pdf-bulletin__table tbody td.left strong {
+  display: block;
+  font-weight: 700;
+  color: #0b1220;
+}
+
+.pdf-bulletin__table tbody td.left span {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.pdf-bulletin__table tfoot tr {
+  background: #e8f0e8;
+  border-top: 1.5px solid #0f1e3c;
+}
+
+.pdf-bulletin__table tfoot td {
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+}
+
+.pdf-bulletin__avg-chip,
+.pdf-bulletin__concept-chip {
+  min-width: 36px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 5px;
+  font-size: 11.5px;
+}
+
+.pdf-bulletin__concept-chip {
+  min-width: 84px;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+.pdf-bulletin__avg-chip.is-high,
+.pdf-bulletin__concept-chip.is-high {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.pdf-bulletin__avg-chip.is-mid,
+.pdf-bulletin__concept-chip.is-mid {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pdf-bulletin__avg-chip.is-low,
+.pdf-bulletin__concept-chip.is-low {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.pdf-bulletin__avg-chip.is-empty,
+.pdf-bulletin__concept-chip.is-empty,
+.pdf-bulletin__table td.is-empty {
+  color: #cbd5e1;
+}
+
+.pdf-bulletin__observations {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.pdf-bulletin__observation-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.pdf-bulletin__observation-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  margin-top: 5px;
+}
+
+.pdf-bulletin__observation-dot.is-green {
+  background: #059669;
+}
+
+.pdf-bulletin__observation-dot.is-amber {
+  background: #d97706;
+}
+
+.pdf-bulletin__observation-dot.is-blue {
+  background: #2563eb;
+}
+
+.pdf-bulletin__observations p {
+  margin: 0;
+  font-size: 12px;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+.pdf-bulletin__signatures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.pdf-bulletin__signatures div {
+  border-top: 1px solid #334155;
+  padding-top: 6px;
+  text-align: center;
+  font-size: 10.5px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.pdf-bulletin__footer {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 10px;
+  color: #cbd5e1;
+  letter-spacing: 0.04em;
+}
+
+.report-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+.report-preview-modal {
+  width: min(1040px, 100%);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  border: 1px solid #dbe5f0;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.report-preview-modal__header {
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid #e8edf3;
+  background: #fbfdff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.report-preview-modal__header h3 {
+  margin: 0;
+  color: #18283f;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.report-preview-modal__header p {
+  margin: 0.18rem 0 0;
+  color: #7f92ad;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.report-preview-modal__close {
+  color: #64748b;
+}
+
+.report-preview-modal__body {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+  background: #f5f8fd;
+}
+
+.report-preview-sheet {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+@media (max-width: 960px) {
+  .report-preview-overlay {
+    padding: 0.75rem;
+  }
+
+  .report-preview-modal {
+    max-height: 94vh;
+  }
+
+  .report-preview-modal__body {
+    padding: 0.65rem;
   }
 }
 
@@ -542,3 +1003,5 @@ body {
     line-height: 1.2;
   }
 }
+
+

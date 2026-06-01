@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, TemplateRef, ViewChild, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -10,11 +9,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { Course } from '../../../core/models/course.models';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { ActivityCalendarApiService } from '../../../core/services/activity-calendar-api.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
@@ -52,10 +49,7 @@ interface SelectedActivityItem {
     MatDialogModule,
     MatIconModule,
     MatMenuModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    UpperCasePipe,
-    TeacherSideMenuComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './activities-calendar-page.component.html',
@@ -71,7 +65,6 @@ export class ActivitiesCalendarPageComponent {
   private readonly courseApiService = inject(CourseApiService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
 
   private readonly today = new Date();
@@ -85,10 +78,8 @@ export class ActivitiesCalendarPageComponent {
   readonly visibleYear = signal(this.today.getFullYear());
   readonly visibleMonth = signal(this.today.getMonth() + 1);
   readonly isReadOnly = signal(false);
-  readonly studentSearch = signal('');
   readonly selectedDate = signal(this.toIsoDate(this.today));
   readonly user = this.authStateService.user;
-  readonly studentDisplayName = computed(() => this.authStateService.user()?.nombre?.split(' ')[0] ?? 'Estudiante');
   readonly pageTitle = computed(() => (this.isReadOnly() ? 'Actividades mensuales' : 'Calendario de actividades'));
   readonly pageDescription = computed(() =>
     this.isReadOnly()
@@ -183,11 +174,6 @@ export class ActivitiesCalendarPageComponent {
     this.loadCalendar();
   }
 
-  logout(): void {
-    this.authStateService.clearSession();
-    void this.router.navigate(['/login']);
-  }
-
   goToToday(): void {
     this.visibleYear.set(this.today.getFullYear());
     this.visibleMonth.set(this.today.getMonth() + 1);
@@ -221,6 +207,19 @@ export class ActivitiesCalendarPageComponent {
 
   selectDate(dateStr: string): void {
     this.selectedDate.set(dateStr);
+  }
+
+  handleDayDoubleClick(dateStr: string): void {
+    this.selectedDate.set(dateStr);
+    this.openNewActivityDialog(dateStr);
+  }
+
+  visibleDayActivities(day: ActivityCalendarDay, limit = 1): SchoolActivity[] {
+    return day.activities.slice(0, limit);
+  }
+
+  hiddenActivityCount(day: ActivityCalendarDay, limit = 1): number {
+    return Math.max(day.activities.length - limit, 0);
   }
 
   async downloadCurrentMonthPdf(): Promise<void> {

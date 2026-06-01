@@ -6,10 +6,11 @@ import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { startWith } from 'rxjs';
+import { catchError, debounceTime, merge, of, startWith, switchMap } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import {
+  EnrollmentAccessPreview,
   EnrollmentCourseOption,
   EnrollmentDetail,
   EnrollmentGuardianAccess,
@@ -62,6 +63,8 @@ export class EnrollmentFormPageComponent {
   readonly createCourseLevel = signal('');
   readonly createCourseLetter = signal('');
   readonly createCourseSchedule = signal('');
+  readonly studentUsernamePreview = signal('');
+  readonly guardianUsernamePreview = signal('');
   readonly wizardSteps = [
     { id: 1, label: 'Estudiante', icon: 'badge' },
     { id: 2, label: 'Apoderado', icon: 'supervisor_account' },
@@ -308,6 +311,7 @@ export class EnrollmentFormPageComponent {
     this.observeEnrollmentStatus();
     this.observeLocationSelection();
     this.observeCourseSelection();
+    this.observeAccessPreview();
     this.loadCoursesAndData();
   }
 
@@ -589,14 +593,7 @@ export class EnrollmentFormPageComponent {
     if (existingUsername) {
       return existingUsername;
     }
-
-    const firstName = this.normalizeAccessPart(this.form.controls.studentFirstName.value).charAt(0);
-    const paternalLastName = this.normalizeAccessPart(this.form.controls.studentLastNameFather.value);
-    const username = `${firstName}${paternalLastName}`.toLowerCase();
-    if (!username) {
-      return '';
-    }
-    return username;
+    return this.studentUsernamePreview() || this.buildBaseStudentUsernamePreview();
   }
 
   studentAccessPasswordPreview(): string {
@@ -620,12 +617,7 @@ export class EnrollmentFormPageComponent {
     if (existingUsername) {
       return existingUsername;
     }
-
-    const splitName = this.splitGuardianName(this.guardianGroup.controls.fullName.value);
-    const firstName = this.normalizeAccessPart(splitName.name).charAt(0);
-    const paternalLastName = this.normalizeAccessPart(splitName.lastName.split(/\s+/).filter(Boolean)[0] ?? '');
-    const username = `${firstName}${paternalLastName}`.toLowerCase();
-    return username || '';
+    return this.guardianUsernamePreview() || this.buildBaseGuardianUsernamePreview();
   }
 
   guardianAccessPasswordPreview(): string {
@@ -1129,6 +1121,37 @@ export class EnrollmentFormPageComponent {
 
   private splitLastNames(lastNames: string): { fatherLastName: string; motherLastName: string } {
     const parts = (lastNames || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length <= 2) {
+      return {
+        fatherLastName: parts[0] ?? '',
+        motherLastName: parts.slice(1).join(' ')
+      };
+    }
+
+    const compoundParticles = new Set([
+      'da', 'das', 'de', 'del', 'della', 'delle', 'dello', 'di', 'do', 'dos',
+      'la', 'las', 'le', 'les', 'los', 'mac', 'mc', 'san', 'santa', 'santo',
+      'st', 'van', 'vander', 'von', 'y'
+    ]);
+
+    if (compoundParticles.has(parts[0]!.toLowerCase())) {
+      let paternalEndIndex = 0;
+      while (paternalEndIndex + 1 < parts.length) {
+        paternalEndIndex += 1;
+        const nextPart = parts[paternalEndIndex]!.toLowerCase();
+        if (!compoundParticles.has(nextPart)) {
+          break;
+        }
+      }
+
+      if (paternalEndIndex < parts.length - 1) {
+        return {
+          fatherLastName: parts.slice(0, paternalEndIndex + 1).join(' '),
+          motherLastName: parts.slice(paternalEndIndex + 1).join(' ')
+        };
+      }
+    }
+
     return {
       fatherLastName: parts[0] ?? '',
       motherLastName: parts.slice(1).join(' ')
@@ -1268,6 +1291,19 @@ export class EnrollmentFormPageComponent {
     return `Apo${nameInitial}${suffix}!`;
   }
 
+  private buildBaseStudentUsernamePreview(): string {
+    const firstName = this.normalizeAccessPart(this.form.controls.studentFirstName.value).charAt(0);
+    const paternalLastName = this.normalizeAccessPart(this.form.controls.studentLastNameFather.value);
+    return `${firstName}${paternalLastName}`.toLowerCase();
+  }
+
+  private buildBaseGuardianUsernamePreview(): string {
+    const splitName = this.splitGuardianName(this.guardianGroup.controls.fullName.value);
+    const firstName = this.normalizeAccessPart(splitName.name).charAt(0);
+    const paternalLastName = this.normalizeAccessPart(splitName.lastName.split(/\s+/).filter(Boolean)[0] ?? '');
+    return `${firstName}${paternalLastName}`.toLowerCase();
+  }
+
   private normalizeAccessPart(value: string): string {
     return `${value ?? ''}`
       .normalize('NFD')
@@ -1336,6 +1372,63 @@ export class EnrollmentFormPageComponent {
       .subscribe((courseId) => {
         this.syncCourseBaseFields(courseId);
       });
+  }
+
+  private observeAccessPreview(): void {
+    merge(
+      this.form.controls.studentRun.valueChanges,
+      this.form.controls.studentFirstName.valueChanges,
+      this.form.controls.studentMiddleName.valueChanges,
+      this.form.controls.studentLastNameFather.valueChanges,
+      this.form.controls.studentLastNameMother.valueChanges,
+      this.guardianGroup.controls.run.valueChanges,
+      this.guardianGroup.controls.fullName.valueChanges,
+      this.studentAccessGroup.controls.configureAccess.valueChanges,
+      this.studentAccessGroup.controls.createStudentAccount.valueChanges,
+      this.guardianAccessGroup.controls.createGuardianAccount.valueChanges,
+      this.studentAccessGroup.controls.username.valueChanges,
+      this.guardianAccessGroup.controls.username.valueChanges
+    ).pipe(
+      startWith(null),
+      debounceTime(120),
+      switchMap(() => {
+        if (!this.shouldShowStudentAccessConfig()) {
+          return of<EnrollmentAccessPreview>({ studentUsername: '', guardianUsername: '' });
+        }
+
+        const studentFirstName = this.form.controls.studentFirstName.value.trim();
+        const studentMiddleName = this.form.controls.studentMiddleName.value.trim();
+        const studentLastNameFather = this.form.controls.studentLastNameFather.value.trim();
+        const studentLastNameMother = this.form.controls.studentLastNameMother.value.trim();
+        const guardianFullName = this.guardianGroup.controls.fullName.value.trim();
+        const guardianRun = this.guardianGroup.controls.run.value.trim();
+        const guardianSplitName = this.splitGuardianName(guardianFullName);
+
+        const hasStudentData = !!studentFirstName || !!studentLastNameFather;
+        const hasGuardianData = !!guardianSplitName.name || !!guardianSplitName.lastName;
+        if (!hasStudentData && !hasGuardianData) {
+          return of<EnrollmentAccessPreview>({ studentUsername: '', guardianUsername: '' });
+        }
+
+        return this.enrollmentApiService.previewAccess({
+          studentRun: this.form.controls.studentRun.value.trim(),
+          studentName: [studentFirstName, studentMiddleName].filter(Boolean).join(' ').trim(),
+          studentLastName: [studentLastNameFather, studentLastNameMother].filter(Boolean).join(' ').trim(),
+          guardianRun,
+          guardianName: guardianSplitName.name,
+          guardianLastName: guardianSplitName.lastName
+        }).pipe(
+          catchError(() => of<EnrollmentAccessPreview>({
+            studentUsername: this.buildBaseStudentUsernamePreview(),
+            guardianUsername: this.buildBaseGuardianUsernamePreview()
+          }))
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((preview) => {
+      this.studentUsernamePreview.set(preview.studentUsername ?? '');
+      this.guardianUsernamePreview.set(preview.guardianUsername ?? '');
+    });
   }
 
   private syncCourseBaseFields(courseId: number): void {

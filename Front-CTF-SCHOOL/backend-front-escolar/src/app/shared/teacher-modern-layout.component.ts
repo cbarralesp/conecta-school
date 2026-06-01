@@ -126,9 +126,10 @@ export class TeacherModernLayoutComponent {
 
   private loadSidebarThemePreference(): boolean {
     try {
-      return window.localStorage.getItem(TeacherModernLayoutComponent.SIDEBAR_THEME_KEY) === 'true';
+      const storedValue = window.localStorage.getItem(TeacherModernLayoutComponent.SIDEBAR_THEME_KEY);
+      return storedValue == null ? true : storedValue === 'true';
     } catch {
-      return false;
+      return true;
     }
   }
 

@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { EnrollmentListItem } from '../../../core/models/enrollment.models';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 
@@ -21,7 +21,7 @@ interface CourseStudentsDialogData {
   template: `
     <section class="students-dialog">
       <header class="students-dialog__header">
-        <div>
+        <div class="students-dialog__header-copy">
           <p class="students-dialog__eyebrow">Gestion de alumnos</p>
           <h2>{{ data.courseName }}</h2>
           <span>{{ data.courseCode }} · {{ students().length }} alumno{{ students().length === 1 ? '' : 's' }}</span>
@@ -120,25 +120,35 @@ interface CourseStudentsDialogData {
   styles: `
     .students-dialog {
       position: relative;
-      width: min(680px, 84vw);
-      border-radius: 24px;
+      width: min(620px, 82vw);
+      border-radius: 20px;
+      border: 1px solid #e5ecf4;
       background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-      padding: 1.1rem 1.1rem 1rem;
+      padding: 0.95rem 0.95rem 0.9rem;
       color: #173553;
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
     }
 
     .students-dialog__header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 0.9rem;
+      gap: 0.85rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .students-dialog__header-copy {
+      display: grid;
+      gap: 0.12rem;
+      min-width: 0;
     }
 
     .students-dialog__eyebrow {
-      margin: 0 0 0.18rem;
+      margin: 0;
       color: #7b8da8;
-      font-size: 0.68rem;
+      font-size: 0.66rem;
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -146,7 +156,7 @@ interface CourseStudentsDialogData {
 
     .students-dialog__header h2 {
       margin: 0;
-      font-size: 1.18rem;
+      font-size: 1.02rem;
       line-height: 1.15;
       font-weight: 800;
       color: #12233d;
@@ -154,29 +164,48 @@ interface CourseStudentsDialogData {
 
     .students-dialog__header span {
       display: block;
-      margin-top: 0.15rem;
       color: #6e819c;
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       font-weight: 600;
     }
 
+    .students-dialog__header button {
+      width: 34px;
+      height: 34px;
+      color: #6f829a;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+      flex-shrink: 0;
+    }
+
     .students-dialog__search {
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.75rem;
     }
 
     .students-search {
       display: flex;
       align-items: center;
-      gap: 0.55rem;
-      min-height: 44px;
-      padding: 0 0.85rem;
-      border-radius: 14px;
+      gap: 0.45rem;
+      min-height: 36px;
+      padding: 0 0.72rem;
+      border-radius: 10px;
       border: 1.5px solid #dbe5f0;
-      background: #ffffff;
+      background: #f8fbff;
+      transition: 0.2s ease;
     }
 
     .students-search .mat-icon {
-      color: #93a5bf;
+      width: 17px;
+      height: 17px;
+      font-size: 17px;
+      color: #9aa9bf;
+    }
+
+    .students-search:focus-within {
+      border-color: #c8d7ea;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
     }
 
     .students-search input {
@@ -184,43 +213,49 @@ interface CourseStudentsDialogData {
       border: 0;
       outline: 0;
       background: transparent;
-      color: #425872;
+      color: #485d77;
       font: inherit;
-      font-size: 0.84rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
 
     .students-dialog__body {
-      max-height: min(52vh, 460px);
+      max-height: min(50vh, 430px);
       overflow: auto;
       padding-right: 0.15rem;
     }
 
     .students-list {
       display: grid;
-      gap: 0.5rem;
+      gap: 0.42rem;
     }
 
     .student-row {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
-      gap: 0.8rem;
-      padding: 0.82rem 0.95rem;
-      border-radius: 15px;
+      gap: 0.72rem;
+      padding: 0.72rem 0.82rem;
+      border-radius: 14px;
       border: 1px solid #e5ecf4;
       background: #ffffff;
+      transition: all 0.18s ease;
+    }
+
+    .student-row:hover {
+      border-color: #d6e1ec;
+      background: #f8fbff;
     }
 
     .student-row__avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
       background: #e9f0fb;
       color: #3b82f6;
       display: grid;
       place-items: center;
-      font-size: 0.86rem;
+      font-size: 0.8rem;
       font-weight: 800;
       letter-spacing: -0.03em;
       flex-shrink: 0;
@@ -228,47 +263,48 @@ interface CourseStudentsDialogData {
 
     .student-row__main {
       display: grid;
-      gap: 0.18rem;
+      gap: 0.12rem;
       min-width: 0;
     }
 
     .student-row__main strong {
       color: #173553;
-      font-size: 0.9rem;
-      font-weight: 700;
+      font-size: 0.84rem;
+      font-weight: 800;
       line-height: 1.2;
     }
 
     .student-row__main span {
       color: #7b8da8;
-      font-size: 0.79rem;
+      font-size: 0.75rem;
       font-weight: 600;
     }
 
     .student-row__meta {
       display: flex;
       align-items: center;
-      gap: 0.55rem;
+      gap: 0.45rem;
     }
 
     .student-row__status {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 0.42rem 0.74rem;
+      min-height: 30px;
+      padding: 0 0.66rem;
       border-radius: 999px;
       background: #ecfdf5;
       color: #0f9d6b;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       font-weight: 700;
       white-space: nowrap;
     }
 
     .student-row__remove {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       border: 1px solid #fee2e2;
-      border-radius: 10px;
+      border-radius: 9px;
       background: #ffffff;
       color: #ef4444;
       display: inline-flex;
@@ -290,36 +326,36 @@ interface CourseStudentsDialogData {
     }
 
     .student-row__remove .mat-icon {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
     }
 
     .students-dialog__empty {
-      min-height: 220px;
+      min-height: 190px;
       display: grid;
       place-items: center;
-      gap: 0.5rem;
+      gap: 0.42rem;
       text-align: center;
       color: #6c7f98;
     }
 
     .students-dialog__empty .mat-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 40px;
+      width: 36px;
+      height: 36px;
+      font-size: 36px;
       color: #3b82f6;
     }
 
     .students-dialog__empty strong {
       color: #173553;
-      font-size: 0.9rem;
+      font-size: 0.84rem;
     }
 
     .students-dialog__empty p {
       margin: 0;
-      font-size: 0.78rem;
-      font-weight: 500;
+      font-size: 0.74rem;
+      font-weight: 600;
     }
 
     .students-dialog__confirm-backdrop {
@@ -330,24 +366,24 @@ interface CourseStudentsDialogData {
       display: grid;
       place-items: center;
       padding: 1rem;
-      border-radius: 24px;
+      border-radius: 20px;
     }
 
     .students-dialog__confirm {
       width: min(380px, 100%);
       display: grid;
-      gap: 0.85rem;
-      padding: 1rem;
-      border-radius: 20px;
+      gap: 0.75rem;
+      padding: 0.95rem;
+      border-radius: 18px;
       background: #ffffff;
       border: 1px solid #f5d4d4;
-      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14);
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
     }
 
     .students-dialog__confirm-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
       background: #fef2f2;
       color: #ef4444;
       display: grid;
@@ -361,22 +397,30 @@ interface CourseStudentsDialogData {
 
     .students-dialog__confirm-copy strong {
       color: #12233d;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       font-weight: 800;
     }
 
     .students-dialog__confirm-copy p {
       margin: 0;
       color: #5f738d;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       line-height: 1.45;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .students-dialog__confirm-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 0.55rem;
+      gap: 0.5rem;
+    }
+
+    .students-dialog__confirm-actions button,
+    .students-dialog__footer button {
+      min-height: 40px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
     }
 
     .students-dialog__confirm-danger {
@@ -387,13 +431,15 @@ interface CourseStudentsDialogData {
     .students-dialog__footer {
       display: flex;
       justify-content: flex-end;
-      margin-top: 0.95rem;
+      margin-top: 0.8rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid #edf2f7;
     }
 
     @media (max-width: 720px) {
       .students-dialog {
         width: min(96vw, 96vw);
-        padding: 1rem;
+        padding: 0.9rem;
       }
 
       .student-row {
@@ -495,9 +541,7 @@ export class CourseStudentsDialogComponent {
     this.isLoading.set(true);
     this.enrollmentApiService.getOverview({ courseId: this.data.courseId }).subscribe({
       next: (overview) => {
-        this.students.set(
-          overview.enrollments.filter((enrollment) => enrollment.courseId === this.data.courseId)
-        );
+        this.students.set(overview.enrollments.filter((enrollment) => enrollment.courseId === this.data.courseId));
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {

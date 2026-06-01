@@ -1,218 +1,177 @@
-<mat-sidenav-container class="student-shell">
-  <mat-sidenav mode="side" opened class="student-sidenav">
-    <app-teacher-side-menu></app-teacher-side-menu>
-  </mat-sidenav>
+<app-teacher-modern-layout
+  title=""
+  activeItem="attendance"
+  dashboardRoute="/alumno"
+  userRole="Alumno"
+  searchPlaceholder="Buscar asistencia, asignaturas, actividades...">
+  <main class="attendance-content">
+    <div class="student-content__inner">
+      @if (isLoading()) {
+        <section class="loading-state">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Cargando asistencia del estudiante...</p>
+        </section>
+      } @else if (attendance(); as attendanceDetail) {
+        <section class="attendance-hero">
+          <div class="attendance-hero__copy">
+            <span class="attendance-hero__eyebrow">Seguimiento academico</span>
+            <h1>Tu asistencia, clara y al dia</h1>
+            <p>Revisa tu porcentaje general, el avance del mes y los ultimos registros sin editar informacion.</p>
+          </div>
 
-  <mat-sidenav-content class="student-main-shell">
-    <header class="student-toolbar">
-      <button mat-icon-button type="button" class="student-toolbar__menu" aria-label="Abrir navegacion">
-        <mat-icon>menu</mat-icon>
-      </button>
+          <div class="attendance-hero__meta">
+            <mat-chip>{{ attendanceDetail.header.courseName }}</mat-chip>
+            <span class="attendance-hero__period">{{ attendanceDetail.header.periodLabel }}</span>
+          </div>
+        </section>
 
-      <label class="student-toolbar__search" aria-label="Buscar en el portal del estudiante">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Buscar..."
-          [value]="studentSearch()"
-          (input)="studentSearch.set(($any($event.target).value ?? '').toString())"
-        />
-      </label>
-
-      <div class="student-toolbar__actions">
-        <button
-          mat-button
-          type="button"
-          class="student-toolbar__profile"
-          [matMenuTriggerFor]="studentProfileMenu"
-          aria-label="Abrir menu de perfil del estudiante"
-        >
-          <span class="student-toolbar__avatar">{{ welcomeInitial() }}</span>
-          <mat-icon>expand_more</mat-icon>
-        </button>
-      </div>
-    </header>
-
-    <mat-menu #studentProfileMenu="matMenu" xPosition="before">
-      <button mat-menu-item type="button" disabled>
-        <mat-icon>person</mat-icon>
-        <span>Mi perfil</span>
-      </button>
-      <button mat-menu-item type="button" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Cerrar sesion</span>
-      </button>
-    </mat-menu>
-
-    <main class="attendance-content">
-      <div class="student-content__inner">
-        @if (isLoading()) {
-          <section class="loading-state">
-            <mat-spinner diameter="48"></mat-spinner>
-              <p>Cargando asistencia del estudiante...</p>
-          </section>
-        } @else if (attendance(); as attendanceDetail) {
-          <section class="attendance-hero">
-            <div class="attendance-hero__copy">
-              <span class="attendance-hero__eyebrow">Seguimiento academico</span>
-              <h1>Tu asistencia, clara y al dia</h1>
-              <p>Revisa tu porcentaje general, el avance del mes y los ultimos registros sin editar informacion.</p>
-            </div>
-
-            <div class="attendance-hero__meta">
-              <mat-chip>{{ attendanceDetail.header.courseName }}</mat-chip>
-              <span class="attendance-hero__period">{{ attendanceDetail.header.periodLabel }}</span>
-            </div>
-          </section>
-
-          <section class="attendance-summary-grid">
-            @for (card of cards(); track card.title) {
-              <mat-card appearance="outlined" class="summary-card" [class]="'tone-' + card.tone">
-                <div class="summary-card__icon">
-                  <mat-icon>{{ card.icon }}</mat-icon>
-                </div>
-                <div class="summary-card__copy">
-                  <span>{{ card.title }}</span>
-                  <strong>{{ card.value }}</strong>
-                  <small>{{ card.caption }}</small>
-                </div>
-              </mat-card>
-            }
-          </section>
-
-          <section class="attendance-grid">
-            <mat-card appearance="outlined" class="panel-card month-card">
-              <div class="panel-card__header">
-                <div>
-                  <h2>Avance del mes</h2>
-                  <p>{{ attendanceDetail.currentMonth.monthLabel }}</p>
-                </div>
-                <span class="month-card__badge">{{ attendanceDetail.currentMonth.attendancePercentage }}%</span>
+        <section class="attendance-summary-grid">
+          @for (card of cards(); track card.title) {
+            <mat-card appearance="outlined" class="summary-card" [class]="'tone-' + card.tone">
+              <div class="summary-card__icon">
+                <mat-icon>{{ card.icon }}</mat-icon>
               </div>
-
-              <mat-progress-bar
-                mode="determinate"
-                [value]="attendanceDetail.currentMonth.attendancePercentage"
-              ></mat-progress-bar>
-
-              <div class="month-card__stats">
-                <article>
-                  <span>Presentes</span>
-                  <strong>{{ attendanceDetail.currentMonth.presentCount }}</strong>
-                </article>
-                <article>
-                  <span>Atrasos</span>
-                  <strong>{{ attendanceDetail.currentMonth.lateCount }}</strong>
-                </article>
-                <article>
-                  <span>Ausencias</span>
-                  <strong>{{ attendanceDetail.currentMonth.absentCount }}</strong>
-                </article>
-                <article>
-                  <span>Dias registrados</span>
-                  <strong>{{ attendanceDetail.currentMonth.recordedDays }}</strong>
-                </article>
+              <div class="summary-card__copy">
+                <span>{{ card.title }}</span>
+                <strong>{{ card.value }}</strong>
+                <small>{{ card.caption }}</small>
               </div>
             </mat-card>
+          }
+        </section>
 
-            <mat-card appearance="outlined" class="panel-card week-card">
-              <div class="panel-card__header">
-                <div>
-                  <h2>Semana actual</h2>
-                  <p>Lectura rapida de tus ultimos dias de clases.</p>
-                </div>
+        <section class="attendance-grid">
+          <mat-card appearance="outlined" class="panel-card month-card">
+            <div class="panel-card__header">
+              <div>
+                <h2>Avance del mes</h2>
+                <p>{{ attendanceDetail.currentMonth.monthLabel }}</p>
               </div>
+              <span class="month-card__badge">{{ attendanceDetail.currentMonth.attendancePercentage }}%</span>
+            </div>
 
-              <div class="week-card__grid">
-                @for (day of attendanceDetail.currentWeek; track day.date) {
-                  <article class="week-day-card" [class.is-today]="day.today">
-                    <div class="week-day-card__top">
-                      <span class="week-day-card__label">{{ day.dayLabel }}</span>
-                      <span class="week-day-card__dot" [class]="dotClass(day.status)"></span>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="attendanceDetail.currentMonth.attendancePercentage"
+            ></mat-progress-bar>
+
+            <div class="month-card__stats">
+              <article>
+                <span>Presentes</span>
+                <strong>{{ attendanceDetail.currentMonth.presentCount }}</strong>
+              </article>
+              <article>
+                <span>Atrasos</span>
+                <strong>{{ attendanceDetail.currentMonth.lateCount }}</strong>
+              </article>
+              <article>
+                <span>Ausencias</span>
+                <strong>{{ attendanceDetail.currentMonth.absentCount }}</strong>
+              </article>
+              <article>
+                <span>Dias registrados</span>
+                <strong>{{ attendanceDetail.currentMonth.recordedDays }}</strong>
+              </article>
+            </div>
+          </mat-card>
+
+          <mat-card appearance="outlined" class="panel-card week-card">
+            <div class="panel-card__header">
+              <div>
+                <h2>Semana actual</h2>
+                <p>Lectura rapida de tus ultimos dias de clases.</p>
+              </div>
+            </div>
+
+            <div class="week-card__grid">
+              @for (day of attendanceDetail.currentWeek; track day.date) {
+                <article class="week-day-card" [class.is-today]="day.today">
+                  <div class="week-day-card__top">
+                    <span class="week-day-card__label">{{ day.dayLabel }}</span>
+                    <span class="week-day-card__dot" [class]="dotClass(day.status)"></span>
+                  </div>
+                  <strong>{{ day.date }}</strong>
+                  @if (showWeekStatusLabel(day.status)) {
+                    <span class="week-day-card__status" [class]="badgeClass(day.status)">{{ day.status }}</span>
+                  }
+                </article>
+              }
+            </div>
+          </mat-card>
+        </section>
+
+        <section class="attendance-grid attendance-grid--bottom">
+          <mat-card appearance="outlined" class="panel-card records-card">
+            <div class="panel-card__header">
+              <div>
+                <h2>Ultimos registros</h2>
+                <p>Historial reciente de asistencia cargado por el establecimiento.</p>
+              </div>
+            </div>
+
+            @if (recentRecords().length === 0) {
+              <section class="empty-inline">
+                <mat-icon>fact_check</mat-icon>
+                <span>No hay registros recientes de asistencia.</span>
+              </section>
+            } @else {
+              <div class="records-list">
+                @for (record of recentRecords(); track record.date + record.status + $index) {
+                  <article class="record-row">
+                    <div class="record-row__date">
+                      <strong>{{ record.date }}</strong>
+                      <small>{{ record.timeLabel || 'Sin hora registrada' }}</small>
                     </div>
-                    <strong>{{ day.date }}</strong>
-                    @if (showWeekStatusLabel(day.status)) {
-                      <span class="week-day-card__status" [class]="badgeClass(day.status)">{{ day.status }}</span>
-                    }
+
+                    <div class="record-row__status">
+                      <span class="record-badge" [class]="badgeClass(record.status)">{{ record.status }}</span>
+                    </div>
+
+                    <div class="record-row__note">
+                      <strong>Observacion</strong>
+                      <span>{{ record.note }}</span>
+                    </div>
                   </article>
                 }
               </div>
-            </mat-card>
-          </section>
+            }
+          </mat-card>
 
-          <section class="attendance-grid attendance-grid--bottom">
-            <mat-card appearance="outlined" class="panel-card records-card">
-              <div class="panel-card__header">
-                <div>
-                  <h2>Ultimos registros</h2>
-                  <p>Historial reciente de asistencia cargado por el establecimiento.</p>
-                </div>
+          <mat-card appearance="outlined" class="panel-card info-card">
+            <div class="panel-card__header">
+              <div>
+                <h2>Como leer tu asistencia</h2>
+                <p>Una referencia rapida para entender lo que ves en pantalla.</p>
               </div>
+            </div>
 
-              @if (recentRecords().length === 0) {
-                <section class="empty-inline">
-                  <mat-icon>fact_check</mat-icon>
-                  <span>No hay registros recientes de asistencia.</span>
-                </section>
-              } @else {
-                <div class="records-list">
-                  @for (record of recentRecords(); track record.date + record.status + $index) {
-                    <article class="record-row">
-                      <div class="record-row__date">
-                        <strong>{{ record.date }}</strong>
-                        <small>{{ record.timeLabel || 'Sin hora registrada' }}</small>
-                      </div>
-
-                      <div class="record-row__status">
-                        <span class="record-badge" [class]="badgeClass(record.status)">{{ record.status }}</span>
-                      </div>
-
-                      <div class="record-row__note">
-                        <strong>Observacion</strong>
-                        <span>{{ record.note }}</span>
-                      </div>
-                    </article>
-                  }
-                </div>
-              }
-            </mat-card>
-
-            <mat-card appearance="outlined" class="panel-card info-card">
-              <div class="panel-card__header">
-                <div>
-                  <h2>Como leer tu asistencia</h2>
-                  <p>Una referencia rapida para entender lo que ves en pantalla.</p>
-                </div>
-              </div>
-
-              <div class="info-list">
-                <article>
-                  <span class="record-badge is-success">Presente</span>
-                  <p>Cuenta como asistencia normal.</p>
-                </article>
-                <article>
-                  <span class="record-badge is-warning">Atraso</span>
-                  <p>Se considera asistencia, pero impacta el seguimiento.</p>
-                </article>
-                <article>
-                  <span class="record-badge is-danger">Ausente</span>
-                  <p>Corresponde a una inasistencia registrada.</p>
-                </article>
-                <article>
-                  <span class="record-badge is-neutral">Sin registro</span>
-                  <p>Ese dia aun no tiene marca visible para ti.</p>
-                </article>
-              </div>
-            </mat-card>
-          </section>
-        } @else {
-          <section class="empty-state">
-            <mat-icon>fact_check</mat-icon>
-            <strong>No se encontro informacion de asistencia para este estudiante.</strong>
-            <p>Revisa si el usuario tiene matricula activa y registros asociados.</p>
-          </section>
-        }
-      </div>
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+            <div class="info-list">
+              <article>
+                <span class="record-badge is-success">Presente</span>
+                <p>Cuenta como asistencia normal.</p>
+              </article>
+              <article>
+                <span class="record-badge is-warning">Atraso</span>
+                <p>Se considera asistencia, pero impacta el seguimiento.</p>
+              </article>
+              <article>
+                <span class="record-badge is-danger">Ausente</span>
+                <p>Corresponde a una inasistencia registrada.</p>
+              </article>
+              <article>
+                <span class="record-badge is-neutral">Sin registro</span>
+                <p>Ese dia aun no tiene marca visible para ti.</p>
+              </article>
+            </div>
+          </mat-card>
+        </section>
+      } @else {
+        <section class="empty-state">
+          <mat-icon>fact_check</mat-icon>
+          <strong>No se encontro informacion de asistencia para este estudiante.</strong>
+          <p>Revisa si el usuario tiene matricula activa y registros asociados.</p>
+        </section>
+      }
+    </div>
+  </main>
+</app-teacher-modern-layout>

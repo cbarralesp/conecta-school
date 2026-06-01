@@ -148,6 +148,18 @@ export class SchedulePageComponent {
     this.loadCatalog();
   }
 
+  shortTeacherName(fullName: string): string {
+    const parts = fullName.split(' ').filter(Boolean);
+    if (parts.length <= 1) {
+      return fullName;
+    }
+    if (parts.length === 2) {
+      return `${parts[0]} ${parts[1]}`;
+    }
+
+    return `${parts[0]} ${parts[parts.length - 2]}`;
+  }
+
   updateCourse(courseId: number | null): void {
     if (!courseId || this.selectedCourseId() === courseId) {
       return;

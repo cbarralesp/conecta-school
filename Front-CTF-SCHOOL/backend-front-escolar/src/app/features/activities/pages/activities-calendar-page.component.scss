@@ -288,6 +288,7 @@
   border-radius: 0;
   cursor: pointer;
   transition: background 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
 }
 
 .calendar-board__week .calendar-board__day:last-child {
@@ -337,6 +338,8 @@
 .calendar-board__events {
   display: grid;
   gap: 0.34rem;
+  align-content: start;
+  overflow: hidden;
 }
 
 .calendar-board__event-pill,
@@ -350,11 +353,23 @@
   line-height: 1.2;
   text-align: left;
   cursor: pointer;
+  width: 100%;
+  overflow: hidden;
+}
+
+.calendar-board__event-pill {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .calendar-board__event-more {
   background: #dfe8f7;
   color: #58739a;
+  text-align: center;
 }
 
 .activity-sidebar {
@@ -1032,6 +1047,7 @@
   display: grid;
   align-content: start;
   gap: 0.3rem;
+  overflow: hidden;
 }
 
 .calendar-week .calendar-day:last-child {
@@ -1070,6 +1086,8 @@
 .day-events {
   display: grid;
   gap: 0.22rem;
+  align-content: start;
+  overflow: hidden;
 }
 
 .activity-pill {
@@ -1079,13 +1097,32 @@
   gap: 0.08rem;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26);
   cursor: pointer;
+  width: 100%;
+  overflow: hidden;
 }
 
 .activity-pill--readonly {
   cursor: default;
 }
 
+.activity-pill--more {
+  border: 0;
+  background: #dfe8f7;
+  color: #58739a;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
 .activity-pill strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
+  word-break: break-word;
   font-size: 0.72rem;
   line-height: 1.14;
   font-weight: 700;

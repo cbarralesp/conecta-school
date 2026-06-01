@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
-import { TeacherAssignedCourse, TeacherDetail, TeacherOverview, TeacherPayload, TeacherSystemAccess } from '../models/teacher.models';
+import { TeacherAccessPreview, TeacherAccessPreviewPayload, TeacherAssignedCourse, TeacherDetail, TeacherOverview, TeacherPayload, TeacherSystemAccess } from '../models/teacher.models';
 import { Subject } from '../models/subject.models';
 import { normalizeDashboardText } from '../utils/text-normalizer';
 
@@ -37,6 +37,14 @@ export class TeacherApiService {
   create(payload: TeacherPayload): Observable<TeacherDetail> {
     return this.http.post<TeacherDetail>(`${API_CONFIG.baseUrl}/profesores`, payload).pipe(
       map((teacher) => this.normalizeDetail(teacher))
+    );
+  }
+
+  previewSystemAccessUsername(payload: TeacherAccessPreviewPayload): Observable<TeacherAccessPreview> {
+    return this.http.post<TeacherAccessPreview>(`${API_CONFIG.baseUrl}/profesores/access-preview`, payload).pipe(
+      map((preview) => ({
+        username: normalizeDashboardText(preview.username ?? '')
+      }))
     );
   }
 

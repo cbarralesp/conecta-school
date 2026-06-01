@@ -1,5 +1,4 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { UpperCasePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,14 +8,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { StudentDashboard, StudentPortalSubject } from '../../../core/models/student.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type StudentSection =
   | 'overview'
@@ -37,12 +34,9 @@ type StudentSection =
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatMenuModule,
     MatProgressSpinnerModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    UpperCasePipe,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './student-dashboard-page.component.html',
   styleUrl: './student-dashboard-page.component.scss',

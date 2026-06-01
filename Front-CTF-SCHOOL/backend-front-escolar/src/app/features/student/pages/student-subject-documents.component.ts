@@ -8,10 +8,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   StudentDocumentTypeFilter,
@@ -22,7 +20,7 @@ import {
 } from '../../../core/models/student.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
-import { TeacherSideMenuComponent } from '../../../shared/teacher-side-menu.component';
+import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type DocumentFilterCode = StudentDocumentTypeFilter['code'];
 
@@ -38,12 +36,10 @@ type DocumentFilterCode = StudentDocumentTypeFilter['code'];
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatMenuModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatSidenavModule,
     MatSnackBarModule,
-    TeacherSideMenuComponent
+    TeacherModernLayoutComponent
   ],
   templateUrl: './student-subject-documents.component.html',
   styleUrl: './student-subject-documents.component.scss',

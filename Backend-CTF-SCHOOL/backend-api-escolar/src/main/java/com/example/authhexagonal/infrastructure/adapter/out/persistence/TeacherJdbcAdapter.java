@@ -115,6 +115,20 @@ public class TeacherJdbcAdapter {
         return findById(teacherId).orElseThrow();
     }
 
+    public String previewStaffUsername(
+            String run,
+            String firstNames,
+            String paternalLastName,
+            String maternalLastName,
+            String staffType
+    ) {
+        String roleCode = resolveRoleCodeForStaffType(staffType);
+        return findUserRecordByRunAndRole(run, roleCode)
+                .map(AccessUserRecord::username)
+                .filter(value -> value != null && !value.isBlank())
+                .orElseGet(() -> generateUniqueStaffUsername(firstNames, paternalLastName, maternalLastName, staffType));
+    }
+
     public TeacherRecord updateTeacher(Long teacherId, TeacherCommand command, String encodedPassword) {
         Long personId = jdbcTemplate.queryForObject(
                 "SELECT \"PERSONA_ID\" FROM \"PROFESORES\" WHERE \"ID\" = ?",

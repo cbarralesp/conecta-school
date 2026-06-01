@@ -14,6 +14,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { normalizeDashboardText } from '../../../core/utils/text-normalizer';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
 import {
@@ -79,7 +80,11 @@ export class GradesPageComponent {
   readonly selectedPeriodId = signal<number | null>(null);
   readonly selectedSubjectId = signal<number | null>(null);
   readonly selectedProfileStudentId = signal<number | null>(null);
+  readonly selectedReportStudentId = signal<number | null>(null);
   readonly profileRunSearchTerm = signal('');
+  readonly reportRunSearchTerm = signal('');
+  readonly isReportPreviewOpen = signal(false);
+  readonly previewStudent = signal<StudentGradeCard | null>(null);
   readonly gradeBook = signal<GradeBookView | null>(null);
   readonly gradeBookNotice = signal<string | null>(null);
   readonly studentProfile = signal<StudentGradeProfileView | null>(null);
@@ -97,6 +102,63 @@ export class GradesPageComponent {
   readonly gradeBookSummary = computed<GradeBookSummary | null>(() => this.gradeBook()?.summary ?? null);
   readonly profileSummary = computed(() => this.buildProfileSummary(this.studentProfile()?.students ?? []));
   readonly reportSummary = computed(() => this.buildProfileSummary(this.reports()?.students ?? []));
+  readonly profileSubjectOptions = computed(() => {
+    const subjects = new Map<number, { id: number; name: string; colorHex: string }>();
+    for (const student of this.studentProfile()?.students ?? []) {
+      for (const subject of student.subjects) {
+        if (!subjects.has(subject.subjectId)) {
+          subjects.set(subject.subjectId, {
+            id: subject.subjectId,
+            name: subject.subjectName,
+            colorHex: subject.colorHex
+          });
+        }
+      }
+    }
+
+    return Array.from(subjects.values()).sort((left, right) => left.name.localeCompare(right.name));
+  });
+  readonly profileDisplaySummary = computed(() => {
+    const students = this.studentProfile()?.students ?? [];
+    const selectedSubjectId = this.selectedSubjectId();
+    if (selectedSubjectId == null) {
+      return this.buildProfileSummary(students);
+    }
+
+    const values = students.map((student) =>
+      student.subjects.find((subject) => subject.subjectId === selectedSubjectId)?.average ?? null
+    );
+    const averages = values.filter((value): value is number => value != null);
+
+    return {
+      overallAverage: averages.length
+        ? Math.round((averages.reduce((total, value) => total + value, 0) / averages.length) * 10) / 10
+        : null,
+      outstanding: values.filter((value) => value != null && value >= 6).length,
+      atRisk: values.filter((value) => value != null && value < 4).length,
+      ungraded: values.filter((value) => value == null).length
+    };
+  });
+  readonly profileListStudents = computed(() => {
+    const students = this.studentProfile()?.students ?? [];
+    const term = this.profileRunSearchTerm().trim().toLowerCase();
+    if (!term) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      student.fullName.toLowerCase().includes(term) || student.run.toLowerCase().includes(term)
+    );
+  });
+  readonly activeProfileStudent = computed(() => {
+    const students = this.profileListStudents();
+    const selectedStudentId = this.selectedProfileStudentId();
+    if (students.length === 0) {
+      return null;
+    }
+
+    return students.find((student) => student.studentId === selectedStudentId) ?? students[0];
+  });
   readonly filteredProfileStudents = computed(() => {
     const students = this.studentProfile()?.students ?? [];
     const selectedStudentId = this.selectedProfileStudentId();
@@ -109,10 +171,105 @@ export class GradesPageComponent {
     });
   });
   readonly profileStudentOptions = computed(() => this.studentProfile()?.students ?? []);
+  readonly reportListStudents = computed(() => {
+    const students = this.reports()?.students ?? [];
+    const term = this.reportRunSearchTerm().trim().toLowerCase();
+    if (!term) {
+      return students;
+    }
+
+    return students.filter((student) =>
+      student.fullName.toLowerCase().includes(term) || student.run.toLowerCase().includes(term)
+    );
+  });
+  readonly activeReportStudent = computed(() => {
+    const students = this.reportListStudents();
+    const selectedStudentId = this.selectedReportStudentId();
+    if (students.length === 0) {
+      return null;
+    }
+
+    return students.find((student) => student.studentId === selectedStudentId) ?? students[0];
+  });
+  readonly reportRankedStudents = computed(() =>
+    [...(this.reports()?.students ?? [])].sort((left, right) => {
+      if (left.overallAverage == null && right.overallAverage == null) {
+        return left.fullName.localeCompare(right.fullName);
+      }
+      if (left.overallAverage == null) {
+        return 1;
+      }
+      if (right.overallAverage == null) {
+        return -1;
+      }
+      return right.overallAverage - left.overallAverage || left.fullName.localeCompare(right.fullName);
+    })
+  );
+  readonly reportSubjectAverages = computed(() => {
+    const aggregates = new Map<number, {
+      subjectId: number;
+      subjectName: string;
+      colorHex: string;
+      total: number;
+      count: number;
+      outstanding: number;
+      atRisk: number;
+    }>();
+
+    for (const student of this.reports()?.students ?? []) {
+      for (const subject of student.subjects) {
+        const bucket = aggregates.get(subject.subjectId) ?? {
+          subjectId: subject.subjectId,
+          subjectName: subject.subjectName,
+          colorHex: subject.colorHex,
+          total: 0,
+          count: 0,
+          outstanding: 0,
+          atRisk: 0
+        };
+
+        if (subject.average != null) {
+          bucket.total += subject.average;
+          bucket.count += 1;
+          if (subject.average >= 6) {
+            bucket.outstanding += 1;
+          }
+          if (subject.average < 4) {
+            bucket.atRisk += 1;
+          }
+        }
+
+        aggregates.set(subject.subjectId, bucket);
+      }
+    }
+
+    return Array.from(aggregates.values())
+      .map((subject) => ({
+        subjectId: subject.subjectId,
+        subjectName: subject.subjectName,
+        colorHex: subject.colorHex,
+        average: subject.count === 0 ? null : Math.round((subject.total / subject.count) * 10) / 10,
+        count: subject.count,
+        outstanding: subject.outstanding,
+        atRisk: subject.atRisk
+      }))
+      .sort((left, right) => {
+        if (left.average == null && right.average == null) {
+          return left.subjectName.localeCompare(right.subjectName);
+        }
+        if (left.average == null) {
+          return 1;
+        }
+        if (right.average == null) {
+          return -1;
+        }
+        return right.average - left.average || left.subjectName.localeCompare(right.subjectName);
+      });
+  });
   readonly displayedReports = computed(() => {
     const students = this.reports()?.students ?? [];
-    const selectedStudentId = this.selectedProfileStudentId();
-    const runSearch = this.profileRunSearchTerm().trim().toLowerCase();
+    const selectedStudentId = this.selectedReportStudentId();
+    const runSearch = this.reportRunSearchTerm().trim().toLowerCase();
 
     const filtered = students.filter((student) => {
       const matchesStudent = selectedStudentId ? student.studentId === selectedStudentId : true;
@@ -555,6 +712,194 @@ export class GradesPageComponent {
     this.profileRunSearchTerm.set(value);
   }
 
+  updateReportStudent(studentId: number | null): void {
+    this.selectedReportStudentId.set(studentId);
+  }
+
+  updateReportRunSearch(value: string): void {
+    this.reportRunSearchTerm.set(value);
+  }
+
+  openReportPreview(student: StudentGradeCard | null = this.activeReportStudent()): void {
+    if (!student) {
+      return;
+    }
+    this.previewStudent.set(student);
+    this.isReportPreviewOpen.set(true);
+  }
+
+  closeReportPreview(): void {
+    this.isReportPreviewOpen.set(false);
+    this.previewStudent.set(null);
+  }
+
+  updateProfileSubject(subjectId: number | null): void {
+    this.selectedSubjectId.set(subjectId);
+  }
+
+  profileSubjectsFor(student: StudentGradeCard | null) {
+    if (!student) {
+      return [];
+    }
+
+    const selectedSubjectId = this.selectedSubjectId();
+    if (selectedSubjectId == null) {
+      return student.subjects;
+    }
+
+    return student.subjects.filter((subject) => subject.subjectId === selectedSubjectId);
+  }
+
+  profileStudentAverage(student: StudentGradeCard | null): number | null {
+    if (!student) {
+      return null;
+    }
+
+    const selectedSubjectId = this.selectedSubjectId();
+    if (selectedSubjectId == null) {
+      return student.overallAverage;
+    }
+
+    return student.subjects.find((subject) => subject.subjectId === selectedSubjectId)?.average ?? null;
+  }
+
+  profileCompletedSubjects(student: StudentGradeCard | null): number {
+    return this.profileSubjectsFor(student).filter((subject) => subject.average != null).length;
+  }
+
+  profileAtRiskSubjects(student: StudentGradeCard | null): number {
+    return this.profileSubjectsFor(student).filter((subject) => subject.average != null && subject.average < 4).length;
+  }
+
+  profileOutstandingSubjects(student: StudentGradeCard | null): number {
+    return this.profileSubjectsFor(student).filter((subject) => subject.average != null && subject.average >= 6).length;
+  }
+
+  profileAverageWidth(value: number | null | undefined): number {
+    if (value == null) {
+      return 0;
+    }
+
+    return Math.max(0, Math.min(100, (value / 7) * 100));
+  }
+
+  profileTrendLabel(student: StudentGradeCard | null): string {
+    if (!student) {
+      return 'Selecciona un estudiante para revisar su rendimiento.';
+    }
+
+    if (student.overallAverage == null) {
+      return 'Aun no registra notas en este periodo.';
+    }
+
+    if (student.overallAverage >= 6) {
+      return 'Rendimiento destacado en el periodo actual.';
+    }
+
+    if (student.overallAverage >= 4) {
+      return 'Rendimiento estable con margen de mejora.';
+    }
+
+    return 'Requiere acompanamiento en asignaturas clave.';
+  }
+
+  reportStudentRank(student: StudentGradeCard | null): number | null {
+    if (!student) {
+      return null;
+    }
+
+    const index = this.reportRankedStudents().findIndex((item) => item.studentId === student.studentId);
+    return index >= 0 ? index + 1 : null;
+  }
+
+  reportCompletionLabel(student: StudentGradeCard | null): string {
+    if (!student) {
+      return 'Sin estudiante seleccionado.';
+    }
+
+    const completed = this.profileCompletedSubjects(student);
+    const total = student.subjects.length;
+    if (total === 0) {
+      return 'Sin asignaturas registradas en este periodo.';
+    }
+
+    if (completed === total) {
+      return 'Informe completo en todas las asignaturas.';
+    }
+
+    return `${completed} de ${total} asignaturas con promedio registrado.`;
+  }
+
+  pdfScore(value: number | null | undefined): string {
+    return value == null ? '-' : value.toFixed(1).replace('.', ',');
+  }
+
+  pdfConcept(value: number | null | undefined): string {
+    if (value == null) {
+      return 'Pendiente';
+    }
+    if (value >= 6) {
+      return 'Destacado';
+    }
+    if (value >= 4) {
+      return 'Logrado';
+    }
+    return 'En riesgo';
+  }
+
+  pdfConceptClass(value: number | null | undefined): string {
+    if (value == null) {
+      return 'is-empty';
+    }
+    if (value >= 6) {
+      return 'is-high';
+    }
+    if (value >= 4) {
+      return 'is-mid';
+    }
+    return 'is-low';
+  }
+
+  pdfAcademicStatus(value: number | null | undefined): string {
+    return value != null && value >= 4 ? 'APROBADO' : 'EN REVISION';
+  }
+
+  pdfAcademicStatusClass(value: number | null | undefined): string {
+    return value != null && value >= 4 ? 'is-approved' : 'is-review';
+  }
+
+  pdfSchoolYear(): number {
+    return this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+  }
+
+  pdfIssueDate(): string {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  pdfTeacherName(): string {
+    return this.pdfText(this.user()?.nombre?.trim() || 'Profesor jefe');
+  }
+
+  pdfText(value: string | null | undefined): string {
+    return normalizeDashboardText(value ?? '');
+  }
+
+  pdfPeriodLabel(): string {
+    return this.pdfText(this.selectedPeriod()?.name ?? '');
+  }
+
+  pdfCourseLabel(): string {
+    return this.pdfText(this.selectedCourse()?.name ?? '');
+  }
+
+  shortSubjectName(subjectName: string): string {
+    return subjectName.length > 12 ? `${subjectName.slice(0, 12)}…` : subjectName;
+  }
+
   badgeClass(status: string): string {
     switch (status) {
       case 'Destacado': return 'is-success';
@@ -766,14 +1111,21 @@ export class GradesPageComponent {
 
     this.isExporting.set(true);
     try {
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, precision: 12 });
       let firstPage = true;
 
       for (const student of students) {
         this.pdfStudent.set(student);
         await this.waitForRender();
 
-        const canvas = await html2canvas(template, { backgroundColor: '#ffffff', scale: 2, useCORS: true });
+        const renderScale = 2.5;
+        const canvas = await html2canvas(template, {
+          backgroundColor: '#ffffff',
+          scale: renderScale,
+          useCORS: true,
+          logging: false,
+          imageTimeout: 0
+        });
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
         const margin = 8;
@@ -789,7 +1141,7 @@ export class GradesPageComponent {
           pdf.addPage();
         }
         firstPage = false;
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, width, height, undefined, 'FAST');
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, width, height, undefined, 'MEDIUM');
       }
 
       pdf.save(fileName);
@@ -905,4 +1257,6 @@ export class GradesPageComponent {
     });
   }
 }
+
+
 
