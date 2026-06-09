@@ -822,7 +822,9 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     ) {
         Long subjectId = jdbcTemplate.queryForObject("""
                 INSERT INTO "ASIGNATURAS" (
@@ -839,6 +841,8 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 RETURNING "ID"
                 """, Long.class, code, name, area, colorHex, description, referenceLevel, suggestedHours);
 
+        replaceSubjectApplicableGrades(subjectId, applicableGradeIds);
+        replaceSubjectApplicableCourses(subjectId, referenceLevel, applicableCourseIds);
         replaceSubjectTeachers(subjectId, name, null, teacherIds);
         return findActiveSubjectById(subjectId).orElseThrow();
     }
@@ -853,7 +857,9 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     ) {
         String previousName = jdbcTemplate.queryForObject("""
                 SELECT "NOMBRE"
@@ -873,6 +879,8 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 WHERE "ID" = ?
                 """, code, name, area, colorHex, description, referenceLevel, suggestedHours, subjectId);
 
+        replaceSubjectApplicableGrades(subjectId, applicableGradeIds);
+        replaceSubjectApplicableCourses(subjectId, referenceLevel, applicableCourseIds);
         replaceSubjectTeachers(subjectId, name, previousName, teacherIds);
         return findActiveSubjectById(subjectId).orElseThrow();
     }
@@ -907,6 +915,20 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                         WHERE "ASIGNATURA_ID" = ?
                         """, subjectId);
             }
+        }
+
+        if (tableExists("ASIGNATURA_GRADOS")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "ASIGNATURA_GRADOS"
+                    WHERE "ASIGNATURA_ID" = ?
+                    """, subjectId);
+        }
+
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "ASIGNATURA_CURSOS"
+                    WHERE "ASIGNATURA_ID" = ?
+                    """, subjectId);
         }
 
         if (tableExists("CARGAS_DOCENTES")) {
@@ -1009,7 +1031,11 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 rs.getString("DISPLAY_LEVEL"),
                 rs.getInt("HORAS_SUGERIDAS"),
                 rs.getBoolean("ACTIVA"),
-                findAssignedTeachersBySubjectId(subjectId, subjectName)
+                findAssignedTeachersBySubjectId(subjectId, subjectName),
+                findApplicableGradeIdsBySubjectId(subjectId),
+                findApplicableGradeNamesBySubjectId(subjectId),
+                findApplicableCourseIdsBySubjectId(subjectId),
+                findApplicableCourseNamesBySubjectId(subjectId)
         );
     }
 
@@ -1190,5 +1216,225 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     VALUES (?, ?, TRUE)
                     """, teacherId, subjectName);
         }
+    }
+
+    private List<Long> findApplicableGradeIdsBySubjectId(Long subjectId) {
+        if (!tableExists("ASIGNATURA_GRADOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT ag."GRADO_ID"
+                FROM "ASIGNATURA_GRADOS" ag
+                WHERE ag."ASIGNATURA_ID" = ?
+                  AND ag."ACTIVA" = TRUE
+                ORDER BY ag."GRADO_ID"
+                """, (rs, rowNum) -> rs.getLong("GRADO_ID"), subjectId);
+    }
+
+    private List<Long> findApplicableCourseIdsBySubjectId(Long subjectId) {
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            return jdbcTemplate.query("""
+                    SELECT ac."CURSO_ID"
+                    FROM "ASIGNATURA_CURSOS" ac
+                    WHERE ac."ASIGNATURA_ID" = ?
+                      AND ac."ACTIVA" = TRUE
+                    ORDER BY ac."CURSO_ID"
+                    """, (rs, rowNum) -> rs.getLong("CURSO_ID"), subjectId);
+        }
+
+        if (!tableExists("CURSO_ASIGNATURAS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT DISTINCT ca."CURSO_ID"
+                FROM "CURSO_ASIGNATURAS" ca
+                WHERE ca."ASIGNATURA_ID" = ?
+                  AND ca."ACTIVA" = TRUE
+                ORDER BY ca."CURSO_ID"
+                """, (rs, rowNum) -> rs.getLong("CURSO_ID"), subjectId);
+    }
+
+    private List<String> findApplicableGradeNamesBySubjectId(Long subjectId) {
+        if (!tableExists("ASIGNATURA_GRADOS") || !tableExists("CURSO_GRADOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT cg."NOMBRE"
+                FROM "ASIGNATURA_GRADOS" ag
+                JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = ag."GRADO_ID"
+                WHERE ag."ASIGNATURA_ID" = ?
+                  AND ag."ACTIVA" = TRUE
+                  AND cg."ACTIVO" = TRUE
+                ORDER BY cg."ORDEN", cg."NOMBRE"
+                """, (rs, rowNum) -> rs.getString("NOMBRE"), subjectId);
+    }
+
+    private List<String> findApplicableCourseNamesBySubjectId(Long subjectId) {
+        if (!tableExists("CURSOS")) {
+            return List.of();
+        }
+
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            return jdbcTemplate.query("""
+                    SELECT c."NOMBRE" || CASE WHEN COALESCE(c."LETRA", '') <> '' THEN ' ' || c."LETRA" ELSE '' END AS "COURSE_NAME"
+                    FROM "ASIGNATURA_CURSOS" ac
+                    JOIN "CURSOS" c
+                      ON c."ID" = ac."CURSO_ID"
+                    WHERE ac."ASIGNATURA_ID" = ?
+                      AND ac."ACTIVA" = TRUE
+                      AND c."ACTIVO" = TRUE
+                    ORDER BY c."ANIO_ESCOLAR" DESC, c."NOMBRE", c."LETRA"
+                    """, (rs, rowNum) -> rs.getString("COURSE_NAME"), subjectId);
+        }
+
+        if (!tableExists("CURSO_ASIGNATURAS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT DISTINCT c."NOMBRE" || CASE WHEN COALESCE(c."LETRA", '') <> '' THEN ' ' || c."LETRA" ELSE '' END AS "COURSE_NAME"
+                FROM "CURSO_ASIGNATURAS" ca
+                JOIN "CURSOS" c
+                  ON c."ID" = ca."CURSO_ID"
+                WHERE ca."ASIGNATURA_ID" = ?
+                  AND ca."ACTIVA" = TRUE
+                  AND c."ACTIVO" = TRUE
+                ORDER BY "COURSE_NAME"
+                """, (rs, rowNum) -> rs.getString("COURSE_NAME"), subjectId);
+    }
+
+    private void replaceSubjectApplicableGrades(Long subjectId, List<Long> applicableGradeIds) {
+        if (!tableExists("ASIGNATURA_GRADOS")) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                DELETE FROM "ASIGNATURA_GRADOS"
+                WHERE "ASIGNATURA_ID" = ?
+                """, subjectId);
+
+        List<Long> distinctGradeIds = applicableGradeIds == null ? List.of() : applicableGradeIds.stream()
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .toList();
+        if (distinctGradeIds.isEmpty()) {
+            return;
+        }
+
+        for (Long gradeId : distinctGradeIds) {
+            jdbcTemplate.update("""
+                    INSERT INTO "ASIGNATURA_GRADOS" ("ASIGNATURA_ID", "GRADO_ID", "ACTIVA")
+                    SELECT ?, cg."ID", TRUE
+                    FROM "CURSO_GRADOS" cg
+                    WHERE cg."ID" = ?
+                      AND cg."ACTIVO" = TRUE
+                    ON CONFLICT ("ASIGNATURA_ID", "GRADO_ID")
+                    DO UPDATE SET "ACTIVA" = TRUE
+                    """, subjectId, gradeId);
+        }
+    }
+
+    private void replaceSubjectApplicableCourses(Long subjectId, String referenceLevel, List<Long> applicableCourseIds) {
+        List<Long> distinctCourseIds = resolveApplicableCourseIds(referenceLevel, applicableCourseIds);
+
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "ASIGNATURA_CURSOS"
+                    WHERE "ASIGNATURA_ID" = ?
+                    """, subjectId);
+
+            for (Long courseId : distinctCourseIds) {
+                jdbcTemplate.update("""
+                        INSERT INTO "ASIGNATURA_CURSOS" ("ASIGNATURA_ID", "CURSO_ID", "ACTIVA")
+                        SELECT ?, c."ID", TRUE
+                        FROM "CURSOS" c
+                        WHERE c."ID" = ?
+                          AND c."ACTIVO" = TRUE
+                        ON CONFLICT ("ASIGNATURA_ID", "CURSO_ID")
+                        DO UPDATE SET "ACTIVA" = TRUE
+                        """, subjectId, courseId);
+            }
+        }
+
+        if (!tableExists("CURSO_ASIGNATURAS")) {
+            return;
+        }
+
+        jdbcTemplate.update("""
+                DELETE FROM "CURSO_ASIGNATURAS"
+                WHERE "ASIGNATURA_ID" = ?
+                """, subjectId);
+
+        for (Long courseId : distinctCourseIds) {
+            jdbcTemplate.update("""
+                    INSERT INTO "CURSO_ASIGNATURAS" ("CURSO_ID", "ASIGNATURA_ID", "ACTIVA")
+                    SELECT c."ID", ?, TRUE
+                    FROM "CURSOS" c
+                    WHERE c."ID" = ?
+                      AND c."ACTIVO" = TRUE
+                    """, subjectId, courseId);
+        }
+    }
+
+    private List<Long> resolveApplicableCourseIds(String referenceLevel, List<Long> applicableCourseIds) {
+        List<Long> distinctCourseIds = applicableCourseIds == null ? List.of() : applicableCourseIds.stream()
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .toList();
+        if (!distinctCourseIds.isEmpty()) {
+            return distinctCourseIds;
+        }
+        return findActiveCourseIdsByLevel(referenceLevel);
+    }
+
+    private List<Long> findActiveCourseIdsByLevel(String referenceLevel) {
+        if (!tableExists("CURSOS")) {
+            return List.of();
+        }
+
+        String normalizedLevel = normalizeLevel(referenceLevel);
+        if (normalizedLevel.isBlank()) {
+            return jdbcTemplate.query("""
+                    SELECT "ID"
+                    FROM "CURSOS"
+                    WHERE "ACTIVO" = TRUE
+                    ORDER BY "ANIO_ESCOLAR" DESC, "NOMBRE", "LETRA"
+                    """, (rs, rowNum) -> rs.getLong("ID"));
+        }
+
+        if (courseNormalizationAvailable()) {
+            return jdbcTemplate.query("""
+                    SELECT c."ID"
+                    FROM "CURSOS" c
+                    LEFT JOIN "CURSO_GRADOS" cg
+                      ON cg."ID" = c."GRADO_ID"
+                    LEFT JOIN "CURSO_NIVELES" cn
+                      ON cn."ID" = cg."NIVEL_ID"
+                    WHERE c."ACTIVO" = TRUE
+                      AND UPPER(TRANSLATE(COALESCE(cn."NOMBRE", c."NIVEL", ''), 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) = ?
+                    ORDER BY c."ANIO_ESCOLAR" DESC, c."NOMBRE", c."LETRA"
+                    """, (rs, rowNum) -> rs.getLong("ID"), normalizedLevel);
+        }
+
+        return jdbcTemplate.query("""
+                SELECT c."ID"
+                FROM "CURSOS" c
+                WHERE c."ACTIVO" = TRUE
+                  AND UPPER(TRANSLATE(COALESCE(c."NIVEL", ''), 'áéíóúÁÉÍÓÚ', 'aeiouAEIOU')) = ?
+                ORDER BY c."ANIO_ESCOLAR" DESC, c."NOMBRE", c."LETRA"
+                """, (rs, rowNum) -> rs.getLong("ID"), normalizedLevel);
+    }
+
+    private String normalizeLevel(String referenceLevel) {
+        if (referenceLevel == null) {
+            return "";
+        }
+        return java.text.Normalizer.normalize(referenceLevel.trim(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toUpperCase(java.util.Locale.ROOT);
     }
 }

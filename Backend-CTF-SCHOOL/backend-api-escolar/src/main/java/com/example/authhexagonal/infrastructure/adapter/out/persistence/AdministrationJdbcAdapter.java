@@ -125,6 +125,19 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     @Override
     public List<AdministrationUserListItem> findUsers(String search, String roleCode, String status) {
         List<Object> args = new ArrayList<>();
+        String resolvedStaffType = "UPPER(COALESCE(NULLIF(TRIM(prof.\"TIPO_PERSONAL\"), ''), 'DOCENTE'))";
+        String resolvedRoleCodeSelect = """
+                CASE
+                    WHEN UPPER(r."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'ASISTENTE'
+                    ELSE r."CODIGO"
+                END AS role_code
+                """.formatted(resolvedStaffType);
+        String resolvedRoleNameSelect = """
+                CASE
+                    WHEN UPPER(r."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'Asistente'
+                    ELSE r."NOMBRE"
+                END AS role_name
+                """.formatted(resolvedStaffType);
         StringBuilder sql = new StringBuilder("""
                 SELECT
                     u."ID",
@@ -134,8 +147,8 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                     p."CORREO_ELECTRONICO",
                     p."RUN",
                     COALESCE(p."TELEFONO", '') AS "TELEFONO",
-                    r."CODIGO" AS role_code,
-                    r."NOMBRE" AS role_name,
+                    %s,
+                    %s,
                     aus."ULTIMO_ACCESO_AT",
                     aus."ESTADO",
                     TRUE AS can_delete
@@ -143,8 +156,9 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                 JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
                 JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
                 JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                LEFT JOIN "PROFESORES" prof ON prof."PERSONA_ID" = p."ID"
                 WHERE 1 = 1
-                """);
+                """.formatted(resolvedRoleCodeSelect, resolvedRoleNameSelect));
 
         String normalizedSearch = normalize(search);
         if (normalizedSearch != null) {
@@ -161,8 +175,19 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             args.add(searchPattern);
         }
         if (normalize(roleCode) != null) {
-            sql.append(" AND r.\"CODIGO\" = ?");
-            args.add(roleCode.trim().toUpperCase());
+            String normalizedRoleCode = roleCode.trim().toUpperCase(Locale.ROOT);
+            if ("ASISTENTE".equals(normalizedRoleCode)) {
+                sql.append(" AND (UPPER(r.\"CODIGO\") = 'ASISTENTE' OR (UPPER(r.\"CODIGO\") = 'SECRETARIA' AND ")
+                        .append(resolvedStaffType)
+                        .append(" = 'ASISTENTE'))");
+            } else if ("SECRETARIA".equals(normalizedRoleCode)) {
+                sql.append(" AND UPPER(r.\"CODIGO\") = 'SECRETARIA' AND ")
+                        .append(resolvedStaffType)
+                        .append(" <> 'ASISTENTE'");
+            } else {
+                sql.append(" AND UPPER(r.\"CODIGO\") = ?");
+                args.add(normalizedRoleCode);
+            }
         }
         if (normalize(status) != null) {
             sql.append(" AND aus.\"ESTADO\" = ?");
@@ -175,6 +200,19 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
     @Override
     public Optional<AdministrationUserDetail> findUserById(Long userId) {
+        String resolvedStaffType = "UPPER(COALESCE(NULLIF(TRIM(prof.\"TIPO_PERSONAL\"), ''), 'DOCENTE'))";
+        String resolvedRoleCodeSelect = """
+                CASE
+                    WHEN UPPER(r."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'ASISTENTE'
+                    ELSE r."CODIGO"
+                END AS role_code
+                """.formatted(resolvedStaffType);
+        String resolvedRoleNameSelect = """
+                CASE
+                    WHEN UPPER(r."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'Asistente'
+                    ELSE r."NOMBRE"
+                END AS role_name
+                """.formatted(resolvedStaffType);
         return jdbcTemplate.query("""
                 SELECT
                     u."ID",
@@ -184,8 +222,8 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                     p."CORREO_ELECTRONICO",
                     p."RUN",
                     COALESCE(p."TELEFONO", '') AS "TELEFONO",
-                    r."CODIGO" AS role_code,
-                    r."NOMBRE" AS role_name,
+                    %s,
+                    %s,
                     r."DESCRIPCION" AS role_description,
                     aus."ULTIMO_ACCESO_AT",
                     aus."ESTADO",
@@ -197,8 +235,9 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                 JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
                 JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
                 JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                LEFT JOIN "PROFESORES" prof ON prof."PERSONA_ID" = p."ID"
                 WHERE u."ID" = ?
-                """, (rs, rowNum) -> toUserDetail(rs), userId).stream().findFirst();
+                """.formatted(resolvedRoleCodeSelect, resolvedRoleNameSelect), (rs, rowNum) -> toUserDetail(rs), userId).stream().findFirst();
     }
 
     @Override
@@ -1004,9 +1043,10 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         ensureRoleExists("DIRECTOR", "Director", "Gestión institucional y supervisión general.", 2);
         ensureRoleExists("INSPECTOR", "Inspector", "Supervisión disciplinaria y control interno.", 3);
         ensureRoleExists("PROFESOR", "Profesor", "Gestión docente y académica.", 4);
-        ensureRoleExists("SECRETARIA", "Secretaria", "Apoyo administrativo y operativo.", 5);
-        ensureRoleExists("APODERADO", "Apoderado", "Acceso de familias y seguimiento académico.", 6);
-        ensureRoleExists("ALUMNO", "Alumno", "Acceso estudiantil al sistema.", 7);
+        ensureRoleExists("ASISTENTE", "Asistente", "Apoyo administrativo y operativo.", 5);
+        ensureRoleExists("SECRETARIA", "Secretaria", "Gestión secretarial y administración institucional.", 6);
+        ensureRoleExists("APODERADO", "Apoderado", "Acceso de familias y seguimiento académico.", 7);
+        ensureRoleExists("ALUMNO", "Alumno", "Acceso estudiantil al sistema.", 8);
     }
 
     private void ensureRoleExists(String code, String name, String description, int visualOrder) {

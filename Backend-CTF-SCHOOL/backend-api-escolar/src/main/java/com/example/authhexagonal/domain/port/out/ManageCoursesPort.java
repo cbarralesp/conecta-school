@@ -1,11 +1,14 @@
 package com.example.authhexagonal.domain.port.out;
 
 import com.example.authhexagonal.domain.model.Course;
+import com.example.authhexagonal.domain.model.CourseGrade;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ManageCoursesPort {
+
+    List<CourseGrade> findActiveGrades();
 
     List<Course> findAllActive();
 

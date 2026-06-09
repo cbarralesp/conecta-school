@@ -23,7 +23,9 @@ public interface ManageSubjectsPort {
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     );
 
     AcademicSubject updateSubject(
@@ -35,7 +37,9 @@ public interface ManageSubjectsPort {
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     );
 
     void deactivateSubject(Long subjectId);

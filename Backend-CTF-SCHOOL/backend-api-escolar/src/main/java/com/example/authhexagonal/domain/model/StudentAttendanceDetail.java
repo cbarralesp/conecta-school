@@ -7,6 +7,7 @@ public record StudentAttendanceDetail(
         StudentAttendanceSummary summary,
         StudentAttendanceMonthSummary currentMonth,
         List<StudentAttendanceWeekDay> currentWeek,
-        List<StudentAttendanceRecord> recentRecords
+        List<StudentAttendanceRecord> recentRecords,
+        List<StudentAttendanceHistoryDay> historyDays
 ) {
 }

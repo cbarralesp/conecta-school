@@ -48,7 +48,10 @@ public class StudentSubjectJdbcAdapter implements StudentSubjectRepositoryPort {
                     COUNT(DISTINCT docs.document_id) AS total_documents,
                     COUNT(DISTINCT CASE WHEN docs.reviewed = FALSE THEN docs.document_id END) AS new_documents
                 FROM student_context sc
-                JOIN "CARGAS_DOCENTES" cd ON cd."CURSO_ID" = sc.course_id AND cd."ACTIVA" = TRUE
+                JOIN "CARGAS_DOCENTES" cd
+                  ON cd."CURSO_ID" = sc.course_id
+                 AND cd."ACTIVA" = TRUE
+                 %s
                 JOIN "ASIGNATURAS" s ON s."ID" = cd."ASIGNATURA_ID" AND s."ACTIVA" = TRUE
                 LEFT JOIN "HORARIOS_CARGAS" hc ON hc."CARGA_DOCENTE_ID" = cd."ID"
                 LEFT JOIN "PROFESORES" pr ON pr."ID" = cd."PROFESOR_ID"
@@ -83,7 +86,7 @@ public class StudentSubjectJdbcAdapter implements StudentSubjectRepositoryPort {
                     tp."NOMBRES",
                     tp."APELLIDOS"
                 ORDER BY s."NOMBRE"
-                """, (rs, rowNum) -> new StudentPortalSubject(
+                """.formatted(subjectScopeFilter("cd")), (rs, rowNum) -> new StudentPortalSubject(
                 rs.getLong("subject_id"),
                 rs.getString("subject_name"),
                 rs.getString("course_name"),
@@ -122,7 +125,10 @@ public class StudentSubjectJdbcAdapter implements StudentSubjectRepositoryPort {
                     TRIM(COALESCE(tp."NOMBRES", '') || ' ' || COALESCE(tp."APELLIDOS", '')) AS teacher_name,
                     COALESCE(COUNT(DISTINCT hc."ID"), 0) AS weekly_blocks
                 FROM student_context sc
-                JOIN "CARGAS_DOCENTES" cd ON cd."CURSO_ID" = sc.course_id AND cd."ACTIVA" = TRUE
+                JOIN "CARGAS_DOCENTES" cd
+                  ON cd."CURSO_ID" = sc.course_id
+                 AND cd."ACTIVA" = TRUE
+                 %s
                 JOIN "ASIGNATURAS" s ON s."ID" = cd."ASIGNATURA_ID" AND s."ACTIVA" = TRUE
                 LEFT JOIN "HORARIOS_CARGAS" hc ON hc."CARGA_DOCENTE_ID" = cd."ID"
                 LEFT JOIN "PROFESORES" pr ON pr."ID" = cd."PROFESOR_ID"
@@ -135,7 +141,7 @@ public class StudentSubjectJdbcAdapter implements StudentSubjectRepositoryPort {
                     sc.school_year,
                     tp."NOMBRES",
                     tp."APELLIDOS"
-                """, (rs, rowNum) -> new StudentSubjectHeader(
+                """.formatted(subjectScopeFilter("cd")), (rs, rowNum) -> new StudentSubjectHeader(
                 rs.getLong("subject_id"),
                 rs.getString("subject_name"),
                 rs.getString("course_name"),
@@ -193,7 +199,10 @@ public class StudentSubjectJdbcAdapter implements StudentSubjectRepositoryPort {
                     pd."FECHA_CARGA" AS published_at,
                     COALESCE(ade."REVISADO", FALSE) AS reviewed
                 FROM student_context sc
-                JOIN "CARGAS_DOCENTES" cd ON cd."CURSO_ID" = sc.course_id AND cd."ACTIVA" = TRUE
+                JOIN "CARGAS_DOCENTES" cd
+                  ON cd."CURSO_ID" = sc.course_id
+                 AND cd."ACTIVA" = TRUE
+                 %s
                 JOIN "ASIGNATURAS" s ON s."ID" = cd."ASIGNATURA_ID" AND s."ACTIVA" = TRUE AND s."ID" = ?
                 JOIN "UNIDADES_PLANIFICACION" up ON up."CARGA_DOCENTE_ID" = cd."ID"
                 JOIN "CLASES_PLANIFICACION_DOCUMENTOS" pd
@@ -220,7 +229,43 @@ public class StudentSubjectJdbcAdapter implements StudentSubjectRepositoryPort {
                     COALESCE(ade."REVISADO", FALSE) ASC,
                     pd."FECHA_CARGA" DESC,
                     pd."ID" DESC
-                """, (rs, rowNum) -> mapDocumentRow(rs), username, username, subjectId);
+                """.formatted(subjectScopeFilter("cd")), (rs, rowNum) -> mapDocumentRow(rs), username, username, subjectId);
+    }
+
+    private String subjectScopeFilter(String alias) {
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            return """
+                 AND (
+                    NOT EXISTS (
+                        SELECT 1
+                        FROM "ASIGNATURA_CURSOS" ac_any
+                        WHERE ac_any."ASIGNATURA_ID" = %1$s."ASIGNATURA_ID"
+                          AND ac_any."ACTIVA" = TRUE
+                    )
+                    OR EXISTS (
+                        SELECT 1
+                        FROM "ASIGNATURA_CURSOS" ac_match
+                        WHERE ac_match."ASIGNATURA_ID" = %1$s."ASIGNATURA_ID"
+                          AND ac_match."CURSO_ID" = %1$s."CURSO_ID"
+                          AND ac_match."ACTIVA" = TRUE
+                    )
+                 )
+                """.formatted(alias);
+        }
+
+        return "";
+    }
+
+    private boolean tableExists(String tableName) {
+        Boolean exists = jdbcTemplate.queryForObject("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM information_schema.tables
+                    WHERE table_schema = 'public'
+                      AND UPPER(table_name) = UPPER(?)
+                )
+                """, Boolean.class, tableName);
+        return Boolean.TRUE.equals(exists);
     }
 
     private StudentSubjectDocumentRow mapDocumentRow(ResultSet rs) throws SQLException {

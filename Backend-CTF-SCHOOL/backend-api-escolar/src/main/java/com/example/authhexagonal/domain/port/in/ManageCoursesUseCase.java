@@ -1,6 +1,7 @@
 package com.example.authhexagonal.domain.port.in;
 
 import com.example.authhexagonal.domain.model.Course;
+import com.example.authhexagonal.domain.model.CourseGrade;
 import com.example.authhexagonal.domain.model.MasterCourse;
 import com.example.authhexagonal.domain.model.StudentCatalogItem;
 import com.example.authhexagonal.domain.model.TeacherCatalogItem;
@@ -8,6 +9,8 @@ import com.example.authhexagonal.domain.model.TeacherCatalogItem;
 import java.util.List;
 
 public interface ManageCoursesUseCase {
+
+    List<CourseGrade> findActiveGrades();
 
     List<Course> findAll();
 

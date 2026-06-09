@@ -11,6 +11,10 @@ public record AcademicSubject(
         String displayLevel,
         int suggestedHours,
         boolean active,
-        java.util.List<SubjectAssignedTeacher> assignedTeachers
+        java.util.List<SubjectAssignedTeacher> assignedTeachers,
+        java.util.List<Long> applicableGradeIds,
+        java.util.List<String> applicableGradeNames,
+        java.util.List<Long> applicableCourseIds,
+        java.util.List<String> applicableCourseNames
 ) {
 }

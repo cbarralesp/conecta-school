@@ -50,7 +50,9 @@ public class SubjectController {
                         request.description(),
                         request.referenceLevel(),
                         request.suggestedHours(),
-                        request.teacherIds()
+                        request.teacherIds(),
+                        request.applicableGradeIds(),
+                        request.applicableCourseIds()
                 )
         );
     }
@@ -67,7 +69,9 @@ public class SubjectController {
                         request.description(),
                         request.referenceLevel(),
                         request.suggestedHours(),
-                        request.teacherIds()
+                        request.teacherIds(),
+                        request.applicableGradeIds(),
+                        request.applicableCourseIds()
                 )
         );
     }

@@ -16,6 +16,10 @@ export interface Subject {
   suggestedHours: number;
   active: boolean;
   assignedTeachers: SubjectAssignedTeacher[];
+  applicableGradeIds: number[];
+  applicableGradeNames: string[];
+  applicableCourseIds: number[];
+  applicableCourseNames: string[];
 }
 
 export interface SubjectPayload {
@@ -27,4 +31,6 @@ export interface SubjectPayload {
   referenceLevel: string;
   suggestedHours: number;
   teacherIds: number[];
+  applicableGradeIds: number[];
+  applicableCourseIds: number[];
 }

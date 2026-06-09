@@ -2,6 +2,7 @@ package com.example.authhexagonal.infrastructure.adapter.in.web.dto;
 
 import com.example.authhexagonal.domain.model.StudentAttendanceDetail;
 import com.example.authhexagonal.domain.model.StudentAttendanceHeader;
+import com.example.authhexagonal.domain.model.StudentAttendanceHistoryDay;
 import com.example.authhexagonal.domain.model.StudentAttendanceMonthSummary;
 import com.example.authhexagonal.domain.model.StudentAttendanceRecord;
 import com.example.authhexagonal.domain.model.StudentAttendanceSummary;
@@ -14,7 +15,8 @@ public record StudentAttendanceResponse(
         StudentAttendanceSummaryResponse summary,
         StudentAttendanceMonthResponse currentMonth,
         List<StudentAttendanceWeekDayResponse> currentWeek,
-        List<StudentAttendanceRecordResponse> recentRecords
+        List<StudentAttendanceRecordResponse> recentRecords,
+        List<StudentAttendanceHistoryDayResponse> historyDays
 ) {
 
     public static StudentAttendanceResponse fromDomain(StudentAttendanceDetail detail) {
@@ -23,7 +25,8 @@ public record StudentAttendanceResponse(
                 StudentAttendanceSummaryResponse.fromDomain(detail.summary()),
                 StudentAttendanceMonthResponse.fromDomain(detail.currentMonth()),
                 detail.currentWeek().stream().map(StudentAttendanceWeekDayResponse::fromDomain).toList(),
-                detail.recentRecords().stream().map(StudentAttendanceRecordResponse::fromDomain).toList()
+                detail.recentRecords().stream().map(StudentAttendanceRecordResponse::fromDomain).toList(),
+                detail.historyDays().stream().map(StudentAttendanceHistoryDayResponse::fromDomain).toList()
         );
     }
 
@@ -105,6 +108,15 @@ public record StudentAttendanceResponse(
                     record.timeLabel(),
                     record.note()
             );
+        }
+    }
+
+    public record StudentAttendanceHistoryDayResponse(
+            String date,
+            String status
+    ) {
+        private static StudentAttendanceHistoryDayResponse fromDomain(StudentAttendanceHistoryDay day) {
+            return new StudentAttendanceHistoryDayResponse(day.date(), day.status());
         }
     }
 }

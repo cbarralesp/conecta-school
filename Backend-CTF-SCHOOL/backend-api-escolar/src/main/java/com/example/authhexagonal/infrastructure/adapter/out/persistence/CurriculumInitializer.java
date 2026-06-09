@@ -254,7 +254,6 @@ public class CurriculumInitializer implements CommandLineRunner {
                 ON CONFLICT ("CODIGO") DO UPDATE
                 SET "NOMBRE" = EXCLUDED."NOMBRE",
                     "AREA" = EXCLUDED."AREA",
-                    "COLOR_HEX" = EXCLUDED."COLOR_HEX",
                     "ACTIVA" = TRUE,
                     "DESCRIPCION" = EXCLUDED."DESCRIPCION"
                 """, code, name, area, color, description);

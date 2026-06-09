@@ -68,6 +68,7 @@ export class AdministrationRolesPageComponent {
       case 'DIRECTOR': return 'workspace_premium';
       case 'INSPECTOR': return 'policy';
       case 'PROFESOR': return 'school';
+      case 'ASISTENTE': return 'support_agent';
       case 'SECRETARIA': return 'support_agent';
       case 'APODERADO': return 'family_restroom';
       default: return 'badge';

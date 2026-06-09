@@ -6,6 +6,7 @@ import { API_CONFIG } from '../constants/api.config';
 import { formatCourseLevelLabel, formatScheduleLabel } from '../constants/course-levels';
 import {
   Course,
+  CourseGradeOption,
   CoursePayload,
   CourseSchedule,
   CreateCourseFromMasterPayload,
@@ -19,6 +20,17 @@ import { normalizeDashboardText } from '../utils/text-normalizer';
 export class CourseApiService {
   private readonly http = inject(HttpClient);
 
+  getCourseGrades(): Observable<CourseGradeOption[]> {
+    return this.http.get<CourseGradeOption[]>(`${API_CONFIG.baseUrl}/cursos-grados`).pipe(
+      map((grades) => grades.map((grade) => ({
+        ...grade,
+        levelName: formatCourseLevelLabel(normalizeDashboardText(grade.levelName)),
+        name: normalizeDashboardText(grade.name),
+        codeToken: normalizeDashboardText(grade.codeToken)
+      })))
+    );
+  }
+
   findAll(): Observable<Course[]> {
     return this.http.get<Course[]>(`${API_CONFIG.baseUrl}/cursos`).pipe(
       map((courses) => courses.map((course) => ({
@@ -27,6 +39,7 @@ export class CourseApiService {
         name: normalizeDashboardText(course.name),
         level: formatCourseLevelLabel(normalizeDashboardText(course.level)),
         letter: normalizeDashboardText(course.letter),
+        gradeId: course.gradeId ?? null,
         scheduleType: formatScheduleLabel(normalizeDashboardText(course.scheduleType)),
         teacherName: normalizeDashboardText(course.teacherName ?? ''),
         assistantName: normalizeDashboardText(course.assistantName ?? '')
@@ -42,6 +55,7 @@ export class CourseApiService {
         name: normalizeDashboardText(course.name),
         level: formatCourseLevelLabel(normalizeDashboardText(course.level)),
         letter: normalizeDashboardText(course.letter),
+        gradeId: course.gradeId ?? null,
         scheduleType: formatScheduleLabel(normalizeDashboardText(course.scheduleType)),
         teacherName: normalizeDashboardText(course.teacherName ?? ''),
         assistantName: normalizeDashboardText(course.assistantName ?? '')

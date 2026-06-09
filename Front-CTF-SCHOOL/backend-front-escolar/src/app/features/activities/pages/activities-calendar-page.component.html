@@ -8,86 +8,181 @@
     searchPlaceholder="Buscar actividades, horario, asignaturas...">
     <main class="activities-content student-content">
       <div class="student-content__inner">
-        <section class="page-heading page-heading--student">
-          <div class="page-heading__copy">
-            <span class="page-heading__eyebrow">Calendario academico</span>
-            <h1>{{ pageTitle() }}</h1>
-            <p>{{ pageDescription() }}</p>
-          </div>
-        </section>
+        <section class="student-activities">
+          <h2 class="sr-only">{{ studentMonthAriaLabel() }}</h2>
 
-        <mat-card appearance="outlined" class="calendar-card">
-          <section class="calendar-controls">
-            <div class="calendar-nav">
-              <button mat-stroked-button type="button" (click)="goToPreviousMonth()">
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              <button mat-stroked-button type="button" (click)="goToToday()">Hoy</button>
-              <button mat-stroked-button type="button" (click)="goToNextMonth()">
-                <mat-icon>chevron_right</mat-icon>
+          <section class="student-page-head">
+            <div class="student-page-head__top">
+              <div class="student-page-head__copy">
+                <div class="student-page-head__title-row">
+                  <div class="student-page-head__icon">
+                    <mat-icon>calendar_month</mat-icon>
+                  </div>
+                  <div>
+                    <h1 class="student-page-head__title">Calendario Académico</h1>
+                    <p class="student-page-head__subtitle">Consulta el calendario del establecimiento y revisa las actividades publicadas para ti.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="student-pdf-btn"
+                (click)="downloadCurrentMonthPdf()"
+                [disabled]="isExportingPdf()">
+                <mat-icon>download</mat-icon>
+                {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
               </button>
             </div>
 
-            <div class="month-label">
-              <strong>{{ monthLabel() }}</strong>
-              <mat-icon>calendar_month</mat-icon>
+            <div class="student-page-head__controls">
+              <div class="student-nav-group">
+                <button class="student-nav-btn" type="button" (click)="goToPreviousMonth()" aria-label="Mes anterior">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+                <button class="student-nav-today" type="button" (click)="goToToday()">Hoy</button>
+                <button class="student-nav-btn" type="button" (click)="goToNextMonth()" aria-label="Mes siguiente">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </div>
+
+              <div class="student-month-display">
+                <mat-icon>calendar_month</mat-icon>
+                <span>{{ monthLabel() }}</span>
+              </div>
             </div>
 
-            <button
-              mat-stroked-button
-              type="button"
-              class="download-button"
-              (click)="downloadCurrentMonthPdf()"
-              [disabled]="isExportingPdf()"
-            >
-              <mat-icon>download</mat-icon>
-              {{ isExportingPdf() ? 'Generando PDF...' : 'Descargar PDF' }}
-            </button>
+            <div class="student-legend">
+              @for (item of studentLegendItems; track item.key) {
+                <div class="student-legend__item">
+                  <i class="student-legend__dot" [class]="studentLegendDotClass(item.key)"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+              }
+            </div>
           </section>
 
-          <section class="calendar-grid">
-            <div class="weekdays-row">
-              @for (weekDay of weekDays; track weekDay) {
-                <span>{{ weekDay }}</span>
+          <section class="student-calendar-shell">
+            <div class="student-calendar-head">
+              @for (weekDay of weekDays; track weekDay; let i = $index) {
+                <div class="student-calendar-head__cell" [class.is-weekend]="i >= 5">{{ weekDay }}</div>
               }
             </div>
 
             @if (isLoading()) {
               <div class="loading-copy">Cargando actividades del calendario...</div>
             } @else {
-              @for (week of monthGrid(); track $index) {
-                <div class="calendar-week">
-                  @for (day of week; track day.isoDate) {
-                    <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth" (dblclick)="handleDayDoubleClick(day.isoDate)">
-                      <header class="day-header">
-                        <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
-                      </header>
+              <div class="student-calendar-grid">
+                @for (week of studentVisibleDayActivities(); track $index) {
+                  @for (day of week; track day.isoDate; let dayIndex = $index) {
+                    <article
+                      class="student-day-cell"
+                      [class.is-empty]="!day.inCurrentMonth"
+                      [class.is-weekend]="dayIndex >= 5"
+                      [class.is-today]="day.today">
+                      <div class="student-day-cell__num-wrap">
+                        <div
+                          class="student-day-cell__num"
+                          [class.is-today]="day.today"
+                          [class.is-weekend]="dayIndex >= 5"
+                          [class.is-other-month]="!day.inCurrentMonth">
+                          {{ day.dayOfMonth }}
+                        </div>
+                      </div>
 
-                      <div class="day-events">
-                        @for (activity of visibleDayActivities(day); track activity.id) {
-                          <article
-                            class="activity-pill activity-pill--readonly"
-                            [style.background]="activity.backgroundColor"
-                            [style.color]="activity.textColor"
-                          >
-                            <strong>{{ activity.title }}</strong>
-                            <span>{{ formatTime(activity.time) }}</span>
+                      <div class="student-day-cell__events">
+                        @for (activity of day.visibleActivities; track activity.id) {
+                          <article class="student-chip" [class]="studentActivityChipClass(activity)">
+                            <mat-icon>{{ studentActivityIcon(activity) }}</mat-icon>
+                            <span>{{ activity.title }}</span>
                           </article>
                         }
 
-                        @if (hiddenActivityCount(day) > 0) {
-                          <button type="button" class="activity-pill activity-pill--more" (click)="selectDate(day.isoDate)">
-                            +{{ hiddenActivityCount(day) }}
+                        @if (hiddenActivityCount(day, 3) > 0) {
+                          <button type="button" class="student-chip-more" (click)="selectDate(day.isoDate)">
+                            +{{ hiddenActivityCount(day, 3) }} mas
                           </button>
                         }
                       </div>
                     </article>
                   }
-                </div>
-              }
+                }
+              </div>
             }
           </section>
-        </mat-card>
+
+          <section class="student-bottom-grid">
+            <article class="student-panel">
+              <div class="student-panel__head">
+                <div class="student-panel__title">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Proximas actividades</span>
+                </div>
+              </div>
+
+              <div class="student-upcoming-list">
+                @if (upcomingItems().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>event_busy</mat-icon>
+                    <span>No hay actividades proximas por ahora.</span>
+                  </section>
+                } @else {
+                  @for (item of upcomingItems().slice(0, 4); track item.id) {
+                    <article class="student-upcoming-row">
+                      <div class="student-upcoming-row__date">
+                        <div class="student-upcoming-row__day">{{ item.dateStr.slice(8, 10) }}</div>
+                        <div class="student-upcoming-row__month">{{ formatShortDate(item.dateStr) }}</div>
+                      </div>
+                      <div class="student-upcoming-row__line" [class]="studentActivityChipClass(item.activity)"></div>
+                      <div class="student-upcoming-row__info">
+                        <div class="student-upcoming-row__title">{{ item.title }}</div>
+                        <div class="student-upcoming-row__sub">
+                          {{ item.typeLabel }}
+                          @if (item.activity.location) {
+                            · {{ item.activity.location }}
+                          }
+                        </div>
+                      </div>
+                      <span class="student-upcoming-row__badge" [class]="studentActivityChipClass(item.activity)">
+                        {{ studentActivityBadgeLabel(item.activity) }}
+                      </span>
+                    </article>
+                  }
+                }
+              </div>
+            </article>
+
+            <article class="student-panel">
+              <div class="student-panel__head">
+                <div class="student-panel__title">
+                  <mat-icon>bar_chart</mat-icon>
+                  <span>Resumen del mes</span>
+                </div>
+              </div>
+
+              <div class="student-stats-grid">
+                @for (item of studentMonthlyStats(); track item.key) {
+                  <article class="student-stat" [class]="studentSummaryStatClass(item.key)">
+                    <div class="student-stat__icon">
+                      <mat-icon>
+                        @if (item.key === 'exam') { assignment }
+                        @else if (item.key === 'hw') { upload_file }
+                        @else if (item.key === 'event') { star }
+                        @else if (item.key === 'meeting') { groups }
+                        @else if (item.key === 'holiday') { flag }
+                        @else { error_outline }
+                      </mat-icon>
+                    </div>
+                    <div>
+                      <div class="student-stat__value">{{ item.value }}</div>
+                      <div class="student-stat__label">{{ item.label }}</div>
+                    </div>
+                  </article>
+                }
+              </div>
+            </article>
+          </section>
+        </section>
       </div>
 
       @if (calendar(); as exportCalendar) {

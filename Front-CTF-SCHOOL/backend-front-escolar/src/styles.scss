@@ -711,6 +711,20 @@ body {
   font-weight: 600;
 }
 
+.report-preview-modal__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.report-preview-modal__save {
+  min-height: 36px !important;
+  padding-inline: 0.95rem !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 22px rgba(15, 157, 107, 0.16);
+}
+
 .report-preview-modal__close {
   color: #64748b;
 }
@@ -728,6 +742,31 @@ body {
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.pdf-bulletin__observation-editor {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  border: 1px solid #d7e2ee;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0.85rem 0.95rem;
+  color: #1f2937;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  outline: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pdf-bulletin__observation-editor::placeholder {
+  color: #94a3b8;
+}
+
+.pdf-bulletin__observation-editor:focus {
+  border-color: #0f9d6b;
+  box-shadow: 0 0 0 3px rgba(15, 157, 107, 0.12);
 }
 
 @media (max-width: 960px) {

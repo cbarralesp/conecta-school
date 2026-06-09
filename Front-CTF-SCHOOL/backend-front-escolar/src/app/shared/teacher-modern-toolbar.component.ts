@@ -412,18 +412,22 @@ type ToolbarSearchEntry = {
         grid-area: context;
       }
 
-      .modern-toolbar__search {
+      .modern-toolbar__search-shell {
         grid-area: search;
+        justify-self: stretch;
+        max-width: none;
       }
 
       .modern-toolbar__actions {
         grid-area: actions;
+        align-self: start;
       }
     }
 
     @media (max-width: 768px) {
       .modern-toolbar {
         gap: 0.8rem;
+        padding: 0.75rem;
         grid-template-columns: 1fr;
         grid-template-areas:
           'brand'
@@ -434,11 +438,20 @@ type ToolbarSearchEntry = {
 
       .modern-toolbar__brand {
         padding: 0;
+        min-width: 0;
+      }
+
+      .modern-toolbar__search-shell {
+        width: 100%;
+        max-width: none;
+        justify-self: stretch;
       }
 
       .modern-toolbar__actions {
+        width: 100%;
         justify-content: space-between;
         flex-wrap: wrap;
+        gap: 0.45rem;
       }
 
       .modern-toolbar__user {

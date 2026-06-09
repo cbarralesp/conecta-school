@@ -4,6 +4,7 @@ export interface Course {
   name: string;
   level: string;
   letter: string;
+  gradeId?: number | null;
   schoolYear: number;
   scheduleType: string;
   teacherId?: number | null;
@@ -33,6 +34,15 @@ export interface MasterCourse {
   level: string;
   codeToken: string;
   sortOrder: number;
+}
+
+export interface CourseGradeOption {
+  id: number;
+  levelName: string;
+  name: string;
+  codeToken: string;
+  sortOrder: number;
+  active: boolean;
 }
 
 export interface TeacherCatalogItem {

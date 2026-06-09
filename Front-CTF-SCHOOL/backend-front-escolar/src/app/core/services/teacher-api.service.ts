@@ -112,7 +112,12 @@ export class TeacherApiService {
       name: normalizeDashboardText(subject.name),
       area: normalizeDashboardText(subject.area),
       description: normalizeDashboardText(subject.description),
-      referenceLevel: normalizeDashboardText(subject.referenceLevel)
+      referenceLevel: normalizeDashboardText(subject.referenceLevel),
+      displayLevel: normalizeDashboardText(subject.displayLevel ?? ''),
+      applicableGradeIds: (subject.applicableGradeIds ?? []).map(Number),
+      applicableGradeNames: (subject.applicableGradeNames ?? []).map((name) => normalizeDashboardText(name)),
+      applicableCourseIds: (subject.applicableCourseIds ?? []).map(Number),
+      applicableCourseNames: (subject.applicableCourseNames ?? []).map((name) => normalizeDashboardText(name))
     };
   }
 

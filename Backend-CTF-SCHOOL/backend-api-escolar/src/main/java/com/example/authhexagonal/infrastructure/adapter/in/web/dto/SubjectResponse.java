@@ -15,7 +15,11 @@ public record SubjectResponse(
         String displayLevel,
         int suggestedHours,
         boolean active,
-        List<SubjectAssignedTeacherResponse> assignedTeachers
+        List<SubjectAssignedTeacherResponse> assignedTeachers,
+        List<Long> applicableGradeIds,
+        List<String> applicableGradeNames,
+        List<Long> applicableCourseIds,
+        List<String> applicableCourseNames
 ) {
     public static SubjectResponse fromDomain(AcademicSubject subject) {
         return new SubjectResponse(
@@ -31,7 +35,11 @@ public record SubjectResponse(
                 subject.active(),
                 subject.assignedTeachers().stream()
                         .map(SubjectAssignedTeacherResponse::fromDomain)
-                        .toList()
+                        .toList(),
+                subject.applicableGradeIds(),
+                subject.applicableGradeNames(),
+                subject.applicableCourseIds(),
+                subject.applicableCourseNames()
         );
     }
 }

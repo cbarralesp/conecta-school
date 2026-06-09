@@ -3,6 +3,7 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 import com.example.authhexagonal.domain.port.in.GetCourseScheduleUseCase;
 import com.example.authhexagonal.domain.port.in.ManageCoursesUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.CourseRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.CourseGradeResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.CourseResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.CourseScheduleResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.CreateCourseFromMasterRequest;
@@ -43,6 +44,13 @@ public class CourseController {
     public List<CourseResponse> findAll() {
         return manageCoursesUseCase.findAll().stream()
                 .map(CourseResponse::fromDomain)
+                .toList();
+    }
+
+    @GetMapping("/cursos-grados")
+    public List<CourseGradeResponse> findCourseGrades() {
+        return manageCoursesUseCase.findActiveGrades().stream()
+                .map(CourseGradeResponse::fromDomain)
                 .toList();
     }
 

@@ -163,6 +163,7 @@ export class EnrollmentFormPageComponent {
       this.createCourseSchedule()
     );
   });
+  readonly schoolYearOptions = ['2024', '2025', '2026', '2027', '2028'] as const;
   readonly pickupRelationOptions = [
     'Madre',
     'Padre',
@@ -233,7 +234,7 @@ export class EnrollmentFormPageComponent {
       baseName: [{ value: '', disabled: true }],
       level: [{ value: '', disabled: true }],
       letter: [{ value: '', disabled: true }],
-      schoolYear: [`${new Date().getFullYear()}`],
+      schoolYear: ['2027'],
       scheduleType: [{ value: '', disabled: true }]
     }),
     gender: ['Femenino'],
@@ -345,6 +346,18 @@ export class EnrollmentFormPageComponent {
 
   get guardianAccessGroup() {
     return this.form.controls.guardianAccess;
+  }
+
+  updateStudentAccessPassword(value: string): void {
+    this.studentAccessGroup.controls.temporaryPassword.setValue(value);
+    this.studentAccessGroup.controls.temporaryPassword.markAsDirty();
+    this.studentAccessGroup.controls.temporaryPassword.markAsTouched();
+  }
+
+  updateGuardianAccessPassword(value: string): void {
+    this.guardianAccessGroup.controls.temporaryPassword.setValue(value);
+    this.guardianAccessGroup.controls.temporaryPassword.markAsDirty();
+    this.guardianAccessGroup.controls.temporaryPassword.markAsTouched();
   }
 
   studentCommunes(): ChileCommune[] {

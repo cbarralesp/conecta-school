@@ -2,6 +2,7 @@ package com.example.authhexagonal.application.service;
 
 import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.Course;
+import com.example.authhexagonal.domain.model.CourseGrade;
 import com.example.authhexagonal.domain.model.MasterCourse;
 import com.example.authhexagonal.domain.model.StudentCatalogItem;
 import com.example.authhexagonal.domain.model.TeacherCatalogItem;
@@ -23,6 +24,11 @@ public class CourseService implements ManageCoursesUseCase {
     public CourseService(ManageCoursesPort manageCoursesPort, LoadMasterCoursesPort loadMasterCoursesPort) {
         this.manageCoursesPort = manageCoursesPort;
         this.loadMasterCoursesPort = loadMasterCoursesPort;
+    }
+
+    @Override
+    public List<CourseGrade> findActiveGrades() {
+        return manageCoursesPort.findActiveGrades();
     }
 
     @Override

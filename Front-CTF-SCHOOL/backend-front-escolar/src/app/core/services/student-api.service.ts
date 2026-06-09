@@ -95,6 +95,11 @@ export class StudentApiService {
           status: normalizeDashboardText(record.status),
           note: normalizeDashboardText(record.note),
           timeLabel: normalizeDashboardText(record.timeLabel)
+        })),
+        historyDays: (response.historyDays ?? []).map((day) => ({
+          ...day,
+          date: normalizeDashboardText(day.date),
+          status: normalizeDashboardText(day.status)
         }))
       }))
     );
@@ -129,7 +134,8 @@ export class StudentApiService {
         dayOfWeek: normalizeDashboardText(item.dayOfWeek),
         courseName: normalizeDashboardText(item.courseName),
         subjectName: normalizeDashboardText(item.subjectName),
-        room: normalizeDashboardText(item.room)
+        room: normalizeDashboardText(item.room),
+        subjectColorHex: item.subjectColorHex ?? null
       })),
       latestGrades: dashboard.latestGrades.map((grade) => ({
         ...grade,

@@ -1,9 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { merge } from 'rxjs';
 import {
   AdministrationRoleCode,
   AdministrationRoleOption,
@@ -47,6 +49,9 @@ export class AdministrationUserCreatePageComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
+  private usernameWasEditedManually = false;
+  private lastSuggestedUsername = '';
 
   readonly roleOptions = signal<AdministrationRoleOption[]>([]);
   readonly editingUserId = signal<number | null>(null);
@@ -89,6 +94,7 @@ export class AdministrationUserCreatePageComponent {
 
   constructor() {
     this.administrationApi.getRoleOptions().subscribe((roles) => this.roleOptions.set(roles));
+    this.bindUsernameAutofill();
     this.route.queryParamMap.subscribe((params) => {
       const editId = Number(params.get('edit'));
       if (Number.isFinite(editId) && editId > 0) {
@@ -173,6 +179,8 @@ export class AdministrationUserCreatePageComponent {
   private patchUser(user: AdministrationUserDetail): void {
     const { primaryName, secondaryName } = this.splitGivenNames(user.firstName);
     const expiryMode = this.detectExpiryMode(user.accountExpiresAt);
+    this.usernameWasEditedManually = true;
+    this.lastSuggestedUsername = user.username ?? '';
     this.form.patchValue({
       firstName: primaryName,
       secondName: secondaryName,
@@ -193,6 +201,8 @@ export class AdministrationUserCreatePageComponent {
   }
 
   private resetForm(): void {
+    this.usernameWasEditedManually = false;
+    this.lastSuggestedUsername = '';
     this.form.reset({
       firstName: '',
       secondName: '',
@@ -210,6 +220,48 @@ export class AdministrationUserCreatePageComponent {
       forcePasswordChange: true,
       twoFactorMode: this.twoFactorModes.OPTIONAL
     });
+  }
+
+  private bindUsernameAutofill(): void {
+    merge(
+      this.form.controls.firstName.valueChanges,
+      this.form.controls.secondName.valueChanges,
+      this.form.controls.paternalLastName.valueChanges,
+      this.form.controls.maternalLastName.valueChanges
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncUsernameSuggestion());
+
+    this.form.controls.username.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (this.editingUserId()) {
+          return;
+        }
+
+        const current = value.trim();
+        if (!current) {
+          this.usernameWasEditedManually = false;
+          return;
+        }
+
+        this.usernameWasEditedManually = current !== this.lastSuggestedUsername;
+      });
+  }
+
+  private syncUsernameSuggestion(): void {
+    if (this.editingUserId()) {
+      return;
+    }
+
+    const currentUsername = this.form.controls.username.value.trim();
+    if (this.usernameWasEditedManually && currentUsername) {
+      return;
+    }
+
+    const suggestion = this.buildBaseUsernamePreview();
+    this.lastSuggestedUsername = suggestion;
+    this.form.controls.username.setValue(suggestion, { emitEvent: false });
   }
 
   private toPayload(): AdministrationUserFormValue {
@@ -260,6 +312,31 @@ export class AdministrationUserCreatePageComponent {
       primaryName: parts[0] ?? '',
       secondaryName: parts.slice(1).join(' ')
     };
+  }
+
+  private buildBaseUsernamePreview(): string {
+    const firstName = this.normalizeAccessPart([this.form.controls.firstName.value, this.form.controls.secondName.value].join(' '))
+      .split(/\s+/)
+      .filter(Boolean)[0] ?? '';
+    const paternalLastName = this.normalizeAccessPart(this.form.controls.paternalLastName.value);
+
+    let candidate = `${firstName.charAt(0)}${paternalLastName}`.toLowerCase();
+    if (!candidate) {
+      candidate = 'usuario';
+    }
+    if (candidate.length < 4 && paternalLastName) {
+      candidate = `${candidate}${paternalLastName}`.slice(0, 12);
+    }
+    return candidate.slice(0, 16);
+  }
+
+  private normalizeAccessPart(value: string): string {
+    return `${value ?? ''}`
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .trim()
+      .toLowerCase();
   }
 
   private detectExpiryMode(value: string | null): AccountExpiryMode {

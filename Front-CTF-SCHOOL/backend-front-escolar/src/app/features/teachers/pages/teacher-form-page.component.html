@@ -171,7 +171,11 @@
                         <div class="form-group">
                           <label>Contrasena (Para entregar)</label>
                           <div class="access-inline-field">
-                            <input type="text" class="form-input form-input--password" [value]="accessPasswordPreview()" readonly>
+                            <input
+                              type="text"
+                              class="form-input form-input--password"
+                              [value]="accessPasswordPreview()"
+                              (input)="updateAccessPassword(($any($event.target).value ?? '').toString())">
                             <button class="inline-copy" type="button" (click)="copyAccessValue(accessPasswordPreview(), 'Contrasena')">
                               <mat-icon>content_copy</mat-icon>
                             </button>
@@ -262,7 +266,7 @@
                 </div>
 
                 <div class="subject-selector__list">
-                  @for (subject of subjectOptions(); track subject.id) {
+                  @for (subject of filteredSubjectOptions(); track subject.id) {
                     <label class="subject-option">
                       <input
                         type="checkbox"

@@ -163,7 +163,18 @@ export class SubjectsPageComponent {
   }
 
   getLevelLabel(subject: Subject): string {
-    const level = subject.displayLevel?.trim() || subject.referenceLevel?.trim();
+    const normalizedLevel = this.getNormalizedLevel(subject);
+    if (normalizedLevel.includes('inicial')) {
+      return 'Inicial';
+    }
+    if (normalizedLevel.includes('basic')) {
+      return 'Básico';
+    }
+    if (normalizedLevel.includes('media')) {
+      return 'Media';
+    }
+
+    const level = subject.referenceLevel?.trim() || subject.displayLevel?.trim();
     return level || 'Sin nivel';
   }
 
@@ -181,7 +192,8 @@ export class SubjectsPageComponent {
 
   private loadSubjects(): void {
     this.subjectApiService.findAll({
-      search: this.searchTerm()
+      search: this.searchTerm(),
+      level: this.levelFilter()
     }).subscribe({
       next: (subjects) => this.subjects.set(subjects),
       error: (error: HttpErrorResponse) =>
@@ -196,7 +208,7 @@ export class SubjectsPageComponent {
   }
 
   private getNormalizedLevel(subject: Subject): string {
-    return this.getLevelLabel(subject)
+    return (subject.referenceLevel?.trim() || subject.displayLevel?.trim() || this.getLevelLabel(subject))
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');

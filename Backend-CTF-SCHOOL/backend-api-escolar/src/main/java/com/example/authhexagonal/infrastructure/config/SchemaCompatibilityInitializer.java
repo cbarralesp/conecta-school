@@ -26,6 +26,8 @@ public class SchemaCompatibilityInitializer {
         ensureScheduleCourseScope();
         ensureGradeEvaluationColumns();
         ensureCourseNormalizationSchema();
+        ensureSubjectGradeScope();
+        ensureSubjectCourseScope();
         ensureCourseEnrollmentConsistency();
         ensureActivityCourseScope();
         ensureEnrollmentExtendedContacts();
@@ -680,6 +682,134 @@ public class SchemaCompatibilityInitializer {
                       WHERE m."CURSO_ID" = c."ID"
                         AND m."ACTIVA" = TRUE
                   )
+                """);
+    }
+
+    private void ensureSubjectGradeScope() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para grados aplicables por asignatura");
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "ASIGNATURA_GRADOS" (
+                    "ASIGNATURA_ID" bigint NOT NULL,
+                    "GRADO_ID" bigint NOT NULL,
+                    "ACTIVA" boolean DEFAULT TRUE NOT NULL,
+                    CONSTRAINT "PK_ASIGNATURA_GRADOS" PRIMARY KEY ("ASIGNATURA_ID", "GRADO_ID")
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_ASIGNATURA_GRADOS_GRADO_ID"
+                ON "ASIGNATURA_GRADOS" ("GRADO_ID")
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_ASIGNATURA_GRADOS_ACTIVA"
+                ON "ASIGNATURA_GRADOS" ("ACTIVA")
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'FK_ASIGNATURA_GRADOS_ASIGNATURA'
+                    ) THEN
+                        ALTER TABLE "ASIGNATURA_GRADOS"
+                        ADD CONSTRAINT "FK_ASIGNATURA_GRADOS_ASIGNATURA"
+                        FOREIGN KEY ("ASIGNATURA_ID") REFERENCES "ASIGNATURAS" ("ID");
+                    END IF;
+                END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'FK_ASIGNATURA_GRADOS_GRADO'
+                    ) THEN
+                        ALTER TABLE "ASIGNATURA_GRADOS"
+                        ADD CONSTRAINT "FK_ASIGNATURA_GRADOS_GRADO"
+                        FOREIGN KEY ("GRADO_ID") REFERENCES "CURSO_GRADOS" ("ID");
+                    END IF;
+                END $$;
+                """);
+    }
+
+    private void ensureSubjectCourseScope() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para cursos aplicables por asignatura");
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "ASIGNATURA_CURSOS" (
+                    "ASIGNATURA_ID" bigint NOT NULL,
+                    "CURSO_ID" bigint NOT NULL,
+                    "ACTIVA" boolean DEFAULT TRUE NOT NULL,
+                    CONSTRAINT "PK_ASIGNATURA_CURSOS" PRIMARY KEY ("ASIGNATURA_ID", "CURSO_ID")
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_ASIGNATURA_CURSOS_CURSO_ID"
+                ON "ASIGNATURA_CURSOS" ("CURSO_ID")
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_ASIGNATURA_CURSOS_ACTIVA"
+                ON "ASIGNATURA_CURSOS" ("ACTIVA")
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'FK_ASIGNATURA_CURSOS_ASIGNATURA'
+                    ) THEN
+                        ALTER TABLE "ASIGNATURA_CURSOS"
+                        ADD CONSTRAINT "FK_ASIGNATURA_CURSOS_ASIGNATURA"
+                        FOREIGN KEY ("ASIGNATURA_ID") REFERENCES "ASIGNATURAS" ("ID");
+                    END IF;
+                END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'FK_ASIGNATURA_CURSOS_CURSO'
+                    ) THEN
+                        ALTER TABLE "ASIGNATURA_CURSOS"
+                        ADD CONSTRAINT "FK_ASIGNATURA_CURSOS_CURSO"
+                        FOREIGN KEY ("CURSO_ID") REFERENCES "CURSOS" ("ID");
+                    END IF;
+                END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                INSERT INTO "ASIGNATURA_CURSOS" ("ASIGNATURA_ID", "CURSO_ID", "ACTIVA")
+                SELECT DISTINCT ca."ASIGNATURA_ID", ca."CURSO_ID", TRUE
+                FROM "CURSO_ASIGNATURAS" ca
+                WHERE COALESCE(ca."ACTIVA", TRUE) = TRUE
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM "CARGAS_DOCENTES" cd
+                      WHERE cd."ASIGNATURA_ID" = ca."ASIGNATURA_ID"
+                        AND cd."ACTIVA" = TRUE
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM "CURSO_ASIGNATURAS" ca_scope
+                            WHERE ca_scope."ASIGNATURA_ID" = cd."ASIGNATURA_ID"
+                              AND ca_scope."CURSO_ID" = cd."CURSO_ID"
+                              AND COALESCE(ca_scope."ACTIVA", TRUE) = TRUE
+                        )
+                  )
+                ON CONFLICT ("ASIGNATURA_ID", "CURSO_ID")
+                DO UPDATE SET "ACTIVA" = EXCLUDED."ACTIVA"
                 """);
     }
 

@@ -3,6 +3,7 @@ export type AdministrationRoleCode =
   | 'DIRECTOR'
   | 'INSPECTOR'
   | 'PROFESOR'
+  | 'ASISTENTE'
   | 'SECRETARIA'
   | 'APODERADO'
   | 'ALUMNO';

@@ -6,6 +6,7 @@ public record Course(
         String name,
         String level,
         String letter,
+        Long gradeId,
         int schoolYear,
         String scheduleType,
         Long teacherId,

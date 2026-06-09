@@ -222,7 +222,11 @@
                             <div class="form-group">
                               <label>Contrasena (Para entregar)</label>
                               <div class="access-inline-field">
-                                <input type="text" class="form-input form-input--password" [value]="studentAccessPasswordPreview()" readonly>
+                                <input
+                                  type="text"
+                                  class="form-input form-input--password"
+                                  [value]="studentAccessPasswordPreview()"
+                                  (input)="updateStudentAccessPassword(($any($event.target).value ?? '').toString())">
                                 <button class="inline-copy" type="button" (click)="copyStudentAccessValue(studentAccessPasswordPreview(), 'Contrasena')">
                                   <mat-icon>content_copy</mat-icon>
                                 </button>
@@ -263,7 +267,11 @@
                             <div class="form-group">
                               <label>Contrasena (Para entregar)</label>
                               <div class="access-inline-field">
-                                <input type="text" class="form-input form-input--password" [value]="guardianAccessPasswordPreview()" readonly>
+                                <input
+                                  type="text"
+                                  class="form-input form-input--password"
+                                  [value]="guardianAccessPasswordPreview()"
+                                  (input)="updateGuardianAccessPassword(($any($event.target).value ?? '').toString())">
                                 <button class="inline-copy" type="button" (click)="copyGuardianAccessValue(guardianAccessPasswordPreview(), 'Contrasena')">
                                   <mat-icon>content_copy</mat-icon>
                                 </button>
@@ -672,14 +680,15 @@
 
                 <div class="form-group">
                   <label for="course-base-school-year">Año Académico</label>
-                  <input
+                  <select
                     id="course-base-school-year"
-                    type="text"
                     class="form-input"
-                    [formControl]="courseBaseGroup.controls.schoolYear"
-                    placeholder="Ej: 2027"
-                    (input)="onCreateCourseSchoolYearChange($any($event.target).value)"
-                  >
+                    [value]="courseBaseGroup.controls.schoolYear.value"
+                    (change)="onCreateCourseSchoolYearChange($any($event.target).value)">
+                    @for (year of schoolYearOptions; track year) {
+                      <option [value]="year" [selected]="year === courseBaseGroup.controls.schoolYear.value">{{ year }}</option>
+                    }
+                  </select>
                 </div>
 
                 <div class="form-group full" [formGroup]="courseBaseGroup">

@@ -101,6 +101,7 @@ export class AdministrationUsersPageComponent {
       case 'APODERADO':
         return 'role-pill role-pill--guardian';
       case 'INSPECTOR':
+      case 'ASISTENTE':
       case 'SECRETARIA':
       default:
         return 'role-pill role-pill--admin';

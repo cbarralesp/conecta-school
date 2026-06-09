@@ -2,6 +2,7 @@ package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
 import com.example.authhexagonal.domain.model.StudentAttendanceDetail;
 import com.example.authhexagonal.domain.model.StudentAttendanceHeader;
+import com.example.authhexagonal.domain.model.StudentAttendanceHistoryDay;
 import com.example.authhexagonal.domain.model.StudentAttendanceMonthSummary;
 import com.example.authhexagonal.domain.model.StudentAttendanceRecord;
 import com.example.authhexagonal.domain.model.StudentAttendanceSummary;
@@ -72,6 +73,7 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
         StudentAttendanceMonthSummary currentMonth = loadCurrentMonth(context.studentId(), context.schoolYear());
         List<StudentAttendanceWeekDay> currentWeek = loadCurrentWeek(context.studentId(), context.courseId());
         List<StudentAttendanceRecord> recentRecords = loadRecentRecords(context.studentId(), context.courseId());
+        List<StudentAttendanceHistoryDay> historyDays = loadHistoryDays(context.studentId(), context.schoolYear());
 
         return Optional.of(new StudentAttendanceDetail(
                 new StudentAttendanceHeader(
@@ -83,7 +85,8 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
                 summary,
                 currentMonth,
                 currentWeek,
-                recentRecords
+                recentRecords,
+                historyDays
         ));
     }
 
@@ -210,6 +213,27 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
                 formatTime(rs.getTime("arrival_time")),
                 normalizeNote(rs.getString("note"))
         ), courseId, studentId);
+    }
+
+    private List<StudentAttendanceHistoryDay> loadHistoryDays(Long studentId, int schoolYear) {
+        LocalDate start = LocalDate.of(schoolYear, 3, 1);
+        LocalDate end = LocalDate.of(schoolYear, 6, 30);
+
+        return jdbcTemplate.query("""
+                SELECT
+                    ar."FECHA" AS attendance_date,
+                    ad."ESTADO" AS status
+                FROM "ASISTENCIA_REGISTROS" ar
+                JOIN "ASISTENCIA_DETALLES" ad ON ad."REGISTRO_ID" = ar."ID"
+                WHERE ad."ALUMNO_ID" = ?
+                  AND ad."ACTIVO" = TRUE
+                  AND ar."ACTIVO" = TRUE
+                  AND ar."FECHA" BETWEEN ? AND ?
+                ORDER BY ar."FECHA"
+                """, (rs, rowNum) -> new StudentAttendanceHistoryDay(
+                rs.getDate("attendance_date").toLocalDate().toString(),
+                normalizeStatus(rs.getString("status"))
+        ), studentId, start, end);
     }
 
     private LocalDate startOfWeek(LocalDate date) {

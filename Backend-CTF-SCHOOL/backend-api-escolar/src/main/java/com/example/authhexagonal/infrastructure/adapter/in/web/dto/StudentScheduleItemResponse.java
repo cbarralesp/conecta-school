@@ -8,7 +8,8 @@ public record StudentScheduleItemResponse(
         String endTime,
         String courseName,
         String subjectName,
-        String room
+        String room,
+        String subjectColorHex
 ) {
 
     public static StudentScheduleItemResponse fromDomain(StudentScheduleItem item) {
@@ -18,7 +19,8 @@ public record StudentScheduleItemResponse(
                 item.endTime(),
                 item.courseName(),
                 item.subjectName(),
-                item.room()
+                item.room(),
+                item.subjectColorHex()
         );
     }
 }

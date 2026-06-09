@@ -15,6 +15,7 @@ import { Course } from '../../../core/models/course.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 import { ActivityCalendarApiService } from '../../../core/services/activity-calendar-api.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
+import { StudentApiService } from '../../../core/services/student-api.service';
 import {
   ActivityCalendar,
   ActivityCalendarDay,
@@ -41,6 +42,17 @@ interface SelectedActivityItem {
   activity: SchoolActivity;
 }
 
+interface StudentLegendItem {
+  key: 'exam' | 'hw' | 'event' | 'holiday' | 'meeting';
+  label: string;
+}
+
+interface StudentMonthlyStatItem {
+  key: 'exam' | 'hw' | 'event' | 'holiday' | 'meeting' | 'week';
+  label: string;
+  value: number;
+}
+
 @Component({
   selector: 'app-activities-calendar-page',
   imports: [
@@ -63,6 +75,7 @@ export class ActivitiesCalendarPageComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly activityCalendarApiService = inject(ActivityCalendarApiService);
   private readonly courseApiService = inject(CourseApiService);
+  private readonly studentApiService = inject(StudentApiService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -75,6 +88,7 @@ export class ActivitiesCalendarPageComponent {
   readonly calendar = signal<ActivityCalendar | null>(null);
   readonly courses = signal<Course[]>([]);
   readonly selectedCourseId = signal<number | null>(null);
+  readonly studentCourseName = signal<string>('');
   readonly visibleYear = signal(this.today.getFullYear());
   readonly visibleMonth = signal(this.today.getMonth() + 1);
   readonly isReadOnly = signal(false);
@@ -90,6 +104,10 @@ export class ActivitiesCalendarPageComponent {
   readonly weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   readonly monthLabel = computed(() => this.calendar()?.monthLabel ?? 'Cargando...');
   readonly selectedCourseName = computed(() => {
+    if (this.isReadOnly() && this.studentCourseName().trim()) {
+      return this.studentCourseName().trim();
+    }
+
     const selectedCourseId = this.selectedCourseId();
     if (!selectedCourseId) {
       return 'Todos los cursos';
@@ -165,13 +183,75 @@ export class ActivitiesCalendarPageComponent {
       year: 'numeric'
     }).format(new Date(`${this.selectedDate()}T00:00:00`))
   );
+  readonly studentLegendItems: StudentLegendItem[] = [
+    { key: 'exam', label: 'Prueba' },
+    { key: 'hw', label: 'Entrega' },
+    { key: 'event', label: 'Evento' },
+    { key: 'holiday', label: 'Feriado' },
+    { key: 'meeting', label: 'Reunion' }
+  ];
+  readonly studentVisibleDayActivities = computed(() =>
+    this.monthGrid().map((week) =>
+      week.map((day) => ({
+        ...day,
+        visibleActivities: day.activities.slice(0, 3)
+      }))
+    )
+  );
+  readonly studentMonthlyStats = computed<StudentMonthlyStatItem[]>(() => {
+    const monthlyActivities = this.calendar()?.monthlyActivities ?? [];
+    const today = new Date();
+    const weekStart = new Date(today);
+    const day = weekStart.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    weekStart.setDate(today.getDate() + diffToMonday);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    const totals = {
+      exam: 0,
+      hw: 0,
+      event: 0,
+      holiday: 0,
+      meeting: 0,
+      week: 0
+    };
+
+    for (const activity of monthlyActivities) {
+      const tone = this.studentActivityTone(activity);
+      totals[tone] += 1;
+
+      const activityDate = new Date(`${activity.date}T00:00:00`);
+      if (activityDate >= weekStart && activityDate <= weekEnd) {
+        totals.week += 1;
+      }
+    }
+
+    return [
+      { key: 'exam', label: 'Pruebas', value: totals.exam },
+      { key: 'hw', label: 'Entregas', value: totals.hw },
+      { key: 'event', label: 'Eventos', value: totals.event },
+      { key: 'meeting', label: 'Reuniones', value: totals.meeting },
+      { key: 'holiday', label: 'Feriados', value: totals.holiday },
+      { key: 'week', label: 'Esta semana', value: totals.week }
+    ];
+  });
 
   constructor() {
     this.activatedRoute.data.subscribe((data) => {
-      this.isReadOnly.set(Boolean(data['roles']?.includes?.('STUDENT')) || Boolean(data['readOnly']));
+      const readOnly = Boolean(data['roles']?.includes?.('STUDENT')) || Boolean(data['readOnly']);
+      this.isReadOnly.set(readOnly);
+
+      if (readOnly) {
+        this.loadStudentCalendarContext();
+        return;
+      }
+
+      this.loadCourses();
+      this.loadCalendar();
     });
-    this.loadCourses();
-    this.loadCalendar();
   }
 
   goToToday(): void {
@@ -457,6 +537,104 @@ export class ActivitiesCalendarPageComponent {
       .toUpperCase();
   }
 
+  studentActivityTone(activity: SchoolActivity): 'exam' | 'hw' | 'event' | 'holiday' | 'meeting' {
+    const code = this.normalizeText(activity.activityTypeCode);
+    const name = this.normalizeText(activity.activityTypeName);
+    const title = this.normalizeText(activity.title);
+
+    if (
+      code.includes('prueb') ||
+      code.includes('eval') ||
+      name.includes('prueb') ||
+      name.includes('evalu') ||
+      title.includes('prueb') ||
+      title.includes('evalu')
+    ) {
+      return 'exam';
+    }
+
+    if (
+      code.includes('tarea') ||
+      code.includes('entrega') ||
+      name.includes('tarea') ||
+      name.includes('entrega') ||
+      title.includes('entrega') ||
+      title.includes('trabajo') ||
+      title.includes('guia')
+    ) {
+      return 'hw';
+    }
+
+    if (
+      code.includes('feriad') ||
+      name.includes('feriad') ||
+      title.includes('feriad') ||
+      title.includes('vacacion') ||
+      title.includes('suspension')
+    ) {
+      return 'holiday';
+    }
+
+    if (
+      code.includes('reunion') ||
+      name.includes('reunion') ||
+      title.includes('reunion') ||
+      title.includes('consejo') ||
+      title.includes('apoderado')
+    ) {
+      return 'meeting';
+    }
+
+    return 'event';
+  }
+
+  studentActivityIcon(activity: SchoolActivity): string {
+    switch (this.studentActivityTone(activity)) {
+      case 'exam':
+        return 'assignment';
+      case 'hw':
+        return 'upload_file';
+      case 'holiday':
+        return 'flag';
+      case 'meeting':
+        return 'groups';
+      default:
+        return 'star';
+    }
+  }
+
+  studentActivityBadgeLabel(activity: SchoolActivity): string {
+    switch (this.studentActivityTone(activity)) {
+      case 'exam':
+        return 'Prueba';
+      case 'hw':
+        return 'Entrega';
+      case 'holiday':
+        return 'Feriado';
+      case 'meeting':
+        return 'Reunion';
+      default:
+        return 'Evento';
+    }
+  }
+
+  studentActivityChipClass(activity: SchoolActivity): string {
+    return `student-chip--${this.studentActivityTone(activity)}`;
+  }
+
+  studentSummaryStatClass(key: StudentMonthlyStatItem['key']): string {
+    return key === 'week' ? 'student-stat--week' : `student-stat--${key}`;
+  }
+
+  studentLegendDotClass(key: StudentLegendItem['key']): string {
+    return `student-legend__dot--${key}`;
+  }
+
+  studentMonthAriaLabel(): string {
+    const label = this.monthLabel();
+    return `Modulo de actividades mensuales, calendario academico de ${label}.`;
+  }
+
   formatCourseLabel(course: Course): string {
     const trimmedName = course.name.trim();
     const trimmedLetter = (course.letter ?? '').trim();
@@ -505,6 +683,49 @@ export class ActivitiesCalendarPageComponent {
     });
   }
 
+  private loadStudentCalendarContext(): void {
+    forkJoin({
+      dashboard: this.studentApiService.getDashboard().pipe(catchError(() => of(null))),
+      courses: this.courseApiService.findAll().pipe(catchError(() => of([] as Course[])))
+    }).subscribe(({ dashboard, courses }) => {
+      const activeCourses = courses.filter((course) => course.active);
+      this.courses.set(activeCourses);
+
+      const currentCourse = dashboard?.enrolledCourses[0] ?? null;
+      const currentCourseName = currentCourse?.courseName ?? '';
+      const resolvedCourseId =
+        this.resolveStudentCourseId(currentCourseName, activeCourses) ?? currentCourse?.id ?? null;
+
+      this.selectedCourseId.set(resolvedCourseId);
+      this.studentCourseName.set(currentCourseName);
+      this.loadCalendar();
+    });
+  }
+
+  private resolveStudentCourseId(courseName: string, courses: Course[]): number | null {
+    const normalizedStudentCourse = this.normalizeCourseLabel(courseName);
+    if (!normalizedStudentCourse) {
+      return null;
+    }
+
+    const directMatch = courses.find((course) => this.normalizeCourseLabel(this.formatCourseLabel(course)) === normalizedStudentCourse);
+    if (directMatch) {
+      return directMatch.id;
+    }
+
+    const nameMatch = courses.find((course) => this.normalizeCourseLabel(course.name) === normalizedStudentCourse);
+    return nameMatch?.id ?? null;
+  }
+
+  private normalizeCourseLabel(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
   private toIsoDate(date: Date): string {
     const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     return `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
@@ -518,6 +739,13 @@ export class ActivitiesCalendarPageComponent {
 
   private buildPdfFileName(monthLabel: string): string {
     return `calendario-${monthLabel.toLowerCase().replaceAll(' ', '-')}.pdf`;
+  }
+
+  private normalizeText(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 
   private downloadJsonFile(payload: unknown, year: number, courseName: string): void {

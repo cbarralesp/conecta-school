@@ -41,18 +41,16 @@
         </div>
 
         <div class="grid-2">
-          @if (editingUserId()) {
-            <label class="form-group">
-              <span class="form-label">Usuario</span>
-              <span class="input-with-icon">
-                <input class="form-input" type="text" formControlName="username" autocomplete="off" />
-                <mat-icon>alternate_email</mat-icon>
-              </span>
-              @if (getControlError('username')) {
-                <small class="field-error">{{ getControlError('username') }}</small>
-              }
-            </label>
-          }
+          <label class="form-group">
+            <span class="form-label">Usuario</span>
+            <span class="input-with-icon">
+              <input class="form-input" type="text" formControlName="username" autocomplete="off" />
+              <mat-icon>alternate_email</mat-icon>
+            </span>
+            @if (getControlError('username')) {
+              <small class="field-error">{{ getControlError('username') }}</small>
+            }
+          </label>
 
           <label class="form-group">
             <span class="form-label">Email institucional</span>

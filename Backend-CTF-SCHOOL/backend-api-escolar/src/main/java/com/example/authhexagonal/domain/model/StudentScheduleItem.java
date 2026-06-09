@@ -6,6 +6,7 @@ public record StudentScheduleItem(
         String endTime,
         String courseName,
         String subjectName,
-        String room
+        String room,
+        String subjectColorHex
 ) {
 }

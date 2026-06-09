@@ -1,6 +1,6 @@
 <app-teacher-modern-layout
   title=""
-  activeItem="dashboard"
+  [activeItem]="sidebarActiveItem()"
   dashboardRoute="/alumno"
   [userName]="fullStudentName()"
   userRole="Alumno"
@@ -15,97 +15,313 @@
       </section>
     } @else if (dashboard(); as dashboard) {
       @if (activeSection() === 'overview') {
-        <section class="overview-hero">
-          <div class="overview-hero__copy">
-            <h1>Hola, {{ welcomeName() }}</h1>
-            <p>Aqui tienes un resumen de tu actividad academica.</p>
-          </div>
+        <section class="student-dashboard">
+          <section class="profile-hero">
+            <div class="hero-banner">
+              <div class="hero-text">
+                <div class="hero-hi">Portal del estudiante · Bienvenida de nuevo</div>
+                <div class="hero-name">{{ heroFullName() }}</div>
+                <div class="hero-meta">{{ heroMeta() }}</div>
+                <div class="hero-chips">
+                  @for (highlight of heroHighlights(); track highlight.label) {
+                    <div class="hchip">
+                      <mat-icon>{{ highlight.icon }}</mat-icon>
+                      <span>{{ highlight.label }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
 
-          <div class="overview-hero__meta">
-            <mat-chip>{{ currentCourseLabel() }}</mat-chip>
-            <span class="hero-year">{{ currentYearLabel() }}</span>
-          </div>
-        </section>
-
-        <section class="stats-grid">
-          @for (card of cards(); track card.title) {
-            <mat-card appearance="outlined" class="stat-card" [class]="'tone-' + card.tone">
-              <mat-card-header class="stat-header">
-                <mat-card-title>{{ card.title }}</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <strong>{{ card.value }}</strong>
-                <span>{{ card.caption }}</span>
-              </mat-card-content>
-            </mat-card>
-          }
-        </section>
-
-        <section class="overview-panels">
-          <mat-card appearance="outlined" class="panel-card overview-panel">
-            <div class="panel-header">
-              <mat-card-title>Mis asignaturas</mat-card-title>
-              <button mat-button type="button" disabled>Ver todos</button>
+              <div class="hero-fig">
+                <div class="hero-avatar">
+                  {{ welcomeName().charAt(0).toUpperCase() }}
+                </div>
+              </div>
             </div>
 
-            <mat-card-content class="overview-list">
-              @if (overviewSubjects().length === 0) {
-                <section class="empty-inline">
-                  <mat-icon>school</mat-icon>
-                  <span>No hay asignaturas visibles para este estudiante.</span>
-                </section>
-              } @else {
-                @for (subject of overviewSubjects(); track subject.subjectName + subject.courseName) {
-                  <article class="overview-row overview-row--clickable" (click)="openSubjectDocuments(subject.subjectId)">
-                    <div class="overview-row__icon" [class]="'tone-' + subject.tone">
-                      <mat-icon>{{ subject.icon }}</mat-icon>
-                    </div>
-                    <div class="overview-row__copy">
-                      <strong>{{ subject.subjectName }}</strong>
-                      <span>{{ subject.courseName }}</span>
-                    </div>
-                    <div class="overview-row__score" [class.has-score]="subject.average !== null">
-                      {{ subject.average ?? subject.weeklyBlocks }}
-                    </div>
-                  </article>
-                }
+            <div class="hero-stats">
+              @for (stat of dashboardStats(); track stat.label) {
+                <div class="hstat">
+                  <div class="hstat-ico" [class]="'tone-' + stat.tone">
+                    <mat-icon>{{ stat.icon }}</mat-icon>
+                  </div>
+                  <div class="hstat-lbl">{{ stat.label }}</div>
+                  <div class="hstat-val">{{ stat.value }}</div>
+                  <div class="hstat-badge">{{ stat.helper }}</div>
+                </div>
               }
-            </mat-card-content>
-          </mat-card>
+            </div>
+          </section>
 
-          <mat-card appearance="outlined" class="panel-card overview-panel">
-            <div class="panel-header">
-              <mat-card-title>Proximas actividades</mat-card-title>
-              <button mat-button type="button" disabled>Ver calendario</button>
+          <section class="notas-card">
+            <div class="notas-head">
+              <div class="notas-head-l">
+                <mat-icon>grading</mat-icon>
+                <span>Mis notas · {{ currentYearLabel() }}</span>
+              </div>
+              <button mat-button type="button" (click)="openStudentRoute('/alumno/calificaciones')">Ver detalle</button>
             </div>
 
-            <mat-card-content class="overview-list">
-              @if (overviewActivities().length === 0) {
-                <section class="empty-inline">
-                  <mat-icon>event_busy</mat-icon>
-                  <span>No hay actividades proximas por ahora.</span>
-                </section>
-              } @else {
-                @for (activity of overviewActivities(); track activity.id) {
-                  <article class="overview-row overview-row--activity">
-                    <div class="overview-row__icon tone-sky">
-                      <mat-icon>event</mat-icon>
+            @if (topGradeSubjects().length === 0) {
+              <section class="empty-inline">
+                <mat-icon>grading</mat-icon>
+                <span>No hay notas registradas todavia.</span>
+              </section>
+            } @else {
+              <div class="notas-grid">
+                @for (subject of topGradeSubjects(); track subject.subjectName) {
+                  <div class="nota-col">
+                    <div class="nota-col-head">
+                      <div class="nch-subj">{{ subject.subjectName }}</div>
+                      <div class="nch-bar"></div>
                     </div>
-                    <div class="overview-row__copy">
-                      <strong>{{ activity.title }}</strong>
-                      <span>{{ activity.activityTypeName }}</span>
+                    <div class="nota-cells">
+                      @for (evaluation of subject.visibleEvaluations; track $index) {
+                        <div class="nc">
+                          <span class="nc-lbl">N{{ $index + 1 }}</span>
+                          <div class="nc-val" [class]="gradeCellClass(evaluation?.score)">
+                            {{ evaluation?.score?.toFixed(1) ?? '-' }}
+                          </div>
+                        </div>
+                      }
                     </div>
-                    <div class="overview-row__meta">
-                      <strong>{{ activity.date }}</strong>
-                      <span>{{ activity.location }}</span>
+                    <div class="nota-avg">
+                      <div class="avg-pill">{{ subject.average?.toFixed(1) ?? '-' }}</div>
                     </div>
-                  </article>
+                  </div>
                 }
-              }
-            </mat-card-content>
-          </mat-card>
+              </div>
+            }
+          </section>
+
+          <section class="two">
+            <div class="dashboard-stack">
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>calendar_month</mat-icon>
+                    <span>Horario de hoy</span>
+                  </div>
+                  <button mat-button type="button" (click)="openStudentRoute('/alumno/horario')">Ver semanal</button>
+                </div>
+
+                @if (todaySchedule().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>event_available</mat-icon>
+                    <span>No hay bloques programados para hoy.</span>
+                  </section>
+                } @else {
+                  <div class="sch-list">
+                    @for (item of todaySchedule(); track item.dayOfWeek + item.startTime + item.subjectName) {
+                      <div class="sr">
+                        <span class="sr-time">{{ item.startTime }}</span>
+                        <div class="sr-ico">
+                          <mat-icon>menu_book</mat-icon>
+                        </div>
+                        <div class="sr-info">
+                          <div class="sr-subj">{{ item.subjectName }}</div>
+                          <div class="sr-prof">{{ item.room || 'Sala por definir' }}</div>
+                        </div>
+                        <span class="sr-st" [class]="scheduleStateClass(item)">{{ scheduleState(item) }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>event</mat-icon>
+                    <span>Próximas actividades</span>
+                  </div>
+                  <button mat-button type="button" (click)="openStudentRoute('/alumno/actividades')">Ver todas</button>
+                </div>
+
+                @if (overviewActivities().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>event_busy</mat-icon>
+                    <span>No hay actividades proximas por ahora.</span>
+                  </section>
+                } @else {
+                  <div class="ev-list">
+                    @for (activity of overviewActivities(); track activity.id) {
+                      <div class="ev-item">
+                        <div class="ev-ico">
+                          <mat-icon>event_note</mat-icon>
+                        </div>
+                        <div class="ev-b">
+                          <div class="ev-s">{{ activity.title }}</div>
+                          <div class="ev-d">{{ activity.activityTypeName }}</div>
+                          <div class="ev-p">{{ activity.location }}</div>
+                        </div>
+                        <div class="ev-r">
+                          <div class="ev-date">{{ activity.date }}</div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>apps</mat-icon>
+                    <span>Accesos rápidos</span>
+                  </div>
+                </div>
+
+                <div class="quick-grid">
+                  @for (link of quickLinks(); track link.route) {
+                    <button class="quick-tile" type="button" (click)="openStudentRoute(link.route)">
+                      <mat-icon>{{ link.icon }}</mat-icon>
+                      <strong>{{ link.title }}</strong>
+                      <span>{{ link.description }}</span>
+                    </button>
+                  }
+                </div>
+              </section>
+            </div>
+
+            <div class="dashboard-stack">
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>bar_chart</mat-icon>
+                    <span>Mi rendimiento</span>
+                  </div>
+                </div>
+
+                @if (performanceSubjects().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>bar_chart</mat-icon>
+                    <span>Aun no hay suficiente informacion para mostrar rendimiento.</span>
+                  </section>
+                } @else {
+                  <div class="performance-list compact">
+                    @for (subject of performanceSubjects(); track subject.subjectName) {
+                      <article class="performance-item compact">
+                        <div class="performance-item__head">
+                          <strong>{{ subject.subjectName }}</strong>
+                          <span>{{ subject.average?.toFixed(1) ?? '-' }}</span>
+                        </div>
+                        <div class="performance-item__track">
+                          <div class="performance-item__fill" [style.width]="scoreTrackWidth(subject.average)"></div>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>fact_check</mat-icon>
+                    <span>Asistencia de este mes</span>
+                  </div>
+                  <button mat-button type="button" (click)="openStudentRoute('/alumno/asistencia')">Ver detalle</button>
+                </div>
+
+                <div class="attendance-panel">
+                  @if (attendanceWeek().length > 0) {
+                    <div class="attendance-week compact">
+                      @for (day of attendanceWeek(); track day.date) {
+                        <div class="attendance-week__day">
+                          <span>{{ day.dayLabel }}</span>
+                          <div class="attendance-week__dot" [class]="attendanceDayClass(day.status)"></div>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <div class="attendance-ring">
+                    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                      <circle cx="18" cy="18" r="14" stroke="#e5e7eb" stroke-width="4"></circle>
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="14"
+                        stroke="#10b981"
+                        stroke-width="4"
+                        stroke-linecap="round"
+                        [attr.stroke-dasharray]="87.9646"
+                        [attr.stroke-dashoffset]="attendanceRingOffset()"></circle>
+                    </svg>
+                    <div class="attendance-ring__copy">
+                      <strong>{{ attendanceOverview().percentage }}%</strong>
+                      <span>{{ attendanceOverview().label }}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>menu_book</mat-icon>
+                    <span>Mis asignaturas</span>
+                  </div>
+                  <button mat-button type="button" (click)="openStudentRoute('/alumno/asignaturas')">Ver todas</button>
+                </div>
+
+                @if (overviewSubjects().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>school</mat-icon>
+                    <span>No hay asignaturas visibles para este estudiante.</span>
+                  </section>
+                } @else {
+                  <div class="subject-list compact">
+                    @for (subject of overviewSubjects(); track subject.subjectName + subject.courseName) {
+                      <article class="subject-list__item compact" (click)="openSubjectDocuments(subject.subjectId)">
+                        <span class="subject-list__icon" [class]="'tone-' + subject.tone">
+                          <mat-icon>{{ subject.icon }}</mat-icon>
+                        </span>
+                        <div class="subject-list__copy">
+                          <strong>{{ subject.subjectName }}</strong>
+                          <span>{{ subject.teacherName }}</span>
+                        </div>
+                        <span class="subject-list__meta">{{ subject.average ?? subject.weeklyBlocks }}</span>
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+
+              <section class="card">
+                <div class="ch">
+                  <div class="ch-l">
+                    <mat-icon>chat</mat-icon>
+                    <span>Observaciones recientes</span>
+                  </div>
+                </div>
+
+                @if (recentObservations().length === 0) {
+                  <section class="empty-inline">
+                    <mat-icon>chat_bubble_outline</mat-icon>
+                    <span>No hay observaciones recientes.</span>
+                  </section>
+                } @else {
+                  <div class="ob-list">
+                    @for (record of recentObservations(); track record.date + record.note) {
+                      <div class="ob-row">
+                        <div class="ob-ic">
+                          <mat-icon>notes</mat-icon>
+                        </div>
+                        <div>
+                          <div class="ob-t">{{ record.note }}</div>
+                          <div class="ob-m">{{ record.date }} · {{ record.timeLabel }}</div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </section>
+            </div>
+          </section>
         </section>
-      } @else if (isSectionActive('courses') || isSectionActive('subjects')) {
+      } @else if (isSectionActive('courses')) {
         <section class="courses-browser">
           <div class="courses-browser__header">
             <div>
@@ -148,6 +364,83 @@
             </div>
           }
         </section>
+      } @else if (isSectionActive('subjects')) {
+        <section class="courses-browser student-subjects-browser" style="border-radius:24px;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);box-shadow:0 18px 40px rgba(15,23,42,.06);padding:.95rem .95rem 1rem">
+          <div class="courses-browser__header student-subjects-browser__header" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:1rem;margin-bottom:.95rem">
+            <div class="student-subjects-title" style="display:flex;align-items:center;gap:.8rem;min-width:0">
+              <div class="student-subjects-title__badge" style="width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#eef4ff;color:#2c66c8;flex:0 0 auto">
+                <mat-icon style="width:22px;height:22px;font-size:22px">auto_stories</mat-icon>
+              </div>
+              <div>
+                <h2 style="margin:0;font-size:1.55rem;font-weight:800;line-height:1.08;color:#173553">Mis asignaturas</h2>
+                <p style="margin:.25rem 0 0;font-size:.95rem;font-weight:500;line-height:1.4;color:#6b8099">Revisa las asignaturas de tu curso actual.</p>
+              </div>
+            </div>
+
+            <div class="student-subjects-tools" style="display:flex;align-items:center;justify-content:flex-end;gap:.85rem;flex-wrap:wrap">
+              <span style="display:inline-flex;align-items:center;min-height:42px;padding:0 .95rem;border-radius:14px;background:#f8fbff;box-shadow:inset 0 0 0 1px #dce7f5;color:#315a92;font-size:.86rem;font-weight:700;white-space:nowrap">
+                {{ currentCourseLabel() }}
+              </span>
+              <label aria-label="Buscar asignatura" style="width:340px;min-height:44px;padding:0 .9rem;display:flex;align-items:center;gap:.65rem;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px #dbe5f1,0 8px 20px rgba(15,23,42,.04);color:#94a3b8">
+                <mat-icon style="color:#8ca0b8">search</mat-icon>
+                <input
+                  type="text"
+                  [value]="studentSearch()"
+                  (input)="updateStudentSearch(($any($event.target).value ?? '').toString())"
+                  placeholder="Buscar asignatura..."
+                  style="width:100%;border:0;outline:0;background:transparent;color:#334155;font-size:var(--student-font-body);font-weight:500;font-family:inherit"
+                />
+              </label>
+            </div>
+          </div>
+
+          @if (subjectBrowserCards().length === 0) {
+            <section class="empty-inline">
+              <mat-icon>school</mat-icon>
+              <span>No hay asignaturas visibles para este estudiante.</span>
+            </section>
+          } @else {
+            <div class="subjects-card-grid student-subjects-grid" style="gap:1.1rem">
+              @for (subject of subjectBrowserCards(); track subject.subjectId) {
+                <article class="subject-card student-subject-card" style="min-height:224px;padding:1.2rem;border-radius:24px;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);box-shadow:0 14px 30px rgba(15,23,42,.05), inset 0 0 0 1px rgba(203,213,225,.7);gap:1rem">
+                  <div class="student-subject-card__top" style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
+                    <div class="subject-card__icon student-subject-card__icon" [class]="'tone-' + subject.tone" style="width:70px;height:70px;border-radius:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.65)">
+                      <mat-icon style="font-size:34px;width:34px;height:34px">{{ subject.icon }}</mat-icon>
+                    </div>
+
+                    <button
+                      mat-icon-button
+                      type="button"
+                      aria-label="Opciones de la asignatura"
+                      [matMenuTriggerFor]="subjectMenu"
+                      (click)="$event.stopPropagation()"
+                      style="color:#64748b;background:#f8fafc;box-shadow:inset 0 0 0 1px #e2e8f0"
+                    >
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu #subjectMenu="matMenu">
+                      <button mat-menu-item type="button" (click)="openSubjectDocuments(subject.subjectId)">
+                        <mat-icon>visibility</mat-icon>
+                        <span>Ver asignatura</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+
+                  <div class="subject-card__copy student-subject-card__copy" style="gap:.32rem">
+                    <strong style="font-size:var(--student-font-section);font-weight:800;letter-spacing:-.02em;color:#0f172a;line-height:1.22">{{ subject.subjectName }}</strong>
+                    <span style="font-size:var(--student-font-body);font-weight:500;color:#64748b">{{ subject.teacherName || 'Profesor pendiente' }}</span>
+                  </div>
+
+                  <div class="subject-card__footer student-subject-card__footer" style="margin-top:auto">
+                    <button mat-stroked-button type="button" style="width:100%;min-height:42px;border-radius:14px;border-color:#d6ddf8;color:#4f46e5;font-size:var(--student-font-body);font-weight:800;background:#fff" (click)="openSubjectDocuments(subject.subjectId)">
+                      Ver asignatura
+                    </button>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
       } @else if (isSectionActive('schedule')) {
         <section class="schedule-browser">
           <div class="schedule-browser__header">
@@ -157,7 +450,19 @@
               </div>
               <div>
                 <h2>Horario semanal</h2>
+                <p>Consulta tus clases y bloques asignados durante la semana.</p>
               </div>
+            </div>
+            <div class="schedule-browser__actions">
+              <button
+                mat-stroked-button
+                type="button"
+                class="student-export-button"
+                (click)="downloadStudentSchedulePdf()"
+                [disabled]="isExportingSchedulePdf()">
+                <mat-icon>picture_as_pdf</mat-icon>
+                {{ isExportingSchedulePdf() ? 'Generando PDF...' : 'Descargar PDF' }}
+              </button>
             </div>
           </div>
 
@@ -167,61 +472,152 @@
               <span>No hay bloques de horario asignados.</span>
             </section>
           } @else {
-            <section class="schedule-board">
-              <div class="schedule-grid schedule-grid--header">
-                <div class="schedule-grid__time-head"></div>
-                @for (day of scheduleWeekDays(); track day.key) {
-                  <div class="schedule-grid__day-head">
-                    <strong>{{ day.shortLabel }}</strong>
+            <section class="schedule-table-wrap">
+              <div class="schedule-table">
+                <div class="sch-row header">
+                  <div class="sch-cell time">Hora</div>
+                  @for (day of scheduleWeekDays(); track day.key) {
+                    <div class="sch-cell day-header" [class.active]="day.isToday">
+                      <div class="day-name">{{ day.fullLabel }}</div>
+                    </div>
+                  }
+                </div>
+
+                @for (row of scheduleRows(); track row.startTime) {
+                  <div class="sch-row">
+                    <div class="sch-cell time">
+                      <span>{{ row.startTime }} - {{ row.endTime }}</span>
+                    </div>
+
+                    @for (cell of row.blocks; track cell.dayKey + '-' + $index) {
+                      <div class="sch-cell">
+                        @if (cell.item; as item) {
+                          <article
+                            class="subj-card"
+                            [ngClass]="scheduleSubjectCardClasses(item)"
+                            [ngStyle]="scheduleSubjectStyles(item)">
+                            <div class="subj-top">
+                              <div class="subj-icon">
+                                <mat-icon>{{ scheduleSubjectIcon(item.subjectName) }}</mat-icon>
+                              </div>
+                              <div class="subj-name">{{ item.subjectName }}</div>
+                            </div>
+                          </article>
+                        }
+                      </div>
+                    }
                   </div>
                 }
               </div>
+            </section>
 
-              @for (row of scheduleRows(); track row.startTime) {
-                <div class="schedule-grid schedule-grid--row">
-                  <div class="schedule-grid__time-cell">{{ row.startTime }}</div>
-                  @for (cell of row.blocks; track cell.dayKey + '-' + $index) {
-                    <div class="schedule-grid__cell">
-                      @if (cell.item; as item) {
-                        <article class="schedule-grid__event" [class]="cell.tone">
-                          <strong>{{ item.subjectName }}</strong>
-                          <span>{{ item.room || 'Sala por definir' }}</span>
-                        </article>
+            <section class="student-schedule-pdf-shell" aria-hidden="true">
+              <article #studentSchedulePdf class="student-schedule-pdf-card">
+                <header class="student-schedule-pdf-header">
+                  <div class="student-schedule-pdf-brand">
+                    <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                    <div>
+                      <span>Colegio Torre Fuerte School</span>
+                      <strong>Horario semanal</strong>
+                      <small>Control institucional · Plataforma ConectaSchool</small>
+                      <small>{{ fullStudentName() }} · {{ currentCourseLabel() }}</small>
+                    </div>
+                  </div>
+                </header>
+
+                <div class="student-schedule-pdf-table">
+                  <div class="sch-row header">
+                    <div class="sch-cell time">Hora</div>
+                    @for (day of scheduleWeekDays(); track day.key) {
+                      <div class="sch-cell day-header" [class.active]="day.isToday">
+                        <div class="day-name">{{ day.fullLabel }}</div>
+                      </div>
+                    }
+                  </div>
+
+                  @for (row of scheduleRows(); track row.startTime) {
+                    <div class="sch-row">
+                      <div class="sch-cell time">
+                        <span>{{ row.startTime }} - {{ row.endTime }}</span>
+                      </div>
+
+                      @for (cell of row.blocks; track cell.dayKey + '-pdf-' + $index) {
+                        <div class="sch-cell">
+                          @if (cell.item; as item) {
+                            <article
+                              class="subj-card"
+                              [ngClass]="scheduleSubjectCardClasses(item)"
+                              [ngStyle]="scheduleSubjectStyles(item)">
+                              <div class="subj-top">
+                                <div class="subj-icon">
+                                  <mat-icon>{{ scheduleSubjectIcon(item.subjectName) }}</mat-icon>
+                                </div>
+                                <div class="subj-name">{{ item.subjectName }}</div>
+                              </div>
+                            </article>
+                          }
+                        </div>
                       }
                     </div>
                   }
                 </div>
-              }
+              </article>
             </section>
           }
         </section>
       } @else if (isSectionActive('grades')) {
-        <section class="grades-browser">
-          <div class="grades-browser__header">
-            <div class="grades-title">
+        <section class="grades-browser" style="gap:1rem;padding:.95rem;background:rgba(255,255,255,.96);border-radius:24px;box-shadow:0 18px 40px rgba(15,23,42,.04)">
+          <div class="grades-browser__header" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:1rem;margin-bottom:0">
+            <div class="grades-title" style="display:flex;align-items:center;gap:.8rem">
               <div class="grades-title__icon">
                 <mat-icon>bar_chart</mat-icon>
               </div>
               <div>
-                <h2>Evaluaciones</h2>
-                <p>Revisa tus notas por asignatura, evaluaciones registradas y promedio academico.</p>
+                <h2>Mis evaluaciones</h2>
+                <p>Consulta tus evaluaciones registradas, notas por asignatura y promedio general.</p>
               </div>
             </div>
-            <span class="hero-year">{{ currentYearLabel() }}</span>
+            <div style="display:flex;align-items:center;justify-content:flex-end;justify-self:end">
+              <span class="hero-year">{{ currentYearLabel() }}</span>
+            </div>
           </div>
 
           <section class="grades-summary-row">
             <article class="grades-summary-card tone-brand-soft">
-              <span>Asignaturas evaluadas</span>
+              <div style="display:flex;align-items:center;justify-content:center;gap:.85rem;margin-bottom:.35rem;width:100%">
+                <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto" class="tone-brand">
+                  <mat-icon>library_books</mat-icon>
+                </div>
+                <div style="display:grid;gap:.12rem;justify-items:center">
+                  <span style="color:#8a9bb5;font-size:var(--student-font-label);font-weight:600">Asignaturas evaluadas</span>
+                </div>
+              </div>
               <strong>{{ gradeSubjects().length }}</strong>
+              <small style="font-size:var(--student-font-body);color:#5f7398">Carga con registro de calificaciones</small>
             </article>
             <article class="grades-summary-card tone-success-soft">
-              <span>Evaluaciones registradas</span>
+              <div style="display:flex;align-items:center;justify-content:center;gap:.85rem;margin-bottom:.35rem;width:100%">
+                <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto" class="tone-success">
+                  <mat-icon>fact_check</mat-icon>
+                </div>
+                <div style="display:grid;gap:.12rem;justify-items:center">
+                  <span style="color:#8a9bb5;font-size:var(--student-font-label);font-weight:600">Evaluaciones registradas</span>
+                </div>
+              </div>
               <strong>{{ totalEvaluationsCount() }}</strong>
+              <small style="font-size:var(--student-font-body);color:#5f7398">Notas visibles en el periodo actual</small>
             </article>
             <article class="grades-summary-card tone-violet-soft">
-              <span>Promedio general</span>
+              <div style="display:flex;align-items:center;justify-content:center;gap:.85rem;margin-bottom:.35rem;width:100%">
+                <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto" class="tone-violet">
+                  <mat-icon>emoji_events</mat-icon>
+                </div>
+                <div style="display:grid;gap:.12rem;justify-items:center">
+                  <span style="color:#8a9bb5;font-size:var(--student-font-label);font-weight:600">Promedio general</span>
+                </div>
+              </div>
               <strong>{{ gradesOverallAverage() }}</strong>
+              <small style="font-size:var(--student-font-body);color:#5f7398">Resumen academico consolidado</small>
             </article>
           </section>
 

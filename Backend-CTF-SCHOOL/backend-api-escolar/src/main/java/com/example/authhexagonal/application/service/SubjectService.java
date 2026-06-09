@@ -37,7 +37,9 @@ public class SubjectService implements ManageSubjectsUseCase {
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     ) {
         validateDuplicateCode(code, null);
         return manageSubjectsPort.createSubject(
@@ -48,7 +50,9 @@ public class SubjectService implements ManageSubjectsUseCase {
                 description,
                 referenceLevel,
                 suggestedHours,
-                teacherIds == null ? List.of() : teacherIds
+                teacherIds == null ? List.of() : teacherIds,
+                applicableGradeIds == null ? List.of() : applicableGradeIds,
+                applicableCourseIds == null ? List.of() : applicableCourseIds
         );
     }
 
@@ -62,7 +66,9 @@ public class SubjectService implements ManageSubjectsUseCase {
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     ) {
         findById(subjectId);
         validateDuplicateCode(code, subjectId);
@@ -75,7 +81,9 @@ public class SubjectService implements ManageSubjectsUseCase {
                 description,
                 referenceLevel,
                 suggestedHours,
-                teacherIds == null ? List.of() : teacherIds
+                teacherIds == null ? List.of() : teacherIds,
+                applicableGradeIds == null ? List.of() : applicableGradeIds,
+                applicableCourseIds == null ? List.of() : applicableCourseIds
         );
     }
 

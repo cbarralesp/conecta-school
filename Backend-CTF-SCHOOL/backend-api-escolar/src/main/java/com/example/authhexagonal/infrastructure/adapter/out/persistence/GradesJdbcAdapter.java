@@ -332,6 +332,48 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     }
 
     private String activeCourseSubjectsSubquery() {
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            return """
+                    SELECT DISTINCT ca."CURSO_ID", ca."ASIGNATURA_ID"
+                    FROM "CURSO_ASIGNATURAS" ca
+                    WHERE ca."ACTIVA" = TRUE
+                      AND (
+                        NOT EXISTS (
+                            SELECT 1
+                            FROM "ASIGNATURA_CURSOS" ac_any
+                            WHERE ac_any."ASIGNATURA_ID" = ca."ASIGNATURA_ID"
+                              AND ac_any."ACTIVA" = TRUE
+                        )
+                        OR EXISTS (
+                            SELECT 1
+                            FROM "ASIGNATURA_CURSOS" ac_match
+                            WHERE ac_match."ASIGNATURA_ID" = ca."ASIGNATURA_ID"
+                              AND ac_match."CURSO_ID" = ca."CURSO_ID"
+                              AND ac_match."ACTIVA" = TRUE
+                        )
+                      )
+                    UNION
+                    SELECT DISTINCT cd."CURSO_ID", cd."ASIGNATURA_ID"
+                    FROM "CARGAS_DOCENTES" cd
+                    WHERE cd."ACTIVA" = TRUE
+                      AND (
+                        NOT EXISTS (
+                            SELECT 1
+                            FROM "ASIGNATURA_CURSOS" ac_any
+                            WHERE ac_any."ASIGNATURA_ID" = cd."ASIGNATURA_ID"
+                              AND ac_any."ACTIVA" = TRUE
+                        )
+                        OR EXISTS (
+                            SELECT 1
+                            FROM "ASIGNATURA_CURSOS" ac_match
+                            WHERE ac_match."ASIGNATURA_ID" = cd."ASIGNATURA_ID"
+                              AND ac_match."CURSO_ID" = cd."CURSO_ID"
+                              AND ac_match."ACTIVA" = TRUE
+                        )
+                      )
+                    """;
+        }
+
         return """
                 SELECT DISTINCT ca."CURSO_ID", ca."ASIGNATURA_ID"
                 FROM "CURSO_ASIGNATURAS" ca
@@ -341,6 +383,18 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 FROM "CARGAS_DOCENTES" cd
                 WHERE cd."ACTIVA" = TRUE
                 """;
+    }
+
+    private boolean tableExists(String tableName) {
+        Boolean exists = jdbcTemplate.queryForObject("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM information_schema.tables
+                    WHERE table_schema = 'public'
+                      AND UPPER(table_name) = UPPER(?)
+                )
+                """, Boolean.class, tableName);
+        return Boolean.TRUE.equals(exists);
     }
 
     private void syncSequence(String tableName, String columnName) {

@@ -89,6 +89,7 @@ export interface StudentScheduleItem {
   courseName: string;
   subjectName: string;
   room: string;
+  subjectColorHex?: string | null;
 }
 
 export interface StudentLatestGrade {
@@ -151,12 +152,18 @@ export interface StudentAttendanceRecord {
   note: string;
 }
 
+export interface StudentAttendanceHistoryDay {
+  date: string;
+  status: string;
+}
+
 export interface StudentAttendanceDetail {
   header: StudentAttendanceHeader;
   summary: StudentAttendanceSummary;
   currentMonth: StudentAttendanceMonthSummary;
   currentWeek: StudentAttendanceWeekDay[];
   recentRecords: StudentAttendanceRecord[];
+  historyDays: StudentAttendanceHistoryDay[];
 }
 
 export interface StudentUpcomingActivity {

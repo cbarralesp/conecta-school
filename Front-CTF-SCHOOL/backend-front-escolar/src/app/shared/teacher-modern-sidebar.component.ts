@@ -51,7 +51,7 @@ type ModernNavSection = {
                     mat-list-item
                     [routerLink]="item.route"
                     routerLinkActive="is-active"
-                    [routerLinkActiveOptions]="{ exact: item.exact ?? item.key === activeItem }"
+                    [routerLinkActiveOptions]="{ exact: item.exact ?? item.key === 'dashboard' }"
                     [class.is-selected]="activeItem === item.key"
                   >
                     <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>

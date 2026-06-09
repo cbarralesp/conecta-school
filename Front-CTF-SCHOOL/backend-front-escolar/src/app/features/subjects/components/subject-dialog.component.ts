@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { startWith } from 'rxjs';
-import { TeacherCatalogItem } from '../../../core/models/course.models';
+import { Course, TeacherCatalogItem } from '../../../core/models/course.models';
 import { Subject } from '../../../core/models/subject.models';
 import { CourseApiService } from '../../../core/services/course-api.service';
 
@@ -69,7 +69,11 @@ interface SubjectDialogData {
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Nivel de referencia</mat-label>
-            <input matInput formControlName="referenceLevel" />
+            <mat-select formControlName="referenceLevel">
+              @for (level of levelOptions; track level.value) {
+                <mat-option [value]="level.value">{{ level.label }}</mat-option>
+              }
+            </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Horas sugeridas</mat-label>
@@ -95,6 +99,39 @@ interface SubjectDialogData {
               </div>
             </div>
           </div>
+
+          <section class="span-2 teacher-picker">
+            <div class="teacher-picker__header">
+              <div>
+                <span class="teacher-picker__title">Cursos aplicables</span>
+                <p>Opcional. Si no seleccionas cursos, la asignatura se mantendra disponible para todos los cursos activos.</p>
+              </div>
+              <span class="teacher-picker__count">{{ selectedCourseLabels().length }} seleccionados</span>
+            </div>
+
+            <mat-form-field appearance="outline" class="teacher-picker__field">
+              <mat-label>Cursos activos</mat-label>
+              <mat-select formControlName="applicableCourseIds" multiple>
+                @for (course of activeCourseOptions(); track course.id) {
+                  <mat-option [value]="course.id">
+                    {{ course.name }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            @if (selectedCourseLabels().length > 0) {
+              <div class="teacher-picker__selected">
+                @for (courseName of selectedCourseLabels(); track courseName) {
+                  <span class="teacher-chip">
+                    <span>{{ courseName }}</span>
+                  </span>
+                }
+              </div>
+            } @else {
+              <div class="teacher-picker__empty">Sin cursos especificos. Se aplicara a todos los cursos activos disponibles.</div>
+            }
+          </section>
 
           <section class="span-2 teacher-picker">
             <div class="teacher-picker__header">
@@ -429,11 +466,18 @@ interface SubjectDialogData {
   encapsulation: ViewEncapsulation.None
 })
 export class SubjectDialogComponent {
+  private readonly referenceLevelOptions = [
+    { value: 'Inicial', label: 'Inicial' },
+    { value: 'Básico', label: 'Básico' },
+    { value: 'Media', label: 'Media' }
+  ] as const;
   private readonly formBuilder = inject(FormBuilder);
   private readonly courseApiService = inject(CourseApiService);
   readonly dialogRef = inject(MatDialogRef<SubjectDialogComponent>);
   readonly data = inject<SubjectDialogData | null>(MAT_DIALOG_DATA, { optional: true }) ?? {};
   readonly teachers = signal<TeacherCatalogItem[]>([]);
+  readonly activeCourseOptions = signal<Course[]>([]);
+  readonly levelOptions = this.referenceLevelOptions;
   readonly selectedTeacherIds = signal<number[]>(this.data.subject?.assignedTeachers.map((teacher) => teacher.id) ?? []);
   readonly form = this.formBuilder.nonNullable.group({
     code: [this.data.subject?.code ?? '', [Validators.required, Validators.maxLength(30)]],
@@ -444,19 +488,31 @@ export class SubjectDialogComponent {
       [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)]
     ],
     description: [this.data.subject?.description ?? '', [Validators.maxLength(500)]],
-    referenceLevel: [this.data.subject?.referenceLevel ?? 'Ensenanza basica', [Validators.maxLength(80)]],
+    referenceLevel: [this.data.subject?.referenceLevel ?? 'Básico', [Validators.maxLength(80)]],
     suggestedHours: [this.data.subject?.suggestedHours ?? 2, [Validators.required, Validators.min(1), Validators.max(20)]],
-    teacherIds: [this.data.subject?.assignedTeachers.map((teacher) => teacher.id) ?? []]
+    teacherIds: [this.data.subject?.assignedTeachers.map((teacher) => teacher.id) ?? []],
+    applicableGradeIds: [this.data.subject?.applicableGradeIds ?? []],
+    applicableCourseIds: [this.data.subject?.applicableCourseIds ?? []]
   });
   readonly selectedTeachers = computed(() => {
     const selectedIds = new Set(this.selectedTeacherIds());
     return this.teachers().filter((teacher) => selectedIds.has(teacher.id));
+  });
+  readonly selectedCourseLabels = computed(() => {
+    const selectedIds = new Set(this.form.controls.applicableCourseIds.value);
+    return this.activeCourseOptions()
+      .filter((course) => selectedIds.has(course.id))
+      .map((course) => course.name);
   });
 
   constructor() {
     this.courseApiService.searchTeachers('').subscribe({
       next: (teachers) => this.teachers.set(teachers),
       error: () => this.teachers.set([])
+    });
+    this.courseApiService.findAll().subscribe({
+      next: (courses) => this.activeCourseOptions.set(courses.filter((course) => course.active)),
+      error: () => this.activeCourseOptions.set([])
     });
     this.form.controls.teacherIds.valueChanges
       .pipe(startWith(this.form.controls.teacherIds.value))

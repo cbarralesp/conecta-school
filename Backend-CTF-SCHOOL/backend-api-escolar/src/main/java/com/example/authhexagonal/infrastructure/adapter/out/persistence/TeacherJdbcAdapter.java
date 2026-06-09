@@ -197,7 +197,11 @@ public class TeacherJdbcAdapter {
                 rs.getString("NIVEL_REFERENCIA"),
                 rs.getInt("HORAS_SUGERIDAS"),
                 rs.getBoolean("ACTIVA"),
-                List.of()
+                List.of(),
+                findApplicableGradeIdsBySubjectId(rs.getLong("ID")),
+                findApplicableGradeNamesBySubjectId(rs.getLong("ID")),
+                findApplicableCourseIdsBySubjectId(rs.getLong("ID")),
+                findApplicableCourseNamesBySubjectId(rs.getLong("ID"))
         ));
     }
 
@@ -240,7 +244,11 @@ public class TeacherJdbcAdapter {
                 rs.getLong("ID"), rs.getString("CODIGO"), rs.getString("NOMBRE"), rs.getString("AREA"),
                 rs.getString("COLOR_HEX"), rs.getString("DESCRIPCION"), rs.getString("NIVEL_REFERENCIA"),
                 rs.getString("NIVEL_REFERENCIA"),
-                rs.getInt("HORAS_SUGERIDAS"), rs.getBoolean("ACTIVA"), List.of()
+                rs.getInt("HORAS_SUGERIDAS"), rs.getBoolean("ACTIVA"), List.of(),
+                findApplicableGradeIdsBySubjectId(rs.getLong("ID")),
+                findApplicableGradeNamesBySubjectId(rs.getLong("ID")),
+                findApplicableCourseIdsBySubjectId(rs.getLong("ID")),
+                findApplicableCourseNamesBySubjectId(rs.getLong("ID"))
         ), args);
     }
 
@@ -424,7 +432,7 @@ public class TeacherJdbcAdapter {
         String roleCode = resolveRoleCodeForStaffType(staffType);
         Long roleId = ensureRoleId(
                 roleCode,
-                roleCode.equals("PROFESOR") ? "Profesor" : "Secretaria",
+                roleCode.equals("PROFESOR") ? "Profesor" : "Asistente",
                 roleCode.equals("PROFESOR")
                         ? "Usuario docente con acceso a gestion academica y evaluacion."
                         : "Usuario asistente con acceso administrativo interno.",
@@ -632,6 +640,10 @@ public class TeacherJdbcAdapter {
             );
 
             for (Long subjectId : subjectIds) {
+                if (!subjectAppliesToCourse(subjectId, courseId)) {
+                    continue;
+                }
+
                 Integer suggestedHours = jdbcTemplate.queryForObject(
                         "SELECT COALESCE(\"HORAS_SUGERIDAS\", 1) FROM \"ASIGNATURAS\" WHERE \"ID\" = ?",
                         Integer.class,
@@ -867,6 +879,120 @@ public class TeacherJdbcAdapter {
                 "ORDER BY \"NOMBRE\"";
     }
 
+    private List<Long> findApplicableGradeIdsBySubjectId(Long subjectId) {
+        if (!tableExists("ASIGNATURA_GRADOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT "GRADO_ID"
+                FROM "ASIGNATURA_GRADOS"
+                WHERE "ASIGNATURA_ID" = ?
+                  AND "ACTIVA" = TRUE
+                ORDER BY "GRADO_ID"
+                """, (rs, rowNum) -> rs.getLong("GRADO_ID"), subjectId);
+    }
+
+    private List<Long> findApplicableCourseIdsBySubjectId(Long subjectId) {
+        if (!tableExists("ASIGNATURA_CURSOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT "CURSO_ID"
+                FROM "ASIGNATURA_CURSOS"
+                WHERE "ASIGNATURA_ID" = ?
+                  AND "ACTIVA" = TRUE
+                ORDER BY "CURSO_ID"
+                """, (rs, rowNum) -> rs.getLong("CURSO_ID"), subjectId);
+    }
+
+    private List<String> findApplicableGradeNamesBySubjectId(Long subjectId) {
+        if (!tableExists("ASIGNATURA_GRADOS") || !tableExists("CURSO_GRADOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT cg."NOMBRE"
+                FROM "ASIGNATURA_GRADOS" ag
+                JOIN "CURSO_GRADOS" cg
+                  ON cg."ID" = ag."GRADO_ID"
+                WHERE ag."ASIGNATURA_ID" = ?
+                  AND ag."ACTIVA" = TRUE
+                  AND cg."ACTIVO" = TRUE
+                ORDER BY cg."ORDEN", cg."NOMBRE"
+                """, (rs, rowNum) -> rs.getString("NOMBRE"), subjectId);
+    }
+
+    private List<String> findApplicableCourseNamesBySubjectId(Long subjectId) {
+        if (!tableExists("ASIGNATURA_CURSOS") || !tableExists("CURSOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT c."NOMBRE" || CASE WHEN COALESCE(c."LETRA", '') <> '' THEN ' ' || c."LETRA" ELSE '' END AS "COURSE_NAME"
+                FROM "ASIGNATURA_CURSOS" ac
+                JOIN "CURSOS" c
+                  ON c."ID" = ac."CURSO_ID"
+                WHERE ac."ASIGNATURA_ID" = ?
+                  AND ac."ACTIVA" = TRUE
+                  AND c."ACTIVO" = TRUE
+                ORDER BY c."ANIO_ESCOLAR" DESC, c."NOMBRE", c."LETRA"
+                """, (rs, rowNum) -> rs.getString("COURSE_NAME"), subjectId);
+    }
+
+    private boolean subjectAppliesToCourse(Long subjectId, Long courseId) {
+        if (tableExists("ASIGNATURA_CURSOS")) {
+            Integer scopedCourseCount = jdbcTemplate.queryForObject("""
+                    SELECT COUNT(1)
+                    FROM "ASIGNATURA_CURSOS"
+                    WHERE "ASIGNATURA_ID" = ?
+                      AND "ACTIVA" = TRUE
+                    """, Integer.class, subjectId);
+            if (scopedCourseCount != null && scopedCourseCount > 0) {
+                Integer matchingCourseCount = jdbcTemplate.queryForObject("""
+                        SELECT COUNT(1)
+                        FROM "ASIGNATURA_CURSOS" ac
+                        JOIN "CURSOS" c
+                          ON c."ID" = ac."CURSO_ID"
+                        WHERE ac."ASIGNATURA_ID" = ?
+                          AND ac."CURSO_ID" = ?
+                          AND ac."ACTIVA" = TRUE
+                          AND c."ACTIVO" = TRUE
+                        """, Integer.class, subjectId, courseId);
+                return matchingCourseCount != null && matchingCourseCount > 0;
+            }
+        }
+
+        if (!tableExists("ASIGNATURA_GRADOS")
+                || !tableExists("CURSO_GRADOS")
+                || !columnExists("CURSOS", "GRADO_ID")) {
+            return true;
+        }
+
+        Integer scopedGradeCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "ASIGNATURA_GRADOS"
+                WHERE "ASIGNATURA_ID" = ?
+                  AND "ACTIVA" = TRUE
+                """, Integer.class, subjectId);
+        if (scopedGradeCount == null || scopedGradeCount == 0) {
+            return true;
+        }
+
+        Integer matchingCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "CURSOS" c
+                JOIN "ASIGNATURA_GRADOS" ag
+                  ON ag."GRADO_ID" = c."GRADO_ID"
+                 AND ag."ASIGNATURA_ID" = ?
+                 AND ag."ACTIVA" = TRUE
+                WHERE c."ID" = ?
+                  AND c."ACTIVO" = TRUE
+                """, Integer.class, subjectId, courseId);
+        return matchingCount != null && matchingCount > 0;
+    }
+
     private String summaryQuery() {
         String activeTeachersFilter = columnExists("PROFESORES", "ESTADO_DOCENTE")
                 ? " AND \"ESTADO_DOCENTE\" = 'Activo' "
@@ -1063,7 +1189,24 @@ public class TeacherJdbcAdapter {
     }
 
     private Optional<AccessUserRecord> findUserRecordByRunAndRole(String run, String roleCode) {
-        return jdbcTemplate.query("""
+        String sql = "ASISTENTE".equalsIgnoreCase(roleCode)
+                ? """
+                SELECT
+                    u."ID" AS user_id,
+                    u."PERSONA_ID",
+                    u."USUARIO",
+                    COALESCE(p."CORREO_ELECTRONICO", '') AS email,
+                    COALESCE(aus."ESTADO", CASE WHEN u."ACTIVO" THEN 'Activo' ELSE 'Inactivo' END) AS status
+                FROM "USUARIOS" u
+                JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
+                LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                WHERE UPPER(p."RUN") = UPPER(?)
+                  AND UPPER(COALESCE(r."CODIGO", '')) IN ('ASISTENTE', 'SECRETARIA')
+                ORDER BY u."ID"
+                LIMIT 1
+                """
+                : """
                 SELECT
                     u."ID" AS user_id,
                     u."PERSONA_ID",
@@ -1078,13 +1221,19 @@ public class TeacherJdbcAdapter {
                   AND UPPER(COALESCE(r."CODIGO", '')) = UPPER(?)
                 ORDER BY u."ID"
                 LIMIT 1
-                """, (rs, rowNum) -> new AccessUserRecord(
+                """;
+
+        Object[] args = "ASISTENTE".equalsIgnoreCase(roleCode)
+                ? new Object[]{run}
+                : new Object[]{run, roleCode};
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new AccessUserRecord(
                 rs.getLong("user_id"),
                 rs.getLong("PERSONA_ID"),
                 rs.getString("USUARIO"),
                 rs.getString("email"),
                 rs.getString("status")
-        ), run, roleCode).stream().findFirst();
+        ), args).stream().findFirst();
     }
 
     private void deleteStaffSystemAccess(String run, String staffType) {
@@ -1196,7 +1345,7 @@ public class TeacherJdbcAdapter {
     }
 
     private String resolveRoleCodeForStaffType(String staffType) {
-        return "ASISTENTE".equalsIgnoreCase(staffType) ? "SECRETARIA" : "PROFESOR";
+        return "ASISTENTE".equalsIgnoreCase(staffType) ? "ASISTENTE" : "PROFESOR";
     }
 
     private String normalizeAccountStatus(String status) {

@@ -15,7 +15,6 @@
         <div class="page-header__actions">
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
-            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Ficha estudiante</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
           </section>
 
@@ -106,48 +105,48 @@
 
       <mat-card appearance="outlined" class="filters-card">
         <div class="grades-book-card__filters">
-          <label class="inline-field">
+          <div class="inline-field">
             <span class="inline-field__label">Curso:</span>
-            <label class="inline-select inline-field__control inline-field__control--course">
+            <div class="inline-select inline-field__control inline-field__control--course">
               <mat-icon>school</mat-icon>
-              <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+              <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
                 @for (course of courses(); track course.id) {
-                  <option [value]="course.id">{{ course.name }}</option>
+                  <option [ngValue]="course.id">{{ course.name }}</option>
                 }
               </select>
-            </label>
-          </label>
+            </div>
+          </div>
 
-          <label class="inline-field">
+          <div class="inline-field">
             <span class="inline-field__label">Asignatura:</span>
-            <label class="inline-select inline-field__control inline-field__control--subject">
+            <div class="inline-select inline-field__control inline-field__control--subject">
               <mat-icon>menu_book</mat-icon>
               <select
-                [value]="selectedSubjectId() ?? ''"
+                [ngModel]="selectedSubjectId()"
                 [disabled]="subjectTabs().length === 0"
-                (change)="selectSubject(+$any($event.target).value)">
+                (ngModelChange)="selectSubject($event)">
                 @if (subjectTabs().length === 0) {
                   <option value="">Sin asignaturas activas</option>
                 } @else {
                   @for (subject of subjectTabs(); track subject.id) {
-                    <option [value]="subject.id">{{ subject.name }}</option>
+                    <option [ngValue]="subject.id">{{ subject.name }}</option>
                   }
                 }
               </select>
-            </label>
-          </label>
+            </div>
+          </div>
 
-          <label class="inline-field">
+          <div class="inline-field">
             <span class="inline-field__label">Semestre:</span>
-            <label class="inline-select inline-field__control inline-field__control--date">
+            <div class="inline-select inline-field__control inline-field__control--date">
               <mat-icon>calendar_month</mat-icon>
-              <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
+              <select [ngModel]="selectedPeriodId()" (ngModelChange)="updatePeriod($event)">
                 @for (period of periods(); track period.id) {
-                  <option [value]="period.id">{{ period.name }}</option>
+                  <option [ngValue]="period.id">{{ period.name }}</option>
                 }
               </select>
-            </label>
-          </label>
+            </div>
+          </div>
         </div>
       </mat-card>
 
@@ -155,7 +154,7 @@
         <div class="grades-book-card__header">
           <div>
             <h2>Libro de notas</h2>
-            <p>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }} · {{ gradeBook()?.subjectName }}</p>
+            <p>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }} · {{ currentGradeBook()?.subjectName }}</p>
           </div>
 
           <div class="grades-book-card__header-actions">
@@ -183,9 +182,9 @@
           </div>
         } @else {
           <div class="gradebook-table-shell">
-            <div class="gradebook-table__head" [style.--evaluation-columns]="(gradeBook()?.evaluations?.length ?? 0).toString()">
+            <div class="gradebook-table__head" [style.--evaluation-columns]="(currentGradeBook()?.evaluations?.length ?? 0).toString()">
               <span>Estudiante</span>
-              @for (evaluation of gradeBook()?.evaluations ?? []; track evaluation.id) {
+              @for (evaluation of currentGradeBook()?.evaluations ?? []; track evaluation.id) {
                 <button type="button" class="evaluation-head" (click)="openEvaluationDetails(evaluation.id)" [attr.aria-label]="'Ver detalle de ' + evaluation.name" [title]="evaluation.name">
                   <mat-icon>menu_book</mat-icon>
                   <span>{{ evaluation.code }}</span>
@@ -245,7 +244,6 @@
         <div class="page-header__actions">
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
-            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Ficha estudiante</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
           </section>
 
@@ -335,42 +333,42 @@
       </section>
 
       <section class="profile-filters-bar">
-        <label class="inline-field">
+        <div class="inline-field">
           <span class="inline-field__label">Curso</span>
-          <label class="inline-select inline-field__control inline-field__control--course">
+          <div class="inline-select inline-field__control inline-field__control--course">
             <mat-icon>school</mat-icon>
-            <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+            <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
               @for (course of courses(); track course.id) {
-                <option [value]="course.id">{{ course.name }}</option>
+                <option [ngValue]="course.id">{{ course.name }}</option>
               }
             </select>
-          </label>
-        </label>
+          </div>
+        </div>
 
-        <label class="inline-field">
+        <div class="inline-field">
           <span class="inline-field__label">Asignatura</span>
-          <label class="inline-select inline-field__control inline-field__control--subject">
+          <div class="inline-select inline-field__control inline-field__control--subject">
             <mat-icon>menu_book</mat-icon>
-            <select [value]="selectedSubjectId() ?? ''" (change)="updateProfileSubject($any($event.target).value ? +$any($event.target).value : null)">
-              <option value="">Todas las asignaturas</option>
+            <select [ngModel]="selectedSubjectId()" (ngModelChange)="updateProfileSubject($event)">
+              <option [ngValue]="null">Todas las asignaturas</option>
               @for (subject of profileSubjectOptions(); track subject.id) {
-                <option [value]="subject.id">{{ subject.name }}</option>
+                <option [ngValue]="subject.id">{{ subject.name }}</option>
               }
             </select>
-          </label>
-        </label>
+          </div>
+        </div>
 
-        <label class="inline-field">
+        <div class="inline-field">
           <span class="inline-field__label">Semestre</span>
-          <label class="inline-select inline-field__control inline-field__control--date">
+          <div class="inline-select inline-field__control inline-field__control--date">
             <mat-icon>calendar_month</mat-icon>
-            <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
+            <select [ngModel]="selectedPeriodId()" (ngModelChange)="updatePeriod($event)">
               @for (period of periods(); track period.id) {
-                <option [value]="period.id">{{ period.name }}</option>
+                <option [ngValue]="period.id">{{ period.name }}</option>
               }
             </select>
-          </label>
-        </label>
+          </div>
+        </div>
 
         <div class="profile-filters-bar__actions">
           <button
@@ -476,9 +474,43 @@
 
                 <div class="profile-subject-list">
                   @for (subject of profileSubjectsFor(student); track subject.subjectId) {
-                    <div class="profile-subject-row">
+                    <div
+                      class="profile-subject-row"
+                      [class.is-expanded]="isProfileSubjectExpanded(subject.subjectId)">
                       <span class="profile-subject-row__accent" [style.background]="subject.colorHex"></span>
-                      <span class="profile-subject-row__name">{{ subject.subjectName }}</span>
+                      <div class="profile-subject-row__copy">
+                        <div class="profile-subject-row__title">
+                          <span class="profile-subject-row__name">{{ subject.subjectName }}</span>
+                          @if (profileSubjectEntries(student, subject.subjectId).length > 3) {
+                            <button
+                              type="button"
+                              class="profile-subject-row__toggle-button"
+                              (click)="toggleProfileSubject(subject.subjectId); $event.stopPropagation()">
+                              {{ isProfileSubjectExpanded(subject.subjectId) ? 'Ocultar detalle' : 'Ver detalle' }}
+                              <mat-icon>{{ isProfileSubjectExpanded(subject.subjectId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                            </button>
+                          }
+                        </div>
+                        <div class="profile-subject-row__notes">
+                          @for (score of profileSubjectScores(student, subject.subjectId); track $index) {
+                            <span class="profile-score-pill" [ngClass]="scoreToneClass(score)">{{ formatScore(score) }}</span>
+                          } @empty {
+                            <span class="profile-score-pill is-empty">Sin notas</span>
+                          }
+                        </div>
+                        @if (isProfileSubjectExpanded(subject.subjectId) && profileSubjectEntries(student, subject.subjectId).length > 3) {
+                          <div class="profile-subject-row__detail">
+                            @for (entry of profileSubjectEntries(student, subject.subjectId).slice(3); track $index) {
+                              <div class="profile-subject-row__detail-item">
+                                <span>{{ entry.label }}</span>
+                                <strong [ngClass]="scoreToneClass(entry.score)">{{ formatScore(entry.score) }}</strong>
+                              </div>
+                            } @empty {
+                              <div class="profile-subject-row__detail-empty">Aun no hay evaluaciones registradas.</div>
+                            }
+                          </div>
+                        }
+                      </div>
                       <div class="profile-subject-row__chips">
                         <span class="profile-score-pill" [ngClass]="scoreToneClass(subject.average)">{{ formatScore(subject.average) }}</span>
                       </div>
@@ -612,14 +644,14 @@
                           <strong>{{ pdfText(subject.subjectName) }}</strong>
                           <span>Prof. {{ pdfTeacherName() }}</span>
                         </td>
-                        <td class="is-empty">-</td>
-                        <td class="is-empty">-</td>
-                        <td class="is-empty">-</td>
+                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
+                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
+                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
                         <td>
-                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
                         <td>
-                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
                       </tr>
                     }
@@ -642,18 +674,12 @@
               <section class="pdf-bulletin__section">
                 <h3>Observaciones del profesor jefe</h3>
                 <div class="pdf-bulletin__observations">
-                  <div class="pdf-bulletin__observation-row">
-                    <span class="pdf-bulletin__observation-dot is-green"></span>
-                    <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
-                  </div>
-                  <div class="pdf-bulletin__observation-row">
-                    <span class="pdf-bulletin__observation-dot is-amber"></span>
-                    <p>{{ pdfText(profileTrendLabel(student)) }}</p>
-                  </div>
-                  <div class="pdf-bulletin__observation-row">
-                    <span class="pdf-bulletin__observation-dot is-blue"></span>
-                    <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
-                  </div>
+                  @for (line of pdfObservationLines(student); track $index) {
+                    <div class="pdf-bulletin__observation-row">
+                      <span class="pdf-bulletin__observation-dot" [ngClass]="$index === 0 ? 'is-green' : $index === 1 ? 'is-amber' : 'is-blue'"></span>
+                      <p>{{ pdfText(line) }}</p>
+                    </div>
+                  }
                 </div>
               </section>
 
@@ -682,9 +708,15 @@
                 <h3>Vista previa del boletín</h3>
                 <p>{{ pdfText(student.fullName) }} · {{ pdfPeriodLabel() }}</p>
               </div>
-              <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
-                <mat-icon>close</mat-icon>
-              </button>
+              <div class="report-preview-modal__actions">
+                <button mat-flat-button type="button" class="header-button header-button--primary report-preview-modal__save" (click)="savePreviewObservation()">
+                  <mat-icon>save</mat-icon>
+                  Guardar observación
+                </button>
+                <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </header>
 
             <div class="report-preview-modal__body">
@@ -773,14 +805,14 @@
                               <strong>{{ pdfText(subject.subjectName) }}</strong>
                               <span>Prof. {{ pdfTeacherName() }}</span>
                             </td>
-                            <td class="is-empty">-</td>
-                            <td class="is-empty">-</td>
-                            <td class="is-empty">-</td>
+                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
+                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
+                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
                             <td>
-                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
                             <td>
-                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
                           </tr>
                         }
@@ -803,18 +835,11 @@
                   <section class="pdf-bulletin__section">
                     <h3>Observaciones del profesor jefe</h3>
                     <div class="pdf-bulletin__observations">
-                      <div class="pdf-bulletin__observation-row">
-                        <span class="pdf-bulletin__observation-dot is-green"></span>
-                        <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
-                      </div>
-                      <div class="pdf-bulletin__observation-row">
-                        <span class="pdf-bulletin__observation-dot is-amber"></span>
-                        <p>{{ pdfText(profileTrendLabel(student)) }}</p>
-                      </div>
-                      <div class="pdf-bulletin__observation-row">
-                        <span class="pdf-bulletin__observation-dot is-blue"></span>
-                        <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
-                      </div>
+                      <textarea
+                        class="pdf-bulletin__observation-editor"
+                        [value]="observationDraft()"
+                        (input)="observationDraft.set($any($event.target).value)"
+                        placeholder="Escribe aqui las observaciones del profesor jefe..."></textarea>
                     </div>
                   </section>
 
@@ -921,7 +946,6 @@
         <div class="page-header__actions">
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
-            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Ficha estudiante</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
           </section>
 
@@ -987,42 +1011,42 @@
       </section>
 
       <section class="profile-filters-bar">
-        <label class="inline-field">
+        <div class="inline-field">
           <span class="inline-field__label">Curso</span>
-          <label class="inline-select inline-field__control inline-field__control--course">
+          <div class="inline-select inline-field__control inline-field__control--course">
             <mat-icon>school</mat-icon>
-            <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+            <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
               @for (course of courses(); track course.id) {
-                <option [value]="course.id">{{ course.name }}</option>
+                <option [ngValue]="course.id">{{ course.name }}</option>
               }
             </select>
-          </label>
-        </label>
+          </div>
+        </div>
 
-        <label class="inline-field">
+        <div class="inline-field">
           <span class="inline-field__label">Estudiante</span>
-          <label class="inline-select inline-field__control inline-field__control--subject">
+          <div class="inline-select inline-field__control inline-field__control--subject">
             <mat-icon>person</mat-icon>
-            <select [value]="selectedReportStudentId() ?? ''" (change)="updateReportStudent($any($event.target).value ? +$any($event.target).value : null)">
-              <option value="">Todos los estudiantes</option>
+            <select [ngModel]="selectedReportStudentId()" (ngModelChange)="updateReportStudent($event)">
+              <option [ngValue]="null">Todos los estudiantes</option>
               @for (student of reportListStudents(); track student.studentId) {
-                <option [value]="student.studentId">{{ student.fullName }}</option>
+                <option [ngValue]="student.studentId">{{ student.fullName }}</option>
               }
             </select>
-          </label>
-        </label>
+          </div>
+        </div>
 
-        <label class="inline-field">
+        <div class="inline-field">
           <span class="inline-field__label">Semestre</span>
-          <label class="inline-select inline-field__control inline-field__control--date">
+          <div class="inline-select inline-field__control inline-field__control--date">
             <mat-icon>calendar_month</mat-icon>
-            <select [value]="selectedPeriodId() ?? ''" (change)="updatePeriod($any($event.target).value ? +$any($event.target).value : null)">
+            <select [ngModel]="selectedPeriodId()" (ngModelChange)="updatePeriod($event)">
               @for (period of periods(); track period.id) {
-                <option [value]="period.id">{{ period.name }}</option>
+                <option [ngValue]="period.id">{{ period.name }}</option>
               }
             </select>
-          </label>
-        </label>
+          </div>
+        </div>
       </section>
 
       <section class="reports-layout">
@@ -1154,16 +1178,41 @@
 
                 <div class="reports-subject-grid">
                   @for (subject of student.subjects; track subject.subjectId) {
-                    <article class="reports-subject-card">
+                    <button
+                      type="button"
+                      class="reports-subject-card"
+                      [class.is-expanded]="isReportSubjectExpanded(subject.subjectId)"
+                      (click)="toggleReportSubject(subject.subjectId)">
                       <span class="reports-subject-card__accent" [style.background]="subject.colorHex"></span>
                       <div class="reports-subject-card__copy">
                         <strong>{{ subject.subjectName }}</strong>
                         <small>{{ subject.average != null && subject.average >= 6 ? 'Destacado' : subject.average != null && subject.average < 4 ? 'En riesgo' : 'En seguimiento' }}</small>
+                        <div class="reports-subject-card__chips">
+                          @for (score of reportSubjectScores(student, subject.subjectId); track $index) {
+                            <span class="profile-student-item__score" [ngClass]="scoreToneClass(score)">
+                              N{{ $index + 1 }} {{ formatScore(score) }}
+                            </span>
+                          } @empty {
+                            <span class="profile-student-item__score is-empty">Sin notas</span>
+                          }
+                        </div>
+                        @if (isReportSubjectExpanded(subject.subjectId)) {
+                          <div class="reports-subject-card__detail">
+                            @for (entry of reportSubjectEntries(student, subject.subjectId); track $index) {
+                              <div class="reports-subject-card__detail-row">
+                                <span>{{ entry.label }}</span>
+                                <strong [ngClass]="scoreToneClass(entry.score)">{{ formatScore(entry.score) }}</strong>
+                              </div>
+                            } @empty {
+                              <div class="reports-subject-card__detail-empty">Aun no hay evaluaciones registradas.</div>
+                            }
+                          </div>
+                        }
                       </div>
                       <span class="reports-subject-card__score" [ngClass]="scoreToneClass(subject.average)">
                         {{ formatScore(subject.average) }}
                       </span>
-                    </article>
+                    </button>
                   }
                 </div>
               </section>
@@ -1207,39 +1256,6 @@
           }
         </article>
 
-        <div class="reports-legacy">
-        <article class="reports-main-card">
-          @for (student of displayedReports(); track trackStudent($index, student)) {
-            <article class="report-card">
-              <div class="report-head">
-                <div class="student-cell">
-                  <div class="avatar-chip">{{ initials(student.fullName) }}</div>
-                  <div class="student-copy">
-                    <strong>{{ student.fullName }}</strong>
-                    <small>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }}</small>
-                  </div>
-                </div>
-                <button mat-stroked-button type="button" (click)="exportStudentPdf(student)">Descargar PDF</button>
-              </div>
-
-              <div class="report-subject-grid">
-                @for (subject of student.subjects; track subject.subjectId) {
-                  <div class="subject-report-card">
-                    <span>{{ subject.subjectName }}</span>
-                    <strong class="score-chip" [ngClass]="scoreToneClass(subject.average)">{{ formatScore(subject.average) }}</strong>
-                  </div>
-                }
-              </div>
-            </article>
-          }
-          @if (displayedReports().length === 0) {
-            <article class="empty-state-card">
-              <strong>No se encontraron estudiantes</strong>
-              <span>Ajusta el filtro para ver informes de notas disponibles.</span>
-            </article>
-          }
-        </article>
-        </div>
       </section>
 
       <section class="pdf-export-shell" aria-hidden="true">
@@ -1329,14 +1345,14 @@
                           <strong>{{ pdfText(subject.subjectName) }}</strong>
                           <span>Prof. {{ pdfTeacherName() }}</span>
                         </td>
-                        <td class="is-empty">-</td>
-                        <td class="is-empty">-</td>
-                        <td class="is-empty">-</td>
+                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
+                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
+                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
                         <td>
-                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
                         <td>
-                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
                       </tr>
                     }
@@ -1515,14 +1531,14 @@
                               <strong>{{ pdfText(subject.subjectName) }}</strong>
                               <span>Prof. {{ pdfTeacherName() }}</span>
                             </td>
-                            <td class="is-empty">-</td>
-                            <td class="is-empty">-</td>
-                            <td class="is-empty">-</td>
+                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
+                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
+                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
                             <td>
-                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfScore(subject.average) }}</span>
+                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
                             <td>
-                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(subject.average)">{{ pdfConcept(subject.average) }}</span>
+                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
                           </tr>
                         }

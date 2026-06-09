@@ -63,6 +63,7 @@ const BASE_ROLE_OPTIONS: AdministrationRoleOption[] = [
   { code: 'DIRECTOR', name: 'Director', description: 'Gestión institucional y supervisión general.' },
   { code: 'INSPECTOR', name: 'Inspector', description: 'Supervisión disciplinaria y asistencia.' },
   { code: 'PROFESOR', name: 'Profesor', description: 'Gestión docente y académica.' },
+  { code: 'ASISTENTE', name: 'Asistente', description: 'Apoyo administrativo y operativo.' },
   { code: 'SECRETARIA', name: 'Secretaria', description: 'Apoyo administrativo y operativo.' },
   { code: 'APODERADO', name: 'Apoderado', description: 'Seguimiento de alumnos asociados.' },
   { code: 'ALUMNO', name: 'Alumno', description: 'Acceso al portal estudiantil.' }
@@ -280,13 +281,9 @@ export class AdministrationApiService {
   }
 
   private normalizeRoleOption(role: AdministrationRoleOption): AdministrationRoleOption {
-    const normalizedName = role.code === 'SECRETARIA'
-      ? 'Asistente'
-      : normalizeDashboardText(role.name);
-
     return {
       code: role.code,
-      name: normalizedName,
+      name: normalizeDashboardText(role.name),
       description: normalizeDashboardText(role.description)
     };
   }

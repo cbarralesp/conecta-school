@@ -1,6 +1,7 @@
 package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
 import com.example.authhexagonal.domain.model.Course;
+import com.example.authhexagonal.domain.model.CourseGrade;
 import com.example.authhexagonal.domain.model.CourseScheduleAssignment;
 import com.example.authhexagonal.domain.model.MasterCourse;
 import com.example.authhexagonal.domain.model.StudentCatalogItem;
@@ -31,6 +32,35 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
 
     public CourseJdbcAdapter(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @Override
+    public List<CourseGrade> findActiveGrades() {
+        if (!tableExists("CURSO_GRADOS")) {
+            return List.of();
+        }
+
+        return jdbcTemplate.query("""
+                SELECT
+                    cg."ID",
+                    COALESCE(cn."NOMBRE", '') AS "NIVEL_NOMBRE",
+                    cg."NOMBRE",
+                    cg."CODIGO_TOKEN",
+                    cg."ORDEN",
+                    cg."ACTIVO"
+                FROM "CURSO_GRADOS" cg
+                LEFT JOIN "CURSO_NIVELES" cn
+                  ON cn."ID" = cg."NIVEL_ID"
+                WHERE cg."ACTIVO" = TRUE
+                ORDER BY cg."ORDEN", cg."NOMBRE"
+                """, (rs, rowNum) -> new CourseGrade(
+                rs.getLong("ID"),
+                rs.getString("NIVEL_NOMBRE"),
+                rs.getString("NOMBRE"),
+                rs.getString("CODIGO_TOKEN"),
+                rs.getInt("ORDEN"),
+                rs.getBoolean("ACTIVO")
+        ));
     }
 
     @Override
@@ -75,6 +105,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     rs.getString("NOMBRE"),
                     rs.getString("NIVEL"),
                     rs.getString("LETRA"),
+                    null,
                     rs.getInt("ANIO_ESCOLAR"),
                     rs.getString("JORNADA"),
                     (Long) rs.getObject("teacher_id"),
@@ -93,6 +124,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE") AS "NOMBRE",
                     COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
                     c."LETRA",
+                    c."GRADO_ID",
                     c."ANIO_ESCOLAR",
                     COALESCE(cj."NOMBRE", c."JORNADA") AS "JORNADA",
                     cd."PROFESOR_ID" AS teacher_id,
@@ -131,6 +163,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getString("NOMBRE"),
                 rs.getString("NIVEL"),
                 rs.getString("LETRA"),
+                (Long) rs.getObject("GRADO_ID"),
                 rs.getInt("ANIO_ESCOLAR"),
                 rs.getString("JORNADA"),
                 (Long) rs.getObject("teacher_id"),
@@ -152,6 +185,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                         c."NOMBRE",
                         c."NIVEL",
                         c."LETRA",
+                        NULL::bigint AS "GRADO_ID",
                         c."ANIO_ESCOLAR",
                         c."JORNADA",
                         cd."PROFESOR_ID" AS teacher_id,
@@ -183,6 +217,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     rs.getString("NOMBRE"),
                     rs.getString("NIVEL"),
                     rs.getString("LETRA"),
+                    (Long) rs.getObject("GRADO_ID"),
                     rs.getInt("ANIO_ESCOLAR"),
                     rs.getString("JORNADA"),
                     (Long) rs.getObject("teacher_id"),
@@ -201,6 +236,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE") AS "NOMBRE",
                     COALESCE(cn."NOMBRE", c."NIVEL") AS "NIVEL",
                     c."LETRA",
+                    c."GRADO_ID",
                     c."ANIO_ESCOLAR",
                     COALESCE(cj."NOMBRE", c."JORNADA") AS "JORNADA",
                     cd."PROFESOR_ID" AS teacher_id,
@@ -238,6 +274,7 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                 rs.getString("NOMBRE"),
                 rs.getString("NIVEL"),
                 rs.getString("LETRA"),
+                (Long) rs.getObject("GRADO_ID"),
                 rs.getInt("ANIO_ESCOLAR"),
                 rs.getString("JORNADA"),
                 (Long) rs.getObject("teacher_id"),

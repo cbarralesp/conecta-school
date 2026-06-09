@@ -18,7 +18,9 @@ public interface ManageSubjectsUseCase {
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     );
 
     AcademicSubject update(
@@ -30,7 +32,9 @@ public interface ManageSubjectsUseCase {
             String description,
             String referenceLevel,
             int suggestedHours,
-            List<Long> teacherIds
+            List<Long> teacherIds,
+            List<Long> applicableGradeIds,
+            List<Long> applicableCourseIds
     );
 
     void delete(Long subjectId);

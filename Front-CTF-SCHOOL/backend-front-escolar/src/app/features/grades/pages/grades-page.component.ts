@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, in
 import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { catchError, firstValueFrom, forkJoin, map, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 import { normalizeDashboardText } from '../../../core/utils/text-normalizer';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
@@ -41,6 +42,12 @@ type EvaluationDialogState = {
   evaluationDate: string;
 };
 
+type ReportSubjectDetail = {
+  scores: Array<number | null>;
+  average: number | null;
+  evaluations: Array<{ label: string; score: number | null }>;
+};
+
 const DEFAULT_EVALUATION_WEIGHT = 20;
 
 @Component({
@@ -56,6 +63,7 @@ const DEFAULT_EVALUATION_WEIGHT = 20;
     MatSelectModule,
     MatSnackBarModule,
     MatTooltipModule,
+    FormsModule,
     TeacherModernLayoutComponent
   ],
   templateUrl: './grades-page.component.html',
@@ -69,6 +77,9 @@ export class GradesPageComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private gradeBookRequestId = 0;
+  private profileRequestId = 0;
+  private reportsRequestId = 0;
 
   readonly user = this.authStateService.user;
   readonly activeTab = signal<GradesTab>('book');
@@ -80,11 +91,14 @@ export class GradesPageComponent {
   readonly selectedPeriodId = signal<number | null>(null);
   readonly selectedSubjectId = signal<number | null>(null);
   readonly selectedProfileStudentId = signal<number | null>(null);
+  readonly selectedProfileExpandedSubjectId = signal<number | null>(null);
   readonly selectedReportStudentId = signal<number | null>(null);
+  readonly selectedReportSubjectId = signal<number | null>(null);
   readonly profileRunSearchTerm = signal('');
   readonly reportRunSearchTerm = signal('');
   readonly isReportPreviewOpen = signal(false);
   readonly previewStudent = signal<StudentGradeCard | null>(null);
+  readonly observationDraft = signal('');
   readonly gradeBook = signal<GradeBookView | null>(null);
   readonly gradeBookNotice = signal<string | null>(null);
   readonly studentProfile = signal<StudentGradeProfileView | null>(null);
@@ -93,18 +107,32 @@ export class GradesPageComponent {
   readonly isSaving = signal(false);
   readonly isExporting = signal(false);
   readonly pdfStudent = signal<StudentGradeCard | null>(null);
+  readonly reportDetailBooks = signal<GradeBookView[]>([]);
+  readonly savedObservations = signal<Record<number, string>>({});
 
   readonly courses = computed(() => this.catalog()?.courses ?? []);
   readonly periods = computed(() => this.catalog()?.periods ?? []);
   readonly selectedCourse = computed(() => this.courses().find((course) => course.id === this.selectedCourseId()) ?? null);
   readonly selectedPeriod = computed(() => this.periods().find((period) => period.id === this.selectedPeriodId()) ?? null);
-  readonly subjectTabs = computed(() => this.gradeBook()?.subjects ?? []);
-  readonly gradeBookSummary = computed<GradeBookSummary | null>(() => this.gradeBook()?.summary ?? null);
-  readonly profileSummary = computed(() => this.buildProfileSummary(this.studentProfile()?.students ?? []));
-  readonly reportSummary = computed(() => this.buildProfileSummary(this.reports()?.students ?? []));
+  readonly currentGradeBook = computed(() => {
+    const view = this.gradeBook();
+    return view && view.courseId === this.selectedCourseId() && view.periodId === this.selectedPeriodId() ? view : null;
+  });
+  readonly currentStudentProfile = computed(() => {
+    const view = this.studentProfile();
+    return view && view.courseId === this.selectedCourseId() && view.periodId === this.selectedPeriodId() ? view : null;
+  });
+  readonly currentReports = computed(() => {
+    const view = this.reports();
+    return view && view.courseId === this.selectedCourseId() && view.periodId === this.selectedPeriodId() ? view : null;
+  });
+  readonly subjectTabs = computed(() => this.currentGradeBook()?.subjects ?? []);
+  readonly gradeBookSummary = computed<GradeBookSummary | null>(() => this.currentGradeBook()?.summary ?? null);
+  readonly profileSummary = computed(() => this.buildProfileSummary(this.currentStudentProfile()?.students ?? []));
+  readonly reportSummary = computed(() => this.buildProfileSummary(this.currentReports()?.students ?? []));
   readonly profileSubjectOptions = computed(() => {
     const subjects = new Map<number, { id: number; name: string; colorHex: string }>();
-    for (const student of this.studentProfile()?.students ?? []) {
+    for (const student of this.currentStudentProfile()?.students ?? []) {
       for (const subject of student.subjects) {
         if (!subjects.has(subject.subjectId)) {
           subjects.set(subject.subjectId, {
@@ -119,7 +147,7 @@ export class GradesPageComponent {
     return Array.from(subjects.values()).sort((left, right) => left.name.localeCompare(right.name));
   });
   readonly profileDisplaySummary = computed(() => {
-    const students = this.studentProfile()?.students ?? [];
+    const students = this.currentStudentProfile()?.students ?? [];
     const selectedSubjectId = this.selectedSubjectId();
     if (selectedSubjectId == null) {
       return this.buildProfileSummary(students);
@@ -140,7 +168,7 @@ export class GradesPageComponent {
     };
   });
   readonly profileListStudents = computed(() => {
-    const students = this.studentProfile()?.students ?? [];
+    const students = this.currentStudentProfile()?.students ?? [];
     const term = this.profileRunSearchTerm().trim().toLowerCase();
     if (!term) {
       return students;
@@ -160,7 +188,7 @@ export class GradesPageComponent {
     return students.find((student) => student.studentId === selectedStudentId) ?? students[0];
   });
   readonly filteredProfileStudents = computed(() => {
-    const students = this.studentProfile()?.students ?? [];
+    const students = this.currentStudentProfile()?.students ?? [];
     const selectedStudentId = this.selectedProfileStudentId();
     const runSearch = this.profileRunSearchTerm().trim().toLowerCase();
 
@@ -170,9 +198,9 @@ export class GradesPageComponent {
       return matchesStudent && matchesRun;
     });
   });
-  readonly profileStudentOptions = computed(() => this.studentProfile()?.students ?? []);
+  readonly profileStudentOptions = computed(() => this.currentStudentProfile()?.students ?? []);
   readonly reportListStudents = computed(() => {
-    const students = this.reports()?.students ?? [];
+    const students = this.currentReports()?.students ?? [];
     const term = this.reportRunSearchTerm().trim().toLowerCase();
     if (!term) {
       return students;
@@ -192,7 +220,7 @@ export class GradesPageComponent {
     return students.find((student) => student.studentId === selectedStudentId) ?? students[0];
   });
   readonly reportRankedStudents = computed(() =>
-    [...(this.reports()?.students ?? [])].sort((left, right) => {
+    [...(this.currentReports()?.students ?? [])].sort((left, right) => {
       if (left.overallAverage == null && right.overallAverage == null) {
         return left.fullName.localeCompare(right.fullName);
       }
@@ -216,7 +244,7 @@ export class GradesPageComponent {
       atRisk: number;
     }>();
 
-    for (const student of this.reports()?.students ?? []) {
+    for (const student of this.currentReports()?.students ?? []) {
       for (const subject of student.subjects) {
         const bucket = aggregates.get(subject.subjectId) ?? {
           subjectId: subject.subjectId,
@@ -267,7 +295,7 @@ export class GradesPageComponent {
       });
   });
   readonly displayedReports = computed(() => {
-    const students = this.reports()?.students ?? [];
+    const students = this.currentReports()?.students ?? [];
     const selectedStudentId = this.selectedReportStudentId();
     const runSearch = this.reportRunSearchTerm().trim().toLowerCase();
 
@@ -280,7 +308,7 @@ export class GradesPageComponent {
     return filtered.slice(0, 1);
   });
   readonly filteredGradeBookStudents = computed(() => {
-    const students = this.gradeBook()?.students ?? [];
+    const students = this.currentGradeBook()?.students ?? [];
     const term = this.gradeBookSearch().trim().toLowerCase();
     if (!term) {
       return students;
@@ -290,10 +318,10 @@ export class GradesPageComponent {
       student.fullName.toLowerCase().includes(term) || student.run.toLowerCase().includes(term)
     );
   });
-  readonly persistedEvaluationsCount = computed(() => this.gradeBook()?.evaluations.length ?? 0);
+  readonly persistedEvaluationsCount = computed(() => this.currentGradeBook()?.evaluations.length ?? 0);
   readonly selectedEvaluationStats = computed(() => {
     const evaluation = this.evaluationDetailsDialog();
-    const gradeBook = this.gradeBook();
+    const gradeBook = this.currentGradeBook();
     if (!evaluation || !gradeBook) {
       return null;
     }
@@ -323,31 +351,32 @@ export class GradesPageComponent {
   }
 
   setTab(tab: GradesTab): void {
+    if (tab === 'profile' || tab === 'reports') {
+      this.selectedSubjectId.set(null);
+    }
     this.activeTab.set(tab);
+    this.clearTabState();
     this.loadActiveView();
   }
 
   updateCourse(courseId: number | null): void {
     this.selectedCourseId.set(courseId);
     this.selectedSubjectId.set(null);
-    this.gradeBookNotice.set(null);
-    this.gradeBookSearch.set('');
-    this.closeDraftEvaluationDialog();
-    this.closeEvaluationDetails();
+    this.clearTabState();
     this.loadActiveView();
   }
 
   updatePeriod(periodId: number | null): void {
     this.selectedPeriodId.set(periodId);
     this.selectedSubjectId.set(null);
-    this.gradeBookNotice.set(null);
-    this.gradeBookSearch.set('');
-    this.closeDraftEvaluationDialog();
-    this.closeEvaluationDetails();
+    this.clearTabState();
     this.loadActiveView();
   }
 
-  selectSubject(subjectId: number): void {
+  selectSubject(subjectId: number | null): void {
+    if (subjectId == null) {
+      return;
+    }
     this.selectedSubjectId.set(subjectId);
     this.gradeBookNotice.set(null);
     this.closeEvaluationDetails();
@@ -424,7 +453,7 @@ export class GradesPageComponent {
   }
 
   openEvaluationDetails(evaluationId: number): void {
-    const evaluation = this.gradeBook()?.evaluations.find((item) => item.id === evaluationId) ?? null;
+    const evaluation = this.currentGradeBook()?.evaluations.find((item) => item.id === evaluationId) ?? null;
     this.evaluationDetailsDialog.set(evaluation);
   }
 
@@ -443,7 +472,7 @@ export class GradesPageComponent {
   }
 
   openEvaluationEditor(evaluationId: number): void {
-    const evaluation = this.gradeBook()?.evaluations.find((item) => item.id === evaluationId);
+    const evaluation = this.currentGradeBook()?.evaluations.find((item) => item.id === evaluationId);
     if (!evaluation) {
       return;
     }
@@ -576,7 +605,7 @@ export class GradesPageComponent {
   }
 
   saveGradeBook(): void {
-    const gradeBook = this.gradeBook();
+    const gradeBook = this.currentGradeBook();
     const courseId = this.selectedCourseId();
     const periodId = this.selectedPeriodId();
     const subjectId = this.selectedSubjectId();
@@ -611,7 +640,7 @@ export class GradesPageComponent {
   }
 
   exportGradeBook(): void {
-    const gradeBook = this.gradeBook();
+    const gradeBook = this.currentGradeBook();
     if (!gradeBook) {
       return;
     }
@@ -706,24 +735,44 @@ export class GradesPageComponent {
 
   updateProfileStudent(studentId: number | null): void {
     this.selectedProfileStudentId.set(studentId);
+    this.selectedProfileExpandedSubjectId.set(null);
   }
 
   updateProfileRunSearch(value: string): void {
     this.profileRunSearchTerm.set(value);
   }
 
+  toggleProfileSubject(subjectId: number): void {
+    this.selectedProfileExpandedSubjectId.update((current) => current === subjectId ? null : subjectId);
+  }
+
+  isProfileSubjectExpanded(subjectId: number): boolean {
+    return this.selectedProfileExpandedSubjectId() === subjectId;
+  }
+
   updateReportStudent(studentId: number | null): void {
     this.selectedReportStudentId.set(studentId);
+    this.selectedReportSubjectId.set(null);
   }
 
   updateReportRunSearch(value: string): void {
     this.reportRunSearchTerm.set(value);
   }
 
-  openReportPreview(student: StudentGradeCard | null = this.activeReportStudent()): void {
+  toggleReportSubject(subjectId: number): void {
+    this.selectedReportSubjectId.update((current) => current === subjectId ? null : subjectId);
+  }
+
+  isReportSubjectExpanded(subjectId: number): boolean {
+    return this.selectedReportSubjectId() === subjectId;
+  }
+
+  async openReportPreview(student: StudentGradeCard | null = this.activeReportStudent()): Promise<void> {
     if (!student) {
       return;
     }
+    await this.ensureReportDetailBooks();
+    this.observationDraft.set(this.savedObservations()[student.studentId] ?? this.buildDefaultObservation(student));
     this.previewStudent.set(student);
     this.isReportPreviewOpen.set(true);
   }
@@ -731,10 +780,26 @@ export class GradesPageComponent {
   closeReportPreview(): void {
     this.isReportPreviewOpen.set(false);
     this.previewStudent.set(null);
+    this.observationDraft.set('');
+  }
+
+  savePreviewObservation(): void {
+    const student = this.previewStudent();
+    if (!student) {
+      return;
+    }
+
+    const value = this.observationDraft().trim();
+    this.savedObservations.update((current) => ({
+      ...current,
+      [student.studentId]: value || this.buildDefaultObservation(student)
+    }));
+    this.snackBar.open('Observación guardada en la vista previa', 'Cerrar', { duration: 2200 });
   }
 
   updateProfileSubject(subjectId: number | null): void {
     this.selectedSubjectId.set(subjectId);
+    this.selectedProfileExpandedSubjectId.set(null);
   }
 
   profileSubjectsFor(student: StudentGradeCard | null) {
@@ -830,6 +895,20 @@ export class GradesPageComponent {
     return `${completed} de ${total} asignaturas con promedio registrado.`;
   }
 
+  pdfObservationText(student: StudentGradeCard | null): string {
+    if (!student) {
+      return '';
+    }
+    return this.savedObservations()[student.studentId] ?? this.buildDefaultObservation(student);
+  }
+
+  pdfObservationLines(student: StudentGradeCard | null): string[] {
+    return this.pdfObservationText(student)
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
   pdfScore(value: number | null | undefined): string {
     return value == null ? '-' : value.toFixed(1).replace('.', ',');
   }
@@ -894,6 +973,31 @@ export class GradesPageComponent {
 
   pdfCourseLabel(): string {
     return this.pdfText(this.selectedCourse()?.name ?? '');
+  }
+
+  pdfSubjectScore(student: StudentGradeCard, subjectId: number, index: number): number | null {
+    return this.pdfSubjectDetail(student, subjectId).scores[index] ?? null;
+  }
+
+  pdfSubjectAverage(student: StudentGradeCard, subjectId: number, fallbackAverage: number | null | undefined): number | null {
+    const detailAverage = this.pdfSubjectDetail(student, subjectId).average;
+    return detailAverage ?? fallbackAverage ?? null;
+  }
+
+  reportSubjectScores(student: StudentGradeCard, subjectId: number): Array<number | null> {
+    return this.pdfSubjectDetail(student, subjectId).scores;
+  }
+
+  reportSubjectEntries(student: StudentGradeCard, subjectId: number): Array<{ label: string; score: number | null }> {
+    return this.pdfSubjectDetail(student, subjectId).evaluations;
+  }
+
+  profileSubjectScores(student: StudentGradeCard, subjectId: number): Array<number | null> {
+    return this.pdfSubjectDetail(student, subjectId).scores;
+  }
+
+  profileSubjectEntries(student: StudentGradeCard, subjectId: number): Array<{ label: string; score: number | null }> {
+    return this.pdfSubjectDetail(student, subjectId).evaluations;
   }
 
   shortSubjectName(subjectName: string): string {
@@ -990,13 +1094,18 @@ export class GradesPageComponent {
   private loadGradeBook(): void {
     const courseId = this.selectedCourseId();
     const periodId = this.selectedPeriodId();
+    const subjectId = this.selectedSubjectId();
     if (!courseId || !periodId) {
       return;
     }
 
+    const requestId = ++this.gradeBookRequestId;
     this.isLoading.set(true);
-    this.gradeApiService.getGradeBook(courseId, periodId, this.selectedSubjectId()).subscribe({
+    this.gradeApiService.getGradeBook(courseId, periodId, subjectId).subscribe({
       next: (view) => {
+        if (requestId !== this.gradeBookRequestId || courseId !== this.selectedCourseId() || periodId !== this.selectedPeriodId()) {
+          return;
+        }
         this.gradeBook.set(view);
         this.gradeBookNotice.set(null);
         this.selectedSubjectId.set(view.subjectId);
@@ -1006,6 +1115,9 @@ export class GradesPageComponent {
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
+        if (requestId !== this.gradeBookRequestId) {
+          return;
+        }
         this.isLoading.set(false);
         const translatedMessage = this.translateGradeErrorMessage(error.error?.message);
         if (translatedMessage) {
@@ -1030,13 +1142,25 @@ export class GradesPageComponent {
       return;
     }
 
+    const requestId = ++this.profileRequestId;
     this.isLoading.set(true);
     this.gradeApiService.getStudentProfile(courseId, periodId).subscribe({
       next: (view) => {
+        if (requestId !== this.profileRequestId || courseId !== this.selectedCourseId() || periodId !== this.selectedPeriodId()) {
+          return;
+        }
         this.studentProfile.set(view);
+        const currentStudentId = this.selectedProfileStudentId();
+        const hasSelectedStudent = view.students.some((student) => student.studentId === currentStudentId);
+        this.selectedProfileStudentId.set(hasSelectedStudent ? currentStudentId : (view.students[0]?.studentId ?? null));
+        this.selectedProfileExpandedSubjectId.set(null);
         this.isLoading.set(false);
+        void this.ensureReportDetailBooks();
       },
       error: (error: HttpErrorResponse) => {
+        if (requestId !== this.profileRequestId) {
+          return;
+        }
         this.isLoading.set(false);
       this.showError(error, 'No fue posible cargar la ficha por estudiante');
       }
@@ -1050,13 +1174,25 @@ export class GradesPageComponent {
       return;
     }
 
+    const requestId = ++this.reportsRequestId;
     this.isLoading.set(true);
     this.gradeApiService.getReports(courseId, periodId).subscribe({
       next: (view) => {
+        if (requestId !== this.reportsRequestId || courseId !== this.selectedCourseId() || periodId !== this.selectedPeriodId()) {
+          return;
+        }
         this.reports.set(view);
+        const currentStudentId = this.selectedReportStudentId();
+        const hasSelectedStudent = view.students.some((student) => student.studentId === currentStudentId);
+        this.selectedReportStudentId.set(hasSelectedStudent ? currentStudentId : (view.students[0]?.studentId ?? null));
+        this.selectedReportSubjectId.set(null);
         this.isLoading.set(false);
+        void this.ensureReportDetailBooks();
       },
       error: (error: HttpErrorResponse) => {
+        if (requestId !== this.reportsRequestId) {
+          return;
+        }
         this.isLoading.set(false);
         this.showError(error, 'No fue posible cargar los informes de notas');
       }
@@ -1111,6 +1247,7 @@ export class GradesPageComponent {
 
     this.isExporting.set(true);
     try {
+      await this.ensureReportDetailBooks();
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, precision: 12 });
       let firstPage = true;
 
@@ -1156,6 +1293,101 @@ export class GradesPageComponent {
 
   private waitForRender(): Promise<void> {
     return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  }
+
+  private clearTabState(): void {
+    this.gradeBookRequestId += 1;
+    this.profileRequestId += 1;
+    this.reportsRequestId += 1;
+    this.gradeBook.set(null);
+    this.studentProfile.set(null);
+    this.reports.set(null);
+    this.reportDetailBooks.set([]);
+    this.previewStudent.set(null);
+    this.pdfStudent.set(null);
+    this.isReportPreviewOpen.set(false);
+    this.gradeBookNotice.set(null);
+    this.gradeBookSearch.set('');
+    this.profileRunSearchTerm.set('');
+    this.reportRunSearchTerm.set('');
+    this.selectedProfileStudentId.set(null);
+    this.selectedProfileExpandedSubjectId.set(null);
+    this.selectedReportStudentId.set(null);
+    this.selectedReportSubjectId.set(null);
+    this.closeDraftEvaluationDialog();
+    this.closeEvaluationDetails();
+  }
+
+  private async ensureReportDetailBooks(): Promise<void> {
+    const courseId = this.selectedCourseId();
+    const periodId = this.selectedPeriodId();
+    if (!courseId || !periodId) {
+      this.reportDetailBooks.set([]);
+      return;
+    }
+
+    const currentBooks = this.reportDetailBooks();
+    if (currentBooks.length > 0 && currentBooks.every((book) => book.courseId === courseId && book.periodId === periodId)) {
+      return;
+    }
+
+    try {
+      const initialBook = await firstValueFrom(this.gradeApiService.getGradeBook(courseId, periodId, null));
+      const remainingSubjects = (initialBook.subjects ?? []).filter((subject) => subject.id !== initialBook.subjectId);
+      const additionalBooks = remainingSubjects.length === 0
+        ? []
+        : await firstValueFrom(
+            forkJoin(
+              remainingSubjects.map((subject) =>
+                this.gradeApiService.getGradeBook(courseId, periodId, subject.id).pipe(catchError(() => of(null)))
+              )
+            )
+          );
+
+      this.reportDetailBooks.set([initialBook, ...additionalBooks.filter((book): book is GradeBookView => book != null)]);
+    } catch {
+      this.reportDetailBooks.set([]);
+    }
+  }
+
+  private pdfSubjectDetail(student: StudentGradeCard, subjectId: number): ReportSubjectDetail {
+    const book = this.reportDetailBooks().find((item) => item.subjectId === subjectId);
+    if (!book) {
+      return { scores: [], average: null, evaluations: [] };
+    }
+
+    const studentRow = book.students.find((row) => row.studentId === student.studentId);
+    if (!studentRow) {
+      return { scores: [], average: null, evaluations: [] };
+    }
+
+    const evaluationOrder = new Map(book.evaluations.map((evaluation) => [evaluation.id, evaluation.order]));
+    const orderedScores = [...studentRow.scores]
+      .sort((left, right) => (evaluationOrder.get(left.evaluationId) ?? 0) - (evaluationOrder.get(right.evaluationId) ?? 0))
+      .map((score) => ({
+        label: score.code,
+        score: score.score ?? null
+      }));
+
+    const scores = orderedScores
+      .slice(0, 3)
+      .map((score) => score.score);
+
+    const hasRealScores = studentRow.scores.some((score) => score.score != null);
+
+    return {
+      scores,
+      average: hasRealScores ? studentRow.average : null,
+      evaluations: orderedScores
+    };
+  }
+
+  private buildDefaultObservation(student: StudentGradeCard): string {
+    return [
+      this.reportCompletionLabel(student),
+      this.profileTrendLabel(student),
+      `Documento generado automáticamente desde ConectaSchool el ${this.pdfIssueDate()}.`
+    ].join('\n');
   }
 
   private buildPeriodExport(courseId: number, periodId: number) {

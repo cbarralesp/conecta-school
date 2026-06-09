@@ -16,6 +16,8 @@ public record SubjectRequest(
         @Size(max = 500) String description,
         @Size(max = 80) String referenceLevel,
         @Min(1) @Max(20) int suggestedHours,
-        List<Long> teacherIds
+        List<Long> teacherIds,
+        List<Long> applicableGradeIds,
+        List<Long> applicableCourseIds
 ) {
 }

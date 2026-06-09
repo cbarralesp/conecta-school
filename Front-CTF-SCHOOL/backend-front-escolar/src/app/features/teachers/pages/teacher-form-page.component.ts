@@ -54,6 +54,35 @@ export class TeacherFormPageComponent {
   readonly staffType = signal<'DOCENTE' | 'ASISTENTE'>(this.requestedStaffType);
   readonly generatedUsernamePreview = signal('');
   readonly staffTypeLabel = computed(() => this.staffType() === 'ASISTENTE' ? 'Asistente' : 'Docente');
+  readonly filteredSubjectOptions = computed(() => {
+    const selectedCourseIds = this.form.controls.courseIds.value;
+    if (!selectedCourseIds.length) {
+      return this.subjectOptions();
+    }
+
+    const selectedCourseIdSet = new Set(selectedCourseIds);
+
+    const selectedGradeIds = new Set(
+      this.courseOptions()
+        .filter((course) => selectedCourseIds.includes(course.id))
+        .map((course) => course.gradeId)
+        .filter((gradeId): gradeId is number => typeof gradeId === 'number' && gradeId > 0)
+    );
+
+    if (!selectedGradeIds.size) {
+      return this.subjectOptions().filter((subject) =>
+        !subject.applicableCourseIds.length
+        || subject.applicableCourseIds.some((courseId) => selectedCourseIdSet.has(courseId))
+      );
+    }
+
+    return this.subjectOptions().filter((subject) =>
+      (subject.applicableCourseIds.length
+        ? subject.applicableCourseIds.some((courseId) => selectedCourseIdSet.has(courseId))
+        : !subject.applicableGradeIds.length
+          || subject.applicableGradeIds.some((gradeId) => selectedGradeIds.has(gradeId)))
+    );
+  });
   readonly pageTitle = computed(() => this.isEditMode ? `Editar ${this.staffTypeLabel()}` : `Nuevo ${this.staffTypeLabel()}`);
   readonly pageSubtitle = computed(() =>
     this.isEditMode
@@ -99,6 +128,7 @@ export class TeacherFormPageComponent {
     this.loadCatalog();
     this.observeLocationSelection();
     this.observeAccessPreview();
+    this.observeCourseSubjectScope();
     if (this.isEditMode) {
       this.loadTeacher();
     }
@@ -247,6 +277,12 @@ export class TeacherFormPageComponent {
     return this.buildDefaultAccessPassword();
   }
 
+  updateAccessPassword(value: string): void {
+    this.systemAccessGroup.controls.temporaryPassword.setValue(value);
+    this.systemAccessGroup.controls.temporaryPassword.markAsDirty();
+    this.systemAccessGroup.controls.temporaryPassword.markAsTouched();
+  }
+
   copyAccessValue(value: string, label: string): void {
     if (!value.trim()) {
       this.snackBar.open(`No hay ${label.toLowerCase()} para copiar`, 'Cerrar', { duration: 2200 });
@@ -282,7 +318,10 @@ export class TeacherFormPageComponent {
     });
 
     this.courseApiService.findAll().subscribe({
-      next: (courses) => this.courseOptions.set(courses),
+      next: (courses) => {
+        this.courseOptions.set(courses);
+        this.reconcileSubjectSelectionForCourses();
+      },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos')
     });
 
@@ -534,6 +573,23 @@ export class TeacherFormPageComponent {
     ).subscribe((preview) => {
       this.generatedUsernamePreview.set(preview ?? '');
     });
+  }
+
+  private observeCourseSubjectScope(): void {
+    this.form.controls.courseIds.valueChanges
+      .pipe(startWith(this.form.controls.courseIds.value), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.reconcileSubjectSelectionForCourses());
+  }
+
+  private reconcileSubjectSelectionForCourses(): void {
+    const allowedSubjectIds = new Set(this.filteredSubjectOptions().map((subject) => subject.id));
+    const current = this.form.controls.subjectIds.value;
+    const next = current.filter((subjectId) => allowedSubjectIds.has(subjectId));
+    if (next.length !== current.length) {
+      this.form.controls.subjectIds.setValue(next);
+      this.form.controls.subjectIds.markAsDirty();
+      this.form.controls.subjectIds.updateValueAndValidity();
+    }
   }
 
   private findCommunesByRegionId(regionId: number): ChileCommune[] {

@@ -48,6 +48,10 @@ export class SubjectApiService {
       description: normalizeDashboardText(subject.description),
       referenceLevel: normalizeDashboardText(subject.referenceLevel),
       displayLevel: normalizeDashboardText(subject.displayLevel ?? ''),
+      applicableGradeIds: (subject.applicableGradeIds ?? []).map(Number),
+      applicableGradeNames: (subject.applicableGradeNames ?? []).map((name) => normalizeDashboardText(name)),
+      applicableCourseIds: (subject.applicableCourseIds ?? []).map(Number),
+      applicableCourseNames: (subject.applicableCourseNames ?? []).map((name) => normalizeDashboardText(name)),
       assignedTeachers: (subject.assignedTeachers ?? []).map((teacher) => ({
         ...teacher,
         code: normalizeDashboardText(teacher.code),
