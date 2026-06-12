@@ -8,6 +8,15 @@ export interface AttendanceCatalog {
   courses: AttendanceCourseOption[];
 }
 
+export interface AttendanceStudentSummary {
+  studentId: number;
+  percentage: number;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  totalRecords: number;
+}
+
 export interface DailyAttendanceStudent {
   studentId: number;
   run: string;
@@ -29,6 +38,8 @@ export interface DailyAttendanceView {
   courseId: number;
   courseName: string;
   date: string;
+  classSuspended: boolean;
+  suspensionMessage: string | null;
   totalStudents: number;
   presentCount: number;
   absentCount: number;
@@ -47,6 +58,8 @@ export interface DailyAttendanceEntryPayload {
 export interface SaveDailyAttendancePayload {
   courseId: number;
   date: string;
+  classSuspended?: boolean;
+  suspensionReason?: string | null;
   entries: DailyAttendanceEntryPayload[];
 }
 
@@ -122,6 +135,12 @@ export interface MonthlyAttendanceDaySummary {
   attendancePercentage: number;
 }
 
+export interface MonthlyAttendanceSpecialDate {
+  date: string;
+  type: 'VACACIONES' | 'FERIADO' | 'INTERFERIADO' | 'SUSPENSION';
+  label: string;
+}
+
 export interface MonthlyAttendanceView {
   courseId: number;
   courseName: string;
@@ -132,5 +151,7 @@ export interface MonthlyAttendanceView {
   totalLate: number;
   distribution: MonthlyAttendanceDistribution;
   dailySummary: MonthlyAttendanceDaySummary[];
+  suspendedDates: string[];
+  specialDates: MonthlyAttendanceSpecialDate[];
   students: MonthlyAttendanceStudent[];
 }

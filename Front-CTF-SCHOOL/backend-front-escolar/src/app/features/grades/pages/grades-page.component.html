@@ -611,10 +611,10 @@
                   </div>
                 </div>
                 <div class="pdf-bulletin__status-box">
-                  <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
-                  <span>Ranking del curso</span>
+                  <strong style="color:#2563eb;font-size:1.9rem;font-weight:800;line-height:1;">{{ pdfStudentAttendance(student) }}</strong>
+                  <span>Asistencia semestral</span>
                   <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
-                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                    <span [style.width.%]="pdfStudentAttendanceWidth(student)"></span>
                   </div>
                 </div>
                 <div class="pdf-bulletin__status-box">
@@ -642,15 +642,14 @@
                       <tr>
                         <td class="left">
                           <strong>{{ pdfText(subject.subjectName) }}</strong>
-                          <span>Prof. {{ pdfTeacherName() }}</span>
                         </td>
                         <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
                         <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
                         <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
-                        <td>
+                        <td class="pdf-bulletin__cell-pill">
                           <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
-                        <td>
+                        <td class="pdf-bulletin__cell-pill">
                           <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
                       </tr>
@@ -660,10 +659,10 @@
                     <tr>
                       <td class="left">Promedio general semestral</td>
                       <td colspan="3"></td>
-                      <td>
+                      <td class="pdf-bulletin__cell-pill">
                         <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
                       </td>
-                      <td>
+                      <td class="pdf-bulletin__cell-pill">
                         <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
                       </td>
                     </tr>
@@ -772,10 +771,10 @@
                       </div>
                     </div>
                     <div class="pdf-bulletin__status-box">
-                      <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
-                      <span>Ranking del curso</span>
+                      <strong style="color:#2563eb;font-size:1.9rem;font-weight:800;line-height:1;">{{ pdfStudentAttendance(student) }}</strong>
+                      <span>Asistencia semestral</span>
                       <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
-                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                        <span [style.width.%]="pdfStudentAttendanceWidth(student)"></span>
                       </div>
                     </div>
                     <div class="pdf-bulletin__status-box">
@@ -803,15 +802,14 @@
                           <tr>
                             <td class="left">
                               <strong>{{ pdfText(subject.subjectName) }}</strong>
-                              <span>Prof. {{ pdfTeacherName() }}</span>
                             </td>
                             <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
                             <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
                             <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
-                            <td>
+                            <td class="pdf-bulletin__cell-pill">
                               <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
-                            <td>
+                            <td class="pdf-bulletin__cell-pill">
                               <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
                           </tr>
@@ -821,10 +819,10 @@
                         <tr>
                           <td class="left">Promedio general semestral</td>
                           <td colspan="3"></td>
-                          <td>
+                          <td class="pdf-bulletin__cell-pill">
                             <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
                           </td>
-                          <td>
+                          <td class="pdf-bulletin__cell-pill">
                             <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
                           </td>
                         </tr>
@@ -1312,10 +1310,10 @@
                   </div>
                 </div>
                 <div class="pdf-bulletin__status-box">
-                  <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
-                  <span>Ranking del curso</span>
+                  <strong style="color:#2563eb;font-size:1.9rem;font-weight:800;line-height:1;">{{ pdfStudentAttendance(student) }}</strong>
+                  <span>Asistencia semestral</span>
                   <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
-                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                    <span [style.width.%]="pdfStudentAttendanceWidth(student)"></span>
                   </div>
                 </div>
                 <div class="pdf-bulletin__status-box">
@@ -1343,15 +1341,14 @@
                       <tr>
                         <td class="left">
                           <strong>{{ pdfText(subject.subjectName) }}</strong>
-                          <span>Prof. {{ pdfTeacherName() }}</span>
                         </td>
                         <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
                         <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
                         <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
-                        <td>
+                        <td class="pdf-bulletin__cell-pill">
                           <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
-                        <td>
+                        <td class="pdf-bulletin__cell-pill">
                           <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                         </td>
                       </tr>
@@ -1361,10 +1358,10 @@
                     <tr>
                       <td class="left">Promedio general semestral</td>
                       <td colspan="3"></td>
-                      <td>
+                      <td class="pdf-bulletin__cell-pill">
                         <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
                       </td>
-                      <td>
+                      <td class="pdf-bulletin__cell-pill">
                         <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
                       </td>
                     </tr>
@@ -1498,10 +1495,10 @@
                       </div>
                     </div>
                     <div class="pdf-bulletin__status-box">
-                      <strong>#{{ reportStudentRank(student) ?? '-' }}</strong>
-                      <span>Ranking del curso</span>
+                      <strong style="color:#2563eb;font-size:1.9rem;font-weight:800;line-height:1;">{{ pdfStudentAttendance(student) }}</strong>
+                      <span>Asistencia semestral</span>
                       <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
-                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                        <span [style.width.%]="pdfStudentAttendanceWidth(student)"></span>
                       </div>
                     </div>
                     <div class="pdf-bulletin__status-box">
@@ -1529,15 +1526,14 @@
                           <tr>
                             <td class="left">
                               <strong>{{ pdfText(subject.subjectName) }}</strong>
-                              <span>Prof. {{ pdfTeacherName() }}</span>
                             </td>
                             <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
                             <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
                             <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
-                            <td>
+                            <td class="pdf-bulletin__cell-pill">
                               <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
-                            <td>
+                            <td class="pdf-bulletin__cell-pill">
                               <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
                             </td>
                           </tr>
@@ -1547,10 +1543,10 @@
                         <tr>
                           <td class="left">Promedio general semestral</td>
                           <td colspan="3"></td>
-                          <td>
+                          <td class="pdf-bulletin__cell-pill">
                             <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
                           </td>
-                          <td>
+                          <td class="pdf-bulletin__cell-pill">
                             <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
                           </td>
                         </tr>

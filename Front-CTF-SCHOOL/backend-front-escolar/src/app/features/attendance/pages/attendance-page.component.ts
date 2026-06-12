@@ -12,7 +12,7 @@ import {
 import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { catchError, forkJoin, of } from 'rxjs';
+import { catchError, forkJoin, map, of } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
@@ -35,9 +35,11 @@ import {
 } from '../../../core/models/attendance.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
-type AttendanceTab = 'daily' | 'weekly' | 'monthly';
-type AttendanceStatus = 'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'SIN_MARCAR';
+type AttendanceTab = 'daily' | 'weekly' | 'monthly' | 'semester';
+type AttendanceStatus = 'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'SUSPENDIDO' | 'SIN_MARCAR';
 type MonthlySelection = 'all' | number;
+type SemesterSelection = '1' | '2';
+type AttendanceSpecialDateType = 'VACACIONES' | 'FERIADO' | 'INTERFERIADO' | 'SUSPENSION';
 
 interface MonthlyCalendarCell {
   kind: 'empty' | 'day';
@@ -46,14 +48,53 @@ interface MonthlyCalendarCell {
   isWeekend?: boolean;
   isFuture?: boolean;
   isToday?: boolean;
+  specialType?: AttendanceSpecialDateType | null;
+  specialLabel?: string | null;
   globalPercentage?: number | null;
   individualStatus?: string | null;
+}
+
+interface SemesterCalendarCell {
+  dayNumber: number | null;
+  specialMarker?: string | null;
+  statusClass: string;
+  statusLabel: string;
+}
+
+interface SemesterCalendarMonth {
+  month: number;
+  label: string;
+  weeks: { weekKey: string; cells: SemesterCalendarCell[] }[];
+}
+
+interface SemesterAggregatedStudent {
+  studentId: number;
+  run: string;
+  fullName: string;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  percentage: number;
+  riskStatus: string;
+  days: Map<string, string>;
+}
+
+interface SemesterCourseAttendanceHighlight {
+  courseId: number;
+  courseName: string;
+  studentName: string;
+  studentRun: string;
+  percentage: number;
 }
 
 interface AttendanceNoteDialogState {
   studentId: number;
   studentName: string;
   note: string;
+}
+
+interface ClassSuspensionDialogState {
+  reason: string;
 }
 
 class MondayFirstDateAdapter extends NativeDateAdapter {
@@ -98,8 +139,11 @@ export class AttendancePageComponent {
   readonly activeTab = signal<AttendanceTab>('daily');
   readonly dailySearch = signal('');
   readonly noteDialog = signal<AttendanceNoteDialogState | null>(null);
+  readonly classSuspensionDialog = signal<ClassSuspensionDialogState | null>(null);
   readonly monthlySearch = signal('');
   readonly selectedMonthlyStudentId = signal<MonthlySelection>('all');
+  readonly selectedSemester = signal<SemesterSelection>('1');
+  readonly selectedSemesterStudentId = signal<MonthlySelection>('all');
   readonly catalog = signal<AttendanceCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
   readonly selectedDate = signal(this.toIsoDate(new Date()));
@@ -108,6 +152,8 @@ export class AttendancePageComponent {
   readonly dailyView = signal<DailyAttendanceView | null>(null);
   readonly weeklyView = signal<WeeklyAttendanceView | null>(null);
   readonly monthlyView = signal<MonthlyAttendanceView | null>(null);
+  readonly semesterViews = signal<MonthlyAttendanceView[]>([]);
+  readonly semesterCourseHighlights = signal<SemesterCourseAttendanceHighlight[]>([]);
   readonly isLoading = signal(false);
   readonly isSaving = signal(false);
   readonly isExporting = signal(false);
@@ -116,6 +162,7 @@ export class AttendancePageComponent {
   readonly selectedCourse = computed(
     () => this.orderedCourses().find((course) => course.id === this.selectedCourseId()) ?? null
   );
+  readonly isClassSuspended = computed(() => this.dailyView()?.classSuspended ?? false);
   readonly dailyCounters = computed(() => ({
     total: this.dailyView()?.totalStudents ?? 0,
     present: this.dailyView()?.presentCount ?? 0,
@@ -168,6 +215,16 @@ export class AttendancePageComponent {
     );
   });
   readonly monthlyDailySummary = computed(() => this.monthlyView()?.dailySummary ?? []);
+  readonly monthlySpecialDates = computed(() => {
+    const specialDates = new Map<string, { type: AttendanceSpecialDateType; label: string }>();
+    for (const specialDate of this.monthlyView()?.specialDates ?? []) {
+      specialDates.set(specialDate.date, {
+        type: specialDate.type,
+        label: specialDate.label
+      });
+    }
+    return specialDates;
+  });
   readonly filteredMonthlyStudents = computed(() => {
     const query = this.monthlySearch().trim().toLowerCase();
     const students = this.monthlyView()?.students ?? [];
@@ -222,6 +279,7 @@ export class AttendancePageComponent {
       const weekend = current.getDay() === 0 || current.getDay() === 6;
       const isFuture = current.getTime() > today.getTime();
       const isToday = current.getTime() === today.getTime();
+      const specialDate = this.monthlySpecialDates().get(iso);
 
       cells.push({
         kind: 'day',
@@ -230,6 +288,8 @@ export class AttendancePageComponent {
         isWeekend: weekend,
         isFuture,
         isToday,
+        specialType: specialDate?.type ?? null,
+        specialLabel: specialDate?.label ?? null,
         globalPercentage: daySummary.get(day) ?? null,
         individualStatus: selectedStudentDays.get(iso) ?? null
       });
@@ -264,6 +324,114 @@ export class AttendancePageComponent {
       percentage: Math.min(100, student.presentPercentage + student.latePercentage)
     };
   });
+  readonly semesterMonths = computed(() => {
+    const schoolYear = this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+    const startMonth = this.selectedSemester() === '1' ? 1 : 7;
+    return Array.from({ length: 6 }, (_, index) => {
+      const monthNumber = startMonth + index;
+      return {
+        monthNumber,
+        value: `${schoolYear}-${`${monthNumber}`.padStart(2, '0')}`
+      };
+    });
+  });
+  readonly semesterStudents = computed<SemesterAggregatedStudent[]>(() => {
+    const aggregate = new Map<number, SemesterAggregatedStudent>();
+    const totalSchoolDays = this.semesterViews().reduce((sum, view) => sum + (view.schoolDays ?? 0), 0);
+
+    for (const month of this.semesterViews()) {
+      for (const student of month.students) {
+        const current =
+          aggregate.get(student.studentId) ??
+          {
+            studentId: student.studentId,
+            run: student.run,
+            fullName: student.fullName,
+            presentCount: 0,
+            absentCount: 0,
+            lateCount: 0,
+            percentage: 0,
+            riskStatus: 'NORMAL',
+            days: new Map<string, string>()
+          };
+
+        current.presentCount += student.presentCount;
+        current.absentCount += student.absentCount;
+        current.lateCount += student.lateCount;
+
+        for (const day of student.days) {
+          current.days.set(day.date, day.status);
+        }
+
+        aggregate.set(student.studentId, current);
+      }
+    }
+
+    return Array.from(aggregate.values())
+      .map((student) => {
+        const attendanceLike = student.presentCount + student.lateCount;
+        const percentage = totalSchoolDays > 0 ? Math.round((attendanceLike * 100) / totalSchoolDays) : 0;
+        return {
+          ...student,
+          percentage,
+          riskStatus: this.resolveSemesterRisk(student.absentCount, student.lateCount)
+        };
+      })
+      .sort((left, right) => left.fullName.localeCompare(right.fullName, 'es'));
+  });
+  readonly selectedSemesterStudent = computed(() => {
+    const selected = this.selectedSemesterStudentId();
+    if (selected === 'all') {
+      return null;
+    }
+    return this.semesterStudents().find((student) => student.studentId === selected) ?? null;
+  });
+  readonly semesterSummary = computed(() => {
+    const selectedStudent = this.selectedSemesterStudent();
+    const months = this.semesterViews();
+    const totalSchoolDays = months.reduce((sum, view) => sum + (view.schoolDays ?? 0), 0);
+
+    if (selectedStudent) {
+      return {
+        schoolDays: totalSchoolDays,
+        percentage: selectedStudent.percentage,
+        absences: selectedStudent.absentCount,
+        late: selectedStudent.lateCount,
+        label: selectedStudent.fullName
+      };
+    }
+
+    const students = this.semesterStudents();
+    const presentCount = students.reduce((sum, student) => sum + student.presentCount, 0);
+    const absentCount = students.reduce((sum, student) => sum + student.absentCount, 0);
+    const lateCount = students.reduce((sum, student) => sum + student.lateCount, 0);
+    const studentSlots = totalSchoolDays * Math.max(1, students.length);
+    const percentage = studentSlots > 0 ? Math.round(((presentCount + lateCount) * 100) / studentSlots) : 0;
+
+    return {
+      schoolDays: totalSchoolDays,
+      percentage,
+      absences: absentCount,
+      late: lateCount,
+      label: this.selectedCourse()?.name ?? 'Curso'
+    };
+  });
+  readonly semesterHeadline = computed(() => {
+    const months = this.semesterViews();
+    if (months.length === 0) {
+      const schoolYear = this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+      return this.selectedSemester() === '1'
+        ? `Enero a Junio ${schoolYear}`
+        : `Julio a Diciembre ${schoolYear}`;
+    }
+
+    return `${months[0]?.monthLabel ?? ''} a ${months[months.length - 1]?.monthLabel ?? ''}`
+      .replace(/\s+\d{4}\s+a\s+/, ' a ')
+      .trim();
+  });
+  readonly semesterCalendarMonths = computed<SemesterCalendarMonth[]>(() =>
+    this.semesterViews().map((month) => this.buildSemesterCalendarMonth(month))
+  );
 
   constructor() {
     this.loadCatalog();
@@ -286,6 +454,8 @@ export class AttendancePageComponent {
       this.dailyView.set(null);
       this.weeklyView.set(null);
       this.monthlyView.set(null);
+      this.semesterViews.set([]);
+      this.semesterCourseHighlights.set([]);
       return;
     }
 
@@ -300,6 +470,11 @@ export class AttendancePageComponent {
 
     if (this.activeTab() === 'monthly') {
       this.loadMonthlyView();
+      return;
+    }
+
+    if (this.activeTab() === 'semester') {
+      this.loadSemesterView();
     }
   }
 
@@ -326,6 +501,14 @@ export class AttendancePageComponent {
     this.loadMonthlyView();
   }
 
+  updateSemester(value: SemesterSelection): void {
+    this.selectedSemester.set(value);
+    this.selectedSemesterStudentId.set('all');
+    if (this.activeTab() === 'semester') {
+      this.loadSemesterView();
+    }
+  }
+
   updateDailySearch(value: string): void {
     this.dailySearch.set(value);
   }
@@ -336,6 +519,10 @@ export class AttendancePageComponent {
 
   selectMonthlyStudent(studentId: MonthlySelection): void {
     this.selectedMonthlyStudentId.set(studentId);
+  }
+
+  selectSemesterStudent(studentId: MonthlySelection): void {
+    this.selectedSemesterStudentId.set(studentId);
   }
 
   updateStudentNote(studentId: number, value: string): void {
@@ -378,7 +565,45 @@ export class AttendancePageComponent {
     this.closeStudentNote();
   }
 
+  openClassSuspensionDialog(): void {
+    const current = this.dailyView();
+    if (!current || current.classSuspended || this.isSaving()) {
+      return;
+    }
+
+    this.classSuspensionDialog.set({
+      reason: current.suspensionMessage?.trim() || ''
+    });
+  }
+
+  closeClassSuspensionDialog(): void {
+    this.classSuspensionDialog.set(null);
+  }
+
+  updateClassSuspensionReason(value: string): void {
+    this.classSuspensionDialog.update((current) => (current ? { ...current, reason: value } : current));
+  }
+
+  confirmClassSuspension(): void {
+    const dialog = this.classSuspensionDialog();
+    if (!dialog) {
+      return;
+    }
+
+    const reason = dialog.reason.trim();
+    if (!reason) {
+      this.snackBar.open('Agrega el motivo de la suspensión de clases', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    this.closeClassSuspensionDialog();
+    this.persistClassSuspension(true, reason);
+  }
+
   setStudentStatus(studentId: number, status: AttendanceStatus): void {
+    if (this.isClassSuspended()) {
+      return;
+    }
     this.dailyView.update((current) => {
       if (!current) {
         return current;
@@ -402,6 +627,9 @@ export class AttendancePageComponent {
   }
 
   updateArrivalTime(studentId: number, value: string): void {
+    if (this.isClassSuspended()) {
+      return;
+    }
     this.dailyView.update((current) => {
       if (!current) {
         return current;
@@ -416,6 +644,9 @@ export class AttendancePageComponent {
   }
 
   markAll(status: AttendanceStatus): void {
+    if (this.isClassSuspended()) {
+      return;
+    }
     this.dailyView.update((current) => {
       if (!current) {
         return current;
@@ -432,6 +663,9 @@ export class AttendancePageComponent {
   }
 
   resetDailyAttendance(): void {
+    if (this.isClassSuspended()) {
+      return;
+    }
     this.dailyView.update((current) => {
       if (!current) {
         return current;
@@ -470,6 +704,8 @@ export class AttendancePageComponent {
       .saveDaily({
         courseId,
         date: this.selectedDate(),
+        classSuspended: current.classSuspended,
+        suspensionReason: current.suspensionMessage,
         entries: current.students.map((student) => ({
           studentId: student.studentId,
           status: student.status,
@@ -488,6 +724,53 @@ export class AttendancePageComponent {
         error: (error: HttpErrorResponse) => {
           this.isSaving.set(false);
           this.showError(error, 'No fue posible guardar la asistencia');
+        }
+      });
+  }
+
+  toggleClassSuspension(): void {
+    const current = this.dailyView();
+    const courseId = this.selectedCourseId();
+    if (!current || !courseId || this.isSaving()) {
+      return;
+    }
+
+    if (!current.classSuspended) {
+      this.openClassSuspensionDialog();
+      return;
+    }
+
+    const nextState = !current.classSuspended;
+    this.isSaving.set(true);
+    this.attendanceApiService
+      .saveDaily({
+        courseId,
+        date: this.selectedDate(),
+        classSuspended: nextState,
+        suspensionReason: nextState ? 'Clases suspendidas' : null,
+        entries: current.students.map((student) => ({
+          studentId: student.studentId,
+          status: student.status,
+          arrivalTime: student.arrivalTime,
+          note: student.note
+        }))
+      })
+      .subscribe({
+        next: (view) => {
+          this.dailyView.set(view);
+          this.isSaving.set(false);
+          this.snackBar.open(
+            nextState ? 'La jornada quedó marcada como clases suspendidas' : 'La jornada volvió a estar habilitada',
+            'Cerrar',
+            { duration: 2800 }
+          );
+          this.loadWeeklyView();
+          this.loadMonthlyView();
+          this.loadSemesterView();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSaving.set(false);
+          this.showError(error, 'No fue posible actualizar la suspensión de clases');
         }
       });
   }
@@ -597,6 +880,10 @@ export class AttendancePageComponent {
         return 'Ausente';
       case 'ATRASADO':
         return 'Atrasado';
+      case 'SUSPENDIDO':
+        return 'Suspensión';
+      case 'CLASES_SUSPENDIDAS':
+        return 'Clases suspendidas';
       default:
         return 'Sin marcar';
     }
@@ -611,6 +898,8 @@ export class AttendancePageComponent {
       case 'CRITICO':
       case 'RIESGO':
         return 'is-danger';
+      case 'SUSPENDIDO':
+        return 'is-info';
       default:
         return 'is-warning';
     }
@@ -624,6 +913,10 @@ export class AttendancePageComponent {
         return 'dot-danger';
       case 'ATRASADO':
         return 'dot-warning';
+      case 'SUSPENDIDO':
+        return 'dot-info';
+      case 'CLASES_SUSPENDIDAS':
+        return 'dot-info';
       default:
         return 'dot-empty';
     }
@@ -674,12 +967,20 @@ export class AttendancePageComponent {
       return 'is-empty';
     }
 
+    if (cell.specialType) {
+      return this.specialDateClass(cell.specialType);
+    }
+
     if (cell.isWeekend) {
       return 'is-weekend';
     }
 
     if (cell.isFuture) {
       return 'is-future';
+    }
+
+    if (cell.date && (this.monthlyView()?.suspendedDates ?? []).includes(cell.date)) {
+      return 'is-suspension';
     }
 
     const selectedStudent = this.selectedMonthlyStudent();
@@ -704,8 +1005,49 @@ export class AttendancePageComponent {
         return 'is-absent';
       case 'ATRASADO':
         return 'is-late';
+      case 'SUSPENDIDO':
+      case 'CLASES_SUSPENDIDAS':
+        return 'is-suspension';
       default:
         return 'is-none';
+    }
+  }
+
+  specialDateClass(type: AttendanceSpecialDateType): string {
+    switch (type) {
+      case 'VACACIONES':
+        return 'is-vacation';
+      case 'INTERFERIADO':
+      case 'FERIADO':
+        return 'is-holiday';
+      default:
+        return 'is-suspension';
+    }
+  }
+
+  specialDateLabel(type: AttendanceSpecialDateType): string {
+    switch (type) {
+      case 'VACACIONES':
+        return 'Vacaciones';
+      case 'INTERFERIADO':
+        return 'Interferiado';
+      case 'FERIADO':
+        return 'Feriado';
+      default:
+        return 'Suspension';
+    }
+  }
+
+  specialDateShortLabel(type: AttendanceSpecialDateType): string {
+    switch (type) {
+      case 'VACACIONES':
+        return 'V';
+      case 'INTERFERIADO':
+        return 'I';
+      case 'FERIADO':
+        return 'F';
+      default:
+        return 'S';
     }
   }
 
@@ -717,6 +1059,16 @@ export class AttendancePageComponent {
       .map((value) => value[0])
       .join('')
       .toUpperCase();
+  }
+
+  formatShortDate(value: string): string {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+      return value;
+    }
+
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year.slice(-2)}`;
   }
 
   trackStudent(index: number, student: { studentId: number }): number {
@@ -763,6 +1115,9 @@ export class AttendancePageComponent {
         break;
       case 'monthly':
         this.loadMonthlyView();
+        break;
+      case 'semester':
+        this.loadSemesterView();
         break;
     }
   }
@@ -821,28 +1176,302 @@ export class AttendancePageComponent {
     });
   }
 
+  private loadSemesterView(): void {
+    const courseId = this.selectedCourseId();
+    if (!courseId) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const semesterMonths = this.semesterMonths();
+    const courseRankingRequests = this.orderedCourses().map((course) =>
+      forkJoin(
+        semesterMonths.map((month) =>
+          this.attendanceApiService.getMonthly(course.id, month.value).pipe(catchError(() => of(null)))
+        )
+      ).pipe(map((views) => this.buildSemesterCourseHighlight(course.id, course.name, views.filter((view): view is MonthlyAttendanceView => !!view))))
+    );
+
+    forkJoin({
+      selectedCourseViews: forkJoin(semesterMonths.map((month) => this.attendanceApiService.getMonthly(courseId, month.value))),
+      courseHighlights: courseRankingRequests.length > 0 ? forkJoin(courseRankingRequests) : of([])
+    }).subscribe({
+      next: ({ selectedCourseViews, courseHighlights }) => {
+        this.semesterViews.set(selectedCourseViews);
+        this.semesterCourseHighlights.set(
+          courseHighlights
+            .filter((highlight): highlight is SemesterCourseAttendanceHighlight => highlight !== null)
+            .sort((left, right) => right.percentage - left.percentage || left.courseName.localeCompare(right.courseName, 'es'))
+        );
+        const selectedStudentId = this.selectedSemesterStudentId();
+        if (
+          selectedStudentId !== 'all' &&
+          !selectedCourseViews.some((view) => view.students.some((student) => student.studentId === selectedStudentId))
+        ) {
+          this.selectedSemesterStudentId.set('all');
+        }
+        this.isLoading.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoading.set(false);
+        this.showError(error, 'No fue posible cargar el resumen semestral');
+      }
+    });
+  }
+
+  private buildSemesterCourseHighlight(
+    courseId: number,
+    courseName: string,
+    views: MonthlyAttendanceView[]
+  ): SemesterCourseAttendanceHighlight | null {
+    if (views.length === 0) {
+      return null;
+    }
+
+    const totalSchoolDays = views.reduce((sum, view) => sum + (view.schoolDays ?? 0), 0);
+    if (totalSchoolDays <= 0) {
+      return null;
+    }
+
+    const students = new Map<number, { studentName: string; studentRun: string; attendanceLike: number }>();
+    for (const view of views) {
+      for (const student of view.students) {
+        const current =
+          students.get(student.studentId) ??
+          {
+            studentName: student.fullName,
+            studentRun: student.run,
+            attendanceLike: 0
+          };
+
+        current.attendanceLike += student.presentCount + student.lateCount;
+        students.set(student.studentId, current);
+      }
+    }
+
+    let bestHighlight: SemesterCourseAttendanceHighlight | null = null;
+    for (const student of students.values()) {
+      const percentage = Math.round((student.attendanceLike * 100) / totalSchoolDays);
+      if (
+        !bestHighlight ||
+        percentage > bestHighlight.percentage ||
+        (percentage === bestHighlight.percentage && student.studentName.localeCompare(bestHighlight.studentName, 'es') < 0)
+      ) {
+        bestHighlight = {
+          courseId,
+          courseName,
+          studentName: student.studentName,
+          studentRun: student.studentRun,
+          percentage
+        };
+      }
+    }
+
+    return bestHighlight;
+  }
+
+  private buildSemesterCalendarMonth(view: MonthlyAttendanceView): SemesterCalendarMonth {
+    const monthMatch = view.monthLabel.match(/\b(20\d{2})\b/);
+    const year = monthMatch ? Number(monthMatch[1]) : this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+    const month = this.parseMonthLabel(view.monthLabel);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const firstDay = new Date(year, month - 1, 1);
+    const firstWeekOffset = (firstDay.getDay() + 6) % 7;
+    const selectedStudent = this.selectedSemesterStudent();
+    const daySummary = new Map(view.dailySummary.map((day) => [Number(day.dayLabel), day.attendancePercentage]));
+    const studentDays = selectedStudent?.days ?? new Map<string, string>();
+    const suspendedDates = new Set(view.suspendedDates ?? []);
+    const specialDates = new Map(
+      (view.specialDates ?? []).map((specialDate) => [specialDate.date, specialDate])
+    );
+    const label = new Intl.DateTimeFormat('es-CL', { month: 'long' })
+      .format(new Date(year, month - 1, 1))
+      .replace(/^\w/, (char) => char.toUpperCase());
+    const weeks = new Map<number, { weekKey: string; cells: SemesterCalendarCell[] }>();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const current = new Date(year, month - 1, day);
+      const weekday = current.getDay();
+      if (weekday === 0 || weekday === 6) {
+        continue;
+      }
+
+      const weekIndex = Math.floor((firstWeekOffset + day - 1) / 7);
+      const isoDate = this.toIsoDate(current);
+      const weekdayIndex = weekday - 1;
+      const week =
+        weeks.get(weekIndex) ??
+        {
+          weekKey: `${label}-${weekIndex}`,
+          cells: Array.from({ length: 5 }, () => ({ dayNumber: null, specialMarker: null, statusClass: 'is-empty', statusLabel: '' }))
+        };
+
+      let statusClass = 'semester-none';
+      let statusLabel = 'Sin clases';
+      let specialMarker: string | null = null;
+      const specialDate = specialDates.get(isoDate);
+
+      if (specialDate) {
+        statusClass = this.semesterSpecialDateClass(specialDate.type as AttendanceSpecialDateType);
+        statusLabel = specialDate.label || this.specialDateLabel(specialDate.type as AttendanceSpecialDateType);
+        specialMarker = this.specialDateShortLabel(specialDate.type as AttendanceSpecialDateType);
+      } else if (suspendedDates.has(isoDate)) {
+        statusClass = 'semester-suspension';
+        statusLabel = 'Clases suspendidas';
+        specialMarker = 'S';
+      } else if (selectedStudent) {
+        const status = studentDays.get(isoDate);
+        statusClass = this.semesterStudentStatusClass(status);
+        statusLabel = status ? this.statusLabel(status) : 'Sin clases';
+      } else {
+        const percentage = daySummary.get(day);
+        statusClass = this.semesterPercentageClass(percentage);
+        statusLabel = percentage == null ? 'Sin clases' : `${percentage}% asistencia`;
+      }
+
+      week.cells[weekdayIndex] = {
+        dayNumber: day,
+        specialMarker,
+        statusClass,
+        statusLabel
+      };
+
+      weeks.set(weekIndex, week);
+    }
+
+    return {
+      month,
+      label,
+      weeks: Array.from(weeks.values())
+    };
+  }
+
+  private semesterPercentageClass(percentage: number | null | undefined): string {
+    if (percentage == null) {
+      return 'semester-none';
+    }
+    if (percentage >= 80) {
+      return 'semester-present';
+    }
+    if (percentage >= 60) {
+      return 'semester-late';
+    }
+    return 'semester-absent';
+  }
+
+  private semesterStudentStatusClass(status: string | undefined): string {
+    switch (status) {
+      case 'PRESENTE':
+        return 'semester-present';
+      case 'ATRASADO':
+        return 'semester-late';
+      case 'AUSENTE':
+        return 'semester-absent';
+      case 'SUSPENDIDO':
+      case 'CLASES_SUSPENDIDAS':
+        return 'semester-suspension';
+      default:
+        return 'semester-none';
+    }
+  }
+
+  private semesterSpecialDateClass(type: AttendanceSpecialDateType): string {
+    switch (type) {
+      case 'VACACIONES':
+        return 'semester-vacation';
+      case 'INTERFERIADO':
+      case 'FERIADO':
+        return 'semester-holiday';
+      default:
+        return 'semester-suspension';
+    }
+  }
+
+  private resolveSemesterRisk(absentCount: number, lateCount: number): string {
+    if (absentCount >= 4 || lateCount >= 5) {
+      return 'CRITICO';
+    }
+    if (absentCount >= 2 || lateCount >= 3) {
+      return 'RIESGO';
+    }
+    return 'NORMAL';
+  }
+
+  private parseMonthLabel(monthLabel: string): number {
+    const normalized = monthLabel
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const index = months.findIndex((month) => normalized.includes(month));
+    return index >= 0 ? index + 1 : 1;
+  }
+
   private recalculateDaily(view: DailyAttendanceView, students: DailyAttendanceStudent[]): DailyAttendanceView {
     const presentCount = students.filter((student) => student.status === 'PRESENTE').length;
     const absentCount = students.filter((student) => student.status === 'AUSENTE').length;
     const lateCount = students.filter((student) => student.status === 'ATRASADO').length;
+    const suspendedCount = students.filter((student) => student.status === 'SUSPENDIDO').length;
     const totalStudents = students.length;
-    const markedCount = presentCount + absentCount + lateCount;
+    const markedCount = view.classSuspended ? 0 : presentCount + absentCount + lateCount + suspendedCount;
 
     return {
       ...view,
       students,
       totalStudents,
-      presentCount,
-      absentCount,
-      lateCount,
+      presentCount: view.classSuspended ? 0 : presentCount,
+      absentCount: view.classSuspended ? 0 : absentCount,
+      lateCount: view.classSuspended ? 0 : lateCount,
       summary: {
         markedCount,
-        progressPercent: totalStudents > 0 ? Math.round((markedCount / totalStudents) * 100) : 0,
-        presentPercentage: totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0,
-        absentPercentage: totalStudents > 0 ? Math.round((absentCount / totalStudents) * 100) : 0,
-        latePercentage: totalStudents > 0 ? Math.round((lateCount / totalStudents) * 100) : 0
+        progressPercent: view.classSuspended ? 0 : totalStudents > 0 ? Math.round((markedCount / totalStudents) * 100) : 0,
+        presentPercentage: view.classSuspended ? 0 : totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0,
+        absentPercentage: view.classSuspended ? 0 : totalStudents > 0 ? Math.round((absentCount / totalStudents) * 100) : 0,
+        latePercentage: view.classSuspended ? 0 : totalStudents > 0 ? Math.round((lateCount / totalStudents) * 100) : 0
       }
     };
+  }
+
+  private persistClassSuspension(classSuspended: boolean, suspensionReason: string | null): void {
+    const current = this.dailyView();
+    const courseId = this.selectedCourseId();
+    if (!current || !courseId || this.isSaving()) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.attendanceApiService
+      .saveDaily({
+        courseId,
+        date: this.selectedDate(),
+        classSuspended,
+        suspensionReason,
+        entries: current.students.map((student) => ({
+          studentId: student.studentId,
+          status: student.status,
+          arrivalTime: student.arrivalTime,
+          note: student.note
+        }))
+      })
+      .subscribe({
+        next: (view) => {
+          this.dailyView.set(view);
+          this.isSaving.set(false);
+          this.snackBar.open(
+            classSuspended
+              ? 'La jornada quedó marcada como clases suspendidas'
+              : 'La jornada volvió a estar habilitada',
+            'Cerrar',
+            { duration: 2800 }
+          );
+          this.loadWeeklyView();
+          this.loadMonthlyView();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSaving.set(false);
+          this.showError(error, 'No fue posible actualizar la suspensión de clases');
+        }
+      });
   }
 
   private defaultArrivalTime(): string {
@@ -918,20 +1547,37 @@ export class AttendancePageComponent {
       };
     }
 
-    const monthlyView = this.monthlyView();
-    if (!monthlyView) {
+    if (this.activeTab() === 'monthly') {
+      const monthlyView = this.monthlyView();
+      if (!monthlyView) {
+        return null;
+      }
+
+      return {
+        ...basePayload,
+        filters: {
+          month: this.selectedMonth(),
+          search: this.monthlySearch().trim(),
+          selectedStudentId: this.selectedMonthlyStudentId()
+        },
+        attendance: monthlyView,
+        selectedStudent: this.selectedMonthlyStudent()
+      };
+    }
+
+    const semesterViews = this.semesterViews();
+    if (semesterViews.length === 0) {
       return null;
     }
 
     return {
       ...basePayload,
       filters: {
-        month: this.selectedMonth(),
-        search: this.monthlySearch().trim(),
-        selectedStudentId: this.selectedMonthlyStudentId()
+        semester: this.selectedSemester(),
+        selectedStudentId: this.selectedSemesterStudentId()
       },
-      attendance: monthlyView,
-      selectedStudent: this.selectedMonthlyStudent()
+      attendance: semesterViews,
+      selectedStudent: this.selectedSemesterStudent()
     };
   }
 

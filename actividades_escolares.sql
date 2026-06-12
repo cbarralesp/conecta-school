@@ -27,6 +27,10 @@ VALUES
     ('DEPORTIVA', 'Deportiva', 'Eventos y actividades deportivas del establecimiento.', '#E5F2D6', '#47771A', 'sports_soccer', TRUE),
     ('CULTURAL', 'Cultural', 'Actividades artisticas, ferias y presentaciones culturales.', '#FDEACF', '#A26112', 'theater_comedy', TRUE),
     ('INSTITUCIONAL', 'Institucional', 'Reuniones y actividades de coordinacion institucional.', '#E9E5FB', '#5447B7', 'account_balance', TRUE),
+    ('TRANSVERSAL', 'Transversal (Todos los cursos)', 'Actividad publicada para todos los cursos del calendario institucional.', '#E0F2FE', '#0F4C81', 'groups', TRUE),
+    ('VACACIONES', 'Vacaciones', 'Periodo sin clases que aplica para todos los cursos.', '#DBEAFE', '#1D4ED8', 'beach_access', TRUE),
+    ('FERIADO', 'Feriado', 'Dia feriado sin clases para todos los cursos.', '#FCE7F3', '#BE185D', 'celebration', TRUE),
+    ('SUSPENSION', 'Suspension', 'Suspension institucional de clases para todos los cursos.', '#E2E8F0', '#475569', 'event_busy', TRUE),
     ('SOCIAL', 'Social', 'Actividades de convivencia y encuentros con la comunidad.', '#FBE1E8', '#B13B68', 'favorite', TRUE)
 ON CONFLICT ("CODIGO") DO UPDATE
 SET

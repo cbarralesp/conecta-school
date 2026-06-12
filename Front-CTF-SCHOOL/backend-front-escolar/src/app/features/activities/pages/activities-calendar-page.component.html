@@ -185,19 +185,21 @@
         </section>
       </div>
 
-      @if (calendar(); as exportCalendar) {
+      @if (exportCalendarView(); as exportCalendar) {
         <section class="pdf-export-shell" aria-hidden="true">
           <article #pdfCalendar class="pdf-export-card">
             <header class="pdf-export-header">
               <div class="pdf-export-brand">
-                <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
-                <div>
-                  <span>Calendario escolar</span>
-                  <strong>Torre Fuerte School</strong>
-                  <small>Vista mensual para impresion institucional</small>
+                <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                <div class="pdf-export-brand-copy">
+                  <strong>Calendario academico</strong>
+                  <span>Torre Fuerte School</span>
                 </div>
               </div>
-              <div class="pdf-export-month">{{ exportCalendar.monthLabel }}</div>
+              <div class="pdf-export-title-block">
+                <strong>{{ pdfTitle() }}</strong>
+              </div>
+              <div class="pdf-export-month">{{ exportMonthLabel() }}</div>
             </header>
 
             <section class="pdf-export-grid">
@@ -207,7 +209,7 @@
                 }
               </div>
 
-              @for (week of monthGrid(); track $index) {
+              @for (week of exportMonthGrid(); track $index) {
                 <div class="pdf-export-week">
                   @for (day of week; track day.isoDate) {
                     <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
@@ -554,19 +556,21 @@
         </section>
       </ng-template>
 
-      @if (calendar(); as exportCalendar) {
+      @if (exportCalendarView(); as exportCalendar) {
         <section class="pdf-export-shell" aria-hidden="true">
           <article #pdfCalendar class="pdf-export-card">
             <header class="pdf-export-header">
               <div class="pdf-export-brand">
-                <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
-                <div>
-                  <span>Calendario escolar</span>
-                  <strong>Torre Fuerte School</strong>
-                  <small>Vista mensual para impresion institucional</small>
+                <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                <div class="pdf-export-brand-copy">
+                  <strong>Calendario academico</strong>
+                  <span>Torre Fuerte School</span>
                 </div>
               </div>
-              <div class="pdf-export-month">{{ exportCalendar.monthLabel }}</div>
+              <div class="pdf-export-title-block">
+                <strong>{{ pdfTitle() }}</strong>
+              </div>
+              <div class="pdf-export-month">{{ exportMonthLabel() }}</div>
             </header>
 
             <section class="pdf-export-grid">
@@ -576,7 +580,7 @@
                 }
               </div>
 
-              @for (week of monthGrid(); track $index) {
+              @for (week of exportMonthGrid(); track $index) {
                 <div class="pdf-export-week">
                   @for (day of week; track day.isoDate) {
                     <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">

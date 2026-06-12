@@ -637,54 +637,67 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  align-items: flex-end;
+  align-items: center;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #d8e2ee;
 }
 
 .pdf-export-brand {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 0.8rem;
+  min-width: 240px;
+  display: flex;
   align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  flex: 0 0 240px;
 }
 
 .pdf-export-brand img {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   object-fit: contain;
 }
 
-.pdf-export-brand span,
-.pdf-export-brand small {
-  display: block;
+.pdf-export-brand-copy {
+  display: grid;
+  gap: 0.12rem;
 }
 
-.pdf-export-brand span {
-  color: #4f7096;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.pdf-export-brand strong {
-  display: block;
-  margin-top: 0.1rem;
-  font-size: 1.4rem;
+.pdf-export-brand-copy strong {
+  font-size: 0.95rem;
+  font-weight: 800;
   color: #173553;
+  text-transform: capitalize;
 }
 
-.pdf-export-brand small {
-  margin-top: 0.15rem;
-  color: #5d6f8a;
+.pdf-export-brand-copy span {
   font-size: 0.72rem;
+  font-weight: 700;
+  color: #4f7096;
+  letter-spacing: 0.04em;
+}
+
+.pdf-export-title-block {
+  flex: 1;
+  text-align: center;
+  padding-inline: 0.8rem;
+}
+
+.pdf-export-title-block strong {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #173553;
+  text-transform: capitalize;
 }
 
 .pdf-export-month {
-  font-size: 1.35rem;
-  font-weight: 600;
+  width: 88px;
+  flex: 0 0 88px;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: #173553;
+  text-align: right;
+  text-transform: capitalize;
 }
 
 .pdf-export-grid {

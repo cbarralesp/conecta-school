@@ -567,6 +567,8 @@ body {
   padding: 0 8px;
   border-radius: 5px;
   font-size: 11.5px;
+  margin-inline: auto;
+  text-align: center;
 }
 
 .pdf-bulletin__concept-chip {
@@ -1044,3 +1046,98 @@ body {
 }
 
 
+.student-report-actions{display:flex;align-items:center;justify-content:flex-end;justify-self:end;gap:.65rem;flex-wrap:wrap}
+.student-report-button{min-height:40px!important;border-radius:14px!important;font-weight:800!important}
+.student-report-button--primary{background:#2563eb!important;color:#fff!important}
+.student-report-pdf-shell{position:fixed;left:-10000px;top:0;width:880px;pointer-events:none;opacity:0}
+.student-report-sheet{padding:18px 20px;background:#fff;border-radius:20px;box-shadow:0 14px 34px rgba(15,23,42,.08)}
+.student-report-sheet--preview{padding:20px 22px}
+.report-preview-overlay{position:fixed;inset:0;z-index:1300;display:grid;place-items:center;padding:1rem;background:rgba(15,23,42,.48);backdrop-filter:blur(8px)}
+.report-preview-modal{width:min(1080px,100%);max-height:min(92vh,920px);display:flex;flex-direction:column;border-radius:24px;border:1px solid rgba(203,213,225,.9);background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);box-shadow:0 24px 80px rgba(15,23,42,.24);overflow:hidden}
+.report-preview-modal__header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.15rem;background:linear-gradient(135deg,#eef6ff 0%,#f8fbff 100%);border-bottom:1px solid rgba(203,213,225,.9)}
+.report-preview-modal__header h3{margin:0;font-size:1rem;font-weight:800;color:#173553}
+.report-preview-modal__header p{margin:.18rem 0 0;font-size:.8rem;font-weight:600;color:#64748b}
+.report-preview-modal__actions{display:flex;align-items:center;gap:.6rem}
+.report-preview-modal__close{background:#f1f5f9!important;color:#475569!important}
+.report-preview-modal__body{padding:1rem;overflow:auto;background:linear-gradient(180deg,#f8fbff 0%,#eef4fb 100%)}
+.pdf-bulletin{display:grid;gap:1rem;color:#0f172a}
+.pdf-bulletin__header{display:flex;align-items:flex-start;justify-content:space-between;gap:1.2rem;padding-bottom:1rem;border-bottom:2px solid #1e3a8a}
+.pdf-bulletin__brand{display:flex;align-items:center;gap:.9rem}
+.pdf-bulletin__brand img{width:56px;height:56px;object-fit:contain}
+.pdf-bulletin__brand strong{display:block;font-size:1.15rem;font-weight:800;color:#0f172a}
+.pdf-bulletin__brand span{display:block;margin-top:.12rem;font-size:.76rem;color:#64748b}
+.pdf-bulletin__meta{text-align:right;display:grid;gap:.18rem}
+.pdf-bulletin__meta strong{font-size:.95rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#0f1e3c}
+.pdf-bulletin__meta span{font-size:.74rem;color:#64748b}
+.pdf-bulletin__student-band{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.7rem;padding:.95rem 1rem;border:1px solid #dbe5f1;border-radius:16px;background:#f8fbff}
+.pdf-bulletin__field{display:grid;gap:.18rem}
+.pdf-bulletin__field span{font-size:.66rem;font-weight:800;color:#94a3b8;letter-spacing:.05em;text-transform:uppercase}
+.pdf-bulletin__field strong{font-size:.9rem;font-weight:800;color:#0f172a}
+.pdf-bulletin__status-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem}
+.pdf-bulletin__status-box{padding:.95rem 1rem;border:1px solid #dbe5f1;border-radius:16px;background:#fff;text-align:center}
+.pdf-bulletin__status-box strong{display:block;font-size:1.8rem;font-weight:800;color:#0f766e}
+.pdf-bulletin__status-box span{display:block;margin-top:.18rem;font-size:.72rem;font-weight:800;color:#8a9bb5;letter-spacing:.04em;text-transform:uppercase}
+.pdf-bulletin__mini-bar{height:5px;margin-top:.7rem;border-radius:999px;background:#e2e8f0;overflow:hidden}
+.pdf-bulletin__mini-bar span{display:block;height:100%;border-radius:999px;background:#22c55e}
+.pdf-bulletin__mini-bar--blue span{background:#3b82f6}
+.pdf-bulletin__status-pill{display:flex;align-items:center;justify-content:center;min-width:160px;min-height:38px;border-radius:10px;padding:0 .9rem!important;font-size:.9rem!important;line-height:1;text-align:center;margin-inline:auto}
+.pdf-bulletin__status-pill.is-approved{background:#172554;color:#facc15!important}
+.pdf-bulletin__status-pill.is-review{background:#7f1d1d;color:#fff!important}
+.pdf-bulletin__section{display:grid;gap:.6rem}
+.pdf-bulletin__section h3{margin:0;font-size:.86rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#0f1e3c}
+.pdf-bulletin__table{width:100%;border-collapse:collapse}
+.pdf-bulletin__table thead tr{background:#172554}
+.pdf-bulletin__table th{padding:.55rem .7rem;font-size:.72rem;font-weight:800;color:#fff;text-align:center;letter-spacing:.04em;text-transform:uppercase}
+.pdf-bulletin__table th.left,.pdf-bulletin__table td.left{text-align:left}
+.pdf-bulletin__table tbody tr:nth-child(even){background:#f8fafc}
+.pdf-bulletin__table td{padding:.65rem .7rem;font-size:.84rem;color:#334155;border-bottom:1px solid #eef2f7;text-align:center;vertical-align:middle}
+.pdf-bulletin__table td strong{display:block;font-size:.9rem;color:#0f172a}
+.pdf-bulletin__table td span{display:block;font-size:.74rem;color:#94a3b8}
+.pdf-bulletin__table tfoot tr{background:#eef6ef;border-top:2px solid #172554}
+.pdf-bulletin__table tfoot td{font-weight:800;color:#0f172a;vertical-align:middle}
+.pdf-bulletin__table td.pdf-bulletin__cell-pill{vertical-align:middle;padding-top:.55rem;padding-bottom:.55rem}
+.pdf-bulletin__avg-chip,.pdf-bulletin__concept-chip{display:flex;align-items:center;justify-content:center;min-width:56px;min-height:30px;padding:0 .7rem;border-radius:9px;font-size:.8rem;font-weight:800;margin-inline:auto;text-align:center;line-height:1}
+.pdf-bulletin__table td .pdf-bulletin__avg-chip,
+.pdf-bulletin__table td .pdf-bulletin__concept-chip,
+.pdf-bulletin__table td .pdf-bulletin__status-pill{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-inline:auto;
+  margin-block:0;
+  line-height:1;
+  text-align:center;
+}
+.pdf-bulletin__table td .pdf-bulletin__avg-chip,
+.pdf-bulletin__table td .pdf-bulletin__concept-chip{
+  font-size:.8rem;
+}
+.pdf-bulletin__table tfoot td .pdf-bulletin__avg-chip,
+.pdf-bulletin__table tfoot td .pdf-bulletin__status-pill{
+  margin-block:0;
+}
+.pdf-bulletin__table td:has(.pdf-bulletin__avg-chip),
+.pdf-bulletin__table td:has(.pdf-bulletin__concept-chip),
+.pdf-bulletin__table td:has(.pdf-bulletin__status-pill){vertical-align:middle}
+.pdf-bulletin__avg-chip.is-high,.pdf-bulletin__concept-chip.is-high{background:#d1fae5;color:#065f46}
+.pdf-bulletin__avg-chip.is-mid,.pdf-bulletin__concept-chip.is-mid{background:#fef3c7;color:#92400e}
+.pdf-bulletin__avg-chip.is-low,.pdf-bulletin__concept-chip.is-low{background:#fee2e2;color:#991b1b}
+.pdf-bulletin__avg-chip.is-empty,.pdf-bulletin__concept-chip.is-empty{background:#f1f5f9;color:#94a3b8}
+.pdf-bulletin__table td.is-high{color:#059669;font-weight:800}
+.pdf-bulletin__table td.is-mid{color:#d97706;font-weight:800}
+.pdf-bulletin__table td.is-low{color:#dc2626;font-weight:800}
+.pdf-bulletin__table td.is-empty{color:#cbd5e1;font-weight:700}
+.pdf-bulletin__observations{padding:.9rem 1rem;border:1px solid #dbe5f1;border-radius:14px;background:#fff}
+.pdf-bulletin__observations--readonly{display:grid;gap:.55rem}
+.pdf-bulletin__observation-line{position:relative;padding-left:1rem;font-size:.84rem;line-height:1.55;color:#334155}
+.pdf-bulletin__observation-line::before{content:'';position:absolute;left:0;top:.48rem;width:7px;height:7px;border-radius:50%;background:#10b981}
+.pdf-bulletin__observation-line:nth-child(2)::before{background:#f59e0b}
+.pdf-bulletin__observation-line:nth-child(3)::before{background:#3b82f6}
+.pdf-bulletin__signatures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+.pdf-bulletin__signatures div{padding-top:.6rem;border-top:1px solid #334155;text-align:center;font-size:.75rem;line-height:1.5;color:#64748b;font-weight:700}
+.pdf-bulletin__footer{text-align:center;font-size:.7rem;color:#cbd5e1;letter-spacing:.04em}
+@media (max-width:900px){
+  .student-report-actions{justify-content:flex-start;justify-self:start}
+  .report-preview-modal{width:min(100%,980px)}
+  .pdf-bulletin__student-band,.pdf-bulletin__status-row,.pdf-bulletin__signatures{grid-template-columns:1fr}
+}

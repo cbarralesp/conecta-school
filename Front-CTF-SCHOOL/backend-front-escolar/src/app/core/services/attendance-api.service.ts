@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
 import {
   AttendanceCatalog,
+  AttendanceStudentSummary,
   DailyAttendanceView,
   MonthlyAttendanceView,
   SaveDailyAttendancePayload,
@@ -85,6 +86,13 @@ export class AttendanceApiService {
         distribution: {
           ...view.distribution
         },
+        suspendedDates: (view.suspendedDates ?? []).map((date) => normalizeDashboardText(date)),
+        specialDates: (view.specialDates ?? []).map((specialDate) => ({
+          ...specialDate,
+          date: normalizeDashboardText(specialDate.date),
+          type: normalizeDashboardText(specialDate.type) as 'VACACIONES' | 'FERIADO' | 'INTERFERIADO' | 'SUSPENSION',
+          label: normalizeDashboardText(specialDate.label)
+        })),
         dailySummary: view.dailySummary.map((day) => ({
           ...day,
           dayLabel: normalizeDashboardText(day.dayLabel)
@@ -102,10 +110,28 @@ export class AttendanceApiService {
     );
   }
 
+  getStudentSummary(
+    courseId: number,
+    studentId: number,
+    schoolYear: number,
+    semester: number
+  ): Observable<AttendanceStudentSummary> {
+    return this.http.get<AttendanceStudentSummary>(`${API_CONFIG.baseUrl}/asistencia/resumen-estudiante`, {
+      params: {
+        courseId,
+        studentId,
+        schoolYear,
+        semester
+      }
+    });
+  }
+
   private normalizeDailyView(view: DailyAttendanceView): DailyAttendanceView {
     return {
       ...view,
       courseName: normalizeDashboardText(view.courseName),
+      classSuspended: !!view.classSuspended,
+      suspensionMessage: normalizeDashboardText(view.suspensionMessage),
       summary: {
         markedCount:
           view.summary?.markedCount ??

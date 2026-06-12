@@ -23,7 +23,11 @@
           </button>
           <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'monthly'" (click)="setTab('monthly')">
             <mat-icon>calendar_month</mat-icon>
-            Resumen mensual
+            Mensual
+          </button>
+          <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'semester'" (click)="setTab('semester')">
+            <mat-icon>date_range</mat-icon>
+            Semestre
           </button>
         </section>
 
@@ -156,16 +160,39 @@
               </label>
             </label>
 
+            <button
+              mat-stroked-button
+              type="button"
+              class="bulk-button bulk-button--suspend-day"
+              [class.is-active]="isClassSuspended()"
+              (click)="toggleClassSuspension()"
+              [disabled]="isSaving()">
+              <mat-icon>{{ isClassSuspended() ? 'event_busy' : 'warning_amber' }}</mat-icon>
+              {{ isClassSuspended() ? 'Clases suspendidas' : 'Suspensión de clases' }}
+            </button>
+
           </div>
 
           <div class="attendance-card__bulk">
-            <button mat-stroked-button type="button" class="bulk-button" (click)="markAll('PRESENTE')">
+            <button mat-stroked-button type="button" class="bulk-button" (click)="markAll('PRESENTE')" [disabled]="isClassSuspended()">
               <mat-icon>done_all</mat-icon>
               Marcar todos presentes
             </button>
           </div>
         </div>
       </mat-card>
+
+      @if (dailyView()?.classSuspended) {
+        <mat-card appearance="outlined" class="suspension-banner">
+          <div class="suspension-banner__icon">
+            <mat-icon>event_busy</mat-icon>
+          </div>
+          <div class="suspension-banner__copy">
+            <strong>Clases suspendidas</strong>
+            <span>{{ dailyView()?.suspensionMessage || 'La jornada de este curso fue marcada como suspendida.' }}</span>
+          </div>
+        </mat-card>
+      }
 
       <mat-card appearance="outlined" class="attendance-card">
         <div class="attendance-card__header">
@@ -203,14 +230,17 @@
               </div>
 
               <div class="status-actions">
-                <button type="button" class="status-button is-present" [class.is-selected]="student.status === 'PRESENTE'" (click)="setStudentStatus(student.studentId, 'PRESENTE')">
+                <button type="button" class="status-button is-present" [class.is-selected]="student.status === 'PRESENTE'" (click)="setStudentStatus(student.studentId, 'PRESENTE')" [disabled]="isClassSuspended()">
                   <mat-icon>check</mat-icon>
                 </button>
-                <button type="button" class="status-button is-absent" [class.is-selected]="student.status === 'AUSENTE'" (click)="setStudentStatus(student.studentId, 'AUSENTE')">
+                <button type="button" class="status-button is-absent" [class.is-selected]="student.status === 'AUSENTE'" (click)="setStudentStatus(student.studentId, 'AUSENTE')" [disabled]="isClassSuspended()">
                   <mat-icon>close</mat-icon>
                 </button>
-                <button type="button" class="status-button is-late" [class.is-selected]="student.status === 'ATRASADO'" (click)="setStudentStatus(student.studentId, 'ATRASADO')">
+                <button type="button" class="status-button is-late" [class.is-selected]="student.status === 'ATRASADO'" (click)="setStudentStatus(student.studentId, 'ATRASADO')" [disabled]="isClassSuspended()">
                   <mat-icon>schedule</mat-icon>
+                </button>
+                <button type="button" class="status-button is-suspended" [class.is-selected]="student.status === 'SUSPENDIDO'" (click)="setStudentStatus(student.studentId, 'SUSPENDIDO')" [disabled]="isClassSuspended()">
+                  <mat-icon>event_busy</mat-icon>
                 </button>
               </div>
 
@@ -220,6 +250,7 @@
                     @if (student.status === 'PRESENTE') { check }
                     @else if (student.status === 'AUSENTE') { close }
                     @else if (student.status === 'ATRASADO') { schedule }
+                    @else if (student.status === 'SUSPENDIDO') { event_busy }
                     @else { remove }
                   </mat-icon>
                   {{ statusLabel(student.status) }}
@@ -228,14 +259,14 @@
 
               <div class="arrival-cell">
                 @if (student.status === 'ATRASADO' || student.status === 'PRESENTE') {
-                  <input type="time" [value]="student.arrivalTime ?? ''" (change)="updateArrivalTime(student.studentId, $any($event.target).value)" />
+                  <input type="time" [value]="student.arrivalTime ?? ''" (change)="updateArrivalTime(student.studentId, $any($event.target).value)" [disabled]="isClassSuspended()" />
                 } @else {
                   <span>—</span>
                 }
               </div>
 
               <div class="note-cell">
-                <button type="button" class="note-trigger" [class.has-note]="!!student.note" (click)="openStudentNote(student)">
+                <button type="button" class="note-trigger" [class.has-note]="!!student.note" (click)="openStudentNote(student)" [disabled]="isClassSuspended()">
                   @if (student.note) {
                     {{ student.note }}
                   } @else {
@@ -347,7 +378,7 @@
               <tr>
                 <th>Estudiante</th>
                 @for (date of weeklyView()?.dates ?? []; track date) {
-                  <th>{{ date }}</th>
+                  <th>{{ formatShortDate(date) }}</th>
                 }
                 <th>% Asist.</th>
                 <th>Estado</th>
@@ -371,6 +402,8 @@
                         @if (day.status === 'PRESENTE') { P }
                         @else if (day.status === 'AUSENTE') { A }
                         @else if (day.status === 'ATRASADO') { T }
+                        @else if (day.status === 'SUSPENDIDO') { S }
+                        @else if (day.status === 'CLASES_SUSPENDIDAS') { CS }
                         @else { – }
                       </span>
                     </td>
@@ -535,11 +568,16 @@
                   <span><i class="is-good"></i>80%+</span>
                   <span><i class="is-mid"></i>60-79%</span>
                   <span><i class="is-bad"></i>&lt;60%</span>
-                } @else {
+                }
+                @if (selectedMonthlyStudent()) {
                   <span><i class="is-present"></i>Presente</span>
                   <span><i class="is-absent"></i>Ausente</span>
                   <span><i class="is-late"></i>Atrasado</span>
+                  <span><i class="is-suspended"></i>Suspensión</span>
                 }
+                <span><i class="is-vacation"></i>Vacaciones</span>
+                <span><i class="is-holiday"></i>Feriado</span>
+                <span><i class="is-suspension"></i>Suspension</span>
               </div>
             </div>
 
@@ -552,15 +590,23 @@
                 @if (cell.kind === 'empty') {
                   <span class="monthly-calendar-grid__cell is-empty"></span>
                 } @else {
-                  <article class="monthly-calendar-grid__cell" [ngClass]="[monthlyCellClass(cell), cell.isToday ? 'is-today' : '']">
-                    <strong>{{ cell.dayNumber }}</strong>
-                    @if (!selectedMonthlyStudent() && !cell.isWeekend && !cell.isFuture && cell.globalPercentage !== null) {
+                  <article
+                    class="monthly-calendar-grid__cell"
+                    [ngClass]="[monthlyCellClass(cell), cell.isToday ? 'is-today' : '']"
+                    [attr.title]="cell.specialType ? (cell.dayNumber + ': ' + (cell.specialLabel || specialDateLabel(cell.specialType))) : null">
+                    <strong [class.attendance-special-marker]="!!cell.specialType">
+                      {{ cell.specialType ? specialDateShortLabel(cell.specialType) : cell.dayNumber }}
+                    </strong>
+                    @if (cell.specialType) {
+                    } @else if (!selectedMonthlyStudent() && !cell.isWeekend && !cell.isFuture && cell.globalPercentage !== null) {
                       <small>{{ cell.globalPercentage }}%</small>
                     } @else if (selectedMonthlyStudent() && !cell.isWeekend && !cell.isFuture && cell.individualStatus) {
                       <small>
                         @if (cell.individualStatus === 'PRESENTE') { P }
                         @else if (cell.individualStatus === 'AUSENTE') { A }
                         @else if (cell.individualStatus === 'ATRASADO') { T }
+                        @else if (cell.individualStatus === 'SUSPENDIDO') { S }
+                        @else if (cell.individualStatus === 'CLASES_SUSPENDIDAS') { CS }
                       </small>
                     }
                   </article>
@@ -622,6 +668,151 @@
         </section>
       }
     }
+
+    @if (activeTab() === 'semester') {
+      <section class="summary-grid">
+        <mat-card appearance="outlined" class="summary-card sc-blue">
+          <div class="summary-card__copy">
+            <strong>{{ semesterSummary().schoolDays }}</strong>
+            <span>Dias habiles</span>
+          </div>
+        </mat-card>
+        <mat-card appearance="outlined" class="summary-card sc-green">
+          <div class="summary-card__copy">
+            <strong>{{ semesterSummary().percentage }}%</strong>
+            <span>Asistencia semestral</span>
+          </div>
+        </mat-card>
+        <mat-card appearance="outlined" class="summary-card sc-red">
+          <div class="summary-card__copy">
+            <strong>{{ semesterSummary().absences }}</strong>
+            <span>Inasistencias</span>
+          </div>
+        </mat-card>
+        <mat-card appearance="outlined" class="summary-card sc-amber">
+          <div class="summary-card__copy">
+            <strong>{{ semesterSummary().late }}</strong>
+            <span>Atrasos</span>
+          </div>
+        </mat-card>
+      </section>
+
+      <mat-card appearance="outlined" class="attendance-card">
+        <div class="attendance-card__toolbar attendance-card__toolbar--semester">
+          <div class="attendance-card__filters">
+            <label class="inline-field">
+              <span class="inline-field__label">Curso:</span>
+              <label class="inline-select inline-field__control inline-field__control--course">
+                <mat-icon>school</mat-icon>
+                <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+                  @for (course of orderedCourses(); track course.id) {
+                    <option [value]="course.id">{{ course.name }}</option>
+                  }
+                </select>
+              </label>
+            </label>
+
+            <label class="inline-field">
+              <span class="inline-field__label">Semestre:</span>
+              <label class="inline-select inline-field__control inline-field__control--semester">
+                <mat-icon>calendar_view_month</mat-icon>
+                <select [value]="selectedSemester()" (change)="updateSemester($any($event.target).value)">
+                  <option value="1">Primer semestre</option>
+                  <option value="2">Segundo semestre</option>
+                </select>
+              </label>
+            </label>
+
+            <label class="inline-field">
+              <span class="inline-field__label">Estudiante:</span>
+              <label class="inline-select inline-field__control inline-field__control--student">
+                <mat-icon>person</mat-icon>
+                <select [value]="selectedSemesterStudentId()" (change)="selectSemesterStudent($any($event.target).value === 'all' ? 'all' : +$any($event.target).value)">
+                  <option value="all">Todo el curso</option>
+                  @for (student of semesterStudents(); track student.studentId) {
+                    <option [value]="student.studentId">{{ student.fullName }}</option>
+                  }
+                </select>
+              </label>
+            </label>
+          </div>
+        </div>
+
+        <section class="semester-board">
+          <section class="semester-calendar-card">
+            <div class="semester-calendar-card__header">
+              <div class="semester-calendar-card__title-block">
+                <h2>Calendario de asistencia</h2>
+                <p>{{ semesterHeadline() }}</p>
+              </div>
+            </div>
+
+            <div class="semester-calendar-card__grid">
+              @for (month of semesterCalendarMonths(); track month.label) {
+                <section class="semester-month">
+                  <strong class="semester-month__title">{{ month.label }}</strong>
+                  <div class="semester-month__body">
+                    <div class="semester-month__weekdays">
+                      @for (weekday of ['Lun', 'Mar', 'Mie', 'Jue', 'Vie']; track weekday) {
+                        <span class="semester-month__weekday">{{ weekday }}</span>
+                      }
+                    </div>
+
+                    <div class="semester-month__weeks">
+                      @for (week of month.weeks; track week.weekKey) {
+                        <div class="semester-month__week">
+                          @for (cell of week.cells; track $index) {
+                            <span class="semester-month__cell" [class]="cell.statusClass" [attr.title]="cell.dayNumber !== null ? (cell.dayNumber + ': ' + cell.statusLabel) : null">
+                              @if (cell.dayNumber !== null) {
+                                <strong [class.attendance-special-marker]="!!cell.specialMarker">{{ cell.specialMarker || cell.dayNumber }}</strong>
+                              }
+                            </span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </section>
+              }
+            </div>
+
+            <div class="semester-calendar-card__legend">
+              <span><i class="semester-none"></i>Sin clases</span>
+              <span><i class="semester-present"></i>Asistio</span>
+              <span><i class="semester-late"></i>Tardanza</span>
+              <span><i class="semester-absent"></i>Inasistencia</span>
+              <span><i class="semester-vacation"></i>Vacaciones</span>
+              <span><i class="semester-holiday"></i>Feriado</span>
+              <span><i class="semester-suspension"></i>Suspension</span>
+            </div>
+          </section>
+        </section>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="alert-card">
+        <div class="alert-card__header alert-card__header--centered">
+          <h2>Mejor asistencia por curso</h2>
+          <span>{{ semesterCourseHighlights().length }} cursos</span>
+        </div>
+
+        <div class="alerts-list">
+          @for (highlight of semesterCourseHighlights(); track highlight.courseId) {
+            <article class="alert-row">
+              <div class="alert-icon is-success">
+                <mat-icon>emoji_events</mat-icon>
+              </div>
+              <div class="alert-copy">
+                <strong>{{ highlight.courseName }}</strong>
+                <span>{{ highlight.studentName }}</span>
+              </div>
+              <span class="status-chip is-success">{{ highlight.percentage }}%</span>
+            </article>
+          } @empty {
+            <p class="empty-copy">No hay datos suficientes para calcular la mejor asistencia por curso.</p>
+          }
+        </div>
+      </mat-card>
+    }
   </main>
 
   @if (noteDialog(); as noteDialogState) {
@@ -656,6 +847,51 @@
           </button>
           <button mat-flat-button type="button" class="header-button header-button--primary" (click)="saveStudentNote()">
             Guardar observación
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (classSuspensionDialog(); as suspensionDialog) {
+    <div class="note-modal-backdrop" (click)="closeClassSuspensionDialog()">
+      <section class="note-modal note-modal--suspension" (click)="$event.stopPropagation()">
+        <header class="note-modal__header note-modal__header--suspension">
+          <div class="note-modal__copy">
+            <span>Clases suspendidas</span>
+            <h2>{{ selectedCourse()?.name ?? 'Curso seleccionado' }}</h2>
+            <small>Agrega el motivo para dejar registro de la suspensión de la jornada.</small>
+          </div>
+
+          <button type="button" class="note-modal__close" (click)="closeClassSuspensionDialog()" aria-label="Cerrar popup">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="note-modal__body">
+          <label class="note-modal__field">
+            <span>Motivo de la suspensión</span>
+            <textarea
+              rows="4"
+              [value]="suspensionDialog.reason"
+              (input)="updateClassSuspensionReason($any($event.target).value)"
+              placeholder="Ej: Suspensión por frente climático, corte de agua o actividad institucional..."
+            ></textarea>
+          </label>
+        </div>
+
+        <footer class="note-modal__footer">
+          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="closeClassSuspensionDialog()">
+            Cancelar
+          </button>
+          <button
+            mat-flat-button
+            type="button"
+            class="header-button header-button--primary"
+            (click)="confirmClassSuspension()"
+            [disabled]="!suspensionDialog.reason.trim() || isSaving()">
+            <mat-icon>check_circle</mat-icon>
+            Guardar suspensión
           </button>
         </footer>
       </section>

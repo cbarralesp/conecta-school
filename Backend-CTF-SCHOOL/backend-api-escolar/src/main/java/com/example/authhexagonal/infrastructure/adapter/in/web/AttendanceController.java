@@ -1,6 +1,7 @@
 package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.model.AttendanceCatalog;
+import com.example.authhexagonal.domain.model.AttendanceStudentSummary;
 import com.example.authhexagonal.domain.model.DailyAttendanceCommand;
 import com.example.authhexagonal.domain.model.DailyAttendanceView;
 import com.example.authhexagonal.domain.model.MonthlyAttendanceView;
@@ -49,7 +50,13 @@ public class AttendanceController {
                 : request.entries().stream()
                 .map(entry -> new DailyAttendanceCommand(entry.studentId(), entry.status(), entry.arrivalTime(), entry.note()))
                 .toList();
-        return manageAttendanceUseCase.saveDailyAttendance(request.courseId(), request.date(), commands);
+        return manageAttendanceUseCase.saveDailyAttendance(
+                request.courseId(),
+                request.date(),
+                request.classSuspended() != null && request.classSuspended(),
+                request.suspensionReason(),
+                commands
+        );
     }
 
     @GetMapping("/semanal")
@@ -66,5 +73,15 @@ public class AttendanceController {
             @RequestParam("month") String month
     ) {
         return manageAttendanceUseCase.getMonthlyAttendance(courseId, YearMonth.parse(month));
+    }
+
+    @GetMapping("/resumen-estudiante")
+    public AttendanceStudentSummary studentSummary(
+            @RequestParam("courseId") Long courseId,
+            @RequestParam("studentId") Long studentId,
+            @RequestParam("schoolYear") int schoolYear,
+            @RequestParam("semester") int semester
+    ) {
+        return manageAttendanceUseCase.getStudentAttendanceSummary(courseId, studentId, schoolYear, semester);
     }
 }

@@ -7,6 +7,7 @@ public record StudentGradeCard(
         String run,
         String fullName,
         Double overallAverage,
+        Integer attendancePercentage,
         String status,
         List<StudentSubjectAverage> subjects
 ) {

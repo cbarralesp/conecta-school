@@ -95,7 +95,7 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
                 SELECT
                     COUNT(1) FILTER (WHERE ad."ESTADO" = 'PRESENTE') AS present_count,
                     COUNT(1) FILTER (WHERE ad."ESTADO" IN ('ATRASO', 'ATRASADO')) AS late_count,
-                    COUNT(1) FILTER (WHERE ad."ESTADO" = 'AUSENTE') AS absent_count,
+                    COUNT(1) FILTER (WHERE ad."ESTADO" = 'AUSENTE' OR UPPER(COALESCE(ad."ESTADO", '')) IN ('SUSPENDIDO', 'SUSPENSION', 'SUSPENSIÃ“N')) AS absent_count,
                     COUNT(1) AS total_count
                 FROM "ASISTENCIA_DETALLES" ad
                 JOIN "ASISTENCIA_REGISTROS" ar ON ar."ID" = ad."REGISTRO_ID" AND ar."ACTIVO" = TRUE
@@ -120,7 +120,7 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
                 SELECT
                     COUNT(1) FILTER (WHERE ad."ESTADO" = 'PRESENTE') AS present_count,
                     COUNT(1) FILTER (WHERE ad."ESTADO" IN ('ATRASO', 'ATRASADO')) AS late_count,
-                    COUNT(1) FILTER (WHERE ad."ESTADO" = 'AUSENTE') AS absent_count,
+                    COUNT(1) FILTER (WHERE ad."ESTADO" = 'AUSENTE' OR UPPER(COALESCE(ad."ESTADO", '')) IN ('SUSPENDIDO', 'SUSPENSION', 'SUSPENSIÃ“N')) AS absent_count,
                     COUNT(1) AS total_count
                 FROM "ASISTENCIA_DETALLES" ad
                 JOIN "ASISTENCIA_REGISTROS" ar ON ar."ID" = ad."REGISTRO_ID" AND ar."ACTIVO" = TRUE
@@ -252,6 +252,7 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
             case "PRESENTE" -> "Presente";
             case "ATRASO", "ATRASADO" -> "Atraso";
             case "AUSENTE" -> "Ausente";
+            case "SUSPENDIDO", "SUSPENSION", "SUSPENSIÓN" -> "Suspensión";
             default -> "Sin registro";
         };
     }

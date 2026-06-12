@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -60,7 +61,7 @@ type ActivityDialogResult =
           @if (selectedType(); as type) {
             <div class="dialog-chip dialog-chip--soft" [style.--chip-accent]="type.backgroundColor" [style.--chip-text]="type.textColor">
               <mat-icon>category</mat-icon>
-              <span>{{ type.name }}</span>
+              <span>{{ activityTypeDisplayName(type) }}</span>
             </div>
           }
         </div>
@@ -69,8 +70,8 @@ type ActivityDialogResult =
           <mat-form-field appearance="outline">
             <mat-label>Tipo de actividad</mat-label>
             <mat-select formControlName="activityTypeId">
-              @for (type of data.activityTypes; track type.id) {
-                <mat-option [value]="type.id">{{ type.name }}</mat-option>
+              @for (type of sortedActivityTypes(); track type.id) {
+                <mat-option [value]="type.id">{{ activityTypeDisplayName(type) }}</mat-option>
               }
             </mat-select>
             @if (getControlError('activityTypeId')) {
@@ -119,7 +120,7 @@ type ActivityDialogResult =
 
         @if (selectedType(); as type) {
           <section class="type-preview" [style.background]="type.backgroundColor" [style.color]="type.textColor">
-            <strong>{{ type.name }}</strong>
+            <strong>{{ activityTypeDisplayName(type) }}</strong>
             <span>{{ type.description }}</span>
           </section>
         }
@@ -338,9 +339,29 @@ type ActivityDialogResult =
     }
     .delete-button {
       margin-right: auto;
-      color: #b3261e;
       min-height: 40px;
+      padding-inline: 0.95rem;
       border-radius: 12px;
+      border: 1px solid #fecaca;
+      background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%);
+      color: #b42318;
+      min-height: 40px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    }
+    .delete-button,
+    .delete-button .mdc-button__label {
+      color: #b42318 !important;
+    }
+    .delete-button:hover {
+      background: linear-gradient(180deg, #ffe4e6 0%, #fecdd3 100%);
+      border-color: #fda4af;
+      color: #9f1239;
+    }
+    .delete-button:hover,
+    .delete-button:hover .mdc-button__label {
+      color: #9f1239 !important;
     }
     mat-dialog-actions button[mat-flat-button] {
       min-height: 40px;
@@ -391,18 +412,27 @@ export class ActivityDialogComponent {
   readonly dialogRef = inject(MatDialogRef<ActivityDialogComponent, ActivityDialogResult>);
   readonly data = inject<ActivityDialogData>(MAT_DIALOG_DATA);
 
-  readonly form = this.formBuilder.nonNullable.group({
+  readonly form = this.formBuilder.group({
     activityTypeId: [this.data.activity?.activityTypeId ?? this.data.activityTypes[0]?.id ?? 0, [Validators.required, Validators.min(1)]],
     title: [this.data.activity?.title ?? '', [Validators.required]],
     description: [this.data.activity?.description ?? ''],
     date: [this.data.activity?.date ?? this.data.selectedDate ?? '', [Validators.required]],
-    endDate: [this.data.activity?.endDate ?? ''],
-    time: [this.data.activity?.time ?? ''],
+    endDate: [this.data.activity?.endDate ?? this.data.activity?.date ?? this.data.selectedDate ?? ''],
+    time: [this.data.activity?.time ?? '08:30'],
     location: [this.data.activity?.location ?? '']
   });
+  private readonly selectedTypeId = toSignal(this.form.controls.activityTypeId.valueChanges, {
+    initialValue: this.form.controls.activityTypeId.value
+  });
+
+  readonly sortedActivityTypes = computed(() =>
+    this.data.activityTypes
+      .filter((type) => type.code.trim().toUpperCase() !== 'SOCIAL')
+      .sort((left, right) => left.name.localeCompare(right.name, 'es-CL'))
+  );
 
   readonly selectedType = computed(
-    () => this.data.activityTypes.find((type) => type.id === this.form.controls.activityTypeId.value) ?? null
+    () => this.data.activityTypes.find((type) => type.id === this.selectedTypeId()) ?? null
   );
 
   getControlError(controlName: 'activityTypeId' | 'title' | 'date'): string {
@@ -425,23 +455,36 @@ export class ActivityDialogComponent {
       return;
     }
 
-        const rawValue = this.form.getRawValue();
+    const rawValue = this.form.getRawValue();
     this.dialogRef.close({
       action: 'save',
       payload: {
-        activityTypeId: rawValue.activityTypeId,
-        courseId: this.data.courseId ?? this.data.activity?.courseId ?? null,
-        title: rawValue.title,
-        description: rawValue.description.trim() || '',
-        date: rawValue.date,
+        activityTypeId: Number(rawValue.activityTypeId),
+        courseId: this.selectedTypeIsTransversal() ? null : (this.data.activity?.courseId ?? this.data.courseId ?? null),
+        title: (rawValue.title ?? '').trim(),
+        description: rawValue.description?.trim() || '',
+        date: rawValue.date ?? '',
         endDate: rawValue.endDate || null,
         time: rawValue.time || null,
-        location: rawValue.location.trim() || null
+        location: rawValue.location?.trim() || null
       } satisfies CreateSchoolActivityRequest
     });
   }
 
   requestDelete(): void {
     this.dialogRef.close({ action: 'delete' });
+  }
+
+  activityTypeDisplayName(type: ActivityType): string {
+    return type.code.trim().toUpperCase() === 'SUSPENSION' ? 'Suspension de clases' : type.name;
+  }
+
+  private selectedTypeIsTransversal(): boolean {
+    const type = this.selectedType();
+    if (!type) {
+      return false;
+    }
+
+    return ['TRANSVERSAL', 'VACACIONES', 'FERIADO', 'INTERFERIADO', 'SUSPENSION'].includes(type.code.trim().toUpperCase());
   }
 }

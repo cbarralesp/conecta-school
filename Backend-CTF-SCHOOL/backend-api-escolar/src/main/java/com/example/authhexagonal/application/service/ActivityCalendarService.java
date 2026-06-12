@@ -4,6 +4,7 @@ import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.ActivityCalendar;
 import com.example.authhexagonal.domain.model.ActivityCalendarDay;
 import com.example.authhexagonal.domain.model.ActivityCalendarSummary;
+import com.example.authhexagonal.domain.model.ActivityType;
 import com.example.authhexagonal.domain.model.SchoolActivity;
 import com.example.authhexagonal.domain.port.in.ManageActivityCalendarUseCase;
 import com.example.authhexagonal.domain.port.out.ManageActivityCalendarPort;
@@ -73,7 +74,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
             LocalTime time,
             String location
     ) {
-        manageActivityCalendarPort.findActiveTypeById(activityTypeId)
+        ActivityType activityType = manageActivityCalendarPort.findActiveTypeById(activityTypeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
 
         LocalDate effectiveEndDate = endDate == null ? date : endDate;
@@ -83,7 +84,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
 
         return manageActivityCalendarPort.createActivity(
                 activityTypeId,
-                courseId,
+                resolveCourseScope(activityType, courseId),
                 title,
                 description,
                 date,
@@ -106,7 +107,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
             String location
     ) {
         findById(activityId);
-        manageActivityCalendarPort.findActiveTypeById(activityTypeId)
+        ActivityType activityType = manageActivityCalendarPort.findActiveTypeById(activityTypeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
 
         LocalDate effectiveEndDate = endDate == null ? date : endDate;
@@ -117,7 +118,7 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
         return manageActivityCalendarPort.updateActivity(
                 activityId,
                 activityTypeId,
-                courseId,
+                resolveCourseScope(activityType, courseId),
                 title,
                 description,
                 date,
@@ -138,6 +139,18 @@ public class ActivityCalendarService implements ManageActivityCalendarUseCase {
             return value;
         }
         return value.substring(0, 1).toUpperCase(SPANISH) + value.substring(1);
+    }
+
+    private Long resolveCourseScope(ActivityType activityType, Long courseId) {
+        if (activityType == null || activityType.code() == null) {
+            return courseId;
+        }
+
+        String code = activityType.code().trim().toUpperCase(SPANISH);
+        if ("TRANSVERSAL".equals(code) || "VACACIONES".equals(code) || "FERIADO".equals(code) || "INTERFERIADO".equals(code) || "SUSPENSION".equals(code)) {
+            return null;
+        }
+        return courseId;
     }
 
     private List<ActivityCalendarDay> buildDays(YearMonth yearMonth, List<SchoolActivity> monthlyActivities, LocalDate today) {

@@ -1832,6 +1832,45 @@
   font-weight: 800;
 }
 
+.pdf-bulletin__status-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.pdf-bulletin__status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 0.32rem;
+}
+
+.pdf-bulletin__status-box > strong {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.pdf-bulletin__status-box > span {
+  width: 100%;
+  text-align: center;
+}
+
+.pdf-bulletin__status-pill {
+  margin-inline: auto;
+}
+
+.pdf-bulletin__mini-bar {
+  width: 100%;
+  max-width: 240px;
+  margin-inline: auto;
+}
+
 @media (max-width: 1120px) {
   .summary-grid,
   .metric-grid,

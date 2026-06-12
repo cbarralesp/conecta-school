@@ -152,7 +152,7 @@ public class StudentDashboardJdbcAdapter implements LoadStudentDashboardPort {
                 SELECT
                     COUNT(1) FILTER (WHERE ad."ESTADO" = 'PRESENTE') AS present_count,
                     COUNT(1) FILTER (WHERE ad."ESTADO" IN ('ATRASO', 'ATRASADO')) AS late_count,
-                    COUNT(1) FILTER (WHERE ad."ESTADO" = 'AUSENTE') AS absent_count,
+                    COUNT(1) FILTER (WHERE ad."ESTADO" = 'AUSENTE' OR UPPER(COALESCE(ad."ESTADO", '')) IN ('SUSPENDIDO', 'SUSPENSION', 'SUSPENSIÓN')) AS absent_count,
                     COUNT(1) AS total_count
                 FROM "ASISTENCIA_DETALLES" ad
                 JOIN "ASISTENCIA_REGISTROS" ar ON ar."ID" = ad."REGISTRO_ID" AND ar."ACTIVO" = TRUE

@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { StudentAttendanceDetail, StudentDashboard, StudentPortalSubject } from '../../../core/models/student.models';
+import { StudentAttendanceDetail, StudentDashboard, StudentGradeEvaluation, StudentPortalSubject } from '../../../core/models/student.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
@@ -51,6 +51,7 @@ type StudentSection =
 })
 export class StudentDashboardPageComponent {
   @ViewChild('studentSchedulePdf') private studentSchedulePdfRef?: ElementRef<HTMLElement>;
+  @ViewChild('studentReportPdf') private studentReportPdfRef?: ElementRef<HTMLElement>;
 
   private readonly authService = inject(AuthService);
   private readonly studentApiService = inject(StudentApiService);
@@ -65,6 +66,8 @@ export class StudentDashboardPageComponent {
   readonly activeSection = signal<StudentSection>('overview');
   readonly studentSearch = signal('');
   readonly isExportingSchedulePdf = signal(false);
+  readonly isExportingReportPdf = signal(false);
+  readonly isReportPreviewOpen = signal(false);
   readonly sidebarActiveItem = computed(() => {
     const section = this.activeSection();
     return section === 'overview' ? 'dashboard' : section === 'courses' ? 'subjects' : section;
@@ -363,6 +366,40 @@ export class StudentDashboardPageComponent {
   readonly totalEvaluationsCount = computed(() =>
     (this.dashboard()?.gradeSummary ?? []).reduce((sum, subject) => sum + subject.evaluations.length, 0)
   );
+  readonly reportSubjects = computed(() => {
+    const subjectMap = new Map<string, {
+      subjectName: string;
+      teacherName: string;
+      average: number | null;
+      latestScore: number | null;
+      evaluations: StudentGradeEvaluation[];
+    }>();
+
+    for (const subject of this.studentSubjects()) {
+      subjectMap.set(subject.subjectName.trim().toLowerCase(), {
+        subjectName: subject.subjectName,
+        teacherName: subject.teacherName,
+        average: null,
+        latestScore: null,
+        evaluations: []
+      });
+    }
+
+    for (const summary of this.dashboard()?.gradeSummary ?? []) {
+      const key = summary.subjectName.trim().toLowerCase();
+      const current = subjectMap.get(key);
+      subjectMap.set(key, {
+        subjectName: summary.subjectName,
+        teacherName: current?.teacherName ?? '',
+        average: summary.average,
+        latestScore: summary.latestScore,
+        evaluations: summary.evaluations
+      });
+    }
+
+    return Array.from(subjectMap.values())
+      .sort((left, right) => left.subjectName.localeCompare(right.subjectName, 'es'));
+  });
   readonly recentGradeHistory = computed(() => (this.dashboard()?.latestGrades ?? []).slice(0, 5));
   readonly scheduleLegend = computed(() => [
     { label: 'Troncal', tone: 'tone-brand' },
@@ -505,6 +542,14 @@ export class StudentDashboardPageComponent {
     this.studentSearch.set(value);
   }
 
+  openReportPreview(): void {
+    this.isReportPreviewOpen.set(true);
+  }
+
+  closeReportPreview(): void {
+    this.isReportPreviewOpen.set(false);
+  }
+
   async downloadStudentSchedulePdf(): Promise<void> {
     const exportTarget = this.studentSchedulePdfRef?.nativeElement;
     if (!exportTarget || this.scheduleWeekDays().length === 0 || this.isExportingSchedulePdf()) {
@@ -546,6 +591,204 @@ export class StudentDashboardPageComponent {
     } finally {
       this.isExportingSchedulePdf.set(false);
     }
+  }
+
+  async downloadStudentReportPdf(): Promise<void> {
+    const exportTarget = this.studentReportPdfRef?.nativeElement;
+    if (!exportTarget || this.isExportingReportPdf()) {
+      this.snackBar.open('El informe todavia no esta listo para exportar', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    try {
+      this.isExportingReportPdf.set(true);
+
+      const canvas = await html2canvas(exportTarget, {
+        backgroundColor: '#ffffff',
+        scale: 2.4,
+        useCORS: true
+      });
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 8;
+      const printableWidth = pageWidth - margin * 2;
+      const renderedHeight = (canvas.height * printableWidth) / canvas.width;
+      const pageCanvasHeight = Math.floor((canvas.width * (pageHeight - margin * 2)) / printableWidth);
+
+      let renderedOffset = 0;
+      let firstPage = true;
+
+      while (renderedOffset < canvas.height) {
+        const sliceHeight = Math.min(pageCanvasHeight, canvas.height - renderedOffset);
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceHeight;
+
+        const context = pageCanvas.getContext('2d');
+        if (!context) {
+          throw new Error('No fue posible generar el contexto del PDF');
+        }
+
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        context.drawImage(
+          canvas,
+          0,
+          renderedOffset,
+          canvas.width,
+          sliceHeight,
+          0,
+          0,
+          pageCanvas.width,
+          pageCanvas.height
+        );
+
+        if (!firstPage) {
+          pdf.addPage();
+        }
+
+        const imageHeight = (sliceHeight * printableWidth) / canvas.width;
+        pdf.addImage(pageCanvas.toDataURL('image/png'), 'PNG', margin, margin, printableWidth, imageHeight, undefined, 'FAST');
+
+        renderedOffset += sliceHeight;
+        firstPage = false;
+      }
+
+      pdf.save(this.buildStudentReportPdfName());
+      this.snackBar.open('Informe de notas exportado en PDF', 'Cerrar', { duration: 2600 });
+    } catch {
+      this.snackBar.open('No fue posible exportar el informe de notas', 'Cerrar', { duration: 3200 });
+    } finally {
+      this.isExportingReportPdf.set(false);
+    }
+  }
+
+  reportSubjectScore(subjectName: string, index: number): number | null {
+    return this.reportSubjects()
+      .find((subject) => subject.subjectName === subjectName)
+      ?.evaluations[index]?.score ?? null;
+  }
+
+  reportSubjectAverage(subject: { average: number | null }): number | null {
+    return subject.average ?? null;
+  }
+
+  reportConcept(value: number | null | undefined): string {
+    if (value == null) {
+      return 'Pendiente';
+    }
+    if (value >= 6) {
+      return 'Destacado';
+    }
+    if (value >= 4) {
+      return 'Logrado';
+    }
+    return 'En riesgo';
+  }
+
+  reportConceptClass(value: number | null | undefined): string {
+    if (value == null) {
+      return 'is-empty';
+    }
+    if (value >= 6) {
+      return 'is-high';
+    }
+    if (value >= 4) {
+      return 'is-mid';
+    }
+    return 'is-low';
+  }
+
+  reportAcademicStatus(): string {
+    const average = this.averageValue();
+    return average != null && average >= 4 ? 'APROBADO' : 'EN REVISION';
+  }
+
+  reportAcademicStatusClass(): string {
+    const average = this.averageValue();
+    return average != null && average >= 4 ? 'is-approved' : 'is-review';
+  }
+
+  reportIssueDate(): string {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  reportSchoolYear(): string {
+    return this.currentYearLabel();
+  }
+
+  reportStudentRun(): string {
+    return this.dashboard()?.studentRun ?? '';
+  }
+
+  reportAttendancePercentage(): number {
+    return this.dashboard()?.attendancePercentage ?? 0;
+  }
+
+  reportCourseLabel(): string {
+    return this.currentCourseLabel();
+  }
+
+  reportTeacherName(subjectName?: string): string {
+    if (subjectName) {
+      const teacher = this.studentSubjects().find((subject) => subject.subjectName === subjectName)?.teacherName?.trim();
+      if (teacher) {
+        return teacher;
+      }
+    }
+
+    return this.studentSubjects().find((subject) => !!subject.teacherName?.trim())?.teacherName?.trim() || 'Profesor jefe';
+  }
+
+  reportText(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+  }
+
+  reportScore(value: number | null | undefined): string {
+    return value == null ? '-' : value.toFixed(1).replace('.', ',');
+  }
+
+  reportAverageWidth(value: number | null | undefined): number {
+    if (value == null) {
+      return 0;
+    }
+    return Math.max(0, Math.min(100, (value / 7) * 100));
+  }
+
+  reportObservationLines(): string[] {
+    const total = this.reportSubjects().length;
+    const completed = this.reportSubjects().filter((subject) => subject.average != null).length;
+    const generalAverage = this.averageValue();
+
+    const lines = [
+      total === 0
+        ? 'Sin asignaturas registradas para este periodo.'
+        : `${completed} de ${total} asignaturas con promedio registrado.`,
+      generalAverage == null
+        ? 'Aun no registra notas en este periodo.'
+        : generalAverage >= 6
+          ? 'Presenta un rendimiento destacado en el periodo actual.'
+          : generalAverage >= 4
+            ? 'Mantiene un rendimiento estable con oportunidades de mejora.'
+            : 'Requiere acompanamiento en asignaturas clave.',
+      `Documento generado automaticamente desde ConectaSchool el ${this.reportIssueDate()}.`
+    ];
+
+    return lines.map((line) => this.reportText(line));
   }
 
   scoreTrackWidth(score: number | null): string {
@@ -895,6 +1138,16 @@ export class StudentDashboardPageComponent {
       .replace(/[^a-z0-9-]/g, '');
 
     return `horario-semanal-${nameToken || 'estudiante'}.pdf`;
+  }
+
+  private buildStudentReportPdfName(): string {
+    const nameToken = this.fullStudentName()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+    return `informe-notas-${nameToken || 'estudiante'}.pdf`;
   }
 
   private dayLabel(dayKey: string): string {

@@ -6,6 +6,8 @@ public record DailyAttendanceView(
         Long courseId,
         String courseName,
         String date,
+        boolean classSuspended,
+        String suspensionMessage,
         int totalStudents,
         int presentCount,
         int absentCount,

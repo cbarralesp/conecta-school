@@ -103,7 +103,7 @@ public class ActivityCalendarJdbcAdapter implements ManageActivityCalendarPort {
         args.add(endDate);
         args.add(startDate);
         if (courseId != null) {
-            sql.append(" AND a.\"CURSO_ID\" = ?");
+            sql.append(" AND (a.\"CURSO_ID\" = ? OR a.\"CURSO_ID\" IS NULL)");
             args.add(courseId);
         }
         sql.append(" ORDER BY a.\"FECHA\", a.\"HORA\" NULLS LAST, a.\"TITULO\"");
@@ -141,7 +141,7 @@ public class ActivityCalendarJdbcAdapter implements ManageActivityCalendarPort {
         List<Object> args = new ArrayList<>();
         args.add(startDate);
         if (courseId != null) {
-            sql.append(" AND a.\"CURSO_ID\" = ?");
+            sql.append(" AND (a.\"CURSO_ID\" = ? OR a.\"CURSO_ID\" IS NULL)");
             args.add(courseId);
         }
         sql.append(" ORDER BY a.\"FECHA\", a.\"HORA\" NULLS LAST, a.\"TITULO\" LIMIT ?");

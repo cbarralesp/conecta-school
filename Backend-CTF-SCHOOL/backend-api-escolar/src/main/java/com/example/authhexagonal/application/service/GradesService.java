@@ -15,9 +15,11 @@ import com.example.authhexagonal.domain.model.GradeScoreCell;
 import com.example.authhexagonal.domain.model.GradeScoreEntry;
 import com.example.authhexagonal.domain.model.GradeStudentInfo;
 import com.example.authhexagonal.domain.model.GradeSubjectTab;
+import com.example.authhexagonal.domain.model.AttendanceStudentSummary;
 import com.example.authhexagonal.domain.model.StudentGradeCard;
 import com.example.authhexagonal.domain.model.StudentGradeProfileView;
 import com.example.authhexagonal.domain.model.StudentSubjectAverage;
+import com.example.authhexagonal.domain.port.in.ManageAttendanceUseCase;
 import com.example.authhexagonal.domain.port.in.ManageGradesUseCase;
 import com.example.authhexagonal.domain.port.out.ManageGradesPort;
 import org.springframework.stereotype.Service;
@@ -37,9 +39,11 @@ public class GradesService implements ManageGradesUseCase {
     private static final double DEFAULT_EVALUATION_WEIGHT = 20.0;
 
     private final ManageGradesPort manageGradesPort;
+    private final ManageAttendanceUseCase manageAttendanceUseCase;
 
-    public GradesService(ManageGradesPort manageGradesPort) {
+    public GradesService(ManageGradesPort manageGradesPort, ManageAttendanceUseCase manageAttendanceUseCase) {
         this.manageGradesPort = manageGradesPort;
+        this.manageAttendanceUseCase = manageAttendanceUseCase;
     }
 
     @Override
@@ -145,7 +149,7 @@ public class GradesService implements ManageGradesUseCase {
                 course.name(),
                 period.id(),
                 period.name(),
-                buildStudentCards(courseId, periodId)
+                buildStudentCards(course, period)
         );
     }
 
@@ -158,7 +162,7 @@ public class GradesService implements ManageGradesUseCase {
                 course.name(),
                 period.id(),
                 period.name(),
-                buildStudentCards(courseId, periodId)
+                buildStudentCards(course, period)
         );
     }
 
@@ -250,9 +254,9 @@ public class GradesService implements ManageGradesUseCase {
         return new GradeBookSummary(courseAverage, aboveMinimum, belowMinimum, ungraded);
     }
 
-    private List<StudentGradeCard> buildStudentCards(Long courseId, Long periodId) {
+    private List<StudentGradeCard> buildStudentCards(GradeCourseOption course, GradePeriodOption period) {
         Map<Long, StudentGradeCardBuilder> builders = new LinkedHashMap<>();
-        for (ManageGradesPort.StudentSubjectAverageRow row : manageGradesPort.findStudentSubjectAverages(courseId, periodId)) {
+        for (ManageGradesPort.StudentSubjectAverageRow row : manageGradesPort.findStudentSubjectAverages(course.id(), period.id())) {
             StudentGradeCardBuilder builder = builders.computeIfAbsent(
                     row.studentId(),
                     ignored -> new StudentGradeCardBuilder(row.studentId(), row.run(), row.fullName())
@@ -261,9 +265,23 @@ public class GradesService implements ManageGradesUseCase {
         }
 
         return builders.values().stream()
-                .map(StudentGradeCardBuilder::build)
+                .map(builder -> builder.build(resolveAttendancePercentage(course, period, builder.studentId)))
                 .sorted(Comparator.comparing(StudentGradeCard::fullName))
                 .toList();
+    }
+
+    private Integer resolveAttendancePercentage(GradeCourseOption course, GradePeriodOption period, Long studentId) {
+        try {
+            AttendanceStudentSummary summary = manageAttendanceUseCase.getStudentAttendanceSummary(
+                    course.id(),
+                    studentId,
+                    course.schoolYear(),
+                    period.semester()
+            );
+            return summary == null ? 0 : summary.percentage();
+        } catch (Exception ignored) {
+            return 0;
+        }
     }
 
     private GradeSaveCommand sanitizeCommand(GradeSaveCommand command) {
@@ -339,7 +357,7 @@ public class GradesService implements ManageGradesUseCase {
             this.fullName = fullName;
         }
 
-        private StudentGradeCard build() {
+        private StudentGradeCard build(Integer attendancePercentage) {
             Double overallAverage = subjects.stream()
                     .map(StudentSubjectAverage::average)
                     .filter(average -> average != null)
@@ -361,7 +379,15 @@ public class GradesService implements ManageGradesUseCase {
                     ? "Aprobado"
                     : "Riesgo";
 
-            return new StudentGradeCard(studentId, run, fullName, overallAverage, status, List.copyOf(subjects));
+            return new StudentGradeCard(
+                    studentId,
+                    run,
+                    fullName,
+                    overallAverage,
+                    attendancePercentage == null ? 0 : attendancePercentage,
+                    status,
+                    List.copyOf(subjects)
+            );
         }
     }
 }

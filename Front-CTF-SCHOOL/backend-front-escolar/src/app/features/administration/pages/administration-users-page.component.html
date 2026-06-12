@@ -59,17 +59,17 @@
           <table class="users-table">
             <thead>
               <tr>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Estado</th>
-                <th>Ultimo acceso</th>
-                <th>Acciones</th>
+                <th class="col-user">Usuario</th>
+                <th class="col-role">Rol</th>
+                <th class="col-status">Estado</th>
+                <th class="col-access">Ultimo acceso</th>
+                <th class="col-actions">Acciones</th>
               </tr>
             </thead>
             <tbody>
               @for (user of pagedUsers(); track user.id) {
                 <tr>
-                  <td>
+                  <td class="col-user">
                     <div class="identity-cell">
                       <span class="avatar">{{ initials(user.fullName) }}</span>
                       <div class="identity-copy">
@@ -78,14 +78,14 @@
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td class="col-role">
                     <span [class]="rolePillClass(user)">{{ user.roleName }}</span>
                   </td>
-                  <td>
+                  <td class="col-status">
                     <app-administration-status-badge [userStatus]="user.status"></app-administration-status-badge>
                   </td>
-                  <td class="access-cell">{{ user.lastAccessLabel }}</td>
-                  <td class="actions-cell">
+                  <td class="access-cell col-access">{{ user.lastAccessLabel }}</td>
+                  <td class="actions-cell col-actions">
                     <div class="actions-shell">
                       <app-administration-action-buttons
                         [actions]="rowActions(user)"

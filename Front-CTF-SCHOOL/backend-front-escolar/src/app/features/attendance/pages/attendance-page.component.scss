@@ -51,6 +51,7 @@
 .attendance-tab {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   min-height: 42px;
   padding: 0 1rem;
@@ -305,7 +306,8 @@
 }
 
 .attendance-card__toolbar--weekly,
-.attendance-card__toolbar--monthly {
+.attendance-card__toolbar--monthly,
+.attendance-card__toolbar--semester {
   padding-bottom: 1rem;
 }
 
@@ -332,6 +334,49 @@
   border-color: #dbe5f0 !important;
 }
 
+.bulk-button--suspend-day.is-active {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #b45309 !important;
+}
+
+.suspension-banner {
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-radius: 16px;
+  border-color: #dbe4f1 !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
+}
+
+.suspension-banner__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #e2e8f0;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.suspension-banner__copy {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.suspension-banner__copy strong {
+  font-size: 0.86rem;
+  color: #18283f;
+}
+
+.suspension-banner__copy span {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
 .inline-field {
   display: inline-flex;
   align-items: center;
@@ -356,6 +401,14 @@
 
 .inline-field__control--date {
   width: 168px;
+}
+
+.inline-field__control--semester {
+  width: 178px;
+}
+
+.inline-field__control--student {
+  width: 270px;
 }
 
 .inline-select {
@@ -620,6 +673,13 @@
   transition: all 0.15s ease;
 }
 
+.status-button:disabled,
+.note-trigger:disabled,
+.arrival-cell input:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
 .status-button .mat-icon {
   width: 17px;
   height: 17px;
@@ -659,6 +719,17 @@
   box-shadow: 0 8px 18px rgba(245, 158, 11, 0.18);
 }
 
+.status-button.is-suspended {
+  color: #a0b0c6;
+}
+
+.status-button.is-suspended.is-selected {
+  background: #64748b;
+  border-color: #64748b;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(100, 116, 139, 0.18);
+}
+
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -690,6 +761,11 @@
 .status-chip.is-warning {
   background: #f1f5f9;
   color: #94a3b8;
+}
+
+.status-chip.is-info {
+  background: #e2e8f0;
+  color: #475569;
 }
 
 .arrival-cell span,
@@ -761,7 +837,7 @@
 .note-modal {
   width: min(100%, 560px);
   border-radius: 20px;
-  border: 1px solid #e5ecf4;
+  border:1px solid #e5ecf4;
   background: #ffffff;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
   overflow: hidden;
@@ -802,6 +878,13 @@
   font-weight: 800;
   color: #18283f;
   line-height: 1.2;
+}
+
+.note-modal__copy small {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #7a8da8;
+  line-height: 1.45;
 }
 
 .note-modal__close {
@@ -846,7 +929,7 @@
   border-radius: 14px;
   border: 1.5px solid #dde6f0;
   background: #f8fbff;
-  padding: 0.85rem 0.95rem;
+  padding:0.85rem 0.95rem;
   font-size: 0.82rem;
   font-weight: 600;
   line-height: 1.5;
@@ -863,6 +946,19 @@
 .note-modal__field textarea::placeholder {
   color: #98a8be;
   font-weight: 500;
+}
+
+.note-modal--suspension .note-modal__header {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.note-modal--suspension .note-modal__copy span {
+  color: #d97706;
+}
+
+.note-modal--suspension .note-modal__field textarea:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
 }
 
 .note-modal__footer {
@@ -933,6 +1029,11 @@
   color: #ffffff;
 }
 
+.day-cell.dot-info {
+  background: #64748b;
+  color: #ffffff;
+}
+
 .weekly-empty {
   text-align: center;
   font-size: 0.82rem;
@@ -941,7 +1042,7 @@
 }
 
 .alert-card {
-  padding: 1rem 1.1rem;
+  padding:1rem 1.1rem;
 }
 
 .alert-card__header {
@@ -1006,6 +1107,11 @@
   color: #18283f;
 }
 
+.alert-card__header--centered {
+  justify-content: center;
+  text-align: center;
+}
+
 .alert-copy span,
 .empty-copy {
   font-size: 0.76rem;
@@ -1017,6 +1123,173 @@
   grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
   gap: 1rem;
   padding: 0 1.1rem 1.1rem;
+}
+
+.semester-board {
+  padding: 0 1.1rem 1.1rem;
+}
+
+.semester-calendar-card {
+  border: 1px solid #edf2f7;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 1.2rem;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.semester-calendar-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.semester-calendar-card__title-block {
+  display: grid;
+  justify-items: center;
+}
+
+.semester-calendar-card__title-block h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #18283f;
+}
+
+.semester-calendar-card__title-block p {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #7c8fad;
+}
+
+.semester-calendar-card__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.semester-month {
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+}
+
+.semester-month__title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #24364f;
+}
+
+.semester-month__body,
+.semester-month__weekdays,
+.semester-month__weeks {
+  display: grid;
+  gap: 0.45rem;
+  align-content: start;
+}
+
+.semester-month__weekdays,
+.semester-month__week {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.semester-month__weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #6f88af;
+}
+
+.semester-month__cell {
+  min-height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  background: #f8fbff;
+}
+
+.semester-month__cell strong {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.semester-month__cell.is-empty {
+  background: transparent;
+  min-height: 0;
+}
+
+.semester-calendar-card__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 0.2rem;
+}
+
+.semester-calendar-card__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5d7394;
+}
+
+.semester-calendar-card__legend i {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.semester-calendar-card__legend .semester-none,
+.semester-month__cell.semester-none {
+  background: #d8dfec;
+  color: #7d8da7;
+}
+
+.semester-calendar-card__legend .semester-present,
+.semester-month__cell.semester-present {
+  background: #bfe8c9;
+  color: #1f8b4d;
+}
+
+.semester-calendar-card__legend .semester-late,
+.semester-month__cell.semester-late {
+  background: #ffdba8;
+  color: #bf7a11;
+}
+
+.semester-calendar-card__legend .semester-absent,
+.semester-month__cell.semester-absent {
+  background: #ffc2cf;
+  color: #d94d72;
+}
+
+.semester-calendar-card__legend .semester-suspension,
+.semester-month__cell.semester-suspension {
+  background: #e9ddff;
+  color: #6d28d9;
+}
+
+.semester-calendar-card__legend .semester-vacation,
+.semester-month__cell.semester-vacation {
+  background: #d8dfec;
+  color: #7d8da7;
+}
+
+.semester-calendar-card__legend .semester-holiday,
+.semester-month__cell.semester-holiday {
+  background: #fde2e7;
+  color: #be123c;
 }
 
 .monthly-students,
@@ -1246,6 +1519,29 @@
   color: #d97706;
 }
 
+.monthly-calendar-card__legend .is-suspension,
+.monthly-calendar-grid__cell.is-suspension {
+  background: #e9ddff;
+  color: #6d28d9;
+}
+
+.monthly-calendar-card__legend .is-suspended {
+  background: #e9ddff;
+  color: #6d28d9;
+}
+
+.monthly-calendar-card__legend .is-vacation,
+.monthly-calendar-grid__cell.is-vacation {
+  background: #d8dfec;
+  color: #7d8da7;
+}
+
+.monthly-calendar-card__legend .is-holiday,
+.monthly-calendar-grid__cell.is-holiday {
+  background: #fde2e7;
+  color: #be123c;
+}
+
 .monthly-calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1275,6 +1571,7 @@
 .monthly-calendar-grid__cell strong {
   font-size: 1rem;
   font-weight: 800;
+  line-height: 1;
 }
 
 .monthly-calendar-grid__cell small {
@@ -1297,6 +1594,13 @@
   border-color: #dbe5f0;
   border-style: dashed;
   color: #9fb0c5;
+}
+
+.attendance-special-marker {
+  font-size: inherit !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em;
 }
 
 .monthly-calendar-grid__cell.is-none {
@@ -1513,8 +1817,49 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .page-header {
+    justify-content: center;
+  }
+
+  .page-header__left,
+  .page-header__actions {
+    width: 100%;
+  }
+
+  .page-header__left {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .page-header__actions {
+    display: grid;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .attendance-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    max-width: 27rem;
+    margin-inline: auto;
+    justify-content: center;
+  }
+
+  .page-header__actions > .header-button {
+    width: 100%;
+    max-width: 27rem;
+    margin-inline: auto;
+    justify-content: center;
+  }
+
   .monthly-board {
     grid-template-columns: 1fr;
+  }
+
+  .semester-calendar-card__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .daily-table__head,
@@ -1528,15 +1873,22 @@
     grid-template-columns: 1fr;
   }
 
-  .attendance-tabs {
-    width: 100%;
-    align-items: flex-start;
-    justify-content: flex-start;
+  .page-header {
+    gap: 1.15rem;
   }
 
-  .page-header__actions,
-  .toolbar-tabs {
+  .attendance-tab {
     width: 100%;
+    min-height: 54px;
+    padding: 0.78rem 0.85rem;
+    border-radius: 16px;
+    font-size: 0.84rem;
+  }
+
+  .attendance-tab .mat-icon {
+    width: 17px;
+    height: 17px;
+    font-size: 17px;
   }
 
   .attendance-card__toolbar,
@@ -1606,6 +1958,26 @@
 
   .monthly-board {
     padding-inline: 0.9rem;
+  }
+
+  .semester-board {
+    padding-inline: 0.9rem;
+  }
+
+  .semester-calendar-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .semester-calendar-card {
+    padding-inline: 0.95rem;
+  }
+
+  .semester-calendar-card__title-block h2 {
+    font-size: 0.98rem;
+  }
+
+  .semester-calendar-card__title-block p {
+    font-size: 0.82rem;
   }
 
   .monthly-calendar-grid__cell {

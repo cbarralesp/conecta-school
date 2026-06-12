@@ -78,6 +78,7 @@ export interface StudentGradeCard {
   run: string;
   fullName: string;
   overallAverage: number | null;
+  attendancePercentage?: number | null;
   status: string;
   subjects: StudentSubjectAverage[];
 }

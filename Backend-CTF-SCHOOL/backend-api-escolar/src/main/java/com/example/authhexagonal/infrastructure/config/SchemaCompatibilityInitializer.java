@@ -30,6 +30,8 @@ public class SchemaCompatibilityInitializer {
         ensureSubjectCourseScope();
         ensureCourseEnrollmentConsistency();
         ensureActivityCourseScope();
+        ensureAttendanceRegisterSuspensionMetadata();
+        ensureSpecialActivityTypes();
         ensureEnrollmentExtendedContacts();
     }
 
@@ -839,6 +841,44 @@ public class SchemaCompatibilityInitializer {
                         FOREIGN KEY ("CURSO_ID") REFERENCES "CURSOS" ("ID");
                     END IF;
                 END $$;
+                """);
+    }
+
+    private void ensureAttendanceRegisterSuspensionMetadata() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "ASISTENCIA_REGISTROS"
+                ADD COLUMN IF NOT EXISTS "CLASES_SUSPENDIDAS" BOOLEAN DEFAULT FALSE NOT NULL
+                """);
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "ASISTENCIA_REGISTROS"
+                ADD COLUMN IF NOT EXISTS "MOTIVO_SUSPENSION" character varying(255)
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "ASISTENCIA_REGISTROS"
+                SET "CLASES_SUSPENDIDAS" = COALESCE("CLASES_SUSPENDIDAS", FALSE)
+                WHERE "CLASES_SUSPENDIDAS" IS NULL
+                """);
+    }
+
+    private void ensureSpecialActivityTypes() {
+        jdbcTemplate.execute("""
+                INSERT INTO "TIPOS_ACTIVIDAD" ("CODIGO", "NOMBRE", "DESCRIPCION", "COLOR_FONDO", "COLOR_TEXTO", "ICONO", "ACTIVO")
+                VALUES
+                    ('TRANSVERSAL', 'Transversal (Todos los cursos)', 'Actividad publicada para todos los cursos del calendario institucional.', '#E0F2FE', '#0F4C81', 'groups', TRUE),
+                    ('VACACIONES', 'Vacaciones', 'Periodo sin clases que aplica para todos los cursos.', '#DBEAFE', '#1D4ED8', 'beach_access', TRUE),
+                    ('FERIADO', 'Feriado', 'Dia feriado sin clases para todos los cursos.', '#FCE7F3', '#BE185D', 'celebration', TRUE),
+                    ('INTERFERIADO', 'Interferiado', 'Dia puente sin clases que aplica para todos los cursos.', '#FDE68A', '#92400E', 'event_available', TRUE),
+                    ('SUSPENSION', 'Suspension', 'Suspension institucional de clases para todos los cursos.', '#E2E8F0', '#475569', 'event_busy', TRUE)
+                ON CONFLICT ("CODIGO") DO UPDATE
+                SET
+                    "NOMBRE" = EXCLUDED."NOMBRE",
+                    "DESCRIPCION" = EXCLUDED."DESCRIPCION",
+                    "COLOR_FONDO" = EXCLUDED."COLOR_FONDO",
+                    "COLOR_TEXTO" = EXCLUDED."COLOR_TEXTO",
+                    "ICONO" = EXCLUDED."ICONO",
+                    "ACTIVO" = TRUE
                 """);
     }
 

@@ -38,6 +38,7 @@ build/
 # Temporary files
 tmp/
 temp/
+backups/
 *.tmp
 *.swp
 *.bak
@@ -67,6 +68,12 @@ CONTEXTO_CHAT_NUEVO_*.md
 DeleteStudent*.java
 FindPersonByName.java
 Inspect*.java
+Check*.java
+RunCheck.java
+SeedFernanda*.java
+tmp_*.sql
+tmp_*.html
+tmp_*.js
 
 # IDE / browser embedded caches
 **/EBWebView/

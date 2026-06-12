@@ -12,6 +12,8 @@ public record MonthlyAttendanceView(
         int totalLate,
         MonthlyAttendanceDistribution distribution,
         List<MonthlyAttendanceDaySummary> dailySummary,
+        List<String> suspendedDates,
+        List<MonthlyAttendanceSpecialDate> specialDates,
         List<MonthlyAttendanceStudent> students
 ) {
 }

@@ -17,6 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
 import { normalizeDashboardText } from '../../../core/utils/text-normalizer';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { AttendanceApiService } from '../../../core/services/attendance-api.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
 import {
   GradeEvaluationHeader,
@@ -74,6 +75,7 @@ export class GradesPageComponent {
   @ViewChild('reportPdfTemplate') private reportPdfTemplate?: ElementRef<HTMLElement>;
 
   private readonly gradeApiService = inject(GradeApiService);
+  private readonly attendanceApiService = inject(AttendanceApiService);
   private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
@@ -108,6 +110,7 @@ export class GradesPageComponent {
   readonly isExporting = signal(false);
   readonly pdfStudent = signal<StudentGradeCard | null>(null);
   readonly reportDetailBooks = signal<GradeBookView[]>([]);
+  readonly reportAttendanceRates = signal<Record<number, number | null>>({});
   readonly savedObservations = signal<Record<number, string>>({});
 
   readonly courses = computed(() => this.catalog()?.courses ?? []);
@@ -772,6 +775,7 @@ export class GradesPageComponent {
       return;
     }
     await this.ensureReportDetailBooks();
+    await this.ensureReportAttendanceRates();
     this.observationDraft.set(this.savedObservations()[student.studentId] ?? this.buildDefaultObservation(student));
     this.previewStudent.set(student);
     this.isReportPreviewOpen.set(true);
@@ -961,6 +965,31 @@ export class GradesPageComponent {
 
   pdfTeacherName(): string {
     return this.pdfText(this.user()?.nombre?.trim() || 'Profesor jefe');
+  }
+
+  pdfStudentAttendance(student: StudentGradeCard | null): string {
+    if (!student) {
+      return '0%';
+    }
+
+    if (student.attendancePercentage != null) {
+      return `${student.attendancePercentage}%`;
+    }
+
+    const percentage = this.resolveReportAttendanceRate(student);
+    return `${percentage ?? 0}%`;
+  }
+
+  pdfStudentAttendanceWidth(student: StudentGradeCard | null): number {
+    if (!student) {
+      return 0;
+    }
+
+    if (student.attendancePercentage != null) {
+      return student.attendancePercentage;
+    }
+
+    return this.resolveReportAttendanceRate(student) ?? 0;
   }
 
   pdfText(value: string | null | undefined): string {
@@ -1182,12 +1211,18 @@ export class GradesPageComponent {
           return;
         }
         this.reports.set(view);
+        this.reportAttendanceRates.set(
+          Object.fromEntries(
+            view.students.map((student) => [student.studentId, student.attendancePercentage ?? null])
+          ) as Record<number, number | null>
+        );
         const currentStudentId = this.selectedReportStudentId();
         const hasSelectedStudent = view.students.some((student) => student.studentId === currentStudentId);
         this.selectedReportStudentId.set(hasSelectedStudent ? currentStudentId : (view.students[0]?.studentId ?? null));
         this.selectedReportSubjectId.set(null);
         this.isLoading.set(false);
         void this.ensureReportDetailBooks();
+        void this.ensureReportAttendanceRates();
       },
       error: (error: HttpErrorResponse) => {
         if (requestId !== this.reportsRequestId) {
@@ -1248,6 +1283,7 @@ export class GradesPageComponent {
     this.isExporting.set(true);
     try {
       await this.ensureReportDetailBooks();
+      await this.ensureReportAttendanceRates();
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, precision: 12 });
       let firstPage = true;
 
@@ -1303,6 +1339,7 @@ export class GradesPageComponent {
     this.studentProfile.set(null);
     this.reports.set(null);
     this.reportDetailBooks.set([]);
+    this.reportAttendanceRates.set({});
     this.previewStudent.set(null);
     this.pdfStudent.set(null);
     this.isReportPreviewOpen.set(false);
@@ -1348,6 +1385,80 @@ export class GradesPageComponent {
     } catch {
       this.reportDetailBooks.set([]);
     }
+  }
+
+  private async ensureReportAttendanceRates(): Promise<void> {
+    const course = this.selectedCourse();
+    const period = this.selectedPeriod();
+    const reportStudents = this.currentReports()?.students ?? [];
+    if (!course || !period || reportStudents.length === 0) {
+      this.reportAttendanceRates.set({});
+      return;
+    }
+
+    const currentRates = this.reportAttendanceRates();
+    if (
+      reportStudents.every(
+        (student) =>
+          Object.prototype.hasOwnProperty.call(currentRates, student.studentId) &&
+          currentRates[student.studentId] != null
+      )
+    ) {
+      return;
+    }
+
+    const summaries = await firstValueFrom(
+      forkJoin(
+        reportStudents.map((student) =>
+          this.attendanceApiService
+            .getStudentSummary(course.id, student.studentId, course.schoolYear, period.semester ?? 1)
+            .pipe(
+              catchError(() =>
+                of({
+                  studentId: student.studentId,
+                  percentage: 0,
+                  presentCount: 0,
+                  absentCount: 0,
+                  lateCount: 0,
+                  totalRecords: 0
+                })
+              )
+            )
+        )
+      )
+    );
+
+    const rates = Object.fromEntries(
+      summaries.map((summary) => [summary.studentId, Math.max(0, Math.min(100, Math.round(summary.percentage ?? 0)))])
+    ) as Record<number, number | null>;
+
+    this.reportAttendanceRates.set(rates);
+  }
+
+  private normalizeRunKey(run: string | null | undefined): string {
+    return (run ?? '').replace(/[^0-9kK]/g, '').toLowerCase();
+  }
+
+  private resolveReportAttendanceRate(student: StudentGradeCard): number | null {
+    const rates = this.reportAttendanceRates();
+    const directMatch = rates[student.studentId];
+    if (directMatch != null) {
+      return directMatch;
+    }
+
+    const runKey = this.normalizeRunKey(student.run);
+    if (!runKey) {
+      return directMatch ?? null;
+    }
+
+    const matchedStudent = (this.currentReports()?.students ?? []).find(
+      (candidate) => this.normalizeRunKey(candidate.run) === runKey
+    );
+    if (!matchedStudent) {
+      return directMatch ?? null;
+    }
+
+    return rates[matchedStudent.studentId] ?? directMatch ?? null;
   }
 
   private pdfSubjectDetail(student: StudentGradeCard, subjectId: number): ReportSubjectDetail {

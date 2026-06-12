@@ -577,7 +577,15 @@
                 <p>Consulta tus evaluaciones registradas, notas por asignatura y promedio general.</p>
               </div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:flex-end;justify-self:end">
+            <div class="student-report-actions">
+              <button mat-stroked-button type="button" class="student-report-button" (click)="openReportPreview()">
+                <mat-icon>visibility</mat-icon>
+                Ver informe
+              </button>
+              <button mat-flat-button type="button" class="student-report-button student-report-button--primary" (click)="downloadStudentReportPdf()" [disabled]="isExportingReportPdf()">
+                <mat-icon>{{ isExportingReportPdf() ? 'hourglass_top' : 'download' }}</mat-icon>
+                {{ isExportingReportPdf() ? 'Descargando...' : 'Descargar' }}
+              </button>
               <span class="hero-year">{{ currentYearLabel() }}</span>
             </div>
           </div>
@@ -708,6 +716,144 @@
               <p>Tu avance academico consolidado en las asignaturas con notas.</p>
             </mat-card>
           </section>
+
+          <section class="student-report-pdf-shell" aria-hidden="true">
+            <article #studentReportPdf class="student-report-sheet">
+              <div class="pdf-bulletin">
+                <header class="pdf-bulletin__header">
+                  <div class="pdf-bulletin__brand">
+                    <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                    <div>
+                      <strong>Colegio Torre Fuerte School</strong>
+                      <span>Control institucional · Plataforma ConectaSchool</span>
+                    </div>
+                  </div>
+                  <div class="pdf-bulletin__meta">
+                    <strong>Boletín de notas</strong>
+                    <span>{{ reportSchoolYear() }} · Emitido {{ reportIssueDate() }}</span>
+                  </div>
+                </header>
+
+                <section class="pdf-bulletin__student-band">
+                  <div class="pdf-bulletin__field">
+                    <span>Nombre del estudiante</span>
+                    <strong>{{ reportText(fullStudentName()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>RUN</span>
+                    <strong>{{ reportText(reportStudentRun()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>Curso</span>
+                    <strong>{{ reportText(reportCourseLabel()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>Profesor jefe</span>
+                    <strong>{{ reportText(reportTeacherName()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>Año escolar</span>
+                    <strong>{{ reportSchoolYear() }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>N° de lista</span>
+                    <strong>-</strong>
+                  </div>
+                </section>
+
+                <section class="pdf-bulletin__status-row">
+                  <div class="pdf-bulletin__status-box">
+                    <strong>{{ reportScore(averageValue()) }}</strong>
+                    <span>Promedio general</span>
+                    <div class="pdf-bulletin__mini-bar">
+                      <span [style.width.%]="reportAverageWidth(averageValue())"></span>
+                    </div>
+                  </div>
+                  <div class="pdf-bulletin__status-box">
+                    <strong>{{ reportAttendancePercentage() }}%</strong>
+                    <span>Asistencia semestral</span>
+                    <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
+                      <span [style.width.%]="reportAttendancePercentage()"></span>
+                    </div>
+                  </div>
+                  <div class="pdf-bulletin__status-box">
+                    <strong class="pdf-bulletin__status-pill" [ngClass]="reportAcademicStatusClass()">{{ reportAcademicStatus() }}</strong>
+                    <span>Estado académico</span>
+                  </div>
+                </section>
+
+                <section class="pdf-bulletin__section">
+                  <h3>Notas por asignatura · {{ reportSchoolYear() }}</h3>
+
+                  <table class="pdf-bulletin__table">
+                    <thead>
+                      <tr>
+                        <th class="left">Asignatura</th>
+                        <th>N1</th>
+                        <th>N2</th>
+                        <th>N3</th>
+                        <th>Promedio</th>
+                        <th>Concepto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (subject of reportSubjects(); track subject.subjectName) {
+                        <tr>
+                          <td class="left">
+                            <strong>{{ reportText(subject.subjectName) }}</strong>
+                            <span>Prof. {{ reportText(reportTeacherName(subject.subjectName)) }}</span>
+                          </td>
+                          <td [ngClass]="reportConceptClass(reportSubjectScore(subject.subjectName, 0))">{{ reportScore(reportSubjectScore(subject.subjectName, 0)) }}</td>
+                          <td [ngClass]="reportConceptClass(reportSubjectScore(subject.subjectName, 1))">{{ reportScore(reportSubjectScore(subject.subjectName, 1)) }}</td>
+                          <td [ngClass]="reportConceptClass(reportSubjectScore(subject.subjectName, 2))">{{ reportScore(reportSubjectScore(subject.subjectName, 2)) }}</td>
+                          <td>
+                            <span class="pdf-bulletin__avg-chip" [ngClass]="reportConceptClass(reportSubjectAverage(subject))">{{ reportScore(reportSubjectAverage(subject)) }}</span>
+                          </td>
+                          <td>
+                            <span class="pdf-bulletin__concept-chip" [ngClass]="reportConceptClass(reportSubjectAverage(subject))">{{ reportConcept(reportSubjectAverage(subject)) }}</span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td class="left">Promedio general semestral</td>
+                        <td colspan="3"></td>
+                        <td>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="reportConceptClass(averageValue())">{{ reportScore(averageValue()) }}</span>
+                        </td>
+                        <td>
+                          <span class="pdf-bulletin__status-pill" [ngClass]="reportAcademicStatusClass()">{{ reportAcademicStatus() }}</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </section>
+
+                <section class="pdf-bulletin__section">
+                  <h3>Observaciones del profesor jefe</h3>
+                  <div class="pdf-bulletin__observations pdf-bulletin__observations--readonly">
+                    @for (line of reportObservationLines(); track line) {
+                      <div class="pdf-bulletin__observation-line">{{ line }}</div>
+                    }
+                  </div>
+                </section>
+
+                <section class="pdf-bulletin__section">
+                  <h3>Firmas</h3>
+                  <div class="pdf-bulletin__signatures">
+                    <div>Profesor Jefe<br />{{ reportText(reportTeacherName()) }}</div>
+                    <div>Director/a<br />Torre Fuerte School</div>
+                    <div>Apoderado/a<br />Recibido conforme</div>
+                  </div>
+                </section>
+
+                <footer class="pdf-bulletin__footer">
+                  Torre Fuerte School · ConectaSchool · Documento generado automáticamente · {{ reportIssueDate() }}
+                </footer>
+              </div>
+            </article>
+          </section>
         </section>
       } @else {
         <section class="dashboard-grid">
@@ -835,6 +981,166 @@
         <strong>No se encontro informacion del estudiante autenticado.</strong>
         <p>Revisa si el usuario tiene RUN vinculado a un estudiante activo del sistema.</p>
       </section>
+    }
+
+    @if (isReportPreviewOpen()) {
+      <div class="report-preview-overlay" (click)="closeReportPreview()">
+        <section class="report-preview-modal" (click)="$event.stopPropagation()">
+          <header class="report-preview-modal__header">
+            <div>
+              <h3>Vista previa del boletín</h3>
+              <p>{{ reportText(fullStudentName()) }} · {{ reportCourseLabel() }}</p>
+            </div>
+            <div class="report-preview-modal__actions">
+              <button mat-flat-button type="button" class="header-button header-button--primary" (click)="downloadStudentReportPdf()" [disabled]="isExportingReportPdf()">
+                <mat-icon>{{ isExportingReportPdf() ? 'hourglass_top' : 'download' }}</mat-icon>
+                {{ isExportingReportPdf() ? 'Descargando...' : 'Descargar' }}
+              </button>
+              <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </header>
+
+          <div class="report-preview-modal__body">
+            <article class="student-report-sheet student-report-sheet--preview">
+              <div class="pdf-bulletin">
+                <header class="pdf-bulletin__header">
+                  <div class="pdf-bulletin__brand">
+                    <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                    <div>
+                      <strong>Colegio Torre Fuerte School</strong>
+                      <span>Control institucional · Plataforma ConectaSchool</span>
+                    </div>
+                  </div>
+                  <div class="pdf-bulletin__meta">
+                    <strong>Boletín de notas</strong>
+                    <span>{{ reportSchoolYear() }} · Emitido {{ reportIssueDate() }}</span>
+                  </div>
+                </header>
+
+                <section class="pdf-bulletin__student-band">
+                  <div class="pdf-bulletin__field">
+                    <span>Nombre del estudiante</span>
+                    <strong>{{ reportText(fullStudentName()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>RUN</span>
+                    <strong>{{ reportText(reportStudentRun()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>Curso</span>
+                    <strong>{{ reportText(reportCourseLabel()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>Profesor jefe</span>
+                    <strong>{{ reportText(reportTeacherName()) }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>Año escolar</span>
+                    <strong>{{ reportSchoolYear() }}</strong>
+                  </div>
+                  <div class="pdf-bulletin__field">
+                    <span>N° de lista</span>
+                    <strong>-</strong>
+                  </div>
+                </section>
+
+                <section class="pdf-bulletin__status-row">
+                  <div class="pdf-bulletin__status-box">
+                    <strong>{{ reportScore(averageValue()) }}</strong>
+                    <span>Promedio general</span>
+                    <div class="pdf-bulletin__mini-bar">
+                      <span [style.width.%]="reportAverageWidth(averageValue())"></span>
+                    </div>
+                  </div>
+                  <div class="pdf-bulletin__status-box">
+                    <strong>{{ reportAttendancePercentage() }}%</strong>
+                    <span>Asistencia semestral</span>
+                    <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
+                      <span [style.width.%]="reportAttendancePercentage()"></span>
+                    </div>
+                  </div>
+                  <div class="pdf-bulletin__status-box">
+                    <strong class="pdf-bulletin__status-pill" [ngClass]="reportAcademicStatusClass()">{{ reportAcademicStatus() }}</strong>
+                    <span>Estado académico</span>
+                  </div>
+                </section>
+
+                <section class="pdf-bulletin__section">
+                  <h3>Notas por asignatura · {{ reportSchoolYear() }}</h3>
+
+                  <table class="pdf-bulletin__table">
+                    <thead>
+                      <tr>
+                        <th class="left">Asignatura</th>
+                        <th>N1</th>
+                        <th>N2</th>
+                        <th>N3</th>
+                        <th>Promedio</th>
+                        <th>Concepto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (subject of reportSubjects(); track subject.subjectName) {
+                        <tr>
+                          <td class="left">
+                            <strong>{{ reportText(subject.subjectName) }}</strong>
+                            <span>Prof. {{ reportText(reportTeacherName(subject.subjectName)) }}</span>
+                          </td>
+                          <td [ngClass]="reportConceptClass(reportSubjectScore(subject.subjectName, 0))">{{ reportScore(reportSubjectScore(subject.subjectName, 0)) }}</td>
+                          <td [ngClass]="reportConceptClass(reportSubjectScore(subject.subjectName, 1))">{{ reportScore(reportSubjectScore(subject.subjectName, 1)) }}</td>
+                          <td [ngClass]="reportConceptClass(reportSubjectScore(subject.subjectName, 2))">{{ reportScore(reportSubjectScore(subject.subjectName, 2)) }}</td>
+                          <td>
+                            <span class="pdf-bulletin__avg-chip" [ngClass]="reportConceptClass(reportSubjectAverage(subject))">{{ reportScore(reportSubjectAverage(subject)) }}</span>
+                          </td>
+                          <td>
+                            <span class="pdf-bulletin__concept-chip" [ngClass]="reportConceptClass(reportSubjectAverage(subject))">{{ reportConcept(reportSubjectAverage(subject)) }}</span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td class="left">Promedio general semestral</td>
+                        <td colspan="3"></td>
+                        <td>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="reportConceptClass(averageValue())">{{ reportScore(averageValue()) }}</span>
+                        </td>
+                        <td>
+                          <span class="pdf-bulletin__status-pill" [ngClass]="reportAcademicStatusClass()">{{ reportAcademicStatus() }}</span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </section>
+
+                <section class="pdf-bulletin__section">
+                  <h3>Observaciones del profesor jefe</h3>
+                  <div class="pdf-bulletin__observations pdf-bulletin__observations--readonly">
+                    @for (line of reportObservationLines(); track line) {
+                      <div class="pdf-bulletin__observation-line">{{ line }}</div>
+                    }
+                  </div>
+                </section>
+
+                <section class="pdf-bulletin__section">
+                  <h3>Firmas</h3>
+                  <div class="pdf-bulletin__signatures">
+                    <div>Profesor Jefe<br />{{ reportText(reportTeacherName()) }}</div>
+                    <div>Director/a<br />Torre Fuerte School</div>
+                    <div>Apoderado/a<br />Recibido conforme</div>
+                  </div>
+                </section>
+
+                <footer class="pdf-bulletin__footer">
+                  Torre Fuerte School · ConectaSchool · Documento generado automáticamente · {{ reportIssueDate() }}
+                </footer>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
     }
     </div>
   </main>
