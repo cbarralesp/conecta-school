@@ -5,6 +5,9 @@ import com.example.authhexagonal.domain.model.GradeCatalog;
 import com.example.authhexagonal.domain.model.GradeEvaluationCommand;
 import com.example.authhexagonal.domain.model.GradeSaveCommand;
 import com.example.authhexagonal.domain.model.GradeReportView;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankArea;
+import com.example.authhexagonal.domain.model.PedagogicalReportSaveCommand;
+import com.example.authhexagonal.domain.model.PedagogicalReportView;
 import com.example.authhexagonal.domain.model.StudentGradeProfileView;
 
 import java.util.List;
@@ -26,4 +29,10 @@ public interface ManageGradesUseCase {
     StudentGradeProfileView getStudentProfile(Long courseId, Long periodId);
 
     GradeReportView getGradeReports(Long courseId, Long periodId);
+
+    List<PedagogicalQuestionBankArea> getPedagogicalQuestionBank(String levelCode);
+
+    PedagogicalReportView getPedagogicalReport(Long courseId, Long periodId, Long studentId);
+
+    PedagogicalReportView savePedagogicalReport(PedagogicalReportSaveCommand command);
 }

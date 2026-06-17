@@ -3,6 +3,12 @@
   min-height: 0;
 }
 
+.attendance-content--filled {
+  background: #fff;
+  margin: -1rem -1.2rem -2rem;
+  padding: 1rem 1.2rem 2rem;
+}
+
 .attendance-content__inner {
   display: grid;
   gap: 1rem;
@@ -15,7 +21,7 @@
   gap: 1rem;
   align-content: start;
   min-height: 100%;
-  padding-top: 1rem;
+  padding-top: 0;
 }
 
 .page-header,
@@ -42,6 +48,7 @@
 .page-header {
   flex-wrap: wrap;
   align-items: flex-start;
+  margin-top: -0.05rem;
 }
 
 .page-header__left {
@@ -343,8 +350,7 @@
 
 .calendar-card__grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  row-gap: 1.35rem;
-  column-gap: 0.9rem;
+  gap: 1rem;
 }
 
 .calendar-month {
@@ -354,89 +360,129 @@
 }
 
 .calendar-month__title {
-  font-size: 0.9rem;
+  font-size: 0.96rem;
   font-weight: 800;
-  color: #1c2a4b;
+  color: #24364f;
 }
 
 .calendar-month__body {
   display: grid;
-  gap: 0.58rem;
+  gap: 0.45rem;
 }
 
 .calendar-month__weekdays,
 .calendar-month__week {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.38rem;
+  gap: 0.45rem;
 }
 
 .calendar-month__weeks {
   display: grid;
-  gap: 0.38rem;
+  gap: 0.45rem;
 }
 
 .calendar-month__weekday {
-  display: grid;
-  place-items: center;
-  min-height: 20px;
+  text-align: center;
   font-size: 0.72rem;
-  font-weight: 700;
-  color: #7288b0;
+  font-weight: 800;
+  color: #6f88af;
 }
 
 .calendar-month__cell {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  min-width: 18px;
-  border-radius: 8px;
-  background: #d7deeb;
+  min-height: 34px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #f8fbff;
   display: grid;
   place-items: center;
-  box-shadow: inset 0 0 0 1px rgba(217, 224, 236, 0.92);
-  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+  box-shadow: none;
 }
 
-.calendar-month__cell small {
-  font-size: 0.66rem;
+.calendar-month__cell strong {
+  font-size: 0.84rem;
   line-height: 1;
-  font-weight: 700;
-  color: #ffffff;
+  font-weight: 800;
 }
 
-.calendar-month__cell:not(.is-empty):hover {
-  transform: translateY(-1px);
+.attendance-special-marker {
+  font-size: 0.76rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em;
 }
 
-.calendar-month__cell.cd-none small {
-  color: #6f82a7;
+.calendar-month__cell.cd-none,
+.calendar-card__legend .cd-none {
+  background: #d8dfec;
+  color: #7d8da7;
 }
 
-.calendar-month__cell.cd-vacation small {
-  color: #6778a5;
+.calendar-month__cell.cd-present,
+.calendar-card__legend .cd-present {
+  background: #bfe8c9;
+  color: #1f8b4d;
+}
+
+.calendar-month__cell.cd-late,
+.calendar-card__legend .cd-late {
+  background: #ffdba8;
+  color: #bf7a11;
+}
+
+.calendar-month__cell.cd-absent,
+.calendar-card__legend .cd-absent {
+  background: #ffc2cf;
+  color: #d94d72;
+}
+
+.calendar-month__cell.cd-vacation,
+.calendar-card__legend .cd-vacation {
+  background: #d8dfec;
+  color: #7d8da7;
+}
+
+.calendar-month__cell.cd-holiday,
+.calendar-card__legend .cd-holiday {
+  background: #fde2e7;
+  color: #be123c;
+}
+
+.calendar-month__cell.cd-suspension,
+.calendar-card__legend .cd-suspension {
+  background: #ece4ff;
+  color: #6d28d9;
 }
 
 .calendar-month__cell.is-empty {
   background: transparent;
-  box-shadow: none;
+  min-height: 0;
 }
 
 .calendar-card__legend {
-  gap: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  padding-top: 0.2rem;
 }
 
 .calendar-card__legend span {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  font-size: 0.82rem;
+  gap: 0.45rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #5f7398;
+  color: #5d7394;
 }
 
-.calendar-card__legend i,
+.calendar-card__legend i {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
 .summary-breakdown__dot {
   width: 18px;
   height: 18px;
@@ -858,6 +904,11 @@
 @media (max-width: 900px) {
   .attendance-content {
     padding: 0 0 1.25rem;
+  }
+
+  .attendance-content--filled {
+    margin: -1rem -1rem -1.5rem;
+    padding: 1rem 1rem 1.5rem;
   }
 
   .attendance-page {

@@ -18,20 +18,40 @@
       </div>
 
       <div class="page-header__actions">
-        <button mat-stroked-button type="button" routerLink="/dashboard/cursos" class="back-button">
+        <button mat-stroked-button type="button" routerLink="/dashboard/cursos" class="header-button header-button--ghost">
           <mat-icon>arrow_back</mat-icon>
           Volver a Cursos
         </button>
-        <label class="students-search">
-          <mat-icon>search</mat-icon>
-          <input
-            type="text"
-            [value]="search()"
-            (input)="search.set($any($event.target).value)"
-            placeholder="Buscar alumno..." />
-        </label>
       </div>
     </section>
+
+    <section class="summary-grid">
+      @for (card of summaryCards(); track card.label) {
+        <app-summary-metric-card [label]="card.label" [value]="card.value" [icon]="card.icon" [tone]="card.tone" />
+      }
+    </section>
+
+    <mat-card appearance="outlined" class="filters-card">
+      <mat-card-content>
+        <section class="filters-bar">
+          <div class="filters-bar__left">
+            <span class="filters-bar__title">Listado del curso</span>
+            <small>{{ filteredEnrollments().length }} registros visibles</small>
+          </div>
+
+          <div class="filters-bar__right">
+            <label class="students-search">
+              <mat-icon>search</mat-icon>
+              <input
+                type="text"
+                [value]="search()"
+                (input)="search.set($any($event.target).value)"
+                placeholder="Buscar alumno, apoderado o contacto..." />
+            </label>
+          </div>
+        </section>
+      </mat-card-content>
+    </mat-card>
 
     <mat-card appearance="outlined" class="students-card">
       <mat-card-content>
@@ -50,20 +70,14 @@
         } @else {
           <div class="table-shell">
             <table mat-table [dataSource]="filteredEnrollments()" class="students-table">
-              <ng-container matColumnDef="studentRun">
-                <th mat-header-cell *matHeaderCellDef>RUT</th>
-                <td mat-cell *matCellDef="let enrollment">
-                  <span class="run-cell">{{ enrollment.studentRun }}</span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="fullName">
-                <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
+              <ng-container matColumnDef="student">
+                <th mat-header-cell *matHeaderCellDef>Alumno</th>
                 <td mat-cell *matCellDef="let enrollment">
                   <div class="student-name-cell">
                     <div class="student-avatar">{{ initials(enrollment.fullName) }}</div>
                     <div class="student-name-copy">
                       <strong [title]="enrollment.fullName">{{ enrollment.fullName }}</strong>
+                      <span>{{ enrollment.studentRun }}</span>
                     </div>
                   </div>
                 </td>
@@ -76,15 +90,44 @@
                 </td>
               </ng-container>
 
-              <ng-container matColumnDef="enrollmentDate">
-                <th mat-header-cell *matHeaderCellDef>Fecha matricula</th>
-                <td mat-cell *matCellDef="let enrollment">{{ formatDate(enrollment.enrollmentDate) }}</td>
+              <ng-container matColumnDef="contact">
+                <th mat-header-cell *matHeaderCellDef>Contacto</th>
+                <td mat-cell *matCellDef="let enrollment">
+                  @if (hasContact(enrollment)) {
+                    <div class="contact-cell">
+                      @if (enrollment.guardianPhone) {
+                        <span>{{ enrollment.guardianPhone }}</span>
+                      }
+                      @if (enrollment.guardianEmail) {
+                        <small [title]="enrollment.guardianEmail">{{ enrollment.guardianEmail }}</small>
+                      }
+                    </div>
+                  } @else {
+                    <span class="muted-value">Sin contacto</span>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="attendance">
+                <th mat-header-cell *matHeaderCellDef>Asistencia</th>
+                <td mat-cell *matCellDef="let enrollment">
+                  <span class="metric-pill metric-pill--green">{{ formatAttendance(enrollment.attendancePercentage) }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="average">
+                <th mat-header-cell *matHeaderCellDef>Promedio</th>
+                <td mat-cell *matCellDef="let enrollment">
+                  <span class="metric-pill metric-pill--blue">{{ formatAverage(enrollment.overallAverage) }}</span>
+                </td>
               </ng-container>
 
               <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef>Estado</th>
                 <td mat-cell *matCellDef="let enrollment">
-                  <span class="status-badge">{{ enrollment.status }}</span>
+                  <span class="status-indicator" [class.is-active]="enrollment.active" [attr.aria-label]="enrollment.active ? 'Activo' : enrollment.status" [title]="enrollment.active ? 'Activo' : enrollment.status">
+                    <span class="status-indicator__dot"></span>
+                  </span>
                 </td>
               </ng-container>
 

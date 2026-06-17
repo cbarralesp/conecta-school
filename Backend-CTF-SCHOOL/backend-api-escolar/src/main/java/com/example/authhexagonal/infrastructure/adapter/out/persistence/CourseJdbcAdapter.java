@@ -1012,11 +1012,11 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
             return;
         }
 
-        Integer schoolYear = jdbcTemplate.queryForObject("""
+        int effectiveSchoolYear = Optional.ofNullable(jdbcTemplate.queryForObject("""
                 SELECT COALESCE("ANIO_ESCOLAR", EXTRACT(YEAR FROM CURRENT_DATE)::INTEGER)
                 FROM "CURSOS"
                 WHERE "ID" = ?
-                """, Integer.class, courseId);
+                """, Integer.class, courseId)).orElse(LocalDate.now().getYear());
 
         List<Long> subjectIds = jdbcTemplate.query("""
                 SELECT DISTINCT "ASIGNATURA_ID"
@@ -1032,20 +1032,62 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     FROM "ASIGNATURAS"
                     WHERE "ID" = ?
                     """, Integer.class, subjectId);
+            int effectiveHours = suggestedHours == null ? 1 : suggestedHours;
 
-            Long loadId = jdbcTemplate.query("""
+            Long targetLoadId = jdbcTemplate.query("""
                     SELECT "ID"
                     FROM "CARGAS_DOCENTES"
-                    WHERE "CURSO_ID" = ?
+                    WHERE "PROFESOR_ID" = ?
+                      AND "CURSO_ID" = ?
                       AND "ASIGNATURA_ID" = ?
+                      AND "ANIO_ESCOLAR" = ?
                     ORDER BY "ACTIVA" DESC, "ID"
                     LIMIT 1
-                    """, (rs, rowNum) -> rs.getLong("ID"), courseId, subjectId)
+                    """, (rs, rowNum) -> rs.getLong("ID"), teacherId, courseId, subjectId, effectiveSchoolYear)
                     .stream()
                     .findFirst()
                     .orElse(null);
 
-            if (loadId == null) {
+            if (targetLoadId != null) {
+                jdbcTemplate.update("""
+                        UPDATE "CARGAS_DOCENTES"
+                        SET "HORAS_SEMANALES" = ?,
+                            "ACTIVA" = TRUE
+                        WHERE "ID" = ?
+                        """,
+                        effectiveHours,
+                        targetLoadId
+                );
+                jdbcTemplate.update("""
+                        UPDATE "CARGAS_DOCENTES"
+                        SET "ACTIVA" = FALSE
+                        WHERE "CURSO_ID" = ?
+                          AND "ASIGNATURA_ID" = ?
+                          AND "ANIO_ESCOLAR" = ?
+                          AND "ID" <> ?
+                        """,
+                        courseId,
+                        subjectId,
+                        effectiveSchoolYear,
+                        targetLoadId
+                );
+                continue;
+            }
+
+            Long transferableLoadId = jdbcTemplate.query("""
+                    SELECT "ID"
+                    FROM "CARGAS_DOCENTES"
+                    WHERE "CURSO_ID" = ?
+                      AND "ASIGNATURA_ID" = ?
+                      AND "ANIO_ESCOLAR" = ?
+                    ORDER BY "ACTIVA" DESC, "ID"
+                    LIMIT 1
+                    """, (rs, rowNum) -> rs.getLong("ID"), courseId, subjectId, effectiveSchoolYear)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (transferableLoadId == null) {
                 jdbcTemplate.update("""
                         INSERT INTO "CARGAS_DOCENTES" (
                             "PROFESOR_ID",
@@ -1061,8 +1103,8 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                         teacherId,
                         courseId,
                         subjectId,
-                        schoolYear == null ? LocalDate.now().getYear() : schoolYear,
-                        suggestedHours == null ? 1 : suggestedHours
+                        effectiveSchoolYear,
+                        effectiveHours
                 );
                 continue;
             }
@@ -1076,9 +1118,9 @@ public class CourseJdbcAdapter implements ManageCoursesPort, LoadCourseScheduleP
                     WHERE "ID" = ?
                     """,
                     teacherId,
-                    schoolYear == null ? LocalDate.now().getYear() : schoolYear,
-                    suggestedHours == null ? 1 : suggestedHours,
-                    loadId
+                    effectiveSchoolYear,
+                    effectiveHours,
+                    transferableLoadId
             );
         }
     }

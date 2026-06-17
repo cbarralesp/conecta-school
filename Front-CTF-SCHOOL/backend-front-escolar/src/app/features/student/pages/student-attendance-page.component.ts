@@ -370,7 +370,7 @@ export class StudentAttendancePageComponent {
   ): {
     label: string;
     weekdays: string[];
-    weeks: { weekKey: string; cells: { dayNumber: number | null; statusClass: string; statusLabel: string }[] }[];
+    weeks: { weekKey: string; cells: { dayNumber: number | null; statusClass: string; statusLabel: string; specialMarker: string | null }[] }[];
   } {
     const monthLabel = new Intl.DateTimeFormat('es-CL', { month: 'long' })
       .format(new Date(year, month - 1, 1))
@@ -380,13 +380,14 @@ export class StudentAttendancePageComponent {
         day.date,
         {
           statusClass: this.calendarStatusClass(day.status),
-          statusLabel: day.status
+          statusLabel: day.status,
+          specialMarker: this.calendarSpecialMarker(day.status)
         }
       ])
     );
     const daysInMonth = new Date(year, month, 0).getDate();
     const isVacationMonth = month === 1 || month === 2;
-    const weeks = new Map<number, { weekKey: string; cells: { dayNumber: number | null; statusClass: string; statusLabel: string }[] }>();
+    const weeks = new Map<number, { weekKey: string; cells: { dayNumber: number | null; statusClass: string; statusLabel: string; specialMarker: string | null }[] }>();
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month - 1, day);
@@ -406,14 +407,15 @@ export class StudentAttendancePageComponent {
         weeks.get(weekIndex) ??
         {
           weekKey: `${monthLabel}-${weekIndex}`,
-          cells: Array.from({ length: 5 }, () => ({ dayNumber: null, statusClass: 'is-empty', statusLabel: '' }))
+          cells: Array.from({ length: 5 }, () => ({ dayNumber: null, statusClass: 'is-empty', statusLabel: '', specialMarker: null }))
         };
 
       const historyEntry = historyByDate.get(isoDate);
       week.cells[weekdayIndex] = {
         dayNumber: day,
         statusClass: historyEntry?.statusClass ?? (isVacationMonth ? 'cd-vacation' : 'cd-none'),
-        statusLabel: historyEntry?.statusLabel ?? (isVacationMonth ? 'Vacaciones' : 'Sin clases')
+        statusLabel: historyEntry?.statusLabel ?? (isVacationMonth ? 'Vacaciones' : 'Sin clases'),
+        specialMarker: historyEntry?.specialMarker ?? (isVacationMonth ? 'V' : null)
       };
       weeks.set(weekIndex, week);
     }
@@ -434,8 +436,32 @@ export class StudentAttendancePageComponent {
         return 'cd-late';
       case 'AUSENTE':
         return 'cd-absent';
+      case 'VACACIONES':
+        return 'cd-vacation';
+      case 'FERIADO':
+      case 'INTERFERIADO':
+        return 'cd-holiday';
+      case 'SUSPENSION':
+      case 'SUSPENSIÓN':
+      case 'SUSPENDIDO':
+        return 'cd-suspension';
       default:
         return 'cd-none';
+    }
+  }
+
+  private calendarSpecialMarker(status: string): string | null {
+    switch (status.toUpperCase()) {
+      case 'VACACIONES':
+        return 'V';
+      case 'INTERFERIADO':
+        return 'I';
+      case 'SUSPENSION':
+      case 'SUSPENSIÓN':
+      case 'SUSPENDIDO':
+        return 'S';
+      default:
+        return null;
     }
   }
 

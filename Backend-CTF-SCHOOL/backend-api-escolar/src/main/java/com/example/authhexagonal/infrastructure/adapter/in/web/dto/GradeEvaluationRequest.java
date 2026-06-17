@@ -12,6 +12,7 @@ public record GradeEvaluationRequest(
         @NotBlank String code,
         @NotBlank String name,
         Double weight,
-        LocalDate evaluationDate
+        LocalDate evaluationDate,
+        @NotBlank String registrationType
 ) {
 }

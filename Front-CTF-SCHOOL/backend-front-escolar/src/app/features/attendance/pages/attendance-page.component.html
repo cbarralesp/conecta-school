@@ -791,6 +791,61 @@
 
       <mat-card appearance="outlined" class="alert-card">
         <div class="alert-card__header alert-card__header--centered">
+          <h2>Porcentaje por mes</h2>
+          <span>
+            @if (selectedSemesterStudent()) {
+              {{ selectedSemesterStudent()?.fullName }}
+            } @else {
+              Promedio del curso
+            }
+          </span>
+        </div>
+
+        <div class="alerts-list">
+          @for (item of semesterMonthSummaryCards(); track item.month) {
+            <article
+              class="alert-row alert-row--month-summary">
+              <div
+                class="alert-icon"
+                [ngClass]="{
+                  'is-success': item.tone === 'success',
+                  'is-warning': item.tone === 'warning',
+                  'is-danger': item.tone === 'danger'
+                }">
+                <mat-icon>calendar_month</mat-icon>
+              </div>
+
+              <div class="alert-copy alert-copy--month-summary">
+                <div class="month-summary-inline">
+                  <strong>{{ item.month }}</strong>
+                  <div class="month-summary-inline__stats">
+                    <span class="status-chip is-success">{{ item.presentCount }} presentes</span>
+                    <span class="status-chip is-danger">{{ item.absentCount }} ausencias</span>
+                    <span class="status-chip is-warning">{{ item.lateCount }} tardanzas</span>
+                  </div>
+                </div>
+                <span>{{ item.schoolDays }} dias habiles</span>
+              </div>
+
+              <div class="month-summary-score">
+                <strong
+                  [ngClass]="{
+                    'text-success': item.tone === 'success',
+                    'text-warning': item.tone === 'warning',
+                    'text-danger': item.tone === 'danger'
+                  }">
+                  {{ item.percentage }}%
+                </strong>
+              </div>
+            </article>
+          } @empty {
+            <p class="empty-copy">No hay meses con informacion suficiente para mostrar en este semestre.</p>
+          }
+        </div>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="alert-card">
+        <div class="alert-card__header alert-card__header--centered">
           <h2>Mejor asistencia por curso</h2>
           <span>{{ semesterCourseHighlights().length }} cursos</span>
         </div>

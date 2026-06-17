@@ -438,7 +438,12 @@
                   <span class="activity-card__bar" [style.background]="act.colorHex"></span>
                   <div class="activity-card__body">
                     <strong class="activity-card__title">{{ act.title }}</strong>
-                    <span class="activity-card__type">{{ act.typeLabel }}</span>
+                    <div class="activity-card__meta">
+                      <span class="activity-card__type">{{ act.typeLabel }}</span>
+                      @if (act.courseLabel) {
+                        <span class="activity-card__course">{{ act.courseLabel }}</span>
+                      }
+                    </div>
                   </div>
                   <div class="activity-card__actions">
                     <div class="activity-card__topline">
@@ -476,6 +481,9 @@
                   <div class="upcoming-row__copy">
                     <strong>{{ act.title }}</strong>
                     <span>{{ act.shortDate }}</span>
+                    @if (act.courseLabel) {
+                      <small>{{ act.courseLabel }}</small>
+                    }
                   </div>
                   <mat-icon class="upcoming-row__arrow">chevron_right</mat-icon>
                 </button>

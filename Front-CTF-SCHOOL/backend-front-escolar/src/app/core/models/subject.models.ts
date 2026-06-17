@@ -12,6 +12,7 @@ export interface Subject {
   colorHex: string;
   description: string;
   referenceLevel: string;
+  evaluationType: 'NUMERICA' | 'CONCEPTUAL';
   displayLevel?: string;
   suggestedHours: number;
   active: boolean;
@@ -29,6 +30,7 @@ export interface SubjectPayload {
   colorHex: string;
   description: string;
   referenceLevel: string;
+  evaluationType: 'NUMERICA' | 'CONCEPTUAL';
   suggestedHours: number;
   teacherIds: number[];
   applicableGradeIds: number[];

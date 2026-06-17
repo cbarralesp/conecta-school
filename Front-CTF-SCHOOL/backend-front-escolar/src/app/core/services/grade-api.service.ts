@@ -6,7 +6,10 @@ import {
   GradeBookView,
   GradeCatalog,
   GradeEvaluationPayload,
+  PedagogicalQuestionBankArea,
+  PedagogicalReportView,
   GradeReportView,
+  SavePedagogicalReportPayload,
   SaveGradeBookPayload,
   StudentGradeProfileView
 } from '../models/grade.models';
@@ -86,20 +89,56 @@ export class GradeApiService {
       .pipe(map((view) => this.normalizeReportView(view)));
   }
 
+  getPedagogicalReport(courseId: number, periodId: number, studentId: number): Observable<PedagogicalReportView> {
+    return this.http
+      .get<PedagogicalReportView>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos`, {
+        params: { courseId, periodId, studentId }
+      })
+      .pipe(map((view) => this.normalizePedagogicalReportView(view)));
+  }
+
+  savePedagogicalReport(payload: SavePedagogicalReportPayload): Observable<PedagogicalReportView> {
+    return this.http
+      .put<PedagogicalReportView>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos`, payload)
+      .pipe(map((view) => this.normalizePedagogicalReportView(view)));
+  }
+
+  getPedagogicalQuestionBank(levelCode: string): Observable<PedagogicalQuestionBankArea[]> {
+    return this.http
+      .get<PedagogicalQuestionBankArea[]>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos/banco`, {
+        params: { levelCode }
+      })
+      .pipe(
+        map((areas) => areas.map((area) => ({
+          ...area,
+          key: normalizeDashboardText(area.key),
+          title: normalizeDashboardText(area.title),
+          questionKind: area.questionKind,
+          questions: (area.questions ?? []).map((question) => ({
+            ...question,
+            label: normalizeDashboardText(question.label)
+          }))
+        })))
+      );
+  }
+
   private normalizeGradeBook(view: GradeBookView): GradeBookView {
     return {
       ...view,
       courseName: normalizeDashboardText(view.courseName),
       periodName: normalizeDashboardText(view.periodName),
       subjectName: normalizeDashboardText(view.subjectName),
+      subjectEvaluationType: 'NUMERICA',
       subjects: view.subjects.map((subject) => ({
         ...subject,
-        name: normalizeDashboardText(subject.name)
+        name: normalizeDashboardText(subject.name),
+        evaluationType: 'NUMERICA'
       })),
       evaluations: view.evaluations.map((evaluation) => ({
         ...evaluation,
         code: normalizeDashboardText(evaluation.code),
-        name: normalizeDashboardText(evaluation.name)
+        name: normalizeDashboardText(evaluation.name),
+        registrationType: evaluation.registrationType ?? 'SUMATIVA'
       })),
       students: view.students.map((student) => ({
         ...student,
@@ -108,7 +147,10 @@ export class GradeApiService {
         status: normalizeDashboardText(student.status),
         scores: student.scores.map((score) => ({
           ...score,
-          code: normalizeDashboardText(score.code)
+          code: normalizeDashboardText(score.code),
+          conceptCode: score.conceptCode ?? null,
+          percentage: score.percentage ?? null,
+          registrationType: score.registrationType ?? 'SUMATIVA'
         }))
       }))
     };
@@ -126,7 +168,9 @@ export class GradeApiService {
         status: normalizeDashboardText(student.status),
         subjects: student.subjects.map((subject) => ({
           ...subject,
-          subjectName: normalizeDashboardText(subject.subjectName)
+          subjectName: normalizeDashboardText(subject.subjectName),
+          evaluationType: 'NUMERICA',
+          conceptSummaryCode: subject.conceptSummaryCode ?? null
         }))
       }))
     };
@@ -144,9 +188,66 @@ export class GradeApiService {
         status: normalizeDashboardText(student.status),
         subjects: student.subjects.map((subject) => ({
           ...subject,
-          subjectName: normalizeDashboardText(subject.subjectName)
+          subjectName: normalizeDashboardText(subject.subjectName),
+          evaluationType: 'NUMERICA',
+          conceptSummaryCode: subject.conceptSummaryCode ?? null
         }))
       }))
+    };
+  }
+
+  private normalizePedagogicalReportView(view: PedagogicalReportView): PedagogicalReportView {
+    return {
+      ...view,
+      courseName: normalizeDashboardText(view.courseName),
+      periodName: normalizeDashboardText(view.periodName),
+      studentRun: normalizeDashboardText(view.studentRun),
+      studentName: normalizeDashboardText(view.studentName),
+      levelLabel: normalizeDashboardText(view.levelLabel),
+      content: {
+        ...view.content,
+        documentTitle: normalizeDashboardText(view.content?.documentTitle ?? ''),
+        educatorName: normalizeDashboardText(view.content?.educatorName ?? ''),
+        teacherSignatureName: normalizeDashboardText(view.content?.teacherSignatureName ?? ''),
+        guardianSignatureLabel: normalizeDashboardText(view.content?.guardianSignatureLabel ?? ''),
+        developmentAreas: (view.content?.developmentAreas ?? []).map((area) => ({
+          ...area,
+          key: normalizeDashboardText(area.key),
+          title: normalizeDashboardText(area.title),
+          icon: normalizeDashboardText(area.icon),
+          observation: normalizeDashboardText(area.observation ?? ''),
+          items: (area.items ?? []).map((item) => ({
+            ...item,
+            questionId: item.questionId ?? null,
+            label: normalizeDashboardText(item.label),
+            answer: item.answer === 'SI' || item.answer === 'EP' || item.answer === 'NO'
+              ? item.answer
+              : item.achieved
+                ? 'SI'
+                : 'NO'
+          }))
+        })),
+        attitudeArea: view.content?.attitudeArea
+          ? {
+              ...view.content.attitudeArea,
+              key: normalizeDashboardText(view.content.attitudeArea.key),
+              title: normalizeDashboardText(view.content.attitudeArea.title),
+              icon: normalizeDashboardText(view.content.attitudeArea.icon),
+              observation: normalizeDashboardText(view.content.attitudeArea.observation ?? ''),
+              items: (view.content.attitudeArea.items ?? []).map((item) => ({
+                ...item,
+                questionId: item.questionId ?? null,
+                label: normalizeDashboardText(item.label),
+                answer: item.answer === 'SI' || item.answer === 'EP' || item.answer === 'NO'
+                  ? item.answer
+                  : item.achieved
+                    ? 'SI'
+                    : 'NO'
+              }))
+            }
+          : null,
+        familyRecommendations: (view.content?.familyRecommendations ?? []).map((item) => normalizeDashboardText(item))
+      }
     };
   }
 }

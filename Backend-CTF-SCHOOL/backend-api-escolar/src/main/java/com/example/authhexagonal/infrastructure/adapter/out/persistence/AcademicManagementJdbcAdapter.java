@@ -720,6 +720,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     a."COLOR_HEX",
                     COALESCE(a."DESCRIPCION", '') AS "DESCRIPCION",
                     COALESCE(a."NIVEL_REFERENCIA", '') AS "NIVEL_REFERENCIA",
+                    COALESCE(NULLIF(TRIM(a."TIPO_EVALUACION"), ''), 'NUMERICA') AS "TIPO_EVALUACION",
                     %s AS "DISPLAY_LEVEL",
                     COALESCE(a."HORAS_SUGERIDAS", 2) AS "HORAS_SUGERIDAS",
                     a."ACTIVA"
@@ -777,6 +778,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     a."COLOR_HEX",
                     COALESCE(a."DESCRIPCION", '') AS "DESCRIPCION",
                     COALESCE(a."NIVEL_REFERENCIA", '') AS "NIVEL_REFERENCIA",
+                    COALESCE(NULLIF(TRIM(a."TIPO_EVALUACION"), ''), 'NUMERICA') AS "TIPO_EVALUACION",
                     %s AS "DISPLAY_LEVEL",
                     COALESCE(a."HORAS_SUGERIDAS", 2) AS "HORAS_SUGERIDAS",
                     a."ACTIVA"
@@ -821,6 +823,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             String colorHex,
             String description,
             String referenceLevel,
+            String evaluationType,
             int suggestedHours,
             List<Long> teacherIds,
             List<Long> applicableGradeIds,
@@ -834,12 +837,13 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     "COLOR_HEX",
                     "DESCRIPCION",
                     "NIVEL_REFERENCIA",
+                    "TIPO_EVALUACION",
                     "HORAS_SUGERIDAS",
                     "ACTIVA"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, TRUE)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 RETURNING "ID"
-                """, Long.class, code, name, area, colorHex, description, referenceLevel, suggestedHours);
+                """, Long.class, code, name, area, colorHex, description, referenceLevel, evaluationType, suggestedHours);
 
         replaceSubjectApplicableGrades(subjectId, applicableGradeIds);
         replaceSubjectApplicableCourses(subjectId, referenceLevel, applicableCourseIds);
@@ -856,6 +860,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
             String colorHex,
             String description,
             String referenceLevel,
+            String evaluationType,
             int suggestedHours,
             List<Long> teacherIds,
             List<Long> applicableGradeIds,
@@ -875,9 +880,10 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                     "COLOR_HEX" = ?,
                     "DESCRIPCION" = ?,
                     "NIVEL_REFERENCIA" = ?,
+                    "TIPO_EVALUACION" = ?,
                     "HORAS_SUGERIDAS" = ?
                 WHERE "ID" = ?
-                """, code, name, area, colorHex, description, referenceLevel, suggestedHours, subjectId);
+                """, code, name, area, colorHex, description, referenceLevel, evaluationType, suggestedHours, subjectId);
 
         replaceSubjectApplicableGrades(subjectId, applicableGradeIds);
         replaceSubjectApplicableCourses(subjectId, referenceLevel, applicableCourseIds);
@@ -1028,6 +1034,7 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 rs.getString("COLOR_HEX"),
                 rs.getString("DESCRIPCION"),
                 rs.getString("NIVEL_REFERENCIA"),
+                rs.getString("TIPO_EVALUACION"),
                 rs.getString("DISPLAY_LEVEL"),
                 rs.getInt("HORAS_SUGERIDAS"),
                 rs.getBoolean("ACTIVA"),

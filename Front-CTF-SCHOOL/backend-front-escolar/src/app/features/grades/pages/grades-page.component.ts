@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+﻿import { HttpErrorResponse } from '@angular/common/http';
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
@@ -20,14 +20,20 @@ import { AuthStateService } from '../../../core/services/auth-state.service';
 import { AttendanceApiService } from '../../../core/services/attendance-api.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
 import {
+  PedagogicalAnswer,
+  PedagogicalQuestionBankArea,
   GradeEvaluationHeader,
   GradeBookStudentRow,
   GradeBookSummary,
   GradeBookView,
   GradeCatalog,
   GradeEvaluationPayload,
+  PedagogicalReportArea,
+  PedagogicalReportView,
+  GradeRegistrationType,
   GradeReportView,
   GradeSaveEntryPayload,
+  SavePedagogicalReportPayload,
   StudentGradeCard,
   StudentGradeProfileView
 } from '../../../core/models/grade.models';
@@ -41,15 +47,39 @@ type EvaluationDialogState = {
   name: string;
   weight: number | null;
   evaluationDate: string;
+  registrationType: GradeRegistrationType;
+};
+
+type EvaluationKind = 'DIAGNOSTICA' | 'PROCESO' | 'SUMATIVA';
+type PedagogicalAreaEditorState = {
+  areaKey: string;
+  areaTitle: string;
+  isAttitude: boolean;
+  selectedQuestionIds: number[];
+  questions: Array<{ id: number; label: string; sortOrder: number }>;
 };
 
 type ReportSubjectDetail = {
+  evaluationType: 'NUMERICA' | 'CONCEPTUAL';
   scores: Array<number | null>;
+  concepts: Array<string | null>;
+  percentages: Array<number | null>;
+  registrationTypes: GradeRegistrationType[];
   average: number | null;
-  evaluations: Array<{ label: string; score: number | null }>;
+  conceptSummaryCode: string | null;
+  evaluations: Array<{ label: string; score: number | null; conceptCode: string | null; percentage: number | null; registrationType: GradeRegistrationType }>;
 };
 
 const DEFAULT_EVALUATION_WEIGHT = 20;
+const CONCEPT_OPTIONS = [
+  { code: 'L', label: 'Logrado' },
+  { code: 'ML', label: 'Medianamente logrado' },
+  { code: 'PL', label: 'Por lograr' },
+  { code: 'NL', label: 'No logrado' },
+  { code: 'I', label: 'Iniciado' },
+  { code: 'EP', label: 'En proceso' },
+  { code: 'OA', label: 'Objetivo alcanzado' }
+] as const;
 
 @Component({
   selector: 'app-grades-page',
@@ -73,6 +103,7 @@ const DEFAULT_EVALUATION_WEIGHT = 20;
 })
 export class GradesPageComponent {
   @ViewChild('reportPdfTemplate') private reportPdfTemplate?: ElementRef<HTMLElement>;
+  @ViewChild('pedagogicalPdfTemplate') private pedagogicalPdfTemplate?: ElementRef<HTMLElement>;
 
   private readonly gradeApiService = inject(GradeApiService);
   private readonly attendanceApiService = inject(AttendanceApiService);
@@ -87,6 +118,8 @@ export class GradesPageComponent {
   readonly activeTab = signal<GradesTab>('book');
   readonly gradeBookSearch = signal('');
   readonly evaluationDialog = signal<EvaluationDialogState | null>(null);
+  readonly evaluationKindDialogOpen = signal(false);
+  readonly selectedEvaluationKind = signal<EvaluationKind>('SUMATIVA');
   readonly evaluationDetailsDialog = signal<GradeEvaluationHeader | null>(null);
   readonly catalog = signal<GradeCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
@@ -99,8 +132,15 @@ export class GradesPageComponent {
   readonly profileRunSearchTerm = signal('');
   readonly reportRunSearchTerm = signal('');
   readonly isReportPreviewOpen = signal(false);
+  readonly isPedagogicalSheetPreviewOpen = signal(false);
+  readonly isPedagogicalPreviewOpen = signal(false);
+  readonly pedagogicalAreaEditor = signal<PedagogicalAreaEditorState | null>(null);
   readonly previewStudent = signal<StudentGradeCard | null>(null);
   readonly observationDraft = signal('');
+  readonly pedagogicalDraft = signal<PedagogicalReportView | null>(null);
+  readonly pedagogicalReports = signal<Record<number, PedagogicalReportView>>({});
+  readonly pedagogicalQuestionBank = signal<PedagogicalQuestionBankArea[]>([]);
+  readonly pedagogicalQuestionBankLevel = signal<'PREKINDER' | 'KINDER' | 'GENERAL' | null>(null);
   readonly gradeBook = signal<GradeBookView | null>(null);
   readonly gradeBookNotice = signal<string | null>(null);
   readonly studentProfile = signal<StudentGradeProfileView | null>(null);
@@ -109,6 +149,7 @@ export class GradesPageComponent {
   readonly isSaving = signal(false);
   readonly isExporting = signal(false);
   readonly pdfStudent = signal<StudentGradeCard | null>(null);
+  readonly pdfPedagogicalReport = signal<PedagogicalReportView | null>(null);
   readonly reportDetailBooks = signal<GradeBookView[]>([]);
   readonly reportAttendanceRates = signal<Record<number, number | null>>({});
   readonly savedObservations = signal<Record<number, string>>({});
@@ -117,10 +158,13 @@ export class GradesPageComponent {
   readonly periods = computed(() => this.catalog()?.periods ?? []);
   readonly selectedCourse = computed(() => this.courses().find((course) => course.id === this.selectedCourseId()) ?? null);
   readonly selectedPeriod = computed(() => this.periods().find((period) => period.id === this.selectedPeriodId()) ?? null);
+  readonly conceptOptions = CONCEPT_OPTIONS;
+  readonly diagnosticConceptOptions = CONCEPT_OPTIONS.filter((option) => ['L', 'ML', 'PL'].includes(option.code));
   readonly currentGradeBook = computed(() => {
     const view = this.gradeBook();
     return view && view.courseId === this.selectedCourseId() && view.periodId === this.selectedPeriodId() ? view : null;
   });
+  readonly isConceptualGradeBook = computed(() => this.currentGradeBook()?.subjectEvaluationType === 'CONCEPTUAL');
   readonly currentStudentProfile = computed(() => {
     const view = this.studentProfile();
     return view && view.courseId === this.selectedCourseId() && view.periodId === this.selectedPeriodId() ? view : null;
@@ -129,6 +173,7 @@ export class GradesPageComponent {
     const view = this.reports();
     return view && view.courseId === this.selectedCourseId() && view.periodId === this.selectedPeriodId() ? view : null;
   });
+  readonly showPedagogicalTab = computed(() => true);
   readonly subjectTabs = computed(() => this.currentGradeBook()?.subjects ?? []);
   readonly gradeBookSummary = computed<GradeBookSummary | null>(() => this.currentGradeBook()?.summary ?? null);
   readonly profileSummary = computed(() => this.buildProfileSummary(this.currentStudentProfile()?.students ?? []));
@@ -387,6 +432,12 @@ export class GradesPageComponent {
   }
 
   updateScore(studentId: number, evaluationId: number, rawValue: string): void {
+    if (this.isConceptualGradeBook()) {
+      return;
+    }
+    if (this.registrationTypeForEvaluation(evaluationId) === 'DIAGNOSTICA') {
+      return;
+    }
     const parsed = rawValue.trim() === '' ? null : Number.parseFloat(rawValue.replace(',', '.'));
     const score = parsed == null || Number.isNaN(parsed) ? null : this.clampScore(parsed);
 
@@ -400,11 +451,82 @@ export class GradesPageComponent {
           ? student
           : {
               ...student,
-              scores: student.scores.map((cell) => (cell.evaluationId === evaluationId ? { ...cell, score } : cell))
+              scores: student.scores.map((cell) => (
+                cell.evaluationId === evaluationId
+                  ? { ...cell, score, conceptCode: null, percentage: null }
+                  : cell
+              ))
             }
       );
 
-      const recalculated = students.map((student) => this.rebuildStudentRow(student));
+      const recalculated = students.map((student) => this.rebuildStudentRow(student, current.subjectEvaluationType));
+      return { ...current, students: recalculated, summary: this.calculateSummary(recalculated) };
+    });
+  }
+
+  normalizeScoreInput(event: Event, studentId: number, evaluationId: number): void {
+    if (this.isConceptualGradeBook()) {
+      return;
+    }
+    if (this.registrationTypeForEvaluation(evaluationId) === 'DIAGNOSTICA') {
+      return;
+    }
+    const input = event.target as HTMLInputElement | null;
+    if (!input) {
+      return;
+    }
+    const parsed = input.value.trim() === '' ? null : Number.parseFloat(input.value.replace(',', '.'));
+    const score = parsed == null || Number.isNaN(parsed) ? null : this.clampScore(parsed);
+    input.value = score == null ? '' : score.toFixed(1);
+    this.updateScore(studentId, evaluationId, input.value);
+  }
+
+  updateDiagnosticConcept(studentId: number, evaluationId: number, conceptCode: string | null): void {
+    this.gradeBook.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const normalizedConceptCode = conceptCode && conceptCode.trim().length > 0 ? conceptCode : null;
+      const students = current.students.map((student) =>
+        student.studentId !== studentId
+          ? student
+          : {
+              ...student,
+              scores: student.scores.map((cell) => (
+                cell.evaluationId === evaluationId
+                  ? { ...cell, score: null, percentage: null, conceptCode: normalizedConceptCode }
+                  : cell
+              ))
+            }
+      );
+
+      const recalculated = students.map((student) => this.rebuildStudentRow(student, current.subjectEvaluationType));
+      return { ...current, students: recalculated, summary: this.calculateSummary(recalculated) };
+    });
+  }
+
+  updateConceptScore(studentId: number, evaluationId: number, conceptCode: string | null): void {
+    this.gradeBook.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const normalizedConceptCode = conceptCode && conceptCode.trim().length > 0 ? conceptCode : null;
+      const students = current.students.map((student) =>
+        student.studentId !== studentId
+          ? student
+          : {
+              ...student,
+              scores: student.scores.map((cell) => (
+                cell.evaluationId === evaluationId
+                  ? { ...cell, score: null, conceptCode: normalizedConceptCode, percentage: null }
+                  : cell
+              ))
+            }
+      );
+
+      const recalculated = students.map((student) => this.rebuildStudentRow(student, current.subjectEvaluationType));
       return { ...current, students: recalculated, summary: this.calculateSummary(recalculated) };
     });
   }
@@ -414,15 +536,81 @@ export class GradesPageComponent {
   }
 
   openDraftEvaluationDialog(): void {
-    const nextNumber = this.persistedEvaluationsCount() + 1;
+    this.selectedEvaluationKind.set('SUMATIVA');
+    this.evaluationKindDialogOpen.set(true);
+  }
+
+  openSummativeEvaluationDialog(): void {
+    const nextNumber = this.nextEvaluationNumber('SUMATIVA');
     this.evaluationDialog.set({
       mode: 'create',
       evaluationId: null,
       code: `N${nextNumber}`,
-      name: `Evaluación ${nextNumber}`,
+      name: `Evaluacion ${nextNumber}`,
       weight: DEFAULT_EVALUATION_WEIGHT,
-      evaluationDate: this.todayIso()
+      evaluationDate: this.todayIso(),
+      registrationType: 'SUMATIVA'
     });
+  }
+
+  openProcessEvaluationDialog(): void {
+    const nextNumber = this.nextEvaluationNumber('PROCESO');
+    this.evaluationDialog.set({
+      mode: 'create',
+      evaluationId: null,
+      code: `NC${nextNumber}`,
+      name: `Nota de proceso ${nextNumber}`,
+      weight: DEFAULT_EVALUATION_WEIGHT,
+      evaluationDate: this.todayIso(),
+      registrationType: 'PROCESO'
+    });
+  }
+
+  openDiagnosticEvaluationDialog(): void {
+    const nextNumber = this.nextEvaluationNumber('DIAGNOSTICA');
+    this.evaluationDialog.set({
+      mode: 'create',
+      evaluationId: null,
+      code: `DG${nextNumber}`,
+      name: `Evaluacion diagnostica ${nextNumber}`,
+      weight: 0,
+      evaluationDate: this.todayIso(),
+      registrationType: 'DIAGNOSTICA'
+    });
+  }
+
+  closeEvaluationKindDialog(): void {
+    this.evaluationKindDialogOpen.set(false);
+  }
+
+  chooseEvaluationKind(kind: EvaluationKind): void {
+    this.selectedEvaluationKind.set(kind);
+  }
+
+  continueEvaluationKindSelection(): void {
+    this.selectEvaluationKind(this.selectedEvaluationKind());
+  }
+
+  selectEvaluationKind(kind: EvaluationKind): void {
+    if (kind === 'SUMATIVA') {
+      this.evaluationKindDialogOpen.set(false);
+      this.openSummativeEvaluationDialog();
+      return;
+    }
+
+    if (kind === 'PROCESO') {
+      this.evaluationKindDialogOpen.set(false);
+      this.openProcessEvaluationDialog();
+      return;
+    }
+
+    if (kind === 'DIAGNOSTICA') {
+      this.evaluationKindDialogOpen.set(false);
+      this.openDiagnosticEvaluationDialog();
+      return;
+    }
+
+    this.evaluationKindDialogOpen.set(false);
   }
 
   updateDraftEvaluationCode(value: string): void {
@@ -486,7 +674,8 @@ export class GradesPageComponent {
       code: evaluation.code,
       name: evaluation.name,
       weight: evaluation.weight ?? null,
-      evaluationDate: evaluation.evaluationDate ?? ''
+      evaluationDate: evaluation.evaluationDate ?? '',
+      registrationType: evaluation.registrationType ?? 'SUMATIVA'
     });
   }
 
@@ -496,7 +685,10 @@ export class GradesPageComponent {
     const subjectId = this.selectedSubjectId();
     const code = dialog.code.trim();
     const name = dialog.name.trim();
-    const weight = dialog.weight == null || Number.isNaN(dialog.weight)
+    const isDiagnostic = dialog.registrationType === 'DIAGNOSTICA';
+    const weight = isDiagnostic
+      ? 0
+      : dialog.weight == null || Number.isNaN(dialog.weight)
       ? DEFAULT_EVALUATION_WEIGHT
       : Math.max(0, Math.round(dialog.weight * 100) / 100);
     const evaluationDate = dialog.evaluationDate.trim();
@@ -522,7 +714,8 @@ export class GradesPageComponent {
       code,
       name,
       weight,
-      evaluationDate
+      evaluationDate,
+      registrationType: dialog.registrationType
     };
   }
 
@@ -622,7 +815,9 @@ export class GradesPageComponent {
         .map((scoreCell) => ({
           studentId: student.studentId,
           evaluationId: scoreCell.evaluationId,
-          score: scoreCell.score
+          score: scoreCell.score,
+          conceptCode: scoreCell.conceptCode,
+          percentage: scoreCell.percentage
         }))
     );
 
@@ -651,8 +846,14 @@ export class GradesPageComponent {
     const headers = ['Estudiante', ...gradeBook.evaluations.map((evaluation) => evaluation.code), 'Promedio', 'Estado'];
     const rows = gradeBook.students.map((student) => [
       student.fullName,
-      ...student.scores.map((score) => this.exportScore(score.score)),
-      this.exportScore(student.average),
+      ...student.scores.map((score) => gradeBook.subjectEvaluationType === 'CONCEPTUAL'
+        ? (score.conceptCode ?? '')
+        : score.registrationType === 'DIAGNOSTICA'
+          ? (score.conceptCode ?? '')
+          : this.exportScore(score.score)),
+      gradeBook.subjectEvaluationType === 'CONCEPTUAL'
+        ? (student.conceptSummaryCode ?? '')
+        : this.exportScore(student.average),
       student.status
     ]);
     const content = [headers, ...rows]
@@ -724,6 +925,14 @@ export class GradesPageComponent {
     await this.exportReportsPdf([student], `informe-${this.slug(student.fullName)}.pdf`);
   }
 
+  async exportPedagogicalStudentPdf(student: StudentGradeCard | null = this.activeReportStudent()): Promise<void> {
+    if (!student) {
+      this.snackBar.open('Selecciona un estudiante para descargar el informe pedagogico', 'Cerrar', { duration: 2600 });
+      return;
+    }
+    await this.exportPedagogicalReportsPdf([student], `informe-pedagogico-${this.slug(student.fullName)}.pdf`);
+  }
+
   async exportMassivePdf(): Promise<void> {
     const students = this.reports()?.students ?? [];
     if (students.length === 0) {
@@ -787,6 +996,93 @@ export class GradesPageComponent {
     this.observationDraft.set('');
   }
 
+  async openPedagogicalPreview(student: StudentGradeCard | null = this.activeReportStudent()): Promise<void> {
+    if (!student) {
+      return;
+    }
+    let report: PedagogicalReportView;
+    try {
+      report = await this.ensurePedagogicalReport(student);
+    } catch {
+      report = this.buildLocalPedagogicalReport(student);
+      this.snackBar.open('Se abrio una vista local del informe pedagogico', 'Cerrar', { duration: 2600 });
+    }
+    this.previewStudent.set(student);
+    this.pedagogicalDraft.set(report);
+    this.isPedagogicalPreviewOpen.set(true);
+  }
+
+  async openPedagogicalSheetPreview(student: StudentGradeCard | null = this.activeReportStudent()): Promise<void> {
+    if (!student) {
+      return;
+    }
+    let report: PedagogicalReportView;
+    try {
+      report = await this.ensurePedagogicalReport(student);
+    } catch {
+      report = this.buildLocalPedagogicalReport(student);
+      this.snackBar.open('Se abrio una vista local del informe pedagogico', 'Cerrar', { duration: 2600 });
+    }
+    this.previewStudent.set(student);
+    this.pedagogicalDraft.set(report);
+    this.isPedagogicalSheetPreviewOpen.set(true);
+  }
+
+  closePedagogicalSheetPreview(): void {
+    this.isPedagogicalSheetPreviewOpen.set(false);
+    this.pedagogicalDraft.set(null);
+  }
+
+  printPedagogicalPreview(): void {
+    const body = document.body;
+    const cleanup = () => {
+      body.classList.remove('pedagogical-print-mode');
+      window.removeEventListener('afterprint', cleanup);
+    };
+
+    body.classList.add('pedagogical-print-mode');
+    window.addEventListener('afterprint', cleanup, { once: true });
+
+    window.setTimeout(() => {
+      window.print();
+      window.setTimeout(() => {
+        if (body.classList.contains('pedagogical-print-mode')) {
+          cleanup();
+        }
+      }, 1200);
+    }, 80);
+  }
+
+  closePedagogicalPreview(): void {
+    this.isPedagogicalPreviewOpen.set(false);
+    this.pedagogicalDraft.set(null);
+  }
+
+  async savePedagogicalPreview(): Promise<void> {
+    const draft = this.pedagogicalDraft();
+    if (!draft) {
+      return;
+    }
+
+    try {
+      const payload: SavePedagogicalReportPayload = {
+        courseId: draft.courseId,
+        periodId: draft.periodId,
+        studentId: draft.studentId,
+        content: draft.content
+      };
+      const saved = await firstValueFrom(this.gradeApiService.savePedagogicalReport(payload));
+      this.pedagogicalReports.update((current) => ({ ...current, [saved.studentId]: saved }));
+      this.persistPedagogicalReportLocally(saved);
+      this.pedagogicalDraft.set(saved);
+      this.snackBar.open('Informe pedagogico guardado', 'Cerrar', { duration: 2200 });
+    } catch {
+      this.pedagogicalReports.update((current) => ({ ...current, [draft.studentId]: draft }));
+      this.persistPedagogicalReportLocally(draft);
+      this.snackBar.open('Informe pedagogico guardado localmente', 'Cerrar', { duration: 2600 });
+    }
+  }
+
   savePreviewObservation(): void {
     const student = this.previewStudent();
     if (!student) {
@@ -798,7 +1094,7 @@ export class GradesPageComponent {
       ...current,
       [student.studentId]: value || this.buildDefaultObservation(student)
     }));
-    this.snackBar.open('Observación guardada en la vista previa', 'Cerrar', { duration: 2200 });
+    this.snackBar.open('Observacion guardada en la vista previa', 'Cerrar', { duration: 2200 });
   }
 
   updateProfileSubject(subjectId: number | null): void {
@@ -833,11 +1129,11 @@ export class GradesPageComponent {
   }
 
   profileCompletedSubjects(student: StudentGradeCard | null): number {
-    return this.profileSubjectsFor(student).filter((subject) => subject.average != null).length;
+    return this.profileSubjectsFor(student).filter((subject) => subject.average != null || subject.conceptSummaryCode != null).length;
   }
 
   profileAtRiskSubjects(student: StudentGradeCard | null): number {
-    return this.profileSubjectsFor(student).filter((subject) => subject.average != null && subject.average < 4).length;
+    return this.profileSubjectsFor(student).filter((subject) => this.subjectIsAtRisk(subject)).length;
   }
 
   profileOutstandingSubjects(student: StudentGradeCard | null): number {
@@ -917,6 +1213,101 @@ export class GradesPageComponent {
     return value == null ? '-' : value.toFixed(1).replace('.', ',');
   }
 
+  scoreInputValue(value: number | null | undefined): string {
+    return value == null ? '' : value.toFixed(1);
+  }
+
+  isDiagnosticCell(score: GradeBookStudentRow['scores'][number]): boolean {
+    return score.registrationType === 'DIAGNOSTICA';
+  }
+
+  isProcessCell(score: GradeBookStudentRow['scores'][number]): boolean {
+    return score.registrationType === 'PROCESO';
+  }
+
+  gradeBookAverageDisplay(student: GradeBookStudentRow): string {
+    if (this.isConceptualGradeBook()) {
+      return student.conceptSummaryCode || '-';
+    }
+
+    if (student.average != null) {
+      return this.formatScore(student.average);
+    }
+
+    return student.conceptSummaryCode || '-';
+  }
+
+  gradeBookAverageToneClass(student: GradeBookStudentRow): string {
+    if (this.isConceptualGradeBook()) {
+      return this.conceptToneClass(student.conceptSummaryCode);
+    }
+
+    if (student.average != null) {
+      return this.scoreToneClass(student.average);
+    }
+
+    return this.conceptToneClass(student.conceptSummaryCode);
+  }
+
+  evaluationEntryValue(
+    entry: { score: number | null; conceptCode: string | null; percentage: number | null; registrationType: GradeRegistrationType },
+    evaluationType: 'NUMERICA' | 'CONCEPTUAL'
+  ): string {
+    if (evaluationType === 'CONCEPTUAL') {
+      return entry.conceptCode || '-';
+    }
+    if (entry.registrationType === 'DIAGNOSTICA') {
+      return entry.conceptCode || '-';
+    }
+    return this.formatScore(entry.score);
+  }
+
+  evaluationEntryToneClass(
+    entry: { score: number | null; conceptCode: string | null; registrationType: GradeRegistrationType },
+    evaluationType: 'NUMERICA' | 'CONCEPTUAL'
+  ): string {
+    if (evaluationType === 'CONCEPTUAL') {
+      return this.conceptToneClass(entry.conceptCode);
+    }
+    if (entry.registrationType === 'DIAGNOSTICA') {
+      return this.conceptToneClass(entry.conceptCode);
+    }
+    return this.scoreToneClass(entry.score);
+  }
+
+  registrationTypeLabel(registrationType: GradeRegistrationType | null | undefined): string {
+    switch (registrationType) {
+      case 'DIAGNOSTICA':
+        return 'Diagnostica';
+      case 'PROCESO':
+        return 'Proceso';
+      default:
+        return 'Sumativa';
+    }
+  }
+
+  evaluationCodePlaceholder(registrationType: GradeRegistrationType | null | undefined): string {
+    switch (registrationType) {
+      case 'DIAGNOSTICA':
+        return 'DG1';
+      case 'PROCESO':
+        return 'NC1';
+      default:
+        return 'N1';
+    }
+  }
+
+  evaluationNamePlaceholder(registrationType: GradeRegistrationType | null | undefined): string {
+    switch (registrationType) {
+      case 'DIAGNOSTICA':
+        return 'Evaluacion diagnostica';
+      case 'PROCESO':
+        return 'Nota de proceso';
+      default:
+        return 'Evaluacion de unidad';
+    }
+  }
+
   pdfConcept(value: number | null | undefined): string {
     if (value == null) {
       return 'Pendiente';
@@ -928,6 +1319,36 @@ export class GradesPageComponent {
       return 'Logrado';
     }
     return 'En riesgo';
+  }
+
+  conceptLabel(conceptCode: string | null | undefined): string {
+    switch ((conceptCode ?? '').trim().toUpperCase()) {
+      case 'L': return 'Logrado';
+      case 'ML': return 'Medianamente logrado';
+      case 'PL': return 'Por lograr';
+      case 'NL': return 'No logrado';
+      case 'I': return 'Iniciado';
+      case 'EP': return 'En proceso';
+      case 'OA': return 'Objetivo alcanzado';
+      default: return 'Sin registro';
+    }
+  }
+
+  conceptToneClass(conceptCode: string | null | undefined): string {
+    switch ((conceptCode ?? '').trim().toUpperCase()) {
+      case 'L':
+      case 'OA':
+        return 'is-high';
+      case 'ML':
+      case 'EP':
+      case 'I':
+        return 'is-mid';
+      case 'PL':
+      case 'NL':
+        return 'is-low';
+      default:
+        return 'is-empty';
+    }
   }
 
   pdfConceptClass(value: number | null | undefined): string {
@@ -1008,16 +1429,92 @@ export class GradesPageComponent {
     return this.pdfSubjectDetail(student, subjectId).scores[index] ?? null;
   }
 
+  pdfSubjectConceptCode(student: StudentGradeCard, subjectId: number, index: number): string | null {
+    return this.pdfSubjectDetail(student, subjectId).concepts[index] ?? null;
+  }
+
   pdfSubjectAverage(student: StudentGradeCard, subjectId: number, fallbackAverage: number | null | undefined): number | null {
     const detailAverage = this.pdfSubjectDetail(student, subjectId).average;
     return detailAverage ?? fallbackAverage ?? null;
+  }
+
+  pdfSubjectAverageConceptCode(student: StudentGradeCard, subjectId: number, fallbackConceptCode: string | null | undefined): string | null {
+    return this.pdfSubjectDetail(student, subjectId).conceptSummaryCode ?? fallbackConceptCode ?? null;
+  }
+
+  pdfSubjectDisplayScore(student: StudentGradeCard, subjectId: number, index: number): string {
+    const detail = this.pdfSubjectDetail(student, subjectId);
+    if (detail.evaluationType === 'CONCEPTUAL') {
+      return detail.concepts[index] ?? '-';
+    }
+    if (detail.registrationTypes[index] === 'DIAGNOSTICA') {
+      return detail.concepts[index] ?? '-';
+    }
+    return this.pdfScore(detail.scores[index] ?? null);
+  }
+
+  pdfSubjectDisplayAverage(student: StudentGradeCard, subjectId: number, fallbackAverage: number | null | undefined, fallbackConceptCode: string | null | undefined): string {
+    const detail = this.pdfSubjectDetail(student, subjectId);
+    if (detail.evaluationType === 'CONCEPTUAL') {
+      return detail.conceptSummaryCode ?? fallbackConceptCode ?? '-';
+    }
+    const diagnosticConcept = detail.evaluations
+      .find((entry) => entry.registrationType === 'DIAGNOSTICA' && entry.conceptCode)
+      ?.conceptCode ?? null;
+    if ((detail.average ?? fallbackAverage ?? null) == null && diagnosticConcept) {
+      return diagnosticConcept;
+    }
+    return this.pdfScore(detail.average ?? fallbackAverage ?? null);
+  }
+
+  pdfSubjectDisplayConcept(student: StudentGradeCard, subjectId: number, fallbackAverage: number | null | undefined, fallbackConceptCode: string | null | undefined): string {
+    const detail = this.pdfSubjectDetail(student, subjectId);
+    if (detail.evaluationType === 'CONCEPTUAL') {
+      return this.conceptLabel(detail.conceptSummaryCode ?? fallbackConceptCode ?? null);
+    }
+    const diagnosticConcept = detail.evaluations
+      .find((entry) => entry.registrationType === 'DIAGNOSTICA' && entry.conceptCode)
+      ?.conceptCode ?? null;
+    if ((detail.average ?? fallbackAverage ?? null) == null && diagnosticConcept) {
+      return this.conceptLabel(diagnosticConcept);
+    }
+    return this.pdfConcept(detail.average ?? fallbackAverage ?? null);
+  }
+
+  pdfSubjectDisplayClass(student: StudentGradeCard, subjectId: number, index: number): string {
+    const detail = this.pdfSubjectDetail(student, subjectId);
+    if (detail.evaluationType === 'CONCEPTUAL') {
+      return this.conceptToneClass(detail.concepts[index] ?? null);
+    }
+    if (detail.registrationTypes[index] === 'DIAGNOSTICA') {
+      return this.conceptToneClass(detail.concepts[index] ?? null);
+    }
+    return this.pdfConceptClass(detail.scores[index] ?? null);
+  }
+
+  pdfSubjectAverageClass(student: StudentGradeCard, subjectId: number, fallbackAverage: number | null | undefined, fallbackConceptCode: string | null | undefined): string {
+    const detail = this.pdfSubjectDetail(student, subjectId);
+    if (detail.evaluationType === 'CONCEPTUAL') {
+      return this.conceptToneClass(detail.conceptSummaryCode ?? fallbackConceptCode ?? null);
+    }
+    const diagnosticConcept = detail.evaluations
+      .find((entry) => entry.registrationType === 'DIAGNOSTICA' && entry.conceptCode)
+      ?.conceptCode ?? null;
+    if ((detail.average ?? fallbackAverage ?? null) == null && diagnosticConcept) {
+      return this.conceptToneClass(diagnosticConcept);
+    }
+    return this.pdfConceptClass(detail.average ?? fallbackAverage ?? null);
   }
 
   reportSubjectScores(student: StudentGradeCard, subjectId: number): Array<number | null> {
     return this.pdfSubjectDetail(student, subjectId).scores;
   }
 
-  reportSubjectEntries(student: StudentGradeCard, subjectId: number): Array<{ label: string; score: number | null }> {
+  reportSubjectConcepts(student: StudentGradeCard, subjectId: number): Array<string | null> {
+    return this.pdfSubjectDetail(student, subjectId).concepts;
+  }
+
+  reportSubjectEntries(student: StudentGradeCard, subjectId: number): Array<{ label: string; score: number | null; conceptCode: string | null; percentage: number | null; registrationType: GradeRegistrationType }> {
     return this.pdfSubjectDetail(student, subjectId).evaluations;
   }
 
@@ -1025,12 +1522,12 @@ export class GradesPageComponent {
     return this.pdfSubjectDetail(student, subjectId).scores;
   }
 
-  profileSubjectEntries(student: StudentGradeCard, subjectId: number): Array<{ label: string; score: number | null }> {
+  profileSubjectEntries(student: StudentGradeCard, subjectId: number): Array<{ label: string; score: number | null; conceptCode: string | null; percentage: number | null; registrationType: GradeRegistrationType }> {
     return this.pdfSubjectDetail(student, subjectId).evaluations;
   }
 
   shortSubjectName(subjectName: string): string {
-    return subjectName.length > 12 ? `${subjectName.slice(0, 12)}…` : subjectName;
+    return subjectName.length > 12 ? `${subjectName.slice(0, 12)}...` : subjectName;
   }
 
   badgeClass(status: string): string {
@@ -1063,11 +1560,318 @@ export class GradesPageComponent {
   }
 
   formatScore(value: number | null | undefined): string {
-    return value == null ? '—' : value.toFixed(1);
+    return value == null ? '-' : value.toFixed(1);
   }
 
   trackStudent(index: number, student: { studentId: number }): number {
     return student.studentId;
+  }
+
+  trackArea(index: number, area: PedagogicalReportArea): string {
+    return area.key;
+  }
+
+  trackSimple(index: number): number {
+    return index;
+  }
+
+  pedagogicalRecommendationValue(index: number): string {
+    return this.pedagogicalDraft()?.content.familyRecommendations[index] ?? '';
+  }
+
+  setPedagogicalItemAnswer(areaKey: string, itemIndex: number, answer: PedagogicalAnswer): void {
+    this.updatePedagogicalArea(areaKey, (area) => ({
+      ...area,
+      items: area.items.map((item, index) => index !== itemIndex ? item : { ...item, answer })
+    }));
+  }
+
+  updatePedagogicalAreaObservation(areaKey: string, value: string): void {
+    this.updatePedagogicalArea(areaKey, (area) => ({
+      ...area,
+      observation: value
+    }));
+  }
+
+  updatePedagogicalRecommendation(index: number, value: string): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current) {
+        return current;
+      }
+      const familyRecommendations = [...current.content.familyRecommendations];
+      while (familyRecommendations.length <= index) {
+        familyRecommendations.push('');
+      }
+      familyRecommendations[index] = value;
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          familyRecommendations
+        }
+      };
+    });
+  }
+
+  addPedagogicalRecommendation(): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current || current.content.familyRecommendations.length >= 4) {
+        return current;
+      }
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          familyRecommendations: [...current.content.familyRecommendations, '']
+        }
+      };
+    });
+  }
+
+  removePedagogicalRecommendation(index: number): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current) {
+        return current;
+      }
+      const familyRecommendations = current.content.familyRecommendations.filter((_, itemIndex) => itemIndex !== index);
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          familyRecommendations: familyRecommendations.length > 0 ? familyRecommendations : ['']
+        }
+      };
+    });
+  }
+
+  updatePedagogicalField(
+    field: 'documentTitle' | 'educatorName' | 'teacherSignatureName' | 'guardianSignatureLabel',
+    value: string
+  ): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          [field]: value
+        }
+      };
+    });
+  }
+
+  updatePedagogicalAttitudeObservation(value: string): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current || !current.content.attitudeArea) {
+        return current;
+      }
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          attitudeArea: {
+            ...current.content.attitudeArea,
+            observation: value
+          }
+        }
+      };
+    });
+  }
+
+  setPedagogicalAttitudeItemAnswer(itemIndex: number, answer: PedagogicalAnswer): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current || !current.content.attitudeArea) {
+        return current;
+      }
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          attitudeArea: {
+            ...current.content.attitudeArea,
+            items: current.content.attitudeArea.items.map((item, index) =>
+              index !== itemIndex ? item : { ...item, answer }
+            )
+          }
+        }
+      };
+    });
+  }
+
+  pedagogicalBadgeClass(levelCode: string | null | undefined): string {
+    return levelCode === 'KINDER' ? 'badge-kin' : 'badge-pre';
+  }
+
+  pedagogicalAnswerLabel(answer: PedagogicalAnswer | null | undefined): string {
+    return answer === 'SI' ? 'Si' : answer === 'EP' ? 'Ep' : 'No';
+  }
+
+  pedagogicalCheckClass(answer: PedagogicalAnswer | null | undefined): string {
+    if (answer === 'SI') {
+      return 'dot-si';
+    }
+    if (answer === 'EP') {
+      return 'dot-ep';
+    }
+    return 'dot-no';
+  }
+
+  nextPedagogicalAnswer(answer: PedagogicalAnswer | null | undefined): PedagogicalAnswer {
+    if (answer === 'NO') {
+      return 'SI';
+    }
+    if (answer === 'SI') {
+      return 'EP';
+    }
+    return 'NO';
+  }
+
+  private normalizePedagogicalQuestionText(value: string | null | undefined): string {
+    return normalizeDashboardText(value ?? '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  async openPedagogicalAreaEditor(area: PedagogicalReportArea, isAttitude = false): Promise<void> {
+    const draft = this.pedagogicalDraft();
+    if (!draft) {
+      return;
+    }
+
+    const bank = await this.ensurePedagogicalQuestionBank(draft.levelCode);
+    const bankArea = bank.find((entry) => entry.key === area.key && entry.questionKind === 'AREA');
+    if (!bankArea) {
+      this.snackBar.open('No hay preguntas configuradas para esta area', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    const mergedQuestions = [...bankArea.questions];
+    for (const item of area.items) {
+      const normalizedLabel = this.normalizePedagogicalQuestionText(item.label);
+      const exists = mergedQuestions.some((question) =>
+        this.normalizePedagogicalQuestionText(question.label) === normalizedLabel
+      );
+      if (!exists) {
+        mergedQuestions.unshift({
+          id: -1 * (mergedQuestions.length + 1),
+          label: item.label,
+          sortOrder: 0
+        });
+      }
+    }
+
+    const selectedQuestionIds = area.items
+      .map((item) => item.questionId ?? mergedQuestions.find((question) =>
+        this.normalizePedagogicalQuestionText(question.label) === this.normalizePedagogicalQuestionText(item.label)
+      )?.id ?? null)
+      .filter((id): id is number => id != null)
+      .slice(0, 4);
+
+    this.pedagogicalAreaEditor.set({
+      areaKey: area.key,
+      areaTitle: area.title,
+      isAttitude,
+      selectedQuestionIds,
+      questions: mergedQuestions
+    });
+  }
+
+  closePedagogicalAreaEditor(): void {
+    this.pedagogicalAreaEditor.set(null);
+  }
+
+  pedagogicalEditorQuestions(): Array<{ id: number; label: string; sortOrder: number }> {
+    const editor = this.pedagogicalAreaEditor();
+    if (!editor) {
+      return [];
+    }
+    return editor.questions;
+  }
+
+  isPedagogicalQuestionSelected(questionId: number): boolean {
+    return this.pedagogicalAreaEditor()?.selectedQuestionIds.includes(questionId) ?? false;
+  }
+
+  togglePedagogicalQuestionSelection(questionId: number): void {
+    this.pedagogicalAreaEditor.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      if (current.selectedQuestionIds.includes(questionId)) {
+        return {
+          ...current,
+          selectedQuestionIds: current.selectedQuestionIds.filter((id) => id !== questionId)
+        };
+      }
+
+      if (current.selectedQuestionIds.length >= 4) {
+        this.snackBar.open('Solo puedes seleccionar 4 preguntas por area', 'Cerrar', { duration: 2600 });
+        return current;
+      }
+
+      return {
+        ...current,
+        selectedQuestionIds: [...current.selectedQuestionIds, questionId]
+      };
+    });
+  }
+
+  applyPedagogicalAreaSelection(): void {
+    const editor = this.pedagogicalAreaEditor();
+    const draft = this.pedagogicalDraft();
+    if (!editor || !draft) {
+      return;
+    }
+
+    if (editor.selectedQuestionIds.length !== 4) {
+      this.snackBar.open('Debes seleccionar exactamente 4 preguntas por area', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    const questionMap = new Map(this.pedagogicalEditorQuestions().map((question) => [question.id, question]));
+    const currentArea = editor.isAttitude
+      ? draft.content.attitudeArea
+      : draft.content.developmentAreas.find((area) => area.key === editor.areaKey) ?? null;
+    const currentAnswers = new Map((currentArea?.items ?? []).map((item) => [this.normalizePedagogicalQuestionText(item.label), item.answer]));
+
+    const items = editor.selectedQuestionIds
+      .map((questionId) => questionMap.get(questionId))
+      .filter((question): question is { id: number; label: string; sortOrder: number } => !!question)
+      .sort((left, right) => left.sortOrder - right.sortOrder)
+      .map((question) => ({
+        questionId: question.id > 0 ? question.id : null,
+        label: question.label,
+        answer: currentAnswers.get(this.normalizePedagogicalQuestionText(question.label)) ?? 'NO'
+      }));
+
+    if (editor.isAttitude) {
+      this.pedagogicalDraft.update((current) => {
+        if (!current || !current.content.attitudeArea) {
+          return current;
+        }
+        return {
+          ...current,
+          content: {
+            ...current.content,
+            attitudeArea: {
+              ...current.content.attitudeArea,
+              items
+            }
+          }
+        };
+      });
+    } else {
+      this.updatePedagogicalArea(editor.areaKey, (area) => ({
+        ...area,
+        items
+      }));
+    }
+
+    this.pedagogicalAreaEditor.set(null);
   }
 
   formatEvaluationDate(value: string | null | undefined): string {
@@ -1085,7 +1889,7 @@ export class GradesPageComponent {
 
   formatWeight(value: number | null | undefined): string {
     if (value == null) {
-      return 'Sin ponderación';
+      return 'Sin ponderacion';
     }
 
     return `${value.toFixed(0)}%`;
@@ -1234,16 +2038,51 @@ export class GradesPageComponent {
     });
   }
 
-  private rebuildStudentRow(student: GradeBookStudentRow): GradeBookStudentRow {
-    const validScores = student.scores.map((cell) => cell.score).filter((score): score is number => score != null);
+  private rebuildStudentRow(
+    student: GradeBookStudentRow,
+    evaluationType: 'NUMERICA' | 'CONCEPTUAL' = this.currentGradeBook()?.subjectEvaluationType ?? 'NUMERICA'
+  ): GradeBookStudentRow {
+    const latestConceptSummaryCode = [...student.scores]
+      .reverse()
+      .find((cell) => cell.conceptCode != null && cell.conceptCode.trim().length > 0)
+      ?.conceptCode ?? null;
+
+    if (evaluationType === 'CONCEPTUAL') {
+      return {
+        ...student,
+        average: null,
+        conceptSummaryCode: latestConceptSummaryCode,
+        status: this.conceptLabel(latestConceptSummaryCode)
+      };
+    }
+
+    const validScores = student.scores
+      .filter((cell) => cell.registrationType !== 'DIAGNOSTICA')
+      .map((cell) => cell.score)
+      .filter((score): score is number => score != null);
     const average = validScores.length === 0
       ? null
       : Math.round((validScores.reduce((total, score) => total + score, 0) / validScores.length) * 10) / 10;
 
-    return { ...student, average, status: this.resolveStatus(average) };
+    return {
+      ...student,
+      average,
+      status: average != null ? this.resolveStatus(average) : this.conceptLabel(latestConceptSummaryCode),
+      conceptSummaryCode: average == null ? latestConceptSummaryCode : null
+    };
   }
 
   private calculateSummary(students: GradeBookStudentRow[]): GradeBookSummary {
+    if (this.currentGradeBook()?.subjectEvaluationType === 'CONCEPTUAL') {
+      const registered = students.filter((student) => student.conceptSummaryCode != null).length;
+      return {
+        courseAverage: null,
+        aboveMinimumCount: 0,
+        belowMinimumCount: 0,
+        ungradedCount: students.length - registered
+      };
+    }
+
     const averages = students.map((student) => student.average).filter((average): average is number => average != null);
     const courseAverage = averages.length === 0
       ? null
@@ -1262,6 +2101,13 @@ export class GradesPageComponent {
     if (average >= 6) return 'Destacado';
     if (average >= 4) return 'Aprobado';
     return 'Riesgo';
+  }
+
+  private subjectIsAtRisk(subject: StudentGradeCard['subjects'][number]): boolean {
+    if (subject.evaluationType === 'CONCEPTUAL') {
+      return ['PL', 'NL'].includes(subject.conceptSummaryCode ?? '');
+    }
+    return subject.average != null && subject.average < 4;
   }
 
   private buildProfileSummary(students: StudentGradeCard[]) {
@@ -1323,6 +2169,62 @@ export class GradesPageComponent {
       this.snackBar.open('No fue posible exportar el informe de notas', 'Cerrar', { duration: 3200 });
     } finally {
       this.pdfStudent.set(null);
+      this.pdfPedagogicalReport.set(null);
+      this.isExporting.set(false);
+    }
+  }
+
+  private async exportPedagogicalReportsPdf(students: StudentGradeCard[], fileName: string): Promise<void> {
+    const template = this.pedagogicalPdfTemplate?.nativeElement;
+    if (!template || this.isExporting()) {
+      return;
+    }
+
+    this.isExporting.set(true);
+    try {
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, precision: 12 });
+      let firstPage = true;
+
+      for (const student of students) {
+        const report = this.pedagogicalDraft()?.studentId === student.studentId
+          ? this.pedagogicalDraft()
+          : await this.ensurePedagogicalReport(student).catch(() => this.buildLocalPedagogicalReport(student));
+
+        this.pdfPedagogicalReport.set(report);
+        await this.waitForRender();
+
+        const canvas = await html2canvas(template, {
+          backgroundColor: '#ffffff',
+          scale: 2.5,
+          useCORS: true,
+          logging: false,
+          imageTimeout: 0
+        });
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 8;
+        const printableWidth = pageWidth - margin * 2;
+        const printableHeight = pageHeight - margin * 2;
+        const scale = Math.min(printableWidth / canvas.width, printableHeight / canvas.height);
+        const width = canvas.width * scale;
+        const height = canvas.height * scale;
+        const x = (pageWidth - width) / 2;
+        const y = margin;
+
+        if (!firstPage) {
+          pdf.addPage();
+        }
+        firstPage = false;
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, width, height, undefined, 'MEDIUM');
+      }
+
+      pdf.save(fileName);
+      this.snackBar.open('Informe pedagogico generado correctamente', 'Cerrar', { duration: 2600 });
+    } catch {
+      this.snackBar.open('No fue posible exportar el informe pedagogico', 'Cerrar', { duration: 3200 });
+    } finally {
+      this.pdfPedagogicalReport.set(null);
       this.isExporting.set(false);
     }
   }
@@ -1342,7 +2244,12 @@ export class GradesPageComponent {
     this.reportAttendanceRates.set({});
     this.previewStudent.set(null);
     this.pdfStudent.set(null);
+    this.pdfPedagogicalReport.set(null);
+    this.pedagogicalAreaEditor.set(null);
+    this.pedagogicalDraft.set(null);
+    this.pedagogicalReports.set({});
     this.isReportPreviewOpen.set(false);
+    this.isPedagogicalPreviewOpen.set(false);
     this.gradeBookNotice.set(null);
     this.gradeBookSearch.set('');
     this.profileRunSearchTerm.set('');
@@ -1464,12 +2371,12 @@ export class GradesPageComponent {
   private pdfSubjectDetail(student: StudentGradeCard, subjectId: number): ReportSubjectDetail {
     const book = this.reportDetailBooks().find((item) => item.subjectId === subjectId);
     if (!book) {
-      return { scores: [], average: null, evaluations: [] };
+      return { evaluationType: 'NUMERICA', scores: [], concepts: [], percentages: [], registrationTypes: [], average: null, conceptSummaryCode: null, evaluations: [] };
     }
 
     const studentRow = book.students.find((row) => row.studentId === student.studentId);
     if (!studentRow) {
-      return { scores: [], average: null, evaluations: [] };
+      return { evaluationType: book.subjectEvaluationType, scores: [], concepts: [], percentages: [], registrationTypes: [], average: null, conceptSummaryCode: null, evaluations: [] };
     }
 
     const evaluationOrder = new Map(book.evaluations.map((evaluation) => [evaluation.id, evaluation.order]));
@@ -1477,18 +2384,39 @@ export class GradesPageComponent {
       .sort((left, right) => (evaluationOrder.get(left.evaluationId) ?? 0) - (evaluationOrder.get(right.evaluationId) ?? 0))
       .map((score) => ({
         label: score.code,
-        score: score.score ?? null
+        score: score.score ?? null,
+        conceptCode: score.conceptCode ?? null,
+        percentage: score.percentage ?? null,
+        registrationType: score.registrationType ?? 'SUMATIVA'
       }));
 
     const scores = orderedScores
       .slice(0, 3)
       .map((score) => score.score);
+    const concepts = orderedScores
+      .slice(0, 3)
+      .map((score) => score.conceptCode);
+    const percentages = orderedScores
+      .slice(0, 3)
+      .map((score) => score.percentage);
+    const registrationTypes = orderedScores
+      .slice(0, 3)
+      .map((score) => score.registrationType);
 
-    const hasRealScores = studentRow.scores.some((score) => score.score != null);
+    const hasRealScores = studentRow.scores.some((score) => score.score != null && score.registrationType !== 'DIAGNOSTICA');
+    const latestConceptCode = [...studentRow.scores]
+      .reverse()
+      .find((score) => score.conceptCode != null && score.conceptCode.trim().length > 0)
+      ?.conceptCode ?? student.subjects.find((subject) => subject.subjectId === subjectId)?.conceptSummaryCode ?? null;
 
     return {
+      evaluationType: book.subjectEvaluationType,
       scores,
-      average: hasRealScores ? studentRow.average : null,
+      concepts,
+      percentages,
+      registrationTypes,
+      average: book.subjectEvaluationType === 'CONCEPTUAL' ? null : (hasRealScores ? studentRow.average : null),
+      conceptSummaryCode: latestConceptCode,
       evaluations: orderedScores
     };
   }
@@ -1497,8 +2425,322 @@ export class GradesPageComponent {
     return [
       this.reportCompletionLabel(student),
       this.profileTrendLabel(student),
-      `Documento generado automáticamente desde ConectaSchool el ${this.pdfIssueDate()}.`
+      `Documento generado automaticamente desde ConectaSchool el ${this.pdfIssueDate()}.`
     ].join('\n');
+  }
+
+  private async ensurePedagogicalReport(student: StudentGradeCard): Promise<PedagogicalReportView> {
+    const cached = this.pedagogicalReports()[student.studentId];
+    if (cached && cached.courseId === this.selectedCourseId() && cached.periodId === this.selectedPeriodId()) {
+      return this.withPedagogicalTeacherDefaults(cached);
+    }
+
+    const courseId = this.selectedCourseId();
+    const periodId = this.selectedPeriodId();
+    if (!courseId || !periodId) {
+      throw new Error('Missing course or period');
+    }
+
+    const localReport = this.readLocalPedagogicalReport(courseId, periodId, student.studentId);
+    if (localReport) {
+      const normalizedLocal = this.withPedagogicalTeacherDefaults(localReport);
+      this.pedagogicalReports.update((current) => ({ ...current, [student.studentId]: normalizedLocal }));
+      return normalizedLocal;
+    }
+
+    const report = await firstValueFrom(this.gradeApiService.getPedagogicalReport(courseId, periodId, student.studentId));
+    const normalized = this.withPedagogicalTeacherDefaults(report);
+    this.pedagogicalReports.update((current) => ({ ...current, [student.studentId]: normalized }));
+    return normalized;
+  }
+
+  private async ensurePedagogicalQuestionBank(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'): Promise<PedagogicalQuestionBankArea[]> {
+    const current = this.pedagogicalQuestionBank();
+    if (current.length > 0 && this.pedagogicalQuestionBankLevel() === levelCode) {
+      return current;
+    }
+
+    let bank: PedagogicalQuestionBankArea[] = [];
+    try {
+      bank = await firstValueFrom(this.gradeApiService.getPedagogicalQuestionBank(levelCode));
+    } catch {
+      bank = [];
+    }
+    if (!bank.length) {
+      bank = this.buildFallbackPedagogicalQuestionBank(levelCode);
+    }
+    this.pedagogicalQuestionBank.set(bank);
+    this.pedagogicalQuestionBankLevel.set(levelCode);
+    return bank;
+  }
+
+  private withPedagogicalTeacherDefaults(report: PedagogicalReportView): PedagogicalReportView {
+    const teacherName = this.pdfTeacherName();
+    return {
+      ...report,
+      content: {
+        ...report.content,
+        educatorName: report.content.educatorName || teacherName,
+        teacherSignatureName: report.content.teacherSignatureName || teacherName,
+        familyRecommendations: report.content.familyRecommendations?.length ? report.content.familyRecommendations : ['']
+      }
+    };
+  }
+
+  private buildLocalPedagogicalReport(student: StudentGradeCard): PedagogicalReportView {
+    const course = this.selectedCourse();
+    const period = this.selectedPeriod();
+    const levelCode = this.resolvePedagogicalLevelCode(course?.name ?? '');
+    const levelLabel = levelCode === 'KINDER' ? 'Kinder' : levelCode === 'PREKINDER' ? 'Prekinder' : 'General';
+    const report: PedagogicalReportView = {
+      courseId: course?.id ?? 0,
+      courseName: course?.name ?? '',
+      periodId: period?.id ?? 0,
+      periodName: period?.name ?? '',
+      studentId: student.studentId,
+      studentRun: student.run,
+      studentName: student.fullName,
+      schoolYear: course?.schoolYear ?? new Date().getFullYear(),
+      levelCode,
+      levelLabel,
+      content: {
+        documentTitle: 'Informe de avance',
+        educatorName: this.pdfTeacherName(),
+        developmentAreas: this.defaultPedagogicalAreas(levelCode),
+        attitudeArea: this.defaultPedagogicalAttitudeArea(),
+        familyRecommendations: [''],
+        teacherSignatureName: this.pdfTeacherName(),
+        guardianSignatureLabel: 'Recibido conforme - Fecha: ___/___/______'
+      }
+    };
+    return this.withPedagogicalTeacherDefaults(report);
+  }
+
+  private resolvePedagogicalLevelCode(courseName: string): 'PREKINDER' | 'KINDER' | 'GENERAL' {
+    const normalized = courseName.toLowerCase();
+    if (normalized.includes('prek')) {
+      return 'PREKINDER';
+    }
+    if (normalized.includes('kinder')) {
+      return 'KINDER';
+    }
+    return 'GENERAL';
+  }
+
+  private buildFallbackPedagogicalQuestionBank(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'): PedagogicalQuestionBankArea[] {
+    const areaCognitivaQuestions = levelCode === 'KINDER'
+      ? [
+          'Reconoce colores basicos',
+          'Reconoce formas geometricas simples',
+          'Distingue tamanos: grande, mediano y pequeno',
+          'Clasifica objetos segun color, forma o tamano',
+          'Reconoce vocales',
+          'Asocia grafema y fonema de las vocales',
+          'Reconoce consonantes trabajadas',
+          'Cuenta numeros del 1 al 50',
+          'Escribe o copia numeros segun su nivel',
+          'Participa en juegos simbolicos',
+          'Participa en actividades creativas',
+          'Resuelve problemas simples con apoyo concreto'
+        ]
+      : [
+          'Reconoce colores basicos',
+          'Reconoce formas geometricas simples',
+          'Distingue tamanos: grande, mediano y pequeno',
+          'Clasifica objetos segun color, forma o tamano',
+          'Reconoce vocales',
+          'Asocia grafema y fonema de las vocales',
+          'Reconoce consonantes trabajadas',
+          'Cuenta numeros del 1 al 10',
+          'Escribe o copia numeros segun su nivel',
+          'Participa en juegos simbolicos',
+          'Participa en actividades creativas',
+          'Resuelve problemas simples con apoyo concreto'
+        ];
+
+    return [
+      this.createFallbackQuestionBankArea(1000, 'personal-social', 'Personal y Social', [
+        'Establece vinculos positivos con sus pares y adultos.',
+        'Expresa sus emociones de manera adecuada.',
+        'Comparte materiales y participa en juegos grupales.',
+        'Respeta turnos y normas de convivencia.',
+        'Resuelve conflictos simples con apoyo o de forma verbal.',
+        'Demuestra autonomia en rutinas diarias.',
+        'Cuida sus pertenencias y materiales de trabajo.',
+        'Se integra de manera positiva a las actividades del grupo.',
+        'Demuestra empatia frente a las emociones de sus companeros.',
+        'Solicita ayuda cuando lo requiere.'
+      ]),
+      this.createFallbackQuestionBankArea(2000, 'lenguaje-verbal', 'Lenguaje Verbal', [
+        'Comprende instrucciones simples',
+        'Comprende instrucciones de dos pasos',
+        'Escucha relatos o cuentos con atencion',
+        'Responde preguntas sobre cuentos o relatos',
+        'Utiliza vocabulario adecuado para su edad',
+        'Expresa ideas y necesidades con claridad',
+        'Participa en conversaciones grupales',
+        'Participa en juegos de palabras',
+        'Muestra interes por cuentos y canciones',
+        'Participa en dramatizaciones o juegos de roles',
+        'Pronuncia palabras de manera comprensible',
+        'Reconoce sonidos iniciales de palabras'
+      ]),
+      this.createFallbackQuestionBankArea(3000, 'area-motriz', 'Area Motriz', [
+        'Participa activamente en juegos al aire libre',
+        'Corre, salta o se desplaza con coordinacion',
+        'Mantiene equilibrio en actividades motrices',
+        'Coordina movimientos gruesos en juegos grupales',
+        'Utiliza correctamente lapices',
+        'Utiliza correctamente tijeras',
+        'Utiliza pinceles u otros materiales artisticos',
+        'Realiza trazos con intencion',
+        'Realiza formas basicas con intencion',
+        'Colorea respetando espacios progresivamente',
+        'Recorta siguiendo lineas simples',
+        'Muestra coordinacion fina en trabajos de mesa'
+      ]),
+      this.createFallbackQuestionBankArea(4000, 'area-cognitiva', 'Area Cognitiva', areaCognitivaQuestions),
+      this.createFallbackQuestionBankArea(5000, 'actitudes-aprendizaje', 'Actitudes y disposicion al aprendizaje', [
+        'Muestra interes por las actividades propuestas',
+        'Participa con entusiasmo en clases',
+        'Respeta normas del aula',
+        'Respeta instrucciones de la educadora',
+        'Persevera frente a desafios',
+        'Finaliza las actividades propuestas',
+        'Acepta correcciones o apoyo del adulto',
+        'Muestra disposicion para aprender',
+        'Explora materiales o actividades nuevas',
+        'Mantiene una actitud positiva frente al trabajo escolar'
+      ])
+    ];
+  }
+
+  private createFallbackQuestionBankArea(
+    baseId: number,
+    key: string,
+    title: string,
+    labels: string[]
+  ): PedagogicalQuestionBankArea {
+    return {
+      key,
+      title,
+      questionKind: 'AREA',
+      questions: labels.map((label, index) => ({
+        id: baseId + index + 1,
+        label,
+        sortOrder: index + 1
+      }))
+    };
+  }
+
+  private defaultPedagogicalAreas(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'): PedagogicalReportArea[] {
+    const cognitiveItems = levelCode === 'KINDER'
+      ? [
+          'Reconoce colores, formas y tamanos',
+          'Grafema y fonema de vocales y consonantes M y P',
+          'Escritura y conteo de numeros 1 al 50',
+          'Juegos simbolicos y actividades creativas'
+        ]
+      : [
+          'Reconoce colores, formas y tamanos',
+          'Grafema y fonema de las vocales',
+          'Escritura y conteo de numeros 1 al 10',
+          'Juegos simbolicos y actividades creativas'
+        ];
+
+    return [
+      this.createPedagogicalArea('personal-social', 'Personal y Social', 'favorite', '#d1fae5', '#065f46', [
+        'Establece vinculos afectivos con pares y adultos',
+        'Expresa sus emociones con claridad',
+        'Comparte materiales y colabora en grupo',
+        'Muestra autonomia en rutinas diarias'
+      ]),
+      this.createPedagogicalArea('lenguaje-verbal', 'Lenguaje Verbal', 'chat', '#dbeafe', '#1e40af', [
+        'Comprende instrucciones simples y relatos',
+        'Vocabulario adecuado para su edad',
+        'Participa en conversaciones y juegos',
+        'Interes por cuentos, canciones y dramatizaciones'
+      ]),
+      this.createPedagogicalArea('area-motriz', 'Area Motriz', 'directions_run', '#fef3c7', '#92400e', [
+        'Control y coordinacion de movimientos',
+        'Participa activamente en juegos al aire libre',
+        'Utiliza lapices, tijeras y pinceles correctamente',
+        'Realiza trazos y formas con intencion'
+      ]),
+      this.createPedagogicalArea('area-cognitiva', 'Area Cognitiva', 'lightbulb', '#ede9fe', '#5b21b6', cognitiveItems)
+    ];
+  }
+
+  private defaultPedagogicalAttitudeArea(): PedagogicalReportArea {
+    return this.createPedagogicalArea('actitudes-aprendizaje', 'Actitudes y disposicion al aprendizaje', 'stars', '#f0fdf4', '#15803d', [
+      'Interes y entusiasmo por actividades',
+      'Respeto por las normas del aula',
+      'Perseverancia frente a desafios',
+      'Disposicion para aprender y explorar'
+    ]);
+  }
+
+  private createPedagogicalArea(
+    key: string,
+    title: string,
+    icon: string,
+    accentColor: string,
+    iconColor: string,
+    labels: string[]
+  ): PedagogicalReportArea {
+    return {
+      key,
+      title,
+      icon,
+      accentColor,
+      iconColor,
+      items: labels.map((label) => ({ questionId: null, label, answer: 'NO' as const })),
+      observation: ''
+    };
+  }
+
+  private pedagogicalStorageKey(courseId: number, periodId: number, studentId: number): string {
+    return `pedagogical-report:${courseId}:${periodId}:${studentId}`;
+  }
+
+  private persistPedagogicalReportLocally(report: PedagogicalReportView): void {
+    try {
+      localStorage.setItem(
+        this.pedagogicalStorageKey(report.courseId, report.periodId, report.studentId),
+        JSON.stringify(report)
+      );
+    } catch {
+      // Ignore local storage failures and keep the in-memory cache.
+    }
+  }
+
+  private readLocalPedagogicalReport(courseId: number, periodId: number, studentId: number): PedagogicalReportView | null {
+    try {
+      const raw = localStorage.getItem(this.pedagogicalStorageKey(courseId, periodId, studentId));
+      if (!raw) {
+        return null;
+      }
+      return JSON.parse(raw) as PedagogicalReportView;
+    } catch {
+      return null;
+    }
+  }
+
+  private updatePedagogicalArea(areaKey: string, updater: (area: PedagogicalReportArea) => PedagogicalReportArea): void {
+    this.pedagogicalDraft.update((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        content: {
+          ...current.content,
+          developmentAreas: current.content.developmentAreas.map((area) =>
+            area.key !== areaKey ? area : updater(area)
+          )
+        }
+      };
+    });
   }
 
   private buildPeriodExport(courseId: number, periodId: number) {
@@ -1571,6 +2813,29 @@ export class GradesPageComponent {
     return Math.min(7, Math.max(1, Math.round(value * 10) / 10));
   }
 
+  private clampPercentage(value: number): number {
+    return Math.min(100, Math.max(0, Math.round(value * 10) / 10));
+  }
+
+  private diagnosticConceptCode(percentage: number): string {
+    if (percentage < 50) {
+      return 'PL';
+    }
+    if (percentage < 70) {
+      return 'ML';
+    }
+    return 'L';
+  }
+
+  private registrationTypeForEvaluation(evaluationId: number): GradeRegistrationType {
+    return this.currentGradeBook()?.evaluations.find((item) => item.id === evaluationId)?.registrationType ?? 'SUMATIVA';
+  }
+
+  private nextEvaluationNumber(registrationType: GradeRegistrationType): number {
+    const evaluations = this.currentGradeBook()?.evaluations ?? [];
+    return evaluations.filter((evaluation) => (evaluation.registrationType ?? 'SUMATIVA') === registrationType).length + 1;
+  }
+
   private slug(value: string): string {
     return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
@@ -1600,6 +2865,9 @@ export class GradesPageComponent {
     });
   }
 }
+
+
+
 
 
 

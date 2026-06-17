@@ -79,6 +79,16 @@ interface SemesterAggregatedStudent {
   days: Map<string, string>;
 }
 
+interface SemesterMonthSummaryCard {
+  month: string;
+  percentage: number;
+  schoolDays: number;
+  presentCount: number;
+  absentCount: number;
+  lateCount: number;
+  tone: 'success' | 'warning' | 'danger';
+}
+
 interface SemesterCourseAttendanceHighlight {
   courseId: number;
   courseName: string;
@@ -432,6 +442,49 @@ export class AttendancePageComponent {
   readonly semesterCalendarMonths = computed<SemesterCalendarMonth[]>(() =>
     this.semesterViews().map((month) => this.buildSemesterCalendarMonth(month))
   );
+  readonly semesterMonthSummaryCards = computed<SemesterMonthSummaryCard[]>(() => {
+    const selectedStudent = this.selectedSemesterStudent();
+    const rows = this.semesterViews()
+      .map((view) => {
+        const month = view.monthLabel.replace(/\s+\d{4}\b/, '').replace(/^\w/, (char) => char.toUpperCase());
+
+        if (!selectedStudent) {
+          return {
+            month,
+            percentage: view.averageAttendance ?? 0,
+            schoolDays: view.schoolDays ?? 0,
+            presentCount: view.distribution?.presentCount ?? 0,
+            absentCount: view.distribution?.absentCount ?? 0,
+            lateCount: view.totalLate ?? 0,
+            tone: this.semesterMonthTone(view.averageAttendance ?? 0)
+          };
+        }
+
+        const student = view.students.find((item) => item.studentId === selectedStudent.studentId);
+        const percentage = student ? Math.min(100, student.presentPercentage + student.latePercentage) : 0;
+
+        return {
+          month,
+          percentage,
+          schoolDays: view.schoolDays ?? 0,
+          presentCount: student?.presentCount ?? 0,
+          absentCount: student?.absentCount ?? 0,
+          lateCount: student?.lateCount ?? 0,
+          tone: this.semesterMonthTone(percentage)
+        };
+      })
+      .filter((row) => row.schoolDays > 0 || row.presentCount > 0 || row.absentCount > 0 || row.lateCount > 0);
+
+    return rows.length > 0 ? rows : this.semesterViews().map((view) => ({
+      month: view.monthLabel.replace(/\s+\d{4}\b/, '').replace(/^\w/, (char) => char.toUpperCase()),
+      percentage: 0,
+      schoolDays: view.schoolDays ?? 0,
+      presentCount: 0,
+      absentCount: 0,
+      lateCount: 0,
+      tone: 'danger'
+    }));
+  });
 
   constructor() {
     this.loadCatalog();
@@ -1279,6 +1332,7 @@ export class AttendancePageComponent {
     const firstWeekOffset = (firstDay.getDay() + 6) % 7;
     const selectedStudent = this.selectedSemesterStudent();
     const daySummary = new Map(view.dailySummary.map((day) => [Number(day.dayLabel), day.attendancePercentage]));
+    const dayStatusSummary = this.buildSemesterDayStatusSummary(view);
     const studentDays = selectedStudent?.days ?? new Map<string, string>();
     const suspendedDates = new Set(view.suspendedDates ?? []);
     const specialDates = new Map(
@@ -1324,9 +1378,15 @@ export class AttendancePageComponent {
         statusClass = this.semesterStudentStatusClass(status);
         statusLabel = status ? this.statusLabel(status) : 'Sin clases';
       } else {
-        const percentage = daySummary.get(day);
-        statusClass = this.semesterPercentageClass(percentage);
-        statusLabel = percentage == null ? 'Sin clases' : `${percentage}% asistencia`;
+        const dayStatus = dayStatusSummary.get(isoDate);
+        if (dayStatus) {
+          statusClass = dayStatus.statusClass;
+          statusLabel = dayStatus.statusLabel;
+        } else {
+          const percentage = daySummary.get(day);
+          statusClass = this.semesterPercentageClass(percentage);
+          statusLabel = percentage == null ? 'Sin clases' : `${percentage}% asistencia`;
+        }
       }
 
       week.cells[weekdayIndex] = {
@@ -1344,6 +1404,57 @@ export class AttendancePageComponent {
       label,
       weeks: Array.from(weeks.values())
     };
+  }
+
+  private buildSemesterDayStatusSummary(
+    view: MonthlyAttendanceView
+  ): Map<string, { statusClass: string; statusLabel: string }> {
+    const summary = new Map<string, { present: number; late: number; absent: number; suspended: number }>();
+
+    for (const student of view.students) {
+      for (const day of student.days) {
+        const current = summary.get(day.date) ?? { present: 0, late: 0, absent: 0, suspended: 0 };
+        switch (day.status) {
+          case 'PRESENTE':
+            current.present += 1;
+            break;
+          case 'ATRASADO':
+            current.late += 1;
+            break;
+          case 'AUSENTE':
+            current.absent += 1;
+            break;
+          case 'SUSPENDIDO':
+          case 'CLASES_SUSPENDIDAS':
+            current.suspended += 1;
+            break;
+          default:
+            break;
+        }
+        summary.set(day.date, current);
+      }
+    }
+
+    return new Map(
+      Array.from(summary.entries()).map(([date, counts]) => {
+        if (counts.late > 0) {
+          return [date, { statusClass: 'semester-late', statusLabel: `${counts.late} atraso(s) registrado(s)` }];
+        }
+        if (counts.absent > 0 || counts.suspended > 0) {
+          return [
+            date,
+            {
+              statusClass: 'semester-absent',
+              statusLabel: `${counts.absent + counts.suspended} inasistencia(s) o suspension(es)`
+            }
+          ];
+        }
+        if (counts.present > 0) {
+          return [date, { statusClass: 'semester-present', statusLabel: `${counts.present} asistencia(s) registrada(s)` }];
+        }
+        return [date, { statusClass: 'semester-none', statusLabel: 'Sin clases' }];
+      })
+    );
   }
 
   private semesterPercentageClass(percentage: number | null | undefined): string {
@@ -1385,6 +1496,16 @@ export class AttendancePageComponent {
       default:
         return 'semester-suspension';
     }
+  }
+
+  private semesterMonthTone(percentage: number): 'success' | 'warning' | 'danger' {
+    if (percentage >= 80) {
+      return 'success';
+    }
+    if (percentage >= 60) {
+      return 'warning';
+    }
+    return 'danger';
   }
 
   private resolveSemesterRisk(absentCount: number, lateCount: number): string {

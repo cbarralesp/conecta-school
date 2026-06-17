@@ -20,7 +20,10 @@ export interface GradeSubjectTab {
   id: number;
   name: string;
   colorHex: string;
+  evaluationType: 'NUMERICA' | 'CONCEPTUAL';
 }
+
+export type GradeRegistrationType = 'SUMATIVA' | 'PROCESO' | 'DIAGNOSTICA';
 
 export interface GradeEvaluationHeader {
   id: number;
@@ -29,12 +32,16 @@ export interface GradeEvaluationHeader {
   order: number;
   weight?: number | null;
   evaluationDate?: string | null;
+  registrationType: GradeRegistrationType;
 }
 
 export interface GradeScoreCell {
   evaluationId: number;
   code: string;
   score: number | null;
+  conceptCode: string | null;
+  percentage: number | null;
+  registrationType: GradeRegistrationType;
 }
 
 export interface GradeBookStudentRow {
@@ -44,6 +51,7 @@ export interface GradeBookStudentRow {
   scores: GradeScoreCell[];
   average: number | null;
   status: string;
+  conceptSummaryCode: string | null;
 }
 
 export interface GradeBookSummary {
@@ -60,6 +68,7 @@ export interface GradeBookView {
   periodName: string;
   subjectId: number;
   subjectName: string;
+  subjectEvaluationType: 'NUMERICA' | 'CONCEPTUAL';
   summary: GradeBookSummary;
   subjects: GradeSubjectTab[];
   evaluations: GradeEvaluationHeader[];
@@ -71,6 +80,8 @@ export interface StudentSubjectAverage {
   subjectName: string;
   colorHex: string;
   average: number | null;
+  evaluationType: 'NUMERICA' | 'CONCEPTUAL';
+  conceptSummaryCode: string | null;
 }
 
 export interface StudentGradeCard {
@@ -99,10 +110,75 @@ export interface GradeReportView {
   students: StudentGradeCard[];
 }
 
+export type PedagogicalAnswer = 'SI' | 'NO' | 'EP';
+
+export interface PedagogicalReportItem {
+  questionId: number | null;
+  label: string;
+  answer: PedagogicalAnswer;
+  achieved?: boolean | null;
+}
+
+export interface PedagogicalReportArea {
+  key: string;
+  title: string;
+  icon: string;
+  accentColor: string;
+  iconColor: string;
+  items: PedagogicalReportItem[];
+  observation: string;
+}
+
+export interface PedagogicalReportContent {
+  documentTitle: string;
+  educatorName: string;
+  developmentAreas: PedagogicalReportArea[];
+  attitudeArea: PedagogicalReportArea | null;
+  familyRecommendations: string[];
+  teacherSignatureName: string;
+  guardianSignatureLabel: string;
+}
+
+export interface PedagogicalReportView {
+  courseId: number;
+  courseName: string;
+  periodId: number;
+  periodName: string;
+  studentId: number;
+  studentRun: string;
+  studentName: string;
+  schoolYear: number;
+  levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL';
+  levelLabel: string;
+  content: PedagogicalReportContent;
+}
+
+export interface PedagogicalQuestionBankQuestion {
+  id: number;
+  label: string;
+  sortOrder: number;
+}
+
+export interface PedagogicalQuestionBankArea {
+  key: string;
+  title: string;
+  questionKind: 'AREA' | 'RECOMMENDATION';
+  questions: PedagogicalQuestionBankQuestion[];
+}
+
+export interface SavePedagogicalReportPayload {
+  courseId: number;
+  periodId: number;
+  studentId: number;
+  content: PedagogicalReportContent;
+}
+
 export interface GradeSaveEntryPayload {
   studentId: number;
   evaluationId: number;
   score: number | null;
+  conceptCode: string | null;
+  percentage: number | null;
 }
 
 export interface SaveGradeBookPayload {
@@ -120,4 +196,5 @@ export interface GradeEvaluationPayload {
   name: string;
   weight: number | null;
   evaluationDate: string | null;
+  registrationType: GradeRegistrationType;
 }

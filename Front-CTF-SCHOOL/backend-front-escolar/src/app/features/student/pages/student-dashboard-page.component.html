@@ -5,7 +5,11 @@
   [userName]="fullStudentName()"
   userRole="Alumno"
   searchPlaceholder="Buscar asignaturas, horario, actividades...">
-  <main class="student-content">
+  <main
+    class="student-content"
+    [class.student-content--grades]="isSectionActive('grades')"
+    [class.student-content--schedule]="isSectionActive('schedule')"
+    [class.student-content--attendance]="isSectionActive('attendance')">
     <div class="student-content__inner">
 
     @if (isLoading()) {
@@ -442,15 +446,15 @@
           }
         </section>
       } @else if (isSectionActive('schedule')) {
-        <section class="schedule-browser">
+        <section class="schedule-browser schedule-browser--flat" style="--sched-minw:920px;--sched-timew:74px;--sched-rowh:58px;--sched-headh:60px;--sched-cell-pad:4px 5px;--sched-time-pad:6px 6px;--sched-time-size:.68rem;--sched-day-pad:8px 4px;--sched-day-size:.74rem;--sched-card-pad:7px 9px;--sched-card-radius:12px;--sched-gap:7px;--sched-icon:22px;--sched-icon-radius:8px;--sched-icon-size:12px;--sched-name-size:.72rem">
           <div class="schedule-browser__header">
             <div class="schedule-title">
               <div class="schedule-title__icon">
                 <mat-icon>calendar_month</mat-icon>
               </div>
               <div>
-                <h2>Horario semanal</h2>
-                <p>Consulta tus clases y bloques asignados durante la semana.</p>
+                <h2>Mi horario</h2>
+                <p>Aquí puedes ver tus clases y actividades de la semana.</p>
               </div>
             </div>
             <div class="schedule-browser__actions">
@@ -460,55 +464,228 @@
                 class="student-export-button"
                 (click)="downloadStudentSchedulePdf()"
                 [disabled]="isExportingSchedulePdf()">
-                <mat-icon>picture_as_pdf</mat-icon>
-                {{ isExportingSchedulePdf() ? 'Generando PDF...' : 'Descargar PDF' }}
+                <mat-icon>download</mat-icon>
+                {{ isExportingSchedulePdf() ? 'Generando PDF...' : 'Descargar horario' }}
               </button>
             </div>
           </div>
 
-          @if (scheduleWeekDays().length === 0) {
+          @if (scheduleDisplayWeekDays().length === 0) {
             <section class="empty-inline">
               <mat-icon>event_available</mat-icon>
               <span>No hay bloques de horario asignados.</span>
             </section>
           } @else {
-            <section class="schedule-table-wrap">
-              <div class="schedule-table">
-                <div class="sch-row header">
-                  <div class="sch-cell time">Hora</div>
-                  @for (day of scheduleWeekDays(); track day.key) {
-                    <div class="sch-cell day-header" [class.active]="day.isToday">
-                      <div class="day-name">{{ day.fullLabel }}</div>
-                    </div>
-                  }
-                </div>
+            <section style="display:grid;gap:1rem">
+              <section style="background:rgba(255,255,255,.92);border:1px solid rgba(226,232,240,.96);border-radius:18px;box-shadow:0 10px 28px rgba(24,36,78,.06);overflow:hidden">
+                <section class="schedule-table-wrap" style="padding-bottom:0;overflow-x:hidden">
+                  <div class="schedule-mobile-shell">
+                    <div class="schedule-mobile-card">
+                      <h3 class="schedule-mobile-card__title">Horario semanal</h3>
 
-                @for (row of scheduleRows(); track row.startTime) {
-                  <div class="sch-row">
-                    <div class="sch-cell time">
-                      <span>{{ row.startTime }} - {{ row.endTime }}</span>
-                    </div>
+                      <div class="schedule-mobile-tabs" role="tablist" aria-label="Dias del horario del estudiante">
+                        @for (day of scheduleDisplayWeekDays(); track day.key) {
+                          <button
+                            type="button"
+                            class="schedule-mobile-tab"
+                            [class.schedule-mobile-tab--active]="activeScheduleMobileDay() === day.key"
+                            [attr.aria-selected]="activeScheduleMobileDay() === day.key"
+                            (click)="setScheduleMobileDay(day.key)">
+                            {{ scheduleMobileDayLabel(day.key) }}
+                          </button>
+                        }
+                      </div>
 
-                    @for (cell of row.blocks; track cell.dayKey + '-' + $index) {
-                      <div class="sch-cell">
-                        @if (cell.item; as item) {
-                          <article
-                            class="subj-card"
-                            [ngClass]="scheduleSubjectCardClasses(item)"
-                            [ngStyle]="scheduleSubjectStyles(item)">
-                            <div class="subj-top">
-                              <div class="subj-icon">
-                                <mat-icon>{{ scheduleSubjectIcon(item.subjectName) }}</mat-icon>
+                      <div class="schedule-mobile-list">
+                        @for (row of scheduleRows(); track row.startTime) {
+                          @if (isScheduleBreakRow(row)) {
+                            <div class="schedule-mobile-break">
+                              <mat-icon>free_breakfast</mat-icon>
+                              <div class="schedule-mobile-break__copy">
+                                <strong>Recreo institucional</strong>
+                                <span>{{ row.startTime }} - {{ row.endTime }}</span>
                               </div>
-                              <div class="subj-name">{{ item.subjectName }}</div>
                             </div>
-                          </article>
+                          } @else {
+                            @if (scheduleEntryForDay(row, activeScheduleMobileDay()); as mobileItem) {
+                              <div class="schedule-mobile-row">
+                                <div class="schedule-mobile-row__time">
+                                  <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
+                                </div>
+
+                                <div class="schedule-mobile-row__content">
+                                  <article
+                                    class="subj-card schedule-mobile-slot"
+                                    [ngClass]="scheduleSubjectCardClasses(mobileItem)"
+                                    [ngStyle]="scheduleSubjectStyles(mobileItem)">
+                                    <div class="subj-top" style="align-items:flex-start">
+                                      <div class="subj-icon">
+                                        <mat-icon>{{ scheduleSubjectIcon(mobileItem.subjectName) }}</mat-icon>
+                                      </div>
+                                      <div style="display:grid;gap:.08rem;min-width:0">
+                                        <div class="subj-name">{{ mobileItem.subjectName }}</div>
+                                        <small style="font-size:.68rem;line-height:1.2;font-weight:700;color:inherit;opacity:.82">{{ scheduleTeacherLabel(mobileItem) }}</small>
+                                      </div>
+                                    </div>
+                                  </article>
+                                </div>
+                              </div>
+                            }
+                          }
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="schedule-table" style="border:0;border-radius:0;box-shadow:none;min-width:0;width:100%">
+                    <div class="sch-row header">
+                      <div class="sch-cell time">Hora</div>
+                      @for (day of scheduleDisplayWeekDays(); track day.key) {
+                        <div class="sch-cell day-header" [class.active]="day.isToday">
+                          <div class="day-name" style="display:grid;gap:.15rem;justify-items:center">
+                            <span>{{ day.fullLabel }}</span>
+                            <small [class.day-today-label]="day.isToday" style="font-size:.72rem;color:#6a7598;font-weight:700">{{ day.dayNumber }} {{ day.monthLabel }}</small>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    @for (row of scheduleRows(); track row.startTime) {
+                      <div class="sch-row">
+                        <div class="sch-cell time">
+                          <span>{{ row.startTime }}<br>{{ row.endTime }}</span>
+                        </div>
+
+                        @if (isScheduleBreakRow(row)) {
+                          <div class="break-row">
+                            <mat-icon>free_breakfast</mat-icon>
+                            <span>Recreo</span>
+                            <small>{{ row.startTime }} - {{ row.endTime }}</small>
+                          </div>
+                        } @else {
+                          @for (cell of row.blocks.slice(0, 5); track cell.dayKey + '-' + $index) {
+                            <div class="sch-cell">
+                              @if (cell.item; as item) {
+                                <article
+                                  class="subj-card"
+                                  [ngClass]="scheduleSubjectCardClasses(item)"
+                                  [ngStyle]="scheduleSubjectStyles(item)">
+                                  <div class="subj-top" style="align-items:flex-start">
+                                    <div class="subj-icon">
+                                      <mat-icon>{{ scheduleSubjectIcon(item.subjectName) }}</mat-icon>
+                                    </div>
+                                    <div style="display:grid;gap:.08rem;min-width:0">
+                                      <div class="subj-name">{{ item.subjectName }}</div>
+                                      <small style="font-size:.64rem;line-height:1.15;font-weight:700;color:inherit;opacity:.82">{{ scheduleTeacherLabel(item) }}</small>
+                                    </div>
+                                  </div>
+                                </article>
+                              }
+                            </div>
+                          }
                         }
                       </div>
                     }
                   </div>
-                }
-              </div>
+                </section>
+              </section>
+
+              <section class="student-schedule-info-grid">
+                <section class="student-schedule-info-card student-schedule-info-card--today" style="padding:.95rem 1rem .95rem;border-radius:18px;background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);border:1px solid rgba(226,232,240,.96);box-shadow:0 10px 28px rgba(24,36,78,.06)">
+                  <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.75rem">
+                    <div style="width:36px;height:36px;border-radius:12px;background:#eef4ff;color:#3b5bcc;display:grid;place-items:center;flex:0 0 auto">
+                      <mat-icon style="font-size:18px;width:18px;height:18px">today</mat-icon>
+                    </div>
+                    <h3 style="margin:0;font-size:1rem;font-weight:900;color:#14213d">Clases del día</h3>
+                  </div>
+                  @if (scheduleTodayTimeline().length === 0) {
+                    <section class="empty-inline" style="padding:.4rem 0">
+                      <mat-icon>today</mat-icon>
+                      <span>No hay clases programadas para hoy.</span>
+                    </section>
+                  } @else {
+                    <div style="display:flex;flex-direction:column;gap:.72rem">
+                      @for (item of scheduleTodayTimeline(); track item.startTime + item.subjectName) {
+                        <div style="display:grid;grid-template-columns:42px 10px minmax(0,1fr) auto;gap:.45rem;align-items:start">
+                          <div style="font-weight:900;color:#1a2a50;font-size:.8rem">{{ item.startTime }}</div>
+                          <span [style.background]="item.statusTone === 'success' ? '#27bd66' : item.statusTone === 'next' ? '#4091ff' : item.statusTone === 'rest' ? '#f5b642' : '#8b5cf6'" style="width:8px;height:8px;border-radius:50%;margin-top:.35rem"></span>
+                          <div style="min-width:0">
+                            <strong style="display:block;font-size:.82rem;color:#18264c;line-height:1.15">{{ item.subjectName }}</strong>
+                            @if (isSchedulePause(item.subjectName)) {
+                              <p style="margin:.12rem 0 0;color:#4b597d;font-size:.72rem;font-weight:700">{{ item.startTime }} - {{ item.endTime }}</p>
+                            } @else {
+                              <p style="margin:.12rem 0 0;color:#4b597d;font-size:.72rem;font-weight:700">{{ scheduleTeacherLabel(item) }}</p>
+                            }
+                          </div>
+                          @if (item.statusLabel) {
+                            <span [style.background]="item.statusTone === 'success' ? '#e6f7ec' : item.statusTone === 'next' ? '#eaf2ff' : '#eef0f6'" [style.color]="item.statusTone === 'success' ? '#15914c' : item.statusTone === 'next' ? '#2670e8' : '#4e5874'" style="font-size:.64rem;font-weight:900;padding:4px 8px;border-radius:999px;white-space:nowrap">{{ item.statusLabel }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </section>
+
+                <section class="student-schedule-info-card student-schedule-info-card--next" style="padding:.95rem 1rem .9rem;border-radius:18px;background:linear-gradient(180deg,#ffffff 0%,#faf7ff 100%);border:1px solid rgba(226,232,240,.96);box-shadow:0 10px 28px rgba(24,36,78,.06)">
+                  <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.8rem">
+                    <div style="width:36px;height:36px;border-radius:12px;background:#efe8ff;color:#6a47ee;display:grid;place-items:center;flex:0 0 auto">
+                      <mat-icon style="font-size:18px;width:18px;height:18px">schedule</mat-icon>
+                    </div>
+                    <h3 style="margin:0;font-size:1rem;font-weight:900;color:#14213d">Próxima clase</h3>
+                  </div>
+                  @if (scheduleNextClass(); as nextClass) {
+                    <div style="display:flex;gap:.75rem;align-items:center">
+                      <div style="width:48px;height:48px;border-radius:16px;background:#efe8ff;color:#6a47ee;display:grid;place-items:center;flex:0 0 auto">
+                        <mat-icon>{{ scheduleSubjectIcon(nextClass.subjectName) }}</mat-icon>
+                      </div>
+                      <div style="min-width:0">
+                        <h4 style="margin:0 0 .2rem;font-size:1rem;font-weight:900;color:#18264c">{{ nextClass.subjectName }}</h4>
+                        <p style="margin:0;color:#47577d;font-weight:700;font-size:.72rem">{{ scheduleTeacherLabel(nextClass) }}</p>
+                        <span style="display:inline-block;margin-top:.35rem;background:#ede6ff;color:#6b48f2;border-radius:999px;padding:4px 8px;font-size:.66rem;font-weight:900">{{ nextClass.badge }}</span>
+                      </div>
+                    </div>
+                    <div style="height:5px;background:#edf0fb;border-radius:999px;overflow:hidden;margin-top:.75rem">
+                      <span [style.width]="nextClass.progress" style="display:block;height:100%;background:#6d4cff"></span>
+                    </div>
+                  } @else {
+                    <section class="empty-inline" style="padding:.4rem 0">
+                      <mat-icon>event_available</mat-icon>
+                      <span>No hay más clases programadas para hoy.</span>
+                    </section>
+                  }
+                </section>
+
+                <section class="student-schedule-info-card student-schedule-info-card--summary" style="padding:1rem;border-radius:18px;background:linear-gradient(180deg,#ffffff 0%,#fffdf8 100%);border:1px solid rgba(226,232,240,.96);box-shadow:0 10px 28px rgba(24,36,78,.06)">
+                  <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem">
+                    <div style="width:36px;height:36px;border-radius:12px;background:#fff3df;color:#d97706;display:grid;place-items:center;flex:0 0 auto">
+                      <mat-icon style="font-size:18px;width:18px;height:18px">insights</mat-icon>
+                    </div>
+                    <h3 style="margin:0;font-size:1rem;font-weight:900;color:#14213d">Resumen semanal</h3>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:.8rem">
+                    <div style="display:flex;justify-content:space-between;align-items:center;color:#43517a;font-weight:800;font-size:.82rem">
+                      <span>Total de clases</span>
+                      <b style="color:#0f1b3c;font-size:.88rem">{{ scheduleWeeklySummary().totalClasses }}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;color:#43517a;font-weight:800;font-size:.82rem">
+                      <span>Horas de clase</span>
+                      <b style="color:#0f1b3c;font-size:.88rem">{{ scheduleWeeklySummary().totalHoursLabel }}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;color:#43517a;font-weight:800;font-size:.82rem">
+                      <span>Asignaturas</span>
+                      <b style="color:#0f1b3c;font-size:.88rem">{{ scheduleWeeklySummary().subjectsCount }}</b>
+                    </div>
+                  </div>
+                </section>
+              </section>
+
+              <section class="student-schedule-tip-card" style="display:flex;align-items:center;gap:.9rem;padding:1rem 1.15rem;border-radius:18px;background:linear-gradient(90deg,#f3efff,#fff);border:1px solid rgba(226,232,240,.96)">
+                <div style="font-size:2rem;line-height:1">🎒</div>
+                <div>
+                  <h3 style="margin:0 0 .2rem;font-size:1rem;font-weight:900;color:#14213d">¡Organiza tu día!</h3>
+                  <p style="margin:0;color:#46557d;font-size:.82rem;font-weight:600">Revisa tu horario cada mañana para estar preparada y aprovechar al máximo tus clases.</p>
+                </div>
+              </section>
             </section>
 
             <section class="student-schedule-pdf-shell" aria-hidden="true">
@@ -528,7 +705,7 @@
                 <div class="student-schedule-pdf-table">
                   <div class="sch-row header">
                     <div class="sch-cell time">Hora</div>
-                    @for (day of scheduleWeekDays(); track day.key) {
+                    @for (day of scheduleDisplayWeekDays(); track day.key) {
                       <div class="sch-cell day-header" [class.active]="day.isToday">
                         <div class="day-name">{{ day.fullLabel }}</div>
                       </div>
@@ -541,7 +718,7 @@
                         <span>{{ row.startTime }} - {{ row.endTime }}</span>
                       </div>
 
-                      @for (cell of row.blocks; track cell.dayKey + '-pdf-' + $index) {
+                      @for (cell of row.blocks.slice(0, 5); track cell.dayKey + '-pdf-' + $index) {
                         <div class="sch-cell">
                           @if (cell.item; as item) {
                             <article
@@ -566,15 +743,15 @@
           }
         </section>
       } @else if (isSectionActive('grades')) {
-        <section class="grades-browser" style="gap:1rem;padding:.95rem;background:rgba(255,255,255,.96);border-radius:24px;box-shadow:0 18px 40px rgba(15,23,42,.04)">
-          <div class="grades-browser__header" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:1rem;margin-bottom:0">
+        <section class="grades-browser grades-browser--compact grades-browser--flat">
+          <div class="grades-browser__header grades-browser__header--compact">
             <div class="grades-title" style="display:flex;align-items:center;gap:.8rem">
               <div class="grades-title__icon">
                 <mat-icon>bar_chart</mat-icon>
               </div>
               <div>
-                <h2>Mis evaluaciones</h2>
-                <p>Consulta tus evaluaciones registradas, notas por asignatura y promedio general.</p>
+                <h2>Mis notas</h2>
+                <p>Selecciona una fila para ver el detalle.</p>
               </div>
             </div>
             <div class="student-report-actions">
@@ -590,132 +767,204 @@
             </div>
           </div>
 
-          <section class="grades-summary-row">
-            <article class="grades-summary-card tone-brand-soft">
-              <div style="display:flex;align-items:center;justify-content:center;gap:.85rem;margin-bottom:.35rem;width:100%">
-                <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto" class="tone-brand">
-                  <mat-icon>library_books</mat-icon>
+          <div class="grades-layout grades-layout--stacked">
+            <section class="grades-summary-strip">
+              <article class="grades-summary-inline-card grades-summary-inline-card--violet">
+                <div class="grades-summary-inline-card__head">
+                  <div class="grades-summary-inline-card__icon tone-violet">
+                    <mat-icon>menu_book</mat-icon>
+                  </div>
                 </div>
-                <div style="display:grid;gap:.12rem;justify-items:center">
-                  <span style="color:#8a9bb5;font-size:var(--student-font-label);font-weight:600">Asignaturas evaluadas</span>
+                <div class="grades-summary-inline-card__copy">
+                  <strong>{{ filteredGradeSubjects().length }}</strong>
+                  <span>Asignaturas calificadas</span>
                 </div>
-              </div>
-              <strong>{{ gradeSubjects().length }}</strong>
-              <small style="font-size:var(--student-font-body);color:#5f7398">Carga con registro de calificaciones</small>
-            </article>
-            <article class="grades-summary-card tone-success-soft">
-              <div style="display:flex;align-items:center;justify-content:center;gap:.85rem;margin-bottom:.35rem;width:100%">
-                <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto" class="tone-success">
-                  <mat-icon>fact_check</mat-icon>
+              </article>
+              <article class="grades-summary-inline-card grades-summary-inline-card--brand">
+                <div class="grades-summary-inline-card__head">
+                  <div class="grades-summary-inline-card__icon tone-brand">
+                    <mat-icon>star</mat-icon>
+                  </div>
                 </div>
-                <div style="display:grid;gap:.12rem;justify-items:center">
-                  <span style="color:#8a9bb5;font-size:var(--student-font-label);font-weight:600">Evaluaciones registradas</span>
+                <div class="grades-summary-inline-card__copy">
+                  <strong>{{ gradesOverallAverage() }}</strong>
+                  <span>Promedio</span>
                 </div>
-              </div>
-              <strong>{{ totalEvaluationsCount() }}</strong>
-              <small style="font-size:var(--student-font-body);color:#5f7398">Notas visibles en el periodo actual</small>
-            </article>
-            <article class="grades-summary-card tone-violet-soft">
-              <div style="display:flex;align-items:center;justify-content:center;gap:.85rem;margin-bottom:.35rem;width:100%">
-                <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:0 0 auto" class="tone-violet">
-                  <mat-icon>emoji_events</mat-icon>
+              </article>
+              <article class="grades-summary-inline-card grades-summary-inline-card--warning">
+                <div class="grades-summary-inline-card__head">
+                  <div class="grades-summary-inline-card__icon tone-warning">
+                    <mat-icon>pie_chart</mat-icon>
+                  </div>
                 </div>
-                <div style="display:grid;gap:.12rem;justify-items:center">
-                  <span style="color:#8a9bb5;font-size:var(--student-font-label);font-weight:600">Promedio general</span>
+                <div class="grades-summary-inline-card__copy">
+                  <strong>{{ gradesLatestScore()?.toFixed(1) ?? '-' }}</strong>
+                  <span>Última calificación</span>
                 </div>
-              </div>
-              <strong>{{ gradesOverallAverage() }}</strong>
-              <small style="font-size:var(--student-font-body);color:#5f7398">Resumen academico consolidado</small>
-            </article>
-          </section>
+              </article>
+              <article class="grades-summary-inline-card grades-summary-inline-card--success">
+                <div class="grades-summary-inline-card__head">
+                  <div class="grades-summary-inline-card__icon tone-success">
+                    <mat-icon>emoji_events</mat-icon>
+                  </div>
+                </div>
+                <div class="grades-summary-inline-card__copy">
+                  <strong>{{ gradesHighlightedCount() }}</strong>
+                  <span>Asignaturas destacadas</span>
+                </div>
+              </article>
+            </section>
 
-          <section class="grades-table-card" [style.--grade-column-count]="gradeColumns().length">
-            <div class="grades-table grades-table--header">
-              <div>Asignatura</div>
-              @for (column of gradeColumns(); track column) {
-                <div>Nota {{ column + 1 }}</div>
-              }
-              <div>Promedio</div>
-              <div>Ultima nota</div>
-            </div>
+            <div class="grades-layout__main">
+              <section class="grades-filter-bar">
+                <label class="grades-search-field">
+                  <mat-icon>search</mat-icon>
+                  <input
+                    type="text"
+                    [value]="gradesSearch()"
+                    (input)="updateGradesSearch(($any($event.target).value ?? '').toString())"
+                    placeholder="Buscar asignatura..." />
+                </label>
 
-            @if (gradeSubjects().length === 0) {
-              <section class="empty-inline">
-                <mat-icon>grading</mat-icon>
-                <span>No hay notas registradas todavia.</span>
+                <label class="grades-select-field">
+                  <select [value]="gradesSubjectFilter()" (change)="updateGradesSubjectFilter(($any($event.target).value ?? 'all').toString())">
+                    <option value="all">Todas las asignaturas</option>
+                    @for (subjectName of gradeSubjectOptions(); track subjectName) {
+                      <option [value]="subjectName">{{ subjectName }}</option>
+                    }
+                  </select>
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </label>
               </section>
-            } @else {
-              @for (subject of gradeSubjects(); track subject.subjectName) {
-                <article class="grades-table grades-table--row">
-                  <div class="grades-subject-cell">
-                    <div class="grades-subject-cell__icon" [class]="subject.tone">
-                      <mat-icon>{{ subject.icon }}</mat-icon>
-                    </div>
-                    <div class="grades-subject-copy">
-                      <strong>{{ subject.subjectName }}</strong>
-                      <span>{{ subject.evaluations.length }} evaluacion(es)</span>
-                    </div>
-                  </div>
 
-                  @for (evaluation of subject.visibleEvaluations; track $index) {
-                    <div class="grades-score-cell">
-                      @if (evaluation?.score !== null && evaluation?.score !== undefined) {
-                        <span class="grades-score-cell__value">{{ evaluation?.score?.toFixed(1) }}</span>
-                        <small class="grades-score-cell__label">
-                          {{ evaluation?.evaluationName || ('Evaluacion ' + ($index + 1)) }}
-                        </small>
-                      } @else {
-                        <span class="grades-score-cell--empty">-</span>
-                        <small class="grades-score-cell__label">Sin nota</small>
-                      }
-                    </div>
-                  }
+              <section class="grades-modern-table card">
+                <div class="grades-modern-table__header">
+                  <div>Asignatura</div>
+                  <div>N1</div>
+                  <div>N2</div>
+                  <div>N3</div>
+                  <div>Promedio</div>
+                  <div>Estado</div>
+                </div>
 
-                  <div class="grades-score-cell">
-                    <span class="grades-pill">{{ subject.average?.toFixed(1) ?? '-' }}</span>
-                  </div>
-
-                  <div class="grades-score-cell">
-                    <span class="grades-pill is-latest">{{ subject.latestScore?.toFixed(1) ?? '-' }}</span>
-                  </div>
-                </article>
-              }
-            }
-          </section>
-
-          <section class="grades-bottom-grid">
-            <mat-card appearance="outlined" class="panel-card grades-history-card">
-              <mat-card-title>Historial de evaluaciones</mat-card-title>
-              <mat-divider></mat-divider>
-              <mat-card-content class="grades-history-list">
-                @if (recentGradeHistory().length === 0) {
+                @if (filteredGradeSubjects().length === 0) {
                   <section class="empty-inline">
-                    <mat-icon>history</mat-icon>
-                    <span>No hay evaluaciones recientes.</span>
+                    <mat-icon>grading</mat-icon>
+                    <span>No hay notas registradas todavia.</span>
                   </section>
                 } @else {
-                  @for (grade of recentGradeHistory(); track grade.subjectName + grade.evaluationName + grade.recordedAt) {
-                    <article class="grade-history-row">
-                      <div>
-                        <strong>{{ grade.evaluationName }}</strong>
-                        <span>{{ grade.subjectName }} - {{ grade.recordedAt }}</span>
+                  @for (subject of filteredGradeSubjects(); track subject.subjectName) {
+                    <button type="button" class="grades-modern-row" [class.is-selected]="selectedGradeSubject().subjectName === subject.subjectName" (click)="selectGradeSubject(subject.subjectName)">
+                      <div class="grades-modern-row__subject">
+                        <div class="grades-modern-row__icon" [class]="subject.tone">
+                          <mat-icon>{{ subject.icon }}</mat-icon>
+                        </div>
+                        <strong>{{ subject.subjectName }}</strong>
                       </div>
-                      <span class="grades-pill">{{ grade.score?.toFixed(1) ?? '-' }}</span>
-                    </article>
+                      @for (evaluation of subject.visibleEvaluations; track $index) {
+                        <div class="grades-modern-row__score">{{ evaluation?.score?.toFixed(1) ?? '-' }}</div>
+                      }
+                      <div class="grades-modern-row__average">
+                        <span class="grades-pill grades-pill--violet">{{ subject.average?.toFixed(1) ?? '-' }}</span>
+                      </div>
+                      <div class="grades-modern-row__status">
+                        <span class="grades-status-pill" [ngClass]="gradeStatusClass(subject)">{{ gradeStatusLabel(subject) }}</span>
+                      </div>
+                    </button>
                   }
                 }
-              </mat-card-content>
-            </mat-card>
+              </section>
 
-            <mat-card appearance="outlined" class="grades-average-card">
-              <div class="grades-average-card__icon">
-                <mat-icon>emoji_events</mat-icon>
-              </div>
-              <span>Promedio general</span>
-              <strong>{{ gradesOverallAverage() }}</strong>
-              <p>Tu avance academico consolidado en las asignaturas con notas.</p>
-            </mat-card>
-          </section>
+              <section class="grades-mobile-cards">
+                @for (subject of filteredGradeSubjects(); track subject.subjectName) {
+                  <article class="grades-mobile-card" [class.is-selected]="selectedGradeSubject().subjectName === subject.subjectName" (click)="selectGradeSubject(subject.subjectName)">
+                    <div class="grades-mobile-card__head">
+                      <div class="grades-modern-row__subject">
+                        <div class="grades-modern-row__icon" [class]="subject.tone">
+                          <mat-icon>{{ subject.icon }}</mat-icon>
+                        </div>
+                        <strong>{{ subject.subjectName }}</strong>
+                      </div>
+                      <span class="grades-pill grades-pill--violet">{{ subject.average?.toFixed(1) ?? '-' }}</span>
+                    </div>
+                    <div class="grades-mobile-card__scores">
+                      @for (evaluation of subject.visibleEvaluations; track $index) {
+                        <div>
+                          <span>N{{ $index + 1 }}</span>
+                          <strong>{{ evaluation?.score?.toFixed(1) ?? '-' }}</strong>
+                        </div>
+                      }
+                    </div>
+                    <span class="grades-status-pill" [ngClass]="gradeStatusClass(subject)">{{ gradeStatusLabel(subject) }}</span>
+                  </article>
+                }
+              </section>
+            </div>
+
+            <section class="grades-bottom-cards">
+              <article class="grades-side-card">
+                <div class="grades-side-card__title">
+                  <mat-icon>bar_chart</mat-icon>
+                  <h3>Resumen de notas</h3>
+                </div>
+                <div class="grades-side-item">
+                  <div class="grades-side-item__icon tone-violet"><mat-icon>star</mat-icon></div>
+                  <div><span>Promedio del semestre</span><strong>{{ gradesOverallAverage() }}</strong></div>
+                </div>
+                <div class="grades-side-item">
+                  <div class="grades-side-item__icon tone-violet"><mat-icon>search</mat-icon></div>
+                  <div><span>Mejor asignatura</span><strong>{{ gradesBestSubject().subjectName }}</strong></div>
+                </div>
+                <div class="grades-side-item">
+                  <div class="grades-side-item__icon tone-blue"><mat-icon>assignment_turned_in</mat-icon></div>
+                  <div><span>Ultima calificacion</span><strong>{{ gradesLatestScore()?.toFixed(1) ?? '-' }}</strong></div>
+                </div>
+                <div class="grades-side-item">
+                  <div class="grades-side-item__icon tone-blue"><mat-icon>assignment</mat-icon></div>
+                  <div><span>Evaluaciones registradas</span><strong>{{ totalEvaluationsCount() }}</strong></div>
+                </div>
+              </article>
+
+              <article class="grades-side-card">
+                <div class="grades-side-card__title">
+                  <mat-icon>fact_check</mat-icon>
+                  <h3>Detalle rapido</h3>
+                </div>
+                @if (selectedGradeSubject(); as selectedSubject) {
+                  <h4>{{ selectedSubject.subjectName }}</h4>
+                  @for (evaluation of selectedSubject.visibleEvaluations; track $index) {
+                    <div class="grades-detail-row">
+                      <span>N{{ $index + 1 }}</span>
+                      <strong>{{ evaluation?.score?.toFixed(1) ?? '-' }}</strong>
+                    </div>
+                  }
+                  <div class="grades-detail-row grades-detail-row--final">
+                    <span>Promedio</span>
+                    <strong class="grades-pill grades-pill--violet">{{ selectedSubject.average?.toFixed(1) ?? '-' }}</strong>
+                  </div>
+                } @else {
+                  <section class="empty-inline">
+                    <mat-icon>grading</mat-icon>
+                    <span>Selecciona una asignatura.</span>
+                  </section>
+                }
+              </article>
+
+              <article class="grades-side-card">
+                <div class="grades-side-card__title grades-side-card__title--pink">
+                  <mat-icon>event_note</mat-icon>
+                  <h3>Ultimo registro</h3>
+                </div>
+                @if (gradesRecentPublication(); as lastGrade) {
+                  <h4>{{ lastGrade.subjectName }}</h4>
+                  <p>{{ lastGrade.evaluationName }}</p>
+                  <p>Fecha: {{ lastGrade.recordedAt }}</p>
+                } @else {
+                  <p>Sin publicaciones recientes.</p>
+                }
+              </article>
+            </section>
+          </div>
 
           <section class="student-report-pdf-shell" aria-hidden="true">
             <article #studentReportPdf class="student-report-sheet">
@@ -1145,3 +1394,4 @@
     </div>
   </main>
 </app-teacher-modern-layout>
+

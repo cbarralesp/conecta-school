@@ -98,6 +98,61 @@
         <h2>Horario semanal</h2>
       </div>
 
+      <div class="schedule-mobile-tabs" role="tablist" aria-label="Dias del horario">
+        @for (day of days; track day) {
+          <button
+            type="button"
+            class="schedule-mobile-tab"
+            [class.schedule-mobile-tab--active]="selectedMobileDay() === day"
+            [attr.aria-selected]="selectedMobileDay() === day"
+            (click)="setSelectedMobileDay(day)">
+            {{ mobileDayLabel(day) }}
+          </button>
+        }
+      </div>
+
+      <div class="schedule-mobile-list">
+        @for (row of boardRows(); track trackRow($index, row)) {
+          @if (row.blockType === 'RECREO') {
+            <button type="button" class="schedule-mobile-break" (click)="openRowDialog(row)">
+              <mat-icon>free_breakfast</mat-icon>
+              <div class="schedule-mobile-break__copy">
+                <strong>{{ row.isCustom ? 'Recreo agregado' : 'Recreo institucional' }}</strong>
+                <span>{{ row.startTime }} - {{ row.endTime }}</span>
+              </div>
+            </button>
+          } @else {
+            @let block = blockFor(selectedMobileDay(), row);
+            @let entry = entryFor(selectedMobileDay(), row);
+            <div class="schedule-mobile-row">
+              <button type="button" class="schedule-mobile-row__time" (click)="openRowDialog(row)">
+                <strong>{{ row.startTime }} - {{ row.endTime }}</strong>
+              </button>
+
+              <div class="schedule-mobile-row__content">
+                @if (entry) {
+                  <button
+                    class="schedule-slot schedule-slot--filled schedule-mobile-slot"
+                    type="button"
+                    [ngStyle]="slotStyles(entry)"
+                    (click)="openEditDialog(entry)">
+                    <div class="schedule-slot__bar"></div>
+                    <strong>{{ entry.subjectName }}</strong>
+                    <span>{{ shortTeacherName(entry.teacherFullName) }}</span>
+                    <small>{{ entry.room || 'Sala por definir' }}</small>
+                  </button>
+                } @else if (block) {
+                  <button class="schedule-slot schedule-slot--empty schedule-mobile-slot" type="button" (click)="openCreateDialog(block.id)">
+                    <mat-icon>add</mat-icon>
+                    <span>Agregar horario</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+
       <div class="schedule-board-shell">
         <div class="schedule-board-head">
           <div class="schedule-day-label schedule-day-label--time">Hora</div>

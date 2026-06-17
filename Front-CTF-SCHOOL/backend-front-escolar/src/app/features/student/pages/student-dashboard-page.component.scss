@@ -12,6 +12,9 @@
   --student-font-micro:.68rem;
 }
 .student-content{padding:0 0 2rem;display:block;min-height:0}
+.student-content--grades{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
+.student-content--schedule{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
+.student-content--attendance{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
 .student-content__inner{display:grid;gap:.9rem;align-content:start;padding-top:0;min-height:100%}
 .student-toolbar,.courses-browser__header,.schedule-browser__header,.grades-browser__header,.panel-header,.course-item,.schedule-item,.grade-item,.activity-item,.grade-history-row,.schedule-title,.grades-title,.grades-subject-cell{display:flex;align-items:center}
 .student-toolbar{position:sticky;top:0;left:0;right:0;width:100%;z-index:20;justify-content:space-between;gap:1rem;padding:.8rem 2rem;border-radius:0;background:linear-gradient(90deg,#0d57b6 0%,#1664d0 55%,#0f56b0 100%);box-shadow:0 12px 24px rgba(17,74,150,.14)}
@@ -180,47 +183,85 @@
 .courses-browser__header p,.schedule-browser__header p,.grades-browser__header p{margin:.25rem 0 0;color:#6b8099;font-size:.95rem}
 .courses-browser__header mat-chip{background:#e8f1ff;color:#2a5b96;font-weight:700}
 .hero-year{min-width:62px;padding:.55rem .8rem;border-radius:14px;background:#fff;text-align:center;font-weight:700;color:#5d6f86;box-shadow:inset 0 0 0 1px rgba(33,67,118,.08)}
-.grades-summary-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
-.grades-summary-card{min-height:116px;padding:1rem 1.05rem;display:grid;align-content:center;justify-items:center;text-align:center;gap:.3rem;border-radius:20px;background:#fff;box-shadow:0 8px 30px rgba(36,58,111,.05), inset 0 0 0 1px rgba(33,67,118,.06)}
-.grades-summary-card strong{color:#0f172a;font-size:1.5rem;line-height:1;font-weight:800}
-.tone-brand-soft{background:linear-gradient(180deg,#eef4ff 0%,#f9fbff 100%)}
-.tone-success-soft{background:linear-gradient(180deg,#edf9ef 0%,#fbfefb 100%)}
-.tone-violet-soft{background:linear-gradient(180deg,#f1eeff 0%,#fbfaff 100%)}
 .grades-title__icon,.schedule-title__icon{width:42px;height:42px;border-radius:12px;background:#eef4ff;color:#2c66c8}
-.grades-table-card{--grade-column-count:4;box-shadow:inset 0 0 0 1px rgba(33,67,118,.08);border-radius:24px;background:rgba(255,255,255,.96)}
-.grades-table{display:grid;grid-template-columns:minmax(220px,1.6fr) repeat(var(--grade-column-count),minmax(92px,.72fr)) minmax(100px,.82fr) minmax(100px,.82fr);align-items:center;gap:.75rem;padding:.95rem 1.1rem}
-.grades-table--header{color:#5c7088;font-size:var(--student-font-label);font-weight:800;border-bottom:1px solid rgba(33,67,118,.08)}
-.grades-table--row{border-bottom:1px solid rgba(33,67,118,.06);background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)}
-.grades-table--row:last-child{border-bottom:0}
-.grades-subject-cell{gap:.9rem;min-width:0}
-.grades-subject-cell__icon{width:42px;height:42px;border-radius:12px}
-.grades-subject-copy{gap:.12rem}
-.grades-subject-copy span{color:#6d8198;font-size:var(--student-font-body);font-weight:600}
-.grades-score-cell{display:grid;justify-items:center;gap:.18rem;text-align:center}
-.grades-score-cell__value,.grades-score-cell>span{color:#173553;font-weight:700}
-.grades-score-cell__label{color:#74869b;font-size:var(--student-font-meta);line-height:1.2}
-.grades-score-cell--empty{color:#97a6b7!important}
 .grades-pill{box-shadow:inset 0 0 0 1px rgba(61,155,69,.08)}
-.grades-pill.is-latest{background:#edf4ff;color:#2f6fc9;box-shadow:inset 0 0 0 1px rgba(47,111,201,.08)}
-.grades-bottom-grid{grid-template-columns:minmax(0,2fr) minmax(260px,.8fr)}
-.grades-history-card{padding-bottom:.2rem}
-.grades-history-list{gap:.75rem;padding-top:1rem}
-.grade-history-row{gap:.8rem;padding:.85rem .95rem;border-radius:16px;background:#f8fbff}
-.grade-history-row:nth-child(5n + 1){background:linear-gradient(180deg,#eef4ff 0%,#f8fbff 100%)}
-.grade-history-row:nth-child(5n + 2){background:linear-gradient(180deg,#eef8ef 0%,#f9fdf9 100%)}
-.grade-history-row:nth-child(5n + 3){background:linear-gradient(180deg,#fff2e5 0%,#fffaf5 100%)}
-.grade-history-row:nth-child(5n + 4){background:linear-gradient(180deg,#f0ebff 0%,#faf8ff 100%)}
-.grade-history-row:nth-child(5n + 5){background:linear-gradient(180deg,#ecf5ff 0%,#f8fbff 100%)}
-.grade-history-row span{color:#62768f}
-.grades-average-card{align-content:start;gap:.85rem;padding:1.3rem;background:linear-gradient(180deg,#f4f8ff 0%,#eef5ff 100%);box-shadow:inset 0 0 0 1px rgba(33,67,118,.08);display:grid;border-radius:24px}
-.grades-average-card__icon{width:52px;height:52px;border-radius:16px;background:#e7f0ff;color:#2d68c8;display:grid;place-items:center}
-.grades-average-card span{color:#305b92;font-weight:700}
-.grades-average-card strong{color:#1b56b6;font-size:3rem;line-height:1}
-.grades-average-card p{color:#5f738a;line-height:1.45;margin:0}
+.grades-browser--compact{display:grid;gap:.82rem;padding:0!important}
+.grades-browser--compact .grades-browser__header{margin-bottom:.15rem!important}
+.grades-browser--compact .grades-browser__header h2{font-size:1.48rem}
+.grades-browser--compact .grades-browser__header p{font-size:.86rem;margin-top:.18rem}
+.grades-layout{display:grid;gap:.82rem;align-items:start}
+.grades-layout--stacked{grid-template-columns:1fr}
+.grades-layout__main{display:grid;gap:.82rem;min-width:0}
+.grades-summary-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.72rem}
+.grades-summary-inline-card{min-height:116px;padding:1rem 1.05rem;border-radius:20px;border:1px solid #edf1f7;box-shadow:0 8px 30px rgba(36,58,111,.05);display:grid;align-content:center;justify-items:center;text-align:center}
+.grades-summary-inline-card__head{display:flex;justify-content:center;margin-bottom:.85rem}
+.grades-summary-inline-card__icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
+.grades-summary-inline-card__icon mat-icon{font-size:20px;width:20px;height:20px}
+.grades-summary-inline-card span{display:block;font-size:.74rem;font-weight:600;color:#8a9bb5}
+.grades-summary-inline-card strong{display:block;font-size:1.5rem;font-weight:800;color:#0f172a}
+.grades-summary-inline-card--violet strong{color:#5f35f2}
+.grades-summary-inline-card--brand strong{color:#2f65e1}
+.grades-summary-inline-card--warning strong{color:#d97706}
+.grades-summary-inline-card--success strong{color:#0f9d6b}
+.grades-filter-bar{display:grid;grid-template-columns:1.4fr minmax(210px,.82fr);gap:.7rem}
+.grades-search-field,.grades-select-field{height:42px;border:1px solid #dde5f1;border-radius:12px;background:#fff;display:flex;align-items:center;padding:0 12px;gap:.58rem;color:#647089}
+.grades-search-field input,.grades-select-field select{border:0;outline:0;width:100%;font:inherit;background:transparent;color:#0b1739}
+.grades-select-field{position:relative}
+.grades-select-field select{appearance:none;padding-right:1.5rem;font-size:var(--student-font-body);font-weight:650}
+.grades-select-field mat-icon{position:absolute;right:12px;color:#647089;pointer-events:none}
+.grades-modern-table{border:1px solid #e5eaf3;border-radius:18px;background:#fff;overflow:hidden}
+.grades-modern-table__header,.grades-modern-row{display:grid;grid-template-columns:minmax(200px,1.7fr) repeat(3,minmax(62px,.54fr)) minmax(96px,.64fr) minmax(108px,.72fr);align-items:center;gap:.58rem;padding:.74rem .9rem}
+.grades-modern-table__header{background:#fbfcff;border-bottom:1px solid #edf1f7;color:#33415f;font-size:var(--student-font-label);font-weight:800}
+.grades-modern-table__header>div{text-align:center;justify-self:center}
+.grades-modern-table__header>div:first-child{text-align:left;justify-self:start}
+.grades-modern-row{width:100%;border:0;border-top:1px solid #edf1f7;background:#fff;text-align:left;font:inherit;cursor:pointer;transition:.18s ease}
+.grades-modern-row:hover{background:#faf7ff}
+.grades-modern-row.is-selected{background:linear-gradient(90deg,#f3edff,#fff)}
+.grades-modern-row__subject{display:flex;align-items:center;gap:.72rem;min-width:0}
+.grades-modern-row__icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto}
+.grades-modern-row__icon mat-icon{font-size:18px;width:18px;height:18px}
+.grades-modern-row__subject strong{font-size:var(--student-font-body);color:#0b1739}
+.grades-modern-row__score{font-size:var(--student-font-body);font-weight:800;color:#173553}
+.grades-modern-row__score,.grades-modern-row__average,.grades-modern-row__status{display:grid;justify-items:center}
+.grades-pill--violet{background:#f1eaff!important;color:#5f35f2!important;box-shadow:inset 0 0 0 1px rgba(95,53,242,.08)!important}
+.grades-status-pill{display:inline-flex;min-width:88px;height:28px;border-radius:10px;align-items:center;justify-content:center;padding:0 .65rem;font-size:var(--student-font-meta);font-weight:850}
+.grades-status-pill.status-featured{background:#f0eaff;color:#6236f5}
+.grades-status-pill.status-day{background:#eaf4ff;color:#1767d8}
+.grades-status-pill.status-excellent{background:#eaf9ec;color:#22943a}
+.grades-status-pill.status-pending{background:#f1f5f9;color:#64748b}
+.grades-browser--flat{gap:1rem;padding:0;background:transparent;border-radius:0;box-shadow:none}
+.grades-browser--flat .grades-browser__header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:1rem;margin-bottom:0}
+.grades-bottom-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.82rem}
+.grades-side-card{padding:.95rem .92rem;border-radius:18px;background:#fff;border:1px solid #e5eaf3;box-shadow:0 1px 2px rgba(15,23,42,.02)}
+.grades-side-card__title{display:flex;align-items:center;gap:.6rem;margin-bottom:.82rem}
+.grades-side-card__title mat-icon{color:#6236f5}
+.grades-side-card__title h3{margin:0;font-size:var(--student-font-section);font-weight:900;color:#0f2550}
+.grades-side-card__title--pink mat-icon{color:#ec2786}
+.grades-side-item{display:flex;align-items:center;gap:.72rem;margin-bottom:.8rem}
+.grades-side-item:last-child{margin-bottom:0}
+.grades-side-item__icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto}
+.grades-side-item__icon mat-icon{font-size:18px;width:18px;height:18px}
+.grades-side-item span{display:block;color:#647089;font-size:var(--student-font-meta)}
+.grades-side-item strong{display:block;font-size:.98rem;font-weight:900;line-height:1.2;color:#0b1739;margin-top:.04rem}
+.grades-side-card h4{margin:0 0 .65rem;font-size:1rem;font-weight:900;color:#0f2550}
+.grades-side-card p{margin:.16rem 0;color:#273554;font-size:var(--student-font-body);line-height:1.3}
+.grades-detail-row{height:34px;border-bottom:1px solid #edf1f7;display:flex;align-items:center;justify-content:space-between}
+.grades-detail-row span{color:#55637c;font-size:var(--student-font-body)}
+.grades-detail-row strong{font-weight:900;color:#0b1739}
+.grades-detail-row--final{height:40px;border-bottom:0;margin-top:.18rem}
+.grades-mobile-cards{display:none}
+.grades-mobile-card{display:grid;gap:.68rem;padding:.88rem;border-radius:18px;background:#fff;border:1px solid #e5eaf3}
+.grades-mobile-card.is-selected{background:linear-gradient(180deg,#faf7ff 0%,#fff 100%);border-color:#ddd6fe}
+.grades-mobile-card__head{display:flex;align-items:center;justify-content:space-between;gap:.8rem}
+.grades-mobile-card__scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.58rem}
+.grades-mobile-card__scores div{padding:.55rem .62rem;border-radius:12px;background:#f8fbff;display:grid;gap:.08rem}
+.grades-mobile-card__scores span{font-size:var(--student-font-meta);color:#647089;font-weight:700}
+.grades-mobile-card__scores strong{font-size:var(--student-font-body);color:#0b1739;font-weight:900}
 .schedule-browser{display:grid;gap:.7rem;padding:.9rem .95rem 1rem;border-radius:24px;background:rgba(255,255,255,.96)}
 .schedule-browser__header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;column-gap:1rem;margin-bottom:0}
 .schedule-title{display:flex;align-items:center;gap:.8rem}
 .schedule-browser__actions{display:flex;align-items:center;justify-content:flex-end;justify-self:end}
+.schedule-browser--flat{gap:1rem;padding:0!important;background:none}
 .schedule-browser,.student-schedule-pdf-card{--sched-minw:980px;--sched-timew:108px;--sched-rowh:68px;--sched-headh:52px;--sched-cell-pad:5px 6px;--sched-time-pad:6px 6px;--sched-time-size:.8rem;--sched-day-pad:8px 4px;--sched-day-size:.8rem;--sched-card-pad:8px 10px;--sched-card-radius:12px;--sched-gap:8px;--sched-icon:24px;--sched-icon-radius:8px;--sched-icon-size:13px;--sched-name-size:.76rem}
 .schedule-browser{--sched-minw:900px;--sched-timew:92px;--sched-rowh:56px;--sched-headh:44px;--sched-cell-pad:4px 5px;--sched-time-pad:5px 5px;--sched-time-size:.74rem;--sched-day-pad:6px 4px;--sched-day-size:.74rem;--sched-card-pad:6px 8px;--sched-card-radius:10px;--sched-gap:7px;--sched-icon:22px;--sched-icon-radius:7px;--sched-icon-size:12px;--sched-name-size:.72rem}
 .schedule-browser .schedule-table-wrap{overflow-x:auto;padding-bottom:.15rem;display:flex;justify-content:center}
@@ -230,20 +271,48 @@
 .schedule-browser .sch-row:not(.header):not(:last-child),.student-schedule-pdf-table .sch-row:not(.header):not(:last-child){border-bottom:1px solid #e2e8f0}
 .schedule-browser .sch-cell,.student-schedule-pdf-table .sch-cell{padding:var(--sched-cell-pad);display:flex;flex-direction:column;justify-content:center}
 .schedule-browser .sch-cell:not(:last-child),.student-schedule-pdf-table .sch-cell:not(:last-child){border-right:1px solid #e2e8f0}
-.schedule-browser .sch-cell.time,.student-schedule-pdf-table .sch-cell.time{padding:var(--sched-time-pad);justify-content:center;align-items:flex-start;line-height:1.15;color:#64748b;font-size:var(--sched-time-size);font-weight:800;text-align:left;white-space:nowrap}
+.schedule-browser .sch-cell.time,.student-schedule-pdf-table .sch-cell.time{padding:var(--sched-time-pad);justify-content:center;align-items:center;line-height:1.15;color:#64748b;font-size:var(--sched-time-size);font-weight:800;text-align:center;white-space:nowrap}
 .schedule-browser .sch-cell.time span,.student-schedule-pdf-table .sch-cell.time span{display:inline}
 .schedule-browser .day-header,.student-schedule-pdf-table .day-header{text-align:center;padding:var(--sched-day-pad)}
 .schedule-browser .day-name,.student-schedule-pdf-table .day-name{font-size:var(--sched-day-size);font-weight:800;color:#64748b;margin-bottom:0}
-.schedule-browser .day-header.active,.student-schedule-pdf-table .day-header.active{background:#ede9fe}
-.schedule-browser .day-header.active .day-name,.student-schedule-pdf-table .day-header.active .day-name{color:#4f46e5}
+.schedule-browser .day-header.active,.student-schedule-pdf-table .day-header.active{background:#194a8d}
+.schedule-browser .day-header.active .day-name,.student-schedule-pdf-table .day-header.active .day-name{color:#fff}
+.day-today-label{font-size:.72rem;font-weight:800;color:#dbeafe;letter-spacing:.04em}
 .schedule-browser .subj-card,.student-schedule-pdf-table .subj-card{border-radius:var(--sched-card-radius);padding:var(--sched-card-pad);height:100%;display:flex;align-items:center;border:1px solid transparent}
 .schedule-browser .subj-top,.student-schedule-pdf-table .subj-top{display:flex;align-items:center;gap:var(--sched-gap);width:100%}
 .schedule-browser .subj-icon,.student-schedule-pdf-table .subj-icon{width:var(--sched-icon);height:var(--sched-icon);border-radius:var(--sched-icon-radius);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .schedule-browser .subj-icon mat-icon,.student-schedule-pdf-table .subj-icon mat-icon{font-size:var(--sched-icon-size);width:var(--sched-icon-size);height:var(--sched-icon-size)}
 .schedule-browser .subj-name,.student-schedule-pdf-table .subj-name{font-size:var(--sched-name-size);font-weight:800;line-height:1.15}
+.schedule-mobile-shell,.schedule-mobile-tabs,.schedule-mobile-list{display:none}
+.schedule-mobile-shell{padding:.15rem .2rem .95rem}
+.schedule-mobile-card{background:#fff;border:1px solid #dbe5f3;border-radius:28px;padding:.95rem .95rem 1rem;box-shadow:0 10px 30px rgba(33,67,118,.06)}
+.schedule-mobile-card__title{margin:0 0 .95rem;text-align:center;font-size:1.05rem;font-weight:900;color:#0f2550}
+.schedule-mobile-tabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:.55rem;padding:1rem .95rem .35rem}
+.schedule-mobile-tab{border:1px solid #d6e2f2;border-radius:18px;background:#fff;color:#6a7892;padding:.82rem .35rem;font-size:.76rem;font-weight:800;line-height:1;cursor:pointer;transition:all .2s ease;box-shadow:0 2px 10px rgba(31,52,96,.03)}
+.schedule-mobile-tab--active{background:#194a8d;border-color:#194a8d;color:#fff;box-shadow:none}
+.schedule-mobile-list{gap:.9rem;padding:.2rem .95rem 1rem}
+.schedule-mobile-row{display:grid;grid-template-columns:106px minmax(0,1fr);gap:.8rem;align-items:stretch}
+.schedule-mobile-row__time{display:flex;align-items:center;justify-content:flex-start;padding:1rem .95rem;border-radius:22px;background:#fff;border:1px solid #dde6f4;color:#0f2550;box-shadow:0 4px 18px rgba(31,52,96,.04)}
+.schedule-mobile-row__time strong{font-size:.82rem;font-weight:900;line-height:1.25}
+.schedule-mobile-row__content{min-width:0}
+.schedule-mobile-slot{min-height:98px;position:relative;overflow:hidden;border-radius:20px!important;box-shadow:0 4px 18px rgba(31,52,96,.04)}
+.schedule-mobile-slot::before{content:"";position:absolute;left:10px;right:10px;top:8px;height:3px;border-radius:999px;background:var(--schedule-subject-accent,#9ca3af);opacity:.9}
+.schedule-mobile-slot .subj-icon{display:none}
+.schedule-mobile-slot .subj-name{font-size:.85rem;font-weight:900;color:#10234a}
+.schedule-mobile-slot small{font-size:.75rem!important;line-height:1.25!important;color:#54708f!important;opacity:1!important}
+.schedule-mobile-break{width:100%;border:0;border-radius:24px;padding:.98rem 1rem;background:linear-gradient(90deg,#fff8df 0%,#fff3c7 48%,#fff8df 100%);color:#b86200;display:flex;align-items:center;gap:.75rem;box-shadow:0 4px 18px rgba(172,109,0,.08)}
+.schedule-mobile-break .mat-icon{width:18px;height:18px;font-size:18px;flex-shrink:0}
+.schedule-mobile-break__copy{display:grid;gap:.08rem;justify-items:start;text-align:left}
+.schedule-mobile-break__copy strong{font-size:.82rem;font-weight:900}
+.schedule-mobile-break__copy span{font-size:.74rem;font-weight:800;color:#d97706}
+.break-row{grid-column:span 5;display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.5rem .75rem;background:linear-gradient(90deg,#fff8df 0%,#fff3c7 48%,#fff8df 100%);color:#b86200;border-right:1px solid #e2e8f0}
+.break-row .mat-icon{width:15px;height:15px;font-size:15px}
+.break-row span{font-size:.72rem;font-weight:800}
+.break-row small{font-size:.64rem;font-weight:700;color:#d97706}
 .schedule-browser .subj-card--dynamic,.student-schedule-pdf-table .subj-card--dynamic{background:var(--schedule-subject-bg);border-color:var(--schedule-subject-border)}
 .schedule-browser .subj-card--dynamic .subj-icon,.student-schedule-pdf-table .subj-card--dynamic .subj-icon{background:var(--schedule-subject-icon-bg);color:var(--schedule-subject-accent)}
 .schedule-browser .subj-card--dynamic .subj-name,.student-schedule-pdf-table .subj-card--dynamic .subj-name{color:var(--schedule-subject-accent)}
+.student-schedule-info-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:.8rem;align-items:start}
 .sc-mat{background:#f5f3ff;border-color:#ddd6fe}.sc-mat .subj-icon{background:#ede9fe;color:#7c3aed}.sc-mat .subj-name{color:#5b21b6}
 .sc-len{background:#eff6ff;border-color:#bfdbfe}.sc-len .subj-icon{background:#dbeafe;color:#2563eb}.sc-len .subj-name{color:#1e40af}
 .sc-cnat{background:#ecfdf5;border-color:#a7f3d0}.sc-cnat .subj-icon{background:#d1fae5;color:#059669}.sc-cnat .subj-name{color:#065f46}
@@ -267,6 +336,20 @@
 .student-schedule-pdf-brand strong{display:block;font-size:1rem;color:#173553}
 .student-schedule-pdf-brand small{font-size:.72rem;color:#64748b;margin-top:2px}
 .student-schedule-pdf-brand small + small{margin-top:1px;color:#4b5563}
+
+@media (max-width: 760px){
+  .schedule-browser .schedule-mobile-shell{display:block}
+  .schedule-browser .schedule-mobile-tabs{display:grid}
+  .schedule-browser .schedule-mobile-list{display:grid}
+  .schedule-browser .schedule-table{display:none!important}
+  .schedule-browser .schedule-mobile-tabs .schedule-mobile-tab:last-child{grid-column:1 / -1}
+  .schedule-browser .schedule-browser__header{grid-template-columns:minmax(0,1fr)}
+  .schedule-browser .schedule-browser__actions{justify-self:stretch;justify-content:flex-start}
+  .schedule-browser .student-export-button{width:100%}
+  .student-schedule-info-grid{grid-template-columns:1fr;gap:.9rem}
+  .student-schedule-info-card{width:100%}
+  .student-schedule-tip-card{display:grid!important;align-items:start!important;justify-items:start;gap:.6rem;padding:1rem!important}
+}
 .subjects-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
 .subject-card{gap:.9rem;padding:1rem;box-shadow:inset 0 0 0 1px rgba(33,67,118,.08);display:grid}
 .subject-card__footer{gap:.65rem;display:grid}
@@ -287,13 +370,13 @@
   .notas-grid{grid-template-columns:repeat(3,1fr)}
   .quick-grid{grid-template-columns:repeat(2,1fr)}
   .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .overview-panels,.subjects-card-grid,.grades-bottom-grid,.grades-summary-row,.student-subjects-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .overview-panels,.subjects-card-grid,.student-subjects-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grades-bottom-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
   .schedule-grid{grid-template-columns:50px repeat(5,minmax(92px,1fr));overflow-x:auto}
-  .grades-table{grid-template-columns:minmax(220px,1.6fr) repeat(var(--grade-column-count),minmax(84px,.72fr)) minmax(88px,.8fr) minmax(88px,.8fr)}
 }
 
 @media (max-width:900px){
-  .dashboard-grid,.lower-grid,.stats-grid,.overview-panels,.subjects-card-grid,.grades-bottom-grid,.grades-summary-row,.two,.student-subjects-grid{grid-template-columns:1fr}
+  .dashboard-grid,.lower-grid,.stats-grid,.overview-panels,.subjects-card-grid,.two,.student-subjects-grid{grid-template-columns:1fr}
   .hero-banner{grid-template-columns:1fr}
   .hero-stats{grid-template-columns:repeat(2,1fr)}
   .notas-grid{grid-template-columns:repeat(2,1fr)}
@@ -303,10 +386,24 @@
   .student-toolbar__actions{justify-content:space-between}
   .student-toolbar__profile{width:100%;justify-content:flex-start}
   .student-content{padding:0 0 1.25rem;min-height:0}
+  .student-content--grades{margin:-1rem -1rem -1.5rem;padding:1rem 1rem 1.5rem}
+  .student-content--schedule{margin:-1rem -1rem -1.5rem;padding:1rem 1rem 1.5rem}
+  .student-content--attendance{margin:-1rem -1rem -1.5rem;padding:1rem 1rem 1.5rem}
   .student-content__inner{padding-top:0}
   .schedule-browser__header{grid-template-columns:1fr}
   .schedule-browser__actions{width:100%;justify-content:flex-start;justify-self:start}
-  .grades-table-card,.schedule-board{overflow-x:auto}
-  .grades-table{min-width:860px}
+  .schedule-board{overflow-x:auto}
   .schedule-grid{min-width:520px}
+  .grades-summary-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grades-filter-bar{grid-template-columns:1fr}
+  .grades-bottom-cards{grid-template-columns:1fr}
+}
+
+
+@media (max-width:760px){
+  .grades-browser--flat .grades-browser__header{grid-template-columns:1fr}
+  .grades-browser__header--compact{grid-template-columns:1fr!important}
+  .grades-summary-strip{grid-template-columns:1fr}
+  .grades-modern-table{display:none}
+  .grades-mobile-cards{display:grid;gap:.85rem}
 }

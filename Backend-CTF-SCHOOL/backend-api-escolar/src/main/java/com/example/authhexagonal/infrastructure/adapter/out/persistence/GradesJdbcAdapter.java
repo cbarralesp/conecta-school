@@ -8,6 +8,7 @@ import com.example.authhexagonal.domain.model.GradeSaveCommand;
 import com.example.authhexagonal.domain.model.GradeScoreEntry;
 import com.example.authhexagonal.domain.model.GradeStudentInfo;
 import com.example.authhexagonal.domain.model.GradeSubjectTab;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankRow;
 import com.example.authhexagonal.domain.port.out.ManageGradesPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -99,7 +100,11 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     @Override
     public List<GradeSubjectTab> findSubjectsByCourseAndPeriod(Long courseId, Long periodId) {
         return jdbcTemplate.query("""
-                SELECT DISTINCT s."ID", s."NOMBRE", s."COLOR_HEX"
+                SELECT DISTINCT
+                  s."ID",
+                  s."NOMBRE",
+                  s."COLOR_HEX",
+                  'NUMERICA' AS "TIPO_EVALUACION"
                 FROM (
                   %s
                 ) course_subjects
@@ -115,14 +120,16 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 """.formatted(activeCourseSubjectsSubquery()), (rs, rowNum) -> new GradeSubjectTab(
                 rs.getLong("ID"),
                 rs.getString("NOMBRE"),
-                rs.getString("COLOR_HEX")
+                rs.getString("COLOR_HEX"),
+                rs.getString("TIPO_EVALUACION")
         ), periodId, courseId);
     }
 
     @Override
     public List<GradeEvaluationHeader> findEvaluations(Long courseId, Long periodId, Long subjectId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "CODIGO", "NOMBRE", "ORDEN", "PONDERACION", "FECHA_EVALUACION"
+                SELECT "ID", "CODIGO", "NOMBRE", "ORDEN", "PONDERACION", "FECHA_EVALUACION",
+                       COALESCE(NULLIF(TRIM("TIPO_REGISTRO"), ''), 'SUMATIVA') AS "TIPO_REGISTRO"
                 FROM "EVALUACIONES"
                 WHERE "CURSO_ID" = ?
                   AND "PERIODO_ID" = ?
@@ -135,7 +142,8 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 rs.getString("NOMBRE"),
                 rs.getInt("ORDEN"),
                 rs.getObject("PONDERACION") == null ? null : rs.getDouble("PONDERACION"),
-                rs.getDate("FECHA_EVALUACION") == null ? null : rs.getDate("FECHA_EVALUACION").toLocalDate().toString()
+                rs.getDate("FECHA_EVALUACION") == null ? null : rs.getDate("FECHA_EVALUACION").toLocalDate().toString(),
+                rs.getString("TIPO_REGISTRO")
         ), courseId, periodId, subjectId);
     }
 
@@ -158,7 +166,7 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     @Override
     public List<GradeScoreEntry> findScores(Long courseId, Long periodId, Long subjectId) {
         return jdbcTemplate.query("""
-                SELECT cal."ALUMNO_ID", cal."EVALUACION_ID", cal."NOTA"
+                SELECT cal."ALUMNO_ID", cal."EVALUACION_ID", cal."NOTA", cal."VALOR_CONCEPTUAL", cal."PORCENTAJE_LOGRO"
                 FROM "CALIFICACIONES" cal
                 JOIN "EVALUACIONES" e ON e."ID" = cal."EVALUACION_ID"
                 WHERE e."CURSO_ID" = ?
@@ -172,7 +180,9 @@ public class GradesJdbcAdapter implements ManageGradesPort {
             return new GradeScoreEntry(
                     rs.getLong("ALUMNO_ID"),
                     rs.getLong("EVALUACION_ID"),
-                    score
+                    score,
+                    rs.getString("VALOR_CONCEPTUAL"),
+                    rs.getObject("PORCENTAJE_LOGRO") == null ? null : rs.getDouble("PORCENTAJE_LOGRO")
             );
         }, courseId, periodId, subjectId);
     }
@@ -185,15 +195,19 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                         "EVALUACION_ID",
                         "ALUMNO_ID",
                         "NOTA",
+                        "VALOR_CONCEPTUAL",
+                        "PORCENTAJE_LOGRO",
                         "OBSERVACION",
                         "ACTIVA",
                         "CREADO_EN",
                         "ACTUALIZADO_EN"
                     )
-                    VALUES (?, ?, ?, ?, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    VALUES (?, ?, ?, ?, ?, ?, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                     ON CONFLICT ("EVALUACION_ID", "ALUMNO_ID")
                     DO UPDATE SET
                         "NOTA" = EXCLUDED."NOTA",
+                        "VALOR_CONCEPTUAL" = EXCLUDED."VALOR_CONCEPTUAL",
+                        "PORCENTAJE_LOGRO" = EXCLUDED."PORCENTAJE_LOGRO",
                         "OBSERVACION" = EXCLUDED."OBSERVACION",
                         "ACTIVA" = TRUE,
                         "ACTUALIZADO_EN" = CURRENT_TIMESTAMP
@@ -201,7 +215,9 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                     command.evaluationId(),
                     command.studentId(),
                     command.score(),
-                    command.score() == null ? "Pendiente de registrar" : null
+                    command.conceptCode(),
+                    command.percentage(),
+                    command.score() == null && command.conceptCode() == null && command.percentage() == null ? "Pendiente de registrar" : null
             );
         }
     }
@@ -219,9 +235,10 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                     "ORDEN",
                     "PONDERACION",
                     "FECHA_EVALUACION",
+                    "TIPO_REGISTRO",
                     "ACTIVA"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 """,
                 command.courseId(),
                 command.periodId(),
@@ -230,7 +247,8 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 command.name(),
                 order,
                 command.weight(),
-                command.evaluationDate()
+                command.evaluationDate(),
+                command.registrationType()
         );
     }
 
@@ -241,7 +259,8 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 SET "CODIGO" = ?,
                     "NOMBRE" = ?,
                     "PONDERACION" = ?,
-                    "FECHA_EVALUACION" = ?
+                    "FECHA_EVALUACION" = ?,
+                    "TIPO_REGISTRO" = ?
                 WHERE "ID" = ?
                   AND "CURSO_ID" = ?
                   AND "PERIODO_ID" = ?
@@ -252,6 +271,7 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 command.name(),
                 command.weight(),
                 command.evaluationDate(),
+                command.registrationType(),
                 evaluationId,
                 command.courseId(),
                 command.periodId(),
@@ -300,7 +320,12 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                   s."ID" AS subject_id,
                   s."NOMBRE" AS subject_name,
                   s."COLOR_HEX",
-                  ROUND(AVG(cal."NOTA")::numeric, 1) AS average_score
+                  'NUMERICA' AS evaluation_type,
+                  ROUND(AVG(CASE
+                      WHEN COALESCE(NULLIF(TRIM(e."TIPO_REGISTRO"), ''), 'SUMATIVA') = 'DIAGNOSTICA' THEN NULL
+                      ELSE cal."NOTA"
+                  END)::numeric, 1) AS average_score,
+                  NULL AS concept_summary_code
                 FROM "MATRICULAS" m
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN (
@@ -327,8 +352,81 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 rs.getLong("subject_id"),
                 rs.getString("subject_name"),
                 rs.getString("COLOR_HEX"),
-                rs.getObject("average_score") == null ? null : rs.getDouble("average_score")
+                rs.getObject("average_score") == null ? null : rs.getDouble("average_score"),
+                rs.getString("evaluation_type"),
+                rs.getString("concept_summary_code")
         ), periodId, courseId);
+    }
+
+    @Override
+    public List<PedagogicalQuestionBankRow> findPedagogicalQuestionBank(String levelCode) {
+        if (!tableExists("PEDAGOGICAL_QUESTION_BANK")) {
+            return List.of();
+        }
+        return jdbcTemplate.query("""
+                SELECT "ID", "AREA_KEY", "LEVEL_CODE", "QUESTION_KIND", "QUESTION_TEXT", "SORT_ORDER"
+                FROM "PEDAGOGICAL_QUESTION_BANK"
+                WHERE "ACTIVO" = TRUE
+                  AND "LEVEL_CODE" IN ('GENERAL', ?)
+                ORDER BY
+                    CASE "AREA_KEY"
+                        WHEN 'personal-social' THEN 1
+                        WHEN 'lenguaje-verbal' THEN 2
+                        WHEN 'area-motriz' THEN 3
+                        WHEN 'area-cognitiva' THEN 4
+                        WHEN 'actitudes-aprendizaje' THEN 5
+                        WHEN 'family-recommendations' THEN 6
+                        ELSE 99
+                    END,
+                    "SORT_ORDER",
+                    "ID"
+                """, (rs, rowNum) -> new PedagogicalQuestionBankRow(
+                rs.getLong("ID"),
+                rs.getString("AREA_KEY"),
+                rs.getString("LEVEL_CODE"),
+                rs.getString("QUESTION_KIND"),
+                rs.getString("QUESTION_TEXT"),
+                rs.getInt("SORT_ORDER")
+        ), levelCode);
+    }
+
+    @Override
+    public Optional<String> findPedagogicalReportContent(Long courseId, Long periodId, Long studentId) {
+        return jdbcTemplate.query("""
+                SELECT "CONTENIDO_JSON"::text AS content_json
+                FROM "INFORMES_PEDAGOGICOS"
+                WHERE "CURSO_ID" = ?
+                  AND "PERIODO_ID" = ?
+                  AND "ALUMNO_ID" = ?
+                  AND "ACTIVO" = TRUE
+                """, (rs, rowNum) -> rs.getString("content_json"), courseId, periodId, studentId).stream().findFirst();
+    }
+
+    @Override
+    public void savePedagogicalReportContent(Long courseId, Long periodId, Long studentId, String contentJson) {
+        syncSequence("INFORMES_PEDAGOGICOS", "ID");
+        jdbcTemplate.update("""
+                INSERT INTO "INFORMES_PEDAGOGICOS" (
+                    "CURSO_ID",
+                    "PERIODO_ID",
+                    "ALUMNO_ID",
+                    "CONTENIDO_JSON",
+                    "ACTIVO",
+                    "CREADO_EN",
+                    "ACTUALIZADO_EN"
+                )
+                VALUES (?, ?, ?, CAST(? AS jsonb), TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT ("CURSO_ID", "PERIODO_ID", "ALUMNO_ID")
+                DO UPDATE SET
+                    "CONTENIDO_JSON" = CAST(EXCLUDED."CONTENIDO_JSON" AS jsonb),
+                    "ACTIVO" = TRUE,
+                    "ACTUALIZADO_EN" = CURRENT_TIMESTAMP
+                """,
+                courseId,
+                periodId,
+                studentId,
+                contentJson
+        );
     }
 
     private String activeCourseSubjectsSubquery() {

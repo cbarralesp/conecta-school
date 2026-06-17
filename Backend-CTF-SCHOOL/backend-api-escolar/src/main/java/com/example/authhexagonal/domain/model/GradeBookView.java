@@ -9,6 +9,7 @@ public record GradeBookView(
         String periodName,
         Long subjectId,
         String subjectName,
+        String subjectEvaluationType,
         GradeBookSummary summary,
         List<GradeSubjectTab> subjects,
         List<GradeEvaluationHeader> evaluations,

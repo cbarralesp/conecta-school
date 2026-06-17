@@ -9,6 +9,7 @@ import com.example.authhexagonal.domain.model.StudentAttendanceSummary;
 import com.example.authhexagonal.domain.model.StudentAttendanceWeekDay;
 import com.example.authhexagonal.domain.port.out.LoadStudentAttendancePort;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
@@ -73,7 +74,7 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
         StudentAttendanceMonthSummary currentMonth = loadCurrentMonth(context.studentId(), context.schoolYear());
         List<StudentAttendanceWeekDay> currentWeek = loadCurrentWeek(context.studentId(), context.courseId());
         List<StudentAttendanceRecord> recentRecords = loadRecentRecords(context.studentId(), context.courseId());
-        List<StudentAttendanceHistoryDay> historyDays = loadHistoryDays(context.studentId(), context.schoolYear());
+        List<StudentAttendanceHistoryDay> historyDays = loadHistoryDays(context.studentId(), context.courseId(), context.schoolYear());
 
         return Optional.of(new StudentAttendanceDetail(
                 new StudentAttendanceHeader(
@@ -215,11 +216,12 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
         ), courseId, studentId);
     }
 
-    private List<StudentAttendanceHistoryDay> loadHistoryDays(Long studentId, int schoolYear) {
+    private List<StudentAttendanceHistoryDay> loadHistoryDays(Long studentId, Long courseId, int schoolYear) {
         LocalDate start = LocalDate.of(schoolYear, 3, 1);
         LocalDate end = LocalDate.of(schoolYear, 6, 30);
 
-        return jdbcTemplate.query("""
+        Map<LocalDate, String> historyByDate = new HashMap<>();
+        jdbcTemplate.query("""
                 SELECT
                     ar."FECHA" AS attendance_date,
                     ad."ESTADO" AS status
@@ -230,10 +232,39 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
                   AND ar."ACTIVO" = TRUE
                   AND ar."FECHA" BETWEEN ? AND ?
                 ORDER BY ar."FECHA"
-                """, (rs, rowNum) -> new StudentAttendanceHistoryDay(
-                rs.getDate("attendance_date").toLocalDate().toString(),
-                normalizeStatus(rs.getString("status"))
-        ), studentId, start, end);
+                """, (RowCallbackHandler) rs -> historyByDate.put(
+                        rs.getDate("attendance_date").toLocalDate(),
+                        normalizeStatus(rs.getString("status"))
+                ), studentId, start, end);
+
+        jdbcTemplate.query("""
+                SELECT
+                    t."CODIGO" AS activity_code,
+                    a."FECHA" AS start_date,
+                    COALESCE(a."FECHA_FIN", a."FECHA") AS end_date
+                FROM "ACTIVIDADES_ESCOLARES" a
+                JOIN "TIPOS_ACTIVIDAD" t ON t."ID" = a."TIPO_ACTIVIDAD_ID"
+                WHERE a."ACTIVO" = TRUE
+                  AND t."ACTIVO" = TRUE
+                  AND t."CODIGO" IN ('VACACIONES', 'FERIADO', 'INTERFERIADO', 'SUSPENSION')
+                  AND a."FECHA" <= ?
+                  AND COALESCE(a."FECHA_FIN", a."FECHA") >= ?
+                  AND (a."CURSO_ID" = ? OR a."CURSO_ID" IS NULL)
+                ORDER BY a."FECHA"
+                """, (RowCallbackHandler) rs -> {
+            String normalizedStatus = normalizeSpecialStatus(rs.getString("activity_code"));
+            LocalDate current = rs.getDate("start_date").toLocalDate();
+            LocalDate endDate = rs.getDate("end_date").toLocalDate();
+            while (!current.isAfter(endDate)) {
+                historyByDate.putIfAbsent(current, normalizedStatus);
+                current = current.plusDays(1);
+            }
+        }, end, start, courseId);
+
+        return historyByDate.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> new StudentAttendanceHistoryDay(entry.getKey().toString(), entry.getValue()))
+                .toList();
     }
 
     private LocalDate startOfWeek(LocalDate date) {
@@ -252,7 +283,20 @@ public class StudentAttendanceJdbcAdapter implements LoadStudentAttendancePort {
             case "PRESENTE" -> "Presente";
             case "ATRASO", "ATRASADO" -> "Atraso";
             case "AUSENTE" -> "Ausente";
-            case "SUSPENDIDO", "SUSPENSION", "SUSPENSIÓN" -> "Suspensión";
+            case "SUSPENDIDO", "SUSPENSION", "SUSPENSIÓN" -> "Suspension";
+            default -> "Sin registro";
+        };
+    }
+
+    private String normalizeSpecialStatus(String activityCode) {
+        if (activityCode == null || activityCode.isBlank()) {
+            return "Sin registro";
+        }
+        return switch (activityCode.trim().toUpperCase(CHILE)) {
+            case "VACACIONES" -> "Vacaciones";
+            case "FERIADO" -> "Feriado";
+            case "INTERFERIADO" -> "Interferiado";
+            case "SUSPENSION" -> "Suspension";
             default -> "Sin registro";
         };
     }

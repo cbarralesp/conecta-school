@@ -7,6 +7,7 @@ import com.example.authhexagonal.domain.model.GradePeriodOption;
 import com.example.authhexagonal.domain.model.GradeScoreEntry;
 import com.example.authhexagonal.domain.model.GradeStudentInfo;
 import com.example.authhexagonal.domain.model.GradeSubjectTab;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankRow;
 import com.example.authhexagonal.domain.model.GradeSaveCommand;
 import com.example.authhexagonal.domain.model.StudentSubjectAverage;
 
@@ -41,6 +42,12 @@ public interface ManageGradesPort {
 
     List<StudentSubjectAverageRow> findStudentSubjectAverages(Long courseId, Long periodId);
 
+    List<PedagogicalQuestionBankRow> findPedagogicalQuestionBank(String levelCode);
+
+    Optional<String> findPedagogicalReportContent(Long courseId, Long periodId, Long studentId);
+
+    void savePedagogicalReportContent(Long courseId, Long periodId, Long studentId, String contentJson);
+
     record StudentSubjectAverageRow(
             Long studentId,
             String run,
@@ -48,7 +55,9 @@ public interface ManageGradesPort {
             Long subjectId,
             String subjectName,
             String colorHex,
-            Double average
+            Double average,
+            String evaluationType,
+            String conceptSummaryCode
     ) {
     }
 }

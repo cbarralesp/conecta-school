@@ -8,6 +8,7 @@ public record GradeBookStudentRow(
         String fullName,
         List<GradeScoreCell> scores,
         Double average,
-        String status
+        String status,
+        String conceptSummaryCode
 ) {
 }

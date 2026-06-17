@@ -4,7 +4,7 @@
   dashboardRoute="/alumno"
   userRole="Alumno"
   searchPlaceholder="Buscar asistencia, asignaturas, actividades...">
-  <main class="attendance-content">
+  <main class="attendance-content attendance-content--filled">
     <div class="attendance-content__inner">
     <div class="attendance-page">
       @if (isLoading()) {
@@ -43,7 +43,6 @@
               <div class="summary-card__copy">
                 <strong>{{ card.value }}</strong>
                 <span>{{ card.title }}</span>
-                <small>{{ card.caption }}</small>
               </div>
             </mat-card>
           }
@@ -84,7 +83,7 @@
                     <strong class="calendar-month__title">{{ month.label }}</strong>
                     <div class="calendar-month__body">
                       <div class="calendar-month__weekdays">
-                        @for (weekday of month.weekdays; track weekday) {
+                        @for (weekday of heatmapWeekdays; track weekday) {
                           <span class="calendar-month__weekday">{{ weekday }}</span>
                         }
                       </div>
@@ -94,7 +93,7 @@
                             @for (cell of week.cells; track $index) {
                               <span class="calendar-month__cell" [class]="cell.statusClass" [attr.title]="cell.dayNumber !== null ? (cell.dayNumber + ': ' + cell.statusLabel) : null">
                                 @if (cell.dayNumber !== null) {
-                                  <small>{{ cell.dayNumber }}</small>
+                                  <strong [class.attendance-special-marker]="!!cell.specialMarker">{{ cell.specialMarker || cell.dayNumber }}</strong>
                                 }
                               </span>
                             }
@@ -108,6 +107,8 @@
 
               <div class="calendar-card__legend">
                 <span><i class="cd-vacation"></i>Vacaciones</span>
+                <span><i class="cd-holiday"></i>Interferiado</span>
+                <span><i class="cd-suspension"></i>Suspension</span>
                 <span><i class="cd-present"></i>Asistio</span>
                 <span><i class="cd-late"></i>Tardanza</span>
                 <span><i class="cd-absent"></i>Inasistencia</span>

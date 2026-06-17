@@ -6,13 +6,24 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { Course } from '../../../core/models/course.models';
-import { EnrollmentListItem } from '../../../core/models/enrollment.models';
+import { EnrollmentDetail, EnrollmentListItem } from '../../../core/models/enrollment.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { AttendanceApiService } from '../../../core/services/attendance-api.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
+import { GradeApiService } from '../../../core/services/grade-api.service';
+import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
+
+interface CourseStudentView extends EnrollmentListItem {
+  guardianPhone: string;
+  guardianEmail: string;
+  attendancePercentage: number | null;
+  overallAverage: number | null;
+  active: boolean;
+}
 
 @Component({
   selector: 'app-course-students-page',
@@ -24,6 +35,7 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
     MatSnackBarModule,
     MatTableModule,
     RouterLink,
+    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './course-students-page.component.html',
@@ -35,14 +47,16 @@ export class CourseStudentsPageComponent {
   private readonly router = inject(Router);
   private readonly courseApiService = inject(CourseApiService);
   private readonly enrollmentApiService = inject(EnrollmentApiService);
+  private readonly attendanceApiService = inject(AttendanceApiService);
+  private readonly gradeApiService = inject(GradeApiService);
   private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly user = this.authStateService.user;
   readonly courseId = Number(this.route.snapshot.paramMap.get('id'));
-  readonly displayedColumns = ['studentRun', 'fullName', 'guardian', 'enrollmentDate', 'status', 'actions'];
+  readonly displayedColumns = ['student', 'guardian', 'contact', 'attendance', 'average', 'status', 'actions'];
   readonly course = signal<Course | null>(null);
-  readonly enrollments = signal<EnrollmentListItem[]>([]);
+  readonly enrollments = signal<CourseStudentView[]>([]);
   readonly search = signal('');
   readonly isLoading = signal(true);
 
@@ -55,11 +69,33 @@ export class CourseStudentsPageComponent {
     return this.enrollments().filter((enrollment) =>
       enrollment.fullName.toLowerCase().includes(query) ||
       enrollment.studentRun.toLowerCase().includes(query) ||
-      enrollment.guardianFullName.toLowerCase().includes(query)
+      enrollment.guardianFullName.toLowerCase().includes(query) ||
+      enrollment.guardianPhone.toLowerCase().includes(query) ||
+      enrollment.guardianEmail.toLowerCase().includes(query)
     );
   });
 
   readonly totalStudents = computed(() => this.enrollments().length);
+  readonly activeStudents = computed(() => this.enrollments().filter((item) => item.active).length);
+  readonly guardiansRegistered = computed(() =>
+    this.enrollments().filter((item) => item.guardianFullName.trim().length > 0).length
+  );
+  readonly averageAttendance = computed(() => {
+    const values = this.enrollments()
+      .map((item) => item.attendancePercentage)
+      .filter((value): value is number => value != null);
+    if (!values.length) {
+      return null;
+    }
+    return Math.round(values.reduce((total, value) => total + value, 0) / values.length);
+  });
+
+  readonly summaryCards = computed(() => [
+    { label: 'Total alumnos', value: this.totalStudents(), icon: 'groups', tone: 'blue' },
+    { label: 'Activos', value: this.activeStudents(), icon: 'verified_user', tone: 'green' },
+    { label: 'Con apoderado registrado', value: this.guardiansRegistered(), icon: 'supervisor_account', tone: 'violet' },
+    { label: 'Promedio asistencia', value: this.averageAttendance() == null ? '—' : `${this.averageAttendance()}%`, icon: 'monitoring', tone: 'amber' }
+  ]);
 
   constructor() {
     this.loadPage();
@@ -107,6 +143,18 @@ export class CourseStudentsPageComponent {
       .join('');
   }
 
+  formatAttendance(value: number | null): string {
+    return value == null ? '—' : `${Math.round(value)}%`;
+  }
+
+  formatAverage(value: number | null): string {
+    return value == null ? '—' : value.toFixed(1);
+  }
+
+  hasContact(enrollment: CourseStudentView): boolean {
+    return enrollment.guardianPhone.trim().length > 0 || enrollment.guardianEmail.trim().length > 0;
+  }
+
   private loadPage(): void {
     if (!Number.isFinite(this.courseId) || this.courseId <= 0) {
       this.isLoading.set(false);
@@ -122,10 +170,8 @@ export class CourseStudentsPageComponent {
     }).subscribe({
       next: ({ course, overview }) => {
         this.course.set(course);
-        this.enrollments.set(
-          overview.enrollments.filter((enrollment) => enrollment.courseId === this.courseId)
-        );
-        this.isLoading.set(false);
+        const scopedEnrollments = overview.enrollments.filter((enrollment) => enrollment.courseId === this.courseId);
+        this.loadStudentData(course, scopedEnrollments);
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
@@ -135,9 +181,118 @@ export class CourseStudentsPageComponent {
     });
   }
 
+  private loadStudentData(course: Course, enrollments: EnrollmentListItem[]): void {
+    if (enrollments.length === 0) {
+      this.enrollments.set([]);
+      this.isLoading.set(false);
+      return;
+    }
+
+    const semester = this.resolveCurrentSemester();
+    const currentPeriod$ = this.gradeApiService.getCatalog().pipe(
+      catchError(() => of({ courses: [], periods: [] })),
+      of
+    );
+
+    forkJoin({
+      details: forkJoin(
+        enrollments.map((enrollment) =>
+          this.enrollmentApiService.getById(enrollment.id).pipe(catchError(() => of(null as EnrollmentDetail | null)))
+        )
+      ),
+      gradeCatalog: this.gradeApiService.getCatalog().pipe(catchError(() => of({ courses: [], periods: [] }))),
+      attendance: forkJoin(
+        enrollments.map((enrollment) =>
+          this.attendanceApiService
+            .getStudentSummary(course.id, enrollment.studentId, course.schoolYear, semester)
+            .pipe(catchError(() => of(null)))
+        )
+      )
+    }).subscribe({
+      next: ({ details, gradeCatalog, attendance }) => {
+        const period = gradeCatalog.periods.find(
+          (item) => item.schoolYear === course.schoolYear && item.semester === semester
+        );
+
+        if (!period) {
+          this.hydrateStudents(enrollments, details, attendance, []);
+          return;
+        }
+
+        this.gradeApiService.getStudentProfile(course.id, period.id).pipe(catchError(() => of(null))).subscribe({
+          next: (profile) => {
+            this.hydrateStudents(enrollments, details, attendance, profile?.students ?? []);
+          },
+          error: () => {
+            this.hydrateStudents(enrollments, details, attendance, []);
+          }
+        });
+      },
+      error: () => {
+        this.enrollments.set(enrollments.map((item) => this.toStudentView(item)));
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private hydrateStudents(
+    enrollments: EnrollmentListItem[],
+    details: Array<EnrollmentDetail | null>,
+    attendance: Array<{ percentage: number } | null>,
+    studentGrades: Array<{ studentId: number; overallAverage: number | null }>
+  ): void {
+    const detailsMap = new Map<number, EnrollmentDetail>();
+    details.forEach((detail) => {
+      if (detail) {
+        detailsMap.set(detail.id, detail);
+      }
+    });
+
+    const attendanceMap = new Map<number, number | null>();
+    attendance.forEach((summary, index) => {
+      attendanceMap.set(enrollments[index].studentId, summary?.percentage ?? null);
+    });
+
+    const gradesMap = new Map<number, number | null>();
+    studentGrades.forEach((student) => {
+      gradesMap.set(student.studentId, student.overallAverage);
+    });
+
+    this.enrollments.set(
+      enrollments.map((enrollment) => {
+        const detail = detailsMap.get(enrollment.id);
+        return {
+          ...this.toStudentView(enrollment),
+          guardianPhone: detail?.guardian.phone ?? '',
+          guardianEmail: detail?.guardian.email ?? '',
+          attendancePercentage: attendanceMap.get(enrollment.studentId) ?? null,
+          overallAverage: gradesMap.get(enrollment.studentId) ?? null
+        };
+      })
+    );
+    this.isLoading.set(false);
+  }
+
+  private toStudentView(enrollment: EnrollmentListItem): CourseStudentView {
+    return {
+      ...enrollment,
+      guardianPhone: '',
+      guardianEmail: '',
+      attendancePercentage: null,
+      overallAverage: null,
+      active: enrollment.status.trim().toUpperCase() === 'ACTIVO'
+    };
+  }
+
+  private resolveCurrentSemester(): number {
+    const month = new Date().getMonth() + 1;
+    return month >= 8 ? 2 : 1;
+  }
+
   private showError(error: HttpErrorResponse, fallback: string): void {
     this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
       duration: 3500
     });
   }
 }
+

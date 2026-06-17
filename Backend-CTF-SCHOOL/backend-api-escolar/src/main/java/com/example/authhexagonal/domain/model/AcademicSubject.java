@@ -8,6 +8,7 @@ public record AcademicSubject(
         String colorHex,
         String description,
         String referenceLevel,
+        String evaluationType,
         String displayLevel,
         int suggestedHours,
         boolean active,

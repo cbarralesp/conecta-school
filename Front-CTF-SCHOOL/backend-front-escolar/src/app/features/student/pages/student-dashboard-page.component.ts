@@ -14,8 +14,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ScheduleCatalog, ScheduleEntry } from '../../../core/models/schedule.models';
 import { StudentAttendanceDetail, StudentDashboard, StudentGradeEvaluation, StudentPortalSubject } from '../../../core/models/student.models';
 import { AuthService } from '../../../core/services/auth.service';
+import { ScheduleApiService } from '../../../core/services/schedule-api.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
@@ -27,6 +29,19 @@ type StudentSection =
   | 'grades'
   | 'attendance'
   | 'activities';
+
+type StudentScheduleViewItem = {
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  courseName: string;
+  subjectName: string;
+  room: string;
+  subjectColorHex?: string | null;
+  teacherName?: string | null;
+  blockType?: 'CLASE' | 'RECREO';
+  order?: number | null;
+};
 
 @Component({
   selector: 'app-student-dashboard-page',
@@ -55,6 +70,7 @@ export class StudentDashboardPageComponent {
 
   private readonly authService = inject(AuthService);
   private readonly studentApiService = inject(StudentApiService);
+  private readonly scheduleApiService = inject(ScheduleApiService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -65,9 +81,16 @@ export class StudentDashboardPageComponent {
   readonly studentSubjects = signal<StudentPortalSubject[]>([]);
   readonly activeSection = signal<StudentSection>('overview');
   readonly studentSearch = signal('');
+  readonly gradesSearch = signal('');
+  readonly gradesSubjectFilter = signal('all');
+  readonly selectedGradeSubjectName = signal<string | null>(null);
+  readonly selectedScheduleMobileDay = signal('LUNES');
   readonly isExportingSchedulePdf = signal(false);
   readonly isExportingReportPdf = signal(false);
   readonly isReportPreviewOpen = signal(false);
+  readonly studentScheduleCatalog = signal<ScheduleCatalog | null>(null);
+  readonly studentScheduleEntries = signal<ScheduleEntry[]>([]);
+  readonly studentSchedulePeriodId = signal<number | null>(null);
   readonly sidebarActiveItem = computed(() => {
     const section = this.activeSection();
     return section === 'overview' ? 'dashboard' : section === 'courses' ? 'subjects' : section;
@@ -237,13 +260,50 @@ export class StudentDashboardPageComponent {
   });
   readonly overviewActivities = computed(() => (this.dashboard()?.upcomingActivities ?? []).slice(0, 3));
   readonly performanceSubjects = computed(() => this.gradeSubjects().slice(0, 5));
+  readonly scheduleSourceItems = computed<StudentScheduleViewItem[]>(() => {
+    const scheduleEntries = this.studentScheduleEntries();
+
+    if (scheduleEntries.length > 0) {
+      return scheduleEntries.map((item) => ({
+        dayOfWeek: item.dayOfWeek,
+        startTime: item.startTime,
+        endTime: item.endTime,
+        courseName: item.courseName,
+        subjectName: item.subjectName,
+        room: item.room ?? '',
+        subjectColorHex: item.subjectColorHex ?? null,
+        teacherName: item.teacherFullName,
+        blockType: item.blockType as 'CLASE' | 'RECREO',
+        order: item.order
+      }));
+    }
+
+    return (this.dashboard()?.weeklySchedule ?? []).map((item) => ({
+      ...item,
+      teacherName: this.scheduleTeacherName(item.subjectName),
+      blockType: 'CLASE' as const,
+      order: null
+    }));
+  });
+  readonly scheduleCourseBlocks = computed(() =>
+    (this.studentScheduleCatalog()?.blocks ?? [])
+      .filter((block) => ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES'].includes(this.normalizeDayKey(block.dayOfWeek)))
+      .sort((left, right) => {
+        const startDiff = this.toMinutes(left.startTime) - this.toMinutes(right.startTime);
+        if (startDiff !== 0) {
+          return startDiff;
+        }
+
+        return left.order - right.order;
+      })
+  );
   readonly todaySchedule = computed(() => {
     const dayKey = this.normalizeDayKey(
       new Intl.DateTimeFormat('es-CL', { weekday: 'long' }).format(new Date())
     );
     const currentMinutes = this.nowMinutes();
 
-    return (this.dashboard()?.weeklySchedule ?? [])
+    return this.scheduleSourceItems()
       .filter((item) => this.normalizeDayKey(item.dayOfWeek) === dayKey)
       .sort((left, right) => this.toMinutes(left.startTime) - this.toMinutes(right.startTime))
       .map((item) => ({
@@ -366,6 +426,36 @@ export class StudentDashboardPageComponent {
   readonly totalEvaluationsCount = computed(() =>
     (this.dashboard()?.gradeSummary ?? []).reduce((sum, subject) => sum + subject.evaluations.length, 0)
   );
+  readonly gradesHighlightedCount = computed(
+    () => this.gradeSubjects().filter((subject) => (subject.average ?? 0) >= 6.5).length
+  );
+  readonly gradesLatestScore = computed(() => this.dashboard()?.latestGrades[0]?.score ?? null);
+  readonly gradesBestSubject = computed(() => {
+    const ordered = [...this.gradeSubjects()]
+      .filter((subject) => subject.average !== null)
+      .sort((left, right) => (right.average ?? 0) - (left.average ?? 0));
+    return ordered[0] ?? null;
+  });
+  readonly gradeSubjectOptions = computed(() => this.gradeSubjects().map((subject) => subject.subjectName));
+  readonly filteredGradeSubjects = computed(() => {
+    const query = this.gradesSearch().trim().toLowerCase();
+    const subjectFilter = this.gradesSubjectFilter();
+
+    return this.gradeSubjects().filter((subject) => {
+      const matchesQuery =
+        !query ||
+        subject.subjectName.toLowerCase().includes(query) ||
+        subject.evaluations.some((evaluation) => evaluation.evaluationName.toLowerCase().includes(query));
+      const matchesSubject = subjectFilter === 'all' || subject.subjectName === subjectFilter;
+      return matchesQuery && matchesSubject;
+    });
+  });
+  readonly selectedGradeSubject = computed(() => {
+    const selectedName = this.selectedGradeSubjectName();
+    const filtered = this.filteredGradeSubjects();
+    return filtered.find((subject) => subject.subjectName === selectedName) ?? filtered[0] ?? null;
+  });
+  readonly gradesRecentPublication = computed(() => this.recentGradeHistory()[0] ?? null);
   readonly reportSubjects = computed(() => {
     const subjectMap = new Map<string, {
       subjectName: string;
@@ -458,17 +548,82 @@ export class StudentDashboardPageComponent {
   });
   readonly scheduleRows = computed(() => {
     const palette = ['tone-brand', 'tone-success', 'tone-violet', 'tone-warning', 'tone-sky'];
-    const blocks = this.dashboard()?.weeklySchedule ?? [];
-    const startTimes = [...new Set(blocks.map((item) => item.startTime))].sort(
-      (left, right) => this.toMinutes(left) - this.toMinutes(right)
-    );
+    const items = this.scheduleSourceItems();
+    const courseBlocks = this.scheduleCourseBlocks();
+
+    if (courseBlocks.length > 0) {
+      const rowDefinitions = [...new Map(courseBlocks.map((block) => [`${block.order}-${block.startTime}-${block.endTime}`, block])).values()];
+
+      return rowDefinitions.map((rowBlock) => ({
+        startTime: rowBlock.startTime,
+        endTime: rowBlock.endTime,
+        blocks: this.scheduleDisplayWeekDays().map((day, index) => {
+          const block = courseBlocks.find(
+            (entry) => this.normalizeDayKey(entry.dayOfWeek) === day.key && entry.order === rowBlock.order
+          );
+
+          if (!block) {
+            return {
+              dayKey: day.key,
+              item: null,
+              tone: palette[index % palette.length]
+            };
+          }
+
+          if (block.blockType === 'RECREO') {
+            return {
+              dayKey: day.key,
+              item: {
+                dayOfWeek: block.dayOfWeek,
+                startTime: block.startTime,
+                endTime: block.endTime,
+                courseName: this.currentCourseLabel(),
+                subjectName: 'Recreo',
+                room: '',
+                subjectColorHex: '#f5b642',
+                teacherName: '',
+                blockType: 'RECREO' as const,
+                order: block.order,
+                isCurrent:
+                  this.toMinutes(block.startTime) <= this.nowMinutes() && this.nowMinutes() < this.toMinutes(block.endTime),
+                isPast: this.toMinutes(block.endTime) < this.nowMinutes()
+              },
+              tone: palette[index % palette.length]
+            };
+          }
+
+          const item =
+            items.find(
+              (entry) =>
+                this.normalizeDayKey(entry.dayOfWeek) === day.key &&
+                ((entry.order != null && entry.order === block.order) ||
+                  (entry.startTime === block.startTime && entry.endTime === block.endTime))
+            ) ?? null;
+
+          return {
+            dayKey: day.key,
+            item: item
+              ? {
+                  ...item,
+                  isCurrent:
+                    this.toMinutes(item.startTime) <= this.nowMinutes() && this.nowMinutes() < this.toMinutes(item.endTime),
+                  isPast: this.toMinutes(item.endTime) < this.nowMinutes()
+                }
+              : null,
+            tone: palette[index % palette.length]
+          };
+        })
+      }));
+    }
+
+    const startTimes = [...new Set(items.map((item) => item.startTime))].sort((left, right) => this.toMinutes(left) - this.toMinutes(right));
     const fallbackStarts = ['08:00', '08:45', '09:30', '10:15', '10:35', '11:20', '12:05', '12:50'];
     const visibleStarts = startTimes.length > 0 ? startTimes : fallbackStarts;
 
     return visibleStarts.map((startTime, rowIndex) => {
-      const rowBlocks = this.scheduleWeekDays().map((day, index) => {
+      const rowBlocks = this.scheduleDisplayWeekDays().map((day, index) => {
         const item =
-          blocks.find((block) => block.dayOfWeek.toUpperCase() === day.key && block.startTime === startTime) ?? null;
+          items.find((block) => this.normalizeDayKey(block.dayOfWeek) === day.key && block.startTime === startTime) ?? null;
 
         return {
           dayKey: day.key,
@@ -493,6 +648,42 @@ export class StudentDashboardPageComponent {
       };
     });
   });
+  readonly scheduleDisplayWeekDays = computed(() => {
+    const now = new Date();
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+    const monthFormatter = new Intl.DateTimeFormat('es-CL', { month: 'short' });
+    const todayKey = this.normalizeDayKey(new Intl.DateTimeFormat('es-CL', { weekday: 'long' }).format(now));
+
+    if (this.scheduleSourceItems().length === 0 && this.scheduleCourseBlocks().length === 0) {
+      return [];
+    }
+
+    return [
+      { key: 'LUNES', fullLabel: 'Lunes' },
+      { key: 'MARTES', fullLabel: 'Martes' },
+      { key: 'MIERCOLES', fullLabel: 'Miércoles' },
+      { key: 'JUEVES', fullLabel: 'Jueves' },
+      { key: 'VIERNES', fullLabel: 'Viernes' }
+    ].map((dayConfig, index) => {
+      const currentDate = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index);
+
+      return {
+        key: dayConfig.key,
+        fullLabel: dayConfig.fullLabel,
+        dayNumber: currentDate.getDate(),
+        monthLabel: monthFormatter.format(currentDate).replace('.', ''),
+        isToday: dayConfig.key === todayKey
+      };
+    });
+  });
+  readonly activeScheduleMobileDay = computed(
+    () => this.scheduleDisplayWeekDays().find((day) => day.key === this.selectedScheduleMobileDay())?.key
+      ?? this.scheduleDisplayWeekDays()[0]?.key
+      ?? 'LUNES'
+  );
   readonly attendanceOverview = computed(() => {
     const detail = this.attendance();
     if (!detail) {
@@ -512,6 +703,60 @@ export class StudentDashboardPageComponent {
     const radius = 14;
     const circumference = 2 * Math.PI * radius;
     return circumference - (Math.max(0, Math.min(100, percentage)) / 100) * circumference;
+  });
+  readonly scheduleNextClass = computed(() => {
+    const todayItems = this.todaySchedule();
+    const nextItem = todayItems.find((item) => item.isCurrent) ?? todayItems.find((item) => !item.isPast) ?? null;
+
+    if (!nextItem) {
+      return null;
+    }
+
+    const currentMinutes = this.nowMinutes();
+    const minutesUntil = Math.max(0, this.toMinutes(nextItem.startTime) - currentMinutes);
+
+    return {
+      ...nextItem,
+      badge: nextItem.isCurrent ? 'En curso' : minutesUntil > 0 ? `En ${minutesUntil} min` : 'Próxima',
+      progress: `${Math.max(18, Math.min(100, ((todayItems.indexOf(nextItem) + 1) / Math.max(todayItems.length, 1)) * 100))}%`
+    };
+  });
+  readonly scheduleTodayTimeline = computed(() => {
+    const todayItems = this.todaySchedule();
+    const nextUpcomingIndex = todayItems.findIndex((item) => !item.isPast && !item.isCurrent);
+
+    return todayItems.map((item, index) => ({
+      ...item,
+      statusLabel: item.isCurrent
+        ? 'En curso'
+        : this.isSchedulePause(item.subjectName)
+          ? 'Descanso'
+          : index === nextUpcomingIndex
+            ? 'Siguiente'
+            : '',
+      statusTone: item.isCurrent
+        ? 'success'
+        : this.isSchedulePause(item.subjectName)
+          ? 'rest'
+          : index === nextUpcomingIndex
+            ? 'next'
+            : 'none'
+    }));
+  });
+  readonly scheduleWeeklySummary = computed(() => {
+    const lessonBlocks = (this.dashboard()?.weeklySchedule ?? []).filter((item) => !this.isSchedulePause(item.subjectName));
+    const totalMinutes = lessonBlocks.reduce(
+      (sum, item) => sum + Math.max(0, this.toMinutes(item.endTime) - this.toMinutes(item.startTime)),
+      0
+    );
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return {
+      totalClasses: lessonBlocks.length,
+      totalHoursLabel: remainingMinutes > 0 ? `${totalHours} h ${remainingMinutes} min` : `${totalHours} h`,
+      subjectsCount: new Set(lessonBlocks.map((item) => this.normalizeDayKey(item.subjectName))).size
+    };
   });
 
   constructor() {
@@ -804,6 +1049,44 @@ export class StudentDashboardPageComponent {
     return tone === 'success' ? 'is-high' : tone === 'warning' ? 'is-mid' : tone === 'danger' ? 'is-low' : '';
   }
 
+  selectGradeSubject(subjectName: string): void {
+    this.selectedGradeSubjectName.set(subjectName);
+  }
+
+  updateGradesSearch(value: string): void {
+    this.gradesSearch.set(value);
+  }
+
+  updateGradesSubjectFilter(value: string): void {
+    this.gradesSubjectFilter.set(value);
+  }
+
+  gradeStatusLabel(subject: { average: number | null }): string {
+    if (subject.average === null) {
+      return 'Pendiente';
+    }
+    if (subject.average >= 6.8) {
+      return 'Excelente';
+    }
+    if (subject.average >= 6.5) {
+      return 'Destacada';
+    }
+    return 'Al dia';
+  }
+
+  gradeStatusClass(subject: { average: number | null }): string {
+    if (subject.average === null) {
+      return 'status-pending';
+    }
+    if (subject.average >= 6.8) {
+      return 'status-excellent';
+    }
+    if (subject.average >= 6.5) {
+      return 'status-featured';
+    }
+    return 'status-day';
+  }
+
   gradeCellClass(score: number | null | undefined): string {
     const tone = this.scoreTone(score ?? null);
     return tone === 'success' ? 'hi' : tone === 'warning' ? 'mid' : tone === 'danger' ? 'lo' : 'em';
@@ -827,6 +1110,79 @@ export class StudentDashboardPageComponent {
       return 'is-past';
     }
     return 'is-upcoming';
+  }
+
+  isSchedulePause(subjectName: string): boolean {
+    const normalized = this.normalizeDayKey(subjectName);
+    return normalized.includes('RECRE') || normalized.includes('ALMUER') || normalized.includes('COLAC');
+  }
+
+  scheduleTeacherName(subjectName: string): string {
+    return this.studentSubjects().find((subject) => subject.subjectName === subjectName)?.teacherName || 'Docente asignado';
+  }
+
+  shortTeacherName(subjectName: string): string {
+    const teacherName = this.scheduleTeacherName(subjectName).trim();
+    const parts = teacherName.split(/\s+/).filter(Boolean);
+
+    if (parts.length <= 2) {
+      return teacherName;
+    }
+
+    return `${parts[0]} ${parts[parts.length - 1]}`;
+  }
+
+  scheduleTeacherLabel(item: { subjectName: string; teacherName?: string | null }): string {
+    const teacherName = (item.teacherName?.trim() || this.scheduleTeacherName(item.subjectName)).trim();
+    const parts = teacherName.split(/\s+/).filter(Boolean);
+
+    if (parts.length <= 2) {
+      return teacherName;
+    }
+
+    return `${parts[0]} ${parts[parts.length - 1]}`;
+  }
+
+  setScheduleMobileDay(dayKey: string): void {
+    this.selectedScheduleMobileDay.set(dayKey);
+  }
+
+  scheduleMobileDayLabel(dayKey: string): string {
+    switch (this.normalizeDayKey(dayKey)) {
+      case 'LUNES':
+        return 'Lun';
+      case 'MARTES':
+        return 'Mar';
+      case 'MIERCOLES':
+        return 'Mie';
+      case 'JUEVES':
+        return 'Jue';
+      case 'VIERNES':
+        return 'Vie';
+      default:
+        return dayKey.slice(0, 3);
+    }
+  }
+
+  isScheduleBreakRow(row: {
+    blocks: Array<{ item: { subjectName: string; blockType?: 'CLASE' | 'RECREO' } | null }>;
+  }): boolean {
+    return row.blocks.some((block) => {
+      if (!block.item) {
+        return false;
+      }
+
+      return block.item.blockType === 'RECREO' || this.isSchedulePause(block.item.subjectName);
+    });
+  }
+
+  scheduleEntryForDay(
+    row: {
+      blocks: Array<{ dayKey: string; item: StudentScheduleViewItem | ({ isCurrent: boolean; isPast: boolean } & StudentScheduleViewItem) | null }>;
+    },
+    dayKey: string
+  ): StudentScheduleViewItem | ({ isCurrent: boolean; isPast: boolean } & StudentScheduleViewItem) | null {
+    return row.blocks.find((block) => block.dayKey === dayKey)?.item ?? null;
   }
 
   scheduleSubjectClass(subjectName: string): string {
@@ -1039,6 +1395,14 @@ export class StudentDashboardPageComponent {
     this.studentApiService.getDashboard().subscribe({
       next: (dashboard) => {
         this.dashboard.set(dashboard);
+        const courseId = dashboard.enrolledCourses[0]?.id ?? null;
+        if (courseId) {
+          this.loadStudentCourseSchedule(courseId);
+        } else {
+          this.studentScheduleCatalog.set(null);
+          this.studentScheduleEntries.set([]);
+          this.studentSchedulePeriodId.set(null);
+        }
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -1090,6 +1454,42 @@ export class StudentDashboardPageComponent {
   private nowMinutes(): number {
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
+  }
+
+  private loadStudentCourseSchedule(courseId: number): void {
+    this.scheduleApiService.getCatalog(courseId).subscribe({
+      next: (catalog) => {
+        this.studentScheduleCatalog.set(catalog);
+        const periodId = this.resolvePreferredStudentSchedulePeriodId(catalog);
+        this.studentSchedulePeriodId.set(periodId);
+
+        if (!periodId) {
+          this.studentScheduleEntries.set([]);
+          return;
+        }
+
+        this.scheduleApiService.getByCourse(courseId, periodId).subscribe({
+          next: (entries) => this.studentScheduleEntries.set(entries),
+          error: () => this.studentScheduleEntries.set([])
+        });
+      },
+      error: () => {
+        this.studentScheduleCatalog.set(null);
+        this.studentScheduleEntries.set([]);
+        this.studentSchedulePeriodId.set(null);
+      }
+    });
+  }
+
+  private resolvePreferredStudentSchedulePeriodId(catalog: ScheduleCatalog): number | null {
+    const currentYear = new Date().getFullYear();
+    const currentFirstSemester = catalog.periods.find((period) => period.schoolYear === currentYear && period.semester === 1);
+    if (currentFirstSemester) {
+      return currentFirstSemester.id;
+    }
+
+    const firstSemester = catalog.periods.find((period) => period.semester === 1);
+    return firstSemester?.id ?? catalog.periods[0]?.id ?? null;
   }
 
   private normalizeDayKey(value: string): string {

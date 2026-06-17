@@ -1,8 +1,8 @@
-<app-teacher-modern-layout
+﻿<app-teacher-modern-layout
   title=""
   activeItem="grades"
   dashboardRoute="/dashboard"
-  [userName]="user()?.nombre ?? 'Docente'"
+  [userName]="user()?.nombre || 'Docente'"
   userRole="Docente">
   <main class="grades-content">
     @if (activeTab() === 'book') {
@@ -16,6 +16,9 @@
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
+            @if (showPedagogicalTab()) {
+            <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informe pedagógico</button>
+            }
           </section>
 
           <button
@@ -154,7 +157,7 @@
         <div class="grades-book-card__header">
           <div>
             <h2>Libro de notas</h2>
-            <p>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }} · {{ currentGradeBook()?.subjectName }}</p>
+            <p>{{ selectedCourse()?.name }} - {{ selectedPeriod()?.name }} - {{ currentGradeBook()?.subjectName }}</p>
           </div>
 
           <div class="grades-book-card__header-actions">
@@ -170,7 +173,7 @@
 
             <button mat-flat-button type="button" class="header-button header-button--primary" (click)="openDraftEvaluationDialog()">
               <mat-icon>add</mat-icon>
-              Evaluación
+              Evaluacion
             </button>
           </div>
         </div>
@@ -205,19 +208,46 @@
                 </div>
 
                 @for (score of student.scores; track score.evaluationId) {
-                  <label class="score-input-shell" [attr.aria-label]="score.code + ' de ' + student.fullName">
-                    <input
-                      type="number"
-                      min="1"
-                      max="7"
-                      step="0.1"
-                      [value]="score.score ?? ''"
-                      (change)="updateScore(student.studentId, score.evaluationId, $any($event.target).value)"
-                    />
-                  </label>
+                  @if (isConceptualGradeBook()) {
+                    <label class="score-input-shell" [attr.aria-label]="score.code + ' de ' + student.fullName">
+                      <select
+                        [ngModel]="score.conceptCode"
+                        (ngModelChange)="updateConceptScore(student.studentId, score.evaluationId, $event)">
+                        <option [ngValue]="null">-</option>
+                        @for (option of conceptOptions; track option.code) {
+                          <option [ngValue]="option.code">{{ option.code }}</option>
+                        }
+                      </select>
+                    </label>
+                  } @else if (isDiagnosticCell(score)) {
+                    <label class="score-input-shell" [attr.aria-label]="score.code + ' de ' + student.fullName">
+                      <select
+                        [ngModel]="score.conceptCode"
+                        (ngModelChange)="updateDiagnosticConcept(student.studentId, score.evaluationId, $event)">
+                        <option [ngValue]="null">-</option>
+                        @for (option of diagnosticConceptOptions; track option.code) {
+                          <option [ngValue]="option.code">{{ option.code }}</option>
+                        }
+                      </select>
+                    </label>
+                  } @else {
+                    <label class="score-input-shell" [attr.aria-label]="score.code + ' de ' + student.fullName">
+                      <input
+                        type="number"
+                        min="1"
+                        max="7"
+                        step="0.1"
+                        [value]="scoreInputValue(score.score)"
+                        (change)="updateScore(student.studentId, score.evaluationId, $any($event.target).value)"
+                        (blur)="normalizeScoreInput($event, student.studentId, score.evaluationId)"
+                      />
+                    </label>
+                  }
                 }
 
-                <span class="average-pill" [ngClass]="scoreToneClass(student.average)">{{ formatScore(student.average) }}</span>
+                <span class="average-pill" [ngClass]="gradeBookAverageToneClass(student)">
+                  {{ gradeBookAverageDisplay(student) }}
+                </span>
                 <span class="status-dot" [ngClass]="badgeClass(student.status)" [attr.aria-label]="student.status" [title]="student.status"></span>
               </div>
             }
@@ -237,7 +267,7 @@
     @if (activeTab() === 'profile') {
       <section class="page-header">
         <div class="page-header__left">
-          <h1 class="page-header__title">Evaluaciones</h1>
+          <h1 class="page-header__title">Informe de notas</h1>
           <p class="page-header__subtitle">Gestiona notas por curso, semestre y asignatura.</p>
         </div>
 
@@ -245,6 +275,9 @@
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
+            @if (showPedagogicalTab()) {
+              <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informe pedagógico</button>
+            }
           </section>
 
           <button
@@ -374,7 +407,7 @@
           <button
             mat-stroked-button
             type="button"
-            class="header-button header-button--ghost"
+            class="header-button header-button--ghost profile-filters-bar__button profile-filters-bar__button--blue"
             (click)="openReportPreview(activeProfileStudent())"
             [disabled]="!activeProfileStudent()">
             <mat-icon>visibility</mat-icon>
@@ -384,7 +417,7 @@
           <button
             mat-stroked-button
             type="button"
-            class="header-button header-button--ghost"
+            class="header-button header-button--ghost profile-filters-bar__button profile-filters-bar__button--amber"
             (click)="activeProfileStudent() && exportStudentPdf(activeProfileStudent()!)"
             [disabled]="!activeProfileStudent()">
             <mat-icon>download</mat-icon>
@@ -445,7 +478,7 @@
                 <div class="profile-ficha-card__avatar">{{ initials(student.fullName) }}</div>
                 <div>
                   <h2>{{ student.fullName }}</h2>
-                  <p>{{ selectedCourse()?.name }} · RUN {{ student.run }} · {{ selectedPeriod()?.name }}</p>
+                  <p>{{ selectedCourse()?.name }} - RUN {{ student.run }} - {{ selectedPeriod()?.name }}</p>
                 </div>
               </div>
 
@@ -492,8 +525,8 @@
                           }
                         </div>
                         <div class="profile-subject-row__notes">
-                          @for (score of profileSubjectScores(student, subject.subjectId); track $index) {
-                            <span class="profile-score-pill" [ngClass]="scoreToneClass(score)">{{ formatScore(score) }}</span>
+                          @for (entry of profileSubjectEntries(student, subject.subjectId).slice(0, 3); track $index) {
+                            <span class="profile-score-pill" [ngClass]="evaluationEntryToneClass(entry, subject.evaluationType)">{{ evaluationEntryValue(entry, subject.evaluationType) }}</span>
                           } @empty {
                             <span class="profile-score-pill is-empty">Sin notas</span>
                           }
@@ -503,7 +536,7 @@
                             @for (entry of profileSubjectEntries(student, subject.subjectId).slice(3); track $index) {
                               <div class="profile-subject-row__detail-item">
                                 <span>{{ entry.label }}</span>
-                                <strong [ngClass]="scoreToneClass(entry.score)">{{ formatScore(entry.score) }}</strong>
+                                <strong [ngClass]="evaluationEntryToneClass(entry, subject.evaluationType)">{{ evaluationEntryValue(entry, subject.evaluationType) }}</strong>
                               </div>
                             } @empty {
                               <div class="profile-subject-row__detail-empty">Aun no hay evaluaciones registradas.</div>
@@ -566,12 +599,12 @@
                   <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
                   <div>
                     <strong>Colegio Torre Fuerte School</strong>
-                    <span>Control institucional · Plataforma ConectaSchool</span>
+                    <span>Control institucional - Plataforma ConectaSchool</span>
                   </div>
                 </div>
                 <div class="pdf-bulletin__meta">
                   <strong>Bolet&iacute;n de notas</strong>
-                  <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
+                  <span>{{ pdfPeriodLabel() }} - Emitido {{ pdfIssueDate() }}</span>
                 </div>
               </header>
 
@@ -597,7 +630,7 @@
                   <strong>{{ pdfSchoolYear() }}</strong>
                 </div>
                 <div class="pdf-bulletin__field">
-                  <span>N° de lista</span>
+                  <span>NÂ° de lista</span>
                   <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
                 </div>
               </section>
@@ -624,15 +657,15 @@
               </section>
 
               <section class="pdf-bulletin__section">
-                <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
+                <h3>Notas por asignatura - {{ pdfPeriodLabel() }}</h3>
 
                 <table class="pdf-bulletin__table">
                   <thead>
                     <tr>
                       <th class="left">Asignatura</th>
-                      <th>N1</th>
-                      <th>N2</th>
-                      <th>N3</th>
+                      <th>Ev. 1</th>
+                      <th>Ev. 2</th>
+                      <th>Ev. 3</th>
                       <th>Promedio</th>
                       <th>Concepto</th>
                     </tr>
@@ -643,14 +676,14 @@
                         <td class="left">
                           <strong>{{ pdfText(subject.subjectName) }}</strong>
                         </td>
-                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
-                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
-                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
+                        <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 0)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 0) }}</td>
+                        <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 1)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 1) }}</td>
+                        <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 2)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 2) }}</td>
                         <td class="pdf-bulletin__cell-pill">
-                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
+                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfSubjectAverageClass(student, subject.subjectId, subject.average, subject.conceptSummaryCode)">{{ pdfSubjectDisplayAverage(student, subject.subjectId, subject.average, subject.conceptSummaryCode) }}</span>
                         </td>
                         <td class="pdf-bulletin__cell-pill">
-                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
+                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfSubjectAverageClass(student, subject.subjectId, subject.average, subject.conceptSummaryCode)">{{ pdfSubjectDisplayConcept(student, subject.subjectId, subject.average, subject.conceptSummaryCode) }}</span>
                         </td>
                       </tr>
                     }
@@ -692,7 +725,7 @@
               </section>
 
               <footer class="pdf-bulletin__footer">
-                Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
+                Torre Fuerte School - ConectaSchool - Documento generado automaticamente - {{ pdfIssueDate() }}
               </footer>
             </div>
           }
@@ -704,13 +737,13 @@
           <section class="report-preview-modal" (click)="$event.stopPropagation()">
             <header class="report-preview-modal__header">
               <div>
-                <h3>Vista previa del boletín</h3>
-                <p>{{ pdfText(student.fullName) }} · {{ pdfPeriodLabel() }}</p>
+                <h3>Vista previa del boletin</h3>
+                <p>{{ pdfText(student.fullName) }} - {{ pdfPeriodLabel() }}</p>
               </div>
               <div class="report-preview-modal__actions">
                 <button mat-flat-button type="button" class="header-button header-button--primary report-preview-modal__save" (click)="savePreviewObservation()">
                   <mat-icon>save</mat-icon>
-                  Guardar observación
+                  Guardar observacion
                 </button>
                 <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
                   <mat-icon>close</mat-icon>
@@ -726,12 +759,12 @@
                       <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
                       <div>
                         <strong>Colegio Torre Fuerte School</strong>
-                        <span>Control institucional · Plataforma ConectaSchool</span>
+                        <span>Control institucional - Plataforma ConectaSchool</span>
                       </div>
                     </div>
                     <div class="pdf-bulletin__meta">
                       <strong>Bolet&iacute;n de notas</strong>
-                      <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
+                      <span>{{ pdfPeriodLabel() }} - Emitido {{ pdfIssueDate() }}</span>
                     </div>
                   </header>
 
@@ -757,7 +790,7 @@
                       <strong>{{ pdfSchoolYear() }}</strong>
                     </div>
                     <div class="pdf-bulletin__field">
-                      <span>N° de lista</span>
+                      <span>NÂ° de lista</span>
                       <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
                     </div>
                   </section>
@@ -784,15 +817,15 @@
                   </section>
 
                   <section class="pdf-bulletin__section">
-                    <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
+                    <h3>Notas por asignatura - {{ pdfPeriodLabel() }}</h3>
 
                     <table class="pdf-bulletin__table">
                       <thead>
                         <tr>
                           <th class="left">Asignatura</th>
-                          <th>N1</th>
-                          <th>N2</th>
-                          <th>N3</th>
+                          <th>Ev. 1</th>
+                          <th>Ev. 2</th>
+                          <th>Ev. 3</th>
                           <th>Promedio</th>
                           <th>Concepto</th>
                         </tr>
@@ -803,14 +836,14 @@
                             <td class="left">
                               <strong>{{ pdfText(subject.subjectName) }}</strong>
                             </td>
-                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
-                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
-                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
+                            <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 0)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 0) }}</td>
+                            <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 1)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 1) }}</td>
+                            <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 2)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 2) }}</td>
                             <td class="pdf-bulletin__cell-pill">
-                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
+                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfSubjectAverageClass(student, subject.subjectId, subject.average, subject.conceptSummaryCode)">{{ pdfSubjectDisplayAverage(student, subject.subjectId, subject.average, subject.conceptSummaryCode) }}</span>
                             </td>
                             <td class="pdf-bulletin__cell-pill">
-                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
+                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfSubjectAverageClass(student, subject.subjectId, subject.average, subject.conceptSummaryCode)">{{ pdfSubjectDisplayConcept(student, subject.subjectId, subject.average, subject.conceptSummaryCode) }}</span>
                             </td>
                           </tr>
                         }
@@ -851,7 +884,7 @@
                   </section>
 
                   <footer class="pdf-bulletin__footer">
-                    Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
+                    Torre Fuerte School - ConectaSchool - Documento generado automaticamente - {{ pdfIssueDate() }}
                   </footer>
                 </div>
               </article>
@@ -908,7 +941,7 @@
                   <div class="avatar-chip">{{ initials(student.fullName) }}</div>
                   <div class="student-copy">
                     <strong>{{ student.fullName }}</strong>
-                    <small>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }}</small>
+                  <small>{{ selectedCourse()?.name }} - {{ selectedPeriod()?.name }}</small>
                   </div>
                 </div>
                 <div class="profile-summary">
@@ -922,7 +955,7 @@
                   <div class="progress-row">
                     <span>{{ subject.subjectName }}</span>
                     <div class="progress-track">
-                      <span class="progress-bar" [style.width.%]="((subject.average ?? 1) / 7) * 100" [style.background]="subject.colorHex"></span>
+                      <span class="progress-bar" [style.width.%]="((subject.average ?? 1) - 1) / 7 * 100" [style.background]="subject.colorHex"></span>
                     </div>
                     <strong>{{ formatScore(subject.average) }}</strong>
                   </div>
@@ -937,19 +970,22 @@
     @if (activeTab() === 'reports') {
       <section class="page-header">
         <div class="page-header__left">
-          <h1 class="page-header__title">Evaluaciones</h1>
-          <p class="page-header__subtitle">Informes, promedios y rankings del curso por periodo.</p>
+          <h1 class="page-header__title">Informe pedagógico</h1>
+          <p class="page-header__subtitle">Seguimiento pedagógico editable por curso y período.</p>
         </div>
 
         <div class="page-header__actions">
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
+            @if (showPedagogicalTab()) {
+              <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informe pedagógico</button>
+            }
           </section>
 
-          <button mat-flat-button type="button" class="header-button header-button--primary reports-massive-button" (click)="exportMassivePdf()" [disabled]="isExporting()">
+          <button mat-flat-button type="button" class="header-button header-button--primary reports-download-button" (click)="exportMassivePdf()" [disabled]="isExporting()">
             <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
-            {{ isExporting() ? 'Exportando...' : 'PDF masivo' }}
+            {{ isExporting() ? 'Exportando...' : 'PDF' }}
           </button>
         </div>
       </section>
@@ -1074,7 +1110,7 @@
                   class="reports-ranking-item"
                   [class.is-active]="activeReportStudent()?.studentId === student.studentId"
                   (click)="updateReportStudent(student.studentId)">
-                  <span class="reports-ranking-item__place">#{{ reportStudentRank(student) ?? '—' }}</span>
+                  <span class="reports-ranking-item__place">#{{ reportStudentRank(student) ?? '-' }}</span>
                   <div class="student-cell compact">
                     <div class="avatar-chip">{{ initials(student.fullName) }}</div>
                     <div class="student-copy">
@@ -1095,155 +1131,44 @@
             </div>
           </section>
 
-          <section class="reports-panel">
-            <div class="reports-panel__head">
-              <strong>Promedios por asignatura</strong>
-              <small>{{ reportSubjectAverages().length }} asignaturas</small>
-            </div>
-
-            <div class="reports-subject-averages">
-              @for (subject of reportSubjectAverages(); track subject.subjectId) {
-                <div class="reports-subject-averages__item">
-                  <div class="reports-subject-averages__copy">
-                    <strong>{{ subject.subjectName }}</strong>
-                    <small>{{ subject.count }} con nota · {{ subject.outstanding }} destacados</small>
-                  </div>
-                  <div class="reports-subject-averages__track">
-                    <span class="reports-subject-averages__bar" [style.width.%]="profileAverageWidth(subject.average)" [style.background]="subject.colorHex"></span>
-                  </div>
-                  <span class="reports-subject-averages__value" [ngClass]="scoreToneClass(subject.average)">{{ formatScore(subject.average) }}</span>
-                </div>
-              } @empty {
-                <div class="profile-empty-state">
-                  <strong>Sin promedios disponibles</strong>
-                  <span>No hay asignaturas con evaluaciones registradas.</span>
-                </div>
-              }
-            </div>
-          </section>
         </aside>
 
         <article class="reports-main-card reports-main-card--new">
           @if (activeReportStudent(); as student) {
-            <header class="reports-main-card__head">
-              <div class="reports-main-card__identity">
-                <div class="profile-ficha-card__avatar">{{ initials(student.fullName) }}</div>
-                <div>
-                  <h2>{{ student.fullName }}</h2>
-                  <p>{{ selectedCourse()?.name }} · RUN {{ student.run }} · {{ selectedPeriod()?.name }}</p>
-                </div>
-              </div>
-
-              <div class="reports-main-card__actions">
-                <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="openReportPreview()">
-                  <mat-icon>visibility</mat-icon>
-                  Vista previa
+            <div class="pedagogical-actions-card">
+              <section class="pedagogical-actions-panel">
+                <button type="button" class="pedagogical-action-row pedagogical-action-row--blue" (click)="openPedagogicalSheetPreview(student)">
+                  <span class="pedagogical-action-row__icon">
+                    <mat-icon>description</mat-icon>
+                  </span>
+                  <span class="pedagogical-action-row__copy">
+                    <strong>Ver ficha</strong>
+                    <small>Visualiza la ficha pedagogica completa del estudiante.</small>
+                  </span>
+                  <mat-icon class="pedagogical-action-row__arrow">chevron_right</mat-icon>
                 </button>
-                <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="exportStudentPdf(student)">
-                  <mat-icon>download</mat-icon>
-                  Exportar ficha
+
+                <button type="button" class="pedagogical-action-row pedagogical-action-row--green" (click)="openPedagogicalPreview()">
+                  <span class="pedagogical-action-row__icon">
+                    <mat-icon>visibility</mat-icon>
+                  </span>
+                  <span class="pedagogical-action-row__copy">
+                    <strong>Editar informe pedagógico</strong>
+                    <small>Revisa y actualiza los contenidos del informe pedagógico.</small>
+                  </span>
+                  <mat-icon class="pedagogical-action-row__arrow">chevron_right</mat-icon>
                 </button>
-              </div>
-            </header>
 
-            <div class="reports-main-card__body">
-              <section class="reports-main-card__section">
-                <div class="reports-main-card__section-head">
-                  <div class="profile-section-title">
-                    <mat-icon>receipt_long</mat-icon>
-                    <span>Resumen por asignatura</span>
-                  </div>
-
-                  <div class="reports-main-card__stats reports-main-card__stats--inline">
-                    <div class="profile-stat">
-                      <strong>{{ formatScore(student.overallAverage) }}</strong>
-                      <span>Promedio</span>
-                    </div>
-                    <div class="profile-stat">
-                      <strong>#{{ reportStudentRank(student) ?? '—' }}</strong>
-                      <span>Ranking</span>
-                    </div>
-                    <div class="profile-stat">
-                      <strong>{{ profileCompletedSubjects(student) }}/{{ student.subjects.length }}</strong>
-                      <span>Asignaturas</span>
-                    </div>
-                    <div class="profile-stat">
-                      <strong class="profile-stat__value--danger">{{ profileAtRiskSubjects(student) }}</strong>
-                      <span>En riesgo</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="reports-subject-grid">
-                  @for (subject of student.subjects; track subject.subjectId) {
-                    <button
-                      type="button"
-                      class="reports-subject-card"
-                      [class.is-expanded]="isReportSubjectExpanded(subject.subjectId)"
-                      (click)="toggleReportSubject(subject.subjectId)">
-                      <span class="reports-subject-card__accent" [style.background]="subject.colorHex"></span>
-                      <div class="reports-subject-card__copy">
-                        <strong>{{ subject.subjectName }}</strong>
-                        <small>{{ subject.average != null && subject.average >= 6 ? 'Destacado' : subject.average != null && subject.average < 4 ? 'En riesgo' : 'En seguimiento' }}</small>
-                        <div class="reports-subject-card__chips">
-                          @for (score of reportSubjectScores(student, subject.subjectId); track $index) {
-                            <span class="profile-student-item__score" [ngClass]="scoreToneClass(score)">
-                              N{{ $index + 1 }} {{ formatScore(score) }}
-                            </span>
-                          } @empty {
-                            <span class="profile-student-item__score is-empty">Sin notas</span>
-                          }
-                        </div>
-                        @if (isReportSubjectExpanded(subject.subjectId)) {
-                          <div class="reports-subject-card__detail">
-                            @for (entry of reportSubjectEntries(student, subject.subjectId); track $index) {
-                              <div class="reports-subject-card__detail-row">
-                                <span>{{ entry.label }}</span>
-                                <strong [ngClass]="scoreToneClass(entry.score)">{{ formatScore(entry.score) }}</strong>
-                              </div>
-                            } @empty {
-                              <div class="reports-subject-card__detail-empty">Aun no hay evaluaciones registradas.</div>
-                            }
-                          </div>
-                        }
-                      </div>
-                      <span class="reports-subject-card__score" [ngClass]="scoreToneClass(subject.average)">
-                        {{ formatScore(subject.average) }}
-                      </span>
-                    </button>
-                  }
-                </div>
-              </section>
-
-              <section class="reports-main-card__section reports-main-card__section--split">
-                <div>
-                  <div class="profile-section-title">
-                    <mat-icon>bar_chart</mat-icon>
-                    <span>Rendimiento del estudiante</span>
-                  </div>
-
-                  <div class="profile-mini-chart">
-                    @for (subject of student.subjects; track subject.subjectId) {
-                      <div class="profile-bar-column">
-                        <span class="profile-bar-column__value">{{ formatScore(subject.average) }}</span>
-                        <span class="profile-bar-column__bar" [style.height.%]="profileAverageWidth(subject.average)" [style.background]="subject.colorHex"></span>
-                        <span class="profile-bar-column__label">{{ shortSubjectName(subject.subjectName) }}</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <div>
-                  <div class="profile-section-title">
-                    <mat-icon>insights</mat-icon>
-                    <span>Lectura del informe</span>
-                  </div>
-
-                  <div class="reports-summary-card">
-                    <strong>{{ reportCompletionLabel(student) }}</strong>
-                    <p>{{ profileTrendLabel(student) }}</p>
-                  </div>
-                </div>
+                <button type="button" class="pedagogical-action-row pedagogical-action-row--amber" (click)="exportPedagogicalStudentPdf(student)">
+                  <span class="pedagogical-action-row__icon">
+                    <mat-icon>download</mat-icon>
+                  </span>
+                  <span class="pedagogical-action-row__copy">
+                    <strong>Descargar PDF</strong>
+                    <small>Descarga el informe pedagógico en formato PDF.</small>
+                  </span>
+                  <mat-icon class="pedagogical-action-row__arrow">chevron_right</mat-icon>
+                </button>
               </section>
             </div>
           } @else {
@@ -1257,349 +1182,599 @@
       </section>
 
       <section class="pdf-export-shell" aria-hidden="true">
-        <article #reportPdfTemplate class="pdf-report-card">
-          @if (pdfStudent(); as student) {
-            <div class="pdf-bulletin">
-              <header class="pdf-bulletin__header">
-                <div class="pdf-bulletin__brand">
-                  <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
-                  <div>
-                    <strong>Colegio Torre Fuerte School</strong>
-                    <span>Control institucional · Plataforma ConectaSchool</span>
+        <article #pedagogicalPdfTemplate class="pedagogical-sheet pedagogical-sheet--pdf">
+          @if (pdfPedagogicalReport(); as report) {
+            <div class="pedagogical-report">
+              <div class="pedagogical-intro">
+                <header class="pedagogical-header">
+                  <div class="pedagogical-brand">
+                    <img class="pedagogical-logo" src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                    <div>
+                      <strong>Colegio Torre Fuerte School</strong>
+                      <span>Control institucional - Plataforma ConectaSchool</span>
+                    </div>
                   </div>
-                </div>
-                <div class="pdf-bulletin__meta">
-                  <strong>Bolet&iacute;n de notas</strong>
-                  <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
-                </div>
-              </header>
-
-              <section class="pdf-bulletin__student-band">
-                <div class="pdf-bulletin__field">
-                  <span>Nombre del estudiante</span>
-                  <strong>{{ pdfText(student.fullName) }}</strong>
-                </div>
-                <div class="pdf-bulletin__field">
-                  <span>RUN</span>
-                  <strong>{{ pdfText(student.run) }}</strong>
-                </div>
-                <div class="pdf-bulletin__field">
-                  <span>Curso</span>
-                  <strong>{{ pdfCourseLabel() }}</strong>
-                </div>
-                <div class="pdf-bulletin__field">
-                  <span>Profesor jefe</span>
-                  <strong>{{ pdfTeacherName() }}</strong>
-                </div>
-                <div class="pdf-bulletin__field">
-                  <span>A&ntilde;o escolar</span>
-                  <strong>{{ pdfSchoolYear() }}</strong>
-                </div>
-                <div class="pdf-bulletin__field">
-                  <span>N° de lista</span>
-                  <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
-                </div>
-              </section>
-
-              <section class="pdf-bulletin__status-row">
-                <div class="pdf-bulletin__status-box">
-                  <strong>{{ pdfScore(student.overallAverage) }}</strong>
-                  <span>Promedio general</span>
-                  <div class="pdf-bulletin__mini-bar">
-                    <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                  <div class="pedagogical-meta">
+                    <strong>{{ report.content.documentTitle }}</strong>
+                    <span>{{ pdfPeriodLabel() }} - Emitido {{ pdfIssueDate() }}</span>
                   </div>
-                </div>
-                <div class="pdf-bulletin__status-box">
-                  <strong style="color:#2563eb;font-size:1.9rem;font-weight:800;line-height:1;">{{ pdfStudentAttendance(student) }}</strong>
-                  <span>Asistencia semestral</span>
-                  <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
-                    <span [style.width.%]="pdfStudentAttendanceWidth(student)"></span>
+                </header>
+
+                <section class="pedagogical-student-band">
+                  <div class="pedagogical-student-field">
+                    <span>Estudiante</span>
+                    <strong>{{ report.studentName }}</strong>
                   </div>
-                </div>
-                <div class="pdf-bulletin__status-box">
-                  <strong class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</strong>
-                  <span>Estado acad&eacute;mico</span>
-                </div>
-              </section>
-
-              <section class="pdf-bulletin__section">
-                <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
-
-                <table class="pdf-bulletin__table">
-                  <thead>
-                    <tr>
-                      <th class="left">Asignatura</th>
-                      <th>N1</th>
-                      <th>N2</th>
-                      <th>N3</th>
-                      <th>Promedio</th>
-                      <th>Concepto</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (subject of student.subjects; track subject.subjectId) {
-                      <tr>
-                        <td class="left">
-                          <strong>{{ pdfText(subject.subjectName) }}</strong>
-                        </td>
-                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
-                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
-                        <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
-                        <td class="pdf-bulletin__cell-pill">
-                          <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
-                        </td>
-                        <td class="pdf-bulletin__cell-pill">
-                          <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td class="left">Promedio general semestral</td>
-                      <td colspan="3"></td>
-                      <td class="pdf-bulletin__cell-pill">
-                        <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
-                      </td>
-                      <td class="pdf-bulletin__cell-pill">
-                        <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </section>
-
-              <section class="pdf-bulletin__section">
-                <h3>Observaciones del profesor jefe</h3>
-                <div class="pdf-bulletin__observations">
-                  <div class="pdf-bulletin__observation-row">
-                    <span class="pdf-bulletin__observation-dot is-green"></span>
-                    <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
+                  <div class="pedagogical-student-field">
+                    <span>Nivel</span>
+                    <strong><span class="pedagogical-level-badge" [ngClass]="pedagogicalBadgeClass(report.levelCode)">{{ report.levelLabel }}</span></strong>
                   </div>
-                  <div class="pdf-bulletin__observation-row">
-                    <span class="pdf-bulletin__observation-dot is-amber"></span>
-                    <p>{{ pdfText(profileTrendLabel(student)) }}</p>
+                  <div class="pedagogical-student-field">
+                    <span>Período</span>
+                    <strong>{{ pdfPeriodLabel() }}</strong>
                   </div>
-                  <div class="pdf-bulletin__observation-row">
-                    <span class="pdf-bulletin__observation-dot is-blue"></span>
-                    <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
+                  <div class="pedagogical-student-field">
+                    <span>Educadora</span>
+                    <strong>{{ report.content.educatorName }}</strong>
                   </div>
-                </div>
-              </section>
-
-              <section class="pdf-bulletin__section">
-                <h3>Firmas</h3>
-                <div class="pdf-bulletin__signatures">
-                  <div>Profesor Jefe<br />{{ pdfTeacherName() }}</div>
-                  <div>Director/a<br />Torre Fuerte School</div>
-                  <div>Apoderado/a<br />Recibido conforme</div>
-                </div>
-              </section>
-
-              <footer class="pdf-bulletin__footer">
-                Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
-              </footer>
-            </div>
-
-            <div class="pdf-report-legacy">
-            <header class="pdf-report-header">
-              <img src="/tfs-logo.svg" alt="Torre Fuerte School" />
-              <div>
-                <span>Informe de notas</span>
-                <strong>{{ student.fullName }}</strong>
-                <small>{{ selectedCourse()?.name }} · {{ selectedPeriod()?.name }}</small>
+                  <div class="pedagogical-student-field">
+                    <span>RUN</span>
+                    <strong>{{ report.studentRun || '-' }}</strong>
+                  </div>
+                  <div class="pedagogical-student-field">
+                    <span>Año</span>
+                    <strong>{{ report.schoolYear }}</strong>
+                  </div>
+                </section>
               </div>
-            </header>
 
-            <section class="pdf-report-summary">
-              <div><span>Promedio general</span><strong>{{ formatScore(student.overallAverage) }}</strong></div>
-              <div><span>Estado</span><strong>{{ student.status }}</strong></div>
-            </section>
+              <section class="pedagogical-section">
+                <div class="pedagogical-section-title pedagogical-section-title--with-legend">
+                  <mat-icon>widgets</mat-icon>
+                  <span>Áreas de desarrollo</span>
+                  <div class="pedagogical-answer-legend" aria-label="Leyenda de respuestas">
+                    <span class="pedagogical-answer-legend__item">
+                      <span class="pedagogical-answer-legend__dot dot-si"></span>
+                      <span>Sí</span>
+                    </span>
+                    <span class="pedagogical-answer-legend__item">
+                      <span class="pedagogical-answer-legend__dot dot-ep"></span>
+                      <span>En proceso (Ep)</span>
+                    </span>
+                    <span class="pedagogical-answer-legend__item">
+                      <span class="pedagogical-answer-legend__dot dot-no"></span>
+                      <span>No</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="pedagogical-grid">
+                  @for (area of report.content.developmentAreas; track trackArea($index, area)) {
+                    <article class="pedagogical-area-card">
+                      <div class="pedagogical-area-head">
+                        <span class="pedagogical-area-icon" [style.background]="area.accentColor" [style.color]="area.iconColor">
+                          <mat-icon>{{ area.icon }}</mat-icon>
+                        </span>
+                        <strong>{{ area.title }}</strong>
+                      </div>
+                      <div class="pedagogical-checklist">
+                        @for (item of area.items; track trackSimple($index)) {
+                          <div class="pedagogical-check-item">
+                            <span class="pedagogical-check-badge" [ngClass]="pedagogicalCheckClass(item.answer)">{{ pedagogicalAnswerLabel(item.answer) }}</span>
+                            <span>{{ item.label }}</span>
+                          </div>
+                        }
+                      </div>
+                  <p class="pedagogical-area-observation">{{ area.observation || 'Sin observación registrada.' }}</p>
+                    </article>
+                  }
+                </div>
+              </section>
 
-            <section class="pdf-report-subjects">
-              @for (subject of student.subjects; track subject.subjectId) {
-                <article class="pdf-report-subject">
-                  <span>{{ subject.subjectName }}</span>
-                  <strong>{{ formatScore(subject.average) }}</strong>
-                </article>
+              @if (report.content.attitudeArea; as attitude) {
+                <section class="pedagogical-full-area">
+                  <div class="pedagogical-area-head">
+                    <span class="pedagogical-area-icon" [style.background]="attitude.accentColor" [style.color]="attitude.iconColor">
+                      <mat-icon>{{ attitude.icon }}</mat-icon>
+                    </span>
+                    <strong>{{ attitude.title }}</strong>
+                  </div>
+                  <div class="pedagogical-checklist pedagogical-checklist--split">
+                    @for (item of attitude.items; track trackSimple($index)) {
+                      <div class="pedagogical-check-item">
+                        <span class="pedagogical-check-badge" [ngClass]="pedagogicalCheckClass(item.answer)">{{ pedagogicalAnswerLabel(item.answer) }}</span>
+                        <span>{{ item.label }}</span>
+                      </div>
+                    }
+                  </div>
+                  <p class="pedagogical-area-observation">{{ attitude.observation || 'Sin observación registrada.' }}</p>
+                </section>
               }
-            </section>
+
+              <section class="pedagogical-section">
+                <div class="pedagogical-section-title">
+                  <mat-icon>home</mat-icon>
+                  <span>Recomendaciones a la familia</span>
+                </div>
+                <div class="pedagogical-recommendations">
+                  @for (recommendation of report.content.familyRecommendations; track trackSimple($index)) {
+                    @if (recommendation.trim().length > 0) {
+                      <div class="pedagogical-rec-item">
+                        <span class="pedagogical-rec-dot"></span>
+                        <p>{{ recommendation }}</p>
+                      </div>
+                    }
+                  }
+                </div>
+              </section>
+
+              <section class="pedagogical-sign-row">
+                <div class="pedagogical-sign-box">Educadora<br />{{ report.content.teacherSignatureName || report.content.educatorName }}</div>
+                <div class="pedagogical-sign-box">Apoderado/a<br />{{ report.content.guardianSignatureLabel }}</div>
+              </section>
+
+              <footer class="pedagogical-watermark">Torre Fuerte School - ConectaSchool - {{ pdfIssueDate() }}</footer>
             </div>
           }
         </article>
       </section>
 
-      @if (isReportPreviewOpen() && previewStudent(); as student) {
-        <div class="report-preview-overlay" (click)="closeReportPreview()">
-          <section class="report-preview-modal" (click)="$event.stopPropagation()">
+      @if (isPedagogicalSheetPreviewOpen() && pedagogicalDraft(); as report) {
+        <div class="report-preview-overlay report-preview-overlay--pedagogical-print" (click)="closePedagogicalSheetPreview()">
+          <section class="report-preview-modal pedagogical-preview-modal" (click)="$event.stopPropagation()">
             <header class="report-preview-modal__header">
               <div>
-                <h3>Vista previa del boletín</h3>
-                <p>{{ pdfText(student.fullName) }} · {{ pdfPeriodLabel() }}</p>
+                <h3>Vista preliminar del informe pedagógico</h3>
+                <p>{{ report.studentName }} - {{ report.levelLabel }} - {{ pdfPeriodLabel() }}</p>
               </div>
-              <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
-                <mat-icon>close</mat-icon>
-              </button>
+              <div class="report-preview-modal__actions">
+                <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="printPedagogicalPreview()">
+                  <mat-icon>print</mat-icon>
+                  Imprimir
+                </button>
+                <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closePedagogicalSheetPreview()" aria-label="Cerrar vista preliminar">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </header>
 
             <div class="report-preview-modal__body">
-              <article class="pdf-report-card report-preview-sheet">
-                <div class="pdf-bulletin">
-                  <header class="pdf-bulletin__header">
-                    <div class="pdf-bulletin__brand">
-                      <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
-                      <div>
-                        <strong>Colegio Torre Fuerte School</strong>
-                        <span>Control institucional · Plataforma ConectaSchool</span>
+              <article class="pedagogical-sheet pedagogical-sheet--editable">
+                <div class="pedagogical-report">
+                  <div class="pedagogical-intro">
+                    <header class="pedagogical-header">
+                      <div class="pedagogical-brand">
+                        <img class="pedagogical-logo" src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                        <div>
+                          <strong>Colegio Torre Fuerte School</strong>
+                          <span>Control institucional - Plataforma ConectaSchool</span>
+                        </div>
+                      </div>
+                      <div class="pedagogical-meta">
+                        <strong>{{ report.content.documentTitle }}</strong>
+                        <span>{{ pdfPeriodLabel() }} - Emitido {{ pdfIssueDate() }}</span>
+                      </div>
+                    </header>
+
+                    <section class="pedagogical-student-band">
+                      <div class="pedagogical-student-field">
+                        <span>Estudiante</span>
+                        <strong>{{ report.studentName }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Nivel</span>
+                        <strong><span class="pedagogical-level-badge" [ngClass]="pedagogicalBadgeClass(report.levelCode)">{{ report.levelLabel }}</span></strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Período</span>
+                        <strong>{{ pdfPeriodLabel() }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Educadora</span>
+                        <strong>{{ report.content.educatorName }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>RUN</span>
+                        <strong>{{ report.studentRun || '-' }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Año</span>
+                        <strong>{{ report.schoolYear }}</strong>
+                      </div>
+                    </section>
+                  </div>
+
+                  <section class="pedagogical-section">
+                    <div class="pedagogical-section-title pedagogical-section-title--with-legend">
+                      <mat-icon>widgets</mat-icon>
+                      <span>Áreas de desarrollo</span>
+                      <div class="pedagogical-answer-legend" aria-label="Leyenda de respuestas">
+                        <span class="pedagogical-answer-legend__item">
+                          <span class="pedagogical-answer-legend__dot dot-si"></span>
+                          <span>Sí</span>
+                        </span>
+                        <span class="pedagogical-answer-legend__item">
+                          <span class="pedagogical-answer-legend__dot dot-ep"></span>
+                          <span>En proceso (Ep)</span>
+                        </span>
+                        <span class="pedagogical-answer-legend__item">
+                          <span class="pedagogical-answer-legend__dot dot-no"></span>
+                          <span>No</span>
+                        </span>
                       </div>
                     </div>
-                    <div class="pdf-bulletin__meta">
-                      <strong>Bolet&iacute;n de notas</strong>
-                      <span>{{ pdfPeriodLabel() }} · Emitido {{ pdfIssueDate() }}</span>
-                    </div>
-                  </header>
-
-                  <section class="pdf-bulletin__student-band">
-                    <div class="pdf-bulletin__field">
-                      <span>Nombre del estudiante</span>
-                      <strong>{{ pdfText(student.fullName) }}</strong>
-                    </div>
-                    <div class="pdf-bulletin__field">
-                      <span>RUN</span>
-                      <strong>{{ pdfText(student.run) }}</strong>
-                    </div>
-                    <div class="pdf-bulletin__field">
-                      <span>Curso</span>
-                      <strong>{{ pdfCourseLabel() }}</strong>
-                    </div>
-                    <div class="pdf-bulletin__field">
-                      <span>Profesor jefe</span>
-                      <strong>{{ pdfTeacherName() }}</strong>
-                    </div>
-                    <div class="pdf-bulletin__field">
-                      <span>A&ntilde;o escolar</span>
-                      <strong>{{ pdfSchoolYear() }}</strong>
-                    </div>
-                    <div class="pdf-bulletin__field">
-                      <span>N° de lista</span>
-                      <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                    <div class="pedagogical-grid">
+                      @for (area of report.content.developmentAreas; track trackArea($index, area)) {
+                        <article class="pedagogical-area-card">
+                          <div class="pedagogical-area-head">
+                            <span class="pedagogical-area-icon" [style.background]="area.accentColor" [style.color]="area.iconColor">
+                              <mat-icon>{{ area.icon }}</mat-icon>
+                            </span>
+                            <strong>{{ area.title }}</strong>
+                          </div>
+                          <div class="pedagogical-checklist">
+                            @for (item of area.items; track trackSimple($index)) {
+                              <div class="pedagogical-check-item">
+                                <span class="pedagogical-check-badge" [ngClass]="pedagogicalCheckClass(item.answer)">{{ pedagogicalAnswerLabel(item.answer) }}</span>
+                                <span>{{ item.label }}</span>
+                              </div>
+                            }
+                          </div>
+                          <p class="pedagogical-area-observation">{{ area.observation || 'Sin observación registrada.' }}</p>
+                        </article>
+                      }
                     </div>
                   </section>
 
-                  <section class="pdf-bulletin__status-row">
-                    <div class="pdf-bulletin__status-box">
-                      <strong>{{ pdfScore(student.overallAverage) }}</strong>
-                      <span>Promedio general</span>
-                      <div class="pdf-bulletin__mini-bar">
-                        <span [style.width.%]="profileAverageWidth(student.overallAverage)"></span>
+                  @if (report.content.attitudeArea; as attitude) {
+                    <section class="pedagogical-full-area">
+                      <div class="pedagogical-area-head">
+                        <span class="pedagogical-area-icon" [style.background]="attitude.accentColor" [style.color]="attitude.iconColor">
+                          <mat-icon>{{ attitude.icon }}</mat-icon>
+                        </span>
+                        <strong>{{ attitude.title }}</strong>
                       </div>
-                    </div>
-                    <div class="pdf-bulletin__status-box">
-                      <strong style="color:#2563eb;font-size:1.9rem;font-weight:800;line-height:1;">{{ pdfStudentAttendance(student) }}</strong>
-                      <span>Asistencia semestral</span>
-                      <div class="pdf-bulletin__mini-bar pdf-bulletin__mini-bar--blue">
-                        <span [style.width.%]="pdfStudentAttendanceWidth(student)"></span>
-                      </div>
-                    </div>
-                    <div class="pdf-bulletin__status-box">
-                      <strong class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</strong>
-                      <span>Estado acad&eacute;mico</span>
-                    </div>
-                  </section>
-
-                  <section class="pdf-bulletin__section">
-                    <h3>Notas por asignatura · {{ pdfPeriodLabel() }}</h3>
-
-                    <table class="pdf-bulletin__table">
-                      <thead>
-                        <tr>
-                          <th class="left">Asignatura</th>
-                          <th>N1</th>
-                          <th>N2</th>
-                          <th>N3</th>
-                          <th>Promedio</th>
-                          <th>Concepto</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        @for (subject of student.subjects; track subject.subjectId) {
-                          <tr>
-                            <td class="left">
-                              <strong>{{ pdfText(subject.subjectName) }}</strong>
-                            </td>
-                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 0))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 0)) }}</td>
-                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 1))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 1)) }}</td>
-                            <td [ngClass]="pdfConceptClass(pdfSubjectScore(student, subject.subjectId, 2))">{{ pdfScore(pdfSubjectScore(student, subject.subjectId, 2)) }}</td>
-                            <td class="pdf-bulletin__cell-pill">
-                              <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfScore(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
-                            </td>
-                            <td class="pdf-bulletin__cell-pill">
-                              <span class="pdf-bulletin__concept-chip" [ngClass]="pdfConceptClass(pdfSubjectAverage(student, subject.subjectId, subject.average))">{{ pdfConcept(pdfSubjectAverage(student, subject.subjectId, subject.average)) }}</span>
-                            </td>
-                          </tr>
+                      <div class="pedagogical-checklist pedagogical-checklist--split">
+                        @for (item of attitude.items; track trackSimple($index)) {
+                          <div class="pedagogical-check-item">
+                            <span class="pedagogical-check-badge" [ngClass]="pedagogicalCheckClass(item.answer)">{{ pedagogicalAnswerLabel(item.answer) }}</span>
+                            <span>{{ item.label }}</span>
+                          </div>
                         }
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td class="left">Promedio general semestral</td>
-                          <td colspan="3"></td>
-                          <td class="pdf-bulletin__cell-pill">
-                            <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
-                          </td>
-                          <td class="pdf-bulletin__cell-pill">
-                            <span class="pdf-bulletin__status-pill" [ngClass]="pdfAcademicStatusClass(student.overallAverage)">{{ pdfAcademicStatus(student.overallAverage) }}</span>
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </section>
+                      </div>
+                      <p class="pedagogical-area-observation">{{ attitude.observation || 'Sin observación registrada.' }}</p>
+                    </section>
+                  }
 
-                  <section class="pdf-bulletin__section">
-                    <h3>Observaciones del profesor jefe</h3>
-                    <div class="pdf-bulletin__observations">
-                      <div class="pdf-bulletin__observation-row">
-                        <span class="pdf-bulletin__observation-dot is-green"></span>
-                        <p>{{ pdfText(reportCompletionLabel(student)) }}</p>
-                      </div>
-                      <div class="pdf-bulletin__observation-row">
-                        <span class="pdf-bulletin__observation-dot is-amber"></span>
-                        <p>{{ pdfText(profileTrendLabel(student)) }}</p>
-                      </div>
-                      <div class="pdf-bulletin__observation-row">
-                        <span class="pdf-bulletin__observation-dot is-blue"></span>
-                        <p>Documento generado autom&aacute;ticamente desde ConectaSchool el {{ pdfIssueDate() }}.</p>
-                      </div>
+                  <section class="pedagogical-section">
+                    <div class="pedagogical-section-title">
+                      <mat-icon>home</mat-icon>
+                      <span>Recomendaciones a la familia</span>
+                    </div>
+                    <div class="pedagogical-recommendations">
+                      @for (recommendation of report.content.familyRecommendations; track trackSimple($index)) {
+                        @if (recommendation.trim().length > 0) {
+                          <div class="pedagogical-rec-item">
+                            <span class="pedagogical-rec-dot"></span>
+                            <p>{{ recommendation }}</p>
+                          </div>
+                        }
+                      }
                     </div>
                   </section>
 
-                  <section class="pdf-bulletin__section">
-                    <h3>Firmas</h3>
-                    <div class="pdf-bulletin__signatures">
-                      <div>Profesor Jefe<br />{{ pdfTeacherName() }}</div>
-                      <div>Director/a<br />Torre Fuerte School</div>
-                      <div>Apoderado/a<br />Recibido conforme</div>
-                    </div>
+                  <section class="pedagogical-sign-row">
+                    <div class="pedagogical-sign-box">Educadora<br />{{ report.content.teacherSignatureName || report.content.educatorName }}</div>
+                    <div class="pedagogical-sign-box">Apoderado/a<br />{{ report.content.guardianSignatureLabel }}</div>
                   </section>
 
-                  <footer class="pdf-bulletin__footer">
-                    Torre Fuerte School · ConectaSchool · Documento generado autom&aacute;ticamente · {{ pdfIssueDate() }}
-                  </footer>
+                  <footer class="pedagogical-watermark">Torre Fuerte School - ConectaSchool - {{ pdfIssueDate() }}</footer>
                 </div>
               </article>
             </div>
           </section>
         </div>
       }
+
+      @if (isPedagogicalPreviewOpen() && pedagogicalDraft(); as report) {
+        <div class="report-preview-overlay" (click)="closePedagogicalPreview()">
+          <section class="report-preview-modal pedagogical-preview-modal" (click)="$event.stopPropagation()">
+            <header class="report-preview-modal__header">
+              <div>
+                <h3>Editar informe pedagógico</h3>
+                <p>{{ report.studentName }} - {{ report.levelLabel }} - {{ pdfPeriodLabel() }}</p>
+              </div>
+              <div class="report-preview-modal__actions">
+                <button mat-flat-button type="button" class="header-button header-button--primary report-preview-modal__save" (click)="savePedagogicalPreview()">
+                  <mat-icon>save</mat-icon>
+                  Guardar informe
+                </button>
+                <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closePedagogicalPreview()" aria-label="Cerrar vista previa">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </header>
+
+            <div class="report-preview-modal__body">
+              <article class="pedagogical-sheet pedagogical-sheet--editable">
+                <div class="pedagogical-report">
+                  <div class="pedagogical-intro">
+                    <header class="pedagogical-header">
+                      <div class="pedagogical-brand">
+                        <img class="pedagogical-logo" src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
+                        <div>
+                          <strong>Colegio Torre Fuerte School</strong>
+                          <span>Control institucional - Plataforma ConectaSchool</span>
+                        </div>
+                      </div>
+                      <div class="pedagogical-meta pedagogical-meta--editable">
+                        <input type="text" [value]="report.content.documentTitle" (input)="updatePedagogicalField('documentTitle', $any($event.target).value)" />
+                        <span>{{ pdfPeriodLabel() }} - Emitido {{ pdfIssueDate() }}</span>
+                      </div>
+                    </header>
+
+                    <section class="pedagogical-student-band">
+                      <div class="pedagogical-student-field">
+                        <span>Estudiante</span>
+                        <strong>{{ report.studentName }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Nivel</span>
+                        <strong><span class="pedagogical-level-badge" [ngClass]="pedagogicalBadgeClass(report.levelCode)">{{ report.levelLabel }}</span></strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Período</span>
+                        <strong>{{ pdfPeriodLabel() }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Educadora</span>
+                        <input type="text" [value]="report.content.educatorName" (input)="updatePedagogicalField('educatorName', $any($event.target).value)" />
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>RUN</span>
+                        <strong>{{ report.studentRun || '-' }}</strong>
+                      </div>
+                      <div class="pedagogical-student-field">
+                        <span>Año</span>
+                        <strong>{{ report.schoolYear }}</strong>
+                      </div>
+                    </section>
+                  </div>
+
+                  <section class="pedagogical-section">
+                    <div class="pedagogical-section-title pedagogical-section-title--with-legend">
+                      <mat-icon>widgets</mat-icon>
+                      <span>Áreas de desarrollo</span>
+                      <div class="pedagogical-answer-legend" aria-label="Leyenda de respuestas">
+                        <span class="pedagogical-answer-legend__item">
+                          <span class="pedagogical-answer-legend__dot dot-si"></span>
+                          <span>Sí</span>
+                        </span>
+                        <span class="pedagogical-answer-legend__item">
+                          <span class="pedagogical-answer-legend__dot dot-ep"></span>
+                          <span>En proceso (Ep)</span>
+                        </span>
+                        <span class="pedagogical-answer-legend__item">
+                          <span class="pedagogical-answer-legend__dot dot-no"></span>
+                          <span>No</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="pedagogical-grid">
+                      @for (area of report.content.developmentAreas; track trackArea($index, area)) {
+                        <article class="pedagogical-area-card">
+                          <div class="pedagogical-area-head">
+                            <div class="pedagogical-area-head__identity">
+                              <span class="pedagogical-area-icon" [style.background]="area.accentColor" [style.color]="area.iconColor">
+                                <mat-icon>{{ area.icon }}</mat-icon>
+                              </span>
+                              <strong>{{ area.title }}</strong>
+                            </div>
+                            <button mat-icon-button type="button" class="pedagogical-area-head__action" (click)="openPedagogicalAreaEditor(area)" aria-label="Editar preguntas del area">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                          </div>
+                          <div class="pedagogical-checklist">
+                            @for (item of area.items; track trackSimple($index)) {
+                              <div class="pedagogical-check-item pedagogical-check-item--editor">
+                                <button type="button" class="pedagogical-answer-chip" [ngClass]="pedagogicalCheckClass(item.answer)" (click)="setPedagogicalItemAnswer(area.key, $index, nextPedagogicalAnswer(item.answer))">
+                                  {{ pedagogicalAnswerLabel(item.answer) }}
+                                </button>
+                                <span>{{ item.label }}</span>
+                              </div>
+                            }
+                          </div>
+                          <textarea class="pedagogical-textarea" [value]="area.observation" (input)="updatePedagogicalAreaObservation(area.key, $any($event.target).value)" placeholder="Escribe una observacion para esta area..."></textarea>
+                        </article>
+                      }
+                    </div>
+                  </section>
+
+                  @if (report.content.attitudeArea; as attitude) {
+                    <section class="pedagogical-full-area">
+                      <div class="pedagogical-area-head">
+                        <div class="pedagogical-area-head__identity">
+                          <span class="pedagogical-area-icon" [style.background]="attitude.accentColor" [style.color]="attitude.iconColor">
+                            <mat-icon>{{ attitude.icon }}</mat-icon>
+                          </span>
+                          <strong>{{ attitude.title }}</strong>
+                        </div>
+                        <button mat-icon-button type="button" class="pedagogical-area-head__action" (click)="openPedagogicalAreaEditor(attitude, true)" aria-label="Editar preguntas del area">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                      </div>
+                      <div class="pedagogical-checklist pedagogical-checklist--split">
+                        @for (item of attitude.items; track trackSimple($index)) {
+                          <div class="pedagogical-check-item pedagogical-check-item--editor">
+                            <button type="button" class="pedagogical-answer-chip" [ngClass]="pedagogicalCheckClass(item.answer)" (click)="setPedagogicalAttitudeItemAnswer($index, nextPedagogicalAnswer(item.answer))">
+                              {{ pedagogicalAnswerLabel(item.answer) }}
+                            </button>
+                            <span>{{ item.label }}</span>
+                          </div>
+                        }
+                      </div>
+                      <textarea class="pedagogical-textarea" [value]="attitude.observation" (input)="updatePedagogicalAttitudeObservation($any($event.target).value)" placeholder="Escribe una observacion general sobre la disposicion al aprendizaje..."></textarea>
+                    </section>
+                  }
+
+                  <section class="pedagogical-section">
+                    <div class="pedagogical-section-title">
+                      <mat-icon>home</mat-icon>
+                      <span>Recomendaciones a la familia</span>
+                    </div>
+                    <div class="pedagogical-recommendations pedagogical-recommendations--editable">
+                      @for (recommendation of report.content.familyRecommendations; track trackSimple($index)) {
+                        <div class="pedagogical-rec-editor">
+                          <span class="pedagogical-rec-dot"></span>
+                        <textarea class="pedagogical-rec-textarea" [value]="pedagogicalRecommendationValue($index)" (input)="updatePedagogicalRecommendation($index, $any($event.target).value)" placeholder="Agrega una recomendacion concreta para la familia..."></textarea>
+                        <button mat-icon-button type="button" class="pedagogical-rec-remove" (click)="removePedagogicalRecommendation($index)" aria-label="Eliminar recomendacion">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      }
+                      <button mat-stroked-button type="button" class="pedagogical-add-button" (click)="addPedagogicalRecommendation()">
+                        <mat-icon>add</mat-icon>
+                      Agregar recomendacion
+                      </button>
+                    </div>
+                  </section>
+
+                  <section class="pedagogical-sign-row">
+                    <div class="pedagogical-sign-box pedagogical-sign-box--editable">
+                      <span>Firma educadora</span>
+                      <input type="text" [value]="report.content.teacherSignatureName" (input)="updatePedagogicalField('teacherSignatureName', $any($event.target).value)" />
+                    </div>
+                    <div class="pedagogical-sign-box pedagogical-sign-box--editable">
+                      <span>Firma apoderado/a</span>
+                      <input type="text" [value]="report.content.guardianSignatureLabel" (input)="updatePedagogicalField('guardianSignatureLabel', $any($event.target).value)" />
+                    </div>
+                  </section>
+
+                  <footer class="pedagogical-watermark">Torre Fuerte School - ConectaSchool - {{ pdfIssueDate() }}</footer>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      }
+
+      @if (pedagogicalAreaEditor(); as editor) {
+        <div class="report-preview-overlay" (click)="closePedagogicalAreaEditor()">
+          <section class="pedagogical-bank-modal" (click)="$event.stopPropagation()">
+            <header class="pedagogical-bank-modal__header">
+              <div>
+                <h3>Banco de preguntas</h3>
+                <p>{{ editor.areaTitle }} - selecciona 4 preguntas</p>
+              </div>
+              <button mat-icon-button type="button" (click)="closePedagogicalAreaEditor()" aria-label="Cerrar banco de preguntas">
+                <mat-icon>close</mat-icon>
+              </button>
+            </header>
+
+            <div class="pedagogical-bank-modal__body">
+              @for (question of pedagogicalEditorQuestions(); track question.id) {
+                <button type="button" class="pedagogical-bank-question" [class.is-selected]="isPedagogicalQuestionSelected(question.id)" (click)="togglePedagogicalQuestionSelection(question.id)">
+                  <span class="pedagogical-bank-question__check">
+                    <mat-icon>{{ isPedagogicalQuestionSelected(question.id) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                  </span>
+                  <span>{{ question.label }}</span>
+                </button>
+              } @empty {
+                <div class="profile-empty-state">
+                  <strong>Sin preguntas disponibles</strong>
+                  <span>No hay preguntas configuradas para esta area.</span>
+                </div>
+              }
+            </div>
+
+            <footer class="pedagogical-bank-modal__footer">
+              <span>{{ pedagogicalAreaEditor()?.selectedQuestionIds?.length ?? 0 }}/4 seleccionadas</span>
+              <div class="pedagogical-bank-modal__actions">
+                <button mat-stroked-button type="button" (click)="closePedagogicalAreaEditor()">Cancelar</button>
+                <button mat-flat-button type="button" class="header-button header-button--primary" (click)="applyPedagogicalAreaSelection()">Aplicar</button>
+              </div>
+            </footer>
+          </section>
+        </div>
+      }
     }
   </main>
+
+  @if (evaluationKindDialogOpen()) {
+    <div class="dialog-backdrop" (click)="closeEvaluationKindDialog()"></div>
+    <section class="dialog-panel dialog-panel--compact" style="width:min(100%,740px);overflow:hidden;" role="dialog" aria-modal="true" aria-labelledby="evaluation-kind-title">
+      <header class="dialog-panel__header" style="position:relative;justify-content:center;padding:1.05rem 3.8rem .92rem;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);">
+        <div style="display:grid;gap:.1rem;justify-items:center;align-items:center;text-align:center;width:100%;">
+          <h2 id="evaluation-kind-title" style="margin:0;text-align:center;width:100%;display:flex;align-items:center;justify-content:center;min-height:32px;">Seleccionar tipo de evaluacion</h2>
+        </div>
+        <button type="button" class="dialog-panel__close" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:#6f86ab;" (click)="closeEvaluationKindDialog()" aria-label="Cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="dialog-panel__body" style="padding:.72rem 1.15rem 1rem;">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;">
+          <button type="button"
+            [style.border]="selectedEvaluationKind() === 'DIAGNOSTICA' ? '1.5px solid #9bc0ff' : '1px solid #d8e5f3'"
+            [style.boxShadow]="selectedEvaluationKind() === 'DIAGNOSTICA' ? '0 14px 30px rgba(37,99,235,.12)' : '0 8px 24px rgba(15,23,42,.05)'"
+            style="min-height:150px;padding:.9rem .85rem;border-radius:20px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);display:grid;align-content:start;justify-items:start;gap:.65rem;text-align:left;cursor:pointer;transition:all .25s ease;color:#102849;"
+            (click)="chooseEvaluationKind('DIAGNOSTICA'); continueEvaluationKindSelection()">
+            <div style="display:flex;align-items:center;gap:.7rem;">
+              <span style="width:60px;height:60px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(180deg,#eef5ff 0%,#dbeafe 100%);color:#2563eb;box-shadow:inset 0 1px 0 rgba(255,255,255,.7);">
+                <mat-icon style="width:30px;height:30px;font-size:30px;">biotech</mat-icon>
+              </span>
+              <div style="display:grid;gap:.32rem;">
+                        <strong style="font-size:.92rem;font-weight:800;color:#102849;">Diagnostica</strong>
+                <span style="display:inline-flex;align-items:center;justify-content:center;min-height:25px;padding:0 .62rem;border-radius:999px;background:#eef4ff;color:#2563eb;font-size:.7rem;font-weight:700;border:1px solid #cfe0ff;">No afecta promedio</span>
+              </div>
+            </div>
+            <small style="color:#667b97;font-size:.74rem;font-weight:600;line-height:1.4;">Permite conocer el nivel inicial del estudiante.</small>
+          </button>
+
+          <button type="button"
+            [style.border]="selectedEvaluationKind() === 'PROCESO' ? '1.5px solid #ffd08a' : '1px solid #d8e5f3'"
+            [style.boxShadow]="selectedEvaluationKind() === 'PROCESO' ? '0 14px 30px rgba(217,119,6,.12)' : '0 8px 24px rgba(15,23,42,.05)'"
+            style="min-height:150px;padding:.9rem .85rem;border-radius:20px;background:linear-gradient(180deg,#ffffff 0%,#fffaf3 100%);display:grid;align-content:start;justify-items:start;gap:.65rem;text-align:left;cursor:pointer;transition:all .25s ease;color:#102849;"
+            (click)="chooseEvaluationKind('PROCESO'); continueEvaluationKindSelection()">
+            <div style="display:flex;align-items:center;gap:.7rem;">
+              <span style="width:60px;height:60px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(180deg,#fff4df 0%,#ffe4b8 100%);color:#f59e0b;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);">
+                <mat-icon style="width:30px;height:30px;font-size:30px;">timeline</mat-icon>
+              </span>
+              <div style="display:grid;gap:.32rem;">
+                <strong style="font-size:.92rem;font-weight:800;color:#102849;">Proceso</strong>
+                <span style="display:inline-flex;align-items:center;justify-content:center;min-height:25px;padding:0 .62rem;border-radius:999px;background:#fff4e5;color:#f97316;font-size:.7rem;font-weight:700;border:1px solid #ffd19a;">Formativa</span>
+              </div>
+            </div>
+            <small style="color:#667b97;font-size:.74rem;font-weight:600;line-height:1.4;">Registra mini controles y avances de clase.</small>
+          </button>
+
+          <button type="button"
+            [style.border]="selectedEvaluationKind() === 'SUMATIVA' ? '1.5px solid #90e0b1' : '1px solid #d8e5f3'"
+            [style.boxShadow]="selectedEvaluationKind() === 'SUMATIVA' ? '0 14px 30px rgba(5,150,105,.14)' : '0 8px 24px rgba(15,23,42,.05)'"
+            style="min-height:150px;padding:.9rem .85rem;border-radius:20px;background:linear-gradient(180deg,#ffffff 0%,#f4fdf8 100%);display:grid;align-content:start;justify-items:start;gap:.65rem;text-align:left;cursor:pointer;transition:all .25s ease;color:#102849;"
+            (click)="chooseEvaluationKind('SUMATIVA'); continueEvaluationKindSelection()">
+            <div style="display:flex;align-items:center;gap:.7rem;">
+              <span style="width:60px;height:60px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(180deg,#e8fbf0 0%,#cff5dd 100%);color:#10b981;box-shadow:inset 0 1px 0 rgba(255,255,255,.75);">
+                <mat-icon style="width:30px;height:30px;font-size:30px;">emoji_events</mat-icon>
+              </span>
+              <div style="display:grid;gap:.32rem;">
+                <strong style="font-size:.92rem;font-weight:800;color:#102849;">Sumativa</strong>
+                <span style="display:inline-flex;align-items:center;justify-content:center;min-height:25px;padding:0 .62rem;border-radius:999px;background:#e9fbf0;color:#059669;font-size:.7rem;font-weight:700;border:1px solid #bdebcf;">Afecta promedio</span>
+              </div>
+            </div>
+            <small style="color:#667b97;font-size:.74rem;font-weight:600;line-height:1.4;">Registra evaluaciones con calificacion formal.</small>
+          </button>
+        </div>
+      </div>
+    </section>
+  }
 
   @if (evaluationDialog(); as dialog) {
     <div class="dialog-backdrop" (click)="closeDraftEvaluationDialog()"></div>
     <section class="dialog-panel" role="dialog" aria-modal="true" aria-labelledby="draft-evaluation-title">
       <header class="dialog-panel__header">
         <div>
-          <span class="dialog-panel__eyebrow">Libro de notas</span>
-          <h2 id="draft-evaluation-title">{{ dialog.mode === 'create' ? 'Agregar evaluación' : 'Editar evaluación' }}</h2>
+          <span class="dialog-panel__eyebrow">{{ registrationTypeLabel(dialog.registrationType) }}</span>
+          <h2 id="draft-evaluation-title">{{ dialog.mode === 'create' ? 'Agregar evaluacion' : 'Editar evaluacion' }}</h2>
         </div>
         <button type="button" class="dialog-panel__close" (click)="closeDraftEvaluationDialog()" aria-label="Cerrar">
           <mat-icon>close</mat-icon>
@@ -1608,20 +1783,27 @@
 
       <div class="dialog-panel__body">
         <label class="dialog-field">
-          <span>Código</span>
-          <input type="text" [value]="dialog.code" (input)="updateDraftEvaluationCode($any($event.target).value)" placeholder="N3" />
+          <span>Codigo</span>
+          <input type="text" [value]="dialog.code" (input)="updateDraftEvaluationCode($any($event.target).value)" [placeholder]="evaluationCodePlaceholder(dialog.registrationType)" />
         </label>
 
         <label class="dialog-field">
           <span>Nombre</span>
-          <input type="text" [value]="dialog.name" (input)="updateDraftEvaluationName($any($event.target).value)" placeholder="Evaluación de unidad" />
+          <input type="text" [value]="dialog.name" (input)="updateDraftEvaluationName($any($event.target).value)" [placeholder]="evaluationNamePlaceholder(dialog.registrationType)" />
         </label>
 
         <div class="dialog-field-grid">
-          <label class="dialog-field">
-            <span>Ponderación (%)</span>
-            <input type="number" min="0" max="100" step="1" [value]="dialog.weight ?? ''" (input)="updateEvaluationWeight($any($event.target).value)" placeholder="25" />
-          </label>
+          @if (dialog.registrationType !== 'DIAGNOSTICA') {
+            <label class="dialog-field">
+              <span>Ponderacion (%)</span>
+              <input type="number" min="0" max="100" step="1" [value]="dialog.weight ?? ''" (input)="updateEvaluationWeight($any($event.target).value)" placeholder="25" />
+            </label>
+          } @else {
+            <label class="dialog-field">
+              <span>Resultado</span>
+              <input type="text" value="Se calculara por porcentaje: PL / ML / L" disabled />
+            </label>
+          }
 
           <label class="dialog-field">
             <span>Fecha</span>
@@ -1636,7 +1818,7 @@
         }
         <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="closeDraftEvaluationDialog()">Cancelar</button>
         <button mat-flat-button type="button" class="header-button header-button--primary" (click)="saveEvaluationDialog()">
-          {{ dialog.mode === 'create' ? 'Agregar evaluación' : 'Guardar cambios' }}
+          {{ dialog.mode === 'create' ? 'Agregar evaluacion' : 'Guardar cambios' }}
         </button>
       </footer>
     </section>
@@ -1647,7 +1829,7 @@
     <section class="dialog-panel dialog-panel--compact" role="dialog" aria-modal="true" aria-labelledby="evaluation-details-title">
       <header class="dialog-panel__header">
         <div>
-          <span class="dialog-panel__eyebrow">Detalle de evaluación</span>
+          <span class="dialog-panel__eyebrow">Detalle de evaluacion</span>
           <h2 id="evaluation-details-title">{{ evaluation.code }}</h2>
         </div>
         <button type="button" class="dialog-panel__close" (click)="closeEvaluationDetails()" aria-label="Cerrar">
@@ -1666,9 +1848,15 @@
             {{ formatEvaluationDate(evaluation.evaluationDate) }}
           </span>
           <span class="detail-chip">
+            <mat-icon>category</mat-icon>
+            {{ registrationTypeLabel(evaluation.registrationType) }}
+          </span>
+          @if (evaluation.registrationType !== 'DIAGNOSTICA') {
+          <span class="detail-chip">
             <mat-icon>percent</mat-icon>
             {{ formatWeight(evaluation.weight) }}
           </span>
+          }
         </div>
 
         @if (selectedEvaluationStats(); as stats) {
@@ -1703,11 +1891,14 @@
         </div>
         <div class="dialog-panel__footer-right">
           <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="closeEvaluationDetails()">Cerrar</button>
-          <button mat-flat-button type="button" class="header-button header-button--primary" (click)="editEvaluationFromDetails()">Editar evaluación</button>
+          <button mat-flat-button type="button" class="header-button header-button--primary" (click)="editEvaluationFromDetails()">Editar evaluacion</button>
         </div>
       </footer>
     </section>
   }
 </app-teacher-modern-layout>
+
+
+
 
 

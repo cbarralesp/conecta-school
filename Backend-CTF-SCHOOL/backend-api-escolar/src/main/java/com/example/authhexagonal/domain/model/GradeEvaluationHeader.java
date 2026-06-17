@@ -6,6 +6,7 @@ public record GradeEvaluationHeader(
         String name,
         int order,
         Double weight,
-        String evaluationDate
+        String evaluationDate,
+        String registrationType
 ) {
 }

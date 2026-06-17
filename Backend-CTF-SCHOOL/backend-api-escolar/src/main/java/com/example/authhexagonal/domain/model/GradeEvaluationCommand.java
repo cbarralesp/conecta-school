@@ -9,6 +9,7 @@ public record GradeEvaluationCommand(
         String code,
         String name,
         Double weight,
-        LocalDate evaluationDate
+        LocalDate evaluationDate,
+        String registrationType
 ) {
 }

@@ -36,6 +36,7 @@ public class SubjectService implements ManageSubjectsUseCase {
             String colorHex,
             String description,
             String referenceLevel,
+            String evaluationType,
             int suggestedHours,
             List<Long> teacherIds,
             List<Long> applicableGradeIds,
@@ -49,6 +50,7 @@ public class SubjectService implements ManageSubjectsUseCase {
                 colorHex,
                 description,
                 referenceLevel,
+                normalizeEvaluationType(evaluationType),
                 suggestedHours,
                 teacherIds == null ? List.of() : teacherIds,
                 applicableGradeIds == null ? List.of() : applicableGradeIds,
@@ -65,6 +67,7 @@ public class SubjectService implements ManageSubjectsUseCase {
             String colorHex,
             String description,
             String referenceLevel,
+            String evaluationType,
             int suggestedHours,
             List<Long> teacherIds,
             List<Long> applicableGradeIds,
@@ -80,6 +83,7 @@ public class SubjectService implements ManageSubjectsUseCase {
                 colorHex,
                 description,
                 referenceLevel,
+                normalizeEvaluationType(evaluationType),
                 suggestedHours,
                 teacherIds == null ? List.of() : teacherIds,
                 applicableGradeIds == null ? List.of() : applicableGradeIds,
@@ -114,5 +118,9 @@ public class SubjectService implements ManageSubjectsUseCase {
         }
 
         return normalized;
+    }
+
+    private String normalizeEvaluationType(String evaluationType) {
+        return "NUMERICA";
     }
 }

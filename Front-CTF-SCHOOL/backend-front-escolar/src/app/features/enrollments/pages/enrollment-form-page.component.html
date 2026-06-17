@@ -211,7 +211,11 @@
                             <div class="form-group">
                               <label>Usuario</label>
                               <div class="access-inline-field">
-                                <input type="text" class="form-input" [value]="studentAccessUsernamePreview()" readonly>
+                                <input
+                                  type="text"
+                                  class="form-input"
+                                  formControlName="username"
+                                  [attr.placeholder]="studentAccessUsernamePreview() || 'Usuario editable'">
                                 <button class="inline-copy" type="button" (click)="copyStudentAccessValue(studentAccessUsernamePreview(), 'Usuario')">
                                   <mat-icon>content_copy</mat-icon>
                                 </button>

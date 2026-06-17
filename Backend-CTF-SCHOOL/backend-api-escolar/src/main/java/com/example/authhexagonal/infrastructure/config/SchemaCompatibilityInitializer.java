@@ -26,6 +26,10 @@ public class SchemaCompatibilityInitializer {
         ensureScheduleCourseScope();
         ensureGradeEvaluationColumns();
         ensureCourseNormalizationSchema();
+        ensureSubjectEvaluationType();
+        ensureConceptualGradeValue();
+        ensureEvaluationRegistrationType();
+        ensureDiagnosticPercentageValue();
         ensureSubjectGradeScope();
         ensureSubjectCourseScope();
         ensureCourseEnrollmentConsistency();
@@ -737,6 +741,48 @@ public class SchemaCompatibilityInitializer {
                         FOREIGN KEY ("GRADO_ID") REFERENCES "CURSO_GRADOS" ("ID");
                     END IF;
                 END $$;
+                """);
+    }
+
+    private void ensureSubjectEvaluationType() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "ASIGNATURAS"
+                ADD COLUMN IF NOT EXISTS "TIPO_EVALUACION" character varying(20)
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "ASIGNATURAS"
+                SET "TIPO_EVALUACION" = COALESCE(NULLIF(TRIM("TIPO_EVALUACION"), ''), 'NUMERICA')
+                WHERE "TIPO_EVALUACION" IS NULL
+                   OR TRIM("TIPO_EVALUACION") = ''
+                """);
+    }
+
+    private void ensureConceptualGradeValue() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "CALIFICACIONES"
+                ADD COLUMN IF NOT EXISTS "VALOR_CONCEPTUAL" character varying(5)
+                """);
+    }
+
+    private void ensureEvaluationRegistrationType() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "EVALUACIONES"
+                ADD COLUMN IF NOT EXISTS "TIPO_REGISTRO" character varying(20)
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "EVALUACIONES"
+                SET "TIPO_REGISTRO" = COALESCE(NULLIF(TRIM("TIPO_REGISTRO"), ''), 'SUMATIVA')
+                WHERE "TIPO_REGISTRO" IS NULL
+                   OR TRIM("TIPO_REGISTRO") = ''
+                """);
+    }
+
+    private void ensureDiagnosticPercentageValue() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "CALIFICACIONES"
+                ADD COLUMN IF NOT EXISTS "PORCENTAJE_LOGRO" numeric(5,2)
                 """);
     }
 

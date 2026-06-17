@@ -63,6 +63,7 @@ export class SchedulePageComponent {
   readonly catalog = signal<ScheduleCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
   readonly selectedSemesterId = signal<number | null>(null);
+  readonly selectedMobileDay = signal<DayKey>('LUNES');
   readonly scheduleEntries = signal<ScheduleEntry[]>([]);
   readonly isExportingPdf = signal(false);
   readonly isPreviewOpen = signal(false);
@@ -171,6 +172,27 @@ export class SchedulePageComponent {
   updateSemester(periodId: number | null): void {
     this.selectedSemesterId.set(periodId);
     this.reloadSelectedCourse();
+  }
+
+  setSelectedMobileDay(day: DayKey): void {
+    this.selectedMobileDay.set(day);
+  }
+
+  mobileDayLabel(day: DayKey): string {
+    switch (day) {
+      case 'LUNES':
+        return 'Lun';
+      case 'MARTES':
+        return 'Mar';
+      case 'MIERCOLES':
+        return 'Mié';
+      case 'JUEVES':
+        return 'Jue';
+      case 'VIERNES':
+        return 'Vie';
+      default:
+        return day;
+    }
   }
 
   openCreateDialog(blockId?: number): void {

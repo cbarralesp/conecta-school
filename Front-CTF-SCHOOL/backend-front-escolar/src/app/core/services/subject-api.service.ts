@@ -47,6 +47,7 @@ export class SubjectApiService {
       area: normalizeDashboardText(subject.area),
       description: normalizeDashboardText(subject.description),
       referenceLevel: normalizeDashboardText(subject.referenceLevel),
+      evaluationType: subject.evaluationType ?? 'NUMERICA',
       displayLevel: normalizeDashboardText(subject.displayLevel ?? ''),
       applicableGradeIds: (subject.applicableGradeIds ?? []).map(Number),
       applicableGradeNames: (subject.applicableGradeNames ?? []).map((name) => normalizeDashboardText(name)),

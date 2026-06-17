@@ -5,9 +5,18 @@ import com.example.authhexagonal.domain.model.GradeCatalog;
 import com.example.authhexagonal.domain.model.GradeEvaluationCommand;
 import com.example.authhexagonal.domain.model.GradeReportView;
 import com.example.authhexagonal.domain.model.GradeSaveCommand;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankArea;
+import com.example.authhexagonal.domain.model.PedagogicalReportArea;
+import com.example.authhexagonal.domain.model.PedagogicalReportContent;
+import com.example.authhexagonal.domain.model.PedagogicalReportItem;
+import com.example.authhexagonal.domain.model.PedagogicalReportSaveCommand;
+import com.example.authhexagonal.domain.model.PedagogicalReportView;
 import com.example.authhexagonal.domain.model.StudentGradeProfileView;
 import com.example.authhexagonal.domain.port.in.ManageGradesUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.GradeEvaluationRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalReportAreaRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalReportContentRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalReportSaveRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.SaveGradeBookRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,7 +60,7 @@ public class GradesController {
         List<GradeSaveCommand> commands = request.entries() == null
                 ? List.of()
                 : request.entries().stream()
-                .map(entry -> new GradeSaveCommand(entry.studentId(), entry.evaluationId(), entry.score()))
+                .map(entry -> new GradeSaveCommand(entry.studentId(), entry.evaluationId(), entry.score(), entry.conceptCode(), entry.percentage()))
                 .toList();
 
         return manageGradesUseCase.saveGradeBook(
@@ -101,6 +110,32 @@ public class GradesController {
         return manageGradesUseCase.getGradeReports(courseId, periodId);
     }
 
+    @GetMapping("/informes-pedagogicos/banco")
+    public List<PedagogicalQuestionBankArea> pedagogicalQuestionBank(
+            @RequestParam(name = "levelCode", required = false) String levelCode
+    ) {
+        return manageGradesUseCase.getPedagogicalQuestionBank(levelCode);
+    }
+
+    @GetMapping("/informes-pedagogicos")
+    public PedagogicalReportView pedagogicalReport(
+            @RequestParam(name = "courseId") Long courseId,
+            @RequestParam(name = "periodId") Long periodId,
+            @RequestParam(name = "studentId") Long studentId
+    ) {
+        return manageGradesUseCase.getPedagogicalReport(courseId, periodId, studentId);
+    }
+
+    @PutMapping("/informes-pedagogicos")
+    public PedagogicalReportView savePedagogicalReport(@Valid @RequestBody PedagogicalReportSaveRequest request) {
+        return manageGradesUseCase.savePedagogicalReport(new PedagogicalReportSaveCommand(
+                request.courseId(),
+                request.periodId(),
+                request.studentId(),
+                toPedagogicalContent(request.content())
+        ));
+    }
+
     private GradeEvaluationCommand toCommand(GradeEvaluationRequest request) {
         return new GradeEvaluationCommand(
                 request.courseId(),
@@ -109,7 +144,38 @@ public class GradesController {
                 request.code(),
                 request.name(),
                 request.weight(),
-                request.evaluationDate()
+                request.evaluationDate(),
+                request.registrationType()
+        );
+    }
+
+    private PedagogicalReportContent toPedagogicalContent(PedagogicalReportContentRequest request) {
+        return new PedagogicalReportContent(
+                request.documentTitle(),
+                request.educatorName(),
+                request.developmentAreas() == null
+                        ? List.of()
+                        : request.developmentAreas().stream().map(this::toPedagogicalArea).toList(),
+                request.attitudeArea() == null ? null : toPedagogicalArea(request.attitudeArea()),
+                request.familyRecommendations() == null ? List.of() : request.familyRecommendations(),
+                request.teacherSignatureName(),
+                request.guardianSignatureLabel()
+        );
+    }
+
+    private PedagogicalReportArea toPedagogicalArea(PedagogicalReportAreaRequest request) {
+        return new PedagogicalReportArea(
+                request.key(),
+                request.title(),
+                request.icon(),
+                request.accentColor(),
+                request.iconColor(),
+                request.items() == null
+                        ? List.of()
+                        : request.items().stream()
+                        .map(item -> new PedagogicalReportItem(item.questionId(), item.label(), item.answer(), null))
+                        .toList(),
+                request.observation()
         );
     }
 }

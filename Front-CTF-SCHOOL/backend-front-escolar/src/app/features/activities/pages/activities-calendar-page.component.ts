@@ -35,6 +35,7 @@ interface SelectedActivityItem {
   id: number;
   title: string;
   typeLabel: string;
+  courseLabel: string | null;
   colorHex: string;
   dateStr: string;
   shortDate: string;
@@ -163,6 +164,7 @@ export class ActivitiesCalendarPageComponent {
         id: activity.id,
         title: activity.title,
         typeLabel: activity.activityTypeName,
+        courseLabel: this.activityCourseLabel(activity),
         colorHex: activity.backgroundColor,
         dateStr: activity.date,
         shortDate: this.formatShortDate(activity.date),
@@ -178,6 +180,7 @@ export class ActivitiesCalendarPageComponent {
       id: activity.id,
       title: activity.title,
       typeLabel: activity.activityTypeName,
+      courseLabel: this.activityCourseLabel(activity),
       colorHex: activity.backgroundColor,
       dateStr: activity.date,
       shortDate: this.formatShortDate(activity.date),
@@ -310,6 +313,14 @@ export class ActivitiesCalendarPageComponent {
 
   hiddenActivityCount(day: ActivityCalendarDay, limit = 1): number {
     return Math.max(day.activities.length - limit, 0);
+  }
+
+  activityCourseLabel(activity: SchoolActivity): string | null {
+    if (activity.courseName?.trim()) {
+      return activity.courseName.trim();
+    }
+
+    return activity.courseId == null ? 'Todos los cursos' : null;
   }
 
   async downloadCurrentMonthPdf(): Promise<void> {

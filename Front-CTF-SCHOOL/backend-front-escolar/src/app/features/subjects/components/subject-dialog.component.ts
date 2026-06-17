@@ -489,6 +489,7 @@ export class SubjectDialogComponent {
     ],
     description: [this.data.subject?.description ?? '', [Validators.maxLength(500)]],
     referenceLevel: [this.data.subject?.referenceLevel ?? 'Básico', [Validators.maxLength(80)]],
+    evaluationType: ['NUMERICA', [Validators.required]],
     suggestedHours: [this.data.subject?.suggestedHours ?? 2, [Validators.required, Validators.min(1), Validators.max(20)]],
     teacherIds: [this.data.subject?.assignedTeachers.map((teacher) => teacher.id) ?? []],
     applicableGradeIds: [this.data.subject?.applicableGradeIds ?? []],
@@ -525,7 +526,10 @@ export class SubjectDialogComponent {
       return;
     }
 
-    this.dialogRef.close(this.form.getRawValue());
+    this.dialogRef.close({
+      ...this.form.getRawValue(),
+      evaluationType: 'NUMERICA'
+    });
   }
 
   normalizedColor(): string {

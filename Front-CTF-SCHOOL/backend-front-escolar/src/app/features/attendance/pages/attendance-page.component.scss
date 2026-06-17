@@ -1109,7 +1109,33 @@
 
 .alert-card__header--centered {
   justify-content: center;
+  flex-direction: column;
   text-align: center;
+}
+
+.alert-copy--month-summary {
+  gap: 0.35rem;
+}
+
+.month-summary-inline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.month-summary-inline__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.month-summary-score strong {
+  font-size: 1.3rem;
+  font-weight: 800;
 }
 
 .alert-copy span,
@@ -1216,7 +1242,7 @@
 }
 
 .semester-month__cell strong {
-  font-size: 1rem;
+  font-size: 0.84rem;
   font-weight: 800;
   line-height: 1;
 }
@@ -1597,7 +1623,7 @@
 }
 
 .attendance-special-marker {
-  font-size: inherit !important;
+  font-size: 0.76rem !important;
   font-weight: 900 !important;
   line-height: 1 !important;
   letter-spacing: 0.02em;

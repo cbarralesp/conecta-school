@@ -4,6 +4,8 @@ public record StudentSubjectAverage(
         Long subjectId,
         String subjectName,
         String colorHex,
-        Double average
+        Double average,
+        String evaluationType,
+        String conceptSummaryCode
 ) {
 }
