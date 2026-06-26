@@ -492,13 +492,11 @@ export class TeacherFormPageComponent {
   private buildBaseAccessUsernamePreview(): string {
     const firstName = this.normalizeAccessPart(this.form.controls.firstNames.value).split(/\s+/).filter(Boolean)[0] ?? '';
     const paternalLastName = this.normalizeAccessPart(this.form.controls.paternalLastName.value);
+    const firstInitial = firstName.charAt(0);
 
-    let candidate = `${firstName.charAt(0)}${paternalLastName}`.toLowerCase();
+    let candidate = `${firstInitial}${paternalLastName}`.toLowerCase();
     if (!candidate) {
       candidate = this.staffType() === 'ASISTENTE' ? 'asistente' : 'docente';
-    }
-    if (candidate.length < 4 && paternalLastName) {
-      candidate = `${candidate}${paternalLastName}`.slice(0, 12);
     }
     return candidate.slice(0, 16);
   }

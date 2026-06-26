@@ -32,6 +32,20 @@ public interface PlanningUnitRepositoryPort {
             String name
     );
 
+    PlanningUnit updateUnitDetails(
+            Long unitId,
+            String unitNumber,
+            String name,
+            Integer startWeek,
+            LocalDate startDate,
+            LocalDate endDate,
+            int estimatedWeeks,
+            int plannedClasses,
+            String generalDescription,
+            String learningObjectives,
+            String achievementIndicators
+    );
+
     boolean hasClasses(Long unitId);
 
     void deleteUnit(Long unitId);

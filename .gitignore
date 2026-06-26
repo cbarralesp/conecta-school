@@ -82,3 +82,4 @@ tmp_*.js
 **/Cookies-journal
 workspaces/
 Pruebas/
+.codex-remote-attachments/

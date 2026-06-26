@@ -188,6 +188,9 @@ Persistencia:
 - La imagen de DB corre sobre la imagen oficial `postgres:16`.
 - El dump se restaura solo en el primer arranque del contenedor, cuando `postgres_data` esta vacio.
 - Si ya existe un volumen previo y quieres reinicializar desde cero, elimina ese volumen antes de volver a levantar el stack.
+- PostgreSQL ya no publica el puerto `5432` hacia fuera: queda accesible solo dentro de la red interna de Docker.
+- Si alguna vez necesitas revisar la base en el droplet, usa `docker exec -it sistema_escolar_db psql -U escolar_user -d sistema_escolar`.
+- Si necesitas conectarte desde tu computador, hazlo via tunel SSH en vez de abrir `5432` a internet.
 
 ## Notas de frontend
 
@@ -218,7 +221,8 @@ docker compose up -d
 ```
 
 6. Abre al menos el puerto `80`.
-7. Abre tambien `8080` solo si necesitas acceder al backend directamente desde fuera del proxy frontal.
+7. Abre `8080` solo si realmente necesitas acceder al backend directamente desde fuera del proxy frontal.
+8. No abras `5432`: la base queda privada dentro de Docker por seguridad.
 
 ## Verificacion sugerida
 

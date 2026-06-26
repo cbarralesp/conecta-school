@@ -606,7 +606,9 @@ export class EnrollmentFormPageComponent {
     if (existingUsername) {
       return existingUsername;
     }
-    return this.studentUsernamePreview() || this.buildBaseStudentUsernamePreview();
+    return this.buildStudentRunUsername()
+      || this.studentUsernamePreview()
+      || this.buildBaseStudentUsernamePreview();
   }
 
   studentAccessPasswordPreview(): string {
@@ -1290,10 +1292,11 @@ export class EnrollmentFormPageComponent {
   }
 
   private buildDefaultStudentPassword(): string {
-    const normalizedRun = `${this.form.controls.studentRun.value ?? ''}`.replace(/[^0-9kK]/g, '').toUpperCase();
-    const verifier = normalizedRun.slice(-4) || '2024';
-    const nameInitial = this.normalizeAccessPart(this.form.controls.studentFirstName.value).charAt(0) || 'A';
-    return `Tfs${nameInitial}${verifier}!`;
+    const normalizedRun = this.normalizeComparableRun(this.form.controls.studentRun.value);
+    if (normalizedRun.length <= 1) {
+      return '';
+    }
+    return normalizedRun.slice(0, -1);
   }
 
   private buildDefaultGuardianPassword(): string {
@@ -1308,6 +1311,14 @@ export class EnrollmentFormPageComponent {
     const firstName = this.normalizeAccessPart(this.form.controls.studentFirstName.value).charAt(0);
     const paternalLastName = this.normalizeAccessPart(this.form.controls.studentLastNameFather.value);
     return `${firstName}${paternalLastName}`.toLowerCase();
+  }
+
+  private buildStudentRunUsername(): string {
+    const normalizedRun = this.normalizeComparableRun(this.form.controls.studentRun.value);
+    if (normalizedRun.length <= 1) {
+      return normalizedRun;
+    }
+    return `${normalizedRun.slice(0, -1)}-${normalizedRun.slice(-1)}`;
   }
 
   private buildBaseGuardianUsernamePreview(): string {
@@ -1439,8 +1450,22 @@ export class EnrollmentFormPageComponent {
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((preview) => {
+      const previousStudentPreview = this.studentUsernamePreview();
       this.studentUsernamePreview.set(preview.studentUsername ?? '');
       this.guardianUsernamePreview.set(preview.guardianUsername ?? '');
+
+      const usernameControl = this.studentAccessGroup.controls.username;
+      const currentUsername = usernameControl.value.trim();
+      const runBasedUsername = this.buildStudentRunUsername();
+      const legacyUsername = this.buildBaseStudentUsernamePreview();
+
+      if (
+        this.shouldShowStudentAccountBlock()
+        && runBasedUsername
+        && (!usernameControl.dirty || !currentUsername || currentUsername === previousStudentPreview || currentUsername === legacyUsername)
+      ) {
+        usernameControl.setValue(runBasedUsername, { emitEvent: false });
+      }
     });
   }
 

@@ -186,7 +186,7 @@ public class AttendanceJdbcAdapter implements ManageAttendancePort {
                     COUNT(1) FILTER (WHERE UPPER(COALESCE(ad."ESTADO", '')) IN ('ATRASO', 'ATRASADO')) AS late_count,
                     COUNT(1) FILTER (
                         WHERE UPPER(COALESCE(ad."ESTADO", '')) = 'AUSENTE'
-                           OR UPPER(COALESCE(ad."ESTADO", '')) IN ('SUSPENDIDO', 'SUSPENSION', 'SUSPENSIÃ“N')
+                           OR UPPER(COALESCE(ad."ESTADO", '')) IN ('SUSPENDIDO', 'SUSPENSION', 'SUSPENSIÓN')
                     ) AS absent_count,
                     COUNT(1) AS total_count
                 FROM "ASISTENCIA_DETALLES" ad
@@ -296,3 +296,5 @@ public class AttendanceJdbcAdapter implements ManageAttendancePort {
         );
     }
 }
+
+

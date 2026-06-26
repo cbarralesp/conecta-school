@@ -34,7 +34,8 @@ public record PlanningClassResponse(
         LocalDateTime updatedAt,
         List<PlanningClassDocumentResponse> documents,
         List<UUID> objectiveIds,
-        List<CurriculumObjectiveResponse> curriculumObjectives
+        List<CurriculumObjectiveResponse> curriculumObjectives,
+        List<PlanningClassObjectiveSelectionResponse> objectiveSelections
 ) {
     public static PlanningClassResponse fromDomain(PlanningClass planningClass) {
         return new PlanningClassResponse(
@@ -64,7 +65,8 @@ public record PlanningClassResponse(
                 planningClass.updatedAt(),
                 planningClass.documents().stream().map(PlanningClassDocumentResponse::fromDomain).toList(),
                 planningClass.curriculumObjectiveIds(),
-                planningClass.curriculumObjectives().stream().map(CurriculumObjectiveResponse::fromDomain).toList()
+                planningClass.curriculumObjectives().stream().map(CurriculumObjectiveResponse::fromDomain).toList(),
+                planningClass.objectiveSelections().stream().map(PlanningClassObjectiveSelectionResponse::fromDomain).toList()
         );
     }
 }

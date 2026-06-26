@@ -5,6 +5,8 @@
   [userName]="user()?.nombre ?? 'Docente'"
   userRole="Docente">
   <main class="planning-page">
+    <input #classResourceInput type="file" hidden (change)="onClassResourceSelected($event)">
+
     <section class="page-header">
       <div class="page-header__left">
         <h1 class="page-header__title">Unidades</h1>
@@ -12,144 +14,265 @@
       </div>
 
       <div class="page-header__actions">
-        <button type="button" class="inline-filter-button">
+        <label class="inline-filter-button">
           <mat-icon>calendar_today</mat-icon>
-          {{ selectedYearLabel() }}
+          <select [ngModel]="selectedYear()" (ngModelChange)="updateYear($event)">
+            @for (year of years(); track year.value) {
+              <option [ngValue]="year.value">{{ year.label }}</option>
+            }
+          </select>
           <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
-        </button>
+        </label>
 
-        <button type="button" class="inline-filter-button">
+        <label class="inline-filter-button">
           <mat-icon>groups</mat-icon>
-          {{ selectedCourseLabel() }}
+          <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
+            @for (course of courses(); track course.value) {
+              <option [ngValue]="course.value">{{ course.label }}</option>
+            }
+          </select>
           <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
-        </button>
+        </label>
 
-        <button type="button" class="inline-filter-button">
+        <label class="inline-filter-button">
           <mat-icon>menu_book</mat-icon>
-          {{ selectedSubjectLabel() }}
+          <select [ngModel]="selectedSubjectId()" (ngModelChange)="updateSubject($event)">
+            @for (subject of subjects(); track subject.value) {
+              <option [ngValue]="subject.value">{{ subject.label }}</option>
+            }
+          </select>
           <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
-        </button>
+        </label>
 
-        <button type="button" class="inline-filter-button">
+        <label class="inline-filter-button">
           <mat-icon>schedule</mat-icon>
-          {{ selectedSemesterLabel() }}
+          <select [ngModel]="selectedSemester()" (ngModelChange)="updateSemester($event)">
+            @for (semester of semesters; track semester.value) {
+              <option [ngValue]="semester.value">{{ semester.label }}</option>
+            }
+          </select>
           <mat-icon class="inline-filter-button__chevron">expand_more</mat-icon>
-        </button>
-
-        <a routerLink="/dashboard/planificaciones-nuevo/nueva-unidad" class="header-button header-button--primary">
-          <mat-icon>add</mat-icon>
-          Crear unidad
-        </a>
+        </label>
       </div>
     </section>
 
     <section class="planning-tabs-card">
-      <nav class="planning-tabs" aria-label="Secciones de planificaciones">
-        @for (tab of tabs; track tab.id) {
-          <button
-            type="button"
-            class="planning-tabs__item"
-            [class.is-active]="activeTab() === tab.id"
-            (click)="setTab(tab.id)">
-            {{ tab.label }}
+      <div class="planning-tabs-row">
+        <nav class="planning-tabs" aria-label="Secciones de planificaciones">
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              class="planning-tabs__item"
+              [class.is-active]="activeTab() === tab.id"
+              (click)="setTab(tab.id)">
+              {{ tab.label }}
+            </button>
+          }
+        </nav>
+
+        <div class="planning-tabs-actions">
+          <button type="button" class="tabs-action-button tabs-action-button--secondary" (click)="openCreateClass()">
+            <mat-icon>post_add</mat-icon>
+            Nueva clase
           </button>
-        }
-      </nav>
+          <button type="button" class="tabs-action-button tabs-action-button--primary" (click)="openCreateUnit()">
+            <mat-icon>add</mat-icon>
+            Crear unidad
+          </button>
+        </div>
+      </div>
     </section>
 
     @if (activeTab() === 'units') {
       <section class="planning-shell">
         <div class="planning-shell__main">
-          <div class="units-list">
-            @for (unit of units(); track unit.id) {
-              <article class="unit-card">
-                <button type="button" class="unit-card__header" (click)="toggleUnit(unit.id)">
-                  <div class="unit-card__identity">
-                    <div class="unit-card__number" [class]="'tone-' + unit.tone">
-                      {{ unit.id }}
-                    </div>
-
-                    <div class="unit-card__copy">
-                      <div class="unit-card__title-row">
-                        <h3>{{ unit.title }}</h3>
-                        <span class="unit-card__period" [class]="'tone-' + unit.tone">{{ unit.period }}</span>
-                      </div>
-                      <p>{{ unit.description }}</p>
-                    </div>
+          @if (isLoading()) {
+            <section class="state-card state-card--loading">
+              <div class="state-card__loader"></div>
+              <p>Cargando unidades...</p>
+            </section>
+          } @else if (!hasUnits()) {
+            <section class="empty-state-card">
+              <div class="empty-state-card__art" aria-hidden="true">
+                <div class="book-illustration">
+                  <div class="book-illustration__halo"></div>
+                  <div class="book-illustration__spark book-illustration__spark--one"></div>
+                  <div class="book-illustration__spark book-illustration__spark--two"></div>
+                  <div class="book-illustration__spark book-illustration__spark--three"></div>
+                  <div class="book-illustration__leaf book-illustration__leaf--left"></div>
+                  <div class="book-illustration__leaf book-illustration__leaf--right"></div>
+                  <div class="book-illustration__book">
+                    <div class="book-illustration__page book-illustration__page--left"></div>
+                    <div class="book-illustration__page book-illustration__page--right"></div>
+                    <div class="book-illustration__spine"></div>
                   </div>
+                </div>
+              </div>
 
-                  <div class="unit-card__metrics">
-                    <div class="mini-metric">
-                      <strong>{{ unit.classes }}</strong>
-                      <span>Clases</span>
-                    </div>
-                    <div class="mini-metric">
-                      <strong>{{ unit.objectives }}</strong>
-                      <span>Objetivos</span>
-                    </div>
-                    <div class="coverage-box">
-                      <div class="coverage-box__labels">
-                        <span>Cobertura OA</span>
-                        <strong>{{ unit.coverage }}%</strong>
-                      </div>
-                      <div class="coverage-box__bar">
-                        <div
-                          class="coverage-box__fill"
-                          [style.width.%]="unit.coverage"
-                          [class]="'tone-' + unit.tone"></div>
-                      </div>
-                    </div>
-                    <mat-icon class="unit-card__chevron" [class.is-open]="isUnitOpen(unit.id)">expand_more</mat-icon>
-                  </div>
+              <h2>Aún no tienes unidades creadas</h2>
+              <p>
+                Comienza creando tu primera unidad para organizar los objetivos de aprendizaje y clases de este semestre.
+              </p>
+
+              <button type="button" class="empty-state-card__button" (click)="openCreateUnit()">
+                <mat-icon>add</mat-icon>
+                Crear tu primera unidad
+              </button>
+
+              <button type="button" class="empty-state-card__link">
+                Ver guía rápida
+              </button>
+            </section>
+
+            @if (!infoDismissed()) {
+              <section class="info-banner">
+                <div class="info-banner__icon">
+                  <mat-icon>info</mat-icon>
+                </div>
+                <div class="info-banner__copy">
+                  <strong>Puedes planificar todo el año desde el inicio o ir planificando durante el semestre.</strong>
+                  <span>Crea unidades, agrega clases y define objetivos de aprendizaje a tu ritmo.</span>
+                </div>
+                <button type="button" class="info-banner__close" (click)="dismissInfo()" aria-label="Cerrar mensaje">
+                  <mat-icon>close</mat-icon>
                 </button>
-
-                @if (isUnitOpen(unit.id)) {
-                  <div class="unit-card__body">
-                    <div class="unit-table">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Clase</th>
-                            <th>Objetivo de aprendizaje</th>
-                            <th>Estado</th>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (row of unit.rows; track row.number) {
-                            <tr>
-                              <td>
-                                <div class="class-pill" [class]="'tone-' + unit.tone">{{ row.number }}</div>
-                              </td>
-                              <td class="objective-cell">{{ row.objective }}</td>
-                              <td>
-                                <span class="status-badge" [class]="'status-' + row.status">
-                                  {{ statusLabel(row.status) }}
-                                </span>
-                              </td>
-                              <td class="actions-cell">
-                                <button type="button" class="row-action" aria-label="Mas acciones de clase">
-                                  <mat-icon>more_horiz</mat-icon>
-                                </button>
-                              </td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                }
-              </article>
+              </section>
             }
-          </div>
+          } @else {
+            <div class="units-list">
+              @for (unit of unitCards(); track unit.id) {
+                <article class="unit-card">
+                  <button type="button" class="unit-card__header" (click)="toggleUnit(unit.id)">
+                    <div class="unit-card__identity">
+                      <div class="unit-card__number" [class]="'tone-' + unit.tone">
+                        {{ $index + 1 }}
+                      </div>
+
+                      <div class="unit-card__copy">
+                        <div class="unit-card__title-row">
+                          <h3>{{ unit.title }}</h3>
+                          <span class="unit-card__period" [class]="'tone-' + unit.tone">{{ unit.period }}</span>
+                        </div>
+                        <p>{{ unit.description }}</p>
+                      </div>
+                    </div>
+
+                    <div class="unit-card__metrics">
+                      <div class="mini-metric">
+                        <strong>{{ unit.classes }}</strong>
+                        <span>Clases</span>
+                      </div>
+                      <div class="mini-metric">
+                        <strong>{{ unit.resources }}</strong>
+                        <span>Recursos</span>
+                      </div>
+                      <div class="coverage-box">
+                        <div class="coverage-box__labels">
+                          <span>Cobertura OA</span>
+                          <strong>{{ unit.coverage }}%</strong>
+                        </div>
+                        <div class="coverage-box__bar">
+                          <div
+                            class="coverage-box__fill"
+                            [style.width.%]="unit.coverage"
+                            [class]="'tone-' + unit.tone"></div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="unit-card__delete"
+                        (click)="editUnit(unit, $event)"
+                        aria-label="Editar unidad">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button
+                        type="button"
+                        class="unit-card__delete"
+                        (click)="deleteUnit(unit, $event)"
+                        aria-label="Eliminar unidad">
+                        <mat-icon>delete_outline</mat-icon>
+                      </button>
+                      <mat-icon class="unit-card__chevron" [class.is-open]="isUnitOpen(unit.id)">expand_more</mat-icon>
+                    </div>
+                  </button>
+
+                  @if (isUnitOpen(unit.id)) {
+                    <div class="unit-card__body">
+                      <div class="unit-classes-card">
+                        <div class="unit-classes-card__head">
+                          <span>Clase</span>
+                          <span>Objetivo de aprendizaje</span>
+                          <span>Estado</span>
+                          <span></span>
+                        </div>
+
+                        <div class="unit-classes-card__body">
+                          @for (classRow of unit.classRows; track classRow.number) {
+                            <div class="unit-class-row">
+                              <div class="unit-class-row__number">
+                                {{ classRow.number }}
+                              </div>
+
+                              <div class="unit-class-row__objective">
+                                {{ classRow.objective }}
+                              </div>
+
+                              <div class="unit-class-row__status">
+                                <span class="status-pill" [class]="'status-pill--' + classRow.statusTone">
+                                  {{ classRow.statusLabel }}
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                class="unit-class-row__menu"
+                                (click)="toggleClassMenu(classRow, $event)"
+                                aria-label="Acciones de clase">
+                                <mat-icon>more_horiz</mat-icon>
+                              </button>
+
+                              @if (isClassMenuOpen(classRow)) {
+                                <div class="unit-class-row__menu-panel">
+                                  <button type="button" (click)="viewClass(classRow, unit)">
+                                    <mat-icon>visibility</mat-icon>
+                                    Ver clase
+                                  </button>
+                                  <button type="button" (click)="editClass(classRow, unit)">
+                                    <mat-icon>edit</mat-icon>
+                                    Editar clase
+                                  </button>
+                                  <button type="button" (click)="deleteClass(classRow)">
+                                    <mat-icon>delete</mat-icon>
+                                    Eliminar clase
+                                  </button>
+                                  <button type="button" (click)="createClassFromUnit(unit)">
+                                    <mat-icon>post_add</mat-icon>
+                                    Nueva
+                                  </button>
+                                  <button type="button" (click)="attachResourcesToClass(classRow, classResourceInput)">
+                                    <mat-icon>attach_file</mat-icon>
+                                    Adjuntar recursos
+                                  </button>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          }
         </div>
 
         <aside class="planning-shell__summary">
           <section class="summary-card">
             <h3>Resumen de unidades</h3>
 
-            <div class="summary-donut">
-              <div class="summary-donut__ring"></div>
+            <div class="summary-donut" [class.is-empty]="!hasUnits()">
+              <div class="summary-donut__ring" [style.--summary-progress]="averageCoverage()"></div>
               <div class="summary-donut__center">
                 <strong>{{ averageCoverage() }}%</strong>
                 <span>Cobertura OA promedio</span>
@@ -169,12 +292,270 @@
                 </div>
               }
             </div>
-
-            <button type="button" class="summary-card__button">
-              Ver programa base
-            </button>
           </section>
         </aside>
+      </section>
+    } @else if (activeTab() === 'schedule') {
+      <section class="schedule-shell">
+        @if (isLoading()) {
+          <section class="state-card state-card--loading">
+            <div class="state-card__loader"></div>
+            <p>Cargando cronograma...</p>
+          </section>
+        } @else {
+          <article class="schedule-card">
+            <header class="schedule-card__header">
+              <div>
+                <h2>Cronograma semestral</h2>
+                <p>Visualiza la distribucion de unidades, clases y evaluaciones durante el semestre.</p>
+              </div>
+
+              <div class="schedule-legend" aria-label="Leyenda del cronograma">
+                <span><i class="schedule-legend__dot schedule-legend__dot--unit"></i>Unidad</span>
+                <span><i class="schedule-legend__dot schedule-legend__dot--class"></i>Clase</span>
+                <span><i class="schedule-legend__dot schedule-legend__dot--evaluation"></i>Evaluacion</span>
+              </div>
+            </header>
+
+            <div class="schedule-board">
+              <div class="schedule-board__inner">
+                @if (scheduleCurrentWeekValue(); as currentWeek) {
+                  <div
+                    class="schedule-board__current-week"
+                    [style.left]="
+                      'calc(var(--schedule-label-width) + ((100% - var(--schedule-label-width)) / 16) * '
+                      + (currentWeek - 1)
+                      + ')'
+                    ">
+                    <span>Sem {{ currentWeek }}</span>
+                  </div>
+                }
+
+                <div class="schedule-grid schedule-grid--months">
+                  <div class="schedule-grid__spacer"></div>
+                  @for (month of scheduleMonths(); track month.label) {
+                    <div class="schedule-month" [style.grid-column]="scheduleGridColumn(month.startWeek, month.span)">
+                      {{ month.label }}
+                    </div>
+                  }
+                </div>
+
+                <div class="schedule-grid schedule-grid--weeks">
+                  <div class="schedule-grid__spacer schedule-grid__spacer--weeks"></div>
+                  @for (week of scheduleWeeks; track week) {
+                    <div class="schedule-week">{{ 'Sem ' + week }}</div>
+                  }
+                </div>
+
+                <div class="schedule-rows">
+                  @for (unit of scheduleUnits(); track scheduleTrackByUnit($index, unit)) {
+                    <div class="schedule-grid schedule-row">
+                      <aside class="schedule-unit">
+                        <div class="schedule-unit__number" [class]="'tone-text-' + unit.tone">{{ unit.numero }}</div>
+                        <div class="schedule-unit__icon" [class]="'tone-' + unit.tone">
+                          <mat-icon>{{ scheduleIcon(unit.icono) }}</mat-icon>
+                        </div>
+                        <div class="schedule-unit__copy">
+                          <strong>Unidad {{ unit.numero }}</strong>
+                          <span>{{ unit.nombre }}</span>
+                        </div>
+                      </aside>
+
+                      <div class="schedule-lane">
+                        <div class="schedule-lane__grid">
+                          @for (week of scheduleWeeks; track week) {
+                            <div
+                              class="schedule-lane__week-line"
+                              [style.grid-column]="scheduleGridColumn(week)">
+                            </div>
+                          }
+
+                          <div
+                            class="schedule-unit-bar"
+                            [class]="'tone-' + unit.tone"
+                            [style.grid-column]="scheduleUnitBarColumn(unit)">
+                            Unidad {{ unit.numero }}: {{ unit.nombre }}
+                          </div>
+
+                          @for (classItem of unit.clases; track classItem.id) {
+                            <div
+                              class="schedule-chip schedule-chip--class"
+                              [style.grid-column]="scheduleGridColumn(classItem.semana)"
+                            >
+                              {{ classItem.titulo }}
+                            </div>
+                          }
+
+                          @for (evaluation of unit.evaluaciones; track evaluation.id) {
+                            <div
+                              class="schedule-chip schedule-chip--evaluation"
+                              [style.grid-column]="scheduleGridColumn(evaluation.semana)"
+                            >
+                              {{ evaluation.titulo }}
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </article>
+        }
+      </section>
+    } @else if (activeTab() === 'class-by-class') {
+      <section class="class-by-class-shell">
+        @if (isLoading()) {
+          <section class="state-card state-card--loading">
+            <div class="state-card__loader"></div>
+            <p>Cargando vista clase a clase...</p>
+          </section>
+        } @else if (!hasUnits()) {
+          <section class="empty-state-card">
+            <div class="empty-state-card__art" aria-hidden="true">
+              <div class="book-illustration">
+                <div class="book-illustration__halo"></div>
+                <div class="book-illustration__spark book-illustration__spark--one"></div>
+                <div class="book-illustration__spark book-illustration__spark--two"></div>
+                <div class="book-illustration__spark book-illustration__spark--three"></div>
+                <div class="book-illustration__leaf book-illustration__leaf--left"></div>
+                <div class="book-illustration__leaf book-illustration__leaf--right"></div>
+                <div class="book-illustration__book">
+                  <div class="book-illustration__page book-illustration__page--left"></div>
+                  <div class="book-illustration__page book-illustration__page--right"></div>
+                  <div class="book-illustration__spine"></div>
+                </div>
+              </div>
+            </div>
+
+            <h2>Aun no tienes clases planificadas</h2>
+            <p>Cuando crees unidades y agregues clases, aqui veras la secuencia completa del semestre en un solo flujo.</p>
+          </section>
+        } @else {
+          <article class="class-planning-card">
+            <header class="class-planning-card__header">
+              <div>
+                <h2>Clases planificadas</h2>
+                <p>Gestiona el detalle de clases del semestre con una vista continua y mas amplia.</p>
+              </div>
+            </header>
+
+            <div class="class-planning-stats">
+              @for (item of classByClassStats(); track item.label) {
+                <article class="class-planning-stat" [class]="'tone-' + item.tone">
+                  <div class="class-planning-stat__icon" [class]="'tone-' + item.tone">
+                    <mat-icon>{{ item.icon }}</mat-icon>
+                  </div>
+                  <strong>{{ item.value }}</strong>
+                  <span>{{ item.label }}</span>
+                </article>
+              }
+            </div>
+
+            <div class="class-planning-toolbar">
+              <label class="class-planning-filter">
+                <span>Unidad:</span>
+                <select>
+                  <option>Todas</option>
+                </select>
+                <mat-icon>expand_more</mat-icon>
+              </label>
+
+              <label class="class-planning-filter">
+                <span>Estado:</span>
+                <select>
+                  <option>Todos</option>
+                </select>
+                <mat-icon>expand_more</mat-icon>
+              </label>
+
+              <label class="class-planning-filter">
+                <span>OA:</span>
+                <select>
+                  <option>Todos</option>
+                </select>
+                <mat-icon>expand_more</mat-icon>
+              </label>
+
+              <label class="class-planning-search">
+                <mat-icon>search</mat-icon>
+                <input type="text" value="Buscar clase, OA o fecha..." readonly>
+              </label>
+            </div>
+
+            <div class="class-planning-table-wrap">
+              <table class="class-planning-table">
+                <thead>
+                  <tr>
+                    <th>Clase</th>
+                    <th>Fecha</th>
+                    <th>Unidad</th>
+                    <th>Objetivo de la clase</th>
+                    <th>OA</th>
+                    <th>Estado</th>
+                    <th>Duracion</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of classByClassRows(); track classByClassTrackBy($index, row)) {
+                    <tr>
+                      <td>
+                        <div class="class-planning-table__class">
+                          <span class="class-planning-table__class-badge" [class]="'tone-' + row.unitTone">
+                            {{ row.classNumber }}
+                          </span>
+                        </div>
+                      </td>
+                      <td>{{ row.dateLabel }}</td>
+                      <td>
+                        <span class="class-planning-table__unit">
+                          {{ row.unitLabel }}
+                        </span>
+                      </td>
+                      <td class="class-planning-table__objective">{{ row.objective }}</td>
+                      <td>
+                        <span class="class-planning-table__oa">{{ row.objectiveCode }}</span>
+                      </td>
+                      <td>
+                        <span class="status-pill" [class]="'status-pill--' + row.statusTone">
+                          {{ row.statusLabel }}
+                        </span>
+                      </td>
+                      <td>{{ row.durationLabel }}</td>
+                      <td>
+                        <div class="class-planning-table__actions">
+                          @if (row.classId != null && getUnitCardById(row.unitId); as unit) {
+                            <button
+                              type="button"
+                              class="class-planning-icon-button"
+                              (click)="openClassByClassPreview(row, unit)"
+                              aria-label="Ver clase">
+                              <mat-icon>visibility</mat-icon>
+                            </button>
+                          }
+                          @if (getUnitCardById(row.unitId); as unit) {
+                            <button
+                              type="button"
+                              class="class-planning-icon-button"
+                              (click)="createClassFromUnit(unit)"
+                              aria-label="Nueva clase">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                          }
+                          <button type="button" class="class-planning-icon-button" aria-label="Mas acciones">
+                            <mat-icon>more_vert</mat-icon>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </article>
+        }
       </section>
     } @else {
       <section class="placeholder-state">
@@ -182,8 +563,196 @@
           <mat-icon>construction</mat-icon>
         </div>
         <h2>{{ currentTabLabel() }}</h2>
-        <p>Esta pestaña quedo reservada para la siguiente iteracion del nuevo modulo de Planificaciones.</p>
+        <p>Esta pestaña quedo reservada para la siguiente iteración del nuevo módulo de Planificaciones.</p>
       </section>
+    }
+
+    @if (selectedClassPreview() || isPreviewLoading()) {
+      <div class="class-preview-overlay" (click)="closeClassPreview()">
+        <section class="class-preview-modal" (click)="$event.stopPropagation()">
+          <header class="class-preview-modal__header">
+            <div>
+              <h2>Revision final de la clase</h2>
+              <p>Revisa la informacion resumida de esta clase planificada.</p>
+            </div>
+
+            <div class="class-preview-modal__header-actions">
+              @if (selectedClassPreview() && selectedPreviewUnit()) {
+                <button
+                  type="button"
+                  class="class-preview-modal__edit"
+                  (click)="editPreviewClass()">
+                  <mat-icon>edit</mat-icon>
+                  Editar clase
+                </button>
+              }
+
+              <button type="button" class="class-preview-modal__close" (click)="closeClassPreview()" aria-label="Cerrar resumen de clase">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </header>
+
+          @if (isPreviewLoading()) {
+            <div class="class-preview-modal__loading">
+              <div class="state-card__loader"></div>
+              <span>Cargando resumen de la clase...</span>
+            </div>
+          } @else if (selectedClassPreview(); as previewClass) {
+            <div class="class-preview-modal__body">
+              <div class="class-preview-modal__main">
+                <section class="class-summary-card">
+                  <div class="class-summary-card__title">
+                    <mat-icon>apartment</mat-icon>
+                    <span>Contexto academico</span>
+                  </div>
+
+                  <div class="class-summary-card__grid">
+                    <div>
+                      <span>Año</span>
+                      <strong>{{ selectedYear() }}</strong>
+                    </div>
+                    <div>
+                      <span>Semestre</span>
+                      <strong>{{ selectedSemester() === 2 ? 'Segundo semestre' : 'Primer semestre' }}</strong>
+                    </div>
+                    <div>
+                      <span>Curso</span>
+                      <strong>{{ previewClass.courseName }}</strong>
+                    </div>
+                    <div>
+                      <span>Asignatura</span>
+                      <strong>{{ previewClass.subjectName }}</strong>
+                    </div>
+                    <div class="class-summary-card__unit">
+                      <span>Unidad</span>
+                      <strong>{{ previewClass.unitNumberLabel }} · {{ previewClass.unitName }}</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="class-summary-card">
+                  <div class="class-summary-card__title">
+                    <mat-icon>adjust</mat-icon>
+                    <span>OA seleccionados</span>
+                  </div>
+
+                  <div class="class-preview-oa-list">
+                    @for (objective of previewObjectives(); track objective.code + objective.description) {
+                      <span class="class-preview-oa-chip">
+                        <mat-icon>check</mat-icon>
+                        {{ objective.code }} {{ objective.description }}
+                      </span>
+                    } @empty {
+                      <span class="class-preview-oa-empty">No hay OA asociados para mostrar.</span>
+                    }
+                  </div>
+                </section>
+
+                <section class="class-summary-card">
+                  <div class="class-summary-card__title">
+                    <mat-icon>calendar_month</mat-icon>
+                    <span>Datos de la clase</span>
+                  </div>
+
+                  <div class="class-summary-card__metrics">
+                    <div>
+                      <span>Clase</span>
+                      <strong>{{ previewClass.id }}</strong>
+                    </div>
+                    <div>
+                      <span>Fecha</span>
+                      <strong>{{ previewDateLabel(previewClass.plannedDate) }}</strong>
+                    </div>
+                    <div>
+                      <span>Duracion</span>
+                      <strong>{{ previewDurationLabel(previewClass) }}</strong>
+                    </div>
+                  </div>
+
+                  <div class="class-summary-card__headline">
+                    <span>Titulo</span>
+                    <strong>{{ previewClass.title }}</strong>
+                  </div>
+                </section>
+
+                <section class="class-summary-card">
+                  <div class="class-summary-card__title">
+                    <mat-icon>view_agenda</mat-icon>
+                    <span>Secuencia didactica</span>
+                  </div>
+
+                  <div class="class-preview-phases">
+                    @for (phase of previewPhases(); track phase.title) {
+                      <article class="class-preview-phase" [class]="'tone-' + phase.tone">
+                        <div class="class-preview-phase__dot"></div>
+                        <strong>{{ phase.title }}</strong>
+                        <p>{{ phase.description }}</p>
+                        <small>{{ phase.duration }}</small>
+                      </article>
+                    }
+                  </div>
+                </section>
+
+                <section class="class-summary-card">
+                  <div class="class-summary-card__title">
+                    <mat-icon>folder_open</mat-icon>
+                    <span>Recursos y evaluacion</span>
+                  </div>
+
+                  <div class="class-preview-support-grid">
+                    <article class="class-preview-support-card">
+                      <strong>Recursos</strong>
+                      <p>{{ previewResourcesText(previewClass) }}</p>
+                    </article>
+
+                    <article class="class-preview-support-card">
+                      <strong>Evidencia de aprendizaje</strong>
+                      <p>{{ previewEvidenceText(previewClass) }}</p>
+                    </article>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="class-preview-modal__aside">
+                <div class="class-preview-status" [class]="'class-preview-status--' + previewStatusTone(previewClass.status)">
+                  <mat-icon>{{ previewClass.status === 'PUBLICADA' ? 'check_circle' : 'warning' }}</mat-icon>
+                  <span>{{ previewStatusLabel(previewClass.status) }}</span>
+                </div>
+
+                <div class="class-preview-aside__title">
+                  <strong>{{ previewClass.title }}</strong>
+                </div>
+
+                <div class="class-preview-aside__facts">
+                  <div><span>Curso</span><strong>{{ previewClass.courseName }}</strong></div>
+                  <div><span>Asignatura</span><strong>{{ previewClass.subjectName }}</strong></div>
+                  <div><span>Unidad</span><strong>{{ previewClass.unitNumberLabel }}</strong></div>
+                  <div><span>Fecha</span><strong>{{ previewDateLabel(previewClass.plannedDate) }}</strong></div>
+                  <div><span>Duracion</span><strong>{{ previewDurationLabel(previewClass) }}</strong></div>
+                  <div><span>Evaluacion</span><strong>{{ previewEvaluationLabel(previewClass.evaluationType) }}</strong></div>
+                  <div><span>Instrumento</span><strong>{{ previewInstrumentLabel(previewClass) }}</strong></div>
+                </div>
+
+                <div class="class-preview-aside__objectives">
+                  <span>OA incluidos</span>
+                  @for (objective of previewObjectives(); track objective.code + objective.description) {
+                    <div class="class-preview-aside__objective">
+                      <mat-icon>check</mat-icon>
+                      <span>{{ objective.code }} · {{ objective.description }}</span>
+                    </div>
+                  } @empty {
+                    <div class="class-preview-aside__objective">
+                      <mat-icon>remove</mat-icon>
+                      <span>Sin OA registrados</span>
+                    </div>
+                  }
+                </div>
+              </aside>
+            </div>
+          }
+        </section>
+      </div>
     }
   </main>
 </app-teacher-modern-layout>

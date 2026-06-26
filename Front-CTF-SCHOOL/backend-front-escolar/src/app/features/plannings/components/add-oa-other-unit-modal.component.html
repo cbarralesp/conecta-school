@@ -1,0 +1,78 @@
+@if (open) {
+  <div class="other-oa-modal-overlay" (click)="closeModal()">
+    <section class="other-oa-modal" (click)="$event.stopPropagation()">
+      <header class="other-oa-modal__header">
+        <div class="other-oa-modal__copy">
+          <h2>Agregar OA de otra unidad</h2>
+          <p>{{ subjectLabel }} · {{ courseLabel }}</p>
+        </div>
+
+        <button type="button" class="other-oa-modal__close" (click)="closeModal()" aria-label="Cerrar modal de OA">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="other-oa-modal__content">
+        <div class="other-oa-modal__tabs">
+          @for (unit of units; track unit.key) {
+            <button
+              type="button"
+              class="other-oa-modal__tab"
+              [class.is-active]="unit.key === activeUnitKey"
+              [class.other-oa-modal__tab--transversal]="unit.type === 'transversal'"
+              (click)="selectUnit(unit.key)">
+              {{ unit.name }}
+            </button>
+          }
+        </div>
+
+        @if (activeUnit?.helperText) {
+          <div class="other-oa-modal__helper">
+            <mat-icon>info</mat-icon>
+            <p>{{ activeUnit?.helperText }}</p>
+          </div>
+        }
+
+        @if (!activeObjectives.length) {
+          <div class="other-oa-modal__empty">
+            No hay OA cargados para esta unidad.
+          </div>
+        } @else {
+          <div class="other-oa-modal__list">
+            @for (objective of activeObjectives; track objective.id) {
+              <button
+                type="button"
+                class="other-oa-card"
+                [class.is-selected]="isObjectiveSelected(objective.id)"
+                (click)="toggleObjective(objective)">
+                <span class="other-oa-card__checkbox" [class.is-selected]="isObjectiveSelected(objective.id)">
+                  @if (isObjectiveSelected(objective.id)) {
+                    <mat-icon>check</mat-icon>
+                  }
+                </span>
+
+                <div class="other-oa-card__body">
+                  <span class="oa-badge" [class]="getBadgeClass(objective.eje)">
+                    {{ objective.codigo }} · {{ objective.eje || 'Lectura' }}
+                  </span>
+                  <p>{{ objective.descripcion }}</p>
+                </div>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="other-oa-modal__footer">
+        <button type="button" class="btn btn--ghost" (click)="closeModal()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Volver</span>
+        </button>
+
+        <button type="button" class="btn btn--primary" [disabled]="!hasSelection" (click)="apply()">
+          Agregar OA
+        </button>
+      </footer>
+    </section>
+  </div>
+}

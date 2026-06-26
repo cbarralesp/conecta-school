@@ -1,0 +1,2277 @@
+{
+  "asignatura": "Ciencias Naturales",
+  "nivel": "3° Básico",
+  "fuente": "Ministerio de Educación de Chile - Programa de Estudio, Unidad de Currículum y Evaluación, Decreto Supremo de Educación N°2960/2012, Segunda Edición 2018",
+  "estructura_curricular": {
+    "ejes_tematicos": [
+      {
+        "id": "ciencias_de_la_vida",
+        "nombre": "Ciencias de la Vida",
+        "oas": [
+          "OA1",
+          "OA2",
+          "OA3",
+          "OA4",
+          "OA5",
+          "OA6",
+          "OA7"
+        ],
+        "descripcion": "Incluye el estudio de los seres vivos y su diversidad (plantas), el cuerpo humano y su salud, y el ecosistema y el flujo de la energía."
+      },
+      {
+        "id": "ciencias_fisicas_y_quimicas",
+        "nombre": "Ciencias Físicas y Químicas",
+        "oas": [
+          "OA8",
+          "OA9",
+          "OA10"
+        ],
+        "descripcion": "Aproximación a los conceptos de energía y materia, con énfasis en la luz, el sonido y sus transformaciones."
+      },
+      {
+        "id": "ciencias_de_la_tierra_y_el_universo",
+        "nombre": "Ciencias de la Tierra y el Universo",
+        "oas": [
+          "OA11",
+          "OA12",
+          "OA13"
+        ],
+        "descripcion": "La Tierra, su composición y cambios, los componentes del sistema solar y los movimientos cíclicos de la Tierra."
+      }
+    ],
+    "nota_ejes": "A diferencia de otros niveles, en 3° básico el programa organiza los Objetivos de Aprendizaje en 3 ejes temáticos (no 4); el 'Cuerpo humano y salud' se trata como un tópico dentro del eje Ciencias de la Vida, no como un eje independiente."
+  },
+  "habilidades_de_investigacion_cientifica": [
+    {
+      "id": "OAa",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Observar, plantear preguntas, formular inferencias y predicciones, en forma guiada, sobre objetos y eventos del entorno."
+    },
+    {
+      "id": "OAb",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Participar en investigaciones experimentales y no experimentales guiadas: obteniendo información para responder a preguntas dadas a partir de diversas fuentes; en forma individual y colaborativa; por medio de la observación, manipulación y clasificación de la evidencia."
+    },
+    {
+      "id": "OAc",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Observar, medir y registrar datos en forma precisa utilizando instrumentos y unidades estandarizadas, organizándolos en tablas, gráficos y utilizando TIC cuando corresponda."
+    },
+    {
+      "id": "OAd",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Usar materiales e instrumentos en forma segura y autónoma, como reglas, termómetros, entre otros, para hacer observaciones y mediciones."
+    },
+    {
+      "id": "OAe",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Resumir las evidencias, obtenidas a partir de sus observaciones, para responder la pregunta inicial."
+    },
+    {
+      "id": "OAf",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Comunicar y comparar con otros sus ideas, observaciones, mediciones y experiencias utilizando diagramas, material concreto, modelos, informes sencillos, presentaciones, TIC, entre otros."
+    }
+  ],
+  "nota_habilidades": "A diferencia de 1° básico (4 habilidades transversales OAa-OAd), en 3° básico el programa contempla 6 habilidades de investigación científica (OAa-OAf), agrupadas en 3 categorías: Observar y preguntar; Planificar y conducir una investigación; Analizar la evidencia y comunicar.",
+  "objetivos_de_aprendizaje": [
+    {
+      "id": "OA1",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Observar y describir, por medio de la investigación experimental, las necesidades de las plantas y su relación con la raíz, el tallo y las hojas."
+    },
+    {
+      "id": "OA2",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Observar, registrar e identificar variadas plantas de nuestro país, incluyendo vegetales autóctonos y cultivos principales a nivel nacional y regional."
+    },
+    {
+      "id": "OA3",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Observar y describir algunos cambios de las plantas con flor durante su ciclo de vida (germinación, crecimiento, reproducción, formación de la flor y del fruto), reconociendo la importancia de la polinización y de la dispersión de la semilla."
+    },
+    {
+      "id": "OA4",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Describir la importancia de las plantas para los seres vivos, el ser humano y el medioambiente (por ejemplo: alimentación, aire para respirar, productos derivados, ornamentación, uso medicinal) proponiendo y comunicando medidas de cuidado."
+    },
+    {
+      "id": "OA5",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Explicar la importancia de usar adecuadamente los recursos, proponiendo acciones y construyendo instrumentos tecnológicos para reutilizarlos, reducirlos y reciclarlos en la casa y en la escuela."
+    },
+    {
+      "id": "OA6",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Clasificar los alimentos, distinguiendo sus efectos sobre la salud y proponer hábitos alimenticios saludables."
+    },
+    {
+      "id": "OA7",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Proponer, comunicar y ejercitar buenas prácticas de higiene en la manipulación de alimentos para prevenir enfermedades."
+    },
+    {
+      "id": "OA8",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Distinguir fuentes naturales y artificiales de luz, como el Sol, las ampolletas y el fuego, entre otras."
+    },
+    {
+      "id": "OA9",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Investigar experimentalmente y explicar algunas características de la luz; por ejemplo: viaja en línea recta, se refleja, puede ser separada en colores."
+    },
+    {
+      "id": "OA10",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Investigar experimentalmente y explicar las características del sonido; por ejemplo: viaja en todas las direcciones, se absorbe o se refleja, se transmite por medio de distintos materiales, tiene tono e intensidad."
+    },
+    {
+      "id": "OA11",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Describir las características de algunos de los componentes del sistema solar (Sol, planetas, lunas, cometas y asteroides) en relación con su tamaño, localización, apariencia y distancia relativa a la Tierra, entre otros."
+    },
+    {
+      "id": "OA12",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Explicar, por medio de modelos, los movimientos de rotación y traslación, considerando sus efectos en la Tierra."
+    },
+    {
+      "id": "OA13",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Diseñar y construir modelos tecnológicos para explicar eventos del sistema solar, como la sucesión de las fases de la Luna y los eclipses de Luna y de Sol, entre otros."
+    }
+  ],
+  "actitudes": [
+    {
+      "id": "a",
+      "descripcion": "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural."
+    },
+    {
+      "id": "b",
+      "descripcion": "Manifestar un estilo de trabajo riguroso, honesto y perseverante para lograr los aprendizajes de la asignatura."
+    },
+    {
+      "id": "c",
+      "descripcion": "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente."
+    },
+    {
+      "id": "d",
+      "descripcion": "Asumir responsabilidades e interactuar en forma colaborativa y flexible en los trabajos en equipo, aportando y enriqueciendo el trabajo común."
+    },
+    {
+      "id": "e",
+      "descripcion": "Manifestar compromiso con un estilo de vida saludable por medio del desarrollo físico y el autocuidado."
+    },
+    {
+      "id": "f",
+      "descripcion": "Reconocer la importancia de seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva."
+    }
+  ],
+  "vision_global_del_year": {
+    "total_semanas": 38,
+    "total_unidades": 4,
+    "nota": "Cada unidad está compuesta por una selección de Objetivos de Aprendizaje; algunos OAs de habilidades se repiten en más de una unidad. Se recomienda que al menos el 50% de las actividades por unidad y curso sean de exploración, indagatorias y experimentales."
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "titulo": "Luz y sonido",
+      "semestre": 1,
+      "tiempo_estimado": "27 horas pedagógicas",
+      "oas_contenido": [
+        "OA8",
+        "OA9",
+        "OA10"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "a",
+        "b",
+        "f"
+      ],
+      "proposito": "Comprender las fuentes y propiedades de la luz y del sonido. Con respecto a la luz se incluye la reflexión, la refracción, los colores y la visión. En cuanto al sonido, se espera que comprendan la forma en que se transmite y viaja y algunas de sus propiedades. Para lograr estos propósitos los estudiantes deberán desarrollar las habilidades de formular preguntas y predicciones, participar en investigaciones guiadas y comunicar sus propias explicaciones.",
+      "conocimientos_previos": [
+        "Diferentes tipos de materiales naturales y artificiales.",
+        "Uso y aplicación de diferentes materiales en la fabricación de objetos y aparatos de su entorno."
+      ],
+      "palabras_clave": [
+        "Fuentes naturales",
+        "fuentes artificiales",
+        "luz",
+        "sonido",
+        "vibración",
+        "reflexión",
+        "absorción",
+        "colores",
+        "tono",
+        "intensidad"
+      ],
+      "conocimientos": [
+        "Fuentes de luz natural y artificial, como el Sol, las ampolletas y el fuego.",
+        "Propiedades de la luz, como viajar en línea recta, que se refleja, se separa en colores, etc.",
+        "El sonido como una vibración.",
+        "Las propiedades del sonido, como viajar en todas las direcciones, que se absorbe, se refleja, se transmite por medio de distintos materiales, tiene tono e intensidad, etc."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA8",
+          "descripcion": "Distinguir fuentes naturales y artificiales de luz, como el Sol, las ampolletas y el fuego, entre otras.",
+          "indicadores_de_evaluacion": [
+            "Diferencian objetos que emiten luz de aquellos que la reflejan.",
+            "Comparan fuentes naturales y artificiales de luz, indicando similitudes y diferencias entre ellas.",
+            "Clasifican varias fuentes de luz en natural y artificial."
+          ]
+        },
+        {
+          "oa": "OA9",
+          "descripcion": "Investigar experimentalmente y explicar algunas características de la luz; por ejemplo: viaja en línea recta, se refleja, puede ser separada en colores.",
+          "indicadores_de_evaluacion": [
+            "Exploran la formación de sombras con diferentes fuentes de luz (Sol, lámparas y/o linternas).",
+            "Describen la sombra de un objeto producida por la luz del Sol.",
+            "Concluyen experimentalmente que las sombras son una consecuencia de la propagación rectilínea de la luz.",
+            "Representan en esquemas, los rayos de luz que viajan desde un objeto que la emite hacia un objeto que la recibe.",
+            "Comparan objetos transparentes de opacos identificando similitudes y diferencias en relación a la luz.",
+            "Conducen un experimento, de forma guiada, para demostrar que la luz blanca puede separarse en colores."
+          ]
+        },
+        {
+          "oa": "OA10",
+          "descripcion": "Investigar experimentalmente y explicar las características del sonido; por ejemplo: viaja en todas las direcciones, se absorbe o se refleja, se transmite por medio de distintos materiales, tiene tono e intensidad.",
+          "indicadores_de_evaluacion": [
+            "Demuestran que el sonido viaja en todas las direcciones.",
+            "Predicen y registran la relación entre un objeto en vibración y el sonido que produce.",
+            "Clasifican sonidos en función del tono y de la intensidad.",
+            "Comparan diferentes tipos de sonidos distinguiendo los de alta y baja intensidad.",
+            "Dan ejemplos y explican situaciones en que los sonidos que se reflejan, se absorben y se transmiten en diferentes medios."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA8",
+          "titulo": "Objetos que emiten luz y objetos que reflejan luz",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Los estudiantes investigan y leen sobre la diferencia entre objetos que emiten luz y los que la reflejan, resumen y explican dicha diferencia. Recortan imágenes de objetos del entorno y los clasifican en aquellos que emiten luz y aquellos que la reflejan, comparando resultados con sus compañeros.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 2,
+          "oa": "OA8",
+          "titulo": "Fuentes naturales de luz",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Anotan actividades cotidianas realizadas con luz natural, identificando la fuente de luz utilizada en cada caso. Responden cuál es la fuente de luz más utilizada y reflexionan sobre la importancia del Sol."
+        },
+        {
+          "numero": 3,
+          "oa": "OA8",
+          "titulo": "Luz artificial",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Exponen ideas sobre las dificultades de realizar actividades en ausencia de luz natural (de noche, en un túnel, etc.) y señalan medios tecnológicos usados para proveer luz en esos casos, definiendo el concepto de luz artificial."
+        },
+        {
+          "numero": 4,
+          "oa": "OA8",
+          "titulo": "Bioluminiscencia",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre la producción de luz de ciertos seres vivos (luciérnagas, medusas, gusanos, etc.), registran la información mediante dibujos e imágenes y crean una historia o cuento a partir de uno de estos seres vivos.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 5,
+          "oa": "OA8",
+          "titulo": "Fuentes naturales y artificiales de luz en el colegio",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Recorren el colegio observando diferentes fuentes que emiten luz, comparando las artificiales de las naturales, realizan un listado y exponen su ubicación y uso."
+        },
+        {
+          "numero": 6,
+          "oa": "OA8",
+          "titulo": "Clasificación de fuentes de luz en revistas",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos, identifican en revistas o diarios fotos o dibujos de fuentes de luz, las clasifican en naturales y artificiales, las pegan y rotulan en sus cuadernos, exponiendo sus conclusiones."
+        },
+        {
+          "numero": 7,
+          "oa": "OA8",
+          "titulo": "Línea de tiempo de medios de iluminación",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En grupos pequeños, investigan y construyen una línea de tiempo con diferentes medios de iluminación usados a través de la historia (antorchas, lámparas de aceite, de gas, eléctricas, etc.) y cómo funcionaban.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 8,
+          "oa": "OA8",
+          "titulo": "Clasificación de fuentes de luz naturales y artificiales",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre formas de luz natural y artificial de diversos elementos (foco, estrellas, televisores, luciérnagas, punteros láser, Sol, fuego), los clasifican, dibujan y exponen su argumentación."
+        },
+        {
+          "numero": 9,
+          "oa": "OA9",
+          "titulo": "Objetos transparentes y opacos",
+          "habilidades": [
+            "OAb",
+            "OAe"
+          ],
+          "descripcion": "Escriben con sus propias palabras lo que entienden por objetos transparentes y opacos, buscan definiciones, dan ejemplos y dibujan objetos transparentes y opacos presentes en su entorno cercano.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 10,
+          "oa": "OA9",
+          "titulo": "Objetos transparentes en el hogar",
+          "habilidades": [
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "Anotan objetos transparentes que se encuentran en distintas dependencias del hogar, discuten por qué conviene que esos objetos sean transparentes y exponen sus conclusiones."
+        },
+        {
+          "numero": 11,
+          "oa": "OA9",
+          "titulo": "La luz viaja en línea recta",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Experimento grupal sobre por qué se producen las sombras y por qué su forma coincide con la de los objetos: proyectan sombras de objetos con formas planas sobre un papel, dibujan el contorno, comparan, registran semejanzas y diferencias y describen el recorrido de los rayos de luz."
+        },
+        {
+          "numero": 12,
+          "oa": "OA9",
+          "titulo": "Juego de sombras geométricas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En grupos, juegan a proyectar más sombras geométricas en un tiempo determinado, dibujan las figuras, rotulan su nombre y representan rectas que expliquen la formación de las sombras, comprobando que la luz viaja en línea recta.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 13,
+          "oa": "OA9",
+          "titulo": "La luz se refleja (lectura en penumbra)",
+          "habilidades": [
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "En una pieza oscura, discuten por qué un alumno puede o no leer un libro según la cantidad de luz disponible, exponen esquemas, comparten observaciones y buscan objetos que reflejan luz y otros que no."
+        },
+        {
+          "numero": 14,
+          "oa": "OA9",
+          "titulo": "Experimento de visión con cajas de zapatos",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Investigación experimental con dos cajas de zapatos perforadas para comprobar que un objeto se ve solo cuando hay presencia de luz, registrando y comparando resultados con y sin orificio adicional y con linterna."
+        },
+        {
+          "numero": 15,
+          "oa": "OA9",
+          "titulo": "Objetos del sistema solar que emiten o reflejan luz",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Indagan qué objetos del sistema solar no tienen luz propia y se ven porque reflejan luz, y cuáles emiten luz propia, realizando una presentación al curso."
+        },
+        {
+          "numero": 16,
+          "oa": "OA9",
+          "titulo": "Separación de la luz en colores: el arco iris",
+          "habilidades": [
+            "OAc",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "A partir de un cuento sobre un arco iris, escriben un relato propio, dibujan un arco iris de memoria, lo comparan con una fotografía real, anotan diferencias y dibujan un arco iris correcto rotulando sus colores."
+        },
+        {
+          "numero": 17,
+          "oa": "OA9",
+          "titulo": "Separación de colores con un CD",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Experimentan haciendo incidir luz sobre un disco compacto (CD), cambiando su orientación para observar la diversa tonalidad de colores que se producen, identificándolos y comparando el fenómeno con el del arco iris."
+        },
+        {
+          "numero": 18,
+          "oa": "OA9",
+          "titulo": "Arco iris con manguera de agua",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En el patio, rocían una fina capa de agua al aire para observar el arco iris que se forma al pasar la luz solar por las gotas, registrando sus observaciones y el orden de los colores."
+        },
+        {
+          "numero": 19,
+          "oa": "OA9",
+          "titulo": "Disco de Newton",
+          "habilidades": [
+            "OAb",
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "Construyen un disco de cartón dividido en sectores que pintan de colores, predicen qué ocurrirá al hacerlo girar rápidamente y observan que los colores se funden en blanco, comprendiendo que la luz blanca contiene todos los colores."
+        },
+        {
+          "numero": 20,
+          "oa": "OA9",
+          "titulo": "Salida educativa: Sala de la Luz",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Salida a un museo de tecnología o divulgación científica (por ejemplo, la 'Sala de la Luz' del Museo Interactivo Mirador) para investigar y explorar las características de la luz, elaborando luego un boletín informativo."
+        },
+        {
+          "numero": 21,
+          "oa": "OA10",
+          "titulo": "Salida educativa: Sala de Percepción",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Visita al Museo Interactivo Mirador (MIM), en la muestra 'Sala Percepción', para interactuar con el tema del sonido.",
+          "interdisciplinariedad": "Música"
+        },
+        {
+          "numero": 22,
+          "oa": "OA10",
+          "titulo": "El sonido se transmite por distintos materiales",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "A partir de la pregunta sobre si el sonido de una campana o timbre viaja en todas direcciones, diseñan en grupo una actividad experimental para responderla, elaborando un informe con resultados y conclusiones."
+        },
+        {
+          "numero": 23,
+          "oa": "OA10",
+          "titulo": "Teléfono de hilo",
+          "habilidades": [
+            "OAa",
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Construyen un 'teléfono' con dos envases unidos por un hilo, prueban su funcionamiento con el hilo tenso y lacio, comparan resultados y explican cómo se transmite el sonido."
+        },
+        {
+          "numero": 24,
+          "oa": "OA10",
+          "titulo": "Propagación del sonido en distintos materiales",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "A partir de un listado de materiales (aire, agua, madera, cemento, etc.), formulan predicciones sobre si el sonido se propagará en ellos y comprueban experimentalmente sus predicciones."
+        },
+        {
+          "numero": 25,
+          "oa": "OA10",
+          "titulo": "Audición de los murciélagos y el eco",
+          "habilidades": [
+            "OAa",
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "A partir de un texto sobre murciélagos, investigan en grupos sobre la función de las orejas, el eco y qué animales lo utilizan para desplazarse, y construyen un modelo de oreja con material de desecho.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 26,
+          "oa": "OA10",
+          "titulo": "Aislador acústico",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre la absorción del sonido y compiten en grupos para lograr que una radio sonando al máximo volumen dentro de una caja de cartón no se escuche, justificando los materiales utilizados.",
+          "interdisciplinariedad": "Música; Tecnología"
+        },
+        {
+          "numero": 27,
+          "oa": "OA10",
+          "titulo": "Tono del sonido",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "A partir de un instrumento musical sonando con baja y alta intensidad, investigan el significado de 'sonido intenso' y elaboran un listado de animales que emiten sonidos de gran y de baja intensidad.",
+          "interdisciplinariedad": "Música"
+        },
+        {
+          "numero": 28,
+          "oa": "OA10",
+          "titulo": "Intensidad de sonidos del ambiente",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Recortan imágenes de maquinarias que producen sonidos, las ordenan según intensidad, elaboran un pictograma y definen el concepto de intensidad del sonido.",
+          "interdisciplinariedad": "Tecnología; Matemática"
+        },
+        {
+          "numero": 29,
+          "oa": "OA10",
+          "titulo": "Tonos agudos y graves",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "A partir de sonidos de distintos tonos producidos con una guitarra, indagan sobre animales que emiten sonidos agudos y graves, elaborando un listado.",
+          "interdisciplinariedad": "Música"
+        },
+        {
+          "numero": 30,
+          "oa": "OA10",
+          "titulo": "Contaminación acústica",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre la contaminación acústica, las actividades expuestas a ella y cómo se mitiga, realizando dibujos sobre normas y procedimientos de seguridad para aislar sonidos de gran intensidad."
+        },
+        {
+          "numero": 31,
+          "oa": "OA10",
+          "titulo": "Seguridad auditiva en la vía pública",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Responden en parejas preguntas sobre cómo se percibe el sonido de una bocina, el uso de audífonos en la vía pública y recomendaciones de seguridad auditiva."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA8",
+            "OA9",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Comparan fuentes naturales y artificiales de luz, indicando similitudes y diferencias entre ellas.",
+            "Comparan objetos transparentes de opacos identificando similitudes y diferencias en relación a la luz.",
+            "Representan en esquemas los haces de luz que viajan desde un objeto que la emite hacia un objeto que la recibe.",
+            "Conducen un experimento, de forma guiada, para demostrar que la luz blanca puede separarse en colores."
+          ],
+          "actividad_evaluativa": "Serie de ítems: dibujar un objeto de luz natural y otro artificial; diseñar un club desde el cual observar todo lo que sucede, explicando qué materiales usarían; explicar qué pasaría si la luz no se reflejara en los objetos; dibujar la trayectoria de los rayos de luz al observar una rana en un estanque; diseñar un experimento para mostrar que la luz solar se descompone en colores.",
+          "criterios_de_evaluacion": [
+            "Distinguen distintas fuentes de luz natural y artificial mediante un dibujo.",
+            "Distinguen objetos transparentes de opacos, referidos a la necesidad de ventanas transparentes.",
+            "Reconocen la importancia de que la luz se refleje en los objetos para poder verlos.",
+            "Demuestran que la luz viaja en línea recta dibujando la trayectoria de los rayos luminosos.",
+            "Diseñan un experimento simple para mostrar que la luz blanca se dispersa en colores."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA10",
+            "OAb"
+          ],
+          "indicadores_de_evaluacion": [
+            "Dan ejemplos y explican situaciones en que los sonidos que se reflejan, absorben y se transmiten en diferentes medios.",
+            "Indagan en diferentes fuentes y obtienen información útil frente a las preguntas que formulan o escogen.",
+            "Ejecutan procedimientos para desarrollar investigaciones en las que se incluyan observación, manipulación y clasificación de la evidencia."
+          ],
+          "actividad_evaluativa": "Caso de una niña que coloca su despertador bajo la almohada y no logra escucharlo: explicar por qué no escuchó el timbre, identificar el error cometido y proponer un experimento que demuestre lo ocurrido.",
+          "criterios_de_evaluacion": [
+            "Explica que los sonidos se pueden aislar y que la almohada actuó como mal transmisor del sonido.",
+            "Identifica que el error fue tapar el reloj y que la solución es dejarlo destapado.",
+            "Diseña y dibuja un experimento sencillo que compara un objeto sonando con y sin aislante."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA9",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Clasifican sonidos en función del tono y de la intensidad.",
+            "Comparan diferentes tipos de sonido distinguiendo los de alta y baja intensidad.",
+            "Predicen y registran la relación entre un objeto en vibración y el sonido que produce.",
+            "Determinan las principales evidencias obtenidas.",
+            "Resumen las evidencias obtenidas para responder la pregunta inicial."
+          ],
+          "actividad_evaluativa": "Ordenar tres animales según el tono de su sonido y explicar por qué el rugido de un león se escucha a gran distancia; analizar un experimento con una regla vibrando en el borde de una mesa para explicar cómo modificar el tono y la intensidad del sonido.",
+          "criterios_de_evaluacion": [
+            "Ordenan a los animales según el tono del sonido, de más alto a más bajo.",
+            "Explican que el león emite un rugido de gran intensidad que permite que se escuche a gran distancia.",
+            "Identifican que la longitud de la regla que vibra afecta el tono del sonido.",
+            "Reconocen que la amplitud de la vibración afecta la intensidad del sonido."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA8",
+            "OA9",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Comparan fuentes naturales y artificiales de luz, indicando similitudes y diferencias entre ellas.",
+            "Comparan objetos transparentes de opacos identificando similitudes y diferencias en relación a la luz.",
+            "Representan en esquemas los haces de luz que viajan desde un objeto que la emite hacia un objeto que la recibe."
+          ],
+          "actividad_evaluativa": "Evaluación por estaciones: en la Estación 1 dibujan objetos que emiten luz; en la Estación 2 representan, mediante líneas, cómo viaja la luz desde una lámpara hasta un cuaderno y desde el cuaderno a los ojos de un niño que lee.",
+          "criterios_de_evaluacion": [
+            "Reconocen objetos emisores de luz.",
+            "Distinguen las fuentes artificiales y naturales de luz.",
+            "Identifican que los objetos pueden ser opacos, transparentes y semitransparentes.",
+            "Comparan objetos según su relación con la luz.",
+            "Expresan gráfica y verbalmente la trayectoria de la luz desde una fuente hasta diferentes objetos."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "titulo": "Sistema solar y movimientos de la Tierra",
+      "semestre": 1,
+      "tiempo_estimado": "27 horas pedagógicas",
+      "oas_contenido": [
+        "OA11",
+        "OA12",
+        "OA13"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "a",
+        "b",
+        "d"
+      ],
+      "proposito": "Que los estudiantes sean capaces de describir los componentes del sistema solar y explicar, por medio de actividades prácticas, los movimientos de la Tierra. Se espera que conozcan la sucesión de las fases de la Luna y que expliquen los eclipses de Sol y Luna en forma elemental y a partir de modelos diseñados y realizados con material concreto. Para ello deberán desarrollar habilidades como formular preguntas y predicciones, comunicar explicaciones, registrar, medir y expresar datos con claridad, y usar materiales e instrumentos de forma segura.",
+      "conocimientos_previos": [
+        "Características del tiempo atmosférico.",
+        "Estaciones del año y su relación con el tiempo atmosférico.",
+        "Cambios del ciclo diario, entre el día y la noche."
+      ],
+      "palabras_clave": [
+        "Sistema solar",
+        "planetas",
+        "lunas",
+        "cometas",
+        "asteroides",
+        "Tierra",
+        "Sol",
+        "rotación",
+        "traslación",
+        "órbita",
+        "inclinación",
+        "fases de la Luna",
+        "eclipse de Sol",
+        "eclipse de Luna"
+      ],
+      "conocimientos": [
+        "Componentes del sistema solar, como el Sol, los planetas, las lunas, los cometas y los asteroides.",
+        "Movimiento de rotación del planeta Tierra y sus efectos.",
+        "Movimiento de traslación de la Tierra y sus efectos.",
+        "Eventos de las fases de la Luna.",
+        "Los eclipses de Luna y Sol."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA11",
+          "descripcion": "Describir las características de algunos de los componentes del Sistema Solar (Sol, planetas, lunas, cometas y asteroides) en relación con su tamaño, localización, apariencia y distancia relativa a la Tierra, entre otros.",
+          "indicadores_de_evaluacion": [
+            "Identifican y comparan los diversos componentes del sistema solar en el Universo estableciendo similitudes y diferencias.",
+            "Ordenan los componentes del sistema solar según tamaño y ubicación en relación al Sol.",
+            "Ilustran globalmente los cuerpos menores del sistema solar (lunas, cometas, asteroides).",
+            "Describen y representan el movimiento de los planetas alrededor del Sol.",
+            "Utilizan modelos computacionales para extraer información acerca de los astros que conforman el sistema solar.",
+            "Describen posibles impactos de meteoritos y cometas en la Tierra.",
+            "Reconocen que el conocimiento del Sistema Solar ha evolucionado a lo largo del tiempo y que los pueblos originarios de nuestro país tenían una visión distinta del Sol, los astros y la Tierra."
+          ]
+        },
+        {
+          "oa": "OA12",
+          "descripcion": "Explicar, por medio de modelos, los movimientos de rotación y traslación, considerando sus efectos en la Tierra.",
+          "indicadores_de_evaluacion": [
+            "Describen el movimiento de rotación de la Tierra.",
+            "Explican el día y la noche en base al concepto de rotación.",
+            "Realizan modelos de la rotación del planeta Tierra que expliquen el día y la noche.",
+            "Describen, a partir de modelos, el movimiento de traslación de la Tierra alrededor del Sol.",
+            "Comparan los movimientos de rotación y traslación de la Tierra."
+          ]
+        },
+        {
+          "oa": "OA13",
+          "descripcion": "Diseñar y construir modelos tecnológicos para explicar eventos del sistema solar, como la sucesión de las fases de la Luna y los eclipses de Luna y Sol, entre otros.",
+          "indicadores_de_evaluacion": [
+            "Describen y registran mediante diagramas, las fases de la Luna en un período de un mes.",
+            "Ordenan y registran en una línea de tiempo las fases de la Luna.",
+            "Investigan sobre el calendario lunar y concluyen información construyendo uno.",
+            "Analizan e identifican las causas de los cambios que se observan de la Luna durante un ciclo.",
+            "Construyen y experimentan a través de modelos, simulaciones de eclipses de Sol y de Luna.",
+            "Explican las zonas de luz y sombra que se observan durante los eclipses de Sol y Luna.",
+            "Comunican, mediante la realización de esquemas, los eclipses de Sol y Luna."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA11",
+          "titulo": "Modelos del sistema solar (móvil 3D o póster con plastilina)",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos, construyen un modelo en tres dimensiones (móvil con esferas de plumavit pintadas, conectadas con alambres) o un modelo plano con plastilina de los planetas, considerando tamaños y distancias aproximadas entregadas por el docente, y comunican al curso la información representada.",
+          "interdisciplinariedad": "Artes Visuales; Matemática"
+        },
+        {
+          "numero": 2,
+          "oa": "OA11",
+          "titulo": "Preguntas sobre el sistema solar",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Leen un texto sobre el sistema solar y responden preguntas como qué es el sistema solar, si la Tierra y el Sol forman parte de él, cuántos planetas tiene y si todos poseen lunas."
+        },
+        {
+          "numero": 3,
+          "oa": "OA11",
+          "titulo": "Pósters del sistema solar",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "A partir de imágenes presentadas por el docente, construyen dos pósters: uno que muestre el tamaño del sistema solar en el universo y otro con imágenes rotuladas de los principales astros, acompañados de una breve descripción escrita.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 4,
+          "oa": "OA11",
+          "titulo": "Audiolibro sobre los astros del sistema solar",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos, investigan sobre los principales astros del sistema solar según criterios como tamaño, distancia al Sol, planetas interiores/exteriores y presencia de satélites, registrando la información en un audiolibro.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 5,
+          "oa": "OA11",
+          "titulo": "Concurso ¿Quién quiere ser millonario? sobre el sistema solar",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente organiza un concurso grupal con preguntas sobre el reconocimiento de astros en fotografías y datos principales de los planetas; como preparación, los estudiantes ordenan los planetas por tamaño y sintetizan sus características en una tabla."
+        },
+        {
+          "numero": 6,
+          "oa": "OA11",
+          "titulo": "Comparación de fotografías de planetas, lunas, asteroides y cometas",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos, examinan fotografías de páginas web y comparan colores, tamaños, superficies, satélites, asteroides y cometas, elaborando una tabla de comparación y presentándola al curso."
+        },
+        {
+          "numero": 7,
+          "oa": "OA11",
+          "titulo": "Representación del Sol",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "A partir de una lectura e investigación sobre el Sol, representan sus características por medio de esquemas o modelos tridimensionales, rotulando elementos como manchas solares y protuberancias, y elaboran un texto descriptivo.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 8,
+          "oa": "OA11",
+          "titulo": "Cinturón de asteroides",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Realizan un esquema del sistema solar y modelan con plastilina el cinturón de asteroides, observando su cantidad y comparando su tamaño con los planetas, reconociendo que separa a los planetas internos de los externos."
+        },
+        {
+          "numero": 9,
+          "oa": "OA11",
+          "titulo": "Carta a un ser de otro sistema planetario",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Tras observar un video sobre el sistema solar y la inmensidad del Universo, escriben una carta a un ser de otro sistema planetario describiendo el planeta Tierra e invitándolo a conocerlo."
+        },
+        {
+          "numero": 10,
+          "oa": "OA11",
+          "titulo": "Juego de comparaciones con frutas",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos, registran frutas de diferentes tamaños y las asocian con componentes del sistema solar según su tamaño relativo (por ejemplo, sandía-Júpiter), comunicando y comparando resultados con otros grupos."
+        },
+        {
+          "numero": 11,
+          "oa": "OA11",
+          "titulo": "Órbitas de planetas y cometas",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre el movimiento de planetas y cometas que orbitan en torno al Sol y registran, mediante un esquema rotulado, las órbitas correspondientes."
+        },
+        {
+          "numero": 12,
+          "oa": "OA11",
+          "titulo": "Baile artístico del sistema solar",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Preparan una representación artística con música que simula el movimiento de los astros del sistema solar (Sol en el centro, planetas en orden, Luna girando con la Tierra, cometas con trayectorias amplias), extrayendo conclusiones sobre el movimiento de los cuerpos celestes.",
+          "interdisciplinariedad": "Música; Educación Física y Salud"
+        },
+        {
+          "numero": 13,
+          "oa": "OA11",
+          "titulo": "Visión de los pueblos originarios sobre los astros",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Recopilan información sobre la percepción que tenían distintas culturas originarias de Chile sobre los astros y el universo, presentando sus investigaciones en afiches.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 14,
+          "oa": "OA11",
+          "titulo": "Astrónomos y astrónomas chilenos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre astrónomos y astrónomas nacionales (María Teresa Ruiz, Mónica Rubio, José Maza, entre otros) y preparan una presentación con su biografía y trabajos para comunicarla al curso."
+        },
+        {
+          "numero": 15,
+          "oa": "OA12",
+          "titulo": "Objetos que rotan en torno a su eje",
+          "habilidades": [
+            "OAa",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Observan objetos que rotan (piñinolas, trompos, pelotas, etc.), se plantean preguntas, describen el movimiento de rotación mediante dibujos e identifican el eje de giro en cada caso."
+        },
+        {
+          "numero": 16,
+          "oa": "OA12",
+          "titulo": "Modelo de la Tierra y el Sol con linterna",
+          "habilidades": [
+            "OAa",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Elaboran un modelo del planeta Tierra y del Sol con materiales reciclados (una linterna representando al Sol) y observan los efectos de luz y sombra causados por la rotación, prediciendo y registrando explicaciones."
+        },
+        {
+          "numero": 17,
+          "oa": "OA12",
+          "titulo": "Consecuencias de alteraciones en la rotación terrestre",
+          "habilidades": [
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "A partir de la explicación del docente sobre la rotación de la Tierra, discuten qué ocurriría con el día y la noche si la Tierra no rotara o si el período de rotación fuera distinto, analizando y prediciendo consecuencias para los seres vivos."
+        },
+        {
+          "numero": 18,
+          "oa": "OA12",
+          "titulo": "Simulación de rotación con globo terráqueo y linterna",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Utilizan un globo terráqueo y una linterna para simular el Sol, observando cómo Chile entra y sale de la oscuridad al girar el globo, comparando el tiempo de día y de noche y graficando los resultados.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 19,
+          "oa": "OA12",
+          "titulo": "Dramatización del día y la noche",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Dos estudiantes representan a la Tierra y al Sol; el que representa la Tierra gira lentamente sobre su eje, observando cuándo aparece y desaparece el Sol, respondiendo preguntas y elaborando dibujos que expliquen el fenómeno día-noche."
+        },
+        {
+          "numero": 20,
+          "oa": "OA12",
+          "titulo": "Diferencia horaria entre distintos lugares del planeta",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Analizan la diferencia horaria entre Chile y otros lugares del planeta (Isla de Pascua, Australia, China, Perú) explicando esas diferencias con apoyo de un globo terráqueo."
+        },
+        {
+          "numero": 21,
+          "oa": "OA12",
+          "titulo": "Duración de la traslación de la Tierra",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En grupos, investigan la duración de la traslación de la Tierra alrededor del Sol, la expresan en distintas unidades de tiempo, comparan resultados entre grupos y diseñan un modelo que represente este movimiento.",
+          "interdisciplinariedad": "Matemática; Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 22,
+          "oa": "OA12",
+          "titulo": "Modelo de la trayectoria de la Tierra y las estaciones",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Dibujan un modelo que ilustra al Sol y la trayectoria de la Tierra a su alrededor, ubicando las posiciones de la Tierra en cada mes del año y asociando este fenómeno con las estaciones."
+        },
+        {
+          "numero": 23,
+          "oa": "OA12",
+          "titulo": "Horas de luz natural según región",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan el día del año con mayor número de horas de luz natural en su región, comparándolo con otra región del país, graficando y calculando diferencias.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 24,
+          "oa": "OA12",
+          "titulo": "Salida a terreno: rotación y traslación",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Visitan museos, observatorios o planetarios (o un sitio virtual equivalente) para investigar evidencias o modelos sobre los movimientos de rotación y traslación, y luego construyen y exponen su propio modelo con materiales reciclados."
+        },
+        {
+          "numero": 25,
+          "oa": "OA13",
+          "titulo": "¿Cómo se ve la Luna durante el mes?",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En grupos, discuten cómo se ve la Luna a lo largo de un mes, elaboran un esquema con sus conclusiones y contrastan sus ideas previas con la explicación final del docente."
+        },
+        {
+          "numero": 26,
+          "oa": "OA13",
+          "titulo": "Registro de observaciones lunares durante un mes",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Realizan al menos 9 observaciones de la Luna durante un mes, completando en un círculo la parte iluminada, registrando fecha y hora, y construyen un calendario lunar que comparan con calendarios establecidos."
+        },
+        {
+          "numero": 27,
+          "oa": "OA13",
+          "titulo": "Fases de la Luna: creciente, menguante, llena y nueva",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Indagan el significado de los términos creciente, menguante, llena y nueva, y luego analizan una fotografía o animación que muestre la evolución de las fases de la Luna durante un mes, registrando los días correspondientes a cada fase."
+        },
+        {
+          "numero": 28,
+          "oa": "OA13",
+          "titulo": "Simulación experimental de las fases de la Luna",
+          "habilidades": [
+            "OAa",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "En grupos de tres, simulan las fases de la Luna con una linterna (Sol), una pelota (Luna) y un estudiante (Tierra) que observa la simulación desde distintas posiciones, respondiendo preguntas sobre cómo se producen las fases lunares."
+        },
+        {
+          "numero": 29,
+          "oa": "OA13",
+          "titulo": "Esquema de los eclipses de Sol y Luna",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "A partir de un modelo y explicación del docente, realizan un esquema de las posiciones del Sol, la Tierra y la Luna en un eclipse de Sol y en uno de Luna, explicando los fenómenos de luz y sombra involucrados."
+        },
+        {
+          "numero": 30,
+          "oa": "OA13",
+          "titulo": "Modelo de eclipses",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Construyen un modelo del Sol, la Tierra y la Luna que permita mostrar las posiciones relativas de estos cuerpos durante distintos tipos de eclipses, explicándolos desde el punto de vista de luz y sombra.",
+          "interdisciplinariedad": "Tecnología"
+        },
+        {
+          "numero": 31,
+          "oa": "OA13",
+          "titulo": "Simulación de un eclipse solar",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Simulan un eclipse solar con una linterna (Sol), un globo grande (Tierra) y un globo menor (Luna), respondiendo qué debe ocurrir para que haya un eclipse solar y por qué no son muy frecuentes."
+        },
+        {
+          "numero": 32,
+          "oa": "OA13",
+          "titulo": "Eclipse total y parcial: investigación y precauciones",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos, investigan las diferencias entre un eclipse total y uno parcial, y las precauciones que se deben tomar al observar un eclipse de Sol, exponiendo sus hallazgos en afiches publicados en el colegio."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA12",
+            "OA13",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Describen el movimiento de rotación de la Tierra.",
+            "Explican el día y la noche en base al concepto de rotación.",
+            "Comunican, mediante la realización de esquemas, los eclipses de Sol y Luna.",
+            "Exponen, por diversos medios escritos y material concreto, las observaciones y mediciones que realizan."
+          ],
+          "actividad_evaluativa": "Explicar cuántas horas demora la Tierra en completar un giro, por qué se producen el día y la noche pese a que la Tierra siempre está frente al Sol, y qué pasaría si la Tierra no girara; dibujar la posición de la Tierra, el Sol y la Luna durante un eclipse de Sol, un eclipse de Luna y un cuarto de Luna.",
+          "criterios_de_evaluacion": [
+            "Relacionan la rotación de la Tierra con un período de 24 horas.",
+            "Comprenden el movimiento de rotación explicando que solo la cara que enfrenta al Sol recibe luz mientras la otra está en oscuridad.",
+            "Predicen que, sin rotación, una cara de la Tierra siempre tendría día y la otra siempre noche.",
+            "Reconocen las posiciones aproximadas de la Tierra, el Sol y la Luna en distintas situaciones."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA11",
+            "OA13",
+            "OAa"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican y comparan los diversos componentes del sistema solar estableciendo similitudes y diferencias.",
+            "Ordenan los componentes del sistema solar según tamaño y ubicación en relación al Sol.",
+            "Comunican, mediante la realización de esquemas, los eclipses de Sol y Luna.",
+            "Formulan inferencias en forma guiada sobre objetos y eventos del entorno a partir de información y observaciones previas."
+          ],
+          "actividad_evaluativa": "A partir de un diagrama con tres circunferencias que representan planetas orbitando el Sol (el de mayor tamaño del sistema solar, el de menor tamaño, y la Tierra), identificar cada planeta, señalar la ubicación aproximada de Saturno y ubicar la posición de la Luna para que sea posible un eclipse de Sol.",
+          "criterios_de_evaluacion": [
+            "Identifican correctamente al Sol, Júpiter, la Tierra y Mercurio según tamaño relativo.",
+            "Reconocen la ubicación de Saturno en una órbita más alejada que la de Júpiter.",
+            "Ubican a la Luna sobre la línea imaginaria que une al Sol y la Tierra para un eclipse solar."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA11",
+            "OAa"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican y comparan los diversos componentes del sistema solar estableciendo similitudes y diferencias.",
+            "Ilustran globalmente los cuerpos menores del sistema solar (lunas, cometas, asteroides).",
+            "Registran observaciones sobre objetos y eventos del entorno.",
+            "Formulan predicciones en forma guiada sobre objetos y eventos del entorno a partir de información y observaciones previas."
+          ],
+          "actividad_evaluativa": "Explicar en qué se diferencia el Sol de los planetas y otros componentes del sistema solar; dibujar el cinturón de asteroides y explicar la diferencia entre un planeta y un asteroide; representar a escala, usando la analogía de una cancha de fútbol, el tamaño relativo del Universo, el Sistema Solar y la Tierra.",
+          "criterios_de_evaluacion": [
+            "Reconocen que el Sol es una estrella que emite luz y calor propios, a diferencia de los planetas que reflejan la luz solar.",
+            "Conocen el cinturón de asteroides y describen la diferencia entre asteroides y planetas.",
+            "El dibujo demuestra comprensión de la relación de tamaño entre la Tierra, el Sistema Solar y el Universo."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA11",
+            "OA12",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Describen el movimiento de rotación de la Tierra.",
+            "Explican el día y la noche en base al concepto de rotación.",
+            "Identifican y comparan los diversos componentes del sistema solar estableciendo similitudes y diferencias.",
+            "Ilustran globalmente los cuerpos menores del sistema solar (lunas, cometas, asteroides).",
+            "Comunican, mediante la realización de esquemas, los eclipses de Sol y Luna.",
+            "Exponen, por diversos medios escritos y material concreto, las observaciones y mediciones que realizan."
+          ],
+          "actividad_evaluativa": "Organizar en el patio una coreografía que represente el sistema solar: cada estudiante se disfraza de un astro (Sol, planetas, Luna, otras lunas, asteroides, cometas) describiendo al menos una característica del cuerpo que representa, y luego realizan una representación de los movimientos de rotación y traslación correspondientes.",
+          "criterios_de_evaluacion": [
+            "Reconocen el lugar que ocupa cada astro en el sistema solar (Sol al centro, planetas orbitando, asteroides entre Marte y Júpiter, lunas orbitando planetas, cometas con órbitas excéntricas).",
+            "Distinguen entre estrella, planetas, lunas, asteroides y cometas según sus características.",
+            "Conocen las diferencias entre el movimiento de rotación y de traslación de cada tipo de astro."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "titulo": "Las plantas: estructura, ciclo de vida e importancia",
+      "semestre": 1,
+      "tiempo_estimado": "27 horas pedagógicas",
+      "oas_contenido": [
+        "OA1",
+        "OA2",
+        "OA3",
+        "OA4",
+        "OA5"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAd",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "a",
+        "e",
+        "d"
+      ],
+      "nota_fuente": "El programa original (PDF del Mineduc) presenta un error de rotulación: el bloque de actividades correspondiente al OA3 (ciclo de vida de las plantas con flor) aparece etiquetado erróneamente como 'OA 2' en la sección 'Ejemplos de actividades'. En este JSON se ha corregido la asignación a OA3 según el contenido real descrito, validado contra la sección oficial de Objetivos de Aprendizaje e indicadores de la unidad.",
+      "proposito": "Que los estudiantes observen diversas plantas de nuestro país y valoren el aporte que ellas representan para la existencia de la vida. Se espera que observen e investiguen de forma experimental las funciones de cada una de sus partes, formulen preguntas y predicciones sobre las necesidades vitales de las plantas y las transformaciones que experimentan durante su ciclo de vida, y reconozcan los beneficios medicinales de algunas de ellas. Para ello deberán desarrollar las habilidades de observar y formular preguntas sobre el entorno, plantear predicciones de forma guiada, participar en investigaciones guiadas y comunicar sus resultados, ideas y observaciones a través de distintos medios.",
+      "conocimientos_previos": [
+        "Distinción entre lo vivo y lo no vivo.",
+        "Características generales de los seres vivos (crecen, responden a estímulos, se reproducen).",
+        "Necesidades de los seres vivos (agua, alimento, aire, luz).",
+        "Distinción básica de grandes grupos de seres vivos: plantas y animales."
+      ],
+      "palabras_clave": [
+        "Plantas",
+        "raíz",
+        "tallo",
+        "hoja",
+        "semillas",
+        "frutos",
+        "flor",
+        "ciclo de vida",
+        "polinización",
+        "fertilización",
+        "dispersión",
+        "germinación",
+        "crecimiento",
+        "plantas medicinales"
+      ],
+      "conocimientos": [
+        "Partes de una planta (hojas, raíces, tallos, flor, semillas y frutos).",
+        "Funciones de las diferentes partes de una planta.",
+        "Necesidades de una planta para su crecimiento.",
+        "Cambios que experimentan las plantas durante su ciclo de vida.",
+        "Procesos de reproducción de plantas con flor (polinización, fecundación, dispersión).",
+        "Las plantas como fuente de alimentación, respiración, refugio y protección para otros seres vivos.",
+        "Diversidad de plantas de nuestro país.",
+        "Uso de plantas medicinales."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA1",
+          "descripcion": "Observar y describir, por medio de la investigación experimental, las necesidades de las plantas y su relación con la raíz, el tallo y las hojas.",
+          "indicadores_de_evaluacion": [
+            "Rotulan en un esquema, dibujo, fotografía o planta real, las diferentes partes de una planta.",
+            "Infieren funciones de las partes de una planta.",
+            "Investigan experimentalmente la función del tallo, raíz y hojas de una planta.",
+            "Realizan experimentos para determinar las necesidades de una planta para vivir (por ejemplo: agua, luz, aire).",
+            "Concluyen que las plantas necesitan de la luz, el aire y el agua para fabricar su alimento.",
+            "Comunican resultados sobre sus observaciones sobre las necesidades de las plantas para lograr su sobrevivencia."
+          ]
+        },
+        {
+          "oa": "OA2",
+          "descripcion": "Observar, registrar e identificar variadas plantas de nuestro país, incluyendo vegetales autóctonos y cultivos principales a nivel nacional y regional.",
+          "indicadores_de_evaluacion": [
+            "Identifican y agrupan plantas autóctonas de diferentes zonas de nuestro país.",
+            "Registran en dibujos las características de plantas recolectadas durante una exploración.",
+            "Describen las principales plantas de uso medicinal y agrícola en nuestro país."
+          ]
+        },
+        {
+          "oa": "OA3",
+          "descripcion": "Observar y describir algunos cambios de las plantas con flor durante su ciclo de vida (germinación, crecimiento, reproducción, formación de la flor y del fruto), reconociendo la importancia de la polinización y de la dispersión de la semilla.",
+          "indicadores_de_evaluacion": [
+            "Ilustran el ciclo de vida de una planta con flor, distinguiendo sus cambios.",
+            "Reconstituyen en orden las diferentes etapas del ciclo de vida de una planta.",
+            "Comunican los cambios que experimenta una planta durante su desarrollo.",
+            "Identifican estructuras para la reproducción en plantas.",
+            "Identifican las diferentes partes de una flor y sus funciones.",
+            "Ilustran y explican el rol de estambre y pistilo en la polinización.",
+            "Explican el concepto de polinización y dan ejemplos de distintos agentes que la provocan.",
+            "Describen, de forma general, el cambio que experimenta la flor hasta transformarse en fruto.",
+            "Conducen investigaciones experimentales para identificar las condiciones que necesita una semilla para germinar.",
+            "Dan ejemplos de cómo la semilla puede dispersarse a otros lugares."
+          ]
+        },
+        {
+          "oa": "OA4",
+          "descripcion": "Describir la importancia de las plantas para los seres vivos, el ser humano y el medioambiente (por ejemplo: alimentación, aire para respirar, productos derivados, ornamentación, uso medicinal) proponiendo y comunicando medidas de cuidado.",
+          "indicadores_de_evaluacion": [
+            "Ilustran variadas formas de dependencia entre diferentes plantas y animales.",
+            "Comunican el rol alimenticio y protector de árboles sobre diversos seres vivos.",
+            "Describen las consecuencias de la destrucción de plantas (pastizales, arbustos o bosques) para otros seres vivos.",
+            "Explican la importancia de las plantas sobre otros seres vivos, dando ejemplos.",
+            "Proponen medidas de cuidado de las plantas.",
+            "Distinguen plantas con utilidad medicinal, alimenticia y ornamental."
+          ]
+        },
+        {
+          "oa": "OA5",
+          "descripcion": "Explicar la importancia de usar adecuadamente los recursos proponiendo acciones y construyendo instrumentos tecnológicos para reutilizarlos, reducirlos y reciclarlos en la casa y en la escuela.",
+          "indicadores_de_evaluacion": [
+            "Identifican los desechos como una fuente de recursos.",
+            "Clasifican de forma general a los diferentes desechos de acuerdo al material de que están constituidos.",
+            "Clasifican desechos según su tiempo de degradación.",
+            "Explican la importancia de usar los desechos como recursos.",
+            "Identifican los diferentes destinos que tienen diversos desechos (reutilización, reciclaje y reducción).",
+            "Crean y construyen un aparato simple que permita reciclar materiales orgánicos.",
+            "Ejemplifican prácticas simples para reducir los desechos en la escuela y el hogar."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA1",
+          "titulo": "Conocimientos previos sobre las plantas",
+          "habilidades": [],
+          "descripcion": "El docente lee una historia o texto informativo sobre las plantas y formula preguntas para identificar los conocimientos previos de los estudiantes, quienes discuten en parejas y luego comentan al curso."
+        },
+        {
+          "numero": 2,
+          "oa": "OA1",
+          "titulo": "Observación de hojas",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAd",
+            "OAf"
+          ],
+          "descripcion": "En pares, observan variadas hojas según colores, texturas, formas, bordes y tamaños, las clasifican, dibujan tres de ellas rotulando sus particularidades, y miden su largo y ancho registrando los datos."
+        },
+        {
+          "numero": 3,
+          "oa": "OA1",
+          "titulo": "Observación de tallos",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAd",
+            "OAf"
+          ],
+          "descripcion": "Salen al patio o a una plaza cercana y observan variados tipos de tallos (árboles, arbustos, pastos), midiendo algunos con una huincha de medir y registrando la información de tres tallos diferentes mediante dibujo y palabras."
+        },
+        {
+          "numero": 4,
+          "oa": "OA1",
+          "titulo": "Rincón de la naturaleza",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Montan un rincón de la naturaleza en la sala de clases con plantas y herramientas de jardinería, realizando turnos para observar las partes de las plantas, sembrar hortalizas, medir su crecimiento, podar, regar y fertilizar la tierra."
+        },
+        {
+          "numero": 5,
+          "oa": "OA1",
+          "titulo": "Collage de partes de la planta",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Recortan imágenes de plantas en revistas y diarios, las pegan en cartulina y rotulan con flechas las diferentes partes que reconocen, decorando un rincón de la sala.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 6,
+          "oa": "OA1",
+          "titulo": "Modelado de plantas y flores",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Dibujan, colorean y elaboran plantas y flores con plastilina u otro material, rotulando los nombres de sus diferentes partes; opcionalmente usan herramientas digitales como Paint.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 7,
+          "oa": "OA1",
+          "titulo": "Reconstrucción de estructuras vegetales en grupo",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En grupos de cinco, cada uno recibe dibujos de distintas estructuras de plantas (flor, raíz, tallo, fruta, hojas), las recortan, pintan y reconstituyen la imagen total del vegetal, rotulando sus partes y presentando su trabajo al curso."
+        },
+        {
+          "numero": 8,
+          "oa": "OA1",
+          "titulo": "Móvil de la planta favorita",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Buscan dibujos o fotografías de variadas plantas (incluyendo especies de la región), imprimen, recortan y colorean sus partes para elaborar un móvil que cuelgan en la sala.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 9,
+          "oa": "OA1",
+          "titulo": "Función de las hojas",
+          "habilidades": [],
+          "descripcion": "A partir de un texto informativo leído por el docente, responden cuál es la función de las hojas en las plantas, orientando la discusión hacia el intercambio de gases y la producción de alimento."
+        },
+        {
+          "numero": 10,
+          "oa": "OA1",
+          "titulo": "Experimento: bloqueo de estomas en hojas",
+          "habilidades": [
+            "OAa",
+            "OAb",
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Investigación experimental para responder si una hoja puede respirar si se le tapa la cara inferior: aplican barniz de uñas transparente en hojas de una planta de poroto, dejan otra sin barniz, riegan ambas igual y comparan los resultados tras unos días."
+        },
+        {
+          "numero": 11,
+          "oa": "OA1",
+          "titulo": "Experimento: función del tallo (apio con tinta)",
+          "habilidades": [],
+          "descripcion": "Introducen un tallo de apio con hojas en agua con tinta de color, observan después de dos o tres días cómo las hojas se tiñen, cortan transversalmente el tallo teñido y uno sin teñir, y comparan su interior para comprender el transporte de agua."
+        },
+        {
+          "numero": 12,
+          "oa": "OA1",
+          "titulo": "Experimento: función de la raíz",
+          "habilidades": [],
+          "descripcion": "Comparan una planta de poroto con la raíz sumergida en agua frente a otra con la raíz cortada y suspendida sin tocar el agua, anotando el proceso experimental, los resultados y conclusiones sobre la función de la raíz."
+        },
+        {
+          "numero": 13,
+          "oa": "OA1",
+          "titulo": "Necesidades de agua y luz de las plantas",
+          "habilidades": [],
+          "descripcion": "Investigación experimental con tres plantas de la misma especie: una de control con luz y agua adecuadas, una privada de luz y otra privada de agua, manteniendo la situación durante tres semanas y registrando los cambios mediante esquemas rotulados, concluyendo que luz y agua son esenciales para la supervivencia."
+        },
+        {
+          "numero": 14,
+          "oa": "OA1",
+          "titulo": "¿Las plantas necesitan luz? (fototropismo)",
+          "habilidades": [],
+          "descripcion": "Proponen y realizan un experimento (por ejemplo con una caja negra con una abertura de luz) para comprobar que las hojas se orientan hacia la fuente de luz, registrando el proceso experimental en su cuaderno de Ciencias."
+        },
+        {
+          "numero": 15,
+          "oa": "OA1",
+          "titulo": "Cuadro sinóptico y juego de tarjetas",
+          "habilidades": [],
+          "descripcion": "Elaboran un cuadro sinóptico con las partes de las plantas y sus funciones, crean tarjetas con las funciones por un lado y un dibujo de la estructura por el otro, e inventan un juego con ellas."
+        },
+        {
+          "numero": 16,
+          "oa": "OA3",
+          "titulo": "Orden de las etapas del desarrollo de una planta",
+          "habilidades": [],
+          "descripcion": "Ordenan láminas presentadas en desorden para encontrar la secuencia correcta de las etapas del desarrollo de una planta, reconociendo el carácter cíclico del fenómeno; sirve como evaluación diagnóstica del objetivo."
+        },
+        {
+          "numero": 17,
+          "oa": "OA3",
+          "titulo": "Dramatización del ciclo de vida de una planta",
+          "habilidades": [
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "Representan teatralmente las etapas del ciclo de vida de una planta con flor: semilla en la tierra, lluvia, germinación, crecimiento, floración, formación del fruto y dispersión de la semilla por el viento."
+        },
+        {
+          "numero": 18,
+          "oa": "OA3",
+          "titulo": "Observación del crecimiento de plantas durante el año",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Plantan semillas en invierno y observan semanalmente durante el año la aparición de nuevas hojas, flores y frutas, midiendo la altura de la planta y registrando todo el proceso en una línea de tiempo con dibujos, fotografías y texto."
+        },
+        {
+          "numero": 19,
+          "oa": "OA3",
+          "titulo": "Estructura interna de una semilla",
+          "habilidades": [],
+          "descripcion": "Observan el interior de una semilla (recomendado: habas) mediante corte longitudinal, distinguiendo cubierta, brote, raíz y reserva de alimento, y realizan un dibujo rotulado registrando color, textura y tamaño."
+        },
+        {
+          "numero": 20,
+          "oa": "OA3",
+          "titulo": "Germinación de semillas",
+          "habilidades": [],
+          "descripcion": "Hacen germinar semillas comunes (porotos, trigo, maíz, lentejas) en algodón con agua, observan dos veces al día durante una semana, marcan con colorante la primera estructura que emerge y registran sus observaciones."
+        },
+        {
+          "numero": 21,
+          "oa": "OA3",
+          "titulo": "Condiciones para la germinación",
+          "habilidades": [],
+          "descripcion": "Tras escuchar un texto sobre la germinación, experimentan en grupos con semillas de poroto y lenteja variando la presencia de agua y luz, dibujando los experimentos y registrando sus aprendizajes."
+        },
+        {
+          "numero": 22,
+          "oa": "OA3",
+          "titulo": "Disección de una flor",
+          "habilidades": [],
+          "descripcion": "Reconocen las partes de una flor mediante una presentación dirigida y luego realizan una disección extrayendo pétalos, observando estambres y polen, y haciendo un corte vertical para revelar los óvulos, rotulando el esquema resultante."
+        },
+        {
+          "numero": 23,
+          "oa": "OA3",
+          "titulo": "De flor a fruto: el caso de la guinda",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan una serie cronológica de fotos que muestra la transformación de flor de guindo a guinda y describen el fenómeno ocurrido entre flor y fruta, registrando sus observaciones."
+        },
+        {
+          "numero": 24,
+          "oa": "OA3",
+          "titulo": "Agentes de polinización",
+          "habilidades": [],
+          "descripcion": "Discuten cómo se traslada el polen de una flor a otra (insectos, viento) y leen un texto que explica la importancia de los agentes polinizadores, registrando ejemplos en su cuaderno."
+        },
+        {
+          "numero": 25,
+          "oa": "OA3",
+          "titulo": "Etapas de formación del fruto",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "A partir de esquemas o fotos de distintos frutos (tomate, manzana, durazno), ordenan las etapas de formación del fruto y realizan un dibujo rotulado, presentándolo a sus compañeros."
+        },
+        {
+          "numero": 26,
+          "oa": "OA3",
+          "titulo": "Modos de dispersión de semillas y frutos",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Observan distintos frutos y semillas (espinos, damascos, diente de león, tomates, uvas) y proponen posibles modos de dispersión (viento, mamíferos, aves, agua), comunicando y justificando su elección."
+        },
+        {
+          "numero": 27,
+          "oa": "OA3",
+          "titulo": "Dispersión de semillas: el caso de la guinda",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "A partir de una serie cronológica de imágenes sobre la caída de una guinda y el nacimiento de un nuevo guindal, explican cómo la semilla llega al suelo y por qué nace lejos de su progenitor, investigando medios de transporte de semillas (animales, viento, agua)."
+        },
+        {
+          "numero": 28,
+          "oa": "OA4",
+          "titulo": "Alimentos que provienen de plantas",
+          "habilidades": [],
+          "descripcion": "En grupo, hacen una lista de alimentos presentes en la cocina y distinguen cuáles provienen de una planta."
+        },
+        {
+          "numero": 29,
+          "oa": "OA4",
+          "titulo": "Del trigo al pan",
+          "habilidades": [],
+          "descripcion": "A partir de un relato sobre la elaboración del pan desde el trigo, dibujan o escriben las etapas de la fabricación del pan, desde la panadería hasta la mesa."
+        },
+        {
+          "numero": 30,
+          "oa": "OA4",
+          "titulo": "Procesamiento del trigo",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Como desafío, sacan semillas de trigo de la espiga, fabrican harina y preparan pan, investigando técnicas ancestrales y actuales de procesamiento del trigo.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales; Tecnología"
+        },
+        {
+          "numero": 31,
+          "oa": "OA4",
+          "titulo": "Partes de las plantas que consumimos",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Responden preguntas sobre la importancia de las plantas y semillas en la alimentación humana y qué partes de las plantas se consumen (hojas, tallos, raíces), apoyándose en imágenes y un cuadro resumen."
+        },
+        {
+          "numero": 32,
+          "oa": "OA4",
+          "titulo": "Mapa de zonas de producción agrícola de Chile",
+          "habilidades": [],
+          "descripcion": "Establecen un mapa de zonas de producción de frutas y verduras en Chile y discuten su importancia para abastecer de alimentos a la población.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 33,
+          "oa": "OA4",
+          "titulo": "Investigación sobre plantas medicinales",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Cada estudiante elige una planta medicinal (ruda, boldo, manzanilla, menta, entre otras) e investiga su forma, tamaño, tipo de hoja, flor y tallo, ubicación geográfica y efectos medicinales, presentando la información al curso."
+        },
+        {
+          "numero": 34,
+          "oa": "OA4",
+          "titulo": "Uso ornamental de las plantas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre los usos ornamentales de las plantas observando su entorno y revistas de decoración, registrando tipos o partes de plantas asociadas a cada tipo de ornamentación y comunicando sus resultados."
+        },
+        {
+          "numero": 35,
+          "oa": "OA4",
+          "titulo": "Encuesta sobre la utilidad de las plantas",
+          "habilidades": [
+            "OAa",
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Elaboran preguntas para una encuesta sobre la utilidad de las plantas, formulan una predicción, aplican la encuesta y organizan los resultados en una tabla y un gráfico de barras."
+        },
+        {
+          "numero": 36,
+          "oa": "OA4",
+          "titulo": "Deforestación, desertificación y biodiversidad",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan en grupos sobre la deforestación y la desertificación y sus consecuencias sobre la biodiversidad, presentando sus observaciones en una exposición al curso."
+        },
+        {
+          "numero": 37,
+          "oa": "OA4",
+          "titulo": "Relaciones alimentarias simples",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "A partir de fotografías de animales comiendo, establecen relaciones alimentarias simples (por ejemplo, arbustos-huemul-puma) y discuten las consecuencias de la destrucción de los arbustos nativos, proponiendo medidas de prevención."
+        },
+        {
+          "numero": 38,
+          "oa": "OA4",
+          "titulo": "Dependencia de especies de un árbol",
+          "habilidades": [],
+          "descripcion": "Elaboran una lista de especies que viven o se alimentan de un árbol de gran tamaño y postulan las consecuencias de su desaparición, debatiendo sus respuestas con sus compañeros."
+        },
+        {
+          "numero": 39,
+          "oa": "OA4",
+          "titulo": "Entrevista a un jardinero",
+          "habilidades": [
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "Entrevistan a un jardinero sobre su actividad y, en base a ello, proponen recomendaciones para el cuidado de las plantas de los jardines."
+        },
+        {
+          "numero": 40,
+          "oa": "OA2",
+          "titulo": "Salida a terreno: herbario",
+          "habilidades": [
+            "OAa",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "En una salida a terreno, recolectan ramitas y hojas para construir un herbario (físico o virtual), identificando y rotulando las especies con apoyo de libros de botánica o expertos del lugar."
+        },
+        {
+          "numero": 41,
+          "oa": "OA2",
+          "titulo": "Colección de flores, frutos y semillas",
+          "habilidades": [],
+          "descripcion": "Realizan una colección de flores, frutos y semillas, identificando la especie mediante libros y registrando cada elemento con dibujos o fotografías, idealmente en una presentación con TIC."
+        },
+        {
+          "numero": 42,
+          "oa": "OA2",
+          "titulo": "Listado de árboles nativos y frotado de corteza",
+          "habilidades": [],
+          "descripcion": "Arman un listado de árboles nativos de su zona, buscando para cada uno su fruta, semilla y flor, y reúnen dibujos de la corteza mediante la técnica del frotado, rotulando el nombre del árbol.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 43,
+          "oa": "OA2",
+          "titulo": "Pintura vegetal",
+          "habilidades": [],
+          "descripcion": "Pegan hojas de plantas en un cartón, pintan por encima y al retirarlas descubren sus 'huellas' con diferentes formas.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 44,
+          "oa": "OA2",
+          "titulo": "Catálogo de árboles nativos",
+          "habilidades": [],
+          "descripcion": "Cada estudiante elabora una página de un catálogo de árboles nativos con una hoja, fruta, flor, dibujo del árbol completo y un texto descriptivo, usando herramientas TIC."
+        },
+        {
+          "numero": 45,
+          "oa": "OA2",
+          "titulo": "Juegos de reconocimiento de hojas",
+          "habilidades": [],
+          "descripcion": "Realizan juegos de reconocimiento de hojas para aprender progresivamente sus nombres, organizando luego una salida para identificar los árboles a los que corresponden."
+        },
+        {
+          "numero": 46,
+          "oa": "OA2",
+          "titulo": "Salida a un parque o reserva natural",
+          "habilidades": [],
+          "descripcion": "Realizan una salida a terreno hacia un parque nacional, reserva forestal o monumento natural, investigando las plantas propias de la zona y las introducidas, caracterizándolas con dibujos y fotografías, y preparando un informe y presentación."
+        },
+        {
+          "numero": 47,
+          "oa": "OA2",
+          "titulo": "Cultivo de plantas medicinales",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Cultivan plantas medicinales de fácil mantención (menta, toronjil, paico, apio, entre otras) y, con guía del docente, preparan infusiones u otras recetas medicinales."
+        },
+        {
+          "numero": 48,
+          "oa": "OA2",
+          "titulo": "Recetario de plantas medicinales tradicionales",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Investigan, a través de adultos mayores o personas que mantienen tradiciones del entorno, sobre plantas medicinales, sus propiedades y formas de uso, redactando un pequeño recetario.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 49,
+          "oa": "OA2",
+          "titulo": "Plantas medicinales en culturas indígenas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre culturas indígenas del país y su relación con el uso de plantas medicinales.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 50,
+          "oa": "OA2",
+          "titulo": "Origen geográfico de frutas y verduras",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Investigan el origen de frutas y verduras consumidas actualmente, identificando cuáles son de origen chileno, y elaboran un mapa de Chile y un mapa mundial con las zonas de origen de los vegetales estudiados.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 51,
+          "oa": "OA5",
+          "titulo": "Los desechos como fuente de recursos",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Observan imágenes de desechos a nivel regional y mundial y discuten si pueden considerarse recursos, observando luego ejemplos de reciclaje y reutilización adecuados."
+        },
+        {
+          "numero": 52,
+          "oa": "OA5",
+          "titulo": "Clasificación de tipos de desechos",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Examinan el contenido de basureros del hogar y la sala de clases, clasifican los desperdicios según su material en una tabla y elaboran un gráfico de barras con los más comunes.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 53,
+          "oa": "OA5",
+          "titulo": "Experimento de degradación de desechos",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Construyen un montaje experimental (cajón con tierra) para comprobar si distintos desechos son biodegradables, observando y registrando el avance de la degradación a lo largo de varias semanas."
+        },
+        {
+          "numero": 54,
+          "oa": "OA5",
+          "titulo": "Tiempo de descomposición de desechos",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Investigan qué desechos son biodegradables y cuáles no, y el tiempo promedio de descomposición de cada uno, registrando la información en una tabla y comunicando las características generales."
+        },
+        {
+          "numero": 55,
+          "oa": "OA5",
+          "titulo": "Visita a planta de tratamiento de desechos",
+          "habilidades": [
+            "OAa",
+            "OAd",
+            "OAf"
+          ],
+          "descripcion": "Realizan una visita educativa a un lugar de tratamiento de desechos, preparando preguntas previamente, y luego dibujan un esquema de las etapas del proceso observado.",
+          "interdisciplinariedad": "Tecnología"
+        },
+        {
+          "numero": 56,
+          "oa": "OA5",
+          "titulo": "Identificación de prácticas de reducir, reutilizar y reciclar",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "A partir de ejemplos dados por el profesor, discuten en grupos e identifican cada caso con el concepto correspondiente: reducir, reutilizar o reciclar."
+        },
+        {
+          "numero": 57,
+          "oa": "OA5",
+          "titulo": "Fabricación de papel reciclado",
+          "habilidades": [],
+          "descripcion": "Fabrican papel reciclado y lo utilizan para tarjetas, diplomas o superficies para dibujar trabajos de arte.",
+          "interdisciplinariedad": "Tecnología; Artes Visuales"
+        },
+        {
+          "numero": 58,
+          "oa": "OA5",
+          "titulo": "Producción artística con material de desecho",
+          "habilidades": [],
+          "descripcion": "Realizan una producción artística utilizando únicamente materiales de desecho de la sala o del hogar, desechando o reutilizando los materiales adecuadamente al finalizar.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 59,
+          "oa": "OA5",
+          "titulo": "Compromiso de acciones para reducir, reciclar y reutilizar",
+          "habilidades": [],
+          "descripcion": "Discuten en grupos y listan acciones a las que se comprometen para reducir, reciclar y reutilizar desechos en la sala de clases y en el hogar."
+        },
+        {
+          "numero": 60,
+          "oa": "OA5",
+          "titulo": "Construcción de una compostera artesanal",
+          "habilidades": [
+            "OAa",
+            "OAd",
+            "OAf"
+          ],
+          "descripcion": "Construyen una compostera artesanal con apoyo de un experto, introducen desechos orgánicos del curso, designan responsables semanales y registran en una tabla los elementos incorporados y su cantidad."
+        },
+        {
+          "numero": 61,
+          "oa": "OA5",
+          "titulo": "Visita a una planta de tratamiento de agua potable",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Describen las técnicas utilizadas en estaciones de tratamiento de agua, preparan y realizan una visita a una planta, y describen con dibujos las etapas de producción y distribución del agua potable."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA3",
+            "OA4",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Reconstituyen en orden, las diferentes etapas del ciclo de vida de una planta.",
+            "Comunican los cambios que experimenta una planta durante su desarrollo.",
+            "Comunican el rol alimenticio y protector de árboles en diversos seres vivos.",
+            "Describen las consecuencias de la destrucción de plantas (pastizales, arbustos o bosques) para otros seres vivos.",
+            "Elaboran y registran ideas, observaciones, mediciones y experiencias sobre las preguntas que surgen durante la investigación."
+          ],
+          "actividad_evaluativa": "A partir de imágenes en desorden de etapas del ciclo de vida de una planta, recortarlas y organizarlas secuencialmente formando un ciclo, agregando título y breve explicación a cada etapa; mencionar dos maneras en que las plantas sirven a otros seres vivos; describir consecuencias de un incendio forestal para los seres vivos del bosque.",
+          "criterios_de_evaluacion": [
+            "Organizan correctamente las etapas del ciclo de vida de una planta.",
+            "Mencionan las etapas de germinación, crecimiento, formación de la flor y del fruto.",
+            "Reconocen el rol de los árboles como fuente de alimento y protección para otros organismos.",
+            "Reconocen los bosques como fuente de alimento y refugio para la fauna."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA5",
+            "OAa"
+          ],
+          "indicadores_de_evaluacion": [
+            "Clasifican desechos según su tiempo de degradación.",
+            "Reconocen los diferentes destinos que tienen diversos desechos (reutilización, reciclaje y reducción).",
+            "Ejemplifican prácticas simples para reducir los desechos en la escuela y el hogar.",
+            "Formulan predicciones en forma guiada sobre objetos y eventos del entorno a partir de información y observaciones previas."
+          ],
+          "actividad_evaluativa": "Agrupar una lista de desechos (bolsa plástica, botella de vidrio, cáscara de plátano, papel de diario, etc.) en distintos basureros según su destino; explicar el destino de cada uno (reciclaje, reutilización o reducción); señalar tres prácticas para reducir desechos en la escuela; predecir cómo será el manejo de desechos en cien años más.",
+          "criterios_de_evaluacion": [
+            "Clasifican desechos según su tiempo de degradación (corto y largo plazo).",
+            "Explican correctamente el destino de cada tipo de desecho.",
+            "Proponen prácticas concretas para reducir desechos.",
+            "Formulan predicciones razonadas a partir de los conocimientos aprendidos."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA3",
+            "OAa"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican las diferentes partes de una flor y sus funciones.",
+            "Explican el concepto de polinización y dan ejemplos de distintos agentes que la provocan.",
+            "Explican, en forma general, el cambio que experimenta la flor hasta transformarse en fruto.",
+            "Formulan inferencias en forma guiada sobre objetos y eventos del entorno a partir de información y observaciones previas."
+          ],
+          "actividad_evaluativa": "Rotular las partes de una flor señaladas en una imagen y describir su función; explicar la importancia de la polinización y quién la permite; predecir qué sucedería con la reproducción de la planta si el pistilo se cubre completamente.",
+          "criterios_de_evaluacion": [
+            "Reconocen y rotulan correctamente pétalos, pistilo, estambre y sépalos.",
+            "Comprenden las funciones de cada parte de la flor.",
+            "Conocen la importancia de la polinización para la formación de frutos y semillas e identifican agentes polinizadores.",
+            "Comprenden que el fruto resulta de la flor polinizada y el rol fundamental del pistilo."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA1",
+            "OAa"
+          ],
+          "indicadores_de_evaluacion": [
+            "Rotulan en un esquema, dibujo, fotografía o planta real, las diferentes partes de una planta.",
+            "Infieren funciones de las partes de una planta.",
+            "Investigan experimentalmente la función del tallo, raíz y hojas de una planta.",
+            "Realizan experimentos para determinar las necesidades de una planta para vivir.",
+            "Concluyen que las plantas necesitan de la luz, el aire y el agua para fabricar su alimento.",
+            "Comunican resultados sobre sus observaciones sobre las necesidades de las plantas.",
+            "Formulan inferencias en forma guiada sobre objetos y eventos del entorno a partir de información y observaciones previas."
+          ],
+          "actividad_evaluativa": "Evaluación por estaciones en el patio del colegio: explorar el patio o jardín, dibujar y rotular dos plantas distintas indicando la función de cada parte; observar las plantas seleccionadas e inferir sus necesidades principales, explicando oralmente y regando una de ellas; dibujar la planta en su entorno indicando los requisitos para su supervivencia y de dónde se obtienen.",
+          "criterios_de_evaluacion": [
+            "Reconocen y rotulan las partes de una planta (raíz, tallo, hojas).",
+            "Comprenden las funciones de las partes de una planta real mediante una breve descripción.",
+            "Reconocen las necesidades de luz, agua y aire para la supervivencia de las plantas y practican el riego correcto.",
+            "Reconocen de dónde provienen los recursos necesarios para el desarrollo de las plantas."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "titulo": "Alimentación saludable e higiene en la manipulación de alimentos",
+      "semestre": 2,
+      "tiempo_estimado": null,
+      "oas_contenido": [
+        "OA6",
+        "OA7"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "e",
+        "d",
+        "f"
+      ],
+      "proposito": "El cuidado de la higiene en los alimentos y las buenas prácticas de nutrición conducen a un desarrollo saludable del organismo. En esta unidad se busca que los estudiantes conozcan adecuadas prácticas alimenticias y que practiquen hábitos de higiene que prevengan contagios de enfermedades, caracterizando los alimentos saludables y desarrollando prácticas de higiene asociadas a la manipulación de diversos alimentos. Para ello deberán plantear preguntas, participar en investigaciones, comunicar sus resultados e ideas en varios formatos, trabajar en equipo de forma coordinada y seguir instrucciones para un desempeño seguro.",
+      "conocimientos_previos": [
+        "Características y necesidades de los seres vivos.",
+        "Ubicación y función de algunas partes del cuerpo.",
+        "Reconocer que la actividad física y el juego contribuyen a la salud.",
+        "Hábitos de vida saludable para mantener el cuerpo sano y prevenir enfermedades.",
+        "Hábitos de aseo diarios para el cuidado del cuerpo que ayudan a mantener y mejorar la salud y previenen enfermedades.",
+        "Hábitos alimentarios adecuados, necesarios para desarrollar y mantener un cuerpo sano."
+      ],
+      "palabras_clave": [
+        "Alimentación saludable",
+        "excesos alimenticios",
+        "higiene alimenticia",
+        "sal",
+        "azúcar",
+        "grasas"
+      ],
+      "conocimientos": [
+        "Rol de los alimentos en el ser humano.",
+        "Alimentos beneficiosos para la salud y hábitos que promueven una alimentación saludable.",
+        "Alimentos perjudiciales para la salud, cuando son consumidos en exceso.",
+        "Prácticas de higiene para una adecuada manipulación de alimentos.",
+        "Prevención de contagio de enfermedades por alimentos contaminados."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA6",
+          "descripcion": "Clasificar los alimentos, distinguiendo sus efectos sobre la salud y proponer hábitos alimenticios saludables.",
+          "indicadores_de_evaluacion": [
+            "Describen el rol (importancia, contribución) de diversos tipos de alimentos para el cuerpo a través de una investigación simple.",
+            "Distinguen alimentos saludables y perjudiciales para el cuerpo humano.",
+            "Agrupan alimentos según la función que cumplen en el organismo.",
+            "Organizan y resumen evidencia sobre las bases de una alimentación equilibrada.",
+            "Elaboran una dieta a partir de alimentos saludables.",
+            "Comunican enfermedades ocasionadas por déficit y excesos alimenticios.",
+            "Proponen y comunican hábitos alimenticios saludables."
+          ]
+        },
+        {
+          "oa": "OA7",
+          "descripcion": "Proponer, comunicar y ejercitar buenas prácticas de higiene en la manipulación de alimentos para prevenir enfermedades.",
+          "indicadores_de_evaluacion": [
+            "Identifican y comunican por diversas formas buenas prácticas de higiene en la vida cotidiana.",
+            "Explican la necesidad de lavar bien los alimentos antes de consumirlos.",
+            "Describen la secuencia de acciones que favorecen una correcta higiene de los alimentos.",
+            "Identifican conductas que ayudan a prevenir el contagio de enfermedades a través de los alimentos.",
+            "Señalan los cuidados que deben tener los manipuladores de alimentos en fábricas y casinos para evitar la contaminación cruzada.",
+            "Nombran espacios para ubicar la basura en el hogar y escuela."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA6",
+          "titulo": "Lectura de etiquetas de alimentos",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Traen envases de alimentos y buscan en la etiqueta los compuestos presentes, definiendo términos como grasas y azúcar, e identificando alimentos poco saludables por su exceso, comparando sus lecturas con compañeros."
+        },
+        {
+          "numero": 2,
+          "oa": "OA6",
+          "titulo": "El tren de los alimentos (pirámide alimenticia)",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Representan al cuerpo humano como una locomotora seguida de coches que representan los grupos de alimentos, ubicando ilustraciones de alimentos en el coche correspondiente según su tamaño proporcional a la ingesta recomendada."
+        },
+        {
+          "numero": 3,
+          "oa": "OA6",
+          "titulo": "Análisis de la propia alimentación diaria",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Dibujan todos los alimentos consumidos el día anterior y los ubican en los coches del tren de alimentos, evidenciando desequilibrios en exceso o carencia, los que se discuten en clase.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 4,
+          "oa": "OA6",
+          "titulo": "Pirámide alimenticia y alimentación equilibrada",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan en internet o entrevistan a un especialista (médico, nutricionista) sobre las reglas de una alimentación equilibrada y representan la pirámide alimenticia en un dibujo, idealmente con herramientas computacionales."
+        },
+        {
+          "numero": 5,
+          "oa": "OA6",
+          "titulo": "Comparación de la dieta propia con una alimentación equilibrada",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Elaboran un listado de los alimentos consumidos en un día normal y lo comparan con las reglas para una comida equilibrada obtenidas en la actividad anterior."
+        },
+        {
+          "numero": 6,
+          "oa": "OA6",
+          "titulo": "Investigación sobre enfermedades por déficit y exceso alimenticio",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En grupos, investigan sobre una enfermedad específica relacionada con déficits o excesos alimenticios (obesidad, desnutrición, caries, enfermedades cardiovasculares, entre otras) y exponen sus hallazgos al curso."
+        },
+        {
+          "numero": 7,
+          "oa": "OA6",
+          "titulo": "Análisis de un menú de comida chatarra",
+          "habilidades": [],
+          "descripcion": "Analizan un menú de comida rápida a partir de las reglas de una alimentación equilibrada y discuten las enfermedades que podrían provocar si se consume de forma sostenida en el tiempo."
+        },
+        {
+          "numero": 8,
+          "oa": "OA6",
+          "titulo": "Función de los alimentos en el cuerpo (versión teatral)",
+          "habilidades": [],
+          "descripcion": "A partir de una lectura sobre la función de distintos alimentos (vitaminas, leche, carne, pescado, verduras), completan un cuadro con la función de cada uno, pudiendo realizar una versión teatral donde cada estudiante representa un alimento.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 9,
+          "oa": "OA7",
+          "titulo": "Experimento: lavado de manos y contaminación de frutas",
+          "habilidades": [
+            "OAa",
+            "OAb",
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Investigación experimental que compara una fruta manipulada sin lavarse las manos frente a otra manipulada con manos lavadas, observando durante tres días el desarrollo de hongos en ambos casos para responder si el lavado de manos previene enfermedades."
+        },
+        {
+          "numero": 10,
+          "oa": "OA7",
+          "titulo": "Identificación de faltas de higiene en una cocina",
+          "habilidades": [],
+          "descripcion": "Observan un dibujo de una cocina con diversas faltas de higiene y deben identificarlas pintándolas, o seleccionar de un listado la secuencia de acciones correctas que el personaje debería realizar."
+        },
+        {
+          "numero": 11,
+          "oa": "OA7",
+          "titulo": "Luis Pasteur y la conservación de alimentos",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Escuchan extractos sobre la vida del científico Luis Pasteur y su contribución a los procesos de conservación de alimentos, ubican en un mapa el lugar donde nació y vivió, y escriben sus aportes a la ciencia.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 12,
+          "oa": "OA7",
+          "titulo": "Exposición sobre higiene en la cocina",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Preparan una exposición sobre higiene en la conservación, preparación y mantención de alimentos, pudiendo conversar con encargados del casino del colegio, y elaboran una lista de reglas para presentar al curso y en casa."
+        },
+        {
+          "numero": 13,
+          "oa": "OA7",
+          "titulo": "Visita a una empresa que manipula alimentos",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "Visitan una empresa donde se manipulen alimentos (fábrica, supermercado, restaurante o casino), preparando preguntas previamente, observando vestimentas y elementos protectores del personal y explicando su uso con fundamentos de higiene."
+        },
+        {
+          "numero": 14,
+          "oa": "OA7",
+          "titulo": "Leyes de la cocina",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Comentan sobre comportamientos de higiene en la cocina propios y de sus padres, y en conjunto redactan las 'leyes de la cocina', elaborando una cartulina ilustrada con dibujos y fotos."
+        },
+        {
+          "numero": 15,
+          "oa": "OA7",
+          "titulo": "Receta de cocina respetando normas de higiene",
+          "habilidades": [],
+          "descripcion": "Elaboran una receta sencilla (pan, galletas, masa dulce) dando forma de números y figuras geométricas a la masa, respetando en todo momento las reglas de higiene como lavado de manos y limpieza del lugar de trabajo.",
+          "interdisciplinariedad": "Tecnología y Matemática"
+        },
+        {
+          "numero": 16,
+          "oa": "OA7",
+          "titulo": "Cuestionario sobre las reglas de la cocina",
+          "habilidades": [],
+          "descripcion": "Inventan un juego en forma de cuestionario sobre las reglas de higiene de la cocina y lo aplican a adultos de su entorno, calificándolos según sus resultados."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA6",
+            "OA7",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Distinguen alimentos saludables y perjudiciales para el cuerpo humano.",
+            "Elaboran una dieta a partir de alimentos saludables.",
+            "Explican la necesidad de lavar bien los alimentos antes de consumirlos.",
+            "Resumen las evidencias obtenidas para responder la pregunta inicial."
+          ],
+          "actividad_evaluativa": "A partir de una imagen con variedad de alimentos, confeccionar un menú saludable para un día; evaluar la afirmación de que los niños no deberían comer dulces ni chocolates; explicar por qué, pese a ser rico en energía, el consumo de pan debe ser limitado; explicar por qué es necesario lavarse las manos antes de consumir alimentos.",
+          "criterios_de_evaluacion": [
+            "Elaboran una dieta equilibrada seleccionando alimentos saludables en cantidades adecuadas.",
+            "Reconocen que la cantidad de alimentos es clave en una dieta equilibrada y que algunos alimentos pueden consumirse con moderación.",
+            "Explican que una alimentación equilibrada y variada es más sana que el consumo excesivo de un solo alimento.",
+            "Comprenden la importancia del lavado de manos para evitar el contagio de enfermedades."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA7",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican y comunican buenas prácticas de higiene en la vida cotidiana.",
+            "Explican la necesidad de lavar bien los alimentos antes de consumirlos.",
+            "Describen la secuencia de acciones que favorecen una correcta higiene de los alimentos.",
+            "Identifican conductas que ayudan a prevenir el contagio de enfermedades.",
+            "Comunican en forma oral y escrita los resultados obtenidos de las investigaciones que realizan."
+          ],
+          "actividad_evaluativa": "Observar una secuencia de eventos que muestra a una persona que no se lava las manos, manipula alimentos y estos se contaminan; completar la secuencia indicando la consecuencia final y mencionar dos conductas que podrían evitarla.",
+          "criterios_de_evaluacion": [
+            "Reconocen que una higiene inadecuada puede causar enfermedades por consumo de alimentos contaminados.",
+            "Identifican conductas preventivas como el lavado de manos antes de manipular alimentos y el lavado de alimentos crudos antes de consumirlos."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA7",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican buenas prácticas de higiene en la vida cotidiana.",
+            "Describen la secuencia de acciones que favorecen una correcta higiene de los alimentos.",
+            "Identifican conductas que ayudan a prevenir el contagio de enfermedades.",
+            "Comunican en forma oral y escrita los resultados obtenidos de las investigaciones que realizan."
+          ],
+          "actividad_evaluativa": "Observar una imagen de una cocina con problemas de higiene, explicar qué consecuencias podría traer para las personas de la casa, mencionar dos formas de solucionar el problema y dibujar cómo se vería la cocina luego de tomar las medidas adecuadas.",
+          "criterios_de_evaluacion": [
+            "Comprenden las consecuencias de la falta de higiene en el hogar, como la adquisición de enfermedades.",
+            "Proponen soluciones concretas (lavar utensilios, usar basurero, mantener alimentos refrigerados, entre otras).",
+            "Muestran mediante un dibujo buenas prácticas de higiene en espacios de uso cotidiano."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA6",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Describen el rol (importancia, contribución) de diversos tipos de alimentos para el cuerpo a través de una investigación simple.",
+            "Distinguen alimentos saludables y perjudiciales para el cuerpo humano.",
+            "Agrupan alimentos según la función que cumplen en el organismo.",
+            "Organizan y resumen evidencia sobre las bases de una alimentación equilibrada.",
+            "Proponen y comunican hábitos alimenticios saludables.",
+            "Resumen las evidencias obtenidas para responder la pregunta inicial."
+          ],
+          "actividad_evaluativa": "'Carrera de los desafíos' en grupos: buscar mensajes escondidos en el patio que indican tareas sucesivas sobre alimentos: reunir colaciones y clasificarlas en saludables y no saludables explicando beneficios o consecuencias; entrevistar a miembros del colegio sobre la mejor combinación de alimentos y comparar con la propia clasificación; exponer las diferencias detectadas y los beneficios de una alimentación saludable.",
+          "criterios_de_evaluacion": [
+            "Clasifican correctamente alimentos saludables y perjudiciales para el cuerpo humano.",
+            "Identifican beneficios y consecuencias de diferentes tipos de alimentos.",
+            "Elaboran una dieta equilibrada seleccionando alimentos saludables en cantidades adecuadas.",
+            "Organizan información sobre diferentes tipos de alimentos sobre la base de una alimentación equilibrada.",
+            "Comunican la información obtenida y los beneficios de una alimentación saludable."
+          ]
+        }
+      ]
+    }
+  ],
+  "resumen": {
+    "total_oas_contenido": 13,
+    "total_habilidades_investigacion": 6,
+    "total_unidades": 4,
+    "total_indicadores_evaluacion": 78,
+    "total_actividades": 140,
+    "total_ejemplos_evaluacion": 16,
+    "por_unidad": [
+      {
+        "unidad": 1,
+        "titulo": "Luz y sonido",
+        "oas_contenido": [
+          "OA8",
+          "OA9",
+          "OA10"
+        ],
+        "indicadores": 14,
+        "actividades": 31,
+        "ejemplos_evaluacion": 4
+      },
+      {
+        "unidad": 2,
+        "titulo": "Sistema solar y movimientos de la Tierra",
+        "oas_contenido": [
+          "OA11",
+          "OA12",
+          "OA13"
+        ],
+        "indicadores": 19,
+        "actividades": 32,
+        "ejemplos_evaluacion": 4
+      },
+      {
+        "unidad": 3,
+        "titulo": "Las plantas: estructura, ciclo de vida e importancia",
+        "oas_contenido": [
+          "OA1",
+          "OA2",
+          "OA3",
+          "OA4",
+          "OA5"
+        ],
+        "indicadores": 32,
+        "actividades": 61,
+        "ejemplos_evaluacion": 4
+      },
+      {
+        "unidad": 4,
+        "titulo": "Alimentación saludable e higiene en la manipulación de alimentos",
+        "oas_contenido": [
+          "OA6",
+          "OA7"
+        ],
+        "indicadores": 13,
+        "actividades": 16,
+        "ejemplos_evaluacion": 4
+      }
+    ]
+  }
+}

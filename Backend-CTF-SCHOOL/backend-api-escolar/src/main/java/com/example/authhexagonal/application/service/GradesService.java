@@ -363,9 +363,7 @@ public class GradesService implements ManageGradesUseCase {
                 .map(defaultArea -> mergeAreaWithBank(defaultArea, findArea(base.developmentAreas(), defaultArea.key())))
                 .toList();
         PedagogicalReportArea normalizedAttitude = mergeAreaWithBank(fallbackAttitudeArea(), base.attitudeArea());
-        List<String> recommendations = base.familyRecommendations() == null || base.familyRecommendations().isEmpty()
-                ? List.of("")
-                : base.familyRecommendations().stream().limit(4).map(this::safeText).toList();
+        List<String> recommendations = normalizeFamilyRecommendations(base.familyRecommendations());
         String guardianSignatureLabel = safeText(base.guardianSignatureLabel());
         if (guardianSignatureLabel.isBlank()) {
             guardianSignatureLabel = "Recibido conforme - Fecha: ___/___/______";
@@ -380,6 +378,19 @@ public class GradesService implements ManageGradesUseCase {
                 safeText(base.teacherSignatureName()),
                 guardianSignatureLabel
         );
+    }
+
+    private List<String> normalizeFamilyRecommendations(List<String> recommendations) {
+        if (recommendations == null || recommendations.isEmpty()) {
+            return List.of("");
+        }
+
+        return recommendations.stream()
+                .map(this::safeText)
+                .filter(text -> !text.isBlank())
+                .findFirst()
+                .map(List::of)
+                .orElseGet(() -> List.of(""));
     }
 
     private PedagogicalReportArea mergeArea(PedagogicalReportArea defaultArea, PedagogicalReportArea currentArea) {

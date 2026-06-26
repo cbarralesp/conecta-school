@@ -220,7 +220,9 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
                     "NUMERO",
                     "TITULO",
                     "DESCRIPCION",
-                    "OBSERVACION_DOCENTE"
+                    "OBSERVACION_DOCENTE",
+                    "HABILIDADES",
+                    "INTERDISCIPLINARIEDAD"
                 FROM "PROGRAMAS_ESTUDIO_OA_PERMANENTE_ACTIVIDADES"
                 WHERE "OA_PERMANENTE_ID" IN (%s)
                 ORDER BY "ORDEN", "NUMERO", "ID"
@@ -246,6 +248,11 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
                     "NOMBRE",
                     "SEMESTRE",
                     "HORAS_ESTIMADAS",
+                    "PROPOSITO_GENERAL",
+                    "CONOCIMIENTOS_PREVIOS",
+                    "PALABRAS_CLAVE",
+                    "CONOCIMIENTOS",
+                    CAST("CONTENIDO_JSON" AS TEXT) AS "CONTENIDO_JSON",
                     "PROPOSITO_LECTURA",
                     "PROPOSITO_ESCRITURA",
                     "PROPOSITO_COMUNICACION_ORAL"
@@ -258,6 +265,11 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
                 rs.getString("NOMBRE"),
                 rs.getObject("SEMESTRE", Integer.class),
                 rs.getObject("HORAS_ESTIMADAS", Integer.class),
+                rs.getString("PROPOSITO_GENERAL"),
+                rs.getString("CONOCIMIENTOS_PREVIOS"),
+                rs.getString("PALABRAS_CLAVE"),
+                rs.getString("CONOCIMIENTOS"),
+                rs.getString("CONTENIDO_JSON"),
                 rs.getString("PROPOSITO_LECTURA"),
                 rs.getString("PROPOSITO_ESCRITURA"),
                 rs.getString("PROPOSITO_COMUNICACION_ORAL")
@@ -274,6 +286,11 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
                         row.name(),
                         row.semester(),
                         row.estimatedHours(),
+                        row.generalPurpose(),
+                        row.priorKnowledge(),
+                        row.keywords(),
+                        row.knowledge(),
+                        row.rawJson(),
                         row.readingPurpose(),
                         row.writingPurpose(),
                         row.oralPurpose(),
@@ -378,7 +395,9 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
                     "NUMERO",
                     "TITULO",
                     "DESCRIPCION",
-                    "OBSERVACION_DOCENTE"
+                    "OBSERVACION_DOCENTE",
+                    "HABILIDADES",
+                    "INTERDISCIPLINARIEDAD"
                 FROM "PROGRAMAS_ESTUDIO_UNIDAD_OA_ACTIVIDADES"
                 WHERE "UNIDAD_OA_ID" IN (%s)
                 ORDER BY "ORDEN", "NUMERO", "ID"
@@ -456,7 +475,9 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
                             rs.getObject("NUMERO", Integer.class),
                             rs.getString("TITULO"),
                             rs.getString("DESCRIPCION"),
-                            rs.getString("OBSERVACION_DOCENTE")
+                            rs.getString("OBSERVACION_DOCENTE"),
+                            rs.getString("HABILIDADES"),
+                            rs.getString("INTERDISCIPLINARIEDAD")
                     ));
         }, ids.toArray());
         return result;
@@ -490,6 +511,11 @@ public class StudyProgramJdbcAdapter implements StudyProgramRepository {
             String name,
             Integer semester,
             Integer estimatedHours,
+            String generalPurpose,
+            String priorKnowledge,
+            String keywords,
+            String knowledge,
+            String rawJson,
             String readingPurpose,
             String writingPurpose,
             String oralPurpose

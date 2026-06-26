@@ -1,0 +1,2450 @@
+{
+  "asignatura": "Ciencias Naturales",
+  "nivel": "4° Básico",
+  "fuente": "Programa de Estudio Cuarto Año Básico - Ministerio de Educación de Chile (Decreto N°439/2012, Segunda Edición 2018)",
+  "decreto": "D.S. 439/2012",
+  "habilidades_investigacion": [
+    {
+      "codigo": "OA_a",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Plantear preguntas y formular predicciones, en forma guiada, sobre objetos y eventos del entorno."
+    },
+    {
+      "codigo": "OA_b",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Planificar y llevar a cabo investigaciones guiadas experimentales y no experimentales: obteniendo información para responder a preguntas dadas a partir de diversas fuentes; en base a una pregunta formulada por ellos u otros; estableciendo un procedimiento previo simple para responderla; trabajando en forma individual o colaborativa."
+    },
+    {
+      "codigo": "OA_c",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Observar, medir, registrar y comparar datos en forma precisa con instrumentos de medición utilizando tablas y gráficos y TIC cuando corresponda."
+    },
+    {
+      "codigo": "OA_d",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Usar materiales e instrumentos en forma segura y autónoma, como reglas, termómetros, entre otros, para hacer observaciones y mediciones."
+    },
+    {
+      "codigo": "OA_e",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Comparar sus predicciones con la pregunta inicial utilizando sus observaciones como evidencia para apoyar ideas."
+    },
+    {
+      "codigo": "OA_f",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Comunicar ideas, explicaciones, observaciones y mediciones, utilizando diagramas, modelos físicos, informes y presentaciones usando TIC."
+    }
+  ],
+  "ejes_tematicos": [
+    {
+      "eje": "Ciencias de la Vida",
+      "oas": [
+        "OA1",
+        "OA2",
+        "OA3",
+        "OA4"
+      ]
+    },
+    {
+      "eje": "Cuerpo Humano y Salud",
+      "oas": [
+        "OA5",
+        "OA6",
+        "OA7",
+        "OA8"
+      ]
+    },
+    {
+      "eje": "Ciencias Físicas y Químicas",
+      "oas": [
+        "OA9",
+        "OA10",
+        "OA11",
+        "OA12",
+        "OA13",
+        "OA14"
+      ]
+    },
+    {
+      "eje": "Ciencias de la Tierra y el Universo",
+      "oas": [
+        "OA15",
+        "OA16",
+        "OA17"
+      ]
+    }
+  ],
+  "objetivos_aprendizaje": [
+    {
+      "codigo": "OA1",
+      "eje": "Ciencias de la Vida",
+      "descripcion": "Reconocer, por medio de la exploración, que un ecosistema está compuesto por elementos vivos (animales, plantas, etc.) y no vivos (piedras, agua, tierra, etc.) que interactúan entre sí."
+    },
+    {
+      "codigo": "OA2",
+      "eje": "Ciencias de la Vida",
+      "descripcion": "Observar y comparar adaptaciones de plantas y animales para sobrevivir en los ecosistemas en relación con su estructura y conducta; por ejemplo: cubierta corporal, camuflaje, tipo de hojas, hibernación, entre otras."
+    },
+    {
+      "codigo": "OA3",
+      "eje": "Ciencias de la Vida",
+      "descripcion": "Dar ejemplos de cadenas alimentarias, identificando la función de los organismos productores, consumidores y descomponedores, en diferentes ecosistemas de Chile."
+    },
+    {
+      "codigo": "OA4",
+      "eje": "Ciencias de la Vida",
+      "descripcion": "Analizar los efectos de la actividad humana en ecosistemas de Chile, proponiendo medidas para protegerlos (parques nacionales y vedas, entre otras)."
+    },
+    {
+      "codigo": "OA5",
+      "eje": "Cuerpo Humano y Salud",
+      "descripcion": "Identificar y describir, usando modelos, estructuras del sistema esquelético y algunas de sus funciones, como protección (costillas y cráneo), soporte (vértebras y columna vertebral) y movimiento (pelvis y fémur)."
+    },
+    {
+      "codigo": "OA6",
+      "eje": "Cuerpo Humano y Salud",
+      "descripcion": "Explicar, con apoyo de modelos, el movimiento del cuerpo, considerando la acción coordinada de músculos, huesos, tendones y articulación (ejemplo: brazo y pierna), y describir los beneficios de la actividad física para el sistema músculo-esquelético."
+    },
+    {
+      "codigo": "OA7",
+      "eje": "Cuerpo Humano y Salud",
+      "descripcion": "Identificar estructuras del sistema nervioso y describir algunas de sus funciones, como conducción de información (médula espinal y nervios) y elaboración y control (cerebro)."
+    },
+    {
+      "codigo": "OA8",
+      "eje": "Cuerpo Humano y Salud",
+      "descripcion": "Investigar en diversas fuentes y comunicar los efectos que produce el consumo excesivo de alcohol en la salud humana (como descoordinación, confusión y lentitud, entre otras)."
+    },
+    {
+      "codigo": "OA9",
+      "eje": "Ciencias Físicas y Químicas",
+      "descripcion": "Demostrar, por medio de la investigación experimental, que la materia tiene masa y ocupa espacio, usando materiales del entorno."
+    },
+    {
+      "codigo": "OA10",
+      "eje": "Ciencias Físicas y Químicas",
+      "descripcion": "Comparar los tres estados de la materia (sólido, líquido y gaseoso) en relación con criterios como la capacidad de fluir, cambiar de forma y volumen, entre otros."
+    },
+    {
+      "codigo": "OA11",
+      "eje": "Ciencias Físicas y Químicas",
+      "descripcion": "Medir la masa, el volumen y la temperatura de la materia (en estados sólido, líquido y gaseoso), utilizando instrumentos y unidades de medida apropiados."
+    },
+    {
+      "codigo": "OA12",
+      "eje": "Ciencias Físicas y Químicas",
+      "descripcion": "Demostrar, por medio de la investigación experimental, los efectos de la aplicación de fuerzas sobre objetos, considerando cambios en la forma, la rapidez y la dirección del movimiento, entre otros."
+    },
+    {
+      "codigo": "OA13",
+      "eje": "Ciencias Físicas y Químicas",
+      "descripcion": "Identificar, por medio de la investigación experimental, diferentes tipos de fuerzas y sus efectos en situaciones concretas: fuerza de roce (arrastrando objetos); peso (fuerza de gravedad); fuerza magnética (en imanes)."
+    },
+    {
+      "codigo": "OA14",
+      "eje": "Ciencias Físicas y Químicas",
+      "descripcion": "Diseñar y construir objetos tecnológicos que usen la fuerza para resolver problemas cotidianos."
+    },
+    {
+      "codigo": "OA15",
+      "eje": "Ciencias de la Tierra y el Universo",
+      "descripcion": "Describir, por medio de modelos, que la Tierra tiene una estructura de capas (corteza, manto y núcleo) con características distintivas en cuanto a su composición, rigidez y temperatura."
+    },
+    {
+      "codigo": "OA16",
+      "eje": "Ciencias de la Tierra y el Universo",
+      "descripcion": "Explicar los cambios de la superficie de la Tierra a partir de la interacción de sus capas y los movimientos de las placas tectónicas (sismos, tsunamis y erupciones volcánicas)."
+    },
+    {
+      "codigo": "OA17",
+      "eje": "Ciencias de la Tierra y el Universo",
+      "descripcion": "Proponer medidas de prevención y seguridad ante riesgos naturales en la escuela, la calle y el hogar, para desarrollar una cultura preventiva."
+    }
+  ],
+  "actitudes": [
+    {
+      "codigo": "a",
+      "descripcion": "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural."
+    },
+    {
+      "codigo": "b",
+      "descripcion": "Manifestar un estilo de trabajo riguroso, honesto y perseverante para lograr los aprendizajes de la asignatura."
+    },
+    {
+      "codigo": "c",
+      "descripcion": "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente."
+    },
+    {
+      "codigo": "d",
+      "descripcion": "Asumir responsabilidades e interactuar en forma colaborativa y flexible en los trabajos en equipo, aportando y enriqueciendo el trabajo común."
+    },
+    {
+      "codigo": "e",
+      "descripcion": "Manifestar compromiso con un estilo de vida saludable por medio del desarrollo físico y el autocuidado."
+    },
+    {
+      "codigo": "f",
+      "descripcion": "Reconocer la importancia de seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva."
+    }
+  ],
+  "vision_global_anio": {
+    "descripcion": "El programa se organiza en cuatro unidades que cubren en total 38 semanas del año. Cada unidad está compuesta por una selección de Objetivos de Aprendizaje, y algunos pueden repetirse en más de una.",
+    "unidades_resumen": [
+      {
+        "unidad": 1,
+        "titulo": "Materia y fuerza",
+        "semestre": 1,
+        "oas": [
+          "OA9",
+          "OA10",
+          "OA11",
+          "OA12",
+          "OA13",
+          "OA14"
+        ],
+        "tiempo_estimado": "39 horas pedagógicas"
+      },
+      {
+        "unidad": 2,
+        "titulo": "Estructura de la Tierra y riesgos naturales",
+        "semestre": 1,
+        "oas": [
+          "OA15",
+          "OA16",
+          "OA17"
+        ],
+        "tiempo_estimado": "18 horas pedagógicas"
+      },
+      {
+        "unidad": 3,
+        "titulo": "Cuerpo humano: sistema esquelético, nervioso y salud",
+        "semestre": 2,
+        "oas": [
+          "OA5",
+          "OA6",
+          "OA7",
+          "OA8"
+        ],
+        "tiempo_estimado": "33 horas pedagógicas"
+      },
+      {
+        "unidad": 4,
+        "titulo": "Ecosistemas",
+        "semestre": 2,
+        "oas": [
+          "OA1",
+          "OA2",
+          "OA3",
+          "OA4"
+        ],
+        "tiempo_estimado": "24 horas pedagógicas"
+      }
+    ]
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "titulo": "Materia y fuerza",
+      "semestre": 1,
+      "tiempo_estimado": "39 horas pedagógicas",
+      "proposito": "Los estudiantes se aproximan al concepto de materia, explorando y conociendo sus estados, características y propiedades. Aprenden a cuantificar las magnitudes de masa, volumen y temperatura mediante el correcto uso de instrumentos y unidades de medida. Además, conocen y experimentan la noción de fuerza, midiendo distintos tipos y sus efectos sobre la materia.",
+      "palabras_clave": [
+        "materia",
+        "sólido",
+        "líquido",
+        "gaseoso",
+        "masa",
+        "volumen",
+        "temperatura",
+        "gramo",
+        "litro",
+        "grado Celsius",
+        "fuerza",
+        "peso",
+        "fuerza de roce",
+        "fuerza magnética"
+      ],
+      "conocimientos_previos": [
+        "Los estados del agua (sólido, líquido y gaseoso) y sus características.",
+        "El ciclo del agua en la naturaleza.",
+        "La observación e identificación de materiales naturales y artificiales.",
+        "La medición con diferentes tipos de instrumentos, como regla y termómetros."
+      ],
+      "conocimientos": [
+        "Concepto y definición de materia.",
+        "Tres estados físicos en que se presenta la materia en su entorno inmediato: sólido, líquido y gaseoso.",
+        "Características de la materia en cada uno de los estados: capacidad de fluir, cambiar de forma y volumen, entre otros.",
+        "Propiedades de los estados sólido, líquido y gaseoso.",
+        "Medición de masa, volumen y temperatura.",
+        "El peso, roce y las interacciones magnéticas como ejemplos de fuerzas.",
+        "Efecto de deformación de los materiales por medio de fuerzas.",
+        "Dinamómetro para medir fuerzas en situaciones estáticas.",
+        "Efecto de las fuerzas en el cambio de movimiento (rapidez, dirección del movimiento)."
+      ],
+      "habilidades_unidad": [
+        "OA_a",
+        "OA_b",
+        "OA_c",
+        "OA_d",
+        "OA_e",
+        "OA_f"
+      ],
+      "actitudes_unidad": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural.",
+        "Manifestar un estilo de trabajo riguroso y perseverante para lograr los aprendizajes de la asignatura.",
+        "Reconocer la importancia y seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "codigo": "OA9",
+          "descripcion": "Demostrar, por medio de la investigación experimental, que la materia tiene masa y ocupa espacio, usando materiales del entorno.",
+          "indicadores": [
+            "Formulan y responden preguntas relacionadas con las características de la materia en el entorno, como ¿el gas de un globo tiene masa? ¿cómo se mide el volumen del agua?",
+            "Definen materia con sus palabras considerando su masa y su volumen y dan ejemplos a partir de diversos materiales del entorno.",
+            "Definen 'masa' con sus palabras a partir de ejemplos.",
+            "Definen 'volumen' de la materia con sus palabras a partir de ejemplos.",
+            "Describen propiedades de la masa y el volumen en los materiales del entorno.",
+            "Demuestran que todos los cuerpos poseen masa y volumen por medio del diseño y conducción de una investigación experimental.",
+            "Comparan la constitución y características de diversos materiales del entorno estableciendo similitudes y diferencias."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Masa de los materiales - Balanza rústica",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_d",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes construyen una 'balanza rústica' con una regla y un lápiz de pivote para comparar masas de distintos objetos del entorno. Registran resultados en tablas con relaciones 'más masa que/menos masa que'. Responden preguntas de metacognición sobre la experiencia."
+            },
+            {
+              "numero": 2,
+              "titulo": "Volumen de los materiales - Desplazamiento de agua",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_e",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes sumergen objetos de distinto tamaño en un recipiente lleno de agua y observan el desplazamiento provocado. Formulan predicciones, elaboran dibujos, establecen conclusiones sobre el volumen como el espacio ocupado por un cuerpo."
+            },
+            {
+              "numero": 3,
+              "titulo": "Afirmaciones sobre volumen con diagramas",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "En parejas, los estudiantes analizan afirmaciones sobre el concepto de volumen en distintos contextos (plastilina, gases, sólidos), determinan si son verdaderas o falsas y fundamentan con diagramas o modelos físicos."
+            },
+            {
+              "numero": 4,
+              "titulo": "¿El aire tiene masa? Experimento con globos",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes comparan en una balanza un globo inflado vs. un globo desinflado para demostrar que el aire tiene masa. Escriben una predicción, registran el resultado con un dibujo y elaboran conclusiones escritas."
+            },
+            {
+              "numero": 5,
+              "titulo": "Clasificación de materiales del entorno",
+              "habilidades": [
+                "OA_e",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes observan y comparan objetos del entorno (lápiz, agua, aire, sal, arena, etc.), los describen usando todos los sentidos, registran similitudes y diferencias en tablas con criterios de color, olor, forma, masa y volumen, y elaboran conclusiones."
+            },
+            {
+              "numero": 6,
+              "titulo": "Definición de materia con organizador gráfico",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "A partir de palabras clave escritas en la pizarra, los estudiantes elaboran con ayuda del docente una definición del concepto de materia. Construyen un organizador conceptual en parejas y lo contrastan con el glosario del texto."
+            },
+            {
+              "numero": 7,
+              "titulo": "Collage o presentación TIC sobre materia",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Recortan de diarios y revistas imágenes de objetos y construyen un collage o presentación digital que dé cuenta del concepto de materia y sus propiedades de masa y volumen."
+            }
+          ]
+        },
+        {
+          "codigo": "OA10",
+          "descripcion": "Comparar los tres estados de la materia (sólido, líquido y gaseoso) en relación con criterios como la capacidad de fluir, cambiar de forma y volumen, entre otros.",
+          "indicadores": [
+            "Clasifican materiales del entorno en los tres estados de la materia (sólido, líquido y gaseoso).",
+            "Establecen semejanzas y diferencias entre los materiales del entorno al encontrarse en los estados sólido, líquido y gaseoso.",
+            "Dibujan y explican las diferentes formas que adquieren los materiales del entorno al encontrarse en estados sólido, líquido y gaseoso.",
+            "Comparan materiales del entorno que se encuentran en el mismo estado físico identificando similitudes y diferencias.",
+            "Demuestran, por medio de la investigación experimental, que el volumen de un líquido no cambia aunque se encuentre en diferentes recipientes.",
+            "Comparan la capacidad de fluir de la materia en sus tres estados físicos y extraen conclusiones a partir de las evidencias registradas.",
+            "Muestran con ejemplos del entorno que los sólidos no cambian de volumen."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Identificación de estados en un paisaje dibujado",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Cada estudiante recibe un dibujo de un paisaje e identifica el estado físico de todos sus elementos. En parejas intercambian dibujos, comentan diferencias y llegan a un acuerdo. (Integración con Historia, Geografía y Ciencias Sociales)"
+            },
+            {
+              "numero": 2,
+              "titulo": "Tres botellas con agua sólida, líquida y aire - Observación",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes observan tres botellas transparentes (una con hielo, otra con agua líquida, otra con aire). Plantean preguntas y predicciones sobre cambios de temperatura, registran observaciones en tablas y dan ejemplos del entorno donde el agua aparezca en cada estado."
+            },
+            {
+              "numero": 3,
+              "titulo": "Experimento con jeringas: compresión de los tres estados",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "En tres jeringas plásticas se coloca hielo, agua líquida y aire. Tapan el orificio con el dedo, presionan el émbolo y miden el desplazamiento en cada caso. Grafican resultados y responden preguntas de metacognición. (Integración con Matemática)"
+            },
+            {
+              "numero": 4,
+              "titulo": "Clasificación de objetos cotidianos según estado físico",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "A partir de la lectura de una biografía científica (p.ej. Darwin), los estudiantes elaboran una lista de objetos que usan diariamente y los clasifican en estados físicos. Reflexionan sobre el estado físico más utilizado. También pueden hacer presentación TIC. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 5,
+              "titulo": "Propiedades de materiales en los tres estados físicos",
+              "habilidades": [
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes reciben materiales en los tres estados físicos (agua, cuchara, aceite, aire en globo, etc.) y los clasifican según criterios de fluir, cambiar de forma y volumen. Luego los re-clasifican en tabla por estado físico y comunican conclusiones con TIC."
+            },
+            {
+              "numero": 6,
+              "titulo": "Mezcla de maicena y agua: ¿sólido o líquido?",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes mezclan 80 ml de maicena con 50 ml de agua, forman una pelota y observan su comportamiento al detenerse. Comparan con agua derramada. Discuten si es sólido o líquido. Investigan si existe otro estado de la materia. Pueden filmar un video para una feria científica."
+            },
+            {
+              "numero": 7,
+              "titulo": "Observación de 8 materiales distintos en pocillos",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Introducen cantidades iguales de sal, azúcar, arena, lentejas, agua, aceite, jabón sólido y lavalozas en pocillos. Observan forma y comportamiento al moverlos y presionarlos. Registran en tablas y elaboran conclusiones escritas sobre sólidos y líquidos."
+            },
+            {
+              "numero": 8,
+              "titulo": "Formas de objetos en diferentes estados - Historia de ficción",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes listan y dibujan objetos del entorno en una tabla, luego imaginan sus formas si estuviesen en estado líquido o gaseoso. Escriben una historia de ficción que considere un mundo con solo dos estados de la materia. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 9,
+              "titulo": "Diagrama del procedimiento para calcular volumen",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Realizan un dibujo o diagrama con el procedimiento para calcular el volumen de un líquido y de un sólido, y una representación del concepto de volumen en sólidos, líquidos y gases."
+            },
+            {
+              "numero": 10,
+              "titulo": "Comparación de volumen y forma de agua en estado sólido y líquido",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "En grupos de cuatro, los estudiantes toman cubos de hielo, los observan y describen (dureza, color, frialdad), los dejan derretir y comparan el volumen antes y después. Elaboran tablas y registran observaciones en diagramas."
+            },
+            {
+              "numero": 11,
+              "titulo": "Investigación histórica sobre instrumentos de medida",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Realizan una investigación bibliográfica sobre la historia de la medición de masa y volumen. Comparten información con compañeros y construyen una línea del tiempo de los instrumentos utilizados a lo largo de la historia. (Integración con Historia)"
+            },
+            {
+              "numero": 12,
+              "titulo": "Actividad integración: estados de la materia y sus propiedades",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Actividad de integración que consolida los conceptos de los tres estados de la materia a través del diseño de un experimento para demostrar que el volumen de un líquido no varía al cambiar de recipiente. Registran en tablas y grafican."
+            }
+          ]
+        },
+        {
+          "codigo": "OA11",
+          "descripcion": "Medir la masa, el volumen y la temperatura de la materia (sólido, líquido y gaseoso), utilizando instrumentos y unidades de medida apropiados.",
+          "indicadores": [
+            "Predicen el valor de la masa de un mismo material en los estados físicos sólido, líquido y gaseoso.",
+            "Miden con precisión la masa de diversos materiales del entorno en diferentes estados, utilizando la balanza y unidades de medida estandarizadas.",
+            "Miden con precisión el volumen de diferentes materiales líquidos del entorno utilizando unidades de medida estandarizadas.",
+            "Usan en forma adecuada diversos instrumentos para medir el volumen de los materiales del entorno (vasos precipitados, probetas, pipetas, jeringas, entre otros).",
+            "Identifican el termómetro y sus partes y describen su función.",
+            "Registran en tablas y diagramas la masa, el volumen y la temperatura de diversos materiales."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Medición de masa con distintos instrumentos",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_d"
+              ],
+              "descripcion": "Los estudiantes identifican el instrumento adecuado para medir la masa de objetos variados del entorno, realizan mediciones con balanzas disponibles y registran resultados con las unidades correctas. Determinan cuáles tienen más o menos masa y comunican conclusiones."
+            },
+            {
+              "numero": 2,
+              "titulo": "Balanza improvisada - objeto tecnológico",
+              "habilidades": [
+                "OA_d",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes construyen una balanza con materiales al alcance, la exponen al curso explicando sus principios de funcionamiento, y realizan una exposición de las diferentes balanzas construidas. (Integración con Tecnología)"
+            },
+            {
+              "numero": 3,
+              "titulo": "Graduación de un vaso común para medir volumen",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes gradúan un vaso común usando una regla. El docente solicita agregar distintas cantidades de materiales (aceite, agua, arena, sal, etc.) y los estudiantes realizan lecturas correctas de las graduaciones. (Integración con Matemática)"
+            },
+            {
+              "numero": 4,
+              "titulo": "Instrumentos de medición de volumen - Investigación bibliográfica",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Investigan en diversas fuentes sobre los instrumentos para medir volúmenes de líquidos (vaso precipitado, probeta, pipeta, matraz erlenmeyer). Determinan unidades de medida y elaboran papelógrafo o presentación TIC mostrando cada instrumento y su procedimiento de uso."
+            },
+            {
+              "numero": 5,
+              "titulo": "Construcción de una probeta casera",
+              "habilidades": [
+                "OA_d",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes seleccionan recipientes para construir probetas, discuten en grupos qué unidades usar y cómo graduarlas, verifican su precisión y escriben un tríptico explicando su uso, normas de seguridad y dificultades de construcción."
+            },
+            {
+              "numero": 6,
+              "titulo": "Construcción de recipientes de greda de un litro",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "descripcion": "Los estudiantes construyen colaborativamente recipientes de greda con formas geométricas que contengan exactamente un litro de agua. Comparan los recipientes según capacidad, utilidad y estética, y hacen una exposición del mejor diseño. (Integración con Tecnología y Matemática)"
+            },
+            {
+              "numero": 7,
+              "titulo": "Experimento de temperatura con lata de aluminio y hielo",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "descripcion": "Los estudiantes llenan una lata con agua fría, agregan hielos y miden la temperatura mientras agitan. Formulan predicciones sobre qué ocurre con la lata exterior, observan la condensación, identifican la temperatura y responden preguntas sobre cambio de estado."
+            },
+            {
+              "numero": 8,
+              "titulo": "Desafíos de investigación experimental sobre agua y temperatura",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes investigan experimental e individualmente si son verdaderas afirmaciones como: 'el agua caliente se enfría más rápido', 'el agua caliente se congela antes', 'diferentes volúmenes se congelan a distintas temperaturas'. Registran datos y comunican conclusiones."
+            },
+            {
+              "numero": 9,
+              "titulo": "Investigación histórica sobre medición de masa y volumen",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Realizan una investigación bibliográfica sobre la historia de los instrumentos de medición de masa y volumen, comparten información y construyen una línea del tiempo. (Integración con Historia)"
+            }
+          ]
+        },
+        {
+          "codigo": "OA12",
+          "descripcion": "Demostrar, por medio de la investigación experimental, los efectos de la aplicación de fuerzas sobre objetos, considerando cambios en la forma, la rapidez y la dirección del movimiento, entre otros.",
+          "indicadores": [
+            "Dan ejemplos donde se aplican fuerzas a diversos cuerpos del entorno y explican sus efectos.",
+            "Miden y registran el cambio de forma de un objeto provocado por el efecto de las fuerzas y comunican conclusiones.",
+            "Dan ejemplos sobre el efecto de las fuerzas sobre la rapidez de un cuerpo.",
+            "Explican y dan ejemplos sobre el efecto de las fuerzas en la dirección y la rapidez de los cuerpos.",
+            "Explican el diseño de la investigación experimental considerando el cambio de una sola variable en relación al efecto de la fuerza en la forma, la rapidez y la dirección del movimiento de los objetos.",
+            "Comunican los resultados y las conclusiones de la investigación a sus compañeros con claridad y en forma gráfica."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Definición de fuerza - análisis de frases",
+              "habilidades": [],
+              "descripcion": "Los estudiantes escriben su definición de fuerza y analizan distintas frases que contienen esa palabra ('el estudiante más fuerte', 'el discurso tuvo fuerza'). Discuten el sentido de 'fuerza' en cada contexto con sus compañeros."
+            },
+            {
+              "numero": 2,
+              "titulo": "Situaciones cotidianas donde hay fuerzas presentes",
+              "habilidades": [
+                "OA_e"
+              ],
+              "descripcion": "Guiados por el docente, analizan situaciones cotidianas que implican fuerzas (arrastrar una caja, patear una pelota en diagonal). Comparan y reproducen situaciones usando criterios de tamaño, dirección y efecto de la fuerza."
+            },
+            {
+              "numero": 3,
+              "titulo": "Deformación de materiales por fuerzas",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes doblan, tuercen y comprimen distintos materiales, registrando el tipo y grado de deformación en tablas. Comparan materiales que recuperan su forma con los que no, y formulan hipótesis sobre las variables que influyen."
+            },
+            {
+              "numero": 4,
+              "titulo": "Fuerzas y cambio de movimiento - carrocerías y seguridad vial",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes responden preguntas sobre la deformación de vehículos en accidentes, investigan sobre carrocerías con deformación programada y medios de seguridad (cinturones, airbag). Ven videos y planifican una campaña de seguridad vial. (Integración con Educación Física)"
+            },
+            {
+              "numero": 5,
+              "titulo": "Diseño de experimento con variable única",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes planifican y llevan a cabo investigaciones donde cambian solo una variable para observar el efecto de la fuerza en la forma, rapidez o dirección del movimiento de objetos. Comunican resultados gráficamente."
+            }
+          ]
+        },
+        {
+          "codigo": "OA13",
+          "descripcion": "Identificar, por medio de la investigación experimental, diferentes tipos de fuerzas y sus efectos en situaciones concretas: fuerza de roce (arrastrando objetos); peso (fuerza de gravedad); fuerza magnética (en imanes).",
+          "indicadores": [
+            "Definen con sus palabras el peso de un cuerpo a partir de ejemplos.",
+            "Comparan, por medio de la experimentación, los efectos de la fuerza de roce en el movimiento de un objeto en diferentes superficies (lija, madera, papel corrugado) y extraen conclusiones.",
+            "Describen las observaciones sobre el efecto de la fuerza de roce sobre un objeto en movimiento y lo explican con sus palabras.",
+            "Dibujan las fuerzas que actúan sobre un cuerpo que es arrastrado por una superficie horizontal.",
+            "Identifican las fuerzas de atracción y repulsión en la interacción entre imanes.",
+            "Clasifican objetos de acuerdo al criterio de atracción por la fuerza magnética."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Experimentación con elásticos duros y blandos",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_e"
+              ],
+              "descripcion": "Los estudiantes estiran elásticos de distintas durezas, plantean preguntas y formulan predicciones sobre su comportamiento. Diseñan y dibujan experimentos simples para comprobar sus predicciones sobre la fuerza aplicada."
+            },
+            {
+              "numero": 2,
+              "titulo": "Peso como fuerza de gravedad - comparación con resortes",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes definen con sus palabras el concepto de peso como la fuerza de atracción de la Tierra. Comparan el peso de dos objetos sosteniéndolos en las manos y luego colgándolos de un resorte. Discuten ventajas y desventajas de cada método."
+            },
+            {
+              "numero": 3,
+              "titulo": "Medición del peso con resorte y bolitas de cristal",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes cuelgan un vaso de papel de un resorte, agregan bolitas de cristal una a una y miden el estiramiento con una regla. Grafican resultados en papel o TIC. Registran el procedimiento con dibujos o esquemas. (Integración con Matemática)"
+            },
+            {
+              "numero": 4,
+              "titulo": "Investigación bibliográfica sobre el dinamómetro",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los alumnos investigan en la biblioteca o internet qué es un dinamómetro, qué tipos existen, en qué unidades se mide. Elaboran un informe estructurado con portada, índice, introducción, desarrollo, conclusión y bibliografía."
+            },
+            {
+              "numero": 5,
+              "titulo": "Medición de fuerzas de roce con dinamómetro",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Por medio de un dinamómetro, los alumnos miden las fuerzas aplicadas para arrastrar diferentes objetos (estuche, caja con libros) sobre la mesa. Miden, registran y grafican los datos. Calculan la diferencia entre la fuerza mayor y la menor. (Integración con Matemática)"
+            },
+            {
+              "numero": 6,
+              "titulo": "Deslizamiento de un compañero en distintas superficies",
+              "habilidades": [],
+              "descripcion": "Los estudiantes deslizan a un compañero sentado sobre tres tipos de superficies con distinta rugosidad (cerámica lisa, cemento, arena) y comparan en cuál hay mayor fuerza de roce."
+            },
+            {
+              "numero": 7,
+              "titulo": "Demostración con dinamómetro sobre distintas superficies",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes deben demostrar a un profesor de Educación Física que no es igual hacer ejercicio en superficie de arena que en superficie lisa. Diseñan un experimento con superficies rugosas y lisas, un objeto y un dinamómetro. Representan visualmente en gráfico simple."
+            },
+            {
+              "numero": 8,
+              "titulo": "¿Sobre qué superficie avanza más un autito? Experimento con rampa",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes construyen una rampa con una madera y libros (~10 cm de altura). Al término de la rampa colocan diferentes superficies (papel lija, papel aluminio, papel corrugado, papel mantequilla). Sueltan un autito tres veces por superficie y miden distancia recorrida. Grafican con barras y concluyen."
+            },
+            {
+              "numero": 9,
+              "titulo": "¿Qué paracaídas cae más lento? Diseño experimental",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes diseñan tres paracaídas de distintos tamaños (5x5, 10x10, 15x15 cm), los sueltan desde un segundo piso y observan cuál llega primero al suelo. Registran en tabla, grafican con barras y responden preguntas sobre la fuerza de roce."
+            },
+            {
+              "numero": 10,
+              "titulo": "Reflexión escrita: ¿El roce es una fuerza?",
+              "habilidades": [],
+              "descripcion": "A partir de ejemplos simples y la explicación del profesor, los estudiantes escriben lo que entienden por 'roce' y responden si el roce es una fuerza, fundamentando con un ejemplo que comparten con un compañero."
+            },
+            {
+              "numero": 11,
+              "titulo": "Experimentación con dos imanes - atracción y repulsión",
+              "habilidades": [
+                "OA_a",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes manipulan dos imanes y realizan actividades: acercarlos por distintos extremos, sentir las fuerzas, pasar un imán por tierra del patio y observar las partículas adheridas. Ante cada situación escriben una pregunta para pensar y la responden con ayuda del docente."
+            },
+            {
+              "numero": 12,
+              "titulo": "¿Qué materiales son atraídos por el imán?",
+              "habilidades": [],
+              "descripcion": "Los estudiantes acercan un imán a diferentes objetos (clavos, alfileres, latas, palitos de helado, goma de borrar, corchos). Clasifican los materiales según si son atraídos, repelidos o no afectados. Registran en tabla y concluyen sobre qué materiales son afectados por la fuerza magnética."
+            },
+            {
+              "numero": 13,
+              "titulo": "Lista de usos cotidianos de la fuerza magnética",
+              "habilidades": [],
+              "descripcion": "Los estudiantes elaboran un listado de muebles, herramientas o accesorios de la vida diaria donde la fuerza magnética los ayuda cotidianamente (muebles de cocina, juguetes, desatornilladores magnéticos, etc.)."
+            },
+            {
+              "numero": 14,
+              "titulo": "Definición de fuerza magnética en texto e imagen",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "A partir de la lectura de un texto informativo sobre imanes y de las actividades experimentales, los estudiantes escriben con sus palabras (apoyados en representación pictórica) la definición de fuerza, la fuerza magnética y los polos de un imán."
+            }
+          ]
+        },
+        {
+          "codigo": "OA14",
+          "descripcion": "Diseñar y construir objetos tecnológicos que usen la fuerza para resolver problemas cotidianos.",
+          "indicadores": [
+            "Comparan, a partir de evidencias y de la experimentación, las fuerzas de resortes o elásticos aplicadas a diferentes objetos.",
+            "Diseñan un instrumento para medir fuerzas, utilizando resortes o elásticos y miden y registran diferentes magnitudes de fuerzas que actúan sobre un objeto.",
+            "Construyen un objeto tecnológico que use la fuerza y sea útil para resolver un problema."
+          ],
+          "actividades": [
+            {
+              "numero": 4,
+              "titulo": "Diseño de un dinamómetro casero con resorte",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes comparan fuerzas de resortes o elásticos aplicadas a diferentes objetos y diseñan un instrumento casero para medir fuerzas. Miden y registran distintas magnitudes de fuerzas sobre objetos."
+            },
+            {
+              "numero": 5,
+              "titulo": "Construcción de objeto tecnológico que use la fuerza",
+              "habilidades": [
+                "OA_b",
+                "OA_d",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes diseñan y construyen un objeto tecnológico que use la fuerza para resolver un problema cotidiano. Lo exponen al curso explicando su principio de funcionamiento y sus aplicaciones prácticas. (Integración con Tecnología)"
+            },
+            {
+              "numero": 7,
+              "titulo": "Historia de la ciencia y tecnología de las máquinas simples",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes investigan sobre la evolución histórica de máquinas simples que usan la fuerza (palancas, planos inclinados, poleas), y presentan al curso los principales avances científicos y tecnológicos a lo largo de la historia. (Integración con Historia)"
+            },
+            {
+              "numero": 8,
+              "titulo": "Diseño y construcción de objeto tecnológico final",
+              "habilidades": [
+                "OA_b",
+                "OA_d",
+                "OA_f"
+              ],
+              "descripcion": "Actividad de integración donde los estudiantes diseñan y construyen un objeto tecnológico funcional que utilice la fuerza para resolver un problema de la vida cotidiana, siguiendo un proceso de diseño estructurado."
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA11"
+          ],
+          "habilidades_evaluadas": [
+            "OA_e"
+          ],
+          "indicadores": [
+            "Predicen el valor de la masa de un mismo material en los estados físicos sólido, líquido y gaseoso.",
+            "Miden con precisión la masa de diversos materiales del entorno en diferentes estados, utilizando la balanza y unidades de medida estandarizadas.",
+            "Determinan la validez de las predicciones que realizan a partir de la comparación de las observaciones que obtienen.",
+            "Argumentan sus ideas o eventuales respuestas a partir de las observaciones que realizan."
+          ],
+          "descripcion_tarea": "Se presentan dos balanzas (A y B) en equilibrio con diferentes objetos (gallo, conejo, perro). Los estudiantes responden: (1) si el gallo tiene mayor masa que el conejo, justificando con la información de las imágenes; (2) cuántos perros y gallos se necesitan para equilibrar cuatro conejos en la balanza B; (3) si es verdad que 8 perros tienen la misma masa que cuatro conejos, justificando la respuesta.",
+          "criterios_evaluacion": [
+            "Demuestran predecir la masa de un material argumentando las diferencias de masas entre el gallo y el conejo, concluyendo que es el conejo quien tiene mayor masa.",
+            "Demuestran que son capaces de predecir el valor de la masa de un conjunto de elementos a partir de la relación de la cantidad de gallos y perros que equilibran un conejo.",
+            "Muestran que son capaces de inferir masas a partir de la observación de instrumentos de medición."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA12",
+            "OA13"
+          ],
+          "habilidades_evaluadas": [
+            "OA_f"
+          ],
+          "indicadores": [
+            "Muestran ejemplos en que fuerzas aumenten o disminuyan la rapidez de un cuerpo.",
+            "Explican qué le ocurre a un cuerpo en movimiento cuando les aplican fuerzas.",
+            "Comparan los efectos de la fuerza de roce en el movimiento de un objeto en diferentes superficies.",
+            "Observan y describen el efecto de la fuerza de roce sobre un objeto en movimiento.",
+            "Exponen, por diversos medios escritos, las observaciones y mediciones que realizan.",
+            "Comunican en forma oral y escrita los resultados obtenidos de las investigaciones que realizan."
+          ],
+          "descripcion_tarea": "Se imagina un libro sobre una mesa y una persona empujándolo hacia la derecha. Los estudiantes: (1) dibujan la escena y señalan con flechas el sentido de las fuerzas; (2) rotulan el nombre de las fuerzas actuantes; (3) explican y dibujan qué debe ocurrir para que el libro se mueva con mayor rapidez en la misma dirección.",
+          "criterios_evaluacion": [
+            "Demuestran reconocer las fuerzas y el sentido en que actúan sobre un cuerpo.",
+            "Demuestran conocer el nombre de las fuerzas actuantes en una situación.",
+            "Predicen qué es lo que debe ocurrir, en términos de fuerzas, para que un cuerpo se mueva más rápido (aumento de una fuerza de empuje).",
+            "Predicen qué es lo que debe ocurrir, en términos de fuerzas, para que un cuerpo frene (aumento de la fuerza de roce y/o anulación de la fuerza de empuje)."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA9",
+            "OA10"
+          ],
+          "habilidades_evaluadas": [
+            "OA_c",
+            "OA_d"
+          ],
+          "indicadores": [
+            "Definen 'masa' con sus palabras a partir de ejemplos.",
+            "Definen 'volumen' de la materia con sus palabras a partir de ejemplos.",
+            "Demuestran, por medio de la investigación experimental, que el volumen de un líquido no cambia aunque se encuentre en diferentes recipientes.",
+            "Definen materia con sus palabras considerando su masa y su volumen.",
+            "Establecen semejanzas y diferencias entre los materiales del entorno al encontrarse en los estados sólido, líquido y gaseoso.",
+            "Observan, miden y obtienen información útil sobre la investigación en estudio.",
+            "Seleccionan materiales e instrumentos apropiados."
+          ],
+          "descripcion_tarea": "A partir de un esquema con un recipiente graduado con líquido, los estudiantes responden preguntas: (a) ¿cuánto volumen hay del líquido?; (b) ¿se podría determinar la masa conociendo sólo el volumen?; (c) si el líquido se vierte en un plato, ¿cuánto volumen ocupará?; (d) ¿por qué el líquido mostrado es materia?. Además: identificar si un objeto desconocido es sólido o líquido; explicar cómo medir con precisión la masa de un líquido.",
+          "criterios_evaluacion": [
+            "Muestran reconocer información relativa al volumen.",
+            "Saben diferenciar masa de volumen según la información que se dispone.",
+            "Reconocen que el volumen de un líquido no varía cuando se cambia de recipiente.",
+            "Reconocen lo que es materia.",
+            "Reconocen las diferencias básicas entre los tres estados de la materia.",
+            "Demuestran saber el procedimiento para medir la masa de un líquido de manera precisa, sin confundir con la medición de su volumen."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA9",
+            "OA10"
+          ],
+          "habilidades_evaluadas": [
+            "OA_d"
+          ],
+          "indicadores": [
+            "Definen 'volumen' de la materia con sus palabras a partir de ejemplos.",
+            "Demuestran, por medio de la investigación experimental, que el volumen de un líquido no cambia aunque se encuentre en diferentes recipientes.",
+            "Definen materia con sus palabras considerando su masa y su volumen.",
+            "Establecen semejanzas y diferencias entre los materiales del entorno al encontrarse en los estados sólido, líquido y gaseoso.",
+            "Observan, miden y obtienen información útil sobre la investigación en estudio.",
+            "Seleccionan materiales e instrumentos apropiados."
+          ],
+          "descripcion_tarea": "Los estudiantes toman tres botellas plásticas idénticas: una llena de agua (botella 1), una a la mitad (botella 2) y una 'vacía' (botella 3). Responden preguntas justificando: si la botella 3 está realmente vacía, dónde hay gas/líquido/sólido, comparación de volúmenes de agua y de aire. Además realizan un experimento para: comparar masas de agua, dejar la botella 2 con la mitad del agua de la botella 1, verificar que la botella 3 está llena de aire, y verificar predicciones sobre un resorte al colgar cada botella.",
+          "criterios_evaluacion": [
+            "Muestran reconocer información relativa al volumen.",
+            "Demuestran diferenciar masa de volumen según la información que se dispone.",
+            "Demuestran que reconocen que el volumen de un líquido no varía cuando se cambia la forma del recipiente.",
+            "Muestran reconocer la diferencia entre masa y volumen.",
+            "Reconocen las diferencias básicas entre los tres estados de la materia.",
+            "Miden con rigurosidad masa y volúmenes.",
+            "Demuestran saber el procedimiento para medir la masa de un líquido de manera precisa, sin confundir con la medición de su volumen."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "titulo": "Estructura de la Tierra y riesgos naturales",
+      "semestre": 1,
+      "tiempo_estimado": "18 horas pedagógicas",
+      "proposito": "Los estudiantes comprenden que Chile se alinea con la zona de interacción de las placas tectónicas de Nazca y Sudamericana, lo que genera sismos, tsunamis y erupciones volcánicas. Para entender estos fenómenos, estudian la estructura interna de la Tierra en capas (corteza, manto y núcleo) y el movimiento de las placas tectónicas. Una vez comprendidos los fenómenos y sus consecuencias, desarrollan actitudes de prevención y seguridad ante posibles riesgos naturales.",
+      "palabras_clave": [
+        "Tierra",
+        "corteza",
+        "manto",
+        "núcleo",
+        "placas tectónicas",
+        "sismos",
+        "tsunamis",
+        "erupciones volcánicas",
+        "riesgos naturales",
+        "prevención",
+        "seguridad"
+      ],
+      "conocimientos_previos": [
+        "Los diferentes tipos de materiales y sus propiedades como rigidez, flexibilidad, dureza, etc.",
+        "Los estados de la materia (sólido, líquido y gaseoso) y su relación con la temperatura.",
+        "El planeta Tierra.",
+        "Las fuerzas, los efectos de su aplicación y los tipos de fuerzas, como la fuerza de roce."
+      ],
+      "conocimientos": [
+        "Las capas de la Tierra (corteza, manto y núcleo) y sus características principales de composición, rigidez y temperatura.",
+        "Los movimientos de las placas tectónicas y sus características en relación a sus causas, efectos y comparaciones de magnitudes.",
+        "Las placas tectónicas y su relación con sismos, tsunamis y erupciones volcánicas.",
+        "Las medidas de prevención y seguridad ante riesgos naturales producto de sismos, tsunamis y erupciones."
+      ],
+      "habilidades_unidad": [
+        "OA_a",
+        "OA_b",
+        "OA_c",
+        "OA_e",
+        "OA_f"
+      ],
+      "actitudes_unidad": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural.",
+        "Manifestar un estilo de trabajo riguroso y perseverante para lograr los aprendizajes de la asignatura.",
+        "Asumir responsabilidades e interactuar en forma colaborativa en los trabajos en equipo."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "codigo": "OA15",
+          "descripcion": "Describir, por medio de modelos, que la Tierra tiene una estructura de capas (corteza, manto y núcleo) con características distintivas en cuanto a su composición, rigidez y temperatura.",
+          "indicadores": [
+            "Describen las diferentes capas que conforman la Tierra (corteza, manto y núcleo) en relación a su posición, rigidez y temperatura.",
+            "Construyen modelos de la Tierra, para explicar las características de la corteza, el manto y el núcleo.",
+            "Comparan las principales características de la corteza, manto y núcleo en cuanto a composición, rigidez, temperatura y estado.",
+            "Construyen gráficos de barra con datos sobre temperatura en las diferentes capas de la Tierra."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Excavación en el colegio: ideas previas sobre el suelo",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes cavan un hoyo de 60 cm de profundidad en el colegio, toman muestras cada 20 cm y las observan describiendo características. Predicen qué encontrarían si continuaran excavando y elaboran una definición de suelo."
+            },
+            {
+              "numero": 2,
+              "titulo": "Investigación sobre los métodos de los geólogos",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes investigan en diversas fuentes sobre cómo los geólogos estudian las profundidades de la Tierra. Presentan sus hallazgos con TIC explicando la importancia de la geología, incluyendo el trabajo de geólogas históricas (Hildegarda de Bingen, Florencia Bascom, etc.). (Integración con Lenguaje)"
+            },
+            {
+              "numero": 3,
+              "titulo": "Corte transversal de la Tierra a escala",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "El docente muestra una tabla con los tamaños relativos de las capas. Los estudiantes dibujan a escala un corte transversal de la Tierra marcando con colores las capas (corteza, manto, núcleo). Investigan características de cada capa y anotan las ideas principales."
+            },
+            {
+              "numero": 4,
+              "titulo": "Video/fotos de capas de la Tierra: tabla de doble entrada",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes observan videos o fotografías de las distintas capas de la Tierra e identifican sus características (composición, temperatura, rigidez). Registran la información en una tabla de doble entrada."
+            },
+            {
+              "numero": 5,
+              "titulo": "Gráfico de barras: temperaturas de las capas de la Tierra",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Investigan las temperaturas de las capas de la Tierra y construyen un gráfico de barras con distintos colores. Calculan la diferencia entre temperatura máxima y mínima, y relacionan los datos con fenómenos naturales (erupciones, congelamientos). (Integración con Matemática)"
+            },
+            {
+              "numero": 6,
+              "titulo": "Investigación de geólogas históricas",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes investigan sobre geólogas históricas (Hildegarda de Bingen, Baronesa de Beausoleil, Etheldred Bentt, Florencia Bascom, entre otras). Escriben breves biografías, mencionan sus aportes y los presentan al curso con materiales gráficos y TIC. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 7,
+              "titulo": "Modelo con huevo o durazno: analogía de capas de la Tierra",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "En grupos, los estudiantes cortan un huevo duro o durazno y establecen una analogía con las capas de la Tierra. Registran la comparación en dibujos o esquemas, señalando cada capa y su analogía."
+            },
+            {
+              "numero": 8,
+              "titulo": "Modelo de plastilina en tres colores",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes construyen un modelo de la Tierra con plastilina formando tres esferas concéntricas (núcleo rojo 2 cm, manto amarillo 3 cm, corteza café delgada). Hacen un corte central y explican las características de cada capa a partir del modelo."
+            },
+            {
+              "numero": 9,
+              "titulo": "Cuento de ciencia ficción: viaje al centro de la Tierra",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes escriben un cuento de ciencia ficción sobre un viaje al centro de la Tierra, considerando las características de las capas y las propiedades que debería tener la nave para atravesarlas. Pueden escribirlo con TIC y difundirlo por redes sociales. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 10,
+              "titulo": "Organizador gráfico: corteza, manto, núcleo y propiedades",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes elaboran un organizador gráfico con conceptos como corteza, manto, núcleo, composición, rigidez, temperatura, entre otros."
+            },
+            {
+              "numero": 11,
+              "titulo": "Visita al MIM - Sala de la Tierra",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "Visita al Museo Interactivo Mirador (MIM) a la 'Sala de la Tierra'. Se acompaña de una guía de trabajo donde los estudiantes responden y formulan preguntas relacionadas con el tema."
+            }
+          ]
+        },
+        {
+          "codigo": "OA16",
+          "descripcion": "Explicar los cambios de la superficie de la Tierra a partir de la interacción de sus capas y los movimientos de las placas tectónicas (sismos, tsunamis y erupciones volcánicas).",
+          "indicadores": [
+            "Ilustran las placas tectónicas de Nazca y Sudamericana.",
+            "Construyen modelos para explicar el movimiento de las placas tectónicas.",
+            "Explican cómo se producen los sismos y tsunamis a partir del movimiento de placas tectónicas y los cambios en la topografía superficial de la Tierra.",
+            "Planifican y desarrollan investigaciones sobre sismos, tsunamis y erupciones volcánicas, comunicando sus resultados mediante un informe y presentación utilizando TIC.",
+            "Describen la formación de volcanes, su actividad y cómo pueden cambiar el paisaje cuando se encuentran activos.",
+            "Comparan las causas, efectos y magnitudes de terremotos, tsunamis y erupciones volcánicas ocurridas en Chile."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Huevo agriado como modelo de placas tectónicas",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes golpean un huevo duro para agrietar su cáscara y usan este modelo para explicar las placas tectónicas. Pintan fragmentos de cáscara en café (continentales) y azul (oceánicas). Dibujan el modelo en su cuaderno y rotulan las capas."
+            },
+            {
+              "numero": 2,
+              "titulo": "Mapa de placas tectónicas con epicentros de terremotos en Chile",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes dibujan, pintan y rotulan las placas tectónicas de Nazca y Sudamericana en un mapa del mundo. Marcan los epicentros de los terremotos más importantes en Chile y debaten la relación entre placas y terremotos. (Integración con Historia, Geografía y Ciencias Sociales)"
+            },
+            {
+              "numero": 3,
+              "titulo": "Rompecabezas de placas tectónicas",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes construyen un rompecabezas de las placas tectónicas con cartón, tijeras y lápices de colores, indagando en distintas fuentes. Observan cómo las placas encajan como piezas de un puzle."
+            },
+            {
+              "numero": 4,
+              "titulo": "Modelo con gelatina y plumavit: movimiento de placas",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "En una caja de helado con barro espeso o gelatina, los estudiantes colocan trozos de plumavit representando placas tectónicas. Mueven, juntan, separan y sobreponen los trozos, describiendo las consecuencias de cada movimiento."
+            },
+            {
+              "numero": 5,
+              "titulo": "Modelo con arena y cartón: tiras como corteza terrestre",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "En parejas, llenan un recipiente con arena húmeda, colocan tiras de cartón y predicen qué ocurrirá al moverlas. Mueven las tiras suavemente y observan el efecto sobre la arena y los vasos de papel. Responden preguntas sobre lo que representan cada elemento del modelo."
+            },
+            {
+              "numero": 6,
+              "titulo": "Lámina de papel aluminio con casitas: modelo de sismo",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "descripcion": "Sobre papel aluminio los estudiantes colocan cajitas de cartón (casas/edificios), predicen el efecto de golpear un extremo con distinta intensidad, realizan la experiencia y comparan sus predicciones con los resultados registrando conclusiones."
+            },
+            {
+              "numero": 7,
+              "titulo": "Videos de tsunamis y consulta bibliográfica",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes observan videos o animaciones de tsunamis y describen su relación con el movimiento de placas. Recolectan preguntas familiares para responder con el docente."
+            },
+            {
+              "numero": 8,
+              "titulo": "Modelo de tsunami con materiales simples",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes planifican y construyen un modelo de tsunami describiendo los materiales y pasos a seguir. En base al modelo, discuten y marcan la línea que divide zonas seguras de inseguras."
+            },
+            {
+              "numero": 9,
+              "titulo": "Experimento de volcán con bicarbonato y vinagre",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "En grupos, los estudiantes construyen un volcán con vaso plástico, arcilla y hojas, mezclan bicarbonato, colorante y detergente, luego agregan vinagre. Registran observaciones y comparan con una erupción real."
+            },
+            {
+              "numero": 10,
+              "titulo": "Investigación de terremotos, tsunamis y volcanes en Chile",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Investigan en diversas fuentes eventos ocurridos en Chile en las últimas décadas, los ubican en mapa señalando daños, magnitudes e intensidades. Discuten sobre la capacidad predictiva de estos eventos. (Integración con Historia, Geografía y Ciencias Sociales)"
+            },
+            {
+              "numero": 11,
+              "titulo": "Organizador de síntesis: sismos, erupciones y tsunamis",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "A partir de los conocimientos y actividades experimentales, los estudiantes elaboran un organizador de síntesis con la información más relevante de terremotos, erupciones volcánicas y tsunamis (origen, duración, posibilidades de predicción, efectos)."
+            },
+            {
+              "numero": 12,
+              "titulo": "Cosmovisión de pueblos originarios de Chile ante fenómenos naturales",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes investigan la cosmovisión de pueblos originarios chilenos (Mapuche, Aymara, Rapa Nui, etc.) sobre la naturaleza y sus fenómenos. Cada grupo selecciona un pueblo, elabora un resumen y lo expone al curso. (Integración con Historia, Geografía y Ciencias Sociales)"
+            }
+          ]
+        },
+        {
+          "codigo": "OA17",
+          "descripcion": "Proponer medidas de prevención y seguridad ante riesgos naturales en la escuela, la calle y el hogar, para desarrollar una cultura preventiva.",
+          "indicadores": [
+            "Describen peligros eventuales de sismos, tsunamis y erupciones volcánicas en la calle, el hogar y la escuela.",
+            "Evalúan medidas de seguridad que existen en la escuela y en el hogar frente a riesgos naturales.",
+            "Comunican en forma oral información sobre mecanismos de seguridad y sistemas de alerta nacional e internacional frente a catástrofes naturales.",
+            "Hacen una lista de medidas de seguridad, individuales y grupales, ante riesgos naturales en la escuela, la calle y el hogar."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Ideas previas: peligros de sismos y tsunamis",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "El docente lee un testimonio sobre una catástrofe natural. Los estudiantes comparten experiencias personales y predicen peligros eventuales en distintas localidades. Registran en una lista y comparan con sus compañeros."
+            },
+            {
+              "numero": 2,
+              "titulo": "Investigación sobre sistemas de alerta nacional e internacional",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes investigan sobre sistemas de alerta como 'Chile preparado' de ONEMI. Realizan un informe resumen por grupos sobre los distintos sistemas y programas, presentándolo en forma escrita."
+            },
+            {
+              "numero": 3,
+              "titulo": "Campaña de prevención: carteles, trípticos y volantes",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "En grupos, los estudiantes elaboran una campaña de prevención ante riesgos naturales. Confeccionan carteles, trípticos, folletos y volantes con información escrita y visual (o TIC) y los exponen al colegio y la comunidad."
+            },
+            {
+              "numero": 4,
+              "titulo": "Charla a alumnos menores sobre prevención",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes explican a alumnos de cursos menores la importancia de prevenir riesgos naturales, usando imágenes y esquemas adecuados a la edad de los destinatarios."
+            },
+            {
+              "numero": 5,
+              "titulo": "Cómics de situaciones de riesgo y medidas de prevención",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes elaboran ilustraciones tipo cómic que resuman las principales situaciones de riesgo (sismos, tsunami, erupciones volcánicas) y las medidas de prevención aplicadas, por ejemplo el 'triángulo de la vida' en la sala de clases."
+            },
+            {
+              "numero": 6,
+              "titulo": "Encuesta a adultos mayores sobre terremotos vividos",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes realizan encuestas a adultos mayores sobre terremotos en que estuvieron presentes, consultando sobre consecuencias y medidas tomadas. Sintetizan la información y la presentan al curso."
+            },
+            {
+              "numero": 7,
+              "titulo": "Indagación y simulacro de medidas de seguridad en la escuela",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes investigan las medidas de seguridad existentes en la escuela ante riesgos naturales mediante entrevistas y revisión de reglamentos. Realizan con el docente simulacros para distintos fenómenos (sismo, tsunami) practicando acciones inmediatas."
+            },
+            {
+              "numero": 8,
+              "titulo": "Noticia ficticia: catástrofe donde medidas de seguridad evitaron desastre",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes redactan una noticia ficticia donde un terremoto, tsunami o erupción volcánica ocurre y las medidas de seguridad evitaron un desastre mayor. Leen sus noticias al curso y debaten las medidas empleadas. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 9,
+              "titulo": "Señalética de seguridad para la escuela",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes exploran símbolos de seguridad y construyen señalética apropiada para la sala de clases y el colegio (zona de tsunami, zona de seguridad, salida de emergencia, etc.)."
+            },
+            {
+              "numero": 10,
+              "titulo": "Preguntas desafiantes: sismos y placas tectónicas",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "Actividad de integración. Los alumnos analizan preguntas desafiantes: ¿todos los sismos se explican por movimiento de placas?, ¿existe relación entre fallas geológicas y actividad volcánica?, ¿por qué no todo sismo marino genera tsunami?"
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA15",
+            "OA16"
+          ],
+          "habilidades_evaluadas": [
+            "OA_f"
+          ],
+          "indicadores": [
+            "Describen las diferentes capas que conforman la Tierra (corteza, manto y núcleo) en relación a su posición, rigidez y temperatura.",
+            "Comparan las principales características de la corteza, manto y núcleo en cuanto a composición, rigidez, temperatura y estado.",
+            "Explican cómo se producen los sismos y tsunamis a partir del movimiento de placas tectónicas.",
+            "Comunican ideas, explicaciones, observaciones y mediciones utilizando diagramas y modelos físicos."
+          ],
+          "descripcion_tarea": "Se muestra a los estudiantes un modelo de la Tierra (plastilina tres colores). Deben: (1) nombrar e identificar las capas indicadas con flechas; (2) completar una tabla comparativa de las capas según composición, rigidez y temperatura; (3) explicar brevemente por qué Chile sufre frecuentes terremotos y tsunamis relacionándolo con las placas tectónicas.",
+          "criterios_evaluacion": [
+            "Identifican correctamente las tres capas de la Tierra y las nombran.",
+            "Comparan las capas señalando diferencias de composición, rigidez y temperatura.",
+            "Explican la relación entre el movimiento de las placas de Nazca y Sudamericana con la ocurrencia de sismos y tsunamis en Chile.",
+            "Usan vocabulario científico apropiado."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA16"
+          ],
+          "habilidades_evaluadas": [
+            "OA_e"
+          ],
+          "indicadores": [
+            "Construyen modelos para explicar el movimiento de las placas tectónicas.",
+            "Explican cómo se producen los sismos y tsunamis a partir del movimiento de placas.",
+            "Comparan sus predicciones con la pregunta inicial utilizando sus observaciones como evidencia."
+          ],
+          "descripcion_tarea": "A partir de un diagrama de dos placas tectónicas y de la actividad experimental realizada en clases (modelo con arena y cartón), los estudiantes: (1) predicen qué ocurrirá cuando las placas se choquen; (2) describen lo que observaron en el experimento; (3) comparan su predicción con lo observado; (4) explican qué fenómeno natural representa el experimento.",
+          "criterios_evaluacion": [
+            "Formulan una predicción fundamentada sobre el comportamiento de las placas.",
+            "Describen con precisión lo observado durante el experimento.",
+            "Comparan predicción con observación reconociendo similitudes y diferencias.",
+            "Identifican correctamente el fenómeno natural representado (sismo/terremoto)."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA17"
+          ],
+          "habilidades_evaluadas": [
+            "OA_f"
+          ],
+          "indicadores": [
+            "Describen peligros eventuales de sismos, tsunamis y erupciones volcánicas en distintos contextos.",
+            "Hacen una lista de medidas de seguridad individuales y grupales ante riesgos naturales.",
+            "Comunican información sobre mecanismos de seguridad y sistemas de alerta."
+          ],
+          "descripcion_tarea": "Se presenta a los estudiantes la imagen de un hogar y una sala de clases. Deben: (1) identificar cinco objetos/situaciones peligrosas durante un sismo en cada lugar; (2) proponer tres medidas de seguridad para antes, durante y después de un sismo en la escuela; (3) explicar brevemente qué es el sistema 'Chile preparado' de ONEMI.",
+          "criterios_evaluacion": [
+            "Identifican correctamente situaciones de riesgo en el hogar y en la escuela.",
+            "Proponen medidas de seguridad pertinentes y fundamentadas para distintos momentos del sismo.",
+            "Demuestran conocer los sistemas de alerta y prevención nacionales.",
+            "Demuestran comprensión de una cultura preventiva ante riesgos naturales."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA15",
+            "OA16",
+            "OA17"
+          ],
+          "habilidades_evaluadas": [
+            "OA_b",
+            "OA_f"
+          ],
+          "indicadores": [
+            "Comparan las causas, efectos y magnitudes de terremotos, tsunamis y erupciones volcánicas en Chile.",
+            "Planifican y desarrollan investigaciones sobre sismos, tsunamis y erupciones volcánicas.",
+            "Comunican resultados mediante informe y presentación TIC.",
+            "Proponen medidas de prevención y seguridad ante riesgos naturales."
+          ],
+          "descripcion_tarea": "Proyecto grupal: los estudiantes investigan en diversas fuentes un evento catastrófico ocurrido en Chile (terremoto, tsunami o erupción volcánica). Elaboran un informe que incluya: descripción del evento, capas de la Tierra y placas involucradas, daños producidos, medidas de seguridad aplicadas y propuestas de mejora. Presentan el informe al curso con apoyo de TIC.",
+          "criterios_evaluacion": [
+            "Describen el evento catastrófico con información fidedigna y relevante.",
+            "Relacionan correctamente el evento con la estructura interna de la Tierra y el movimiento de placas.",
+            "Proponen medidas de seguridad fundamentadas y pertinentes al tipo de catástrofe.",
+            "Comunican sus resultados con claridad usando TIC y vocabulario científico apropiado.",
+            "Trabajan colaborativamente asignando y cumpliendo roles."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "titulo": "Cuerpo humano: sistema esquelético, muscular, nervioso y salud",
+      "semestre": 2,
+      "tiempo_estimado": "33 horas pedagógicas",
+      "proposito": "Los estudiantes comprenden que el cuerpo humano está constituido por diversos sistemas de órganos. Estudian estructuras del sistema esquelético, sus funciones básicas y la participación en el movimiento del cuerpo. Por medio de la experimentación y elaboración de modelos comprenden que el movimiento corporal es provocado por la interacción coordinada entre músculos, huesos y tendones. Además conocen la estructura y función general del sistema nervioso, y los efectos del alcoholismo sobre la salud.",
+      "palabras_clave": [
+        "sistema esquelético",
+        "costillas",
+        "cráneo",
+        "vértebras",
+        "columna vertebral",
+        "pelvis",
+        "fémur",
+        "tendón",
+        "músculo",
+        "hueso",
+        "sistema nervioso",
+        "médula espinal",
+        "cerebro",
+        "nervios",
+        "alcoholismo",
+        "salud"
+      ],
+      "conocimientos_previos": [
+        "La función de los sentidos y sus órganos.",
+        "Las acciones que ayudan a proteger los órganos de los sentidos.",
+        "La actividad física para el desarrollo de músculos y fortalecimiento del corazón.",
+        "Los órganos internos del cuerpo humano: ubicación y función básicas (corazón, pulmones, estómago, esqueleto y músculos)."
+      ],
+      "conocimientos": [
+        "El sistema esquelético, sus estructuras y funciones: protección (costillas y cráneo), soporte (vértebras y columna vertebral) y movimiento (pelvis y fémur).",
+        "Interacción coordinada entre tendones, músculos y huesos en el movimiento; movimiento de brazos y piernas.",
+        "El sistema nervioso, sus estructuras y funciones: conducción de información (médula espinal y nervios) y elaboración y control (cerebro).",
+        "Efecto del consumo excesivo de alcohol en el comportamiento y en la salud."
+      ],
+      "habilidades_unidad": [
+        "OA_a",
+        "OA_b",
+        "OA_c",
+        "OA_d",
+        "OA_e",
+        "OA_f"
+      ],
+      "actitudes_unidad": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural.",
+        "Manifestar compromiso con un estilo de vida saludable a través del desarrollo físico y el autocuidado.",
+        "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "codigo": "OA5",
+          "descripcion": "Identificar y describir, usando modelos, estructuras del sistema esquelético y algunas de sus funciones, como protección (costillas y cráneo), soporte (vértebras y columna vertebral) y movimiento (pelvis y fémur).",
+          "indicadores": [
+            "Identifican estructuras del sistema esquelético como costillas, cráneo, vértebras, columna vertebral, pelvis y fémur.",
+            "Explican brevemente funciones de algunas estructuras del sistema esquelético usando modelos (protección: cráneo; soporte: vértebras; movimiento: fémur).",
+            "Predicen consecuencias de la falta de alguna estructura del sistema esquelético.",
+            "Construyen modelos simples que muestran el esqueleto humano y sus estructuras principales.",
+            "Registran en tablas y diagramas información sobre las principales estructuras del sistema esquelético y sus funciones."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Dibujo del propio esqueleto: conocimientos previos",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "Los estudiantes dibujan lo que creen que es su esqueleto. Luego comparan su dibujo con el de sus compañeros y con una imagen del esqueleto real. Señalan las diferencias encontradas y reflexionan sobre lo que ya saben y lo que quieren aprender."
+            },
+            {
+              "numero": 2,
+              "titulo": "Identificación de huesos con imagen del esqueleto",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes reciben una imagen del esqueleto humano e identifican la ubicación de costillas, cráneo, vértebras, columna vertebral, pelvis y fémur. Predicen qué pasaría si no estuvieran cada una de estas estructuras."
+            },
+            {
+              "numero": 3,
+              "titulo": "Salida educativa: visita a museo o facultad de medicina",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "descripcion": "Salida educativa a un museo de historia natural o facultad de medicina para observar esqueletos reales. Los estudiantes responden una guía de trabajo formulando preguntas y registrando observaciones."
+            },
+            {
+              "numero": 4,
+              "titulo": "Búsqueda de información sobre funciones de los huesos",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes buscan información en libros, enciclopedias o páginas web sobre la función del cráneo, la pelvis y el fémur. Escriben las ideas más importantes y un alumno dirige la participación del curso para construir explicaciones claras de la función de cada hueso."
+            },
+            {
+              "numero": 5,
+              "titulo": "Presentación TIC de información sobre el sistema esquelético",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes preparan una breve presentación (con TIC si es posible) de la información obtenida sobre el sistema esquelético y la exponen ante el curso. (Integración con Lenguaje y Comunicación)"
+            },
+            {
+              "numero": 6,
+              "titulo": "Observación y comparación de huesos cocidos de pollo, pescado y vacuno",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes observan, miden y registran características de huesos limpios y cocidos (pollo, pescado, vacuno). Responden preguntas sobre forma, textura, tamaño y función. Establecen semejanzas y diferencias entre los huesos y elaboran una conclusión final."
+            },
+            {
+              "numero": 7,
+              "titulo": "Modelo de columna vertebral con fideos y discos de corcho",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "En grupos, los estudiantes enhebran fideos tipo canuto con lana (a modo de vértebras) y colocan discos de cartón o corcho entre cada una. Responden preguntas sobre la función de la columna, de los discos intervertebrales y de las articulaciones."
+            },
+            {
+              "numero": 8,
+              "titulo": "Términos pareados: huesos y sus funciones",
+              "habilidades": [],
+              "descripcion": "Los estudiantes listan huesos (costillas, cráneo, vértebras, columna vertebral, pelvis, fémur) en una columna y las funciones (protección, soporte, movimiento) en otra, y los unen con flechas. Comparan resultados con sus compañeros."
+            },
+            {
+              "numero": 9,
+              "titulo": "Cuento de un extraterrestre sin huesos",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Actividad integrada. Los estudiantes narran en un texto de una página cómo sería la vida de un extraterrestre que no tiene huesos. (Integración con Lenguaje y Comunicación)"
+            },
+            {
+              "numero": 10,
+              "titulo": "Mapa conceptual del sistema esquelético",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes elaboran un mapa conceptual con conceptos del sistema esquelético y sus funciones. Reflexionan sobre cómo organizaron la información y la utilidad de los mapas conceptuales."
+            }
+          ]
+        },
+        {
+          "codigo": "OA6",
+          "descripcion": "Explicar, con apoyo de modelos, el movimiento del cuerpo, considerando la acción coordinada de músculos, huesos, tendones y articulación (ejemplo: brazo y pierna), y describir los beneficios de la actividad física para el sistema músculo-esquelético.",
+          "indicadores": [
+            "Identifican estructuras del cuerpo humano que participan en el movimiento.",
+            "Explican usando un modelo simple cómo participan huesos, músculos, ligamentos y tendones para permitir la flexión de una extremidad.",
+            "Explican los beneficios de la actividad física habitual en huesos y músculos y proponen una rutina de ejercicios regular.",
+            "Comparan el movimiento del cuerpo con objetos tecnológicos (flexión del brazo con una bisagra).",
+            "Argumentan sus ideas a partir de las observaciones realizadas."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Actividades físicas y exploración de estructuras del movimiento",
+              "habilidades": [],
+              "descripcion": "Los estudiantes realizan actividades físicas variadas (girar cintura, flexionar brazos, estirar piernas). Anotan la actividad y describen desde sus propios conocimientos las estructuras que las permiten. Contrastan con material bibliográfico. (Integración con Educación Física y Salud)"
+            },
+            {
+              "numero": 2,
+              "titulo": "Disección de extremidad de pollo (ala o pata)",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "En grupos pequeños, los estudiantes diseccionan un ala o pata de pollo fresca. Identifican músculos, tendones y huesos, registran en un esquema simplificado. Responden preguntas sobre el movimiento y localizan músculos similares en sus propios brazos. Explican el movimiento usando los conceptos aprendidos."
+            },
+            {
+              "numero": 3,
+              "titulo": "Analogía: objetos cotidianos vs. movimiento del cuerpo",
+              "habilidades": [],
+              "descripcion": "Los estudiantes reciben objetos variados (espiral de cuaderno, tijeras, bisagra, pinza) y seleccionan los que realizan funciones análogas al movimiento del cuerpo. Anotan y explican la analogía en su cuaderno."
+            },
+            {
+              "numero": 4,
+              "titulo": "Investigación bibliográfica: articulaciones, tendones, ligamentos y músculos",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes investigan en diversas fuentes la función de articulaciones, tendones, ligamentos y músculos. Construyen un resumen apoyado en un dibujo propio y lo comparten con sus compañeros. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 5,
+              "titulo": "Lectura sobre sistema muscular y preguntas grupales",
+              "habilidades": [],
+              "descripcion": "Los alumnos leen un texto sobre el sistema muscular y el movimiento, observan láminas y responden en grupo preguntas sobre la función de los músculos, fijación a los huesos y coordinación para el movimiento."
+            },
+            {
+              "numero": 6,
+              "titulo": "Maqueta de miembro locomotor con cartón y elásticos",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "descripcion": "Los estudiantes construyen una maqueta de un miembro locomotor con listones delgados de cartón, broches metálicos y elásticos. Realizan movimientos de extensión y flexión tirando los elásticos y responden preguntas sobre la función de cada componente. (Integración con Tecnología)"
+            },
+            {
+              "numero": 7,
+              "titulo": "Descripción escrita y exposición sobre movimiento coordinado",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes escriben una descripción de cómo trabajan juntos huesos, músculos y tendones para permitir el movimiento. Apoyan con dibujos o imágenes y planifican una exposición grupal ante el curso. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 8,
+              "titulo": "Cuidados del sistema esquelético y muscular: recortes o presentación TIC",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Luego de una presentación del docente sobre vida sana (actividad física, buenas posturas, alimentación saludable), los alumnos pegan recortes o elaboran una presentación TIC sobre situaciones que ilustren el cuidado de los sistemas esquelético y muscular."
+            },
+            {
+              "numero": 9,
+              "titulo": "Experimento: huesos en vinagre y fragilidad ósea",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "descripcion": "El docente deja huesos de pollo en vinagre durante una semana. Los estudiantes observan y comparan con huesos no tratados, responden sobre las consecuencias de la fragilidad ósea e investigan formas de fortalecer los huesos relacionándolas con su vida diaria."
+            },
+            {
+              "numero": 10,
+              "titulo": "Póster sobre beneficios de la actividad física",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes leen en sitios web, libros o revistas, diseñan y realizan un póster sobre los beneficios de la actividad física sobre el sistema músculo-esquelético para exhibirlo en el colegio."
+            },
+            {
+              "numero": 11,
+              "titulo": "Campaña de difusión 'una vida activa': pósters y trípticos",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "En grupo los estudiantes elaboran una campaña de difusión de 'una vida activa'. Confeccionan pósters y trípticos para comunicar a la escuela y comunidad propuestas para tener una vida con práctica regular de ejercicio."
+            },
+            {
+              "numero": 12,
+              "titulo": "Encuesta y gráfico de barras sobre ejercicio físico en el colegio",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes realizan una encuesta en el colegio sobre el número de personas que hacen ejercicio físico regular, moderado o bajo. Registran en tabla, elaboran un gráfico de barras y exponen conclusiones ante el curso. (Integración con Matemática)"
+            }
+          ]
+        },
+        {
+          "codigo": "OA7",
+          "descripcion": "Identificar estructuras del sistema nervioso y describir algunas de sus funciones, como conducción de información (médula espinal y nervios) y elaboración y control (cerebro).",
+          "indicadores": [
+            "Describen el sistema nervioso como el sistema que recibe información del entorno y es capaz de procesarla y producir una respuesta.",
+            "Identifican las principales estructuras del sistema nervioso (cerebro, médula espinal, nervios) y las describen.",
+            "Explican la función del cerebro, la médula espinal y los nervios con sus propias palabras.",
+            "Construyen modelos simples del sistema nervioso señalando sus estructuras.",
+            "Identifican el estímulo y la respuesta en distintas situaciones cotidianas.",
+            "Explican cómo una lesión en la médula espinal puede afectar otras partes del cuerpo."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Salida educativa: MIM - Sala Mente y Cerebro",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "Los estudiantes visitan el Museo Interactivo Mirador (MIM) e interactúan en la 'Sala Mente y Cerebro'. Responden y formulan preguntas en una guía de trabajo y registran sus experiencias."
+            },
+            {
+              "numero": 2,
+              "titulo": "Dibujos de situaciones con sistema nervioso en acción",
+              "habilidades": [],
+              "descripcion": "Los estudiantes observan dibujos de situaciones donde el sistema nervioso está en acción (pelota acercándose a un niño, niños riendo con un payaso, niña comiendo algo que le gusta). Responden preguntas sobre sentidos involucrados, estímulo y respuesta."
+            },
+            {
+              "numero": 3,
+              "titulo": "Modelo de sistema nervioso con plastilina o greda",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes leen un texto sobre el sistema nervioso o escuchan la explicación del profesor, luego elaboran un modelo simple con plastilina, greda, masa o macilla. Pintan de distintos colores cerebro, médula espinal y nervios, los rotulan y montan una exposición ante el colegio."
+            },
+            {
+              "numero": 4,
+              "titulo": "Búsqueda bibliográfica sobre funciones del sistema nervioso",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes realizan una búsqueda bibliográfica en distintas fuentes sobre las funciones de las principales estructuras del sistema nervioso. Resumen y elaboran fichas. (Integración con Lenguaje)"
+            },
+            {
+              "numero": 5,
+              "titulo": "Juego de tarjetas: estructura, ubicación y función del sistema nervioso",
+              "habilidades": [],
+              "descripcion": "En parejas, los estudiantes elaboran tres tipos de tarjetas: nombre de la estructura (cerebro, médula espinal, nervios), ubicación (con dibujos) y descripción breve de la función. Mezclan las tarjetas y juegan a unir las relacionadas."
+            },
+            {
+              "numero": 6,
+              "titulo": "Descripción de la función del sistema nervioso en una actividad personal",
+              "habilidades": [],
+              "descripcion": "Cada estudiante selecciona una actividad cotidiana (leer, jugar ajedrez, bailar, fútbol) y describe la función del cerebro, la médula y los nervios durante esa actividad. Registra con dibujos, texto y diagramas."
+            },
+            {
+              "numero": 7,
+              "titulo": "Analogía del sistema nervioso con un servicio de mensajería",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "El docente plantea la analogía del sistema nervioso con un servicio de mensajería (correo electrónico, correo tradicional). Los estudiantes analizan en qué se parecen y en qué se diferencian."
+            },
+            {
+              "numero": 8,
+              "titulo": "Diagrama del recorrido del mensaje nervioso",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "En un dibujo o lámina del sistema nervioso, los estudiantes señalan el recorrido del mensaje nervioso desde que se capta el estímulo hasta que llega al cerebro y se produce la respuesta, identificando las principales estructuras."
+            },
+            {
+              "numero": 9,
+              "titulo": "Experimento de velocidad de reacción con papelitos de colores",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "En grupos, los estudiantes miden el tiempo que demora cada uno en recoger 15 papelitos de color sobre una cartulina del mismo color. Elaboran tabla de datos, extraen conclusiones e identifican el estímulo, la respuesta, el sentido y el efecto involucrado. (Integración con Matemática)"
+            },
+            {
+              "numero": 10,
+              "titulo": "Lesión en la médula espinal: consecuencias e instituciones",
+              "habilidades": [],
+              "descripcion": "Los estudiantes explican cómo una lesión en la médula espinal puede afectar otras partes del cuerpo. Comparan respuestas con compañeros e indagan sobre instituciones de rehabilitación para personas con necesidades motoras."
+            },
+            {
+              "numero": 11,
+              "titulo": "Situaciones de riesgo para el sistema nervioso y medidas de autocuidado",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes mencionan situaciones de riesgo para el sistema nervioso (drogas, golpes traumáticos, dietas inadecuadas) y proponen medidas de autocuidado. Presentan con TIC."
+            }
+          ]
+        },
+        {
+          "codigo": "OA8",
+          "descripcion": "Investigar en diversas fuentes y comunicar los efectos que produce el consumo excesivo de alcohol en la salud humana (como descoordinación, confusión y lentitud, entre otras).",
+          "indicadores": [
+            "Investigan en diversas fuentes los efectos del consumo excesivo de alcohol en la salud humana.",
+            "Comunican los efectos del consumo excesivo de alcohol (descoordinación, confusión, problemas de memoria, lentitud en las reacciones) con TIC.",
+            "Organizan datos sobre consumo de alcohol en tablas y gráficos de barras.",
+            "Infieren a partir de la lectura de un gráfico de barras sobre la tendencia del consumo de alcohol de una persona.",
+            "Argumentan con evidencias sobre los efectos nocivos del consumo excesivo de alcohol.",
+            "Proponen medidas de prevención del alcoholismo y recursos de apoyo para personas con problemas de alcoholismo."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Texto escrito sobre efectos nocivos del alcohol y tríptico de difusión",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes describen en un texto sus argumentos sobre los efectos nocivos del alcohol, indagan en distintas fuentes y plantean preguntas para un tríptico de difusión sobre el tema."
+            },
+            {
+              "numero": 2,
+              "titulo": "Investigación grupal y presentación TIC sobre efectos del alcohol",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "En grupos, los estudiantes investigan los efectos del consumo excesivo de alcohol en la salud (graduación alcohólica, tipos de licores, acción en el cuerpo, efecto en el sistema nervioso). Se distribuyen tareas y preparan una presentación TIC para exposición al curso."
+            },
+            {
+              "numero": 3,
+              "titulo": "Encuesta sobre consumo de alcohol y gráfico de barras",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los alumnos obtienen información anónima de al menos 10 personas de su entorno sobre consumo de alcohol y frecuencia. Registran datos en tablas y elaboran gráficos de barras con TIC. Responden preguntas sobre mayor y menor frecuencia y conclusiones generales. (Integración con Matemática)"
+            },
+            {
+              "numero": 4,
+              "titulo": "Cuestionario y comparación de rendimiento: persona sana vs. bajo efecto del alcohol",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes preparan un cuestionario con ayuda del docente para entrevistar adultos sobre el efecto del alcohol en actividades físicas (subir escaleras, correr), coordinación (conducir, tocar instrumento) y concentración (leer, resolver problemas). Tabulan, grafican y establecen conclusiones. (Integración con Matemática)"
+            },
+            {
+              "numero": 5,
+              "titulo": "Juego de roles: debate sobre efectos del alcohol",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes realizan un juego de roles. Un jurado (4 alumnos y docente) evalúa a dos grupos que defienden con argumentos que el consumo excesivo de alcohol altera la salud. Responden preguntas de metacognición sobre la experiencia."
+            },
+            {
+              "numero": 6,
+              "titulo": "Gráfico de barras sobre evolución del consumo de un alcohólico",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes construyen con TIC (si es posible) un gráfico de barras con datos sobre la evolución del consumo de alcohol de un individuo alcohólico a lo largo de su vida. Describen las tendencias y las relacionan con la adicción. (Integración con Matemática)"
+            },
+            {
+              "numero": 7,
+              "titulo": "Historia de caso de adicción al alcohol: preguntas y predicciones",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "El docente presenta una historia de caso de una persona con adicción al alcohol. Los alumnos formulan preguntas, las responden con ayuda del docente, debaten causas de la adicción y predicen consecuencias en la salud de la persona."
+            },
+            {
+              "numero": 8,
+              "titulo": "Investigación sobre SENDA y afiches preventivos sobre alcohol y tránsito",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes investigan sobre SENDA (ex CONACE) y elaboran afiches preventivos sobre el riesgo de accidentes de tránsito asociados al consumo de alcohol, tanto para conductores como para peatones y ciclistas. Se publican en el colegio o la web del establecimiento."
+            },
+            {
+              "numero": 9,
+              "titulo": "Estadísticas de accidentes de tránsito y campaña de prevención",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los alumnos investigan estadísticas de accidentes de tránsito relacionados con el alcohol (choferes, ciclistas, peatones). Construyen tablas y gráficos con medios computacionales. Proponen medidas de prevención y organizan una campaña en el establecimiento. (Integración con Matemática)"
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA8"
+          ],
+          "habilidades_evaluadas": [
+            "OA_c",
+            "OA_f"
+          ],
+          "indicadores": [
+            "Organizan datos sobre consumo de alcohol en un gráfico de barras y lo leen e interpretan.",
+            "Utilizan TIC para representar datos de las investigaciones.",
+            "Elaboran y registran ideas y explicaciones sobre preguntas surgidas en la investigación."
+          ],
+          "descripcion_tarea": "Se entrega una tabla con el consumo de alcohol de una persona (veces por semana) entre los años 2005 y 2011, con valores que van de 1 a 7. Los estudiantes: (1) organizan la información en un gráfico de barras; (2) identifican entre qué años el consumo fue constante; (3) predicen el probable consumo para los años 2012-2013. Si es posible, realizan con TIC.",
+          "criterios_evaluacion": [
+            "Demuestran organizar correctamente información en un gráfico de barras (rotula ejes, adecua escala, usa regla, escribe título pertinente, inserta datos adecuadamente).",
+            "Leen el gráfico de barras adecuadamente, identificando que entre 2008 y 2009 no hubo variación en el consumo.",
+            "Infieren a partir de la lectura del gráfico que para 2012-2013 la persona incrementará su consumo de alcohol por semana."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA6"
+          ],
+          "habilidades_evaluadas": [
+            "OA_f"
+          ],
+          "indicadores": [
+            "Explican los beneficios de la actividad física habitual en huesos y músculos.",
+            "Explican usando un modelo simple cómo participan huesos, músculos, ligamentos y tendones en la flexión de una extremidad.",
+            "Elaboran y registran ideas y explicaciones sobre preguntas que surgen durante la investigación."
+          ],
+          "descripcion_tarea": "Se presentan imágenes de distintas situaciones cotidianas (ejercicio, alimentación, postura, etc.). Los estudiantes: (1) seleccionan las situaciones donde se promueva el fortalecimiento de huesos y músculos y explican las razones; (2) escriben otras actividades físicas con efecto positivo sobre huesos y músculos justificando la respuesta; (3) usando figuras geométricas a elección, dibujan un modelo que muestre cómo huesos, músculos y tendones participan coordinadamente en la flexión de la rodilla y lo rotulan.",
+          "criterios_evaluacion": [
+            "Identifican correctamente las situaciones que promueven el fortalecimiento de huesos y músculos.",
+            "Explican con vocabulario adecuado las razones de su elección (ejercicio físico y consumo de alimentos ricos en calcio).",
+            "Mencionan dos o más actividades físicas diferentes y dan al menos una razón sobre el efecto en huesos y músculos.",
+            "Representan mediante modelo simbólico cómo huesos, músculos y tendones participan coordinadamente en la flexión de la rodilla."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA5",
+            "OA6"
+          ],
+          "habilidades_evaluadas": [
+            "OA_e"
+          ],
+          "indicadores": [
+            "Identifican estructuras del cuerpo humano que participan en el movimiento.",
+            "Comparan el movimiento del cuerpo con objetos tecnológicos.",
+            "Argumentan sus ideas o eventuales respuestas a partir de las observaciones que realizan."
+          ],
+          "descripcion_tarea": "Los estudiantes: (1) nombran dos sistemas del cuerpo humano que trabajan juntos y permiten el movimiento; (2) a partir de la imagen de una bicicleta responden: ¿qué parte de la bicicleta representa un músculo, un hueso y un tendón? ¿por qué?; (3) explican qué pasará con la bicicleta si los pedales no funcionan bien y cómo relacionan eso con algún problema del sistema locomotor.",
+          "criterios_evaluacion": [
+            "Reconocen los sistemas del cuerpo humano que permiten el movimiento (óseo y muscular).",
+            "Reconocen las partes del cuerpo involucradas en el movimiento, establecen una analogía con el modelo de la bicicleta y fundamentan sus respuestas.",
+            "Reconocen que la falla de una parte de la bicicleta afecta el funcionamiento total, aplicando la misma lógica al sistema locomotor."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA6"
+          ],
+          "habilidades_evaluadas": [
+            "OA_d",
+            "OA_f"
+          ],
+          "indicadores": [
+            "Identifican estructuras del cuerpo humano que participan en el movimiento.",
+            "Explican usando un modelo simple (construido por ellos) cómo participan huesos, músculos, tendones y articulaciones en la flexión de una extremidad.",
+            "Explican los beneficios de la actividad física habitual en huesos y músculos.",
+            "Seleccionan materiales e instrumentos apropiados y los manipulan en forma correcta y segura.",
+            "Elaboran y registran ideas y explicaciones sobre preguntas que surgen durante la investigación."
+          ],
+          "descripcion_tarea": "Carrera de 3 bases con movimientos diferentes entre bases y abdominales/flexiones en cada parada. Luego el equipo: (1) discute qué extremidades desarrollaron movimiento y escoge una; (2) busca un mensaje escondido en el patio que indica construir un modelo de la extremidad elegida con materiales reciclados mostrando la acción coordinada de sus partes; (3) explora, selecciona y construye el modelo; (4) lo expone al curso explicando la analogía con la extremidad y la importancia de la actividad física.",
+          "criterios_evaluacion": [
+            "Reconocen el movimiento de diferentes partes del cuerpo al realizar actividades físicas.",
+            "Identifican alguna extremidad que realiza movimiento durante la actividad física.",
+            "Comprenden el movimiento de una extremidad a partir de la acción coordinada de músculos, huesos, tendones y articulaciones (mediante modelo con materiales reciclados).",
+            "Manipulan material reciclado en forma correcta y segura.",
+            "Comunican explicaciones sobre el modelo construido en analogía a la extremidad escogida.",
+            "Demuestran la importancia de la actividad física para el cuerpo y su movimiento coordinado."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "titulo": "Ecosistemas",
+      "semestre": 2,
+      "tiempo_estimado": "24 horas pedagógicas",
+      "proposito": "Chile tiene una gran diversidad de ecosistemas, desde desiertos hasta bosques húmedos del sur. Los estudiantes comprenden que los ecosistemas están constituidos por elementos vivos y no vivos que interactúan entre sí; que los seres vivos se adaptan a sus ecosistemas mediante estructuras y comportamiento; que al interior de los ecosistemas se generan cadenas alimentarias; y que estas y los hábitats pueden ser modificados por la actividad humana.",
+      "palabras_clave": [
+        "ecosistema",
+        "adaptación",
+        "cadena alimentaria",
+        "productor",
+        "consumidor",
+        "descomponedor",
+        "omnívoro",
+        "carnívoro",
+        "herbívoro",
+        "protección"
+      ],
+      "conocimientos_previos": [
+        "Características y necesidades de los seres vivos.",
+        "Diversidad de animales y plantas.",
+        "Comparar animales de acuerdo con sus características y hábitat.",
+        "Relacionar los ciclos de vida con su hábitat.",
+        "Tipos de hábitat.",
+        "Impacto ambiental producto de la actividad humana.",
+        "Importancia de las plantas para otros seres vivos."
+      ],
+      "conocimientos": [
+        "Componentes de un ecosistema (elementos vivos y no vivos).",
+        "Adaptaciones conductuales y estructurales de plantas y animales a distintos ecosistemas: cubierta corporal, formas de extremidades, tipo de hoja, hibernación, entre otras.",
+        "Características de las cadenas alimentarias de diferentes ecosistemas.",
+        "Acción del ser humano sobre los ecosistemas.",
+        "Las características de los principales tipos de ecosistemas chilenos."
+      ],
+      "habilidades_unidad": [
+        "OA_a",
+        "OA_b",
+        "OA_c",
+        "OA_e",
+        "OA_f"
+      ],
+      "actitudes_unidad": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural.",
+        "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente.",
+        "Asumir responsabilidades e interactuar en forma colaborativa en los trabajos en equipo."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "codigo": "OA1",
+          "descripcion": "Reconocer, por medio de la exploración, que un ecosistema está compuesto por elementos vivos (animales, plantas, etc.) y no vivos (piedras, agua, tierra, etc.) que interactúan entre sí.",
+          "indicadores": [
+            "Identifican elementos no vivos (temperatura, aire, cantidad de luz y agua/humedad) y vivos al explorar un ecosistema terrestre.",
+            "Dan ejemplos de interacciones que se generan entre elementos vivos y no vivos de un ecosistema.",
+            "Describen características de ecosistemas terrestres y marinos de Chile.",
+            "Comunican los resultados y explican los procedimientos de una investigación experimental simple que permita indagar los efectos de la luz, el aire y el agua en los seres vivos.",
+            "Formulan predicciones en forma guiada sobre objetos y eventos del entorno a partir de información y observaciones previas."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Salida al exterior: exploración y gráfico de elementos vivos y no vivos",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes salen al exterior en grupos pequeños, listan todos los elementos vivos y no vivos que encuentran, los clasifican, los cuentan y elaboran un gráfico de barras que visualiza las cantidades (con TIC si es posible). Comparan resultados con otros grupos."
+            },
+            {
+              "numero": 2,
+              "titulo": "Lista de seres vivos y no vivos con flechas de relación",
+              "habilidades": [],
+              "descripcion": "Los estudiantes reciben una lista de seres vivos y otra de elementos no vivos presentes en la naturaleza. Unen con líneas los elementos vivos con los no vivos que le permiten sobrevivir. Concluyen sobre la importancia de los elementos no vivos para la sobrevivencia de los seres vivos."
+            },
+            {
+              "numero": 3,
+              "titulo": "Fotos/video de ecosistema chileno: diagrama de relaciones",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes observan fotos o video de un ecosistema chileno y listan en grupos la mayor cantidad de seres vivos y no vivos presentes. Construyen un diagrama de relaciones con flechas entre todos los elementos que se relacionan. Reflexionan sobre la invisibilidad aparente de muchas relaciones y cómo la ciencia permite comprenderlas."
+            },
+            {
+              "numero": 4,
+              "titulo": "Experimento: cultivo de legumbres con distinta cantidad de agua",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes preparan dos vasos con tierra y semillas de legumbres. El vaso A recibe agua diariamente y el vaso B cada cuatro días. Plantean preguntas y predicciones, registran la altura alcanzada en una tabla, grafican y concluyen sobre la interacción planta-agua-luz. (Integración con Matemática)"
+            },
+            {
+              "numero": 5,
+              "titulo": "Investigación experimental: preferencias de hábitat de lombrices",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes investigan el comportamiento de las lombrices para responder si prefieren ambientes húmedos o secos. Diseñan y planifican el experimento con ayuda del docente, registran datos, elaboran tablas y gráficos de barras, y concluyen sobre la interacción ambiente-seres vivos. (Integración con Matemática)"
+            },
+            {
+              "numero": 6,
+              "titulo": "Experimento: preferencia de luz en chanchitos de tierra",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes realizan un experimento para averiguar cuánta luz prefieren los chanchitos de tierra. Comunican resultados en un informe escrito (puede elaborarse en procesador de textos y distribuirse por correo o publicarse en la web del curso)."
+            },
+            {
+              "numero": 7,
+              "titulo": "Construcción de un terrario: modelo de ecosistema",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes construyen un terrario con arena, tierra, rocas, caracoles, lombrices, chanchitos y plantas. Investigan los animales (hábitat y alimentación), proponen un protocolo de cuidados, observan semanas la interacción vivos-no vivos y elaboran un portafolio con justificación, materiales, observaciones y conclusiones."
+            },
+            {
+              "numero": 8,
+              "titulo": "Definición de ecosistema y collage de recortes de paisajes",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "A partir de la lectura del docente, los estudiantes definen ecosistema con sus palabras y lo dibujan. Recortan imágenes de paisajes y sus elementos constitutivos, los depositan en una bolsa, extraen 8-10 recortes en grupos y construyen un nuevo ecosistema. Exponen las dificultades encontradas al combinar elementos de ecosistemas diferentes."
+            },
+            {
+              "numero": 9,
+              "titulo": "Investigación sobre ecosistema de la región: presentación con fotos",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes investigan sobre las características de un ecosistema de su región (terrestre: desierto, bosque; o acuático: lago, río, mar). Preparan una presentación con fotos y dibujos, la exponen al curso y proponen estrategias de cuidado."
+            },
+            {
+              "numero": 10,
+              "titulo": "Visita a museo de historia natural y exposición de ecosistemas regionales",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Planifican como proyecto de curso, con ayuda del docente, una visita a un museo de historia natural u organización similar. Exploran y registran información sobre ecosistemas de su región, identificando elementos vivos y no vivos. Preparan una exposición complementada con indagaciones en diversas fuentes."
+            },
+            {
+              "numero": 11,
+              "titulo": "Decálogo de cuidado del ecosistema",
+              "habilidades": [],
+              "descripcion": "El curso se divide en diez grupos. Cada uno aporta una frase para construir un decálogo sobre lo que pueden hacer para usar responsablemente los recursos y proteger los ecosistemas. Lo anotan en un papelógrafo y lo exhiben en un lugar visible de la sala de clases."
+            }
+          ]
+        },
+        {
+          "codigo": "OA2",
+          "descripcion": "Observar y comparar adaptaciones de plantas y animales para sobrevivir en los ecosistemas en relación con su estructura y conducta; por ejemplo: cubierta corporal, camuflaje, tipo de hojas, hibernación, entre otras.",
+          "indicadores": [
+            "Describen adaptaciones estructurales y conductuales de los animales a diferentes ecosistemas (membrana de patas de patos, hibernación, color de la cubierta corporal).",
+            "Infieren el hábitat y algunos rasgos de animales y plantas a partir de la observación de sus características externas.",
+            "Describen las características que tendría un animal para adaptarse a distintas condiciones ambientales.",
+            "Comparan estructuras de animales de distintos grupos (mamíferos, aves, reptiles, anfibios, peces) buscando similitudes y diferencias según el tipo de ambiente.",
+            "Argumentan sus ideas a partir de las observaciones que realizan."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Imágenes de ecosistemas: preguntas sobre animales y adaptaciones",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "descripcion": "Los estudiantes observan imágenes de ecosistemas (terrestres y marinos) e identifican animales que podrían vivir en ellos. En parejas responden preguntas sobre cómo es el ecosistema, cómo viven los animales y qué estructuras les permiten sobrevivir. Comparten respuestas y redactan una conclusión final."
+            },
+            {
+              "numero": 2,
+              "titulo": "Videos de actividades animales: descripción y predicciones sobre adaptaciones",
+              "habilidades": [
+                "OA_e"
+              ],
+              "descripcion": "Los estudiantes observan en imágenes o videos actividades animales (protección de depredadores, nadar, cazar, hibernar). Describen las actividades, formulan predicciones sobre adaptaciones, las comparan, dibujan estructuras y registran conductas. Comparten en diario mural o portafolio."
+            },
+            {
+              "numero": 3,
+              "titulo": "Comparación de estructuras de animales de un mismo ambiente",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes exploran animales que habitan el mismo tipo de ambiente (gallina, pato, ganso, gato) y comparan sus estructuras (cubierta corporal, extremidades, boca) buscando similitudes y diferencias según el tipo de ambiente."
+            },
+            {
+              "numero": 4,
+              "titulo": "Crear animales ficticios con adaptaciones: dibujo o modelo con TIC",
+              "habilidades": [],
+              "descripcion": "Los estudiantes comparan adaptaciones de grupos de animales (mamíferos, aves, reptiles, anfibios, peces) y crean animales ficticios con las mejores características para sobrevivir en distintos ambientes. Presentan dibujos o modelos al curso justificando la pertinencia de cada estructura."
+            },
+            {
+              "numero": 5,
+              "titulo": "Observación de fotografías: adaptaciones de animales y plantas",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "Los estudiantes observan fotografías de animales y plantas con adaptaciones especiales (murciélago, ballena, cocodrilo, pato, cactus, planta atrapamoscas). Deducen y explican cómo las características físicas les permiten sobrevivir. Nombran animales y plantas con adaptaciones similares, dibujan estructuras y las comparten."
+            },
+            {
+              "numero": 6,
+              "titulo": "Investigación: variaciones ambientales en 100 años y adaptaciones futuras",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes investigan y leen en distintas fuentes sobre eventuales variaciones de las condiciones de la Tierra en 100 años (calentamiento global, contaminación). Recortan noticias, las archivan, extraen ideas clave, dibujan predicciones sobre qué plantas y animales sobrevivirían y qué nuevas adaptaciones podrían producirse."
+            },
+            {
+              "numero": 7,
+              "titulo": "Documentales de animales: ficha de adaptaciones",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes observan documentales o películas de animales o plantas, describen las características que les permiten adaptarse al ambiente. Eligen un animal e investigan sobre su forma de vida organizando la información en una ficha con imagen, hábitat, adaptaciones estructurales, adaptaciones conductuales y acciones sorprendentes."
+            },
+            {
+              "numero": 8,
+              "titulo": "Mapa conceptual del ecosistema marino y terrestre",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Actividad integrada. Los estudiantes elaboran mapas conceptuales con nociones de ecosistema marino (tiburón, branquias, aletas, etc.) y luego aplican los mismos conectores para un ambiente terrestre. Los elaboran con TIC si es posible."
+            }
+          ]
+        },
+        {
+          "codigo": "OA3",
+          "descripcion": "Dar ejemplos de cadenas alimentarias, identificando la función de los organismos productores, consumidores y descomponedores, en diferentes ecosistemas de Chile.",
+          "indicadores": [
+            "Dan ejemplos de interacciones de alimentación entre distintos organismos de un ecosistema.",
+            "Representan interacciones de alimentación en cadenas alimentarias.",
+            "Identifican organismos productores, consumidores y descomponedores en una cadena alimentaria.",
+            "Explican la función de los descomponedores en una cadena alimentaria.",
+            "Predicen consecuencias en una cadena alimentaria al aumentar o disminuir el número de organismos en distintos niveles tróficos."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Observación de imágenes/videos de ecosistemas y dibujo de interacciones",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes observan imágenes o videos de ecosistemas terrestres y/o marinos, identifican interacciones simples entre organismos y las dibujan con explicación escrita. Exponen sus dibujos y explicaciones al curso."
+            },
+            {
+              "numero": 2,
+              "titulo": "Clasificación de animales en herbívoros, carnívoros y omnívoros",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes observan fotografías de distintos animales y sus características físicas (dientes, uñas, aparato masticador). Según este criterio los clasifican en herbívoros, carnívoros y omnívoros en tablas simples."
+            },
+            {
+              "numero": 3,
+              "titulo": "Cadenas alimenticias con recortes de animales y plantas",
+              "habilidades": [],
+              "descripcion": "Los estudiantes traen recortes de animales y plantas. Leen un texto sobre cadenas alimenticias y organizan los seres vivos según posibles interacciones de alimentación, los pegan en su cuaderno y los unen con flechas. Responden sobre el sentido de las flechas."
+            },
+            {
+              "numero": 4,
+              "titulo": "Cadenas alimentarias en ecosistemas de Chile con fotos",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes observan fotografías de ecosistemas de Chile y representan sus interacciones de alimentación mediante flechas, elaborando cadenas alimentarias e identificando productores, consumidores y descomponedores."
+            },
+            {
+              "numero": 5,
+              "titulo": "Experimento sobre descomponedores: pan húmedo en bolsa plástica",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes colocan dos rebanadas de pan, vierten agua en una y sellan ambas en bolsas plásticas transparentes. Plantean preguntas y predicciones, observan y registran cambios durante 10 días en una tabla y responden sobre los descomponedores y el papel del agua. Presentan resultados con TIC (fotos día a día en PowerPoint)."
+            },
+            {
+              "numero": 6,
+              "titulo": "Cadena alimentaria que incluye al ser humano",
+              "habilidades": [],
+              "descripcion": "Los estudiantes elaboran una cadena alimentaria que incluya al ser humano en uno de sus eslabones. Comparten los diagramas, comentan las implicancias de incluir al humano y responden sobre las consecuencias de extinciones o cambios de población en la cadena."
+            },
+            {
+              "numero": 7,
+              "titulo": "Cadenas alimentarias incompletas para completar",
+              "habilidades": [],
+              "descripcion": "El docente entrega cadenas alimentarias incompletas (de flechas y/o eslabones) y los estudiantes buscan la información faltante y las completan. Luego contrastan sus respuestas con la información del docente."
+            },
+            {
+              "numero": 8,
+              "titulo": "Cadenas alimenticias de plantas y animales de Chile en tres ecosistemas",
+              "habilidades": [],
+              "descripcion": "Los estudiantes buscan en sitios web, revistas y libros información sobre cadenas alimenticias de Chile. Seleccionan y registran tres cadenas (ej: Algas-Carpa-Garza; Gramínea-insecto-Lagarto-Chingue; Gramínea-Guanaco-Puma) y las presentan explicando en qué ecosistema chileno se encuentran, proponiendo medidas de cuidado."
+            },
+            {
+              "numero": 9,
+              "titulo": "Investigación sobre animal chileno en peligro de extinción y su cadena",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los estudiantes investigan la vida de un animal chileno en peligro de extinción (puma, huemul, etc.). Construyen y leen ante el curso un texto descriptivo. Representan una cadena de tres eslabones que incluya al animal y predicen las consecuencias de su extinción o disminución en el ecosistema."
+            },
+            {
+              "numero": 10,
+              "titulo": "Debate sobre animales y plantas introducidos en Chile",
+              "habilidades": [
+                "OA_a"
+              ],
+              "descripcion": "Los estudiantes investigan sobre animales y plantas introducidos en el país. A partir de sus conocimientos de cadenas alimentarias, debaten sobre las consecuencias (favorables y desfavorables) que esto puede traer en el ecosistema y las cadenas alimentarias."
+            }
+          ]
+        },
+        {
+          "codigo": "OA4",
+          "descripcion": "Analizar los efectos de la actividad humana en ecosistemas de Chile, proponiendo medidas para protegerlos (parques nacionales y vedas, entre otras).",
+          "indicadores": [
+            "Identifican actividades humanas que favorecen y perjudican a los ecosistemas de Chile.",
+            "Analizan los efectos del deterioro de los ecosistemas en el país.",
+            "Proponen medidas de protección de ecosistemas de Chile (parques nacionales, vedas, entre otras).",
+            "Investigan y comunican sobre diferentes tipos de contaminación (agua, suelo, aire) y sus medidas de prevención y mitigación.",
+            "Dan ejemplos de desarrollo sustentable donde el ser humano usa los recursos con responsabilidad."
+          ],
+          "actividades": [
+            {
+              "numero": 1,
+              "titulo": "Imágenes de ecosistemas intervenidos: preguntas sobre actividad humana",
+              "habilidades": [
+                "OA_a",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes observan imágenes de ecosistemas de Chile intervenidos por el hombre o por catástrofes naturales. Responden preguntas sobre actividades humanas que favorecen o afectan los ecosistemas y cómo el hombre puede usar los recursos de manera que se mantengan en el tiempo. Anotan y comparten en pequeños grupos."
+            },
+            {
+              "numero": 2,
+              "titulo": "Proyecto grupal de aprovechamiento responsable del ambiente natural",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "En grupo, los estudiantes investigan y desarrollan un proyecto para aprovechar el ambiente natural cercano en forma responsable. Presentan el propósito, los beneficios para la comunidad y las posibles desventajas, justificando por qué es un uso responsable de los recursos."
+            },
+            {
+              "numero": 3,
+              "titulo": "Búsqueda y clasificación de noticias sobre impacto humano en ecosistemas",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes buscan noticias en diarios, revistas e internet sobre el impacto humano en ecosistemas de Chile y del planeta. En parejas las clasifican según impacto positivo o negativo. En un planisferio ubican, marcan y rotulan los lugares afectados. (Integración con Historia, Geografía y Ciencias Sociales)"
+            },
+            {
+              "numero": 4,
+              "titulo": "Reporte sobre ecosistema regional alterado responsablemente",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes indagan sobre ecosistemas de su región alterados por la actividad humana de forma responsable. Elaboran un reporte y lo presentan al curso como un póster científico."
+            },
+            {
+              "numero": 5,
+              "titulo": "Lista de acciones humanas que favorecen el ambiente",
+              "habilidades": [],
+              "descripcion": "Los estudiantes elaboran una lista de acciones humanas que favorecen el ambiente (disminuir producción de basura, evitar consumo innecesario de agua y energía, formar áreas protegidas). Explican por qué cada acción favorece el cuidado del medioambiente."
+            },
+            {
+              "numero": 6,
+              "titulo": "Experimento: contaminación de hojas de árboles en distintos sectores",
+              "habilidades": [
+                "OA_b"
+              ],
+              "descripcion": "Los alumnos recolectan hojas de árboles de distintos sectores y observan la suciedad que las cubre pasando un papel húmedo. Comparan los paños y extraen conclusiones sobre la contaminación, proponiendo ideas de mejora."
+            },
+            {
+              "numero": 7,
+              "titulo": "Muestras de agua de distintas fuentes: observación con lupa y filtro",
+              "habilidades": [
+                "OA_b",
+                "OA_f"
+              ],
+              "descripcion": "Con apoyo del docente, los estudiantes toman muestras de agua de distintos lugares (río, lago, potable, estanque). Observan con lupa (color, textura, elementos presentes) y filtran el agua. Registran, comparan y concluyen. Además investigan en tres fuentes sobre formas de mantener el agua consumible y desarrollan un proyecto para limpiar agua no consumible."
+            },
+            {
+              "numero": 8,
+              "titulo": "Tríptico educativo sobre tipos de contaminación",
+              "habilidades": [
+                "OA_c"
+              ],
+              "descripcion": "Los estudiantes investigan en distintas fuentes sobre diferentes tipos de contaminación (agua, suelo, aire), sus medidas de prevención y mitigación. Con la información elaboran un tríptico educativo para repartir a la comunidad (con herramientas computacionales si es posible, difundiendo también por redes sociales)."
+            },
+            {
+              "numero": 9,
+              "titulo": "Experimento: efecto de la salinidad en el crecimiento de semillas",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes diseñan un experimento con tres vasos de papel con tierra y semillas, regados con agua normal, agua con poca sal y agua con mucha sal. Registran durante 10 días el número de plantas en cada vaso, responden cómo afectó la sal el crecimiento y cómo afectaría a un agricultor la acumulación de sal en el suelo."
+            },
+            {
+              "numero": 10,
+              "titulo": "Gráfico de barras: animales y plantas en peligro de extinción",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes construyen gráficos de barras con datos sobre animales o plantas en peligro de extinción (número versus tiempo). Discuten los resultados y proponen medidas de protección. Los gráficos se realizan con herramientas computacionales."
+            },
+            {
+              "numero": 11,
+              "titulo": "Entrevista a personas de instituciones ambientales (CONAF, WWF, CONAMA)",
+              "habilidades": [],
+              "descripcion": "Los alumnos formulan preguntas para entrevistar a personas de instituciones de cuidado ambiental (CONAF, CODEF, CONAMA, WWF). Realizan las entrevistas, organizan la información y la presentan al curso."
+            },
+            {
+              "numero": 12,
+              "titulo": "Definición de desarrollo sustentable y ejemplo de su aplicación",
+              "habilidades": [],
+              "descripcion": "Los estudiantes buscan la definición de 'desarrollo sustentable' y la explican con sus palabras. Dan un ejemplo de cómo el ser humano puede cultivar y utilizar el ecosistema de forma responsable para el bien propio y del planeta."
+            },
+            {
+              "numero": 13,
+              "titulo": "Proyecto de campaña de protección de ecosistemas de Chile",
+              "habilidades": [
+                "OA_f"
+              ],
+              "descripcion": "Los estudiantes elaboran un proyecto de campaña que promueva la protección de ecosistemas de Chile. Preparan material con fotografías y texto y lo presentan al curso."
+            }
+          ]
+        }
+      ],
+      "ejemplos_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA3"
+          ],
+          "habilidades_evaluadas": [
+            "OA_a"
+          ],
+          "indicadores": [
+            "Dan ejemplos de interacciones de alimentación entre distintos organismos de un ecosistema.",
+            "Representan interacciones de alimentación en cadenas alimentarias.",
+            "Identifican organismos productores, consumidores y descomponedores en una cadena alimentaria.",
+            "Explican la función de los descomponedores en una cadena alimentaria.",
+            "Predicen consecuencias en una cadena alimentaria al aumentar o disminuir el número de organismos en distintos niveles tróficos.",
+            "Formulan predicciones en forma guiada sobre objetos y eventos del entorno."
+          ],
+          "descripcion_tarea": "Los estudiantes: (1) dibujan una cadena alimentaria de tres o más eslabones con seres vivos de su región, señalando productores, consumidores y descomponedores; (2) explican qué ocurrirá si se eliminan los organismos descomponedores; (3) a partir de tres cadenas alimenticias con el mismo productor, explican qué sucederá si el organismo del primer y último nivel se extingue (con explicación escrita y dibujo).",
+          "criterios_evaluacion": [
+            "Representan a través de un dibujo una cadena alimentaria con tres o más eslabones, señalan con flechas las relaciones de alimentación e identifican correctamente productores, consumidores y descomponedores.",
+            "Identifican la función de los descomponedores y mencionan al menos dos posibles consecuencias de su eliminación.",
+            "Realizan predicciones sobre posibles consecuencias de la eliminación de organismos del primer y último nivel de la cadena y las explican usando el vocabulario aprendido."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA2",
+            "OA3"
+          ],
+          "habilidades_evaluadas": [
+            "OA_f"
+          ],
+          "indicadores": [
+            "Describen adaptaciones estructurales y conductuales de los animales a diferentes ecosistemas.",
+            "Identifican organismos productores, consumidores y descomponedores en una cadena alimentaria.",
+            "Elaboran y registran ideas y explicaciones sobre las preguntas que surgen durante la investigación."
+          ],
+          "descripcion_tarea": "Se presenta la imagen de un pingüino. Los estudiantes: (1) nombran el animal y señalan cuatro características conocidas; (2) describen las adaptaciones que tiene para sobrevivir en su ambiente; (3) dibujan el ecosistema donde vive; (4) indican si es descomponedor, productor o consumidor (sabe que se alimenta de pescado); (5) mencionan otros tres animales del mismo tipo.",
+          "criterios_evaluacion": [
+            "Mencionan al menos cuatro características comunes a los pingüinos.",
+            "Identifican al menos tres adaptaciones del pingüino a su hábitat (aletas, patas, capas de piel) y explican cómo les permiten adaptarse (aletas para nadar, patas de timón, piel para protegerse del frío).",
+            "Reconocen ecosistemas con elementos vivos y no vivos y especies típicas.",
+            "Indican correctamente que el pingüino es un consumidor (se alimenta de otros seres vivos) y fundamentan la respuesta.",
+            "Mencionan otros ejemplos de consumidores con conocimiento de su forma de alimentación."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA2"
+          ],
+          "habilidades_evaluadas": [
+            "OA_e"
+          ],
+          "indicadores": [
+            "Infieren el hábitat y algunos rasgos de animales y plantas a partir de la observación de sus características externas.",
+            "Describen adaptaciones estructurales y conductuales de los animales (membrana de patas de patos, hibernación, cubierta corporal).",
+            "Describen las características que tendría un animal para adaptarse a distintas condiciones ambientales.",
+            "Argumentan sus ideas a partir de las observaciones que realizan."
+          ],
+          "descripcion_tarea": "Se muestran las patas de dos aves con características diferentes (una acuática, una rapaz). Los estudiantes: (1a) describen el hábitat de ambas aves a partir de las características de sus patas; (1b) infieren qué tipo de alimentación tendrán; (2) dibujan la pata de un ave que habita en bosques y escala árboles para encontrar alimento; (3) describen las características de la pata dibujada y su relación con el hábitat.",
+          "criterios_evaluacion": [
+            "Infieren las características de un hábitat a partir de las adaptaciones estructurales del animal; describen el hábitat para ave acuática y ave terrestre con detalles que confirman la inferencia.",
+            "Infieren el tipo de alimentación según las características de la extremidad (el ave rapaz con garras afiladas atrapa presas).",
+            "Dibujan la extremidad de un ave trepadora mostrando claramente los detalles que confirman sus características de trepadora.",
+            "Describen dedos traseros que ayudan al ave a trepar sin caer, proporcionando mayor agarre."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA1"
+          ],
+          "habilidades_evaluadas": [
+            "OA_a"
+          ],
+          "indicadores": [
+            "Identifican elementos no vivos (temperatura, aire, agua/humedad, luz) y vivos al explorar un ecosistema terrestre.",
+            "Dan ejemplos de interacciones entre elementos vivos y no vivos de un ecosistema.",
+            "Comunican resultados y explican procedimientos de una investigación experimental simple.",
+            "Observan y registran observaciones sobre objetos y eventos del entorno.",
+            "Formulan predicciones en forma guiada a partir de información y observaciones previas."
+          ],
+          "descripcion_tarea": "Los estudiantes: exploran en el patio del colegio o en una salida a terreno al menos dos lugares con seres vivos diferentes; describen mediante dibujos dónde habitan identificando también elementos no vivos (temperatura, aire, agua, luz); expresan oral y por escrito las interacciones e interdependencias entre los seres vivos de esos hábitats; comparan las características de ambos lugares respondiendo preguntas sobre interacciones, efectos de los elementos no vivos sobre los seres vivos; y definen 'ecosistema' con ayuda del docente.",
+          "criterios_evaluacion": [
+            "Describen lugares donde existen diferentes seres vivos que interactúan entre sí.",
+            "Demuestran que comprenden las interacciones e interdependencias que existen entre los diversos seres vivos.",
+            "Reconocen la importancia de los elementos no vivos para el desenvolvimiento de los seres vivos que habitan en los lugares identificados.",
+            "Muestran comprender el concepto de 'ecosistema' a partir de la exploración realizada y la evidencia e información obtenida."
+          ]
+        }
+      ]
+    }
+  ]
+}

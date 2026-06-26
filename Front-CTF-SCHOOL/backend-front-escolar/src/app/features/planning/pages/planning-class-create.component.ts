@@ -669,9 +669,13 @@ export class PlanningClassCreateComponent {
         this.suggestionStatus.set(suggestion.statusMessage);
         const providerLabel = suggestion.providerUsed?.startsWith('OPENAI:')
           ? `OpenAI (${suggestion.providerUsed.replace('OPENAI:', '')})`
-          : suggestion.providerUsed?.startsWith('LOCAL_FALLBACK:')
-            ? 'modo local de respaldo'
-          : 'modo local';
+          : suggestion.providerUsed?.startsWith('DEEPSEEK:')
+            ? `DeepSeek (${suggestion.providerUsed.replace('DEEPSEEK:', '')})`
+            : suggestion.providerUsed?.startsWith('GEMINI:')
+              ? `Gemini (${suggestion.providerUsed.replace('GEMINI:', '')})`
+              : suggestion.providerUsed?.startsWith('LOCAL_FALLBACK:')
+                ? 'modo local de respaldo'
+                : 'modo local';
         this.snackBar.open(
           `Sugerencia aplicada desde ${providerLabel} para ${suggestionPayload.objectiveCode}`,
           'Cerrar',

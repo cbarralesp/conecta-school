@@ -1,0 +1,2549 @@
+{
+  "metadata": {
+    "titulo": "Ciencias Naturales - Programa de Estudio",
+    "nivel": "2° Año Básico",
+    "ministerio": "Ministerio de Educación, Gobierno de Chile",
+    "decreto": "D.S. 439/2012",
+    "edicion": "Segunda Edición 2018",
+    "isbn": "978-956-292-391-0"
+  },
+  "ejes_tematicos": [
+    "Ciencias de la Vida",
+    "Ciencias Físicas y Químicas",
+    "Ciencias de la Tierra y el Universo"
+  ],
+  "habilidades_investigacion": {
+    "OA_a": {
+      "etapa": "Observar y preguntar",
+      "descripcion": "Explorar, observar y formular inferencias y predicciones, en forma guiada, sobre objetos y eventos del entorno.",
+      "indicadores": [
+        "Exploran y observan objetos y eventos del entorno.",
+        "Describen, mediante relatos escritos simples, objetos y fenómenos que observa del entorno.",
+        "Expresan en forma oral y escrita, observaciones que les llaman la atención sobre el evento o fenómeno en estudio.",
+        "Explican los fenómenos o eventos que se plantean u observan, utilizando las ideas que poseen y los conceptos en estudio.",
+        "Mencionan posibles comportamientos o resultados a partir de la ocurrencia de un evento o fenómeno."
+      ]
+    },
+    "OA_b": {
+      "etapa": "Experimentar",
+      "descripcion": "Explorar y experimentar, en forma guiada, con elementos del entorno: a partir de preguntas dadas / en forma individual y colaborativa / utilizando la observación, manipulación y clasificación de materiales simples.",
+      "indicadores": [
+        "Definen actividades o acciones a realizar a partir de preguntas de investigación dadas.",
+        "Organizan actividades o acciones individuales y colectivas para la realización de investigaciones simples.",
+        "Distribuyen en forma equitativa, responsabilidades a todos los integrantes del grupo de trabajo.",
+        "Obtienen observaciones e información a partir de manipulaciones y clasificación de materiales simples y mediciones que realizan."
+      ]
+    },
+    "OA_c": {
+      "etapa": "Experimentar - medir",
+      "descripcion": "Observar, medir y registrar los datos cuidadosamente utilizando unidades no estandarizadas.",
+      "indicadores": [
+        "Registran en forma escrita, las mediciones no estandarizadas que realizan sobre eventos o fenómenos que observan.",
+        "Organizan la información y datos que obtienen en diferentes formas.",
+        "Describen los eventos o fenómenos que observan apoyándose en la información obtenida."
+      ]
+    },
+    "OA_d": {
+      "etapa": "Experimentar - seguridad",
+      "descripcion": "Seguir las instrucciones para utilizar los materiales e instrumentos en forma segura.",
+      "indicadores": [
+        "Explican los procedimientos y actividades que desarrollarán para realizar investigaciones simples.",
+        "Describen en forma oral y escrita, las instrucciones que se les asignan para utilizar materiales e instrumentos en investigaciones simples.",
+        "Exponen el uso correcto y seguro de diferentes instrumentos que utilizan.",
+        "Ilustran el uso correcto y seguro de materiales e instrumentos por medio de representaciones y presentaciones con uso de TIC."
+      ]
+    },
+    "OA_e": {
+      "etapa": "Analizar la evidencia y comunicar",
+      "descripcion": "Comunicar y comparar con otros sus ideas, observaciones, mediciones y experiencias de forma oral y escrita, y a través de presentaciones, TIC, dibujos, entre otros.",
+      "indicadores": [
+        "Registran en forma escrita, sus ideas, observaciones, mediciones y experiencias sobre las investigaciones simples que realizan.",
+        "Establecen similitudes y diferencias, con sus compañeros, sobre la información y resultados obtenidos.",
+        "Exponen ante el curso y grupos de trabajo, sus ideas, observaciones y resultados utilizando presentaciones y TIC.",
+        "Relatan en forma oral y escrita, las experiencias desarrolladas."
+      ]
+    }
+  },
+  "actitudes": [
+    {
+      "codigo": "a",
+      "descripcion": "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural."
+    },
+    {
+      "codigo": "b",
+      "descripcion": "Manifestar un estilo de trabajo riguroso, honesto y perseverante para lograr los aprendizajes de la asignatura."
+    },
+    {
+      "codigo": "c",
+      "descripcion": "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente."
+    },
+    {
+      "codigo": "d",
+      "descripcion": "Asumir responsabilidades e interactuar en forma colaborativa y flexible en los trabajos en equipo, aportando y enriqueciendo el trabajo común."
+    },
+    {
+      "codigo": "e",
+      "descripcion": "Manifestar compromiso con un estilo de vida saludable por medio del desarrollo físico y el autocuidado."
+    },
+    {
+      "codigo": "f",
+      "descripcion": "Reconocer la importancia de seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva."
+    }
+  ],
+  "listado_completo_OA": {
+    "Ciencias de la Vida": [
+      {
+        "codigo": "OA_1",
+        "descripcion": "Observar, describir y clasificar los vertebrados en mamíferos, aves, reptiles, anfibios y peces, a partir de características como cubierta corporal, presencia de mamas y estructuras para la respiración, entre otras."
+      },
+      {
+        "codigo": "OA_2",
+        "descripcion": "Observar, describir y clasificar, por medio de la exploración, las características de los animales sin columna vertebral, como insectos, arácnidos, crustáceos, entre otros, y compararlos con los vertebrados."
+      },
+      {
+        "codigo": "OA_3",
+        "descripcion": "Observar y comparar las características de las etapas del ciclo de vida de distintos animales (mamíferos, aves, insectos y anfibios), relacionándolas con su hábitat."
+      },
+      {
+        "codigo": "OA_4",
+        "descripcion": "Observar y comparar las características de distintos hábitat, identificando la luminosidad, humedad y temperatura necesarias para la supervivencia de los animales que habitan en él."
+      },
+      {
+        "codigo": "OA_5",
+        "descripcion": "Observar e identificar algunos animales nativos que se encuentran en peligro de extinción, así como el deterioro de su hábitat, proponiendo medidas para protegerlos."
+      },
+      {
+        "codigo": "OA_6",
+        "descripcion": "Identificar y comunicar los efectos de la actividad humana sobre los animales y su hábitat."
+      },
+      {
+        "codigo": "OA_7",
+        "descripcion": "Identificar la ubicación y explicar la función de algunas partes del cuerpo que son fundamentales para vivir: corazón, pulmones, estómago, esqueleto y músculos."
+      },
+      {
+        "codigo": "OA_8",
+        "descripcion": "Explicar la importancia de la actividad física para el desarrollo de los músculos y el fortalecimiento del corazón, proponiendo formas de ejercitarla e incorporarla en sus hábitos diarios."
+      }
+    ],
+    "Ciencias_Fisicas_y_Quimicas": [
+      {
+        "codigo": "OA_9",
+        "descripcion": "Observar y describir, por medio de la investigación experimental, algunas características del agua, como la de: escurrir / adaptarse a la forma del recipiente / disolver algunos sólidos, como el azúcar y la sal / ser transparente e inodora / evaporarse y congelarse con los cambios de temperatura."
+      },
+      {
+        "codigo": "OA_10",
+        "descripcion": "Identificar y comparar, por medio de la exploración, los estados sólido, líquido y gaseoso del agua."
+      }
+    ],
+    "Ciencias_de_la_Tierra_y_el_Universo": [
+      {
+        "codigo": "OA_11",
+        "descripcion": "Describir el ciclo del agua en la naturaleza, reconociendo que el agua es un recurso preciado y proponiendo acciones cotidianas para su cuidado."
+      },
+      {
+        "codigo": "OA_12",
+        "descripcion": "Reconocer y describir algunas características del tiempo atmosférico, como precipitaciones (lluvia, granizo, nieve), viento y temperatura ambiente, entre otras, y sus cambios a lo largo del año."
+      },
+      {
+        "codigo": "OA_13",
+        "descripcion": "Medir algunas características del tiempo atmosférico, construyendo y/o usando algunos instrumentos tecnológicos útiles para su localidad, como termómetro, pluviómetro o veleta."
+      },
+      {
+        "codigo": "OA_14",
+        "descripcion": "Describir la relación de los cambios del tiempo atmosférico con las estaciones del año y sus efectos sobre los seres vivos y el ambiente."
+      }
+    ]
+  },
+  "vision_global": {
+    "total_semanas": 38,
+    "total_unidades": 4,
+    "distribucion": [
+      {
+        "unidad": 1,
+        "semestre": 1,
+        "horas": 30,
+        "oas": [
+          "OA_7",
+          "OA_8",
+          "OA_1"
+        ]
+      },
+      {
+        "unidad": 2,
+        "semestre": 1,
+        "horas": 27,
+        "oas": [
+          "OA_2",
+          "OA_3",
+          "OA_4"
+        ]
+      },
+      {
+        "unidad": 3,
+        "semestre": 2,
+        "horas": 33,
+        "oas": [
+          "OA_5",
+          "OA_6",
+          "OA_9",
+          "OA_10"
+        ]
+      },
+      {
+        "unidad": 4,
+        "semestre": 2,
+        "horas": 24,
+        "oas": [
+          "OA_11",
+          "OA_12",
+          "OA_13",
+          "OA_14"
+        ]
+      }
+    ]
+  },
+  "porcentaje_actividades_experimentales": {
+    "nota": "El programa busca que al menos la mitad del tiempo escolar el docente centre sus actividades en la exploración e investigación experimental.",
+    "materiales": "Los materiales sugeridos en el programa son de fácil obtención y de bajo costo."
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "semestre": 1,
+      "titulo": "Cuerpo humano, salud y animales vertebrados",
+      "horas_pedagogicas": 30,
+      "proposito": "Los estudiantes descubran su cuerpo, identifiquen la ubicación de los principales órganos internos (corazón, pulmones, estómago, esqueleto), aprendan sobre autocuidado y beneficios de la actividad física. También se identifican como seres vivos y animales vertebrados, explorando y conociendo una gran variedad de animales vertebrados.",
+      "conocimientos_previos": [
+        "Características y necesidades de los seres vivos",
+        "Diferencias entre seres vivos y no vivos",
+        "Ubicación y función de los órganos de los sentidos",
+        "Hábitos de vida saludable",
+        "Medidas de protección de los órganos de los sentidos"
+      ],
+      "palabras_clave": [
+        "órganos internos",
+        "partes del cuerpo",
+        "corazón",
+        "pulmones",
+        "estómago",
+        "músculos",
+        "huesos",
+        "esqueleto",
+        "salud",
+        "enfermedades",
+        "actividad física",
+        "vertebrado",
+        "mamíferos",
+        "aves",
+        "reptiles",
+        "anfibios",
+        "peces",
+        "animales domésticos",
+        "salvajes",
+        "nativos",
+        "peligro de extinción"
+      ],
+      "conocimientos": [
+        "Localización y función general de órganos internos fundamentales para vivir: corazón, pulmones, estómago, músculos, huesos y esqueleto",
+        "Necesidad de ejercicio para el fortalecimiento y desarrollo muscular",
+        "Características generales de animales vertebrados: peces, reptiles, anfibios, aves y mamíferos"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar compromiso con un estilo de vida saludable a través del desarrollo físico y el autocuidado",
+        "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_7",
+          "eje": "Ciencias de la Vida - Cuerpo humano y salud",
+          "descripcion": "Identificar la ubicación y explicar la función de algunas partes del cuerpo que son fundamentales para vivir: corazón, pulmones, estómago, esqueleto y músculos.",
+          "indicadores_evaluacion": [
+            "Identifican la ubicación de algunas partes del cuerpo humano (corazón, pulmones, estómago, esqueleto y músculos)",
+            "Dibujan la posición relativa, en el cuerpo humano, de los diferentes órganos internos",
+            "Describen la función básica de los principales órganos internos del cuerpo",
+            "Explican que los músculos son órganos activos y permiten el movimiento del cuerpo",
+            "Explican que el cuerpo humano tiene huesos que se unen a nivel de las articulaciones permitiendo el movimiento y soporte del organismo",
+            "Demuestran, por medio de modelos, cómo los huesos y músculos permiten el movimiento del cuerpo"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Silueta del cuerpo humano",
+              "descripcion": "Dibujan la silueta de un ser humano en formato grande, en grupos rotulan sus diferentes partes (cabeza, cuello, tórax, abdomen, extremidades). El profesor explora conocimientos previos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Columna vertebral en silueta",
+              "descripcion": "En una silueta humana ubican la columna vertebral, el cráneo, los huesos de brazos y piernas. Comparan modelos con compañeros y registran en el cuaderno de ciencias.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Observación de radiografías",
+              "descripcion": "El docente explica qué son las radiografías y para qué se usan. Los estudiantes traen radiografías de casa, las observan a contraluz y describen las estructuras visibles. Complementan con observación de pata de pollo.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Maqueta de esqueleto articulado",
+              "descripcion": "Los estudiantes realizan una maqueta de cartón que represente el esqueleto humano y sus articulaciones. Manipulan la marioneta y explican la función de las articulaciones.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Flexión del brazo y músculos",
+              "descripcion": "El docente pide a los estudiantes hacer una flexión del brazo y les pregunta qué sucede con las partes del brazo y qué cambios pueden ver.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Observación de músculos en pata de pollo",
+              "descripcion": "El profesor muestra en una pata de pollo los músculos, el hueso y los tendones. En grupos los analizan usando vista y tacto, describen y dibujan lo observado. Escriben dos oraciones sobre lo aprendido.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Modelo de movimiento muscular con materiales reciclados",
+              "descripcion": "En forma colaborativa construyen un modelo simple que ilustre la función de los músculos durante el movimiento, usando cartón (huesos), pita (tendones) y globos (músculos).",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Escritura sobre huesos y músculos",
+              "descripcion": "Luego de leer un texto, responden: ¿Para qué sirven los huesos? ¿Cómo te imaginas un cuerpo sin huesos? ¿Si tienes músculos fuertes, qué puedes hacer? Dibujan con software de pintura un cuerpo sin huesos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "El recorrido de la manzana - diagnóstico",
+              "descripcion": "El profesor se come una manzana y pregunta dónde va después de la boca. A cada alumno se entrega un esquema del sistema digestivo para completar el trayecto. Sirve de evaluación diagnóstica.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Respiración y pulmones",
+              "descripcion": "En grupos, un grupo respira con boca cerrada y luego abierta. Los alumnos discuten preguntas sobre inspirar y exhalar. Finalmente completan y colorean un dibujo de los pulmones.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 11,
+              "titulo": "Escritura sobre pulmones y estómago",
+              "descripcion": "Escriben con sus palabras qué les sucede cuando nadan bajo el agua sin respirar y para qué sirven los pulmones. También responden sobre el estómago.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 12,
+              "titulo": "Investigación experimental - efecto del ejercicio en el corazón",
+              "descripcion": "Los alumnos desarrollan una investigación para ver el efecto del ejercicio sobre el corazón. Aprenden a tomar el pulso antes y después de esfuerzo físico (correr, saltar a la cuerda), registran en tabla y hacen gráfico de barra. Comparan datos y sacan conclusiones.",
+              "habilidades": [
+                "OA_a",
+                "OA_c"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud",
+                "Matemática"
+              ]
+            },
+            {
+              "n": 13,
+              "titulo": "Escuchar el corazón antes y después del ejercicio",
+              "descripcion": "El profesor explica que la sangre circula más rápido con ejercicio. Los niños escuchan el corazón de un compañero colocando el oído en su pecho, antes y después de hacer ejercicio. Describen lo que sienten y lo comunican.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 14,
+              "titulo": "Organizador gráfico de órganos internos",
+              "descripcion": "El docente junto a los alumnos completa un organizador gráfico en formato grande con ubicación, nombres y funciones de órganos internos, músculos y esqueleto. Se pone en lugar visible de la sala.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 15,
+              "titulo": "Reflexión final sobre el corazón",
+              "descripcion": "Los estudiantes escriben sus reflexiones: ¿Por qué el corazón es tan importante? ¿De qué tamaño es tu corazón? Dibújalo por medio de TIC.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa la figura de un cuerpo humano con corazón, estómago y hueso: 1) Con una flecha indica la ubicación de los tres órganos. 2) Explica para qué sirve el corazón. 3) Explica para qué sirve el estómago. 4) ¿Qué crees que le pasaría a tu cuerpo si no tuviera huesos? ¿Por qué?",
+              "indicadores_evaluados": [
+                "Explican la función de los órganos internos",
+                "Ubican la localización de órganos internos del cuerpo",
+                "Mencionan posibles comportamientos a partir de la ocurrencia de un evento o fenómeno"
+              ],
+              "criterios": [
+                "Localiza correctamente corazón, estómago y hueso en la silueta",
+                "Explican la función de los órganos internos con explicaciones simples (ej: el corazón sirve para impulsar la sangre)",
+                "Realizan predicciones sobre la ausencia de estructuras como los huesos"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_8",
+          "eje": "Ciencias de la Vida - Cuerpo humano y salud",
+          "descripcion": "Explicar la importancia de la actividad física para el desarrollo de los músculos y el fortalecimiento del corazón, proponiendo formas de ejercitarla e incorporarla en sus hábitos diarios.",
+          "indicadores_evaluacion": [
+            "Observan y describen los cambios que ocurren en el cuerpo durante el ejercicio",
+            "Establecen diferencias corporales entre una persona que realiza actividad física y otra con inactividad física",
+            "Dan ejemplos sobre los beneficios de la actividad física para el cuerpo como desarrollo de músculos fuertes y fortalecimiento del corazón",
+            "Predicen posibles consecuencias de la inactividad física (sedentarismo) sobre la salud humana: aumento de peso, falta de agilidad y coordinación, corazón menos fuerte",
+            "Formulan preguntas y las responden guiados por su profesor, sobre su propio cuerpo por medio de la observación"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Texto informativo sobre beneficios del ejercicio",
+              "descripcion": "El docente lee un texto sobre beneficios de la actividad física para corazón y músculos. Registra en pizarra las opiniones sobre los beneficios más importantes. Los estudiantes predicen consecuencias de la falta de actividad física.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Clasificación de deportes",
+              "descripcion": "Recortan fotografías de diferentes deportes y los clasifican de distintas maneras: colectivos, individuales, de aire libre, de interior, de invierno o de toda estación.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 3,
+              "titulo": "Encuesta sobre actividades físicas del curso",
+              "descripcion": "Realizan una encuesta sobre tipos de actividades físicas y deporte practicados por sus compañeros, recabando el tipo de deporte y la frecuencia. Registran datos en tabla y en gráfico tipo pictograma. Presentan conclusiones oralmente.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática",
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Investigación sobre un deporte elegido",
+              "descripcion": "Los alumnos se informan sobre un deporte de su gusto, indicando la parte del cuerpo fortalecida por dicho deporte. Presentan al curso mediante esquema, dibujo o modelo por TIC.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Postura correcta de la columna vertebral",
+              "descripcion": "El profesor explica la posición que debe tener la columna vertebral. Los estudiantes trabajan en parejas observando la postura del compañero. Realizan acciones como ponerse la mochila, levantar objetos pesados y sentarse correctamente. Escriben y dibujan formas de proteger la columna.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Medición de altura y peso",
+              "descripcion": "Los estudiantes miden su altura y se pesan. Registran sus datos. El profesor elabora tabla y gráfico con los datos del curso. Los alumnos leen el gráfico y concluyen que son todos distintos.",
+              "habilidades": [
+                "OA_c"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 7,
+              "titulo": "Importancia de la alimentación y el sueño",
+              "descripcion": "El profesor lee un texto sobre la importancia de la alimentación y el sueño en el crecimiento. Los alumnos completan la oración: 'Para crecer hay que ___ y ___'.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Observación de cambios físicos durante el ejercicio",
+              "descripcion": "A través de actividades físicas simples (correr o saltar) los estudiantes observan los cambios físicos que ocurren: calor, cambio de ritmo en la respiración, aumento del ritmo cardíaco, enrojecimiento de la cara. Describen y comunican por escrito la experiencia.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 9,
+              "titulo": "Investigación experimental sobre niveles de cansancio",
+              "descripcion": "Se hacen tres grupos: el primero camina, el segundo trota y el tercero corre, todos durante la misma cantidad de tiempo. Un grupo los observa y responde preguntas sobre qué cambios se observan en cada grupo, cuál es el grupo con mayores cambios, etc.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática",
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 10,
+              "titulo": "Predicciones sobre ejercicio físico",
+              "descripcion": "El profesor plantea situaciones y pide que formulen predicciones: ¿qué crees que sucederá al corazón de un niño si hace ejercicio constante? ¿qué crees que sucederá a los músculos si un niño se mueve muy poco?",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "Observa la siguiente situación (imagen de niño sedentario): 1) ¿Qué crees que le podría ocurrir a los huesos y músculos de este niño si continúa sin realizar actividad física? 2) ¿Qué consejo le darías sobre la actividad física?",
+              "indicadores_evaluados": [
+                "Observan y describen los cambios que ocurren en el cuerpo durante el ejercicio",
+                "Predicen posibles consecuencias de la inactividad física",
+                "Dan ejemplos sobre los beneficios de la actividad física"
+              ],
+              "criterios": [
+                "Reconocen las consecuencias de la inactividad física: los huesos y músculos sin ejercicio se debilitan, pudiendo ocasionar lesiones",
+                "Relacionan el ejercicio físico con la salud al elaborar consejos para fortalecer músculos y huesos"
+              ]
+            },
+            {
+              "n": 4,
+              "enunciado": "Juego de tres estaciones: E1: Recortar imágenes de actividades físicas y escribir un beneficio por imagen. E2: Dibujar consecuencia posible en persona sin actividad física y la actividad para superarla. E3: Dibujar los cambios observados en el cuerpo durante la actividad. Escribir tres diferencias comparándose con alguien sin actividad física. Exponer resultados al curso.",
+              "indicadores_evaluados": [
+                "Observan y describen los cambios que ocurren en el cuerpo durante el ejercicio",
+                "Establecen diferencias corporales entre persona activa e inactiva",
+                "Dan ejemplos sobre beneficios de la actividad física",
+                "Predicen posibles consecuencias de la inactividad física"
+              ],
+              "criterios": [
+                "Demuestran reconocer las actividades físicas que generan beneficios para el cuerpo humano",
+                "Manifiestan inferencias sobre consecuencias de la inactividad física (aumento de peso, falta de agilidad, corazón menos fuerte)",
+                "Expresan actividades físicas posibles de realizar para mejorar el estado de salud",
+                "Demuestran comunicar resultados relacionándolos con la importancia de la actividad física"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_1",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar, describir y clasificar los vertebrados en mamíferos, aves, reptiles, anfibios y peces, a partir de características como cubierta corporal, presencia de mamas y estructuras para la respiración, entre otras.",
+          "indicadores_evaluacion": [
+            "Demuestran por medio de un modelo, la presencia de columna vertebral en el grupo de los vertebrados",
+            "Identifican al ser humano como un animal vertebrado a partir de la exploración",
+            "Describen las principales características físicas de los grandes grupos de vertebrados",
+            "Dan ejemplos de organismos vertebrados como mamíferos, aves, reptiles, anfibios y peces",
+            "Clasifican animales vertebrados a partir de criterios dados, por ejemplo cubierta corporal y/o presencia de mamas"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Salida educativa a granja o zoológico",
+              "descripcion": "El profesor organiza salidas al campo, granja o zoológico para observar animales domésticos y silvestres. Se prepara con lectura de cuento, se observa durante la salida y luego se presenta una colección de especies animales para que los estudiantes observen, escojan, pinten y clasifiquen.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Columna vertebral pintada en animales",
+              "descripcion": "En base a imagen de ser humano y animales con columna dibujada, los alumnos pintan la columna vertebral de cada animal y escriben un nombre al grupo considerando la característica que los une.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Poesías y canciones sobre animales",
+              "descripcion": "Aprenden poesías, canciones, adivinanzas, trabalenguas y cuentos sobre animales.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Música"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Desplazamiento de vertebrados - murales",
+              "descripcion": "Discuten en equipo las formas en que se desplazan los vertebrados. Completan un cuadro con formas de desplazamiento y realizan tres murales: animales que vuelan, que nadan, y que andan o se arrastran.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Columna vertebral con material reciclado",
+              "descripcion": "En base a un modelo dado, los estudiantes hacen una columna vertebral de un animal con material de desecho (cartón, cordel, masa o plasticina). Definen con sus palabras 'vertebrado' y explican para qué sirve la columna.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Visita a pescadería o acuario",
+              "descripcion": "Visitan una pescadería o acuario, observan características generales de los peces, identifican nombres y dibujan una variedad (al menos 4). Solicitan información sobre especies comestibles.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 7,
+              "titulo": "Acuario con peces en sala",
+              "descripcion": "Arman un acuario con peces con responsables de cuidado de alimentación y limpieza. Observan y dibujan los peces identificando: boca, ojos, aletas, branquias, escamas.",
+              "habilidades": [
+                "OA_d",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Modelo de pez con características comunes",
+              "descripcion": "Desarrollan un modelo de pez con características comunes (escamas, branquias, aletas, huevos, columna vertebral). Responden qué elementos consideraron y cuál es exclusivo de los peces.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Afiche sobre peces chilenos",
+              "descripcion": "En grupos investigan peces chilenos usando textos, láminas y páginas web. Cada grupo escoge un pez chileno y hace un afiche para el diario mural con dibujo y características.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 10,
+              "titulo": "Lectura sobre ranas y sapos - cuento",
+              "descripcion": "El profesor lee en voz alta un cuento sobre ranas y sapos (ej. La princesa y el sapo). Los alumnos escriben sobre las características de la rana o el sapo del cuento.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            },
+            {
+              "n": 11,
+              "titulo": "Características de los anfibios en tabla",
+              "descripcion": "El profesor lee un texto sobre anfibios. Los alumnos responden por escrito y con dibujos en una tabla: ¿Tienen columna vertebral? ¿Dónde viven? ¿Cómo respiran? ¿Cómo se reproducen? ¿Cómo se desarrollan y crecen?",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 12,
+              "titulo": "Experimento: preparación de limo similar a la piel de la rana",
+              "descripcion": "Los alumnos leen sobre la piel de las ranas y preparan una sustancia llamada 'limo' (colorante + almidón + agua), parecida a la que protege la piel de las ranas. Cubren su mano simulando la piel de la rana y describen características a sus compañeros.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 13,
+              "titulo": "Construcción de acuario para ciclo vital de anfibio",
+              "descripcion": "Construyen un acuario para observar el ciclo vital de un anfibio. Capturan huevos de anfibios o guarisapos en invierno, los ponen en pecera con vegetación. Observan el desarrollo y registran lo que va sucediendo.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 14,
+              "titulo": "Investigación sobre anfibios nativos chilenos - ranita de Darwin",
+              "descripcion": "Investigan sobre anfibios propios de Chile: sapito cuatro ojos y ranita de Darwin. Estudian quién fue Darwin, por qué la rana lleva su nombre y qué significa estar en peligro de extinción. Realizan propuesta para salvarla.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 15,
+              "titulo": "Observación de reptiles en fotos",
+              "descripcion": "Observan fotos y establecen relaciones entre serpientes, tortugas, cocodrilos y lagartos. Responden: ¿Pertenecen al mismo grupo? ¿Por qué? ¿Qué características comunes poseen?",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 16,
+              "titulo": "Disertación sobre tipos de reptiles",
+              "descripcion": "En base a texto informativo, los alumnos guiados por el docente preparan una disertación. Grupos estudian: serpiente, cocodrilo, tortuga y lagarto. Dibujan y anotan características: columna vertebral, respiración por pulmones, sangre fría, ovíparos, piel con escamas.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 17,
+              "titulo": "Reptiles propios de Chile",
+              "descripcion": "Investigan por medio de láminas o páginas web los reptiles propios de Chile. Dibujan al menos cinco de ellos y escriben tres o más características especiales que los distingan.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 18,
+              "titulo": "Salida a río o bosque para observar y oír aves",
+              "descripcion": "El docente hace una salida a un río o bosque para observar y oír aves: gorriones, golondrinas, garzas, tordos, tiuques. Escuchan los cantos de ranas y aves. Luego los alumnos imitan los sonidos y oyen grabaciones de pájaros para aprender a identificarlos.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Música"
+              ]
+            },
+            {
+              "n": 19,
+              "titulo": "Exploración y observación de aves de la zona",
+              "descripcion": "Exploran y observan en su entorno. Leen información sobre las aves de la zona y dibujan la que más les interesa, identificando sus alas, patas y plumas.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 20,
+              "titulo": "Esquema de características de las aves",
+              "descripcion": "En base a lectura sobre las aves, los alumnos completan un esquema con: Extremidades / ¿Cómo nacen? / ¿Cómo se desplazan? / ¿Cómo es su cubierta?",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 21,
+              "titulo": "Lectura de cuentos sobre mamíferos",
+              "descripcion": "El profesor lee en voz alta o permite la lectura independiente de cuentos sobre diferentes mamíferos, para interesarlos por la lectura y por aprender más sobre los animales.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            },
+            {
+              "n": 22,
+              "titulo": "Identificación de mamíferos por características",
+              "descripcion": "En base a visita al zoológico o conjunto de láminas, mencionan todos los animales que cumplen con: presencia de pelos en el cuerpo, cuatro extremidades, dientes para masticar su alimento. Hacen tabla y grafican en pictograma.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 23,
+              "titulo": "Listado de mamíferos domésticos, salvajes y silvestres",
+              "descripcion": "El profesor explica las características que agrupan a los mamíferos. En conjunto hacen un listado de mamíferos domésticos, salvajes y silvestres. Buscan recortes y anotan características en un cuadro.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 24,
+              "titulo": "Mamíferos de Chile en peligro de extinción",
+              "descripcion": "Investigan, leen y buscan fotos sobre los mamíferos propios de Chile y proponen medidas para protegerlos. Guardan fotos en el portafolio.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 25,
+              "titulo": "Tabla cruzada de características de vertebrados",
+              "descripcion": "El docente elige listado de especies. Cada estudiante investiga una especie y encuentra una foto. El docente presenta tabla cruzada con especies en filas y características físicas en columnas (columna, pelos, dientes afilados, plumas, escamas). El estudiante marca los atributos que posee cada especie.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 26,
+              "titulo": "Clasificación de animales vertebrados en cinco grupos",
+              "descripcion": "A partir de colección de fotografías, juguetes o dibujos de animales vertebrados, los estudiantes: clasifican en cinco grupos por características físicas; identifican por nombre genérico (mamífero, ave, reptil, anfibio, pez); dibujan colocándole etiqueta con nombre genérico.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 27,
+              "titulo": "Completar tabla de grupos de vertebrados",
+              "descripcion": "Completan una tabla con el nombre del grupo correspondiente a la característica descrita (ej: vertebrados con piel cubierta de escamas y extremidades en forma de aleta = peces).",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 28,
+              "titulo": "Clave dicotómica de clasificación de vertebrados",
+              "descripcion": "Los estudiantes utilizan un modelo simple de clasificación para los grupos de vertebrados en base a una clave dicotómica con la pregunta: '¿tiene o no tiene?'. Por ejemplo: ¿El animal observado tiene pelos? Sí = mamífero / No ¿tiene plumas? Sí = ave / No ¿tiene aletas? Sí = pez.",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 29,
+              "titulo": "Clasificación de organismos en hábitat particular",
+              "descripcion": "Reconocen y clasifican un grupo de organismos diversos de un hábitat particular utilizando criterios observables en los principales grupos de vertebrados.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 30,
+              "titulo": "Fauna amenazada de Chile - grupos de vertebrados",
+              "descripcion": "En base a una lista entregada por el profesor sobre fauna amenazada en Chile, los estudiantes averiguan, leen e indican a qué grupo de vertebrados pertenecen las especies en peligro de extinción: rana de Darwin, huemul, cóndor, culebra de cuatro bandas, gato colocolo.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 31,
+              "titulo": "Entrevista a médico veterinario",
+              "descripcion": "En grupos realizan una entrevista a un médico veterinario, padres, dueños de campo y/o docentes acerca de las medidas higiénicas y cuidados que deben practicar para el manejo de los vertebrados domésticos y mascotas.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 32,
+              "titulo": "Animales particulares: ballena, pingüino, murciélago",
+              "descripcion": "En grupo investigan sobre animales particulares: ballena (mamífero, pelos en la boca, sistema respiratorio tipo pulmón), pingüino (ave, alas en aletas) y murciélago (mamífero, mano en ala, sin pluma y con pelo).",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 33,
+              "titulo": "Clasificación de especies desaparecidas - fósiles",
+              "descripcion": "Investigan en libros u otros medios sobre especies fósiles: dinosaurios, Milodón y mamut. Los agrupan en base a características observables, justificando la clasificación.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 34,
+              "titulo": "Animales consumidos por el ser humano",
+              "descripcion": "En base a presentación, el docente muestra animales consumidos por el ser humano. Los alumnos identifican a qué grupo de vertebrados pertenecen las especies para alimentación humana: pollo, vacuno, salmón, cerdo.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 35,
+              "titulo": "Dibujo de animal imaginario inclasificable",
+              "descripcion": "Se propone realizar dibujos de un animal imaginario imposible de clasificar ya que tiene al mismo tiempo todos los atributos físicos de cada grupo de vertebrados.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 36,
+              "titulo": "Animales que avisan el peligro con colores",
+              "descripcion": "Peces, serpientes y ranas avisan peligro con colores. En base a fotos y con pintura, lápices o marcadores los alumnos en formato grande pintan a un animal que está avisando el peligro a sus compañeros.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "Observa la siguiente clasificación de animales: Grupo A (Mariposa, Chinita, Jaiba, Caracol, Estrella de mar, Lombriz) / Grupo B (Delfín, Zorro, Gato, Cocodrilo, Paloma, Rana, Serpiente). 1) ¿Qué característica sirvió para agrupar los animales en A y B? 2) ¿En qué grupo te ubicarías tú? Justifica tu respuesta.",
+              "indicadores_evaluados": [
+                "Elaboran un modelo simple de clasificación de los distintos grupos de vertebrados",
+                "Organizan la información y datos que obtienen en diferentes formas"
+              ],
+              "criterios": [
+                "Demuestran que agrupan animales de acuerdo a características como forma y tipo de cubierta corporal, pudiendo establecer cuatro grupos con etiquetas que reflejen el atributo físico",
+                "Muestran que son capaces de describir las características de cada uno de los grupos",
+                "Manifiestan que reconocen dentro de los vertebrados al grupo de los peces"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "semestre": 1,
+      "titulo": "Animales no vertebrados, ciclos de vida y hábitat",
+      "horas_pedagogicas": 27,
+      "proposito": "Los estudiantes comprendan que existen varios tipos de animales que viven en diferentes tipos de hábitat. Se espera que caractericen a los animales no vertebrados (insectos, arácnidos, crustáceos), conozcan los principales rasgos del ciclo de vida de todos los animales, aprendan el significado del concepto de hábitat y su importancia para la supervivencia, y conozcan animales nativos en peligro de extinción proponiendo medidas para protegerlos.",
+      "conocimientos_previos": [
+        "Características generales de los seres vivos (crecen, responden a estímulos, se reproducen)",
+        "Necesidades de los seres vivos (agua, alimento, luz, aire)",
+        "Distinción entre lo vivo y lo no vivo",
+        "Distinción básica de grandes grupos de seres vivos: plantas y animales",
+        "Características de los seres vivos tales como capacidad de movimiento, tipos de cubierta corporal",
+        "Vertebrados y sus características"
+      ],
+      "palabras_clave": [
+        "no vertebrados",
+        "insecto",
+        "arácnidos",
+        "jaibas",
+        "ciempiés",
+        "hábitat",
+        "ciclo de vida",
+        "animales nativos",
+        "peligro de extinción"
+      ],
+      "conocimientos": [
+        "Distinción entre vertebrado y no vertebrado",
+        "Clasificación de grandes grupos taxonómicos en los no vertebrados",
+        "Características principales de distintos ciclos de vida de animales vertebrados y no vertebrados: anfibios, insectos, mamíferos entre otros",
+        "Identificación de distintos tipos de hábitat y la relación con la supervivencia de los animales",
+        "Animales nativos en peligro de extinción"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente",
+        "Asumir responsabilidades e interactuar en forma colaborativa en los trabajos en equipo aportando y enriqueciendo el trabajo común"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_2",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar, describir y clasificar, por medio de la exploración, las características de los animales sin columna vertebral, como insectos, arácnidos, crustáceos, entre otros, y compararlos con los vertebrados.",
+          "indicadores_evaluacion": [
+            "Realizan investigaciones sencillas sobre las características de distintos grupos de insectos",
+            "Describen las estructuras básicas de un insecto y las comparan con otros grupos como crustáceos y arácnidos (ejemplo: arañas - jaibas)",
+            "Ilustran animales no vertebrados, rotulando sus partes principales",
+            "Comunican en forma oral o escrita, observaciones sobre animales sin columna vertebral",
+            "Enumeran acciones de cuidado de animales no vertebrados del entorno cercano",
+            "Comparan animales vertebrados y no vertebrados comunicando sus similitudes y diferencias"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Observación y diagrama de insectos y arañas",
+              "descripcion": "Observan diversos insectos y arañas en videos, fotografías o en el entorno. Los describen en forma oral y realizan diagramas rotulando sus partes principales, apoyados por el profesor usando TIC si es posible. A partir de sus diagramas describen sus diferencias y similitudes.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Lectura sobre animales sin columna vertebral",
+              "descripcion": "Los estudiantes leen un texto sobre los animales sin columna vertebral y responden: ¿Qué es un animal invertebrado o no vertebrado? ¿Cómo se ve un animal invertebrado? Da ejemplos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Armado de terrario con insectos de jardín",
+              "descripcion": "Los estudiantes arman un terrario con insectos de jardín. Lo construyen con un recipiente simple o caja de madera, adaptando el hábitat de la especie elegida (agua, luz, temperatura, alimentación). Registran los comportamientos de cada animal en un diario de registro.",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Tabla comparativa de insecto, araña y jaiba",
+              "descripcion": "En base a animales reales o fotos, observan las características de al menos un insecto, una araña y una jaiba. Realizan una tabla comparativa con: número de patas, partes del cuerpo, número de antenas, largo, ancho, número de segmentos.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Ficha técnica de insecto o animal marino no vertebrado",
+              "descripcion": "Cada alumno escribe una ficha técnica de un insecto, araña o animal marino no vertebrado en una cartulina, ilustrada con fotografía. Exponen las fichas en la sala de clases.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Esquema de clasificación de no vertebrados",
+              "descripcion": "El profesor explica el esquema que muestra cómo se agrupan los no vertebrados de acuerdo a sus características observables: cuerpo de piel rígida - 2 partes y 8 patas (arácnidos) / cuerpo en 3 partes y 6 patas y 2 antenas (insectos) / 4 antenas y 10 patas pinzas (crustáceos) / múltiples segmentos y patas (ciempiés).",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Clave dicotómica para araña y ciempiés",
+              "descripcion": "El profesor muestra ilustraciones de una araña y un ciempiés y les pide usar el modelo de clasificación dicotómica con la pregunta 'tiene o no tiene': ¿El ser vivo observado tiene 2 partes y 8 patas? Sí = araña / No ¿tiene 3 partes? Sí ¿con 6 patas? Sí = insecto / No ¿tiene muchas? Sí = ciempiés.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Medidas de cuidado de animales no vertebrados",
+              "descripcion": "A partir de la lectura de un texto sobre los animales no vertebrados, los estudiantes mencionan en forma oral medidas de cuidado con los animales no vertebrados de su entorno. El profesor las anota para publicarlas en el diario mural del curso. ¿Cuál de tus propuestas consideras la más importante? ¿Por qué?",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Visita a museo de vida o zoológico - vertebrado vs no vertebrado",
+              "descripcion": "Los estudiantes realizan una visita a un museo de vida o zoológico. En parejas eligen dos animales: uno no vertebrado y otro vertebrado. Construyen listado de características observables, comparan en una tabla y extraen conclusiones. Finalmente el docente describe características de animales sin mencionar su nombre y los estudiantes adivinan qué animal es y a qué grupo pertenece.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa la siguiente clasificación de animales: Grupo A (Mariposa, Chinita, Jaiba, Caracol, Estrella de mar, Lombriz) / Grupo B (Delfín, Zorro, Gato, Cocodrilo, Paloma, Rana, Serpiente). 1) ¿Qué característica sirvió para agrupar los animales en A y B? 2) ¿En qué grupo (A o B) te ubicarías tú? Justifica tu respuesta.",
+              "indicadores_evaluados": [
+                "Comunican observaciones sobre animales sin columna vertebral",
+                "Comparan animales vertebrados y no vertebrados",
+                "Organizan la información y datos que obtienen en diferentes formas"
+              ],
+              "criterios": [
+                "Demuestran que reconocen animales vertebrados y no vertebrados, mencionando que la característica que permite agruparlos en A y B corresponde a la presencia o ausencia de columna vertebral",
+                "Indican que ellos pertenecen al grupo B, señalando que el ser humano tiene columna vertebral al igual que los otros animales del grupo"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_3",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar y comparar las características de las etapas del ciclo de vida de distintos animales (mamíferos, aves, insectos y anfibios), relacionándolas con su hábitat.",
+          "indicadores_evaluacion": [
+            "Ilustran en un esquema las distintas etapas del ciclo de vida de un animal",
+            "Describen los cambios que experimenta un animal en las etapas de su ciclo de vida",
+            "Comparan ciclos de vida de distintos animales en cuanto a similitud con los padres, crecimiento dentro o fuera de la madre",
+            "Relacionan elementos del hábitat con las etapas del desarrollo de algunos animales, por ejemplo desarrollo de un anfibio en un medio acuático"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Crianza artesanal de ser vivo de fácil manejo",
+              "descripcion": "Realizan una crianza artesanal de un ser vivo de fácil manejo como caracoles, chanchitos de tierra, gusanos, cuncunas u otros. Anotan en sus cuadernos, por medio de dibujos y pequeñas frases explicativas, los cambios observados en estos animales a lo largo de su vida (ej: huevos, caracol pequeño, caracol adulto, reproducción, muerte). Realizan un diagrama simplificado que resuma las distintas etapas de vida.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Descripción del ciclo de vida de una especie en grupo",
+              "descripcion": "En grupo, hacen un trabajo de descripción del ciclo de vida de una especie basándose en ilustraciones, fotografías, dibujos, lectura de cuentos, películas, videos, internet. Especies relevantes: libélula, zancudo, mariposa, sapo, rana, pollo, gato, canguro. Información a encontrar: etapas del ciclo de vida, duración de cada etapa, forma física del animal, forma de locomoción. Finalizan haciendo un dibujo que represente el ciclo de vida.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Lectura sobre ciclo de vida y ordenamiento de láminas",
+              "descripcion": "El docente lee un texto sobre los animales y su ciclo de vida. Luego los estudiantes con sus palabras explican qué es un ciclo para luego ordenar láminas que ilustren distintas etapas del ciclo de vida de un animal.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Imaginación sobre el interior de un huevo",
+              "descripcion": "El docente entrega un dibujo con la silueta de un huevo o un huevo real. Invita a los estudiantes a imaginar que pueden ver a través del huevo y a responder: ¿qué animal podría estar dentro del huevo? ¿cuál es la función del huevo? Para complementar, los alumnos indagan en diversas fuentes sobre otros animales que también se desarrollen por huevos. Eligen un animal y completan sus esquemas dibujando el huevo por dentro y el ciclo de vida del animal.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Video de metamorfosis de mariposa (larva - crisálida - mariposa)",
+              "descripcion": "Observan un video o sucesión de fotografías de una larva de mariposa (cuncuna) que se transforma en crisálida y finalmente en mariposa. Explican qué le sucedió al animal durante la fase de crisálida (capullo).",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Metamorfosis del zancudo o libélula",
+              "descripcion": "Al igual que la actividad anterior, se focaliza sobre la metamorfosis del zancudo o de la libélula, describiendo los atributos distintos entre el antes y el después de la metamorfosis.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Animales con transformación severa: erizo de mar y chorito",
+              "descripcion": "Se informan sobre otros animales que pasan por un proceso de transformación severa similar a la mariposa: erizo de mar y chorito. Reflexionan acerca del por qué les ocurren este tipo de transformaciones en los animales estudiados y las exponen al curso.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Tabla comparativa de distintos ciclos de vida",
+              "descripcion": "Comparan distintos ciclos de vida. Cada grupo presenta su especie y los otros alumnos completan una tabla comparativa.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Ciclos de vida y hábitat",
+              "descripcion": "Observan y describen la actividad principal de un animal en las diferentes etapas de su vida y el hábitat que ocupa (por ejemplo, larva: alimentarse; adulto: reproducirse; hábitat acuático o terrestre).",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Cuento sobre el ciclo de vida de un animal de Chile",
+              "descripcion": "Los estudiantes realizan una exploración en diversas fuentes sobre el ciclo de vida de algún animal de Chile. A partir de la información recolectada construyen un cuento que relate la vida del animal desde su nacimiento, incluyendo las etapas más relevantes. Pueden incluir otros personajes y lugares creativamente. Comparten algunos cuentos con sus compañeros.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "A continuación aparecen en desorden las etapas de la vida de una mariposa (imágenes de adulto, crisálida, larva, huevo). 1) Recorta las imágenes y forma un ciclo correcto con las etapas de vida de este organismo. 2) Propón un título para cada etapa. 3) ¿En qué se parece y diferencia el ciclo de la mariposa con el de una rana?",
+              "indicadores_evaluados": [
+                "Identifican en un esquema las distintas etapas de un ciclo de vida",
+                "Describen con palabras el ciclo de vida de algunos animales",
+                "Establecen similitudes y diferencias sobre la información y resultados obtenidos"
+              ],
+              "criterios": [
+                "El orden y nombre de las etapas es: huevo - larva - pupa - adulto",
+                "Demuestran que son capaces de comparar el ciclo de vida de una mariposa y una rana mencionando similitudes (presencia de huevos) y diferencias (cambio de hábitat al pasar de un estado a otro en la rana)"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_4",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar y comparar las características de distintos hábitat, identificando la luminosidad, humedad y temperatura necesarias para la supervivencia de los animales que habitan en él.",
+          "indicadores_evaluacion": [
+            "Comparan distintos hábitat en cuanto a luminosidad, humedad y temperatura",
+            "Relacionan el hábitat con las características corporales de los animales",
+            "Relacionan los recursos disponibles en el hábitat con las necesidades de los animales para la sobrevivencia",
+            "Predicen los efectos del deterioro del hábitat en la supervivencia de los animales que viven en él",
+            "Investigan un animal en interacción con su hábitat, describiendo las condiciones necesarias para su sobrevivencia"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Identificación de distintos hábitat en el entorno cercano",
+              "descripcion": "Observan su entorno cercano (patio del colegio, sala de clases, jardín) o una fotografía de un paisaje e identifican distintos hábitat en él (marino, lago, montaña, río, árboles, maceteros). Reparten los distintos hábitats en grupos de trabajo donde hacen listas de las especies y de las condiciones del ambiente. Presentan oralmente los contenidos a la clase.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Necesidades vitales para la supervivencia",
+              "descripcion": "Recuerdan y enumeran en sus cuadernos las necesidades vitales de un organismo para su supervivencia (aire, agua, alimento, abrigo). Responden: ¿qué le podría ocurrir a un organismo si le falta alguno de estos elementos? ¿qué elemento consideras más importante? Con documentos fotográficos o TIC, identifican adaptaciones de los organismos a su medio ambiente (piel del oso blanco, branquias de los peces).",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Recursos disponibles en un hábitat concreto (macetero)",
+              "descripcion": "Identifican en un ejemplo de hábitat concreto, como un macetero de la sala de clases, los recursos disponibles para un insecto que viva en él, formulando preguntas sobre disponibilidad de agua, alimento, aire, luz. ¿qué le podría ocurrir al insecto si aumenta o disminuye la cantidad de alimento disponible?",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Definición de hábitat con palabras propias",
+              "descripcion": "Describen su propio hábitat y explican con sus palabras en el cuaderno: ¿Qué es un hábitat? Ponen en común la definición y la escriben en un formato grande para la sala.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Relación características físicas del animal con su hábitat",
+              "descripcion": "Relacionan las características físicas de un animal con el hábitat que ocupan (por ejemplo aletas de un pez con el agua; patas de cabra con desplazamiento en la montaña) y explican cómo estas adaptaciones físicas les permiten obtener los recursos necesarios para su supervivencia.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Experimento: lombrices y preferencia por luz u oscuridad",
+              "descripcion": "Los estudiantes organizados en grupos de tres colocan una lombriz sobre una toalla de papel húmeda. Luego en un recipiente colocan toallas húmedas y una hoja de papel negro sobre la mitad (la otra mitad queda descubierta). Realizan predicciones sobre si la lombriz preferirá el lado iluminado o el oscuro. Colocan la lombriz en el centro y alumbran con linterna la parte descubierta. Registran observaciones y responden: ¿fue tu predicción correcta? ¿Por qué crees que las lombrices viven dentro de la tierra?",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Conductas de cuidado de los distintos hábitats",
+              "descripcion": "Después de la lectura de un texto y una presentación sobre distintos hábitats y sus fragilidades, los estudiantes comunican en forma oral conductas posibles de asumir por ellos para favorecer el cuidado y respeto de los distintos hábitats. El profesor las anota, las expone en la sala y los compromete a cumplirlas.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "TIC sobre destrucción de fauna por contaminación",
+              "descripcion": "En base a TIC o documentos que muestran la destrucción de fauna por contaminación o modificación del medio ambiente (incendio forestal, tortugas muertas por bolsas plásticas, etc.), después de una reflexión, identifican y explican la necesidad del cuidado del entorno para la supervivencia de los animales.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Corte transversal de Chile con fauna nativa en su hábitat",
+              "descripcion": "Pegan en un dibujo de un corte transversal de Chile (mar, cordillera de la costa, valles, Cordillera de los Andes) imágenes de diferentes especies de seres vivos característicos de la zona central de Chile (toninas, choritos, cóndor, huemul, vaca, caballo chileno, lobo marino, gaviota, escorpión, mariposa). Explican en qué le favorece a cada animal sus atributos físicos para la sobrevivencia en su hábitat.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 10,
+              "titulo": "Comparación hábitat zona Norte vs zona Sur de Chile",
+              "descripcion": "En un dibujo que representa el territorio chileno de Norte a Sur, comparan el hábitat de la zona Norte con los de la zona Sur del país. Recaban información sobre el clima y el paisaje de las distintas regiones, así como de los animales típicos de cada una de ellas.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "¿Cuál de las siguientes condiciones será más adecuada para que esta ave incube sus huevos? (Opciones A-F con distintas temperaturas: 0°C, 100°C, 5°C, 25°C con comida y agua, 50°C con comida y agua, 80°C con comida y agua). Encierra en un círculo tu respuesta. 2) Escribe la o las razones de tu elección. ¿qué elementos consideraste para tu elección? ¿cuál es el más importante? ¿qué otra información te ayudaría a decidir mejor?",
+              "indicadores_evaluados": [
+                "Relacionan los recursos disponibles en el hábitat con las necesidades de los animales para la sobrevivencia",
+                "Predicen los efectos del deterioro del hábitat en la supervivencia de los animales",
+                "Explican los fenómenos o eventos que se plantean u observan"
+              ],
+              "criterios": [
+                "Demuestran conocer las condiciones adecuadas para la supervivencia de un ave y sus polluelos, seleccionando la opción D (25°C con comida y agua)",
+                "Muestran argumentos para realizar su elección: la opción D tiene una temperatura adecuada y contiene alimento y agua necesarios para la sobrevivencia del ave y sus polluelos"
+              ]
+            },
+            {
+              "n": 4,
+              "enunciado": "El docente esconde mensajes en el patio del colegio. Estación 1: Buscan en grupos un mensaje oculto. En su interior está escrito un hábitat del colegio. Se organizan para explorar y encontrar el hábitat indicado en el mensaje secreto, siguiendo las instrucciones y utilizando instrumentos en forma segura. Estación 2: Al encontrar el hábitat, con cuidado lo exploran en equipo y dibujan los animales que ahí habitan. Al lado de cada dibujo representan características que hacen posible que sobrevivan en ese tipo de hábitat. Dibujan los posibles deterioros que sufren los hábitats y expresan oralmente cuál sería la consecuencia de este deterioro en los animales que allí habitan.",
+              "indicadores_evaluados": [
+                "Relacionan los recursos disponibles en el hábitat con las necesidades de los animales para la sobrevivencia",
+                "Predicen los efectos del deterioro del hábitat en la supervivencia de los animales"
+              ],
+              "criterios": [
+                "Demuestra que identifica diferentes hábitats, sus características y presencia de animales en él",
+                "Manifiestan las características que presenta el hábitat en cuanto a luminosidad, humedad, temperatura que hacen posible la supervivencia de los animales que existen en él",
+                "Demuestran predicciones posibles sobre los animales de un hábitat cuando este es deteriorado. Identifican posibles causas del deterioro de los hábitats",
+                "Demuestra comprender que los hábitats son diversos y que en ellos existen diferentes tipos de animales"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "semestre": 2,
+      "titulo": "Animales nativos en extinción y características del agua",
+      "horas_pedagogicas": 33,
+      "proposito": "Esta unidad tiene dos objetivos centrales. El primero es que los estudiantes comprendan que existen animales nativos en extinción producto del deterioro de su hábitat, y que identifiquen las formas en que la actividad humana afecta la vida en la Tierra. Segundo, que conozcan y describan las características generales del agua, su capital importancia y los estados que puede adquirir. Se espera que los estudiantes comprendan que el agua es un compuesto vital en la Tierra.",
+      "conocimientos_previos": [
+        "Distinción entre lo vivo y lo no vivo",
+        "Distintos tipos de materiales: madera, plástico, goma, metal, vidrio, corcho",
+        "Propiedades de los materiales: flexibilidad, transparencia, textura, brillo",
+        "Necesidades de los seres vivos para su sobrevivencia"
+      ],
+      "palabras_clave": [
+        "animales en extinción",
+        "estado físico",
+        "sólido",
+        "líquido",
+        "gaseoso",
+        "escurrir",
+        "adaptarse",
+        "transparente",
+        "inodora",
+        "disolver",
+        "evaporar",
+        "congelar",
+        "recurso"
+      ],
+      "conocimientos": [
+        "Animales nativos en extinción",
+        "Procesos tecnológicos que afectan el hábitat",
+        "Características generales del agua",
+        "Estados del agua: sólido, líquida, gaseoso"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar un estilo de trabajo riguroso y perseverante para lograr los aprendizajes de la asignatura",
+        "Reconocer la importancia y seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_5",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar e identificar algunos animales nativos que se encuentran en peligro de extinción, así como el deterioro de su hábitat, proponiendo medidas para protegerlos.",
+          "indicadores_evaluacion": [
+            "Realizan una investigación sobre animales nativos en peligro de extinción",
+            "Identifican algunos animales nativos en peligro de extinción de Chile y su distribución por regiones",
+            "Dan ejemplos de animales nativos en peligro de extinción",
+            "Proponen medidas que permitan proteger animales en peligro de extinción y sus hábitats"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Investigación sobre especie amenazada de extinción de la zona",
+              "descripcion": "La clase realiza una investigación sobre una especie amenazada de extinción de su zona a partir de un texto que el docente lee. Se concreta en forma de informe con fotos, dibujos, textos y con ayuda de las TIC. El docente promueve el intercambio de información sobre animales en peligro de extinción en Chile a través de internet con estudiantes de 2° básico de otras regiones del país.",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Búsqueda del significado de 'extinción' en el diccionario",
+              "descripcion": "Los estudiantes con ayuda del profesor buscan en el diccionario la palabra extinción, y explican qué significa cuando una persona dice 'la ranita de Darwin está en peligro de extinción' y qué significa 'los dinosaurios se extinguieron'.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Afiche sobre especies amenazadas de extinción",
+              "descripcion": "El docente entrega a los alumnos un listado de especies amenazadas de extinción. En grupo, elaboran un afiche sobre estas especies y las medidas de cuidado. Los publican en el diario mural del colegio, diseñan y en lo posible construyen, con ayuda del docente o el profesor de computación, una página web con la información de que disponen.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Mapa de Chile con animales amenazados en su región",
+              "descripcion": "Con un listado de especies amenazadas de extinción de Chile, el docente pide dibujar y recortar en formato reducido cada animal. Después de buscar informaciones sobre el lugar del país en que vive, el estudiante pega la silueta del animal en un mapa de Chile.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Investigación sobre parques nacionales de otro lugar del mundo",
+              "descripcion": "En grupos investigan un parque nacional de otro lugar del mundo (USA, Kenya, Europa, Brasil) mediante internet, precisando cuáles son las especies nativas protegidas en cada uno. Comparan características de animales de Chile con la de otros lugares del mundo. Ilustran sus observaciones en su cuaderno.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Debate sobre medidas de protección de hábitats y animales nativos",
+              "descripcion": "Organizan un debate sobre medidas de protección de diferentes hábitats y animales nativos de su región. Si es posible se invita a alguna autoridad de la región. Finalmente, con la guía del docente, los estudiantes anotan las ideas principales.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Debate: el ser humano y la extinción de animales",
+              "descripcion": "A partir de la lectura de un texto sobre la acción humana y los animales en peligro de extinción, los estudiantes en una discusión abierta y reflexiva debaten por qué el ser humano es uno de los principales responsables de la situación de peligro de extinción en que se encuentran numerosos animales. Realizan dibujos sobre formas de proteger a los animales en peligro.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Investigación sobre parques nacionales de Chile",
+              "descripcion": "En grupos investigan un parque nacional de Chile, precisando cuáles son las especies nativas protegidas en cada uno. El docente guía la investigación con un listado de informaciones por encontrar: región, especies interesantes, clima. Organizan la información recolectada en un papelógrafo y lo exponen en su sala.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Ficha técnica de animales nativos en peligro de extinción de la región",
+              "descripcion": "El docente presenta una lista con los principales animales nativos propios de la región en peligro de extinción. Los alumnos organizados en grupos pequeños realizan una investigación bibliográfica que incluya una ficha técnica con: características físicas y formas de vida, descripción del hábitat, fotografías del animal, riesgos de supervivencia de la especie. Presentan su trabajo al curso y proponen una medida de cuidado posible de realizar por ellos mismos.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Investigación sobre maltrato animal y leyes que protegen a los animales",
+              "descripcion": "Investigan sobre el maltrato animal (animales más afectados, lugares y formas de maltrato), las leyes que los protegen y algunas instituciones preocupadas de su protección. Reflexionan sobre su responsabilidad individual frente a la protección y cuidado de animales. Elaboran un compromiso escrito que explicita este compromiso como curso o en forma individual.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "Las siguientes figuras representan seis animales (oveja, cóndor, puma, pingüino, llama/camélido, foca/lobo marino). A partir de esa información: 1) Marca aquellos que son nativos de nuestro país. 2) Indica el hábitat donde se encuentran. ¿En qué se parecen o diferencian cada uno de estos hábitats? 3) Señala qué podrías hacer tú para protegerlos de su posible extinción. ¿Qué elementos o acciones son importantes considerar para ayudar a protegerlos? 4) Investiga sobre animales nativos de tu región en peligro de extinción y construye un afiche con dos que habiten en el mar, dos que habiten en tierra y dos que sean aves, indicando en cada caso las medidas que puede realizar la comunidad para proteger su hábitat.",
+              "indicadores_evaluados": [
+                "Realizan una investigación sobre animales nativos en peligro de extinción",
+                "Identifican algunos animales nativos en peligro de extinción de Chile y su distribución por regiones",
+                "Dan ejemplos de animales nativos en peligro de extinción",
+                "Proponen medidas que permitan proteger animales en peligro de extinción y sus hábitats",
+                "Registran en forma escrita sus ideas, observaciones y experiencias",
+                "Establecen similitudes y diferencias con sus compañeros sobre la información y resultados obtenidos"
+              ],
+              "criterios": [
+                "Demuestran que reconoce animales nativos de nuestro país, marcando por ejemplo el cóndor, pudú, pingüino y foca",
+                "Muestran conocer el hábitat de los animales nativos seleccionados (cóndor en la cordillera, pingüino en los mares australes)",
+                "Proponen medidas de protección: no contaminar las aguas del mar para proteger focas y pingüinos, evitar dejar perros abandonados en bosques del sur, ya que atacan a los pudúes",
+                "Demuestran curiosidad e interés por conocer animales que conforman el entorno natural de su región, realizando una investigación y destacando aquellos en peligro de extinción"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_6",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Identificar y comunicar los efectos de la actividad humana sobre los animales y su hábitat.",
+          "indicadores_evaluacion": [
+            "Dan ejemplos de productos elaborados por el ser humano que impactan en el ambiente",
+            "Señalan actividades o procesos industriales desarrollados por el ser humano que impactan en el ambiente (refinerías de petróleo, fundiciones, relaves mineros, etc.)",
+            "Describen consecuencias de los derrames de petróleo sobre animales y sus hábitat",
+            "Deducen el efecto de las plantas de agua servida sobre la fauna acuática",
+            "Comunican consecuencias de los desechos humanos sobre la fauna",
+            "Explican por qué el agua es fundamental para los animales y los hábitat y proponen medidas de ahorro y cuidado"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Catástrofes ambientales en la prensa - derrame de petróleo",
+              "descripcion": "Reúnen información de la prensa sobre catástrofes ambientales como derrame de petróleo, químico o nuclear, enfocándolo en los efectos sobre la fauna. Archivan las noticias en su portafolio de Ciencia y escriben las ideas más importantes. Reescriben una nueva noticia con sus ideas. Presentan su trabajo en forma de afiche y/o lo suben a una página en internet.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Visita guiada a centro de rescate de animales o zoológico",
+              "descripcion": "Realizan una visita guiada a un centro de rescate de animales o a un zoológico. Seleccionan 5 tipos de animales diferentes y anotan la cantidad. Consultan a algún encargado del recinto por la historia de animales que hayan sido rescatados. De vuelta de la salida, los estudiantes dibujan un cómic que ilustre las historias recogidas y elaboran una tabla y un gráfico con la cantidad de animales.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 3,
+              "titulo": "Fauna de la casa y actividad humana",
+              "descripcion": "Observan la fauna de la casa y tratan de responder cómo se ve favorecida o no por el actuar humano. Se incluye mascotas y animales parásitos como lauchas, ratón, palomas, pulga, araña de rincón y moscas. Es oportunidad de conversar sobre riesgos en relación a la presencia de animales no deseables en el hogar.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Noticia de descuido del ambiente y predicción sobre la fauna",
+              "descripcion": "El docente solicita a los estudiantes leer una noticia del diario donde se denuncie un caso de descuido del ambiente (incendio forestal, contaminación del mar por petróleo). Los alumnos predicen qué podría suceder con los animales que allí habitan y cómo podría afectar su supervivencia. Anotan sus predicciones en el cuaderno.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Fotografías de procesos industriales y su impacto",
+              "descripcion": "Haciendo uso de internet o a través de otras TIC, observan fotografías sobre actividades o procesos industriales desarrollados por el ser humano como refinerías de petróleo, fundiciones, relaves mineros. Predicen posibles consecuencias para los animales y su hábitat de no existir medidas de control.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Visita a plantas de tratamiento de desechos",
+              "descripcion": "Visitan plantas de tratamiento de desechos como agua servida, unidad de reciclaje, punto limpio. De vuelta a clase, realizan una presentación de su visita a partir de textos y dibujos. Luego reflexionan sobre lo que podría ocurrir si no existieran las plantas de tratamiento de desechos.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Lectura sobre rescate de especie y medios tecnológicos",
+              "descripcion": "A partir de la lectura del profesor de un texto sobre el rescate de una especie y de los medios tecnológicos desarrollados por el ser humano para hacerlo (por ejemplo el oso panda), presentan la información en forma oral al curso.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Video sobre importancia del agua para el planeta",
+              "descripcion": "El docente muestra un video sobre la importancia del agua para el planeta, luego los hace reflexionar con preguntas como: ¿qué importancia tiene el agua para ti? ¿y para la vida en el planeta? Si fueras una autoridad ¿qué decisiones tomarías para conservar este recurso? ¿qué acciones de cuidado puedes llevar a cabo en tu casa y escuela? Escriben las decisiones para debatirlas con el curso.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Investigación sobre mujeres científicas ecologistas",
+              "descripcion": "Los estudiantes guiados por el profesor investigan en diferentes fuentes la vida y acción ecologista de diferentes mujeres científicas: Diane Fossey, Rachel Louise Carson, Jane Goodall, Wangari Muta Maathai. Realizan afiches sintetizando la información encontrada y publicándola en los paneles del colegio.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa las imágenes A y B (imagen A: bosque con árboles frondosos y fauna / imagen B: mismo bosque talado, seco, sin fauna): 1) ¿Qué actividad humana podrá haber ocasionado el cambio de la situación A a la situación B? 2) Menciona un ejemplo que muestre el efecto de la situación B sobre los animales del entorno. 3) Describe tres formas de revertir esta situación. ¿Cuál a tu juicio es la más importante? ¿Por qué?",
+              "indicadores_evaluados": [
+                "Dan ejemplos de productos elaborados por el ser humano que impactan en el ambiente",
+                "Señalan actividades o procesos industriales que impactan en el ambiente",
+                "Expresan en forma oral y escrita observaciones que les llaman la atención",
+                "Explican los fenómenos o eventos que se plantean, utilizando las ideas que poseen"
+              ],
+              "criterios": [
+                "Demuestran reconocer que algunas actividades humanas como incendios, contaminación, sequía, tala, producen efectos sobre el hábitat",
+                "Mencionan ejemplos que ilustran que el deterioro del hábitat afecta los animales por ejemplo escasez de alimento o de refugio",
+                "Comunican y reflexionan sobre formas de revertir la situación: forestar el lugar, mejorar los sistemas de regadío"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_9",
+          "eje": "Ciencias Físicas y Químicas",
+          "descripcion": "Observar y describir, por medio de la investigación experimental, algunas características del agua, como la de: escurrir / adaptarse a la forma del recipiente / disolver algunos sólidos, como el azúcar y la sal / ser transparente e inodora / evaporarse y congelarse con los cambios de temperatura.",
+          "indicadores_evaluacion": [
+            "Dan ejemplos del escurrimiento del agua prediciendo su comportamiento",
+            "Describen, por medio de la observación, las diferentes apariencias en que se encuentra el agua en el entorno",
+            "Demuestran experimentalmente variadas formas que adopta el agua según el recipiente que la contiene",
+            "Predicen la capacidad que posee el agua de disolver o no diferentes sustancias como la sal y el azúcar",
+            "Registran información sobre las características del agua",
+            "Observan los cambios del agua líquida en sólida o vapor",
+            "Comunican y representan en forma oral y escrita las observaciones realizadas sobre las características del agua"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Experimento: escurrimiento del agua por distintos materiales",
+              "descripcion": "Realizan actividades experimentales: a) Reciben el agua de la llave con manos extendidas y dedos separados, y luego con manos en forma de cucharón. Registran observaciones y describen el comportamiento del agua. b) Disponen de tres vasos plásticos con orificios en su base: primer vaso con tierra seca, segundo con arena seca, tercero con piedrecillas. Agregan agua en cantidades iguales a cada vaso, observan lo que ocurre, toman el tiempo que demora en escurrir y grafican los datos. c) Definen por escrito lo que entienden por 'escurrimiento del agua'.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c",
+                "OA_d",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Experimento: formas que adopta el agua en distintos recipientes",
+              "descripcion": "Seleccionan recipientes de diferentes tamaños y formas. Agregan cantidades iguales de agua en cada recipiente. Marcan el nivel del agua en el envase. Observan la forma que adopta el agua en cada recipiente, registrando por escrito y con diagramas o dibujos. Responden preguntas como: ¿en qué se parecen y diferencian los recipientes según la cantidad de agua? Formulan conclusiones sobre la forma que adopta el agua al ser incorporada en otros recipientes.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Experimento: poder disolvente del agua (sal, azúcar, leche, harina, aceite, vinagre, alcohol)",
+              "descripcion": "Disponen de cuatro recipientes transparentes iguales con cantidades iguales de agua. Agregan: primer recipiente una cucharada de sal, segundo de azúcar, tercero de leche en polvo, cuarto de harina. Revuelven con una cucharita. Observan y registran en cuadernos mediante dibujos, respondiendo preguntas sobre aspecto del producto. El docente introduce el significado del término 'disolver'. Luego repiten los procedimientos con aceite, vinagre y alcohol. Registran sus observaciones.",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Demostración práctica del concepto 'disolver'",
+              "descripcion": "Los estudiantes demuestran que saben el concepto 'disolver' en forma experimental y luego lo definen con sus palabras.",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Experimento: agua transparente e inodora",
+              "descripcion": "a) Agregan agua en un recipiente transparente hasta antes del tope. Huelen el agua y registran si posee olor propio o no. b) Observan a través del recipiente con agua, objetos o figuras que se encuentren del otro lado. Describen su apariencia. c) En grupos de dos, abren la llave del agua y detrás del escurrimiento del agua prenden una linterna. El segundo estudiante se posiciona delante y observa si se ve la luz. Registran observaciones. d) Elaboran dibujos que muestran la experiencia y los presentan a sus compañeros.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Definición propia de 'transparente' e 'inodoro'",
+              "descripcion": "Los estudiantes definen con sus palabras los conceptos de transparente e inodoro y se lo explican a su compañero, quien debe anotar un ejemplo.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Experimento: evaporación del agua en distintas condiciones",
+              "descripcion": "Los alumnos en un día de sol observan piedras previamente mojadas y reflexionan: ¿el agua se secó, voló, desapareció? El profesor orienta hacia preguntas más científicas: ¿cómo desapareció el agua? ¿en qué condición desaparece más rápidamente? En grupos pequeños experimentan para encontrar respuestas a la velocidad de evaporación con: recipientes con o sin tapa, platos hondos o bajos, expuestos al sol o a la sombra, o sobre una estufa. Registran resultados mediante representaciones gráficas.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Experimento: estados físicos del agua - hielo, líquido, evaporación",
+              "descripcion": "a) Extraen cubos de hielo y los depositan en un platillo. Observan su constitución y apariencia. Registran observaciones. b) Dejan en reposo los cubos de hielo sobre el platillo durante un tiempo y observan eventuales cambios. Registran observaciones. c) Comparan la apariencia del agua en forma sólida y forma líquida. Establecen similitudes y diferencias y las registran. d) Dejan el platillo con el agua sin intervención por algunos días. Previamente formulan inferencias sobre qué le ocurrirá al agua. Después de un tiempo significativo, vuelven a observar el estado del agua y registran sus observaciones. e) Elaboran dibujos que muestren cada una de las etapas como se presentó el agua (sólida, líquida y 'desaparecida'). El docente orienta introduciendo el término 'evaporación'.",
+              "habilidades": [
+                "OA_a",
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Asociación de características del agua con situaciones cotidianas",
+              "descripcion": "El docente presenta una lista de diferentes situaciones cotidianas donde existe participación directa del agua: regar el jardín, hervir agua para un té, ducha con agua caliente que empaña vidrios, agregar agua a un recipiente para preparar jugo en polvo, agregar café y azúcar al agua, lavado y tendido de ropa. Los estudiantes escriben al lado de cada situación la característica más apropiada del agua que ilustra cada hecho (escurrir, adaptarse a la forma del recipiente, disolver algunos sólidos, ser transparente e inodora, evaporarse y congelarse).",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Investigación y exposición sobre imágenes de características del agua",
+              "descripcion": "Investigan en diferentes fuentes (diarios, revistas, internet) imágenes donde se manifiestan diferentes características del agua; las recortan o copian dibujándolas en papel o por medio de TIC o software 'paint'. Exponen ante el curso las características encontradas. Finalmente los estudiantes comparan la información de cada exposición y construyen una única presentación del curso.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 11,
+              "titulo": "Afiche por grupo sobre una característica del agua",
+              "descripcion": "El docente forma cinco grupos. A cada grupo se le asigna por sorteo una característica del agua: escurrir / adaptarse a la forma del recipiente / disolver sólidos / ser transparente e inodora / evaporarse y congelarse. Luego cada grupo indaga situaciones cotidianas donde se manifiesta la característica asignada. Construyen un afiche con dibujos que ilustren las características encontradas y montan una pequeña exposición o presentación con TIC.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "a) Relaciona con líneas los elementos de las tres columnas (columna 1: imágenes de cubos de hielo, vaso de agua, vapor/aire / columna 2: Agua líquida, Agua gaseosa, Agua sólida / columna 3: Escurre, Disuelve la sal, Parte del aire, Toma forma del recipiente, Se puede derretir). b) Elabora una lista detallada de cinco ejemplos del entorno que muestre las características o utilidad del agua descrita en la columna derecha de la actividad anterior.",
+              "indicadores_evaluados": [
+                "Dan ejemplos del escurrimiento del agua prediciendo su comportamiento",
+                "Describen las diferentes apariencias en que se encuentra el agua en el entorno",
+                "Predicen la capacidad que posee el agua de disolver o no diferentes materiales del entorno",
+                "Comunican y representan en forma oral y escrita las observaciones realizadas sobre las características del agua"
+              ],
+              "criterios": [
+                "Muestran que puede seguir una secuencia para relacionar elementos con sus propiedades",
+                "Demuestran las diferentes apariencias en que se encuentra el agua en el entorno: cubos de hielo - agua sólida - se derrite; vaso de agua - agua líquida - escurre; vaso de agua - agua líquida - disuelve la sal; vaso de agua - agua líquida - toma forma del recipiente; vapor de agua - agua gaseosa - parte del aire",
+                "Muestran que reconocen las características del agua, dando ejemplos de cada una de las propiedades",
+                "Muestran las diferentes apariencias en que se encuentra el agua en el entorno, comunicando en forma oral o escrita ejemplos cotidianos"
+              ]
+            },
+            {
+              "n": 4,
+              "enunciado": "El agua puede ser absorbida por algunas sustancias. Te entregaremos un vaso de plástico con agua y materiales diversos (papel, género, fierro, madera, goma) que se encontrarán en diferentes lugares ocultos del colegio. El juego consiste en seguir el plano para ubicarlos y sumergirlo en el agua del vaso para determinar si el material encontrado es absorbente de agua. a) Marca en el mapa la ubicación de aquellos materiales que absorben agua. b) Anota en el mapa el nombre del material que es absorbente de agua. c) ¿Notas alguna diferencia en la apariencia entre los cuerpos que absorben agua de los otros?",
+              "indicadores_evaluados": [
+                "Comunican y representan en forma oral y escrita las observaciones realizadas sobre las características del agua",
+                "Expresan en forma oral y escrita observaciones que les llaman la atención sobre el evento o fenómeno en estudio"
+              ],
+              "criterios": [
+                "Muestran que puede seguir una secuencia para relacionar elementos con sus propiedades",
+                "Demuestran que pueden hacer inferencias o predicciones sobre un fenómeno relacionado con el agua y pueden verificarlas por medio de una exploración experimental guiada"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_10",
+          "eje": "Ciencias Físicas y Químicas",
+          "descripcion": "Identificar y comparar, por medio de la exploración, los estados sólido, líquido y gaseoso del agua.",
+          "indicadores_evaluacion": [
+            "Describen, mediante la exploración, los estados físicos del agua",
+            "Dan ejemplos de los estados sólido, líquido y gaseoso del agua en el entorno",
+            "Describen similitudes y diferencias entre los diferentes estados sólido, líquido y gaseoso del agua",
+            "Realizan experimentos de los estados físicos del agua",
+            "Comunican y representan información y resultados obtenidos de experimentos sobre los estados del agua"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Selección de imágenes de estados físicos del agua",
+              "descripcion": "Seleccionan desde diferentes fuentes (internet, libros, revistas) imágenes de los diversos estados físicos del agua en el entorno. Los rotulan y exponen ante sus compañeros. Comparan cada uno de los estados físicos del agua indicando diferencias a partir de la observación de las imágenes.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Identificación del estado del agua en distintas situaciones",
+              "descripcion": "Identifican, ilustran mediante dibujos y rotulan el estado en que se encuentra el agua en las siguientes situaciones: cuando sale de la llave / cuando se encuentra en un cubo de hielo / cuando está en el aire y no se ve. Luego observan en un mapa lugares donde hay depósitos de agua líquida y sólida.",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 3,
+              "titulo": "Experimento: hielo - agua líquida - evaporación",
+              "descripcion": "a) Extraen cubos de hielo del congelador, los observan y manipulan registrando características. Depositan en un plato un cubo de hielo y lo dejan expuesto al Sol o cercano a un calefactor. Después de un tiempo observan y registran el estado del agua. b) Una vez que el cubo se presenta como agua líquida, los estudiantes la miden y se desplazan al patio donde la esparcen en el suelo. Esperan unos minutos y observan. El docente refuerza el término 'evaporación'. c) En grupos elaboran un esquema escrito que muestre los estados físicos del agua (sólido, líquido y gaseoso) en cada una de las etapas del experimento realizado. Comparan y exponen sus esquemas ante el curso.",
+              "habilidades": [
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Mapa de Chile con agua líquida y sólida",
+              "descripcion": "Utilizan un mapa de Chile para mostrar lugares donde se encuentran grandes cantidades de agua en estado líquido y en estado sólido. Elaboran un dibujo de alguna parte de Chile que conozcan, identifican la presencia de agua y rotulan la presencia y el estado físico en que se encuentra. Finalmente el docente muestra imágenes del norte, centro y sur del país para que los estudiantes opinen sobre la presencia de agua y en qué estado se encuentra.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Tabla de estados físicos: nieve, lluvia, lagos, glaciares, nubes, mares",
+              "descripcion": "Escriben dos columnas en su cuaderno. La primera contiene: nieve, lluvia, lagos, glaciares, nubes, mares, océanos, aire. La segunda contiene: 'agua en estado...' sólido, líquido y gaseoso. Los estudiantes unen con una flecha el estado físico en que se encuentra el agua en cada situación. Luego exponen sus resultados ante el curso reforzando o corrigiendo cada relación. Finalmente responden preguntas sobre otros ejemplos del agua en diferentes estados y por qué es importante que el agua se encuentre en diferentes estados en el entorno.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Tabla de propuesta: hielo, nube, nieve, neblina, río, mar, iceberg",
+              "descripcion": "Los estudiantes reciben una tabla con una columna de propuesta y dos de respuesta (líquido o sólido). Las propuestas son: hielo, nube, nieve, neblina, río, mar, iceberg. Se juntan las respuestas en la pizarra en forma de conteo y se debate cada respuesta. Clasifican en qué estados físicos (líquido o sólido) se encuentra el agua.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Selección de imágenes de paisajes y presencia de agua en distintos estados",
+              "descripcion": "El docente solicita seleccionar en diferentes fuentes (diarios, revistas, internet) al menos 5 imágenes de diferentes lugares del entorno (paisajes, ciudades, habitaciones de casa, cocina, baño). Recortan o dibujan las imágenes en su cuaderno. Las analizan detenidamente, identifican dónde hay presencia de agua y en qué estado físico se encuentra. Rotulan y registran en cada imagen la presencia y estado físico del agua. Exponen al curso explicando y argumentando sus rótulos.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Listado de aparatos del hogar con agua líquida",
+              "descripcion": "Construyen un listado de aparatos, artefactos o recipientes presentes en sus casas donde existe almacenada agua en estado líquido. Al lado de cada listado elaboran un pequeño dibujo que ilustra el aparato o artefacto. Exponen visual y oralmente sus registros ante sus compañeros y discuten para qué se utiliza el agua en cada caso. Argumentan por qué los aparatos mencionados no pueden utilizar agua en estado sólido o gaseoso.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 9,
+              "titulo": "Investigación sobre la importancia de los estados físicos del agua",
+              "descripcion": "Investigan, guiados por el docente, en internet, libros, revistas la importancia y utilidad de los estados sólido, líquido y gaseoso del agua para el ambiente y los seres vivos. Elaboran dibujos en su cuaderno o mediante software de dibujo que ilustren las utilidades encontradas. Discuten en grupos pequeños y comunican por medio de dibujos y en forma oral la utilidad del agua para los seres humanos en sus diferentes estados (ejemplo: agua en estado sólido como refrigerante).",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": []
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "semestre": 2,
+      "titulo": "Ciclo del agua, tiempo atmosférico y estaciones del año",
+      "horas_pedagogicas": 24,
+      "proposito": "En esta unidad se espera que los estudiantes aprendan las características del agua, del tiempo atmosférico y de las estaciones del año. Lo primero incluye las fases del ciclo del agua, las situaciones de ahorro y malgasto de la misma y la importancia general de este recurso para los seres vivos. En el tiempo atmosférico se incorporan fenómenos como cambios de temperatura, precipitaciones, vientos y sus diversas interrelaciones. Por su parte, en las estaciones del año, se incluyen las relaciones de estas con el tiempo atmosférico y con el resto de los seres vivos.",
+      "conocimientos_previos": [
+        "Características y necesidades de los seres vivos",
+        "Materiales y sus propiedades",
+        "Uso y aplicación de diferentes materiales",
+        "Diferencias entre el día y la noche"
+      ],
+      "palabras_clave": [
+        "ciclo del agua",
+        "tiempo atmosférico",
+        "lluvia",
+        "nieve",
+        "viento",
+        "temperatura",
+        "termómetro",
+        "pluviómetro",
+        "veleta",
+        "estaciones del año",
+        "condiciones climáticas"
+      ],
+      "conocimientos": [
+        "Ciclo del agua en la naturaleza",
+        "Situaciones de ahorro y malgasto de agua",
+        "Importancia del agua para los seres vivos incluido el ser humano",
+        "Características del tiempo atmosférico",
+        "El termómetro en relación a su utilidad y su uso como instrumento de medición",
+        "Factores del tiempo atmosférico en términos de los cambios de temperatura, las precipitaciones y el viento entre otros fenómenos",
+        "Estaciones del año y su relación con el tiempo atmosférico",
+        "Estaciones del año y la relación con los seres vivos"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar un estilo de trabajo riguroso y perseverante para lograr los aprendizajes de la asignatura",
+        "Asumir responsabilidades e interactuar en forma colaborativa en los trabajos en equipo aportando y enriqueciendo el trabajo común"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_11",
+          "eje": "Ciencias de la Tierra y el Universo",
+          "descripcion": "Describir el ciclo del agua en la naturaleza, reconociendo que el agua es un recurso preciado y proponiendo acciones cotidianas para su cuidado.",
+          "indicadores_evaluacion": [
+            "Identifican la localización del agua sobre el planeta Tierra",
+            "Explican que los seres vivos están constituidos de agua",
+            "Describen los movimientos del agua sobre la superficie terrestre",
+            "Realizan esquemas rotulados sobre el ciclo del agua",
+            "Representan y comunican acciones que promueven el cuidado y uso responsable del agua"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Registro de lugares de la Tierra que contienen agua",
+              "descripcion": "El docente registra en la pizarra, a partir de los conocimientos que poseen los alumnos, todos los lugares de la Tierra que contienen agua. El profesor reparte un esquema con un perfil de la Tierra desde el mar hasta los cerros donde los alumnos dibujan, colorean y rotulan los lugares descritos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "¿Qué saben sobre el agua? - lista colectiva e importancia",
+              "descripcion": "El docente formula las preguntas: ¿qué saben sobre el agua? ¿dónde se encuentra? En la pizarra, cada estudiante escribe su respuesta construyendo entre todo el curso una lista. Luego los estudiantes reflexionan sobre la lista construida y la revisan, relacionando cada término o respuesta con la importancia del agua para la vida humana y de todos los seres vivos. Escriben en su cuaderno la lista elaborada y las principales ideas de la importancia del agua.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Experimento: presencia de agua en los seres vivos",
+              "descripcion": "El docente lee un texto sobre la relación del agua con los seres vivos, luego formula la pregunta: ¿Los seres vivos tienen agua? Demuestran la presencia de agua en los seres vivos con el siguiente experimento: a) Calientan un pedazo de carne, luego le colocan un vidrio frío arriba y observan la presencia de agua condensada. b) Usando una bolsa de plástico transparente encierran una planta o sus hojas para evidenciar el depósito de agua por transpiración. c) Finalmente escriben en sus cuadernos la importancia del agua para los seres vivos, destacándola como un recurso preciado para todos.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Ubicación del agua en imágenes de paisajes con montañas, ríos y mar",
+              "descripcion": "Ubican en imágenes de paisajes que incluyan montañas, planicies, ríos y mar las diversas formas en que se presenta el agua. Rotulan las diversas formas y las presentan al docente. Responden preguntas como: ¿en qué se parecen o diferencian las diversas formas en que se presenta el agua? ¿dónde crees que existe mayor cantidad de agua?",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Experimento: ¿qué pasa con el agua de las precipitaciones?",
+              "descripcion": "Se plantea la pregunta: ¿Qué pasa con el agua de las precipitaciones? Ponen agua en un macetero o en el jardín, evidencian que parte del agua escurre. Otra parte 'desaparece' en la tierra. Con un montaje sencillo realizado con un embudo tapado con algodón (sin apretar) y tierra seca vierten una cantidad determinada de agua por el embudo. Al otro lado del embudo reciben el agua extra y miden. Comparan con la cantidad de agua vertida para evidenciar qué parte del agua se quedó en la tierra. Ubican el fenómeno en el esquema del ciclo del agua.",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_a"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Ejemplos de ciclos en máquinas y animales - definición de ciclo",
+              "descripcion": "Los estudiantes guiados por el profesor piensan y anotan ejemplos de 'ciclos' diferentes en máquinas y en los animales. A partir de los ejemplos definen con sus palabras lo que entienden por ciclo y responden la pregunta ¿un ciclo es infinito?",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Imágenes de paisajes con agua: montañas con nieve, glaciares, mares, ríos",
+              "descripcion": "Revisan en internet (imágenes seleccionadas por el profesor), revistas, periódicos u otros medios imágenes de diversos paisajes que contengan montañas con nieve, glaciares, mares, ríos, lagos. Describen las características de la imagen obtenida y la registran en su cuaderno. Ubican las zonas donde se evidencia la presencia de agua. Con ayuda del docente, los estudiantes formulan eventuales relaciones existentes entre las diversas zonas de agua que se muestran en las imágenes (ej: el agua del río se relaciona con el mar porque la primera desemboca en la segunda). Registran en su cuaderno cada una de las relaciones encontradas. Finalmente indican con flechas los movimientos y relaciones del agua en la imagen. El docente muestra que los movimientos y relaciones del agua reciben el nombre de 'ciclo del agua'.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Experimento demostrativo del ciclo del agua (tetera + azulejo frío)",
+              "descripcion": "El docente realiza el siguiente experimento demostrativo: a) Calienta agua en una tetera eléctrica y al momento de hervir le abre la tapa para que el vapor salga. b) Por encima de la tetera ubica una botella plástica fría (conteniendo hielo) o un azulejo de baño o cocina. c) Observan que bajo el azulejo o botella se depositan gotitas, que luego se caen como lluvia. d) Los estudiantes dibujan el sistema montado por el docente y registran sus observaciones. Los estudiantes discuten en grupos pequeños e investigan sobre el fenómeno observado y lo ubican en el esquema del ciclo del agua respondiendo preguntas como: ¿en qué parte de la naturaleza puedes observar cada una de las etapas que experimenta el agua en el sistema montado? ¿tiene, según tu opinión, relación el sistema montado con el ciclo del agua? ¿por qué?",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Dibujos del ciclo del agua en el hogar",
+              "descripcion": "Dibujan situaciones de su hogar donde se puede apreciar parte del ciclo del agua. Presentan sus dibujos compartiéndolos, argumentando y discutiendo en grupos pequeños qué partes del ciclo del agua descubrieron. Comparan los ejemplos registrados con lo que se observa en la naturaleza y establecen diferencias y similitudes. Las registran en sus cuadernos.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Imágenes de ahorro y malgasto del agua en actividades cotidianas",
+              "descripcion": "El docente expone diferentes imágenes donde se muestran personas utilizando agua para diferentes actividades. Los estudiantes analizan y comparan las imágenes detenidamente y 'completan' la situación indicando una forma de ahorro de agua en dicha actividad y una forma de malgasto del recurso. Registran en su cuaderno la situación de ahorro y malgasto de agua presentada en las imágenes. Exponen sus registros al curso mediante software de presentación u otro medio.",
+              "habilidades": [
+                "OA_a",
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 11,
+              "titulo": "Representaciones teatrales o juegos de rol sobre el agua",
+              "descripcion": "A partir de la lectura del docente sobre textos relacionados con el agua, su importancia y cuidado, los estudiantes realizan representaciones teatrales o juegos de rol en grupos de cinco estudiantes, donde muestren: a) Situaciones de ahorro y malgasto de agua. b) Ciclo del agua. c) Importancia del agua para los seres vivos incluido el ser humano. Exponen la representación ante el curso o colegio como parte de actividades desarrolladas para, por ejemplo, 'la semana del cuidado del agua'.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "Observa el siguiente dibujo (paisaje con montañas, nieve, ríos, lagos, nubes, mar): a) Identifica todas aquellas zonas donde existe presencia de agua. b) Indica mediante flechas, los movimientos del agua y el ciclo del agua. c) Escribe, en media página de tu cuaderno, un relato de una gota de agua en el ciclo del agua. d) Comunica dos formas de ahorro de agua que apliques en tu casa y la escuela.",
+              "indicadores_evaluados": [
+                "Describen los movimientos del agua sobre la superficie terrestre",
+                "Realizan esquemas rotulados sobre el ciclo del agua",
+                "Representan y comunican acciones que promueven el cuidado y uso responsable del agua",
+                "Registran en forma escrita sus ideas, observaciones y experiencias sobre las investigaciones simples que realizan",
+                "Relatan en forma oral y escrita las experiencias desarrolladas"
+              ],
+              "criterios": [
+                "Demuestran que reconocen las zonas donde existe agua (lago, río, mar, nubes y aire)",
+                "Trazan y ordenan flechas que indican los movimientos del agua destacando el ciclo del agua",
+                "Evidencian que comprenden el movimiento del agua como ciclo en la superficie de la Tierra, relatando por escrito en media página y utilizando vocabulario apropiado",
+                "Muestran que reconocen la importancia del agua como recurso preciado y la necesidad de cuidarla, comunicando en forma oral o escrita formas de ahorro del agua potable en su casa y la escuela"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_12",
+          "eje": "Ciencias de la Tierra y el Universo",
+          "descripcion": "Reconocer y describir algunas características del tiempo atmosférico, como precipitaciones (lluvia, granizo, nieve), viento y temperatura ambiente, entre otras, y sus cambios a lo largo del año.",
+          "indicadores_evaluacion": [
+            "Describen fenómenos naturales relacionados con el tiempo atmosférico, tales como diferentes tipos de precipitaciones, temperatura, vientos, nubosidad",
+            "Comparan el tiempo atmosférico en las diferentes estaciones del año",
+            "Relacionan la presencia de nieve con la sensación de frío",
+            "Relacionan los días de lluvia con la presencia de nubes",
+            "Dan ejemplos de los efectos producidos por el viento",
+            "Comunican oralmente y mediante dibujos, los cambios que experimenta el tiempo atmosférico a lo largo del año",
+            "Conocen sobre las interpretaciones que daban los pueblos precolombinos a los fenómenos del tiempo atmosférico"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Clasificación de imágenes de personas en distintas condiciones climáticas",
+              "descripcion": "Conformados en grupos, buscan en revistas en desuso imágenes que muestren a gente en la playa bañándose, en la nieve, bajo la lluvia o en un día nublado. Recortan las imágenes, las clasifican según lo que representan y las pegan en una cartulina. Discuten entre ellos en qué situación hace más o menos calor, si se observa alguna precipitación o alguna evidencia en que haya viento. Anotan para cada imagen las características del tiempo y la comparten con sus compañeros.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Mapa de Chile marcando características del tiempo atmosférico por zona",
+              "descripcion": "Utilizando un mapa del país, se les solicita marcar en forma individual regiones o sectores donde: hay nieve / hace frío / en el día hace mucho calor / llueve con frecuencia / casi siempre está nublado / casi siempre está despejado / hay mucho viento. Luego el docente conforma grupos para comparar sus respuestas y marcar un nuevo mapa que represente sus conclusiones. Por último, el docente señala que las características que han trabajado corresponden a lo que se denomina tiempo atmosférico.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 3,
+              "titulo": "Dibujo de día soleado y día con lluvia",
+              "descripcion": "Representan en un dibujo un día soleado y uno con lluvia. Describen en cada caso las diferencias que se manifiestan en términos de la presencia de nubes y calor.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Programa de TV sobre pronóstico del tiempo",
+              "descripcion": "El docente les muestra un programa de TV en que se pronostica el tiempo en nuestro país. Los estudiantes anotan las palabras utilizadas por el locutor que no conocen. El docente las registra en la pizarra y explica su significado.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Cómic con experiencias vividas en distintas condiciones climáticas",
+              "descripcion": "Dibujan un cómic de tres o cuatro escenas donde cuenten experiencias que han tenido en alguna de las siguientes situaciones de la vida diaria: bajo una llovizna, en un aguacero, en la nieve, en un temporal de viento, en una granizada, en la playa o piscina. Para la situación elegida el docente solicita que la relacionen con la estación en que vivieron la experiencia. Presentan su cómic al curso y se refieren a las condiciones climáticas de la historieta.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Lugares de Chile con gran presencia de nieve y glaciares - predicciones con aumento de temperatura",
+              "descripcion": "Buscan en internet lugares del país donde hay gran presencia de nieve, glacial y hielos eternos. A partir de esa información describen el tipo de precipitación que se da mayoritariamente en esos lugares (nevazón o lluvia). Predicen lo que ocurriría si en aquellos lugares aumentara la temperatura.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Relatos sobre experiencias con fuerte viento",
+              "descripcion": "Relatan ante el curso situaciones en que han experimentado la acción de un fuerte viento y describen oralmente el efecto de este sobre las personas y las plantas.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Identificación en calendario de meses con lluvia, sol, calor y frío",
+              "descripcion": "Identifican en el calendario y para su región, los meses del año donde hay un número mayor de días con: Lluvia / Sol / Calor / Frío. A partir de esa información comparan esos meses con las estaciones del año y relatan la relación entre clima y estación. ¿Cuál es la importancia de cada una de las estaciones del año para los seres vivos?",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Calendario en formato grande con pictogramas del clima diario",
+              "descripcion": "Realizan un calendario en formato grande, incluyendo fechas e informaciones relativas al tiempo diario en su localidad, con pictogramas que se pueden despegar (con masilla adhesiva o velcro). En rotativa, cada alumno tiene que informar del clima diario.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Entrevista a padres sobre el programa 'El tiempo' en TV",
+              "descripcion": "Realizan una entrevista a sus padres o un adulto acerca del por qué todas las noches ven el programa 'El tiempo' en la TV o por qué hoy es tan utilizado el programa que informa sobre el tiempo en el teléfono o computador. Anotan la información recogida y la comparten en clase con sus compañeros. El docente escribe en la pizarra un resumen de la información recogida como curso y solicita a los estudiantes reflexionar para dar una explicación acerca de la importancia de conocer de antemano el tiempo atmosférico.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 11,
+              "titulo": "Leyendas o cuentos precolombinos sobre el tiempo atmosférico",
+              "descripcion": "Los estudiantes escuchan leyendas o cuentos relacionados con la interpretación que daban las culturas precolombinas a los fenómenos del tiempo atmosférico.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa la siguiente imagen (cuatro escenas que representan distintas estaciones del año): a) ¿A qué estación del año corresponde cada una? Traza una línea entre la imagen y el nombre de la estación correspondiente (Verano, Otoño, Invierno, Primavera). b) Dibuja una actividad que puedes hacer al aire libre en el verano y otra en el invierno.",
+              "indicadores_evaluados": [
+                "Describen fenómenos naturales relacionados con el tiempo atmosférico",
+                "Comparan el tiempo atmosférico durante las diferentes estaciones del año",
+                "Relacionan los días de lluvia con la existencia de nubes",
+                "Explican los fenómenos o eventos que se plantean u observan"
+              ],
+              "criterios": [
+                "Demuestran que reconocen la relación de las características meteorológicas típicas y el nombre de la estación del año",
+                "Muestran que comprenden los fenómenos naturales relacionados con el tiempo atmosférico a partir de un dibujo sobre una actividad realizada en verano y en invierno, asociando por ejemplo la sensación de frío, nieve o lluvia al invierno"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_13",
+          "eje": "Ciencias de la Tierra y el Universo",
+          "descripcion": "Medir algunas características del tiempo atmosférico, construyendo y/o usando algunos instrumentos tecnológicos útiles para su localidad, como termómetro, pluviómetro o veleta.",
+          "indicadores_evaluacion": [
+            "Describen la forma de utilizar un termómetro ambiental para comparar la temperatura entre el día y la noche",
+            "Explican el uso que se le da a un termómetro ambiental, un pluviómetro y una veleta",
+            "Construyen instrumentos útiles para su localidad como pluviómetro y veleta para medir algunas características del tiempo atmosférico",
+            "Miden la temperatura y el agua caída por lluvias y registran sus datos",
+            "Relacionan la dirección del viento con el movimiento de las ramas de un árbol o banderas"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Imágenes de distintos tipos de termómetros y preguntas predictivas",
+              "descripcion": "El docente muestra a sus estudiantes imágenes de distintos tipos de termómetros y les explica que son instrumentos que permiten medir y comparar la temperatura de los objetos y del ambiente; que la medición se hace por medio de valores que el termómetro indica, de modo que si hace calor el termómetro marca un valor mayor a que si hace frío. Luego les pide a los estudiantes que contesten las siguientes preguntas: ¿en qué caso un termómetro marcará mayor temperatura? ¿en la noche o en el día? ¿en la nieve o en la playa? ¿en invierno o en verano? ¿sumergido en agua con hielo o en agua caliente? Para cada situación los estudiantes comparan sus respuestas y llegan a un consenso.",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Lista de eventos donde se usa un termómetro",
+              "descripcion": "Realizan una lista de eventos en que se usa un termómetro para medir la temperatura (por ejemplo cuando se está enfermo, al medir la temperatura ambiente en alguna hora, controlar la temperatura del horno de la casa). Agregan a la lista los cuidados que se deben tener al manipular un termómetro de vidrio. Exponen oralmente la lista y la complementan al escuchar a sus compañeros.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Medición de temperatura ambiente con termómetro a la sombra",
+              "descripcion": "Utilizan un termómetro para medir la temperatura ambiente a la sombra, expresándola en grados Celsius. Con la ayuda del docente responden preguntas como: ¿Por qué la temperatura ambiente se debe medir a la sombra? ¿Es útil cualquier termómetro para medirla? Finalmente en forma individual responden: ¿qué puedes concluir de la experiencia?",
+              "habilidades": [
+                "OA_c",
+                "OA_e"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Medición de temperatura a lo largo de una o dos semanas",
+              "descripcion": "A lo largo de una o dos semanas, miden la temperatura ambiente a la sombra a la misma hora. El profesor transforma los datos en un gráfico. En relación con el trabajo realizado en matemática, acerca a los alumnos a la lectura de gráficos con preguntas sencillas tales como '¿qué temperatura tuvimos el jueves?'",
+              "habilidades": [
+                "OA_c"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Diseño y construcción de pluviómetro artesanal",
+              "descripcion": "En forma de desafío tienen que diseñar, en grupos, una forma de recolectar el agua caída por lluvias y de este modo reinventar el pluviómetro. Ponen en práctica su experimento si el tiempo lo permite midiendo el agua caída. ¿qué elementos debes considerar para tu diseño? ¿cuál de estos elementos es el más importante?",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Construcción de veleta con materiales cotidianos",
+              "descripcion": "Los estudiantes en grupos construyen una veleta utilizando materiales de uso cotidiano: bombillas para beber, lápiz grafito con goma, tarro con tierra, plumón, brújula, cartulina, alfiler, pegamento. Pasos: a) Buscan información sobre qué es una veleta y su función. b) Diseñan la estructura y su forma. c) Arman la veleta fijando en la base los puntos cardinales para determinar la dirección del viento. d) La prueban en pasillos donde se produzcan vientos o en el patio y explican su funcionamiento.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 7,
+              "titulo": "Construcción de mini estación meteorológica escolar",
+              "descripcion": "Construyen una pequeña estación meteorológica para conocer la meteorología del colegio. Se pide a los alumnos traer todos los materiales caseros necesarios para su construcción. Se distribuyen las tareas de la construcción de la estación y formulan junto con el docente un 'Plan' para controlar y cuidar la estación meteorológica y la realización de las mediciones. Una vez terminada la estación, reflexionan y responden preguntas como: ¿Qué dificultades tuviste en la construcción? ¿Cuál es, según tu opinión, la importancia de contar con una estación meteorológica en distintos lugares del país?",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Lectura y resumen de boletín meteorológico del diario",
+              "descripcion": "Traen un boletín meteorológico recortado de un diario y lo leen en forma colectiva. En su cuaderno resumen en forma escrita todas las informaciones que se indicaban en el documento. Realizan una investigación para aclarar las palabras, símbolos o conceptos desconocidos por ellos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "Las figuras representan tres aparatos que permiten determinar alguna característica del tiempo atmosférico. Debajo de ellos hay dos listas: una con el nombre del instrumento y otra con una palabra relacionada con él. Conecta con líneas cada una de las palabras con el nombre y la imagen del instrumento correspondiente. (Imagen 1: termómetro, Imagen 2: veleta, Imagen 3: pluviómetro / Veleta - Termómetro - Pluviómetro / Temperatura - Viento - Lluvia)",
+              "indicadores_evaluados": [
+                "Describen la forma de utilizar un termómetro ambiental para comparar la temperatura entre el día y la noche",
+                "Explican el uso que se le da a un termómetro ambiental, un pluviómetro y una veleta",
+                "Miden la temperatura y el agua caída por lluvias y registran sus datos",
+                "Relacionan la dirección del viento con el movimiento de las ramas de un árbol o banderas",
+                "Exponen el uso correcto y seguro de diferentes instrumentos que utilizan"
+              ],
+              "criterios": [
+                "Demuestran que conocen el nombre y el uso de los instrumentos de medición, asociando los fenómenos atmosféricos con un instrumento. Conectan la imagen 1 con termómetro y temperatura; la imagen 2 con veleta y viento; y la imagen 3 con pluviómetro y lluvia"
+              ]
+            },
+            {
+              "n": 4,
+              "enunciado": "En la sala hay un ventilador prendido que lanza aire en forma de viento. a) Con una veleta ubica el sector que abarca el viento del ventilador. b) Colócate frente al ventilador y luego fuera del viento que produce. ¿En qué lugar sientes más cálido el aire? c) Entonces, ¿dónde crees que hay más temperatura? d) Con el termómetro que te entregará el profesor mide la temperatura en el lugar donde llega el viento impulsado por el ventilador y luego en el lugar donde no llega el viento. Al leer lo que marca el termómetro, ¿qué has descubierto?",
+              "indicadores_evaluados": [
+                "Describen la forma de utilizar un termómetro ambiental para comparar la temperatura",
+                "Explican el uso que se le da a un termómetro ambiental, un pluviómetro y una veleta",
+                "Relacionan la dirección del viento con el movimiento de las ramas de un árbol o banderas",
+                "Exponen el uso correcto y seguro de diferentes instrumentos que utilizan"
+              ],
+              "criterios": [
+                "Demuestran que conoce el nombre y el uso de los instrumentos de medición, asociando los fenómenos atmosféricos con un instrumento",
+                "Demuestra manejar en forma segura los instrumentos de medición",
+                "Demuestra que a partir de preguntas guiadas puede explorar y experimentar"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_14",
+          "eje": "Ciencias de la Tierra y el Universo",
+          "descripcion": "Describir la relación de los cambios del tiempo atmosférico con las estaciones del año y sus efectos sobre los seres vivos y el ambiente.",
+          "indicadores_evaluacion": [
+            "Relacionan el verano con calor y sol; el invierno con frío, nieve y lluvia y el otoño con el viento y la disminución de las horas de luz",
+            "Identifican en un calendario las estaciones del año",
+            "Comparan las estaciones del año en el hemisferio Norte con las del hemisferio Sur del planeta",
+            "Relacionan las diferentes estaciones del año con cambios que en general se producen en las plantas",
+            "Relacionan y comunican en forma escrita o por medio de dibujos los cambios de hábitos alimenticios de ciertos animales con las condiciones desfavorables del invierno (ejemplo: zorro)",
+            "Investigan sobre distintas estrategias de los animales para sobrevivir a las condiciones climáticas desfavorables del invierno (hibernación, migración)"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Dibujo de actividades de verano e invierno - mural colectivo",
+              "descripcion": "Cada estudiante del curso dibuja una actividad que puede hacer al aire libre en el verano y otra que puede hacer en invierno. Los estudiantes reúnen los dibujos del curso y los pegan en paredes opuestas: una para verano y la otra para invierno. Observan durante algunos minutos los dibujos y el docente anota en la pizarra las actividades comunes que los estudiantes descubren en cada estación.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Efecto del clima en las actividades que realizan por estación",
+              "descripcion": "Luego del mural, el docente les solicita que expliquen de qué forma el clima afecta a las actividades que realizan en esos períodos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Características del clima en invierno - región y extremos del país",
+              "descripcion": "Constituidos en grupos, señalan algunas características del clima en invierno en su región. Investigan sobre lo que ocurre en regiones del extremo del país, establecen similitudes y diferencias para luego presentarlas al grupo curso.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Primavera y otoño en el calendario - entrevista a padres sobre características del clima",
+              "descripcion": "En un calendario en papel o por medio de TIC, indican los meses en que nos encontramos en primavera y en cuáles en otoño. Entrevistan a sus padres o algún adulto para que les cuenten sobre las características del tiempo atmosférico en esos meses del año. Comparten los resultados con sus compañeros de curso.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Comparación de estaciones con colegio del hemisferio Norte vía internet",
+              "descripcion": "Revisan en internet recursos seleccionados por el profesor como imágenes de paisajes con diferentes climas, vestimenta, costumbres y otras características. Luego establecen contacto (vía internet) con un colegio del hemisferio norte, intercambian ideas sobre el tema de las estaciones mediante cuestionarios sobre: vestimenta, clima, vacaciones y períodos escolares, contexto climático de eventos anuales como Navidad. Comparan la información de las imágenes con las recogidas a partir del contacto con el colegio del hemisferio norte. Finalmente explican el motivo de las diferencias o similitudes.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Descripción de árboles frutales de hoja caduca en cada estación",
+              "descripcion": "Describen en forma oral las características de varios árboles frutales de hoja caduca (durazno, manzana, ciruelo) que tienen en cada una de las estaciones del año, a partir de láminas o fotografías presentadas por el profesor. Luego relacionan esas fechas con la abundancia o escasez de sus frutos.",
+              "habilidades": [
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Mapas de pronósticos por estaciones del año - gráficos de temperatura",
+              "descripcion": "El docente proporciona a los estudiantes mapas de pronósticos publicados en diferentes estaciones del año en un periódico de circulación nacional. Elaboran tablas con las temperaturas y guiados por el docente elaboran gráficos de barra. En base a esa información, los estudiantes comparan las condiciones climáticas de diferentes regiones en las mismas épocas del año, identificando los meses de máxima temperatura y aquellos de mínima temperatura.",
+              "habilidades": [
+                "OA_a"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 8,
+              "titulo": "Comparación de vestimentas en las distintas estaciones",
+              "descripcion": "A partir de imágenes de internet o de revistas, comparan tipos de vestimentas que se utilizan en otoño, invierno, primavera y verano y fundamentan, en base a las características del clima, su uso en esos períodos.",
+              "habilidades": [
+                "OA_b",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 9,
+              "titulo": "Texto sobre cambios de estaciones y efectos en los seres vivos",
+              "descripcion": "El docente da lectura a un breve texto relacionado con los cambios de estaciones y su efecto sobre los seres vivos. Luego organiza a los estudiantes en grupos para que reflexionen e indaguen sobre los efectos que producen en el comportamiento de los animales los cambios de estaciones: la hibernación, la migración de aves, en la reproducción, las actividades de los insectos, entre otros. Construyen posters y los publican en su diario mural o en algún medio digital utilizando TIC.",
+              "habilidades": [
+                "OA_a",
+                "OA_e"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 10,
+              "titulo": "Fotos del colegio o entorno en cada estación - registro de frutas y verduras",
+              "descripcion": "Toman fotos del colegio o su entorno enfocándose en animales y plantas en cada estación. Registran frutas y verduras disponibles en la feria o supermercado. A final del año, ubican en el calendario circular (hecho en hoja de tamaño cartulina) fotos de hortalizas disponibles en cada estación. Reflexionan: ¿qué dificultades encontraste durante el desarrollo de la actividad? ¿cómo resolviste las dificultades? Si tuvieras que realizar nuevamente la experiencia, ¿qué elementos modificarías? ¿Por qué?",
+              "habilidades": [
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": []
+        }
+      ]
+    }
+  ]
+}

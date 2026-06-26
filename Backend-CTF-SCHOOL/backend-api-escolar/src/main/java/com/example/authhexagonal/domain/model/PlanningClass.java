@@ -32,6 +32,7 @@ public record PlanningClass(
         LocalDateTime updatedAt,
         List<PlanningClassDocument> documents,
         List<UUID> curriculumObjectiveIds,
-        List<CurriculumObjective> curriculumObjectives
+        List<CurriculumObjective> curriculumObjectives,
+        List<PlanningClassObjectiveSelection> objectiveSelections
 ) {
 }

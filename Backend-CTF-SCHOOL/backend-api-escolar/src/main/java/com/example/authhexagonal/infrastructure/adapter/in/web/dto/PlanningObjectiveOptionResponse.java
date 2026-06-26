@@ -5,6 +5,7 @@ import com.example.authhexagonal.domain.model.PlanningObjectiveOption;
 import java.util.List;
 
 public record PlanningObjectiveOptionResponse(
+        String id,
         String code,
         String label,
         String description,
@@ -15,6 +16,7 @@ public record PlanningObjectiveOptionResponse(
 ) {
     public static PlanningObjectiveOptionResponse fromDomain(PlanningObjectiveOption option) {
         return new PlanningObjectiveOptionResponse(
+                option.id(),
                 option.code(),
                 option.label(),
                 option.description(),

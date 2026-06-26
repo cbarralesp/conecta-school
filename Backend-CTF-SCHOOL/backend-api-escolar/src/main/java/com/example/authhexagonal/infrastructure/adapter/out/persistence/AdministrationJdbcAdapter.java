@@ -55,6 +55,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             "CALIFICACIONES",
             "ACTIVIDADES",
             "CONTENIDO",
+            "PLANIFICACIONES",
             "PLANIFICACION",
             "USUARIOS",
             "ROLES",
@@ -72,6 +73,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             Map.entry("CALIFICACIONES", "Evaluaciones"),
             Map.entry("ACTIVIDADES", "Actividades"),
             Map.entry("CONTENIDO", "Contenido"),
+            Map.entry("PLANIFICACIONES", "Planificaciones"),
             Map.entry("PLANIFICACION", "Planificación"),
             Map.entry("USUARIOS", "Usuarios"),
             Map.entry("ROLES", "Roles"),
@@ -250,10 +252,12 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
     @Override
     public AdministrationUserDetail updateUser(Long userId, AdministrationUserCommand command, String encodedPasswordOrNull) {
+        AdministrationUserDetail existingUser = findUserById(userId).orElseThrow();
         Long personId = jdbcTemplate.queryForObject("SELECT \"PERSONA_ID\" FROM \"USUARIOS\" WHERE \"ID\" = ?", Long.class, userId);
         updatePerson(personId, command);
         updateUserRecord(userId, command, encodedPasswordOrNull);
         updateUserSettings(userId, command);
+        syncAcademicIdentity(existingUser, command);
         return findUserById(userId).orElseThrow();
     }
 
@@ -836,6 +840,80 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         );
     }
 
+    private void syncAcademicIdentity(AdministrationUserDetail existingUser, AdministrationUserCommand command) {
+        String previousRoleCode = normalizeRoleCode(existingUser.roleCode());
+        String nextRoleCode = normalizeRoleCode(command.roleCode());
+
+        if ("ALUMNO".equals(previousRoleCode) || "ALUMNO".equals(nextRoleCode)) {
+            syncStudentIdentity(existingUser.run(), command);
+        }
+        if ("APODERADO".equals(previousRoleCode) || "APODERADO".equals(nextRoleCode)) {
+            syncGuardianIdentity(existingUser.run(), command);
+        }
+    }
+
+    private void syncStudentIdentity(String previousRun, AdministrationUserCommand command) {
+        String nextRun = safeTrim(command.run());
+        if (nextRun == null) {
+            return;
+        }
+
+        String previousNormalized = safeTrim(previousRun);
+        List<Object> args = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+                UPDATE "ALUMNOS"
+                SET "RUN" = ?,
+                    "NOMBRE" = ?,
+                    "APELLIDOS" = ?
+                WHERE UPPER("RUN") = UPPER(?)
+                """);
+
+        args.add(nextRun);
+        args.add(safeTrim(command.firstName()));
+        args.add(buildLastNames(command));
+        args.add(previousNormalized == null ? nextRun : previousNormalized);
+
+        if (previousNormalized != null && !previousNormalized.equalsIgnoreCase(nextRun)) {
+            sql.append(" OR UPPER(\"RUN\") = UPPER(?)");
+            args.add(nextRun);
+        }
+
+        jdbcTemplate.update(sql.toString(), args.toArray());
+    }
+
+    private void syncGuardianIdentity(String previousRun, AdministrationUserCommand command) {
+        String nextRun = safeTrim(command.run());
+        if (nextRun == null) {
+            return;
+        }
+
+        String previousNormalized = safeTrim(previousRun);
+        List<Object> args = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+                UPDATE "MATRICULA_APODERADOS"
+                SET "RUN" = ?,
+                    "NOMBRE" = ?,
+                    "APELLIDOS" = ?,
+                    "TELEFONO" = ?,
+                    "EMAIL" = ?
+                WHERE UPPER("RUN") = UPPER(?)
+                """);
+
+        args.add(nextRun);
+        args.add(safeTrim(command.firstName()));
+        args.add(buildLastNames(command));
+        args.add(safeTrim(command.phone()));
+        args.add(safeTrim(command.email()));
+        args.add(previousNormalized == null ? nextRun : previousNormalized);
+
+        if (previousNormalized != null && !previousNormalized.equalsIgnoreCase(nextRun)) {
+            sql.append(" OR UPPER(\"RUN\") = UPPER(?)");
+            args.add(nextRun);
+        }
+
+        jdbcTemplate.update(sql.toString(), args.toArray());
+    }
+
     private boolean isInactiveUser(Long userId) {
         return jdbcTemplate.query("""
                 SELECT
@@ -914,6 +992,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     public Optional<AuthenticatedAdminUser> findAuthenticationUser(String username) {
+        String normalizedIdentifier = normalizeRunIdentifier(username);
         List<AuthenticatedAdminUser> users = jdbcTemplate.query("""
                 SELECT
                     u."ID" AS user_id,
@@ -930,6 +1009,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                 LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
                 WHERE UPPER(u."USUARIO") = UPPER(?)
                    OR UPPER(COALESCE(p."CORREO_ELECTRONICO", '')) = UPPER(?)
+                   OR REGEXP_REPLACE(UPPER(COALESCE(p."RUN", '')), '[^0-9K]', '', 'g') = ?
                 """, (rs, rowNum) -> new AuthenticatedAdminUser(
                 rs.getLong("user_id"),
                 rs.getString("USUARIO"),
@@ -939,8 +1019,15 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                 rs.getBoolean("ACTIVO"),
                 rs.getString("role_code"),
                 rs.getString("estado")
-        ), username, username);
+        ), username, username, normalizedIdentifier);
         return users.stream().findFirst();
+    }
+
+    private String normalizeRunIdentifier(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return value.replaceAll("[^0-9kK]", "").toUpperCase();
     }
 
     private Optional<Long> findUserIdByUsername(String username) {
@@ -1005,6 +1092,14 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             joiner.add(command.maternalLastName().trim());
         }
         return joiner.toString();
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? null : value.trim();
+    }
+
+    private String normalizeRoleCode(String value) {
+        return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
     }
 
     private String deriveUsername(String email) {
@@ -1143,7 +1238,6 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
 
         return switch (normalized) {
             case "EVALUACIONES" -> "CALIFICACIONES";
-            case "PLANIFICACIONES" -> "PLANIFICACION";
             case "DOCENTES" -> "PROFESORES";
             case "MATRIZ_DE_ACCESO" -> "MATRIZ_ACCESO";
             default -> normalized;

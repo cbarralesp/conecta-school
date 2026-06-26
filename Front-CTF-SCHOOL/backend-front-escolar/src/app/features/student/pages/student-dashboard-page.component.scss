@@ -15,6 +15,7 @@
 .student-content--grades{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
 .student-content--schedule{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
 .student-content--attendance{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
+.student-content--subjects{background:#fff;margin:-1rem -1.2rem -2rem;padding:1rem 1.2rem 2rem}
 .student-content__inner{display:grid;gap:.9rem;align-content:start;padding-top:0;min-height:100%}
 .student-toolbar,.courses-browser__header,.schedule-browser__header,.grades-browser__header,.panel-header,.course-item,.schedule-item,.grade-item,.activity-item,.grade-history-row,.schedule-title,.grades-title,.grades-subject-cell{display:flex;align-items:center}
 .student-toolbar{position:sticky;top:0;left:0;right:0;width:100%;z-index:20;justify-content:space-between;gap:1rem;padding:.8rem 2rem;border-radius:0;background:linear-gradient(90deg,#0d57b6 0%,#1664d0 55%,#0f56b0 100%);box-shadow:0 12px 24px rgba(17,74,150,.14)}
@@ -29,7 +30,9 @@
 
 .student-dashboard{display:grid;gap:10px;width:100%}
 .profile-hero,.notas-card,.card{background:#fff;border:1px solid #e4e7ef;border-radius:14px;overflow:hidden}
-.hero-banner{background:#1e1b4b;padding:18px 22px 0;display:grid;grid-template-columns:minmax(0,1fr) 116px;gap:14px;align-items:flex-end}
+.dashboard-greeting h1{margin:0;font-size:2.15rem;line-height:1;font-weight:900;color:#0f2550}
+.dashboard-greeting p{margin:0;font-size:1.85rem;line-height:1.05;font-weight:800;color:#0f172a}
+.hero-banner{display:none}
 .hero-text{padding-bottom:18px}
 .hero-hi{font-size:var(--student-font-micro);font-weight:800;color:#a5b4fc;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
 .hero-name{font-size:var(--student-font-title);font-weight:800;color:#fff;margin-bottom:3px;line-height:1.1;letter-spacing:-.02em}
@@ -39,14 +42,15 @@
 .hchip mat-icon{font-size:11px;width:11px;height:11px}
 .hero-fig{display:flex;align-items:flex-end;justify-content:center}
 .hero-avatar{width:88px;height:88px;border-radius:24px;background:linear-gradient(180deg,#ddd6fe 0%,#c4b5fd 100%);display:grid;place-items:center;color:#312e81;font-size:34px;font-weight:800;margin-bottom:10px}
-.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #e4e7ef}
-.hstat{padding:12px 14px;border-right:1px solid #e4e7ef;display:grid;justify-items:center;text-align:center;align-content:start}
-.hstat:last-child{border-right:0}
-.hstat-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:5px}
-.hstat-ico mat-icon{font-size:16px;width:16px;height:16px}
-.hstat-lbl{font-size:var(--student-font-micro);color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;font-weight:700}
-.hstat-val{font-size:1.5rem;font-weight:800;color:#0f172a;line-height:1;margin-bottom:3px}
-.hstat-badge{display:inline-flex;min-height:16px;padding:0 6px;border-radius:3px;font-size:var(--student-font-label);font-weight:600;align-items:center;background:#f8fafc;color:#64748b}
+.hero-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;border-top:0}
+.hstat{min-height:116px;padding:1rem 1.05rem;display:grid;align-content:center;justify-items:center;text-align:center;border:1px solid #edf1f7;border-radius:20px;box-shadow:0 8px 30px rgba(36,58,111,.05);background:#fff}
+.hstat-head{display:flex;justify-content:center;width:100%;margin-bottom:.85rem}
+.hstat-ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
+.hstat-ico mat-icon{font-size:20px;width:20px;height:20px}
+.hstat-copy{display:grid;justify-items:center}
+.hstat-lbl{font-size:.74rem;line-height:1.25;letter-spacing:0;margin:0;font-weight:600;text-transform:none;color:#8a9bb5}
+.hstat-val{font-size:1.5rem;font-weight:800;color:#0f172a;line-height:1;margin:0}
+.hstat-badge{font-size:.8rem;font-weight:500;color:#5f7398}
 
 .notas-head{padding:9px 14px 6px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9}
 .notas-head-l{font-size:var(--student-font-section);font-weight:800;color:#0f172a;display:flex;align-items:center;gap:5px}

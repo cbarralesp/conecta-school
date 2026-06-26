@@ -6,15 +6,14 @@
     [userName]="user()?.nombre ?? 'Estudiante'"
     userRole="Alumno"
     searchPlaceholder="Buscar actividades, horario, asignaturas...">
-    <main class="activities-content student-content">
+    <main class="activities-content activities-content--filled student-content">
       <div class="student-content__inner">
         <section class="student-activities">
           <h2 class="sr-only">{{ studentMonthAriaLabel() }}</h2>
 
           <section class="student-page-head">
             <div class="student-page-head__top">
-              <div class="student-page-head__copy">
-                <div class="student-page-head__title-row">
+              <div class="student-page-head__left">
                   <div class="student-page-head__icon">
                     <mat-icon>calendar_month</mat-icon>
                   </div>
@@ -22,7 +21,6 @@
                     <h1 class="student-page-head__title">Calendario Académico</h1>
                     <p class="student-page-head__subtitle">Consulta el calendario del establecimiento y revisa las actividades publicadas para ti.</p>
                   </div>
-                </div>
               </div>
 
               <button
@@ -40,15 +38,10 @@
                 <button class="student-nav-btn" type="button" (click)="goToPreviousMonth()" aria-label="Mes anterior">
                   <mat-icon>chevron_left</mat-icon>
                 </button>
-                <button class="student-nav-today" type="button" (click)="goToToday()">Hoy</button>
+                <button class="student-nav-today" type="button" (click)="goToToday()">{{ todayButtonLabel() }}</button>
                 <button class="student-nav-btn" type="button" (click)="goToNextMonth()" aria-label="Mes siguiente">
                   <mat-icon>chevron_right</mat-icon>
                 </button>
-              </div>
-
-              <div class="student-month-display">
-                <mat-icon>calendar_month</mat-icon>
-                <span>{{ monthLabel() }}</span>
               </div>
             </div>
 
@@ -65,7 +58,12 @@
           <section class="student-calendar-shell">
             <div class="student-calendar-head">
               @for (weekDay of weekDays; track weekDay; let i = $index) {
-                <div class="student-calendar-head__cell" [class.is-weekend]="i >= 5">{{ weekDay }}</div>
+                <div
+                  class="student-calendar-head__cell"
+                  [class.is-weekend]="i >= 5"
+                  [class.is-sunday]="i === 6">
+                  {{ weekDay }}
+                </div>
               }
             </div>
 
@@ -79,12 +77,14 @@
                       class="student-day-cell"
                       [class.is-empty]="!day.inCurrentMonth"
                       [class.is-weekend]="dayIndex >= 5"
+                      [class.is-sunday]="dayIndex === 6"
                       [class.is-today]="day.today">
                       <div class="student-day-cell__num-wrap">
                         <div
                           class="student-day-cell__num"
                           [class.is-today]="day.today"
                           [class.is-weekend]="dayIndex >= 5"
+                          [class.is-sunday]="dayIndex === 6"
                           [class.is-other-month]="!day.inCurrentMonth">
                           {{ day.dayOfMonth }}
                         </div>
@@ -92,8 +92,7 @@
 
                       <div class="student-day-cell__events">
                         @for (activity of day.visibleActivities; track activity.id) {
-                          <article class="student-chip" [class]="studentActivityChipClass(activity)">
-                            <mat-icon>{{ studentActivityIcon(activity) }}</mat-icon>
+                          <article [class]="'student-chip ' + studentActivityChipClass(activity)">
                             <span>{{ activity.title }}</span>
                           </article>
                         }
@@ -359,7 +358,12 @@
             <section class="calendar-board">
               <div class="calendar-board__weekdays">
                 @for (day of weekDays; track day; let i = $index) {
-                  <span class="calendar-board__weekday" [class.calendar-board__weekday--weekend]="i >= 5">{{ day }}</span>
+                  <span
+                    class="calendar-board__weekday"
+                    [class.calendar-board__weekday--weekend]="i >= 5"
+                    [class.calendar-board__weekday--sunday]="i === 6">
+                    {{ day }}
+                  </span>
                 }
               </div>
 
@@ -372,6 +376,7 @@
                       [class.calendar-board__day--today]="day.today"
                       [class.calendar-board__day--other]="!day.inCurrentMonth"
                       [class.calendar-board__day--weekend]="dayIndex >= 5"
+                      [class.calendar-board__day--sunday]="dayIndex === 6"
                       (click)="selectDate(day.isoDate)"
                       (dblclick)="handleDayDoubleClick(day.isoDate)"
                     >
@@ -393,7 +398,7 @@
                         }
 
                         @if (hiddenActivityCount(day) > 0) {
-                          <button type="button" class="calendar-board__event-more" (click)="$event.stopPropagation(); openSelectedDayDetails()">
+                          <button type="button" class="calendar-board__event-more" (click)="$event.stopPropagation(); openDayPreview(day.isoDate)">
                             +{{ hiddenActivityCount(day) }}
                           </button>
                         }
@@ -550,7 +555,7 @@
                         }
 
                         @if (hiddenActivityCount(day) > 0) {
-                          <button type="button" class="activity-pill activity-pill--more" (click)="selectDate(day.isoDate)">
+                          <button type="button" class="activity-pill activity-pill--more" (click)="openDayPreview(day.isoDate)">
                             +{{ hiddenActivityCount(day) }}
                           </button>
                         }
@@ -561,6 +566,45 @@
               }
             }
           </section>
+        </section>
+      </ng-template>
+
+      <ng-template #dayPreviewDialog>
+        <section class="day-preview-dialog">
+          <header class="day-preview-dialog__header">
+            <div class="day-preview-dialog__heading">
+              <span class="day-preview-dialog__eyebrow">Vista previa del día</span>
+              <strong>{{ selectedDateLabel() }}</strong>
+              <small>{{ selectedDayActivities().length }} actividades</small>
+            </div>
+            <button mat-stroked-button type="button" (click)="openPreviewDetails()">
+              <mat-icon>visibility</mat-icon>
+              Ver detalle completo
+            </button>
+          </header>
+
+          <div class="day-preview-dialog__list">
+            @for (act of selectedDayActivities(); track act.id) {
+              <article class="day-preview-item" [style.--preview-accent]="act.colorHex">
+                <div class="day-preview-item__body">
+                  <strong>{{ act.title }}</strong>
+                  <div class="day-preview-item__meta">
+                    <span>{{ act.typeLabel }}</span>
+                    @if (act.courseLabel) {
+                      <span>{{ act.courseLabel }}</span>
+                    }
+                    <span>{{ formatTime(act.activity.time) }}</span>
+                  </div>
+                </div>
+              </article>
+            } @empty {
+              <div class="activity-empty">
+                <mat-icon>event_available</mat-icon>
+                <strong>Sin actividades</strong>
+                <span>No hay eventos para este día.</span>
+              </div>
+            }
+          </div>
         </section>
       </ng-template>
 

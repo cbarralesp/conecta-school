@@ -16,6 +16,7 @@ const MODULE_ROUTE_BY_CODE: Record<string, string> = {
   CALIFICACIONES: '/dashboard/calificaciones',
   ACTIVIDADES: '/dashboard/actividades',
   CONTENIDO: '/dashboard/contenido',
+  PLANIFICACIONES: '/dashboard/planificaciones-nuevo',
   PLANIFICACION: '/dashboard/planificacion',
   USUARIOS: '/dashboard/administracion/usuarios',
   ROLES: '/dashboard/administracion/roles',
@@ -45,14 +46,14 @@ export class UserModuleAccessService {
   }
 
   hasAccess(moduleCode: string, view: UserModuleAccessView | null | undefined): boolean {
-    const normalizedModuleCode = this.normalizeModuleCode(moduleCode);
+    const normalizedModuleCodes = this.normalizedModuleCandidates(moduleCode);
 
     if (!view) {
       return true;
     }
 
     const match = view.modules.find(
-      (module) => this.normalizeModuleCode(module.moduleCode) === normalizedModuleCode
+      (module) => normalizedModuleCodes.includes(this.normalizeModuleCode(module.moduleCode))
     );
 
     return !!match && match.accessLevel !== 'NONE';
@@ -101,8 +102,6 @@ export class UserModuleAccessService {
     switch (normalized) {
       case 'EVALUACIONES':
         return 'CALIFICACIONES';
-      case 'PLANIFICACIONES':
-        return 'PLANIFICACION';
       case 'DOCENTES':
         return 'PROFESORES';
       case 'MATRIZ DE ACCESO':
@@ -110,5 +109,19 @@ export class UserModuleAccessService {
       default:
         return normalized;
     }
+  }
+
+  private normalizedModuleCandidates(moduleCode: string): string[] {
+    const normalized = this.normalizeModuleCode(moduleCode);
+
+    if (normalized === 'PLANIFICACIONES') {
+      return ['PLANIFICACIONES', 'PLANIFICACION'];
+    }
+
+    if (normalized === 'PLANIFICACION') {
+      return ['PLANIFICACION', 'PLANIFICACIONES'];
+    }
+
+    return [normalized];
   }
 }

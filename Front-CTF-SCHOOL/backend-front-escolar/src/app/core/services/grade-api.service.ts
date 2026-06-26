@@ -246,8 +246,15 @@ export class GradeApiService {
               }))
             }
           : null,
-        familyRecommendations: (view.content?.familyRecommendations ?? []).map((item) => normalizeDashboardText(item))
+        familyRecommendations: this.normalizeSingleFamilyRecommendation(view.content?.familyRecommendations)
       }
     };
+  }
+
+  private normalizeSingleFamilyRecommendation(recommendations: string[] | null | undefined): string[] {
+    const firstFilledRecommendation = (recommendations ?? [])
+      .map((item) => normalizeDashboardText(item))
+      .find((item) => item.length > 0);
+    return [firstFilledRecommendation ?? ''];
   }
 }

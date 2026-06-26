@@ -72,6 +72,7 @@ interface StudentMonthlyStatItem {
 export class ActivitiesCalendarPageComponent {
   @ViewChild('pdfCalendar') private pdfCalendarRef?: ElementRef<HTMLElement>;
   @ViewChild('monthDetailDialog') private monthDetailDialogRef?: TemplateRef<unknown>;
+  @ViewChild('dayPreviewDialog') private dayPreviewDialogRef?: TemplateRef<unknown>;
 
   private readonly authStateService = inject(AuthStateService);
   private readonly activityCalendarApiService = inject(ActivityCalendarApiService);
@@ -106,6 +107,15 @@ export class ActivitiesCalendarPageComponent {
 
   readonly weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   readonly monthLabel = computed(() => this.calendar()?.monthLabel ?? 'Cargando...');
+  readonly todayButtonLabel = computed(() =>
+    new Intl.DateTimeFormat('es-CL', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
+      .format(this.today)
+      .replace('.', '')
+  );
   readonly exportCalendarView = computed(() => this.exportCalendar() ?? this.calendar());
   readonly exportMonthLabel = computed(() => this.exportCalendarView()?.monthLabel ?? this.monthLabel());
   readonly pdfTitle = computed(() => `Calendario ${this.exportMonthLabel()} - ${this.exportCourseName() ?? this.selectedCourseName()}`);
@@ -527,7 +537,11 @@ export class ActivitiesCalendarPageComponent {
     this.openEditActivityDialog(activity);
   }
 
-  openSelectedDayDetails(): void {
+  openSelectedDayDetails(dateStr?: string): void {
+    if (dateStr) {
+      this.selectedDate.set(dateStr);
+    }
+
     if (!this.monthDetailDialogRef) {
       return;
     }
@@ -539,6 +553,27 @@ export class ActivitiesCalendarPageComponent {
       autoFocus: false,
       panelClass: 'activities-month-dialog-panel'
     });
+  }
+
+  openDayPreview(dateStr: string): void {
+    this.selectedDate.set(dateStr);
+
+    if (!this.dayPreviewDialogRef) {
+      return;
+    }
+
+    this.dialog.open(this.dayPreviewDialogRef, {
+      width: '560px',
+      maxWidth: '94vw',
+      maxHeight: '82vh',
+      autoFocus: false,
+      panelClass: 'activities-day-preview-panel'
+    });
+  }
+
+  openPreviewDetails(): void {
+    this.dialog.closeAll();
+    this.openSelectedDayDetails();
   }
 
   editFromDetail(activity: SchoolActivity): void {

@@ -7,6 +7,7 @@
   searchPlaceholder="Buscar asignaturas, horario, actividades...">
   <main
     class="student-content"
+    [class.student-content--subjects]="isSectionActive('subjects')"
     [class.student-content--grades]="isSectionActive('grades')"
     [class.student-content--schedule]="isSectionActive('schedule')"
     [class.student-content--attendance]="isSectionActive('attendance')">
@@ -20,7 +21,14 @@
     } @else if (dashboard(); as dashboard) {
       @if (activeSection() === 'overview') {
         <section class="student-dashboard">
-          <section class="profile-hero">
+          <section style="display:grid;gap:1rem">
+            <div class="dashboard-greeting" style="display:none">
+              <h1>Bienvenida {{ welcomeName() }} 👋</h1>              
+            </div>
+            <div style="display:grid;gap:.18rem;margin-top:-.05rem">
+              <h1 style="margin:0;font-size:1.55rem;line-height:1.08;font-weight:800;color:#173553">Resumen académico</h1>
+              <p style="margin:0;font-size:.8rem;line-height:1.4;font-weight:500;color:#64748b">Bienvenida de vuelta. Aquí tienes un resumen de tu progreso este {{ currentYearLabel() }}.</p>
+            </div>
             <div class="hero-banner">
               <div class="hero-text">
                 <div class="hero-hi">Portal del estudiante · Bienvenida de nuevo</div>
@@ -46,18 +54,291 @@
             <div class="hero-stats">
               @for (stat of dashboardStats(); track stat.label) {
                 <div class="hstat">
-                  <div class="hstat-ico" [class]="'tone-' + stat.tone">
-                    <mat-icon>{{ stat.icon }}</mat-icon>
+                  <div class="hstat-head">
+                    <div
+                      class="hstat-ico"
+                      [style.background]="dashboardStatIconBackground(stat.tone)"
+                      [style.color]="dashboardStatValueColor(stat.tone)">
+                      <mat-icon>{{ stat.icon }}</mat-icon>
+                    </div>
                   </div>
-                  <div class="hstat-lbl">{{ stat.label }}</div>
-                  <div class="hstat-val">{{ stat.value }}</div>
-                  <div class="hstat-badge">{{ stat.helper }}</div>
+                  <div class="hstat-copy">
+                    <div class="hstat-val" [style.color]="dashboardStatValueColor(stat.tone)">{{ stat.value }}</div>
+                    <div class="hstat-lbl">{{ stat.label }}</div>
+                    <div class="hstat-badge">{{ stat.helper }}</div>
+                  </div>
                 </div>
               }
             </div>
           </section>
 
-          <section class="notas-card">
+          <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1rem;align-items:start">
+            <section class="card" style="padding:1rem 1.2rem;border-radius:22px;box-shadow:0 10px 30px rgba(15,23,42,.05);border:1px solid #e8edf5;background:#fff">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:0 0 .9rem">
+                <div>
+                  <h2 style="margin:0;font-size:1.05rem;line-height:1.15;font-weight:800;color:#173553">Resumen académico</h2>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:1.45rem;padding:0 0 .85rem;border-bottom:1px solid #edf1f7;margin-bottom:.28rem">
+                <button type="button" (click)="selectOverviewTab('grades')" [style.border-bottom]="selectedOverviewTab() === 'grades' ? '2px solid #4f46e5' : '2px solid transparent'" [style.color]="selectedOverviewTab() === 'grades' ? '#4338ca' : '#64748b'" style="display:inline-flex;align-items:center;padding:0 0 .55rem;background:transparent;border-top:0;border-left:0;border-right:0;font-size:.82rem;font-weight:800;cursor:pointer">Mis notas · {{ currentYearLabel() }}</button>
+                <button type="button" (click)="selectOverviewTab('performance')" [style.border-bottom]="selectedOverviewTab() === 'performance' ? '2px solid #4f46e5' : '2px solid transparent'" [style.color]="selectedOverviewTab() === 'performance' ? '#4338ca' : '#64748b'" style="display:inline-flex;align-items:center;padding:0 0 .55rem;background:transparent;border-top:0;border-left:0;border-right:0;font-size:.82rem;font-weight:800;cursor:pointer">Mi rendimiento</button>
+                <button type="button" (click)="selectOverviewTab('attendance')" [style.border-bottom]="selectedOverviewTab() === 'attendance' ? '2px solid #4f46e5' : '2px solid transparent'" [style.color]="selectedOverviewTab() === 'attendance' ? '#4338ca' : '#64748b'" style="display:inline-flex;align-items:center;padding:0 0 .55rem;background:transparent;border-top:0;border-left:0;border-right:0;font-size:.82rem;font-weight:800;cursor:pointer">Asistencia del mes</button>
+              </div>
+
+              @if (selectedOverviewTab() === 'grades' && overviewAcademicSubjects().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>grading</mat-icon>
+                  <span>No hay notas registradas todavia.</span>
+                </section>
+              } @else if (selectedOverviewTab() === 'grades') {
+                <div style="display:grid">
+                  <div style="display:grid;grid-template-columns:minmax(220px,1.65fr) repeat(3,minmax(60px,.4fr)) minmax(84px,.5fr);gap:.75rem;padding:.78rem 0;color:#94a3b8;font-size:var(--student-font-label);font-weight:800;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid #edf1f7">
+                    <div>Asignatura</div>
+                    <div style="text-align:center">N1</div>
+                    <div style="text-align:center">N2</div>
+                    <div style="text-align:center">N3</div>
+                    <div style="text-align:center">Promedio</div>
+                  </div>
+                  @for (subject of overviewAcademicSubjects(); track subject.subjectName) {
+                    <div style="display:grid;grid-template-columns:minmax(220px,1.65fr) repeat(3,minmax(60px,.4fr)) minmax(84px,.5fr);gap:.75rem;align-items:center;padding:.9rem 0;border-bottom:1px solid #f3f5f9">
+                      <div style="font-size:.92rem;font-weight:800;color:#0f172a">{{ subject.subjectName }}</div>
+                      @for (evaluation of subject.visibleEvaluations; track $index) {
+                        <div style="display:flex;justify-content:center">
+                          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:3.15rem;height:2rem;padding:0 .65rem;border-radius:.8rem;background:#f3f4f6;color:#64748b;font-size:var(--student-font-body);font-weight:700">
+                            {{ evaluation?.score?.toFixed(1) ?? '-' }}
+                          </span>
+                        </div>
+                      }
+                      <div style="display:flex;justify-content:center">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;min-width:3.25rem;height:2rem;padding:0 .72rem;border-radius:.9rem;background:#dcfce7;color:#0f9d6b;font-size:var(--student-font-body);font-weight:800">
+                          {{ subject.average?.toFixed(1) ?? '-' }}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else if (selectedOverviewTab() === 'performance') {
+                <div style="display:grid;gap:.9rem;padding-top:.35rem">
+                  @for (subject of overviewAcademicSubjects(); track subject.subjectName) {
+                    <article style="display:grid;gap:.42rem;padding:.25rem 0">
+                      <div style="display:flex;align-items:center;justify-content:space-between;gap:.8rem">
+                        <strong style="font-size:.92rem;font-weight:800;color:#0f172a">{{ subject.subjectName }}</strong>
+                        <span style="font-size:.82rem;font-weight:800;color:#4338ca">{{ subject.average?.toFixed(1) ?? '-' }}</span>
+                      </div>
+                      <div style="height:10px;border-radius:999px;background:#e5e7eb;overflow:hidden">
+                        <div [style.width]="scoreTrackWidth(subject.average)" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#4f46e5 0%,#22c55e 100%)"></div>
+                      </div>
+                    </article>
+                  }
+                </div>
+              } @else {
+                <div style="display:grid;grid-template-columns:minmax(220px,1fr) minmax(120px,.45fr);gap:1rem;align-items:end;padding-top:.35rem">
+                  <div style="display:flex;align-items:flex-end;gap:.9rem;min-height:170px;padding:.35rem 0 .15rem">
+                    @for (bar of overviewAttendanceBars(); track bar.label) {
+                      <div style="display:grid;justify-items:center;gap:.5rem;flex:1">
+                        <div style="width:100%;max-width:34px;height:140px;display:flex;align-items:flex-end">
+                          <span [style.height.%]="bar.value" [style.background]="bar.color" style="display:block;width:100%;border-radius:14px 14px 4px 4px;min-height:18px"></span>
+                        </div>
+                        <span style="font-size:var(--student-font-label);font-weight:700;color:#94a3b8">{{ bar.label }}</span>
+                      </div>
+                    }
+                  </div>
+                  <div style="display:grid;gap:.15rem;align-self:center">
+                    <strong style="font-size:2rem;line-height:1;font-weight:900;color:#0f9d6b">{{ attendanceOverview().percentage }}%</strong>
+                    <span style="font-size:.82rem;font-weight:800;color:#173553">Asistencia del mes</span>
+                    <span style="font-size:var(--student-font-body);line-height:1.35;color:#64748b">{{ attendanceOverview().label }}</span>
+                  </div>
+                </div>
+              }
+            </section>
+
+            <section class="card" style="padding:1rem 1.2rem;border-radius:22px;box-shadow:0 10px 30px rgba(15,23,42,.05);border:1px solid #e8edf5;background:#fff">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:0 0 .9rem">
+                <div>
+                  <h2 style="margin:0;font-size:1.05rem;line-height:1.15;font-weight:800;color:#173553">Horario de hoy</h2>
+                  <p style="margin:.22rem 0 0;font-size:.8rem;font-weight:500;color:#64748b;text-transform:capitalize">{{ todayLabel() }}</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:.45rem">
+                  <button type="button" (click)="previousOverviewSchedulePage()" [disabled]="overviewSchedulePage() === 0" style="width:2.1rem;height:2.1rem;border-radius:.8rem;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer">‹</button>
+                  <button type="button" (click)="nextOverviewSchedulePage()" [disabled]="overviewSchedulePage() >= overviewSchedulePageCount() - 1" style="width:2.1rem;height:2.1rem;border-radius:.8rem;border:1px solid #e2e8f0;background:#fff;color:#64748b;cursor:pointer">›</button>
+                </div>
+              </div>
+
+              @if (overviewScheduleItems().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>event_available</mat-icon>
+                  <span>No hay bloques programados para hoy.</span>
+                </section>
+              } @else {
+                <div style="display:grid;min-height:264px">
+                  @for (item of overviewScheduleItems(); track item.dayOfWeek + item.startTime + item.subjectName) {
+                    <div style="display:grid;grid-template-columns:72px 12px minmax(0,1fr) minmax(120px,.9fr) auto;align-items:center;gap:.82rem;padding:.82rem 0;border-bottom:1px solid #f3f5f9">
+                      <div style="font-size:.92rem;font-weight:800;color:#0f172a">{{ item.startTime }}</div>
+                      <div style="display:flex;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:#22c55e"></span></div>
+                      <div style="font-size:.92rem;font-weight:800;color:#0f172a">{{ item.subjectName }}</div>
+                      <div style="font-size:var(--student-font-body);font-weight:500;color:#94a3b8">{{ item.room || 'Sala por definir' }}</div>
+                      <span style="display:inline-flex;align-items:center;justify-content:center;min-height:2rem;padding:0 .9rem;border-radius:999px;background:#dcfce7;color:#0f9d6b;font-size:var(--student-font-body);font-weight:800">Realizada</span>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          </section>
+
+          <section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start">
+            <section class="card" style="padding:1rem 1.1rem;border-radius:20px;box-shadow:0 10px 28px rgba(15,23,42,.04);border:1px solid #e8edf5;background:#fff">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem">
+                <span style="width:2rem;height:2rem;border-radius:.75rem;display:grid;place-items:center;background:#f3e8ff;color:#7c3aed"><mat-icon style="font-size:18px;width:18px;height:18px">event</mat-icon></span>
+                <h3 style="margin:0;font-size:.92rem;font-weight:800;color:#173553">Próximas actividades</h3>
+              </div>
+              @if (overviewActivities().length === 0) {
+                <div style="display:grid;gap:.18rem">
+                  <strong style="font-size:.92rem;font-weight:800;color:#0f172a">Vacaciones de invierno</strong>
+                  <span style="font-size:var(--student-font-body);color:#64748b">Vacaciones</span>
+                  <span style="font-size:var(--student-font-body);color:#94a3b8">Sin ubicación definida</span>
+                  <span style="font-size:var(--student-font-body);color:#0f172a">18-06-2026</span>
+                </div>
+              } @else {
+                @for (activity of overviewActivities().slice(0, 1); track activity.id) {
+                  <div style="display:grid;gap:.18rem">
+                    <strong style="font-size:.92rem;font-weight:800;color:#0f172a">{{ activity.title }}</strong>
+                    <span style="font-size:var(--student-font-body);color:#64748b">{{ activity.activityTypeName }}</span>
+                    <span style="font-size:var(--student-font-body);color:#94a3b8">{{ activity.location || 'Sin ubicación definida' }}</span>
+                    <span style="font-size:var(--student-font-body);color:#0f172a">{{ activity.date }}</span>
+                  </div>
+                }
+              }
+            </section>
+
+            <section class="card" style="padding:1rem 1.1rem;border-radius:20px;box-shadow:0 10px 28px rgba(15,23,42,.04);border:1px solid #e8edf5;background:#fff">
+              <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem">
+                <span style="width:2rem;height:2rem;border-radius:.75rem;display:grid;place-items:center;background:#f5f3ff;color:#7c3aed"><mat-icon style="font-size:18px;width:18px;height:18px">chat</mat-icon></span>
+                <h3 style="margin:0;font-size:.92rem;font-weight:800;color:#173553">Observaciones recientes</h3>
+              </div>
+              @if (recentObservations().length === 0) {
+                <div style="display:grid;gap:.72rem">
+                  <div style="display:grid;gap:.12rem;padding:.8rem .85rem;border:1px solid #edf1f7;border-radius:14px">
+                    <strong style="font-size:.92rem;font-weight:800;color:#0f172a">Sin observación</strong>
+                    <span style="font-size:var(--student-font-body);color:#64748b">30 jun 2026</span>
+                  </div>
+                  <div style="display:grid;gap:.12rem;padding:.8rem .85rem;border:1px solid #edf1f7;border-radius:14px">
+                    <strong style="font-size:.92rem;font-weight:800;color:#0f172a">Sin observación</strong>
+                    <span style="font-size:var(--student-font-body);color:#64748b">29 jun 2026</span>
+                  </div>
+                </div>
+              } @else {
+                <div style="display:grid;gap:.72rem">
+                  @for (record of recentObservations(); track record.date + record.note) {
+                    <div style="display:grid;gap:.12rem;padding:.8rem .85rem;border:1px solid #edf1f7;border-radius:14px">
+                      <strong style="font-size:.92rem;font-weight:800;color:#0f172a">{{ record.note || 'Sin observación' }}</strong>
+                      <span style="font-size:var(--student-font-body);color:#64748b">{{ record.date }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          </section>
+
+          <section class="card" style="padding:1rem 1.1rem;border-radius:20px;box-shadow:0 10px 28px rgba(15,23,42,.04);border:1px solid #e8edf5;background:#fff">
+            <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem">
+              <span style="width:2rem;height:2rem;border-radius:.75rem;display:grid;place-items:center;background:#eef2ff;color:#4f46e5"><mat-icon style="font-size:18px;width:18px;height:18px">widgets</mat-icon></span>
+              <h3 style="margin:0;font-size:.92rem;font-weight:800;color:#173553">Accesos rápidos</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.75rem">
+              @for (link of quickLinks(); track link.route) {
+                <button type="button" (click)="openStudentRoute(link.route)" style="border:1px solid #edf1f7;background:#fff;border-radius:16px;padding:.95rem .8rem;display:grid;justify-items:start;gap:.28rem;box-shadow:0 6px 16px rgba(15,23,42,.03);cursor:pointer;text-align:left">
+                  <mat-icon [class]="link.tone" style="font-size:20px;width:20px;height:20px">{{ link.icon }}</mat-icon>
+                  <strong style="font-size:.92rem;font-weight:800;color:#0f172a">{{ link.title }}</strong>
+                  <span style="font-size:var(--student-font-body);line-height:1.35;color:#64748b">{{ link.description }}</span>
+                </button>
+              }
+            </div>
+          </section>
+
+          <section style="display:none">
+            <section class="notas-card">
+              <div class="notas-head" style="padding:1rem 1.15rem .7rem;align-items:flex-start">
+                <div>
+                  <div class="notas-head-l" style="font-size:1.06rem;gap:.55rem">
+                    <mat-icon>grading</mat-icon>
+                    <span>Mis notas</span>
+                  </div>
+                  <div style="margin:.2rem 0 0;color:#94a3b8;font-size:.9rem;font-weight:500">Año académico {{ currentYearLabel() }}</div>
+                </div>
+                <button mat-button type="button" (click)="openStudentRoute('/alumno/calificaciones')">Ver todas</button>
+              </div>
+
+              @if (topGradeSubjects().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>grading</mat-icon>
+                  <span>No hay notas registradas todavia.</span>
+                </section>
+              } @else {
+                <div class="notas-grid">
+                  @for (subject of topGradeSubjects(); track subject.subjectName) {
+                    <div class="nota-col">
+                      <div class="nota-col-head">
+                        <div class="nch-subj">{{ subject.subjectName }}</div>
+                        <div class="nch-bar"></div>
+                      </div>
+                      <div class="nota-cells">
+                        @for (evaluation of subject.visibleEvaluations; track $index) {
+                          <div class="nc">
+                            <span class="nc-lbl">N{{ $index + 1 }}</span>
+                            <div class="nc-val" [class]="gradeCellClass(evaluation?.score)">
+                              {{ evaluation?.score?.toFixed(1) ?? '-' }}
+                            </div>
+                          </div>
+                        }
+                      </div>
+                      <div class="nota-avg">
+                        <div class="avg-pill">{{ subject.average?.toFixed(1) ?? '-' }}</div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+
+            <section class="card">
+              <div class="ch" style="padding:1rem 1.15rem .7rem;align-items:flex-start">
+                <div>
+                  <div class="ch-l" style="font-size:1.06rem;gap:.55rem">
+                    <mat-icon>calendar_month</mat-icon>
+                    <span>Horario de hoy</span>
+                  </div>
+                  <div style="margin:.2rem 0 0;color:#94a3b8;font-size:.9rem;font-weight:500;text-transform:capitalize">{{ todayLabel() }}</div>
+                </div>
+                <button mat-button type="button" (click)="openStudentRoute('/alumno/horario')">Ver semanal</button>
+              </div>
+
+              @if (todaySchedule().length === 0) {
+                <section class="empty-inline">
+                  <mat-icon>event_available</mat-icon>
+                  <span>No hay bloques programados para hoy.</span>
+                </section>
+              } @else {
+                <div class="sch-list">
+                  @for (item of todaySchedule(); track item.dayOfWeek + item.startTime + item.subjectName) {
+                    <div class="sr">
+                      <span class="sr-time">{{ item.startTime }}</span>
+                      <div class="sr-ico">
+                        <mat-icon>menu_book</mat-icon>
+                      </div>
+                      <div class="sr-info">
+                        <div class="sr-subj">{{ item.subjectName }}</div>
+                        <div class="sr-prof">{{ item.room || 'Sala por definir' }}</div>
+                      </div>
+                      <span class="sr-st" [class]="scheduleStateClass(item)">{{ scheduleState(item) }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+          </section>
+
+          <section class="notas-card" style="display:none">
             <div class="notas-head">
               <div class="notas-head-l">
                 <mat-icon>grading</mat-icon>
@@ -98,9 +379,9 @@
             }
           </section>
 
-          <section class="two">
-            <div class="dashboard-stack">
-              <section class="card">
+          <section class="two" style="display:none">
+            <div class="dashboard-stack" style="gap:1rem">
+              <section class="card" style="display:none">
                 <div class="ch">
                   <div class="ch-l">
                     <mat-icon>calendar_month</mat-icon>
@@ -188,7 +469,7 @@
               </section>
             </div>
 
-            <div class="dashboard-stack">
+            <div class="dashboard-stack" style="gap:1rem">
               <section class="card">
                 <div class="ch">
                   <div class="ch-l">
@@ -369,9 +650,9 @@
           }
         </section>
       } @else if (isSectionActive('subjects')) {
-        <section class="courses-browser student-subjects-browser" style="border-radius:24px;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);box-shadow:0 18px 40px rgba(15,23,42,.06);padding:.95rem .95rem 1rem">
-          <div class="courses-browser__header student-subjects-browser__header" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:1rem;margin-bottom:.95rem">
-            <div class="student-subjects-title" style="display:flex;align-items:center;gap:.8rem;min-width:0">
+        <section class="courses-browser student-subjects-browser" style="padding:0;background:transparent;border-radius:0;box-shadow:none">
+          <div class="courses-browser__header student-subjects-browser__header" style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:flex-start;column-gap:1rem;margin-top:-.05rem;margin-bottom:.95rem">
+            <div class="student-subjects-title" style="display:flex;align-items:center;gap:.9rem;min-width:0">
               <div class="student-subjects-title__badge" style="width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#eef4ff;color:#2c66c8;flex:0 0 auto">
                 <mat-icon style="width:22px;height:22px;font-size:22px">auto_stories</mat-icon>
               </div>
@@ -382,10 +663,10 @@
             </div>
 
             <div class="student-subjects-tools" style="display:flex;align-items:center;justify-content:flex-end;gap:.85rem;flex-wrap:wrap">
-              <span style="display:inline-flex;align-items:center;min-height:42px;padding:0 .95rem;border-radius:14px;background:#f8fbff;box-shadow:inset 0 0 0 1px #dce7f5;color:#315a92;font-size:.86rem;font-weight:700;white-space:nowrap">
+              <span class="student-subjects-course-pill" style="display:inline-flex;align-items:center;min-height:42px;padding:0 .95rem;border-radius:14px;background:#f8fbff;box-shadow:inset 0 0 0 1px #dce7f5;color:#315a92;font-size:.86rem;font-weight:700;white-space:nowrap">
                 {{ currentCourseLabel() }}
               </span>
-              <label aria-label="Buscar asignatura" style="width:340px;min-height:44px;padding:0 .9rem;display:flex;align-items:center;gap:.65rem;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px #dbe5f1,0 8px 20px rgba(15,23,42,.04);color:#94a3b8">
+              <label aria-label="Buscar asignatura" class="student-subjects-search" style="width:340px;min-height:44px;padding:0 .9rem;display:flex;align-items:center;gap:.65rem;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px #dbe5f1,0 8px 20px rgba(15,23,42,.04);color:#94a3b8">
                 <mat-icon style="color:#8ca0b8">search</mat-icon>
                 <input
                   type="text"
@@ -1394,4 +1675,3 @@
     </div>
   </main>
 </app-teacher-modern-layout>
-

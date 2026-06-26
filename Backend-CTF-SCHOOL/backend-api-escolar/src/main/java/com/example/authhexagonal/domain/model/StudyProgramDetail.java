@@ -51,7 +51,9 @@ public record StudyProgramDetail(
             Integer number,
             String title,
             String description,
-            String teacherNote
+            String teacherNote,
+            String skills,
+            String interdisciplinarity
     ) {
     }
 
@@ -76,6 +78,11 @@ public record StudyProgramDetail(
             String name,
             Integer semester,
             Integer estimatedHours,
+            String generalPurpose,
+            String priorKnowledge,
+            String keywords,
+            String knowledge,
+            String rawJson,
             String readingPurpose,
             String writingPurpose,
             String oralCommunicationPurpose,

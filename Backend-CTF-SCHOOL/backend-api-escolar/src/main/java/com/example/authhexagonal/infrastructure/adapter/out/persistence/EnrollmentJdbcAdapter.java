@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.text.Normalizer;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Component
@@ -364,7 +365,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
         return findUserRecordByRunAndRole(studentRun, "ALUMNO")
                 .map(AccessUserRecord::username)
                 .filter(value -> value != null && !value.isBlank())
-                .orElseGet(() -> generateUniqueStudentUsername(studentName, studentLastName));
+                .orElseGet(() -> formatStudentUsernameFromRun(studentRun));
     }
 
     @Override
@@ -879,6 +880,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             String studentRun,
             String studentName,
             String studentLastName,
+            String username,
             String guardianEmail,
             String guardianPhone,
             String encodedPassword,
@@ -893,19 +895,22 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 7
         );
         Optional<AccessUserRecord> existingUser = findUserRecordByRunAndRole(studentRun, "ALUMNO");
-        String username = existingUser.map(AccessUserRecord::username)
+        String requestedUsername = username == null ? "" : username.trim();
+        String resolvedUsername = !requestedUsername.isBlank()
+                ? requestedUsername
+                : existingUser.map(AccessUserRecord::username)
                 .filter(value -> value != null && !value.isBlank())
-                .orElseGet(() -> generateUniqueStudentUsername(studentName, studentLastName));
+                .orElseGet(() -> formatStudentUsernameFromRun(studentRun));
         String email = existingUser.map(AccessUserRecord::email)
                 .filter(value -> value != null && !value.isBlank())
-                .orElseGet(() -> buildStudentEmail(username));
+                .orElseGet(() -> buildStudentEmail(resolvedUsername));
         Long personId = upsertPerson(studentRun, studentName, studentLastName, email, guardianPhone, existingUser.map(AccessUserRecord::personId).orElse(null));
 
         Long userId = existingUser.map(AccessUserRecord::userId)
-                .orElseGet(() -> insertStudentUser(personId, username, encodedPassword));
+                .orElseGet(() -> insertStudentUser(personId, resolvedUsername, encodedPassword));
 
         if (existingUser.isPresent()) {
-            updateStudentUser(userId, personId, username, encodedPassword);
+            updateStudentUser(userId, personId, resolvedUsername, encodedPassword);
         }
 
         upsertStudentUserSettings(userId, roleId);
@@ -913,7 +918,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
         return new EnrollmentStudentAccess(
                 true,
                 true,
-                username,
+                resolvedUsername,
                 "",
                 notifyByEmail,
                 notifyByEmail ? guardianEmail : email,
@@ -1669,6 +1674,14 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             suffix++;
         }
         return base + suffix;
+    }
+
+    private String formatStudentUsernameFromRun(String studentRun) {
+        String normalizedRun = studentRun == null ? "" : studentRun.replaceAll("[^0-9kK]", "").toUpperCase(Locale.ROOT);
+        if (normalizedRun.length() <= 1) {
+            return normalizedRun;
+        }
+        return normalizedRun.substring(0, normalizedRun.length() - 1) + "-" + normalizedRun.substring(normalizedRun.length() - 1);
     }
 
     private String generateUniqueGuardianUsername(String guardianName, String guardianLastName) {

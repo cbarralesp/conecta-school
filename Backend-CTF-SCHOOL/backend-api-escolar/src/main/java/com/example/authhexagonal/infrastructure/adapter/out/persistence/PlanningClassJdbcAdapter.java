@@ -4,10 +4,14 @@ import com.example.authhexagonal.domain.model.CurriculumObjective;
 import com.example.authhexagonal.domain.model.PlanningClass;
 import com.example.authhexagonal.domain.model.PlanningClassCatalogUnit;
 import com.example.authhexagonal.domain.model.PlanningClassDocument;
+import com.example.authhexagonal.domain.model.PlanningClassObjectiveSelection;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
 import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.model.PlanningEvaluationType;
 import com.example.authhexagonal.domain.model.PlanningObjectiveOption;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.authhexagonal.domain.port.out.PlanningClassCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassDocumentRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningClassRepositoryPort;
@@ -29,9 +33,12 @@ public class PlanningClassJdbcAdapter implements
         PlanningClassDocumentRepositoryPort {
 
     private final JdbcTemplate jdbcTemplate;
+    private final ObjectMapper objectMapper;
+    private volatile Boolean objectiveSelectionsColumnAvailable;
 
-    public PlanningClassJdbcAdapter(JdbcTemplate jdbcTemplate) {
+    public PlanningClassJdbcAdapter(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -108,6 +115,7 @@ public class PlanningClassJdbcAdapter implements
                 )
                 SELECT
                     au.unit_id,
+                    co."ID" AS objective_id,
                     co."CODIGO",
                     co."TITULO",
                     co."DESCRIPCION",
@@ -125,6 +133,7 @@ public class PlanningClassJdbcAdapter implements
                 GROUP BY au.unit_id, co."ID", co."CODIGO", co."TITULO", co."DESCRIPCION", co."EJE"
                 ORDER BY au.unit_id, co."CODIGO"
                 """, (rs, rowNum) -> new PlanningObjectiveOption(
+                rs.getString("objective_id"),
                 rs.getString("CODIGO"),
                 rs.getString("TITULO"),
                 rs.getString("DESCRIPCION"),
@@ -304,6 +313,23 @@ public class PlanningClassJdbcAdapter implements
     }
 
     @Override
+    public void saveObjectiveSelections(Long classId, List<PlanningClassObjectiveSelection> objectiveSelections) {
+        if (!hasObjectiveSelectionsColumn()) {
+            return;
+        }
+        try {
+            jdbcTemplate.update("""
+                    UPDATE "CLASES_PLANIFICACION"
+                    SET "OA_INDICADORES_JSON" = CAST(? AS jsonb),
+                        "FECHA_ACTUALIZACION" = CURRENT_TIMESTAMP
+                    WHERE "ID" = ?
+                    """, writeObjectiveSelections(objectiveSelections), classId);
+        } catch (BadSqlGrammarException ignored) {
+            // Keep existing planning flows alive while the migration is not available yet.
+        }
+    }
+
+    @Override
     public List<UUID> findCurriculumObjectiveIdsByClassId(Long classId) {
         try {
             return jdbcTemplate.query("""
@@ -388,6 +414,7 @@ public class PlanningClassJdbcAdapter implements
                     COALESCE(cp."INICIO_ACTIVIDAD", '') AS start_activity,
                     COALESCE(cp."DESARROLLO_ACTIVIDAD", '') AS development_activity,
                     COALESCE(cp."CIERRE_ACTIVIDAD", '') AS closing_activity,
+                    %s AS objective_selections_json,
                     cp."ESTADO",
                     cp."PUBLICADO_A_ALUMNOS",
                     u."USUARIO" AS created_by,
@@ -405,7 +432,7 @@ public class PlanningClassJdbcAdapter implements
                     cu.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
                     OR pr."PERSONA_ID" = cu.persona_id
                 )
-                """, (rs, rowNum) -> mapPlanningClass(rs), username, classId).stream().findFirst()
+                """.formatted(objectiveSelectionsSelectSql()), (rs, rowNum) -> mapPlanningClass(rs), username, classId).stream().findFirst()
                 .map(this::withDocuments);
     }
 
@@ -450,6 +477,7 @@ public class PlanningClassJdbcAdapter implements
                     COALESCE(cp."INICIO_ACTIVIDAD", '') AS start_activity,
                     COALESCE(cp."DESARROLLO_ACTIVIDAD", '') AS development_activity,
                     COALESCE(cp."CIERRE_ACTIVIDAD", '') AS closing_activity,
+                    %s AS objective_selections_json,
                     cp."ESTADO",
                     cp."PUBLICADO_A_ALUMNOS",
                     creator."USUARIO" AS created_by,
@@ -467,7 +495,7 @@ public class PlanningClassJdbcAdapter implements
                     cu.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
                     OR pr."PERSONA_ID" = cu.persona_id
                 )
-                """);
+                """.formatted(objectiveSelectionsSelectSql()));
 
         java.util.List<Object> args = new java.util.ArrayList<>();
         args.add(username);
@@ -698,6 +726,7 @@ public class PlanningClassJdbcAdapter implements
                     COALESCE(cp."INICIO_ACTIVIDAD", '') AS start_activity,
                     COALESCE(cp."DESARROLLO_ACTIVIDAD", '') AS development_activity,
                     COALESCE(cp."CIERRE_ACTIVIDAD", '') AS closing_activity,
+                    %s AS objective_selections_json,
                     cp."ESTADO",
                     cp."PUBLICADO_A_ALUMNOS",
                     u."USUARIO" AS created_by,
@@ -710,7 +739,7 @@ public class PlanningClassJdbcAdapter implements
                 JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID"
                 JOIN "USUARIOS" u ON u."ID" = cp."CREADO_POR_USUARIO_ID"
                 WHERE cp."ID" = ?
-                """, (rs, rowNum) -> mapPlanningClass(rs), classId).stream().findFirst()
+                """.formatted(objectiveSelectionsSelectSql()), (rs, rowNum) -> mapPlanningClass(rs), classId).stream().findFirst()
                 .map(this::withDocuments);
     }
 
@@ -756,7 +785,8 @@ public class PlanningClassJdbcAdapter implements
                 rs.getTimestamp("FECHA_ACTUALIZACION").toLocalDateTime(),
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                parseObjectiveSelections(rs.getString("objective_selections_json"))
         );
     }
 
@@ -808,7 +838,8 @@ public class PlanningClassJdbcAdapter implements
                 planningClass.updatedAt(),
                 findByClassId(planningClass.id(), documentType),
                 findCurriculumObjectiveIdsByClassId(planningClass.id()),
-                findCurriculumObjectivesByClassId(planningClass.id())
+                findCurriculumObjectivesByClassId(planningClass.id()),
+                planningClass.objectiveSelections()
         );
     }
 
@@ -861,6 +892,26 @@ public class PlanningClassJdbcAdapter implements
                 .toList();
     }
 
+    private String writeObjectiveSelections(List<PlanningClassObjectiveSelection> objectiveSelections) {
+        try {
+            return objectMapper.writeValueAsString(objectiveSelections == null ? List.of() : objectiveSelections);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("No fue posible serializar los indicadores de OA de la clase", exception);
+        }
+    }
+
+    private List<PlanningClassObjectiveSelection> parseObjectiveSelections(String rawJson) {
+        if (rawJson == null || rawJson.isBlank()) {
+            return List.of();
+        }
+
+        try {
+            return objectMapper.readValue(rawJson, new TypeReference<List<PlanningClassObjectiveSelection>>() {});
+        } catch (Exception exception) {
+            return List.of();
+        }
+    }
+
     private void deleteCurriculumObjectiveLinks(Long classId) {
         try {
             jdbcTemplate.update("""
@@ -869,6 +920,38 @@ public class PlanningClassJdbcAdapter implements
                     """, classId);
         } catch (BadSqlGrammarException ignored) {
             // Ignore while the curriculum schema is not available yet.
+        }
+    }
+
+    private String objectiveSelectionsSelectSql() {
+        return hasObjectiveSelectionsColumn()
+                ? "COALESCE(cp.\"OA_INDICADORES_JSON\"::text, '[]')"
+                : "'[]'";
+    }
+
+    private boolean hasObjectiveSelectionsColumn() {
+        Boolean cached = objectiveSelectionsColumnAvailable;
+        if (cached != null) {
+            return cached;
+        }
+
+        synchronized (this) {
+            if (objectiveSelectionsColumnAvailable != null) {
+                return objectiveSelectionsColumnAvailable;
+            }
+
+            Boolean exists = jdbcTemplate.query("""
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM information_schema.columns
+                        WHERE table_schema = current_schema()
+                          AND table_name = 'CLASES_PLANIFICACION'
+                          AND column_name = 'OA_INDICADORES_JSON'
+                    )
+                    """, rs -> rs.next() && rs.getBoolean(1));
+
+            objectiveSelectionsColumnAvailable = Boolean.TRUE.equals(exists);
+            return objectiveSelectionsColumnAvailable;
         }
     }
 }

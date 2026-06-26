@@ -120,6 +120,7 @@ public interface ManageEnrollmentsPort {
             String studentRun,
             String studentName,
             String studentLastName,
+            String username,
             String guardianEmail,
             String guardianPhone,
             String encodedPassword,

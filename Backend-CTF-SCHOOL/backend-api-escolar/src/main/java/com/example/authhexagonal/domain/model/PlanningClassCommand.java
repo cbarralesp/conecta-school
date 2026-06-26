@@ -15,6 +15,7 @@ public record PlanningClassCommand(
         String startActivity,
         String developmentActivity,
         String closingActivity,
-        List<UUID> objectiveIds
+        List<UUID> objectiveIds,
+        List<PlanningClassObjectiveSelection> objectiveSelections
 ) {
 }

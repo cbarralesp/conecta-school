@@ -269,6 +269,7 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
                 request.studentRun(),
                 request.studentName(),
                 request.studentLastName(),
+                resolveStudentUsername(request, studentAccess),
                 request.guardian().email(),
                 request.guardian().phone(),
                 passwordEncoder.encode(resolveTemporaryPassword(request, studentAccess)),
@@ -383,9 +384,22 @@ public class EnrollmentService implements ManageEnrollmentsUseCase {
         }
 
         String normalizedRun = request.studentRun().replaceAll("[^0-9kK]", "").toUpperCase();
-        String suffix = normalizedRun.length() >= 4 ? normalizedRun.substring(normalizedRun.length() - 4) : "2024";
-        String firstInitial = request.studentName().isBlank() ? "A" : request.studentName().trim().substring(0, 1).toUpperCase();
-        return "Tfs" + firstInitial + suffix + "!";
+        if (normalizedRun.length() <= 1) {
+            return normalizedRun;
+        }
+        return normalizedRun.substring(0, normalizedRun.length() - 1);
+    }
+
+    private String resolveStudentUsername(EnrollmentRequest request, EnrollmentStudentAccess studentAccess) {
+        if (studentAccess.username() != null && !studentAccess.username().isBlank()) {
+            return studentAccess.username().trim();
+        }
+
+        String normalizedRun = request.studentRun().replaceAll("[^0-9kK]", "").toUpperCase();
+        if (normalizedRun.length() <= 1) {
+            return normalizedRun;
+        }
+        return normalizedRun.substring(0, normalizedRun.length() - 1) + "-" + normalizedRun.substring(normalizedRun.length() - 1);
     }
 
     private String resolveGuardianTemporaryPassword(EnrollmentRequest request, EnrollmentGuardianAccess guardianAccess) {

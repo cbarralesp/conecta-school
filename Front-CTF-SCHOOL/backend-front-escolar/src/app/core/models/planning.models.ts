@@ -87,6 +87,7 @@ export interface PlanningClassCatalogUnit {
 }
 
 export interface PlanningObjectiveOption {
+  id: string | null;
   code: string;
   label: string;
   description: string;
@@ -94,6 +95,12 @@ export interface PlanningObjectiveOption {
   axis: string;
   skills: string[];
   attitudes: string[];
+}
+
+export interface PlanningClassObjectiveSelection {
+  objectiveId: string | null;
+  objectiveCode: string;
+  indicators: string[];
 }
 
 export interface PlanningClassCatalogs {
@@ -115,16 +122,24 @@ export interface PlanningClassPayload {
   developmentActivity: string;
   closingActivity: string;
   objectiveIds?: string[];
+  objectiveSelections?: PlanningClassObjectiveSelection[];
 }
 
 export interface PlanningClassSuggestionPayload {
   subjectName: string;
   courseName: string;
+  unitName?: string;
+  unitType?: string;
+  durationMinutes?: number;
   objectiveCode: string;
   objectiveDescription: string;
   objectiveType: 'conocimiento' | 'habilidad';
   objectiveAxis: string;
   subItems: string[];
+  transversalObjectives?: string[];
+  evaluationIndicators?: string[];
+  selectedObjectives?: string[];
+  selectedObjectiveIndicators?: string[];
 }
 
 export interface PlanningClassSuggestion {
@@ -133,6 +148,7 @@ export interface PlanningClassSuggestion {
   startActivity: string;
   developmentActivity: string;
   closingActivity: string;
+  indicatorsCovered: string[];
   diversitySupport: string;
   statusMessage: string;
   providerUsed: string;
@@ -180,6 +196,7 @@ export interface PlanningClass {
   documents: PlanningClassDocument[];
   objectiveIds: string[];
   curriculumObjectives: CurriculumObjective[];
+  objectiveSelections: PlanningClassObjectiveSelection[];
 }
 
 export type PlanningDocumentFileType = 'WORD' | 'PDF' | 'PPT' | 'OTRO';

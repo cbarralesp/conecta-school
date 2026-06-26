@@ -3,6 +3,7 @@ package com.example.authhexagonal.domain.model;
 import java.util.List;
 
 public record PlanningObjectiveOption(
+        String id,
         String code,
         String label,
         String description,
@@ -12,6 +13,6 @@ public record PlanningObjectiveOption(
         List<String> attitudes
 ) {
     public PlanningObjectiveOption(String code, String label, String description, Long unitId) {
-        this(code, label, description, unitId, "", List.of(), List.of());
+        this(null, code, label, description, unitId, "", List.of(), List.of());
     }
 }

@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgClass, NgStyle } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, ViewChild, computed, inject, signal } from '@angular/core';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -43,6 +43,8 @@ type StudentScheduleViewItem = {
   order?: number | null;
 };
 
+type DashboardOverviewTab = 'grades' | 'performance' | 'attendance';
+
 @Component({
   selector: 'app-student-dashboard-page',
   imports: [
@@ -64,7 +66,7 @@ type StudentScheduleViewItem = {
   styleUrl: './student-dashboard-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StudentDashboardPageComponent {
+export class StudentDashboardPageComponent implements OnDestroy {
   @ViewChild('studentSchedulePdf') private studentSchedulePdfRef?: ElementRef<HTMLElement>;
   @ViewChild('studentReportPdf') private studentReportPdfRef?: ElementRef<HTMLElement>;
 
@@ -74,6 +76,8 @@ export class StudentDashboardPageComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private overviewTabRotationId: number | null = null;
+  private overviewTabAutoEnabled = true;
 
   readonly isLoading = signal(true);
   readonly dashboard = signal<StudentDashboard | null>(null);
@@ -84,7 +88,9 @@ export class StudentDashboardPageComponent {
   readonly gradesSearch = signal('');
   readonly gradesSubjectFilter = signal('all');
   readonly selectedGradeSubjectName = signal<string | null>(null);
+  readonly selectedOverviewTab = signal<DashboardOverviewTab>('grades');
   readonly selectedScheduleMobileDay = signal('LUNES');
+  readonly overviewSchedulePage = signal(0);
   readonly isExportingSchedulePdf = signal(false);
   readonly isExportingReportPdf = signal(false);
   readonly isReportPreviewOpen = signal(false);
@@ -145,7 +151,7 @@ export class StudentDashboardPageComponent {
     {
       label: 'Promedio general',
       value: this.averageValue() !== null ? this.averageValue()!.toFixed(1) : '-',
-      helper: 'Resumen academico',
+      helper: 'Resumen académico',
       tone: this.scoreTone(this.averageValue()),
       icon: 'trending_up'
     },
@@ -161,16 +167,58 @@ export class StudentDashboardPageComponent {
       value: this.studentSubjects().length || this.dashboard()?.subjects.length || 0,
       helper: 'Activas',
       tone: 'brand',
-      icon: 'emoji_events'
+      icon: 'menu_book'
     },
     {
-      label: 'Ultima nota',
+      label: 'Última nota',
       value: this.dashboard()?.latestGrades[0]?.score?.toFixed(1) ?? '-',
       helper: this.dashboard()?.latestGrades[0]?.subjectName ?? 'Sin registros',
       tone: this.scoreTone(this.dashboard()?.latestGrades[0]?.score ?? null),
       icon: 'star'
     }
   ]);
+
+  dashboardStatValueColor(tone: string): string {
+    switch (tone) {
+      case 'success':
+        return '#0f9d6b';
+      case 'warning':
+      case 'amber':
+        return '#d97706';
+      case 'danger':
+        return '#e3342f';
+      case 'violet':
+        return '#5f35f2';
+      case 'rose':
+        return '#e11d48';
+      case 'brand':
+      case 'blue':
+      default:
+        return '#2f65e1';
+    }
+  }
+
+  dashboardStatIconBackground(tone: string): string {
+    switch (tone) {
+      case 'success':
+        return '#ecfdf5';
+      case 'warning':
+        return '#fffbeb';
+      case 'danger':
+        return '#fef2f2';
+      case 'violet':
+        return '#ede9fe';
+      case 'rose':
+        return '#ffe4eb';
+      case 'amber':
+        return '#fff3d6';
+      case 'blue':
+        return '#e0ecff';
+      case 'brand':
+      default:
+        return '#eff6ff';
+    }
+  }
 
   readonly cards = computed(() => [
     {
@@ -312,7 +360,33 @@ export class StudentDashboardPageComponent {
         isPast: this.toMinutes(item.endTime) < currentMinutes
       }));
   });
+  readonly overviewSchedulePageCount = computed(() => Math.max(1, Math.ceil(this.todaySchedule().length / 4)));
+  readonly overviewScheduleItems = computed(() => {
+    const items = this.todaySchedule();
+    const pageCount = this.overviewSchedulePageCount();
+    const page = Math.max(0, Math.min(this.overviewSchedulePage(), pageCount - 1));
+    const start = page * 4;
+    return items.slice(start, start + 4);
+  });
   readonly attendanceWeek = computed(() => this.attendance()?.currentWeek ?? []);
+  readonly overviewAttendanceBars = computed(() => {
+    const week = this.attendanceWeek();
+    if (week.length > 0) {
+      return week.slice(0, 5).map((day) => ({
+        label: day.dayLabel,
+        value: day.status === 'PRESENTE' ? 100 : day.status === 'ATRASO' ? 70 : day.status === 'AUSENTE' ? 36 : 52,
+        color: day.status === 'PRESENTE' ? '#22c55e' : day.status === 'ATRASO' ? '#f59e0b' : day.status === 'AUSENTE' ? '#ef4444' : '#cbd5e1'
+      }));
+    }
+
+    return [
+      { label: 'Lun', value: 100, color: '#22c55e' },
+      { label: 'Mar', value: 100, color: '#22c55e' },
+      { label: 'Mié', value: 84, color: '#22c55e' },
+      { label: 'Jue', value: 100, color: '#22c55e' },
+      { label: 'Vie', value: 92, color: '#22c55e' }
+    ];
+  });
   readonly recentAttendance = computed(() => this.attendance()?.recentRecords.slice(0, 3) ?? []);
   readonly quickLinks = computed(() => [
     {
@@ -335,11 +409,38 @@ export class StudentDashboardPageComponent {
       route: '/alumno/asignaturas',
       icon: 'library_books',
       tone: 'tone-violet'
+    },
+    {
+      title: 'Mi horario',
+      description: 'Revisa tus bloques de hoy',
+      route: '/alumno/horario',
+      icon: 'calendar_month',
+      tone: 'tone-brand'
+    },
+    {
+      title: 'Actividades',
+      description: `${this.dashboard()?.upcomingActivitiesCount ?? 0} actividad(es) disponibles`,
+      route: '/alumno/actividades',
+      icon: 'event',
+      tone: 'tone-warning'
     }
   ]);
   readonly heroFullName = computed(() => this.dashboard()?.studentName ?? 'Estudiante');
   readonly heroMeta = computed(() => `${this.currentCourseLabel()} · ${this.dashboard()?.studentRun ?? 'Sin RUN'} · Torre Fuerte School`);
   readonly topGradeSubjects = computed(() => this.gradeSubjects().slice(0, 6));
+  readonly overviewAcademicSubjects = computed(() => {
+    const preferredOrder = ['Lenguaje', 'Matematica', 'Matemática', 'Ciencias'];
+    const subjects = this.gradeSubjects();
+    const selected = preferredOrder
+      .map((name) => subjects.find((subject) => this.normalizeText(subject.subjectName).includes(this.normalizeText(name))))
+      .filter((subject, index, array): subject is (typeof subjects)[number] => !!subject && array.indexOf(subject) === index);
+
+    if (selected.length >= 3) {
+      return selected.slice(0, 3);
+    }
+
+    return subjects.slice(0, 3);
+  });
   readonly recentObservations = computed(() =>
     (this.attendance()?.recentRecords ?? [])
       .filter((record) => record.note?.trim())
@@ -764,6 +865,11 @@ export class StudentDashboardPageComponent {
       this.activeSection.set((data['section'] as StudentSection | undefined) ?? 'overview');
     });
     this.loadDashboard();
+    this.startOverviewTabRotation();
+  }
+
+  ngOnDestroy(): void {
+    this.stopOverviewTabRotation();
   }
 
   logout(): void {
@@ -781,6 +887,19 @@ export class StudentDashboardPageComponent {
 
   openStudentRoute(route: string): void {
     void this.router.navigate([route]);
+  }
+
+  selectOverviewTab(tab: DashboardOverviewTab): void {
+    this.overviewTabAutoEnabled = false;
+    this.selectedOverviewTab.set(tab);
+  }
+
+  previousOverviewSchedulePage(): void {
+    this.overviewSchedulePage.update((page) => Math.max(0, page - 1));
+  }
+
+  nextOverviewSchedulePage(): void {
+    this.overviewSchedulePage.update((page) => Math.min(this.overviewSchedulePageCount() - 1, page + 1));
   }
 
   updateStudentSearch(value: string): void {
@@ -1426,6 +1545,27 @@ export class StudentDashboardPageComponent {
       next: (attendance) => this.attendance.set(attendance),
       error: () => this.attendance.set(null)
     });
+  }
+
+  private startOverviewTabRotation(): void {
+    this.stopOverviewTabRotation();
+    this.overviewTabRotationId = window.setInterval(() => {
+      if (!this.overviewTabAutoEnabled || this.activeSection() !== 'overview') {
+        return;
+      }
+
+      const order: DashboardOverviewTab[] = ['grades', 'performance', 'attendance'];
+      const currentIndex = order.indexOf(this.selectedOverviewTab());
+      const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % order.length : 0;
+      this.selectedOverviewTab.set(order[nextIndex]);
+    }, 10000);
+  }
+
+  private stopOverviewTabRotation(): void {
+    if (this.overviewTabRotationId !== null) {
+      window.clearInterval(this.overviewTabRotationId);
+      this.overviewTabRotationId = null;
+    }
   }
 
   private scoreTone(score: number | null | undefined): 'success' | 'warning' | 'danger' | 'brand' {

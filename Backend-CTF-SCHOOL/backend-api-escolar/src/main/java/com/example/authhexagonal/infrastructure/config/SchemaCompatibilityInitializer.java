@@ -25,6 +25,7 @@ public class SchemaCompatibilityInitializer {
         ensureSchedulePeriodColumn();
         ensureScheduleCourseScope();
         ensureGradeEvaluationColumns();
+        ensurePedagogicalReportsSchema();
         ensureCourseNormalizationSchema();
         ensureSubjectEvaluationType();
         ensureConceptualGradeValue();
@@ -242,6 +243,34 @@ public class SchemaCompatibilityInitializer {
                 """);
     }
 
+    private void ensurePedagogicalReportsSchema() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para informes pedagogicos");
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "INFORMES_PEDAGOGICOS" (
+                    "ID" BIGSERIAL PRIMARY KEY,
+                    "CURSO_ID" BIGINT NOT NULL REFERENCES "CURSOS" ("ID"),
+                    "PERIODO_ID" BIGINT NOT NULL REFERENCES "PERIODOS_ACADEMICOS" ("ID"),
+                    "ALUMNO_ID" BIGINT NOT NULL REFERENCES "ALUMNOS" ("ID"),
+                    "CONTENIDO_JSON" JSONB NOT NULL DEFAULT '{}'::jsonb,
+                    "ACTIVO" BOOLEAN NOT NULL DEFAULT TRUE,
+                    "CREADO_EN" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    "ACTUALIZADO_EN" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT "UK_INFORMES_PEDAGOGICOS_CURSO_PERIODO_ALUMNO" UNIQUE ("CURSO_ID", "PERIODO_ID", "ALUMNO_ID")
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_INFORMES_PEDAGOGICOS_CURSO_PERIODO"
+                ON "INFORMES_PEDAGOGICOS" ("CURSO_ID", "PERIODO_ID")
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_INFORMES_PEDAGOGICOS_ALUMNO"
+                ON "INFORMES_PEDAGOGICOS" ("ALUMNO_ID")
+                """);
+    }
+
     private void ensureEnrollmentExtendedContacts() {
         jdbcTemplate.execute("""
                 ALTER TABLE "ALUMNOS"
@@ -396,11 +425,11 @@ public class SchemaCompatibilityInitializer {
                 ) AS grades(level_name, grade_name, code_token, sort_order)
                 JOIN "CURSO_NIVELES" levels
                   ON UPPER(TRANSLATE(levels."NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(grades.level_name, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM "CURSO_GRADOS" existing
-                    WHERE UPPER(TRANSLATE(existing."NOMBRE", 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN')) = UPPER(TRANSLATE(grades.grade_name, 'áéíóúÁÉÍÓÚñÑ', 'aeiouAEIOUnN'))
-                )
+                ON CONFLICT ("ORDEN") DO UPDATE
+                SET "NIVEL_ID" = EXCLUDED."NIVEL_ID",
+                    "NOMBRE" = EXCLUDED."NOMBRE",
+                    "CODIGO_TOKEN" = EXCLUDED."CODIGO_TOKEN",
+                    "ACTIVO" = EXCLUDED."ACTIVO"
                 """);
 
         jdbcTemplate.execute("""
@@ -929,3 +958,4 @@ public class SchemaCompatibilityInitializer {
     }
 
 }
+

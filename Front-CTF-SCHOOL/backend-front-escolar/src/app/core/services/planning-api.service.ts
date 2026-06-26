@@ -62,6 +62,12 @@ export class PlanningApiService {
     );
   }
 
+  getUnitById(unitId: number): Observable<PlanningUnit> {
+    return this.http
+      .get<PlanningUnit>(`${API_CONFIG.baseUrl}/planning/units/${unitId}`)
+      .pipe(map((unit) => this.normalizeUnit(unit)));
+  }
+
   createUnit(payload: PlanningUnitPayload): Observable<PlanningUnit> {
     return this.http
       .post<PlanningUnit>(`${API_CONFIG.baseUrl}/planning/units`, payload)
@@ -77,6 +83,12 @@ export class PlanningApiService {
   updateUnit(unitId: number, payload: Pick<PlanningUnitPayload, 'unitNumber' | 'name'>): Observable<PlanningUnit> {
     return this.http
       .put<PlanningUnit>(`${API_CONFIG.baseUrl}/planning/units/${unitId}`, payload)
+      .pipe(map((unit) => this.normalizeUnit(unit)));
+  }
+
+  updateUnitDetails(unitId: number, payload: PlanningUnitPayload): Observable<PlanningUnit> {
+    return this.http
+      .put<PlanningUnit>(`${API_CONFIG.baseUrl}/planning/units/${unitId}/details`, payload)
       .pipe(map((unit) => this.normalizeUnit(unit)));
   }
 
@@ -101,6 +113,7 @@ export class PlanningApiService {
           })),
           objectives: catalogs.objectives.map((objective) => ({
             ...objective,
+            id: objective.id,
             code: normalizeDashboardText(objective.code),
             label: normalizeDashboardText(objective.label),
             description: normalizeDashboardText(objective.description),
@@ -190,10 +203,22 @@ export class PlanningApiService {
   }
 
   generateClassSuggestion(payload: PlanningClassSuggestionPayload): Observable<PlanningClassSuggestion> {
-    return this.http.post<PlanningClassSuggestion>(
-      `${API_CONFIG.baseUrl}/planning/classes/suggestion`,
-      payload
-    );
+    return this.http
+      .post<PlanningClassSuggestion>(`${API_CONFIG.baseUrl}/planning/classes/suggestion`, payload)
+      .pipe(
+        map((suggestion) => ({
+          ...suggestion,
+          title: normalizeDashboardText(suggestion.title),
+          objectiveSummary: normalizeDashboardText(suggestion.objectiveSummary),
+          startActivity: normalizeDashboardText(suggestion.startActivity),
+          developmentActivity: normalizeDashboardText(suggestion.developmentActivity),
+          closingActivity: normalizeDashboardText(suggestion.closingActivity),
+          indicatorsCovered: (suggestion.indicatorsCovered ?? []).map((item) => normalizeDashboardText(item)),
+          diversitySupport: normalizeDashboardText(suggestion.diversitySupport),
+          statusMessage: normalizeDashboardText(suggestion.statusMessage),
+          providerUsed: normalizeDashboardText(suggestion.providerUsed)
+        }))
+      );
   }
 
   deleteClass(classId: number): Observable<void> {
@@ -352,6 +377,12 @@ export class PlanningApiService {
       createdBy: normalizeDashboardText(planningClass.createdBy),
       documents: planningClass.documents.map((document) => this.normalizeDocument(document)),
       objectiveIds: planningClass.objectiveIds ?? [],
+      objectiveSelections: (planningClass.objectiveSelections ?? []).map((selection) => ({
+        ...selection,
+        objectiveId: selection.objectiveId ?? null,
+        objectiveCode: normalizeDashboardText(selection.objectiveCode),
+        indicators: (selection.indicators ?? []).map((item) => normalizeDashboardText(item))
+      })),
       curriculumObjectives: (planningClass.curriculumObjectives ?? []).map((objective) => ({
         ...objective,
         codigo: normalizeDashboardText(objective.codigo),

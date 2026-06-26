@@ -16,7 +16,8 @@ public record AdministrationUserRequest(
         @NotBlank @Email String email,
         @NotBlank @Pattern(regexp = "^\\d{1,2}\\.\\d{3}\\.\\d{3}-[\\dkK]$") String run,
         @NotBlank @Pattern(regexp = "^\\+56\\s9\\s\\d{4}\\s\\d{4}$") String phone,
-        @NotBlank String initialStatus,
+        String initialStatus,
+        String status,
         @NotBlank String roleCode,
         String temporaryPassword,
         @NotNull Boolean forcePasswordChange,
@@ -32,12 +33,22 @@ public record AdministrationUserRequest(
                 email,
                 run,
                 phone,
-                initialStatus,
+                resolveStatus(),
                 roleCode,
                 temporaryPassword == null ? "" : temporaryPassword,
                 Boolean.TRUE.equals(forcePasswordChange),
                 Boolean.TRUE.equals(twoFactorRequired),
                 accountExpiresAt
         );
+    }
+
+    private String resolveStatus() {
+        if (initialStatus != null && !initialStatus.isBlank()) {
+            return initialStatus.trim();
+        }
+        if (status != null && !status.isBlank()) {
+            return status.trim();
+        }
+        return "Activo";
     }
 }

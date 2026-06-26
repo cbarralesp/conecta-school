@@ -1,6 +1,7 @@
 package com.example.authhexagonal.infrastructure.adapter.in.web;
 
 import com.example.authhexagonal.domain.model.PlanningClassCommand;
+import com.example.authhexagonal.domain.model.PlanningClassObjectiveSelection;
 import com.example.authhexagonal.domain.model.PlanningClassDocumentUploadCommand;
 import com.example.authhexagonal.domain.model.PlanningClassSuggestionCommand;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
@@ -20,10 +21,12 @@ import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClass
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassCreateRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassDocumentResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassDraftRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningAiStatusResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassSuggestionRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassSuggestionResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassTitleUpdateRequest;
+import com.example.authhexagonal.infrastructure.config.AiProperties;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -57,6 +60,7 @@ public class PlanningClassController {
     private final RemovePlanningClassDocumentUseCase removePlanningClassDocumentUseCase;
     private final UpdatePlanningClassUseCase updatePlanningClassUseCase;
     private final UpdatePlanningClassTitleUseCase updatePlanningClassTitleUseCase;
+    private final AiProperties aiProperties;
 
     public PlanningClassController(
             GetPlanningClassCatalogsUseCase getPlanningClassCatalogsUseCase,
@@ -69,7 +73,8 @@ public class PlanningClassController {
             AttachPlanningClassDocumentUseCase attachPlanningClassDocumentUseCase,
             RemovePlanningClassDocumentUseCase removePlanningClassDocumentUseCase,
             UpdatePlanningClassUseCase updatePlanningClassUseCase,
-            UpdatePlanningClassTitleUseCase updatePlanningClassTitleUseCase
+            UpdatePlanningClassTitleUseCase updatePlanningClassTitleUseCase,
+            AiProperties aiProperties
     ) {
         this.getPlanningClassCatalogsUseCase = getPlanningClassCatalogsUseCase;
         this.getPlanningClassUseCase = getPlanningClassUseCase;
@@ -82,6 +87,7 @@ public class PlanningClassController {
         this.removePlanningClassDocumentUseCase = removePlanningClassDocumentUseCase;
         this.updatePlanningClassUseCase = updatePlanningClassUseCase;
         this.updatePlanningClassTitleUseCase = updatePlanningClassTitleUseCase;
+        this.aiProperties = aiProperties;
     }
 
     @GetMapping("/catalogs")
@@ -114,6 +120,11 @@ public class PlanningClassController {
                 ).stream()
                 .map(PlanningClassResponse::fromDomain)
                 .toList();
+    }
+
+    @GetMapping("/ai-status")
+    public PlanningAiStatusResponse getAiStatus() {
+        return PlanningAiStatusResponse.from(aiProperties);
     }
 
     @GetMapping("/{classId}")
@@ -190,11 +201,18 @@ public class PlanningClassController {
                         new PlanningClassSuggestionCommand(
                                 request.subjectName(),
                                 request.courseName(),
+                                request.unitName(),
+                                request.unitType(),
+                                request.durationMinutes(),
                                 request.objectiveCode(),
                                 request.objectiveDescription(),
                                 request.objectiveType(),
                                 request.objectiveAxis(),
-                                request.subItems()
+                                request.subItems(),
+                                request.transversalObjectives(),
+                                request.evaluationIndicators(),
+                                request.selectedObjectives(),
+                                request.selectedObjectiveIndicators()
                         )
                 )
         );
@@ -245,7 +263,8 @@ public class PlanningClassController {
                 request.startActivity(),
                 request.developmentActivity(),
                 request.closingActivity(),
-                request.objectiveIds()
+                request.objectiveIds(),
+                mapObjectiveSelections(request.objectiveSelections())
         );
     }
 
@@ -261,8 +280,26 @@ public class PlanningClassController {
                 request.startActivity(),
                 request.developmentActivity(),
                 request.closingActivity(),
-                request.objectiveIds()
+                request.objectiveIds(),
+                mapObjectiveSelections(request.objectiveSelections())
         );
+    }
+
+    private java.util.List<PlanningClassObjectiveSelection> mapObjectiveSelections(
+            java.util.List<com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningClassObjectiveSelectionRequest> selections
+    ) {
+        if (selections == null || selections.isEmpty()) {
+            return java.util.List.of();
+        }
+
+        return selections.stream()
+                .filter(java.util.Objects::nonNull)
+                .map(selection -> new PlanningClassObjectiveSelection(
+                        selection.objectiveId(),
+                        selection.objectiveCode(),
+                        selection.indicators() == null ? java.util.List.of() : selection.indicators()
+                ))
+                .toList();
     }
 
     private PlanningDocumentFileType parseDocumentType(String documentType) {

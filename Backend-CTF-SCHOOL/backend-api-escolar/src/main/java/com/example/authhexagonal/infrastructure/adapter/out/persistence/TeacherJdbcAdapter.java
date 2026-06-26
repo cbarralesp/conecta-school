@@ -147,6 +147,8 @@ public class TeacherJdbcAdapter {
     public void deleteTeacherPermanently(Long teacherId) {
         TeacherRecord teacher = findById(teacherId).orElseThrow();
 
+        detachTeacherFromPlanning(teacherId);
+
         if (tableExists("HORARIOS_CARGAS")) {
             jdbcTemplate.update("""
                     DELETE FROM "HORARIOS_CARGAS"
@@ -182,6 +184,61 @@ public class TeacherJdbcAdapter {
 
         if (personId != null && !personStillLinked(personId)) {
             jdbcTemplate.update("DELETE FROM \"PERSONAS\" WHERE \"ID\" = ?", personId);
+        }
+    }
+
+    private void detachTeacherFromPlanning(Long teacherId) {
+        if (tableExists("CLASES_PLANIFICACION_DOCUMENTOS")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "CLASES_PLANIFICACION_DOCUMENTOS"
+                    WHERE "UNIDAD_ID" IN (
+                        SELECT up."ID"
+                        FROM "UNIDADES_PLANIFICACION" up
+                        JOIN "CARGAS_DOCENTES" cd ON cd."ID" = up."CARGA_DOCENTE_ID"
+                        WHERE cd."PROFESOR_ID" = ?
+                    )
+                       OR "CLASE_ID" IN (
+                        SELECT cp."ID"
+                        FROM "CLASES_PLANIFICACION" cp
+                        JOIN "UNIDADES_PLANIFICACION" up ON up."ID" = cp."UNIDAD_ID"
+                        JOIN "CARGAS_DOCENTES" cd ON cd."ID" = up."CARGA_DOCENTE_ID"
+                        WHERE cd."PROFESOR_ID" = ?
+                    )
+                    """, teacherId, teacherId);
+        }
+
+        if (tableExists("CLASES_PLANIFICACION")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "CLASES_PLANIFICACION"
+                    WHERE "UNIDAD_ID" IN (
+                        SELECT up."ID"
+                        FROM "UNIDADES_PLANIFICACION" up
+                        JOIN "CARGAS_DOCENTES" cd ON cd."ID" = up."CARGA_DOCENTE_ID"
+                        WHERE cd."PROFESOR_ID" = ?
+                    )
+                    """, teacherId);
+        }
+
+        if (tableExists("PLANIFICACIONES")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "PLANIFICACIONES"
+                    WHERE "CARGA_DOCENTE_ID" IN (
+                        SELECT "ID"
+                        FROM "CARGAS_DOCENTES"
+                        WHERE "PROFESOR_ID" = ?
+                    )
+                    """, teacherId);
+        }
+
+        if (tableExists("UNIDADES_PLANIFICACION")) {
+            jdbcTemplate.update("""
+                    DELETE FROM "UNIDADES_PLANIFICACION"
+                    WHERE "CARGA_DOCENTE_ID" IN (
+                        SELECT "ID"
+                        FROM "CARGAS_DOCENTES"
+                        WHERE "PROFESOR_ID" = ?
+                    )
+                    """, teacherId);
         }
     }
 
@@ -1307,6 +1364,7 @@ public class TeacherJdbcAdapter {
         String normalizedMaternalLastName = normalizeUsernamePart(maternalLastName);
 
         String firstInitial = normalizedFirstName.isBlank() ? "" : normalizedFirstName.substring(0, 1);
+        String maternalInitial = normalizedMaternalLastName.isBlank() ? "" : normalizedMaternalLastName.substring(0, 1);
         String base = (firstInitial + normalizedPaternalLastName).toLowerCase(Locale.ROOT);
         if (base.isBlank()) {
             base = "ASISTENTE".equalsIgnoreCase(staffType) ? "asistente" : "docente";
@@ -1317,7 +1375,6 @@ public class TeacherJdbcAdapter {
             return candidate;
         }
 
-        String maternalInitial = normalizedMaternalLastName.isBlank() ? "" : normalizedMaternalLastName.substring(0, 1);
         if (!maternalInitial.isBlank()) {
             candidate = (base + maternalInitial).toLowerCase(Locale.ROOT);
             if (!usernameExists(candidate)) {

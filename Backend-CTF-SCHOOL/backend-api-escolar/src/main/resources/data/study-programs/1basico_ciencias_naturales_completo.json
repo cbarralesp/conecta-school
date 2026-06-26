@@ -1,0 +1,1535 @@
+{
+  "metadata": {
+    "titulo": "Ciencias Naturales - Programa de Estudio",
+    "nivel": "1° Año Básico",
+    "ministerio": "Ministerio de Educación, Gobierno de Chile",
+    "decreto": "D.S. 439/2012",
+    "edicion": "Segunda Edición 2018"
+  },
+  "ejes_tematicos": [
+    "Ciencias de la Vida",
+    "Ciencias Físicas y Químicas",
+    "Ciencias de la Tierra y el Universo"
+  ],
+  "habilidades_investigacion": {
+    "OA_a": {
+      "etapa": "Observar y preguntar",
+      "descripcion": "Explorar y observar la naturaleza, usando los sentidos apropiadamente durante investigaciones experimentales guiadas.",
+      "indicadores": [
+        "Observan la naturaleza usando los sentidos en forma apropiada.",
+        "Exploran y manipulan materiales y seres vivos durante investigaciones experimentales.",
+        "Dibujan diferentes elementos que observan de la naturaleza.",
+        "Mencionan los sentidos que utilizan para describir objetos y elementos del entorno.",
+        "Describen lo que observan usando los sentidos en forma simple."
+      ]
+    },
+    "OA_b": {
+      "etapa": "Experimentar",
+      "descripcion": "Explorar y experimentar, en forma guiada, con elementos del entorno, utilizando la observación, la medición con unidades no estandarizadas y la manipulación de materiales simples.",
+      "indicadores": [
+        "Exploran y manipulan materiales simples del entorno.",
+        "Realizan mediciones con unidades no estandarizadas.",
+        "Participan en investigaciones experimentales simples guiadas.",
+        "Manipulan materiales siguiendo instrucciones simples del docente."
+      ]
+    },
+    "OA_c": {
+      "etapa": "Experimentar - seguridad",
+      "descripcion": "Seguir las instrucciones para utilizar los materiales e instrumentos en forma segura.",
+      "indicadores": [
+        "Siguen instrucciones básicas de seguridad al manipular materiales e instrumentos.",
+        "Identifican situaciones de riesgo al utilizar materiales en investigaciones simples.",
+        "Utilizan los materiales e instrumentos de acuerdo a las instrucciones del docente."
+      ]
+    },
+    "OA_d": {
+      "etapa": "Analizar la evidencia y comunicar",
+      "descripcion": "Comunicar y comparar con otros sus ideas, observaciones y experiencias de forma oral y escrita, y por medio de juegos de roles y dibujos, entre otros.",
+      "indicadores": [
+        "Dibujan sus ideas, observaciones y experiencias sobre las investigaciones simples que realizan.",
+        "Establecen similitudes y diferencias, con sus compañeros, sobre los dibujos y resultados que obtuvieron.",
+        "Exponen ante el curso y grupos de trabajo, sus ideas, observaciones y resultados.",
+        "Comunican sus observaciones de forma oral y por medio de juego de roles o dibujos."
+      ]
+    }
+  },
+  "actitudes": [
+    {
+      "codigo": "a",
+      "descripcion": "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural."
+    },
+    {
+      "codigo": "b",
+      "descripcion": "Manifestar compromiso con un estilo de vida saludable a través del desarrollo físico y el autocuidado."
+    },
+    {
+      "codigo": "c",
+      "descripcion": "Manifestar un estilo de trabajo y estudio riguroso y perseverante para lograr los aprendizajes de la asignatura."
+    }
+  ],
+  "listado_completo_OA": {
+    "Ciencias_de_la_Vida": [
+      {
+        "codigo": "OA_1",
+        "descripcion": "Reconocer y observar, por medio de la exploración, que los seres vivos crecen, responden a estímulos del medio, se reproducen y necesitan agua, alimento y aire para vivir, comparándolos con las cosas no vivas."
+      },
+      {
+        "codigo": "OA_2",
+        "descripcion": "Observar y comparar animales de acuerdo a características como tamaño, cubierta corporal, estructuras de desplazamiento y hábitat, entre otras."
+      },
+      {
+        "codigo": "OA_3",
+        "descripcion": "Observar e identificar, por medio de la exploración, las estructuras principales de las plantas: hojas, flores, tallos y raíces."
+      },
+      {
+        "codigo": "OA_4",
+        "descripcion": "Observar y clasificar semillas, frutos, flores y tallos a partir de criterios como tamaño, forma, textura y color, entre otros."
+      },
+      {
+        "codigo": "OA_5",
+        "descripcion": "Reconocer y comparar diversas plantas y animales de nuestro país, considerando las características observables, proponiendo medidas para su cuidado."
+      },
+      {
+        "codigo": "OA_6",
+        "descripcion": "Identificar y describir la ubicación y la función de los sentidos proponiendo medidas para protegerlos y para prevenir situaciones de riesgo."
+      },
+      {
+        "codigo": "OA_7",
+        "descripcion": "Describir, dar ejemplos y practicar hábitos de vida saludable para mantener el cuerpo sano y prevenir enfermedades (actividad física, aseo del cuerpo, lavado de alimentos y alimentación saludable, entre otros)."
+      }
+    ],
+    "Ciencias_Fisicas_y_Quimicas": [
+      {
+        "codigo": "OA_8",
+        "descripcion": "Explorar y describir diferentes tipos de materiales en diversos objetos, clasificándolos según sus propiedades (goma-flexible, plástico-impermeable) e identificando su uso en la vida cotidiana."
+      },
+      {
+        "codigo": "OA_9",
+        "descripcion": "Observar y describir los cambios que se producen en los materiales al aplicarles fuerza, luz, calor y agua."
+      },
+      {
+        "codigo": "OA_10",
+        "descripcion": "Diseñar instrumentos tecnológicos simples considerando diversos materiales y sus propiedades para resolver problemas cotidianos."
+      }
+    ],
+    "Ciencias_de_la_Tierra_y_el_Universo": [
+      {
+        "codigo": "OA_11",
+        "descripcion": "Describir y registrar el ciclo diario y las diferencias entre el día y la noche, a partir de la observación del Sol, la Luna, las estrellas y la luminosidad del cielo, entre otras, y sus efectos en los seres vivos y el ambiente."
+      },
+      {
+        "codigo": "OA_12",
+        "descripcion": "Describir y comunicar los cambios del ciclo de las estaciones y sus efectos en los seres vivos y el ambiente."
+      }
+    ]
+  },
+  "vision_global": {
+    "total_semanas": 38,
+    "total_unidades": 4,
+    "distribucion": [
+      {
+        "unidad": 1,
+        "semestre": 1,
+        "horas": 30,
+        "oas": [
+          "OA_7",
+          "OA_6",
+          "OA_1"
+        ]
+      },
+      {
+        "unidad": 2,
+        "semestre": 1,
+        "horas": 27,
+        "oas": [
+          "OA_2",
+          "OA_3",
+          "OA_4",
+          "OA_5"
+        ]
+      },
+      {
+        "unidad": 3,
+        "semestre": 2,
+        "horas": 33,
+        "oas": [
+          "OA_8",
+          "OA_9",
+          "OA_10"
+        ]
+      },
+      {
+        "unidad": 4,
+        "semestre": 2,
+        "horas": 24,
+        "oas": [
+          "OA_11",
+          "OA_12"
+        ]
+      }
+    ]
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "semestre": 1,
+      "titulo": "Hábitos saludables, sentidos y seres vivos",
+      "horas_pedagogicas": 30,
+      "proposito": "El objetivo central de la unidad es que los niños adquieran y mantengan hábitos de vida saludable a temprana edad, para que dimensionen la importancia del cuidado de su propio cuerpo. Se espera que los estudiantes desarrollen adecuadas prácticas de aseo corporal, actividad física, lavado de alimentos y nutrición. Asimismo, se incentiva que exploren por medio de sus sentidos el mundo que los rodea con todos los cuidados necesarios, identificando a los seres vivos y sus características.",
+      "conocimientos_previos": [
+        "Ubicación de los cinco sentidos",
+        "Ejemplos básicos del cuidado del cuerpo",
+        "Elementos que forman la naturaleza: animales, plantas, piedra, suelo"
+      ],
+      "palabras_clave": [
+        "hábitos saludables",
+        "actividad física",
+        "aseo del cuerpo",
+        "alimentos saludables",
+        "los sentidos",
+        "tacto",
+        "visión",
+        "olfato",
+        "gusto",
+        "audición",
+        "piel",
+        "ojos",
+        "oídos",
+        "nariz",
+        "lengua",
+        "protección",
+        "seres vivos",
+        "cosas no vivas",
+        "reproducción",
+        "alimentación",
+        "estímulos",
+        "agua",
+        "luz",
+        "aire",
+        "alimento"
+      ],
+      "conocimientos": [
+        "Actividades y cuidados que permiten un desarrollo sano del cuerpo: actividad física y alimentación saludable, entre otras",
+        "Prevención de enfermedades por medio del correcto aseo del cuerpo y lavado de alimentos, entre otros",
+        "Los sentidos, sus órganos, funciones, cuidados y protección",
+        "Las características que permiten describir y diferenciar a los seres vivos de las cosas no vivas: crecer, responder a estímulos del medio y reproducirse",
+        "Las necesidades de los seres vivos: alimentación, aire, agua y protección"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar compromiso con un estilo de vida saludable a través del desarrollo físico y el autocuidado",
+        "Manifestar un estilo de trabajo y estudio riguroso y perseverante para lograr los aprendizajes de la asignatura"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_7",
+          "eje": "Ciencias de la Vida - Cuerpo humano y salud",
+          "descripcion": "Describir, dar ejemplos y practicar hábitos de vida saludable para mantener el cuerpo sano y prevenir enfermedades (actividad física, aseo del cuerpo, lavado de alimentos y alimentación saludable, entre otros).",
+          "indicadores_evaluacion": [
+            "Dibujan actividades físicas que permitan mantener el cuerpo sano",
+            "Participan en actividades físicas en la escuela y en el hogar",
+            "Dibujan hábitos de higiene del cuerpo",
+            "Recortan imágenes que ilustran elementos utilizados para su higiene corporal",
+            "Recrean prácticas adecuadas de aseo corporal",
+            "Dan ejemplos de alimentos saludables",
+            "Ilustran mediante dibujos cuidados necesarios para el consumo de mariscos y vegetales",
+            "Mencionan acciones para prevenir enfermedades",
+            "Describen la importancia del descanso nocturno para la salud"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Identificación de hábitos saludables con imágenes",
+              "descripcion": "Los estudiantes observan imágenes de distintos hábitos (lavarse los dientes, comer frutas y verduras, hacer ejercicio, dormir, bañarse). Clasifican en 'saludables' y 'no saludables'. Dibujan en su cuaderno dos hábitos saludables que practican en casa.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Prácticas de higiene corporal con materiales de aseo",
+              "descripcion": "El docente trae elementos de higiene corporal (jabón, cepillo de dientes, champú, peine, etc.). Los estudiantes los identifican, nombran y explican para qué se usa cada uno. Luego recortan imágenes de revistas que ilustren elementos utilizados para su higiene corporal y los pegan en una cartulina.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Juego de roles: prácticas de aseo corporal",
+              "descripcion": "Los estudiantes recrean en juego de roles las prácticas adecuadas de aseo corporal: lavarse las manos antes de comer, cepillarse los dientes, bañarse correctamente. El docente guía la actividad destacando la importancia de cada práctica para prevenir enfermedades.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Alimentos saludables y lavado de alimentos",
+              "descripcion": "El docente presenta diferentes alimentos (frutas, verduras, mariscos, papas fritas, dulces). Los estudiantes clasifican los alimentos en saludables y no saludables. Dibujan alimentos saludables para la colación y aprenden la importancia del lavado correcto de frutas, verduras y mariscos para prevenir enfermedades.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Actividades físicas y beneficios para el cuerpo",
+              "descripcion": "Los estudiantes dibujan actividades físicas que permitan mantener el cuerpo sano (correr, saltar, nadar, bailar, jugar a la pelota). El docente les explica los beneficios de la actividad física regular: mantiene los músculos fuertes, el corazón sano y ayuda a mantener un peso saludable.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Educación Física y Salud"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Importancia del descanso nocturno",
+              "descripcion": "El docente lee un texto corto sobre la importancia del sueño para la salud. Los estudiantes discuten cuántas horas duermen y por qué es importante dormir bien. Dibujan en su cuaderno de Ciencias una escena de descanso nocturno.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Acciones para prevenir enfermedades",
+              "descripcion": "Los estudiantes en grupos pequeños elaboran un listado de acciones para prevenir enfermedades: lavarse las manos, usar ropa abrigada en invierno, comer sano, vacunarse, no compartir vasos o cubiertos. Comunican oralmente sus listados al curso.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "a) Ilustra en el recuadro cuatro ejemplos de actividades de la vida diaria que mantienen el cuerpo activo. b) Ilustra en el recuadro cuatro ejemplos de hábitos que mantienen el cuerpo limpio. c) De revistas desechables, recorta imágenes que ilustren elementos que ayudan a mantener el cuerpo limpio. d) Dibuja alimentos saludables para tu colación.",
+              "indicadores_evaluados": [
+                "Dibujan actividades físicas que permitan mantener el cuerpo sano",
+                "Dibujan hábitos de higiene del cuerpo",
+                "Recortan imágenes que ilustran elementos utilizados para su higiene corporal",
+                "Dan ejemplos de alimentos saludables"
+              ],
+              "criterios": [
+                "Ilustran correctamente cuatro actividades físicas como correr, saltar, nadar o practicar deporte",
+                "Ilustran correctamente cuatro hábitos de higiene corporal como lavarse los dientes, bañarse, lavarse las manos o peinarse",
+                "Recortan imágenes apropiadas de elementos de higiene corporal como jabón, cepillo de dientes, champú",
+                "Dibujan alimentos saludables como frutas, verduras, lácteos o legumbres"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_6",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Identificar y describir la ubicación y la función de los sentidos proponiendo medidas para protegerlos y para prevenir situaciones de riesgo.",
+          "indicadores_evaluacion": [
+            "Identifican la ubicación de los órganos de los sentidos",
+            "Describen los usos de los sentidos en la vida diaria",
+            "Recrean situaciones donde el uso de los sentidos nos previene de situaciones de riesgo en el hogar, las calles y la escuela",
+            "Mencionan incapacidades producto de la falta de algún sentido",
+            "Dan ejemplo de actividades perjudiciales para los órganos de los sentidos",
+            "Ilustran cuidados y medidas de protección para los órganos de los sentidos"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Poema o texto sobre los sentidos - silueta humana rotulada",
+              "descripcion": "Los estudiantes escuchan un poema o texto sobre los sentidos. Luego conversan acerca de los órganos que usamos para cada uno de ellos. Estos se registran mediante dibujos que realizan los estudiantes o el profesor en el pizarrón. Posteriormente trazan la silueta de un estudiante voluntario sobre un papel Kraft y luego la recortan. Sobre el recorte dibujan los órganos de los sentidos y rotulan el nombre de los órganos y el sentido al que pertenecen. El docente exhibe los trabajos terminados en las paredes de la sala.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Actividades cotidianas en que se usan los sentidos",
+              "descripcion": "Los estudiantes conversan sobre actividades en que usan los sentidos en la vida diaria. Estas se registran en el cuaderno de ciencias, separándolas en dos columnas: una 'en la escuela' y otra 'en mi casa', con espacios para ilustraciones que representen el uso de cada sentido. Luego los estudiantes comunican al curso una de las actividades registradas.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Observación con lupa - sentido de la visión",
+              "descripcion": "Los estudiantes observan detalles del patio del colegio y de su sala de clases usando una lupa simple. Luego, con ayuda del profesor, registran tres objetos o seres vivos que les fueron de mayor interés. Comparten sus registros e identifican las ventajas de este instrumento identificando el apoyo al sentido de la visión. El docente debe modelar previamente el adecuado uso de la lupa y mencionar medidas de precaución.",
+              "habilidades": [
+                "OA_a",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Experimento: identificar objetos con los ojos vendados - tacto y olfato",
+              "descripcion": "Los estudiantes, con los ojos vendados, intentan identificar objetos usando el tacto (textura, temperatura, forma) y el olfato. Registran sus observaciones por medio de dibujos. Reflexionan sobre cuánto nos ayudan estos sentidos cuando no podemos ver.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Experimento: identificar sonidos - sentido del oído",
+              "descripcion": "El docente graba o reproduce diferentes sonidos (voz humana, animales, objetos cotidianos, música, alerta de peligro). Los estudiantes, con los ojos cerrados, identifican y clasifican los sonidos. Discuten cuándo el oído nos advierte de situaciones de riesgo.",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "otras_asignaturas": [
+                "Música"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Experimento: sentido del gusto - sabores básicos",
+              "descripcion": "Los estudiantes, con los ojos vendados, prueban alimentos con distintos sabores: dulce (azúcar), salado (sal), ácido (limón) y amargo (cacao sin azúcar). Identifican los sabores y los ubican en las zonas de la lengua que los perciben. Registran sus observaciones con dibujos.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Medidas de protección de los órganos de los sentidos",
+              "descripcion": "Los estudiantes investigan y discuten en grupos qué actividades son perjudiciales para los órganos de los sentidos (música muy fuerte para los oídos, mirar pantallas muy cerca o mucho tiempo para los ojos, etc.) y proponen medidas de protección. Ilustran sus propuestas en afiches para el diario mural de la sala.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 8,
+              "titulo": "Situaciones de riesgo prevenidas por los sentidos",
+              "descripcion": "El docente plantea situaciones cotidianas donde los sentidos previenen riesgos (oler el gas, ver el semáforo, oír el timbre de alarma, tocar para no quemarse). Los estudiantes recrean situaciones en juego de roles donde usan los sentidos para prevenir situaciones de riesgo en el hogar, las calles y la escuela.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "Observa las siguientes imágenes (imágenes de personas usando sus sentidos en situaciones cotidianas y de riesgo). a) Identifica qué sentido está usando la persona en cada imagen. b) Dibuja el órgano del sentido que corresponde. c) Explica cómo este sentido ayuda a la persona en la situación mostrada. d) Propón una medida de protección para ese órgano del sentido.",
+              "indicadores_evaluados": [
+                "Identifican la ubicación de los órganos de los sentidos",
+                "Describen los usos de los sentidos en la vida diaria",
+                "Recrean situaciones donde el uso de los sentidos nos previene de situaciones de riesgos",
+                "Ilustran cuidados y medidas de protección para los órganos de los sentidos"
+              ],
+              "criterios": [
+                "Identifican correctamente el sentido que se usa en cada imagen",
+                "Dibujan correctamente el órgano del sentido correspondiente",
+                "Explican en forma simple cómo el sentido ayuda a la persona en la situación mostrada",
+                "Proponen medidas de protección adecuadas para cada órgano del sentido"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_1",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Reconocer y observar, por medio de la exploración, que los seres vivos crecen, responden a estímulos del medio, se reproducen y necesitan agua, alimento y aire para vivir, comparándolos con las cosas no vivas.",
+          "indicadores_evaluacion": [
+            "Distinguen seres vivos de cosas no vivas",
+            "Dan ejemplos de seres vivos y de cosas no vivas del entorno",
+            "Describen características de los seres vivos: crecen, responden a estímulos, se reproducen",
+            "Identifican las necesidades básicas de los seres vivos: agua, alimento y aire",
+            "Demuestran que los seres vivos necesitan agua, alimento y aire a través de exploraciones simples",
+            "Comparan seres vivos con cosas no vivas señalando diferencias y similitudes observables"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Clasificación de seres vivos y no vivos en el entorno",
+              "descripcion": "El docente lleva al aula objetos y seres vivos (planta pequeña, insecto, piedra, vaso, etc.) o utiliza imágenes. Los estudiantes los clasifican en seres vivos y cosas no vivas, justificando su clasificación. Registran sus observaciones con dibujos en el cuaderno de Ciencias.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Exploración en el patio: seres vivos y no vivos",
+              "descripcion": "Guiados por el docente, los estudiantes realizan una caminata por el patio o jardín del colegio. Observan y registran por medio de dibujos los seres vivos y cosas no vivas que encuentran. Al regresar a la sala comparten sus observaciones con el curso y el docente guía la construcción de una lista colectiva.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Observación de plantas: crecimiento y necesidades",
+              "descripcion": "Los estudiantes siembran semillas (porotos, lentejas) en vasos plásticos transparentes con tierra. Algunas plantas reciben agua y luz, otras no reciben agua y otras no reciben luz. Observan y registran los cambios durante dos semanas. El docente guía las conclusiones sobre las necesidades de los seres vivos.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Respuesta de los seres vivos a estímulos",
+              "descripcion": "Los estudiantes observan cómo responden los seres vivos a estímulos del medio: cómo una planta crece hacia la luz (fototropismo), cómo los animales responden al sonido o al movimiento. El docente explica que las cosas no vivas no responden a estímulos de la misma manera.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Reproducción de los seres vivos - ciclos de vida simples",
+              "descripcion": "El docente muestra imágenes de ciclos de vida simples: semilla → planta → flor → fruto → semilla; huevo → polluelo → pollo adulto → huevo. Los estudiantes identifican que los seres vivos se reproducen y que las cosas no vivas no lo hacen. Ordenan las etapas del ciclo de vida con tarjetas.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Cuadro comparativo: seres vivos vs cosas no vivas",
+              "descripcion": "En forma guiada, los estudiantes construyen un cuadro comparativo entre seres vivos y cosas no vivas considerando: ¿crece? / ¿se reproduce? / ¿responde a estímulos? / ¿necesita agua, aire y alimento? Usan Sí/No para cada característica y ejemplos del entorno.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "Observa las siguientes imágenes (perro, árbol, piedra, niño, nube, flor, silla, pájaro). a) Clasifica cada imagen en: ser vivo / cosa no viva. b) Elige un ser vivo de las imágenes y explica cómo sabes que es un ser vivo. c) Dibuja una cosa que necesita un ser vivo para vivir.",
+              "indicadores_evaluados": [
+                "Distinguen seres vivos de cosas no vivas",
+                "Dan ejemplos de seres vivos y de cosas no vivas del entorno",
+                "Identifican las necesidades básicas de los seres vivos"
+              ],
+              "criterios": [
+                "Clasifican correctamente los seres vivos (perro, árbol, niño, flor, pájaro) y cosas no vivas (piedra, nube, silla)",
+                "Explican en forma simple por qué algo es un ser vivo, mencionando al menos una característica: crece, se reproduce, responde a estímulos o necesita agua/aire/alimento",
+                "Dibujan correctamente una necesidad básica de los seres vivos: agua, alimento o aire"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "semestre": 1,
+      "titulo": "Animales, plantas y seres vivos de Chile",
+      "horas_pedagogicas": 27,
+      "proposito": "El objetivo principal de la unidad es que los estudiantes conozcan y diferencien diversas plantas y animales de su entorno y de nuestro país. Se espera que los estudiantes observen y comparen animales según distintas características, identifiquen las estructuras principales de las plantas y clasifiquen sus partes. Además, se busca que reconozcan y valoren la biodiversidad de Chile y propongan medidas para el cuidado de los seres vivos.",
+      "conocimientos_previos": [
+        "Distinción entre seres vivos y no vivos",
+        "Características básicas de los seres vivos",
+        "Nombres de animales y plantas del entorno cercano"
+      ],
+      "palabras_clave": [
+        "animales",
+        "plantas",
+        "hojas",
+        "flores",
+        "tallos",
+        "raíces",
+        "semillas",
+        "frutos",
+        "cubierta corporal",
+        "desplazamiento",
+        "hábitat",
+        "tamaño",
+        "textura",
+        "color",
+        "forma",
+        "clasificación",
+        "fauna chilena",
+        "flora chilena",
+        "cuidado",
+        "protección"
+      ],
+      "conocimientos": [
+        "Características de los animales: tamaño, cubierta corporal, estructuras de desplazamiento y hábitat",
+        "Estructuras principales de las plantas: hojas, flores, tallos y raíces",
+        "Clasificación de semillas, frutos, flores y tallos por criterios observables: tamaño, forma, textura y color",
+        "Plantas y animales representativos de Chile, sus características observables y medidas de cuidado"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar un estilo de trabajo y estudio riguroso y perseverante para lograr los aprendizajes de la asignatura"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_2",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar y comparar animales de acuerdo a características como tamaño, cubierta corporal, estructuras de desplazamiento y hábitat, entre otras.",
+          "indicadores_evaluacion": [
+            "Observan y describen características de animales: tamaño, cubierta corporal, estructuras de desplazamiento y hábitat",
+            "Comparan dos o más animales señalando semejanzas y diferencias en sus características observables",
+            "Clasifican animales a partir de criterios como cubierta corporal (pelo, plumas, escamas) o tipo de desplazamiento (caminar, volar, nadar)",
+            "Dan ejemplos de animales que viven en distintos hábitats: terrestre, acuático, aéreo",
+            "Representan mediante dibujos las características observables de distintos animales"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Observación de animales en el entorno y en imágenes",
+              "descripcion": "Los estudiantes observan animales del entorno escolar (pájaros, insectos, perros, gatos) o a través de imágenes y videos. Describen oralmente sus características: tamaño (grande, mediano, pequeño), cubierta corporal (pelo, plumas, escamas, piel lisa), estructuras de desplazamiento (patas, alas, aletas). Registran sus observaciones con dibujos.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Tabla comparativa de animales",
+              "descripcion": "El docente presenta una tabla con criterios: tamaño / cubierta corporal / cómo se desplaza / dónde vive. En grupos, los estudiantes completan la tabla para 4 o 5 animales distintos usando imágenes. Luego comparan los resultados con otros grupos y sacan conclusiones.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Clasificación de animales por cubierta corporal",
+              "descripcion": "El docente proporciona tarjetas con imágenes de animales. Los estudiantes los agrupan según su cubierta corporal: animales con pelo (mamíferos), animales con plumas (aves), animales con escamas (peces y reptiles), animales con piel lisa (anfibios). Explican el criterio de clasificación usado.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Clasificación de animales por forma de desplazamiento",
+              "descripcion": "Los estudiantes clasifican animales según cómo se desplazan: animales que caminan o corren (perro, caballo, gato), animales que vuelan (águila, mariposa, murciélago), animales que nadan (pez, ballena, pingüino), animales que se arrastran (serpiente, lombriz). Elaboran un mural colectivo con tres columnas: vuelan / nadan / caminan o se arrastran.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Hábitats de los animales - terrestre, acuático y aéreo",
+              "descripcion": "Los estudiantes observan imágenes de distintos hábitats (bosque, océano, desierto, río, cielo). Identifican qué animales viven en cada hábitat y explican por qué ese animal está adaptado para vivir allí. Relacionan las características físicas del animal con el hábitat que habita.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Visita a zoológico, granja o parque para observar animales",
+              "descripcion": "El docente organiza una salida educativa o usa recursos digitales (videos, imágenes interactivas) para que los estudiantes observen animales en su hábitat o en condiciones semi-naturales. Los estudiantes registran en su cuaderno de Ciencias mediante dibujos al menos tres animales observados, indicando sus características.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Animales domésticos y animales salvajes",
+              "descripcion": "El docente lee en voz alta un cuento sobre animales domésticos y salvajes. Los alumnos, a partir de preguntas, diferencian entre ambos tipos de animales. Cada alumno dibuja un animal doméstico y luego uno silvestre, identificándolos con sus nombres, y explican con sus palabras la diferencia entre ellos.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa los siguientes animales (imágenes de un pez, un pájaro, un perro, una serpiente y una rana). a) Escribe bajo cada animal su cubierta corporal (pelo, plumas, escamas, piel lisa). b) Dibuja el lugar donde vive cada animal. c) Clasifica los animales en dos grupos y explica el criterio que usaste.",
+              "indicadores_evaluados": [
+                "Observan y describen características de animales: cubierta corporal y hábitat",
+                "Comparan animales señalando semejanzas y diferencias en sus características observables",
+                "Clasifican animales a partir de criterios como cubierta corporal"
+              ],
+              "criterios": [
+                "Identifican correctamente la cubierta corporal de cada animal",
+                "Dibujan correctamente el hábitat de al menos tres animales",
+                "Clasifican los animales en dos grupos con un criterio válido y lo explican en forma simple"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_3",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar e identificar, por medio de la exploración, las estructuras principales de las plantas: hojas, flores, tallos y raíces.",
+          "indicadores_evaluacion": [
+            "Identifican y nombran las estructuras principales de las plantas: hojas, flores, tallos y raíces",
+            "Describen las funciones básicas de cada estructura de la planta",
+            "Representan mediante dibujos rotulados las estructuras principales de las plantas",
+            "Observan y describen las características de las estructuras de distintas plantas del entorno",
+            "Asocian cada estructura de la planta con una función específica"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Observación y rotulación de una planta real",
+              "descripcion": "El docente lleva al aula una planta completa (con raíces visibles). Los estudiantes la observan detenidamente e identifican sus partes: raíz, tallo, hojas, flor. Cada estudiante dibuja la planta en su cuaderno de Ciencias y rotula cada una de sus estructuras principales.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Exploración de plantas del patio - función de cada parte",
+              "descripcion": "Guiados por el docente, los estudiantes salen al patio y observan distintas plantas. Tocan las hojas y el tallo, observan las raíces de una planta pequeña extraída de la tierra. El docente explica la función de cada parte: la raíz absorbe agua y minerales; el tallo transporta el agua y los minerales; las hojas fabrican alimento; las flores se relacionan con la reproducción.",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Comparación de hojas de distintas plantas",
+              "descripcion": "Los estudiantes recolectan hojas de distintas plantas del entorno escolar. Las observan y comparan según: tamaño (grande, mediana, pequeña), forma (redondeada, alargada, dentada), textura (suave, áspera, con vellos) y color (verdes, amarillas, rojizas). Montan una pequeña colección pegada en cartulina rotulada.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Experimento: importancia del agua para las plantas",
+              "descripcion": "Los estudiantes siembran semillas iguales en dos macetas con tierra. Una recibe agua regularmente y la otra no recibe agua. Observan y registran los cambios durante dos semanas. Concluyen sobre la función del agua para las plantas y por tanto la importancia de la raíz que absorbe el agua.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Trabajo con flores reales - identificación de partes",
+              "descripcion": "El docente lleva flores (margaritas, rosas o flores silvestres) al aula. Los estudiantes las observan, identifican pétalos, sépalos, pistilo y estambres. Aprenden que la flor es la estructura reproductiva de la planta. Realizan dibujos detallados y rotulados de la flor observada.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Maqueta o modelo de una planta con sus partes",
+              "descripcion": "En grupos, los estudiantes construyen un modelo simple de una planta usando materiales reciclados (papel, cartón, trozos de tela, palitos, lana) que represente las cuatro estructuras principales: raíz, tallo, hojas y flor. Presentan su modelo al curso y explican la función de cada parte.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales",
+                "Tecnología"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "Observa el dibujo de una planta completa. a) Escribe el nombre de cada parte señalada con flechas (raíz, tallo, hoja, flor). b) Elige dos partes de la planta y explica para qué sirven. c) Dibuja una planta que hayas observado en el patio del colegio y rotula sus partes.",
+              "indicadores_evaluados": [
+                "Identifican y nombran las estructuras principales de las plantas: hojas, flores, tallos y raíces",
+                "Describen las funciones básicas de cada estructura de la planta",
+                "Representan mediante dibujos rotulados las estructuras principales de las plantas"
+              ],
+              "criterios": [
+                "Nombran correctamente las cuatro estructuras principales de la planta",
+                "Explican en forma simple la función de al menos dos partes de la planta",
+                "Dibujan y rotulan correctamente las partes de una planta observada en el entorno"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_4",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Observar y clasificar semillas, frutos, flores y tallos a partir de criterios como tamaño, forma, textura y color, entre otros.",
+          "indicadores_evaluacion": [
+            "Clasifican semillas, frutos, flores y tallos usando criterios como tamaño, forma, textura y color",
+            "Describen las características observables de semillas, frutos, flores y tallos",
+            "Proponen criterios propios para clasificar semillas, frutos, flores y tallos",
+            "Representan los resultados de sus clasificaciones mediante dibujos y tablas simples"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Colección y clasificación de semillas",
+              "descripcion": "Los estudiantes traen semillas de sus casas o el docente proporciona una variedad: porotos, lentejas, maíz, arroz, semillas de palta, pepitas de manzana, etc. Las observan y clasifican según: tamaño (grande, mediana, pequeña), color, forma (redonda, alargada, plana). Registran sus clasificaciones en una tabla simple con dibujos.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Observación y clasificación de frutos",
+              "descripcion": "El docente lleva frutos variados al aula: manzana, naranja, uva, kiwi, limón, pera, tomate, pimiento. Los estudiantes los observan, tocan y huelen. Los clasifican según: tamaño, color, forma y textura de la piel. Abren algunos frutos para observar las semillas en su interior.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Clasificación de flores por criterios observables",
+              "descripcion": "Los estudiantes observan flores reales o en imágenes y las clasifican según: color, tamaño, número de pétalos, forma. El docente introduce el concepto de que las flores producen semillas después de la polinización, relacionando la flor con el fruto y la semilla.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Exploración de distintos tipos de tallos",
+              "descripcion": "Los estudiantes observan y comparan diferentes tipos de tallos: tallo leñoso de árbol (grueso, duro), tallo herbáceo de planta pequeña (delgado, blando), tallo de cactus (carnoso, con espinas), tallo de trepadora (enredadera). Clasifican los tallos observados y describen sus características.",
+              "habilidades": [
+                "OA_a",
+                "OA_b"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Creación de un álbum de clasificación de plantas",
+              "descripcion": "Cada estudiante construye un pequeño álbum donde pega hojas secas, dibuja flores, pega semillas reales y representa tallos observados. Cada página del álbum corresponde a una estructura de la planta y está organizada según un criterio de clasificación elegido por el estudiante.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "Tienes sobre la mesa las siguientes semillas: poroto, lenteja, maíz, maní, pepita de manzana. a) Clasifícalas en dos grupos y explica el criterio que usaste. b) Dibuja las semillas ordenadas de la más pequeña a la más grande. c) Escribe dos características observables de tu semilla favorita.",
+              "indicadores_evaluados": [
+                "Clasifican semillas usando criterios como tamaño, forma, textura y color",
+                "Describen las características observables de semillas",
+                "Proponen criterios propios para clasificar semillas"
+              ],
+              "criterios": [
+                "Clasifican las semillas en dos grupos con un criterio observable válido (tamaño, color, forma) y lo explican",
+                "Ordenan las semillas correctamente de menor a mayor tamaño",
+                "Describen al menos dos características observables de una semilla (color, forma, tamaño, textura)"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_5",
+          "eje": "Ciencias de la Vida",
+          "descripcion": "Reconocer y comparar diversas plantas y animales de nuestro país, considerando las características observables, proponiendo medidas para su cuidado.",
+          "indicadores_evaluacion": [
+            "Reconocen y nombran plantas y animales representativos de Chile",
+            "Describen características observables de plantas y animales nativos de Chile",
+            "Comparan animales y plantas de distintas zonas de Chile señalando semejanzas y diferencias",
+            "Proponen y comunican medidas para el cuidado de plantas y animales de Chile",
+            "Manifiestan actitudes de respeto y valoración hacia la biodiversidad de Chile"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Animales nativos de Chile - reconocimiento e identificación",
+              "descripcion": "El docente presenta imágenes o láminas de animales nativos de Chile: cóndor, huemul, pudú, chinchilla, puma, guanaco, flamenco, pingüino de Magallanes, lobo marino, choroy, etc. Los estudiantes los identifican, nombran y describen sus características principales. Ubican cada animal en una zona del mapa de Chile usando imágenes adhesivas.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Plantas nativas de Chile - reconocimiento e identificación",
+              "descripcion": "El docente presenta imágenes de plantas nativas de Chile: araucaria, copihue (flor nacional), chañar, alerce, quillay, peumo, boldo, litre. Los estudiantes las identifican y aprenden datos interesantes sobre cada planta (ej: el copihue es la flor nacional, la araucaria es un árbol muy antiguo). Dibujan su planta favorita.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 3,
+              "titulo": "Comparación de fauna de distintas zonas de Chile",
+              "descripcion": "El docente explica que Chile tiene distintas zonas geográficas (norte, centro, sur, Antártica) con diferentes animales. En grupos, los estudiantes investigan en textos o recursos digitales los animales de una zona asignada. Cada grupo prepara un afiche con los animales de su zona y los expone al curso.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Historia, Geografía y Ciencias Sociales"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Animales en peligro de extinción en Chile",
+              "descripcion": "El docente presenta tres o cuatro animales chilenos en peligro de extinción (huemul, pudú, chinchilla, ranita de Darwin). Explica por qué están en peligro y qué medidas se toman para protegerlos. Los estudiantes proponen medidas simples que ellos pueden hacer para ayudar a proteger la fauna de Chile.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Medidas para cuidar las plantas y animales de Chile",
+              "descripcion": "En grupos, los estudiantes elaboran carteles con medidas para cuidar las plantas y animales de Chile: no cortar flores del campo, no cazar animales silvestres, no comprar animales en peligro de extinción, no dejar basura en la naturaleza, respetar los parques nacionales. Exponen sus carteles en el colegio.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Cuento o historia sobre un animal nativo de Chile",
+              "descripcion": "El docente lee en voz alta un cuento o historia sobre un animal nativo de Chile (ej: el huemul, el cóndor). Los estudiantes discuten el cuento, identifican características del animal y reflexionan sobre su importancia para el país. Opcionalmente crean un dibujo que ilustre el cuento.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 4,
+              "enunciado": "Observa las siguientes imágenes de animales (cóndor, huemul, pingüino, pudú, lobo marino). a) Escribe el nombre de cada animal. b) Indica en qué zona de Chile vive cada uno (norte, centro, sur). c) Elige un animal y explica dos cosas que tú puedes hacer para ayudar a cuidarlo.",
+              "indicadores_evaluados": [
+                "Reconocen y nombran animales representativos de Chile",
+                "Comparan animales de distintas zonas de Chile",
+                "Proponen medidas para el cuidado de animales de Chile"
+              ],
+              "criterios": [
+                "Nombran correctamente al menos tres de los cinco animales presentados",
+                "Asocian correctamente al menos tres animales con su zona geográfica en Chile",
+                "Proponen dos medidas concretas y realizables por un niño para cuidar el animal elegido"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "semestre": 2,
+      "titulo": "Materiales, sus propiedades y cambios",
+      "horas_pedagogicas": 33,
+      "proposito": "El objetivo central de la unidad es que los estudiantes exploren y describan los diferentes tipos de materiales presentes en los objetos de su entorno, los clasifiquen según sus propiedades y comprendan cómo los materiales cambian al aplicarles fuerza, luz, calor y agua. Además se espera que los estudiantes sean capaces de diseñar instrumentos tecnológicos simples considerando los materiales y sus propiedades para resolver problemas cotidianos.",
+      "conocimientos_previos": [
+        "Nombres de materiales comunes del entorno",
+        "Características observables básicas de los objetos: color, tamaño, forma",
+        "Uso de materiales comunes en la vida cotidiana"
+      ],
+      "palabras_clave": [
+        "materiales",
+        "propiedades",
+        "flexible",
+        "rígido",
+        "transparente",
+        "opaco",
+        "impermeable",
+        "permeable",
+        "rugoso",
+        "liso",
+        "duro",
+        "blando",
+        "fuerza",
+        "luz",
+        "calor",
+        "agua",
+        "cambios",
+        "instrumentos tecnológicos"
+      ],
+      "conocimientos": [
+        "Tipos de materiales: madera, plástico, metal, tela, vidrio, goma, papel, entre otros",
+        "Propiedades de los materiales: flexibilidad, transparencia, impermeabilidad, textura, dureza",
+        "Cambios que se producen en los materiales al aplicarles fuerza, luz, calor y agua",
+        "Diseño de instrumentos tecnológicos simples considerando las propiedades de los materiales"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar un estilo de trabajo y estudio riguroso y perseverante para lograr los aprendizajes de la asignatura"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_8",
+          "eje": "Ciencias Físicas y Químicas",
+          "descripcion": "Explorar y describir diferentes tipos de materiales en diversos objetos, clasificándolos según sus propiedades (goma-flexible, plástico-impermeable) e identificando su uso en la vida cotidiana.",
+          "indicadores_evaluacion": [
+            "Identifican y nombran diferentes tipos de materiales en objetos del entorno",
+            "Describen propiedades de los materiales: flexibilidad, transparencia, impermeabilidad, textura y dureza",
+            "Clasifican objetos según el material del que están hechos",
+            "Clasifican materiales según sus propiedades: flexible/rígido, transparente/opaco, impermeable/permeable, liso/rugoso, duro/blando",
+            "Relacionan las propiedades de los materiales con su uso en la vida cotidiana",
+            "Dan ejemplos de objetos de uso cotidiano indicando de qué material están hechos y por qué ese material es adecuado para ese uso"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Exploración de materiales de la sala de clases",
+              "descripcion": "Los estudiantes exploran los objetos de la sala de clases e identifican los materiales de que están hechos: madera (sillas, mesas), metal (tijeras, clips), plástico (botellas, reglas), tela (cortinas, mochilas), vidrio (ventanas), papel (cuadernos, libros). Elaboran una lista colectiva de materiales encontrados en la sala.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Experimentación con propiedades de los materiales",
+              "descripcion": "El docente proporciona muestras de diferentes materiales: goma, plástico, metal, tela, madera, vidrio, papel. Los estudiantes exploran sus propiedades: doblan para probar flexibilidad, mojan con agua para probar impermeabilidad, rascan con la uña para probar dureza, observan a través para probar transparencia. Registran los resultados en una tabla.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Clasificación de materiales según propiedades",
+              "descripcion": "Guiados por el docente, los estudiantes clasifican una colección de materiales usando tablas de doble entrada: flexible/rígido, transparente/opaco, impermeable/permeable, liso/rugoso. Discuten por qué un material puede tener más de una propiedad al mismo tiempo.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Relación propiedad-uso en objetos cotidianos",
+              "descripcion": "Los estudiantes reciben tarjetas con imágenes de objetos cotidianos (paraguas, ventana, zapato, bolsa, copa, llave). Para cada objeto identifican: de qué material está hecho, qué propiedad hace a ese material adecuado para ese uso (ej: la ventana es de vidrio porque es transparente y permite ver hacia afuera).",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Prueba de impermeabilidad con distintos materiales",
+              "descripcion": "En grupos, los estudiantes realizan una investigación experimental guiada: vierten agua sobre muestras de distintos materiales (tela, papel, plástico, cartón, aluminio) colocadas sobre un recipiente. Observan cuáles dejan pasar el agua (permeables) y cuáles no (impermeables). Registran sus resultados y concluyen.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "¿De qué material está hecho? - juego de identificación",
+              "descripcion": "El docente lleva al aula una bolsa con objetos cotidianos (regla, borrador, cucharita, trozo de tela, corcho, piedra, etc.). Un estudiante saca un objeto, lo examina y dice de qué material está hecho y dos propiedades que tiene. Sus compañeros pueden agregar otras propiedades que no se mencionaron.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa los siguientes objetos: una ventana de vidrio, unas tijeras de metal, una pelota de goma, una bolsa de plástico y un libro de papel. a) Escribe de qué material está hecho cada objeto. b) Escribe una propiedad de cada material que lo hace útil para ese objeto. c) Clasifica los materiales en: flexible / rígido.",
+              "indicadores_evaluados": [
+                "Identifican y nombran diferentes tipos de materiales en objetos del entorno",
+                "Describen propiedades de los materiales",
+                "Clasifican materiales según sus propiedades: flexible/rígido",
+                "Relacionan las propiedades de los materiales con su uso en la vida cotidiana"
+              ],
+              "criterios": [
+                "Identifican correctamente el material de cada objeto",
+                "Asocian correctamente al menos tres materiales con una propiedad relevante para su uso",
+                "Clasifican correctamente los materiales en flexible (goma, plástico) y rígido (vidrio, metal)"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_9",
+          "eje": "Ciencias Físicas y Químicas",
+          "descripcion": "Observar y describir los cambios que se producen en los materiales al aplicarles fuerza, luz, calor y agua.",
+          "indicadores_evaluacion": [
+            "Observan y describen cambios en los materiales al aplicarles fuerza (doblar, aplastar, estirar, romper)",
+            "Observan y describen cambios en los materiales al aplicarles calor (derretir, quemar, endurecer)",
+            "Observan y describen cambios en los materiales al aplicarles agua (mojar, disolver, ablandar)",
+            "Observan y describen cambios en los materiales al aplicarles luz solar (calentar, desteñir)",
+            "Distinguen cambios reversibles de cambios irreversibles en los materiales",
+            "Registran mediante dibujos los cambios observados en los materiales"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Cambios por aplicación de fuerza",
+              "descripcion": "Los estudiantes exploran cómo la fuerza cambia los materiales: doblan papel y tela, aplastan arcilla y plastilina, estiran goma elástica, rompen papel y palitos. El docente introduce la diferencia entre cambios reversibles (la goma vuelve a su forma) e irreversibles (el papel roto no se une solo). Registran con dibujos los cambios observados.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Cambios por aplicación de agua",
+              "descripcion": "Los estudiantes investigan qué cambios produce el agua en distintos materiales: mojan papel (se ablanda), sal y azúcar (se disuelven), tierra (forma barro), esponja (absorbe el agua). Observan y registran en tabla qué cambia y qué pasa cuando el agua se seca. Guiados por el docente reflexionan sobre los cambios observados.",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Cambios por aplicación de calor (demostrativo con el docente)",
+              "descripcion": "El docente realiza demostraciones con calor de manera segura: derrite mantequilla en una taza colocada en agua caliente, tueste pan con una tostadora, observe cómo el hielo se derrite al sacarlo del congelador. Los estudiantes observan, describen los cambios y registran mediante dibujos. El docente guía la reflexión sobre los cambios: algunos son reversibles (hielo → agua → hielo) y otros irreversibles (pan tostado).",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Cambios por aplicación de luz solar",
+              "descripcion": "Los estudiantes colocan trozos de papel de colores y tela de colores mitad en el sol y mitad en la sombra durante una semana. Observan y registran los cambios de color producidos por la luz solar. Concluyen que la luz solar puede producir cambios en los materiales (desteñimiento).",
+              "habilidades": [
+                "OA_a",
+                "OA_b",
+                "OA_c"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Cuadro de cambios: reversibles e irreversibles",
+              "descripcion": "A partir de las experiencias realizadas, los estudiantes construyen un cuadro en el que registran: material / tipo de cambio aplicado (fuerza, calor, agua, luz) / cambio observado / ¿es reversible o irreversible? Comparten sus cuadros con el curso y el docente consolida las conclusiones.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "Dibuja y describe qué le pasa a los siguientes materiales: a) A un cubo de hielo cuando lo dejas fuera del congelador. b) A una hoja de papel cuando la doblas por la mitad. c) A un trozo de azúcar cuando lo pones en un vaso de agua. d) ¿Cuál de estos cambios crees que puede volver a su estado original? Explica por qué.",
+              "indicadores_evaluados": [
+                "Observan y describen cambios en los materiales al aplicarles calor",
+                "Observan y describen cambios en los materiales al aplicarles fuerza",
+                "Observan y describen cambios en los materiales al aplicarles agua",
+                "Distinguen cambios reversibles de cambios irreversibles en los materiales"
+              ],
+              "criterios": [
+                "Describen correctamente el cambio del hielo al aplicarle calor: se derrite y se convierte en agua",
+                "Describen correctamente el cambio del papel al aplicarle fuerza: se dobla o arruga",
+                "Describen correctamente el cambio del azúcar al aplicarle agua: se disuelve",
+                "Identifican que el hielo que se derrite puede volver a congelarse (cambio reversible) y explican que el papel doblado puede volver a su forma (reversible)"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_10",
+          "eje": "Ciencias Físicas y Químicas",
+          "descripcion": "Diseñar instrumentos tecnológicos simples considerando diversos materiales y sus propiedades para resolver problemas cotidianos.",
+          "indicadores_evaluacion": [
+            "Identifican problemas cotidianos simples que pueden resolverse con un instrumento tecnológico",
+            "Seleccionan materiales adecuados según sus propiedades para diseñar un instrumento simple",
+            "Diseñan y construyen instrumentos tecnológicos simples usando materiales del entorno",
+            "Evalúan si el instrumento diseñado cumple el propósito para el que fue creado",
+            "Comunican el proceso de diseño y el funcionamiento de su instrumento"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Identificación de instrumentos tecnológicos simples del entorno",
+              "descripcion": "El docente presenta imágenes de instrumentos tecnológicos simples de uso cotidiano: paraguas, embudo, regadera, paleta de cocina, pinza. Los estudiantes identifican de qué materiales están hechos y por qué esos materiales son los adecuados para cada instrumento. Analizan qué problema cotidiano resuelve cada instrumento.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 2,
+              "titulo": "Diseño y construcción de un instrumento para recoger agua de lluvia",
+              "descripcion": "El docente plantea el problema: ¿Cómo podemos recoger agua de lluvia? Los estudiantes, en grupos, diseñan un instrumento simple usando materiales disponibles: botellas plásticas, vasos, embudos, mangueras, telas, cartón. Planifican qué materiales necesitan y por qué son adecuados según sus propiedades. Construyen su instrumento y lo prueban con agua.",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 3,
+              "titulo": "Diseño de un instrumento para transportar agua sin derramarla",
+              "descripcion": "El docente plantea el desafío: ¿Cómo podemos transportar agua de un lugar a otro sin derramarla? Los estudiantes diseñan y construyen recipientes con tapa o sistemas de transporte usando materiales reciclados. Prueban sus diseños y modifican los que no funcionan correctamente.",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 4,
+              "titulo": "Evaluación del instrumento diseñado",
+              "descripcion": "Los grupos presentan su instrumento al curso y explican: ¿qué problema resuelve? / ¿de qué materiales está hecho? / ¿por qué eligieron esos materiales? / ¿funciona bien? / ¿qué mejorarían? El docente guía una reflexión sobre la importancia de elegir los materiales adecuados según sus propiedades.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Tecnología"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "Dibujo del proceso de diseño y construcción",
+              "descripcion": "Cada estudiante dibuja en su cuaderno de Ciencias el proceso de diseño de su instrumento: 1) El problema que resuelve, 2) Los materiales que usó, 3) Cómo lo construyó, 4) Si funcionó bien o no. Aprenden así que el registro del proceso es importante en Ciencias.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 3,
+              "enunciado": "Resuelve el siguiente desafío tecnológico: Necesitas diseñar un instrumento para cargar agua desde una pileta hasta un macetero en el patio. a) Dibuja tu diseño y los materiales que usarías. b) Explica por qué elegiste esos materiales. c) ¿Qué propiedad de los materiales elegidos es más importante para que funcione tu instrumento?",
+              "indicadores_evaluados": [
+                "Identifican problemas cotidianos simples que pueden resolverse con un instrumento tecnológico",
+                "Seleccionan materiales adecuados según sus propiedades",
+                "Diseñan instrumentos tecnológicos simples",
+                "Comunican el proceso de diseño y el funcionamiento de su instrumento"
+              ],
+              "criterios": [
+                "Diseñan un instrumento coherente para transportar agua (jarro, balde, manguera, botella con tapa)",
+                "Eligen materiales adecuados e impermeables para transportar agua",
+                "Identifican la impermeabilidad como la propiedad más importante del material elegido"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "semestre": 2,
+      "titulo": "El cielo, el día, la noche y las estaciones del año",
+      "horas_pedagogicas": 24,
+      "proposito": "El objetivo central de la unidad es que los estudiantes describan y registren el ciclo diario, reconociendo las diferencias entre el día y la noche a partir de la observación del Sol, la Luna, las estrellas y la luminosidad del cielo. También se espera que describan y comuniquen los cambios del ciclo de las estaciones del año y sus efectos en los seres vivos y el ambiente.",
+      "conocimientos_previos": [
+        "Diferencia entre día y noche",
+        "Nombres de algunas estaciones del año",
+        "Cambios climáticos básicos asociados a distintas épocas del año"
+      ],
+      "palabras_clave": [
+        "Sol",
+        "Luna",
+        "estrellas",
+        "cielo",
+        "día",
+        "noche",
+        "luminosidad",
+        "ciclo diario",
+        "estaciones del año",
+        "primavera",
+        "verano",
+        "otoño",
+        "invierno",
+        "temperatura",
+        "precipitaciones",
+        "cambios en los seres vivos",
+        "ambiente"
+      ],
+      "conocimientos": [
+        "Diferencias entre el día y la noche: presencia del Sol, luminosidad del cielo, temperatura",
+        "El Sol, la Luna y las estrellas como componentes del cielo",
+        "El ciclo diario y sus efectos en los seres vivos y el ambiente",
+        "Las cuatro estaciones del año y sus características",
+        "Efectos de las estaciones del año en los seres vivos y el ambiente"
+      ],
+      "actitudes_trabajadas": [
+        "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural",
+        "Manifestar un estilo de trabajo y estudio riguroso y perseverante para lograr los aprendizajes de la asignatura"
+      ],
+      "objetivos_aprendizaje": [
+        {
+          "codigo": "OA_11",
+          "eje": "Ciencias de la Tierra y el Universo",
+          "descripcion": "Describir y registrar el ciclo diario y las diferencias entre el día y la noche, a partir de la observación del Sol, la Luna, las estrellas y la luminosidad del cielo, entre otras, y sus efectos en los seres vivos y el ambiente.",
+          "indicadores_evaluacion": [
+            "Describen las diferencias entre el día y la noche considerando la luminosidad del cielo, la presencia del Sol y las estrellas y la temperatura",
+            "Identifican al Sol como la principal fuente de luz y calor durante el día",
+            "Identifican a la Luna y las estrellas como elementos visibles principalmente durante la noche",
+            "Registran mediante dibujos y tablas simples las observaciones del cielo durante el día y la noche",
+            "Describen los efectos del ciclo diario en los seres vivos: actividades que realizan de día y de noche",
+            "Dan ejemplos de animales nocturnos y diurnos relacionándolos con el ciclo día-noche"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Observación y registro del cielo de día",
+              "descripcion": "Guiados por el docente, los estudiantes salen al patio en un momento soleado y observan el cielo de día: color, luminosidad, presencia del Sol, nubes. Registran sus observaciones mediante dibujos en el cuaderno de Ciencias. El docente explica que el Sol es la principal fuente de luz y calor y que nunca deben mirarlo directamente.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Descripción del cielo de noche - tarea en casa",
+              "descripcion": "Los estudiantes tienen la tarea de observar el cielo nocturno con un familiar y registrar sus observaciones: ¿qué ven en el cielo? ¿hay Luna? ¿cómo es? ¿pueden ver estrellas? Al día siguiente comparten sus observaciones con el curso. El docente consolida los hallazgos en un dibujo colectivo en la pizarra.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Tabla comparativa: día versus noche",
+              "descripcion": "Los estudiantes construyen una tabla comparativa entre el día y la noche considerando: luminosidad del cielo, astro visible (Sol/Luna y estrellas), temperatura (más calor/más frío), actividades de las personas, animales activos. Discuten las diferencias y las registran en el cuaderno.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Animales diurnos y nocturnos",
+              "descripcion": "El docente presenta imágenes de animales y plantas y pregunta: ¿cuándo están activos estos seres vivos, de día o de noche? Los estudiantes clasifican animales diurnos (perro, mariposa, abeja, águila) y nocturnos (búho, murciélago, ratón). Reflexionan sobre cómo el ciclo día-noche afecta también a las plantas.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 5,
+              "titulo": "Registro semanal del ciclo diario",
+              "descripcion": "Los estudiantes registran en un cuadernillo personal las actividades que realizan durante el día y durante la noche a lo largo de una semana. Incluyen observaciones del cielo. Al finalizar la semana comparten sus registros y comparan con sus compañeros.",
+              "habilidades": [
+                "OA_c",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 6,
+              "titulo": "Cuento o poema sobre el día y la noche",
+              "descripcion": "El docente lee un cuento o poema que describe el ciclo del día y la noche. Los estudiantes ilustran el cuento con dibujos del cielo de día y de noche, identificando los astros visibles en cada momento. Reflexionan sobre la importancia del Sol para la vida en la Tierra.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación"
+              ]
+            },
+            {
+              "n": 7,
+              "titulo": "Modelado con linterna y globo: día y noche",
+              "descripcion": "El docente realiza una demostración usando una linterna (Sol) y un globo terráqueo o pelota (Tierra). Muestra cómo la rotación de la Tierra produce el día y la noche. Los estudiantes identifican qué parte del globo está iluminada (día) y qué parte está en la sombra (noche).",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 1,
+              "enunciado": "Observa los siguientes dos dibujos: uno del cielo de día y uno del cielo de noche. a) Escribe dos diferencias entre el cielo de día y el cielo de noche. b) Dibuja un animal que esté activo de día y uno que esté activo de noche. c) ¿Por qué crees que es importante el Sol para los seres vivos?",
+              "indicadores_evaluados": [
+                "Describen las diferencias entre el día y la noche",
+                "Describen los efectos del ciclo diario en los seres vivos",
+                "Dan ejemplos de animales nocturnos y diurnos"
+              ],
+              "criterios": [
+                "Mencionan al menos dos diferencias entre el día y la noche (luminosidad, presencia de Sol/Luna, temperatura)",
+                "Dibujan correctamente un animal diurno y un animal nocturno",
+                "Explican la importancia del Sol para los seres vivos: da luz, calor y permite que crezcan las plantas"
+              ]
+            }
+          ]
+        },
+        {
+          "codigo": "OA_12",
+          "eje": "Ciencias de la Tierra y el Universo",
+          "descripcion": "Describir y comunicar los cambios del ciclo de las estaciones y sus efectos en los seres vivos y el ambiente.",
+          "indicadores_evaluacion": [
+            "Nombran y ordenan las cuatro estaciones del año: primavera, verano, otoño e invierno",
+            "Describen las características del tiempo atmosférico de cada estación: temperatura, precipitaciones, horas de luz",
+            "Describen los cambios que se producen en las plantas en cada estación del año",
+            "Describen los cambios que se producen en los animales en cada estación: migración, hibernación, reproducción",
+            "Identifican cambios en el ambiente en cada estación del año",
+            "Comunican los cambios de las estaciones mediante dibujos, palabras y comparaciones",
+            "Relacionan las actividades cotidianas de las personas con las distintas estaciones del año"
+          ],
+          "actividades": [
+            {
+              "n": 1,
+              "titulo": "Las cuatro estaciones: características principales",
+              "descripcion": "El docente presenta las cuatro estaciones del año con imágenes representativas. Para cada estación, los estudiantes identifican: temperatura típica, tipo de precipitaciones, horas de luz, vestimenta típica, actividades que se realizan. Construyen un cuadro de las cuatro estaciones en el cuaderno de Ciencias.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 2,
+              "titulo": "Cambios en las plantas según las estaciones",
+              "descripcion": "Los estudiantes observan imágenes de un mismo árbol de hoja caduca en las cuatro estaciones: primavera (flores y hojas nuevas), verano (hojas verdes y frutos), otoño (hojas amarillas y caída de hojas), invierno (árbol sin hojas). Describen y dibujan los cambios que experimenta el árbol en cada estación.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 3,
+              "titulo": "Cambios en los animales según las estaciones",
+              "descripcion": "El docente presenta imágenes y explica los cambios que experimentan los animales con las estaciones: aves migratorias, osos que hibernan en invierno, animales que se reproducen en primavera. Los estudiantes dibujan un animal y explican cómo cambia su comportamiento en distintas estaciones.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 4,
+              "titulo": "Registro semanal del tiempo atmosférico",
+              "descripcion": "Durante una semana, los estudiantes registran diariamente el tiempo atmosférico de su localidad usando una tabla simple con pictogramas: sol, nube, lluvia, frío, calor. Al finalizar, analizan los datos, identifican cuántos días de cada tipo hubo y relacionan los datos con la estación del año en que se encuentran.",
+              "habilidades": [
+                "OA_b",
+                "OA_c",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Matemática"
+              ]
+            },
+            {
+              "n": 5,
+              "titulo": "La rueda del año - las cuatro estaciones en un círculo",
+              "descripcion": "Los estudiantes construyen una 'rueda del año' circular dividida en cuatro partes (una por estación). En cada sección dibujan: el paisaje típico de la estación, una planta representativa, un animal con su comportamiento en esa estación y una actividad humana típica. La rueda les permite visualizar el ciclo completo del año.",
+              "habilidades": [
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Artes Visuales"
+              ]
+            },
+            {
+              "n": 6,
+              "titulo": "Actividades humanas en cada estación",
+              "descripcion": "Los estudiantes reciben tarjetas con actividades humanas: esquiar, ir a la playa, cosechar frutas, plantar semillas, usar abrigo, usar traje de baño, celebrar la primavera. Clasifican cada actividad en la estación del año en que se realiza principalmente y justifican su clasificación.",
+              "habilidades": [
+                "OA_b",
+                "OA_d"
+              ],
+              "otras_asignaturas": []
+            },
+            {
+              "n": 7,
+              "titulo": "Cuento o canción sobre las estaciones del año",
+              "descripcion": "El docente comparte un cuento o canción sobre las estaciones del año que describa sus características y los cambios que producen en la naturaleza. Los estudiantes identifican las estaciones mencionadas y los cambios descritos. Ilustran su estación favorita.",
+              "habilidades": [
+                "OA_a",
+                "OA_d"
+              ],
+              "otras_asignaturas": [
+                "Lenguaje y Comunicación",
+                "Música"
+              ]
+            }
+          ],
+          "ejemplos_evaluacion": [
+            {
+              "n": 2,
+              "enunciado": "Observa los siguientes cuatro paisajes (imágenes representativas de cada estación). a) Escribe el nombre de la estación que representa cada paisaje. b) Dibuja cómo se ve un árbol de hoja caduca en invierno y en primavera. c) ¿Qué hacen las aves migratorias cuando llega el invierno? ¿Por qué crees que lo hacen?",
+              "indicadores_evaluados": [
+                "Nombran las cuatro estaciones del año",
+                "Describen los cambios que se producen en las plantas en cada estación",
+                "Describen los cambios que se producen en los animales en cada estación: migración"
+              ],
+              "criterios": [
+                "Identifican correctamente al menos tres de las cuatro estaciones del año en los paisajes mostrados",
+                "Dibujan correctamente un árbol sin hojas en invierno y un árbol con hojas y flores nuevas en primavera",
+                "Explican que las aves migratorias vuelan a lugares más cálidos en invierno porque hace frío y hay menos alimento disponible"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -18,6 +18,7 @@ public record PlanningClassCreateRequest(
         @NotBlank String startActivity,
         @NotBlank String developmentActivity,
         @NotBlank String closingActivity,
-        List<UUID> objectiveIds
+        List<UUID> objectiveIds,
+        List<PlanningClassObjectiveSelectionRequest> objectiveSelections
 ) {
 }

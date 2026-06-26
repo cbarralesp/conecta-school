@@ -7,186 +7,128 @@
   <main class="unit-create-page">
     <section class="page-header animate-in">
       <div class="page-header__left">
-        <h1 class="page-header__title">Nueva unidad</h1>
+        <div class="page-header__title-row">
+          <div class="page-header__heading-inline">
+            <h1 class="page-header__title">Nueva unidad</h1>
+          </div>
 
-        <nav class="breadcrumb" aria-label="Breadcrumb">
-          <span class="breadcrumb__item"><a routerLink="/dashboard">Inicio</a></span>
-          <span class="breadcrumb__divider"><mat-icon>chevron_right</mat-icon></span>
-          <span class="breadcrumb__item"><a routerLink="/dashboard/planificaciones-nuevo">Planificaciones</a></span>
-          <span class="breadcrumb__divider"><mat-icon>chevron_right</mat-icon></span>
-          <span class="breadcrumb__item"><a routerLink="/dashboard/planificaciones-nuevo">{{ courseLabel() }} - {{ subjectLabel() }}</a></span>
-          <span class="breadcrumb__divider"><mat-icon>chevron_right</mat-icon></span>
-          <span class="breadcrumb__item is-current">Nueva unidad</span>
-        </nav>
-      </div>
-
-      <div class="page-header__actions">
-        <a routerLink="/dashboard/planificaciones-nuevo" class="btn btn--ghost">
-          <mat-icon>close</mat-icon>
-          Cancelar
-        </a>
-        <button type="button" class="btn btn--ghost">
-          <mat-icon>save</mat-icon>
-          Guardar borrador
-        </button>
-        <button type="button" class="btn btn--primary">
-          <mat-icon>check</mat-icon>
-          Guardar unidad
-        </button>
+          <button type="button" class="back-button" (click)="cancel()" aria-label="Volver a planificaciones">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Volver</span>
+          </button>
+        </div>
+        <p class="page-header__subtitle">Nueva unidad para las unidades de aprendizaje.</p>
       </div>
     </section>
 
     <section class="steps-card animate-in">
-      <nav class="steps-bar" aria-label="Pasos del formulario">
-        <div class="step is-active">
-          <div class="step__number">1</div>
-          <span>Información básica</span>
-        </div>
-        <div class="step__divider"></div>
-        <div class="step">
-          <div class="step__number">2</div>
-          <span>Objetivos y OA</span>
-        </div>
-        <div class="step__divider"></div>
-        <div class="step">
-          <div class="step__number">3</div>
-          <span>Planificación</span>
-        </div>
-        <div class="step__divider"></div>
-        <div class="step">
-          <div class="step__number">4</div>
-          <span>Recursos</span>
-        </div>
-        <div class="step__divider"></div>
-        <div class="step">
-          <div class="step__number">5</div>
-          <span>Revisión</span>
-        </div>
+      <nav class="steps-bar" aria-label="Pasos de nueva unidad">
+        @for (step of steps; track step.number) {
+          <button
+            type="button"
+            class="step"
+            [class.is-active]="isStepActive(step.number)"
+            [class.is-completed]="isStepCompleted(step.number)"
+            [class.is-clickable]="canNavigateToStep(step.number)"
+            [disabled]="!canNavigateToStep(step.number)"
+            [attr.aria-current]="isStepActive(step.number) ? 'step' : null"
+            (click)="goToStep(step.number)">
+            <div class="step__number">
+              @if (isStepCompleted(step.number)) {
+                <mat-icon>check</mat-icon>
+              } @else {
+                <span>{{ step.number }}</span>
+              }
+            </div>
+            <span>{{ step.label }}</span>
+          </button>
+
+          @if (!$last) {
+            <div class="step__divider" [class.is-completed]="isStepCompleted(step.number)"></div>
+          }
+        }
       </nav>
     </section>
 
-    <div class="form-shell animate-in">
-      <div class="form-shell__main">
-        <section class="card">
-          <div class="card__body">
-            <h2 class="section-title">
-              <span class="section-title__badge">1</span>
-              Información básica
-            </h2>
-            <p class="section-subtitle">Completa los datos generales de la unidad de aprendizaje.</p>
-
-            <div class="form-grid">
-              <div class="form-group col-6">
-                <label class="form-label">Nombre de la unidad <span class="required">*</span></label>
-                <input
-                  type="text"
-                  class="form-input"
-                  [ngModel]="unitName()"
-                  (ngModelChange)="unitName.set($event)"
-                  placeholder="Ej: Números enteros y operaciones combinadas" />
+    @if (activeStep() === 1) {
+      <div class="form-shell animate-in">
+        <div class="form-shell__main">
+          <section class="card">
+            <div class="card__body">
+              <div class="card-heading">
+                <div class="card-heading__icon">
+                  <mat-icon>school</mat-icon>
+                </div>
+                <div class="card-heading__copy">
+                  <h2>Selecciona el curso y la asignatura</h2>
+                  <p>Estos datos determinaran las unidades disponibles desde el programa oficial Mineduc.</p>
+                </div>
               </div>
 
-              <div class="form-group col-6">
-                <label class="form-label">N° de unidad <span class="required">*</span></label>
-                <input
-                  type="text"
-                  class="form-input"
-                  [ngModel]="unitNumber()"
-                  (ngModelChange)="unitNumber.set($event)"
-                  placeholder="Ej: Unidad 1" />
-              </div>
-
-              <div class="form-group col-12">
-                <label class="form-label">Descripción general</label>
-                <div class="rich-editor">
-                  <div class="rich-editor__toolbar">
-                    <button type="button" class="is-active"><strong>B</strong></button>
-                    <button type="button"><em>I</em></button>
-                    <button type="button"><span class="toolbar-underline">U</span></button>
-                    <span class="divider"></span>
-                    <button type="button"><mat-icon>format_list_bulleted</mat-icon></button>
-                    <button type="button"><mat-icon>format_list_numbered</mat-icon></button>
-                    <span class="divider"></span>
-                    <button type="button"><mat-icon>link</mat-icon></button>
-                    <button type="button"><mat-icon>image</mat-icon></button>
+              <div class="form-grid">
+                <div class="form-group col-6">
+                  <label class="form-label">Año <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>calendar_today</mat-icon>
+                    <select class="form-select" [ngModel]="year()" (ngModelChange)="updateYear($event)">
+                      @for (item of years(); track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
                   </div>
-                  <textarea
-                    class="rich-editor__area"
-                    [ngModel]="description()"
-                    (ngModelChange)="description.set($event)"
-                    placeholder="Describe brevemente los aprendizajes, conceptos centrales y propósitos de esta unidad..."></textarea>
-                  <div class="rich-editor__footer">{{ description().length }}/600</div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Semestre <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>schedule</mat-icon>
+                    <select class="form-select" [ngModel]="semester()" (ngModelChange)="updateSemester($event)">
+                      @for (item of semesters; track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Curso <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>groups</mat-icon>
+                    <select class="form-select" [ngModel]="course()" (ngModelChange)="updateCourse($event)">
+                      @for (item of courses(); track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Asignatura <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>menu_book</mat-icon>
+                    <select class="form-select" [ngModel]="subject()" (ngModelChange)="updateSubject($event)">
+                      @for (item of subjects(); track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-group col-4">
-                <label class="form-label">Asignatura <span class="required">*</span></label>
-                <select class="form-select" [ngModel]="subject()" (ngModelChange)="subject.set($event)">
-                  @for (item of subjects; track item.value) {
-                    <option [value]="item.value">{{ item.label }}</option>
-                  }
-                </select>
-              </div>
-
-              <div class="form-group col-4">
-                <label class="form-label">Curso <span class="required">*</span></label>
-                <select class="form-select" [ngModel]="course()" (ngModelChange)="course.set($event)">
-                  @for (item of courses; track item.value) {
-                    <option [value]="item.value">{{ item.label }}</option>
-                  }
-                </select>
-              </div>
-
-              <div class="form-group col-4">
-                <label class="form-label">Total de clases estimadas</label>
-                <div class="input-suffix">
-                  <input
-                    type="number"
-                    class="form-input"
-                    [ngModel]="plannedClasses()"
-                    (ngModelChange)="plannedClasses.set(+$event || 0)" />
-                  <span class="input-suffix__text">clases</span>
+              <div class="info-box">
+                <div class="info-box__icon">
+                  <mat-icon>info</mat-icon>
+                </div>
+                <div class="info-box__text">
+                  {{ programReference() }}
                 </div>
               </div>
 
-              <div class="form-group col-4">
-                <label class="form-label">Fecha de inicio estimada</label>
-                <input
-                  type="date"
-                  class="form-input"
-                  [ngModel]="startDate()"
-                  (ngModelChange)="startDate.set($event)" />
-              </div>
-
-              <div class="form-group col-4">
-                <label class="form-label">Fecha de término estimada</label>
-                <input
-                  type="date"
-                  class="form-input"
-                  [ngModel]="endDate()"
-                  (ngModelChange)="endDate.set($event)" />
-              </div>
-
-              <div class="form-group col-4">
-                <label class="form-label">Duración</label>
-                <div class="input-suffix">
-                  <input type="text" class="form-input is-readonly" [value]="durationWeeks()" readonly />
-                  <span class="input-suffix__text">semanas</span>
-                </div>
-              </div>
-
-              <div class="form-group col-12">
-                <label class="form-label">Palabras clave <span class="form-label__optional">(opcional)</span></label>
-                <input
-                  type="text"
-                  class="form-input"
-                  [ngModel]="keywords()"
-                  (ngModelChange)="keywords.set($event)"
-                  placeholder="Ej: números enteros, operaciones, cálculo, problemas" />
-                <span class="form-hint">Separa las palabras clave con comas</span>
-              </div>
-
-              <div class="form-group col-12">
+              <div class="color-panel">
                 <label class="form-label">Color de la unidad</label>
                 <div class="color-picker">
                   @for (color of colors; track color.value) {
@@ -194,92 +136,621 @@
                       type="button"
                       class="color-swatch"
                       [class.is-selected]="selectedColor() === color.value"
+                      [class.is-used]="isColorUsed(color.value)"
+                      [class.is-suggested]="isSuggestedColor(color.value)"
                       [style.background]="color.value"
-                      [attr.aria-label]="color.label"
-                      (click)="selectColor(color.value)"></button>
+                      [attr.aria-label]="color.label + (isSuggestedColor(color.value) ? ' sugerido' : '')"
+                      (click)="selectColor(color.value)">
+                      @if (isColorUsed(color.value) && !isSuggestedColor(color.value)) {
+                        <span class="color-swatch__state">Usado</span>
+                      }
+                      @if (isSuggestedColor(color.value)) {
+                        <span class="color-swatch__state color-swatch__state--suggested">Sugerido</span>
+                      }
+                    </button>
                   }
                 </div>
               </div>
+
+              @if (validationMessage()) {
+                <div class="validation-box" role="alert">
+                  <mat-icon>error_outline</mat-icon>
+                  <span>{{ validationMessage() }}</span>
+                </div>
+              }
+
+              <div class="form-footer">
+                <button type="button" class="btn btn--ghost" (click)="cancel()">Cancelar</button>
+                <button type="button" class="btn btn--primary" (click)="continue()">
+                  @if (isContinuing()) {
+                    <span>Cargando...</span>
+                  } @else {
+                    <span>Continuar</span>
+                  }
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="preview-card">
+          <h3>Vista previa</h3>
+
+          @if (isLoading()) {
+            <div class="preview-loading">Cargando programa...</div>
+          }
+
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>calendar_today</mat-icon>
+                <span>Año</span>
+              </div>
+              <strong>{{ yearLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>school</mat-icon>
+                <span>Curso</span>
+              </div>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>menu_book</mat-icon>
+                <span>Asignatura</span>
+              </div>
+              <strong>{{ subjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>schedule</mat-icon>
+                <span>Semestre</span>
+              </div>
+              <strong>{{ semesterLabel() }}</strong>
             </div>
           </div>
-        </section>
 
-        <div class="form-footer">
-          <button type="button" class="btn btn--primary">
-            Siguiente: Objetivos y OA
-            <mat-icon>chevron_right</mat-icon>
+          <div class="preview-stat-list">
+            @for (metric of metricCards(); track metric.label) {
+              <article class="preview-stat">
+                <div class="preview-stat__icon" [class]="'tone-' + metric.tone">
+                  <mat-icon>{{ metric.icon }}</mat-icon>
+                </div>
+                <div class="preview-stat__copy">
+                  <span>{{ metric.label }}</span>
+                  <strong>{{ metric.value }}</strong>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="preview-ejes">
+            <span class="preview-ejes__label">Ejes del programa</span>
+            <div class="preview-ejes__chips">
+              @for (axis of axes(); track axis) {
+                <span class="preview-ejes__chip">{{ axis }}</span>
+              }
+            </div>
+          </div>
+
+          @if (appliedUnidad()) {
+            <div class="preview-other-oas">
+              <div class="preview-other-oas__header">
+                <div>
+                  <strong>OA de otras unidades</strong>
+                  <span>Complementa la unidad actual con objetivos del programa.</span>
+                </div>
+
+                <button type="button" class="preview-other-oas__button" (click)="openOtherUnitOaModal()">
+                  <mat-icon>add</mat-icon>
+                  <span>Agregar OA</span>
+                </button>
+              </div>
+
+              @if (!addedOtherUnitOas().length) {
+                <p class="preview-other-oas__empty">Aun no agregas OA complementarios desde otras unidades.</p>
+              } @else {
+                <div class="preview-other-oas__list">
+                  @for (objective of addedOtherUnitOas(); track objective.id) {
+                    <article class="preview-other-oas__item">
+                      <span class="preview-other-oas__badge" [class]="getOaChipClass(objective)">
+                        {{ objective.codigo }} · {{ objective.eje || 'Lectura' }}
+                      </span>
+                      <p>{{ objective.descripcion }}</p>
+                      <small>Origen: Unidad {{ objective.unitNumber }}</small>
+                    </article>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </aside>
+      </div>
+    } @else if (activeStep() === 5) {
+      <div class="form-shell animate-in">
+        <div class="form-shell__main">
+          <section class="card review-card">
+            <div class="review-card__header">
+              <div>
+                <h2>Revision final de la unidad</h2>
+                <p>Revisa la informacion antes de guardar</p>
+              </div>
+
+              <button type="button" class="review-card__close" (click)="cancel()" aria-label="Cerrar flujo">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <div class="card__body card__body--review">
+              <div class="review-layout__main">
+                <article class="review-section">
+                  <div class="review-section__title">
+                    <mat-icon>apartment</mat-icon>
+                    <span>Contexto academico</span>
+                  </div>
+
+                  <div class="review-context-grid">
+                    <div class="review-context-item">
+                      <span class="review-context-item__label">Año</span>
+                      <strong>{{ yearLabel() }}</strong>
+                    </div>
+
+                    <div class="review-context-item">
+                      <span class="review-context-item__label">Semestre</span>
+                      <strong>{{ semesterLabel() }}</strong>
+                    </div>
+
+                    <div class="review-context-item">
+                      <span class="review-context-item__label">Curso</span>
+                      <strong>{{ courseLabel() }}</strong>
+                    </div>
+
+                    <div class="review-context-item">
+                      <span class="review-context-item__label">Asignatura</span>
+                      <strong>{{ subjectLabel() }}</strong>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="review-section">
+                  <div class="review-section__title">
+                    <mat-icon>view_agenda</mat-icon>
+                    <span>Unidad seleccionada</span>
+                  </div>
+
+                  <div class="review-unit">
+                    <div class="review-unit__number">{{ appliedUnitNumber() }}</div>
+                    <div class="review-unit__copy">
+                      <strong>{{ appliedUnitTitle() }}</strong>
+                      <span>{{ reviewProgramLabel() }}</span>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="review-section">
+                  <div class="review-section__title">
+                    <mat-icon>adjust</mat-icon>
+                    <span>OA seleccionados</span>
+                  </div>
+
+                  <div class="review-objectives">
+                    @for (objective of selectedObjectives(); track objective.id) {
+                      <span class="review-objective-chip">
+                        <mat-icon>check</mat-icon>
+                        <span>{{ formatObjectiveLabel(objective) }}</span>
+                      </span>
+                    }
+                  </div>
+                </article>
+
+                <article class="review-section">
+                  <div class="review-section__title">
+                    <mat-icon>calendar_month</mat-icon>
+                    <span>Fechas y clases</span>
+                  </div>
+
+                  <div class="review-metrics">
+                    <div class="review-metric-card">
+                      <strong>{{ formatFechaCorta(startDate()) }}</strong>
+                      <span>Inicio</span>
+                    </div>
+
+                    <div class="review-metric-card">
+                      <strong>{{ formatFechaCorta(endDate()) }}</strong>
+                      <span>Termino</span>
+                    </div>
+
+                    <div class="review-metric-card review-metric-card--success">
+                      <strong>{{ finalEstimatedClasses() }}</strong>
+                      <span>Clases estimadas</span>
+                    </div>
+                  </div>
+
+                  <p class="review-days">{{ reviewDaysSummary() }}</p>
+                </article>
+
+                @if (reviewValidationMessage()) {
+                  <div class="validation-box" role="alert">
+                    <mat-icon>error_outline</mat-icon>
+                    <span>{{ reviewValidationMessage() }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </section>
+        </div>
+
+        <aside class="review-preview-panel">
+          <div class="review-status" [class.review-status--warning]="!isReadyToSave()">
+            <mat-icon>{{ isReadyToSave() ? 'check_circle' : 'warning' }}</mat-icon>
+            <span>{{ saveStateLabel() }}</span>
+          </div>
+
+          <div class="review-preview-card__title">
+            <strong>{{ appliedUnitTitle() }}</strong>
+          </div>
+
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <span class="preview-listing__label review-preview-label">Curso</span>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <span class="preview-listing__label review-preview-label">Asignatura</span>
+              <strong>{{ reviewSubjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <span class="preview-listing__label review-preview-label">Periodo</span>
+              <strong>{{ reviewPeriodLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <span class="preview-listing__label review-preview-label">Clases</span>
+              <strong class="preview-listing__highlight">{{ finalEstimatedClasses() }} estimadas</strong>
+            </div>
+          </div>
+
+          <div class="preview-divider"></div>
+
+          <div class="review-preview-list">
+            <span class="review-preview-list__title">OA incluidos</span>
+            @for (objective of selectedObjectives(); track objective.id) {
+              <div class="review-preview-list__item">
+                <mat-icon>check</mat-icon>
+                <span>{{ objective.codigo.replace('OA', 'OA ') }} · {{ objective.descripcion }}</span>
+              </div>
+            }
+          </div>
+        </aside>
+
+        <div class="review-actions">
+          <button type="button" class="btn btn--ghost" (click)="goBackToStep4()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Volver</span>
+          </button>
+
+          <button type="button" class="btn btn--primary" [disabled]="!isReadyToSave() || isSaving()" (click)="guardarUnidad()">
+            <mat-icon>save</mat-icon>
+            <span>{{ isSaving() ? 'Guardando...' : 'Guardar unidad' }}</span>
           </button>
         </div>
       </div>
+    } @else {
+      <div class="form-shell animate-in">
+        <div class="form-shell__main">
+          <section class="card">
+            <div class="card__body card__body--step3">
+              <div class="card-heading">
+                <div class="card-heading__icon">
+                  <mat-icon>calendar_month</mat-icon>
+                </div>
+                <div class="card-heading__copy">
+                  <h2>Configura las fechas y clases de la unidad</h2>
+                  <p>Define el periodo en que se trabajara esta unidad y el sistema calculara las clases disponibles segun tu horario semanal.</p>
+                </div>
+              </div>
 
-      <aside class="preview-card">
-        <h3>Vista previa de la unidad</h3>
+              @if (step3ValidationMessage()) {
+                <div class="validation-box" role="alert">
+                  <mat-icon>error_outline</mat-icon>
+                  <span>{{ step3ValidationMessage() }}</span>
+                </div>
+              }
 
-        <div class="preview-unit" [style.--unit-color]="unitColor()">
-          <div class="preview-unit__head">
-            <div class="preview-unit__number" [style.background]="unitColor()">
-              {{ unitNumber().replace('Unidad ', '') || '1' }}
+              <div class="form-grid">
+                <div class="form-group col-6">
+                  <label class="form-label">Fecha de inicio <span class="required">*</span></label>
+                  <div class="date-field">
+                    <mat-icon>calendar_today</mat-icon>
+                    <input
+                      type="date"
+                      class="date-field__input"
+                      [ngModel]="startDate()"
+                      (ngModelChange)="updateStartDate($event)" />
+                  </div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Fecha de termino <span class="required">*</span></label>
+                  <div class="date-field">
+                    <mat-icon>calendar_today</mat-icon>
+                    <input
+                      type="date"
+                      class="date-field__input"
+                      [ngModel]="endDate()"
+                      (ngModelChange)="updateEndDate($event)" />
+                  </div>
+                </div>
+              </div>
+
+              <section class="days-panel">
+                <div class="days-panel__title">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Dias de clases (segun horario)</span>
+                </div>
+
+                <div class="days-panel__chips">
+                  @for (day of classDays; track day.value) {
+                    <button
+                      type="button"
+                      class="day-chip"
+                      [class.is-active]="selectedClassDays().includes(day.value)"
+                      (click)="toggleClassDay(day.value)">
+                      {{ day.label }}
+                    </button>
+                  }
+                </div>
+
+                <div class="days-panel__info">
+                  <mat-icon>info</mat-icon>
+                  <span>
+                    @if (isLoadingSchedule()) {
+                      Importando desde tu horario configurado...
+                    } @else {
+                      Importado desde tu horario configurado. Puedes ajustar si hay diferencias.
+                    }
+                  </span>
+                </div>
+              </section>
+
+              <section class="calculated-panel">
+                <div class="calculated-panel__title">
+                  <mat-icon>calculate</mat-icon>
+                  <span>Clases calculadas automaticamente</span>
+                </div>
+
+                <div class="calculated-panel__metrics">
+                  <article class="calculated-metric">
+                    <strong>{{ calculatedWeeks() }}</strong>
+                    <span>Semanas</span>
+                  </article>
+
+                  <article class="calculated-metric">
+                    <strong>{{ classesPerWeek() }}</strong>
+                    <span>Clases/semana</span>
+                  </article>
+
+                  <article class="calculated-metric">
+                    <strong>{{ totalCalculatedClasses() }}</strong>
+                    <span>Total clases</span>
+                  </article>
+                </div>
+              </section>
+
+              <div class="manual-adjustment">
+                <label class="form-label">Ajuste manual de clases (opcional)</label>
+                <div class="manual-adjustment__row">
+                  <input
+                    type="number"
+                    min="1"
+                    class="manual-adjustment__input"
+                    [ngModel]="manualClassAdjustment() ?? ''"
+                    (ngModelChange)="updateManualClassAdjustment($event)" />
+                  <span>clases en total</span>
+                </div>
+              </div>
+
+              <div class="form-footer form-footer--split">
+                <button type="button" class="btn btn--ghost" (click)="goBackToStep2()">
+                  <mat-icon>arrow_back</mat-icon>
+                  <span>Volver</span>
+                </button>
+
+                <button type="button" class="btn btn--primary" (click)="continueToStep4()">
+                  <span>Continuar OA</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
             </div>
-            <div>
-              <div class="preview-unit__eyebrow">{{ unitNumber() || 'Unidad 1' }}</div>
-              <div class="preview-unit__title">{{ unitName() || 'Números enteros y operaciones combinadas' }}</div>
-            </div>
-          </div>
-
-          <div class="preview-unit__meta">
-            <mat-icon>menu_book</mat-icon>
-            {{ subjectLabel() }} · {{ courseLabel() }}
-          </div>
-
-          <div class="preview-unit__meta">
-            <mat-icon>calendar_month</mat-icon>
-            {{ startDate() }} - {{ endDate() }}
-          </div>
-
-          <div class="preview-unit__classes">
-            <mat-icon>schedule</mat-icon>
-            {{ plannedClasses() }} clases estimadas
-          </div>
+          </section>
         </div>
 
-        <div>
-          <h3 class="preview-card__section-title">OA principales incluidos</h3>
-          <div class="preview-list">
-            <div class="preview-list__item preview-list__item--disabled">
-              <mat-icon>add</mat-icon>
-              Aún no agregas Objetivos de Aprendizaje.
-            </div>
-            <div class="preview-list__item">
-              <mat-icon>add</mat-icon>
-              Agregar OA en el siguiente paso
-            </div>
-          </div>
-        </div>
+        <aside class="preview-card">
+          <h3>Vista previa</h3>
 
-        <div>
-          <h3 class="preview-card__section-title">Clases que contendrá la unidad</h3>
-          <div class="preview-list">
-            <div class="preview-list__item preview-list__item--disabled">
-              <mat-icon>add</mat-icon>
-              Aún no hay clases planificadas.
+          <article class="unit-preview-card">
+            <div class="unit-preview-card__number">{{ appliedUnitNumber() }}</div>
+            <div class="unit-preview-card__copy">
+              <strong>{{ appliedUnitTitle() }}</strong>
             </div>
-            <div class="preview-list__item">
-              <mat-icon>add</mat-icon>
-              Agregar clases en el siguiente paso
-            </div>
-          </div>
-        </div>
+          </article>
 
-        <div class="info-box">
-          <div class="info-box__icon">
-            <mat-icon>info</mat-icon>
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>calendar_today</mat-icon>
+                <span>Año</span>
+              </div>
+              <strong>{{ yearLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>school</mat-icon>
+                <span>Curso</span>
+              </div>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>menu_book</mat-icon>
+                <span>Asignatura</span>
+              </div>
+              <strong>{{ subjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>schedule</mat-icon>
+                <span>Semestre</span>
+              </div>
+              <strong>{{ semesterLabel() }}</strong>
+            </div>
           </div>
-          <div class="info-box__text">
-            <strong>Importante</strong>
-            Podrás agregar y editar los OA, clases, recursos y evaluaciones una vez creada la unidad.
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-listing">
+            <div class="preview-listing__row preview-listing__row--stacked">
+              <div class="preview-listing__label">
+                <mat-icon>date_range</mat-icon>
+                <span>Periodo</span>
+              </div>
+              <strong>{{ previewPeriod() }}</strong>
+            </div>
+
+            <div class="preview-listing__row preview-listing__row--stacked">
+              <div class="preview-listing__label">
+                <mat-icon>view_agenda</mat-icon>
+                <span>Clases estimadas</span>
+              </div>
+              <strong class="preview-listing__highlight">{{ finalEstimatedClasses() }} clases</strong>
+            </div>
           </div>
-        </div>
-      </aside>
-    </div>
+        </aside>
+      </div>
+    }
+
+    @if (isUnitModalOpen()) {
+      <div class="unit-modal-overlay" (click)="closeUnitModal()">
+        <section class="unit-modal" (click)="$event.stopPropagation()">
+          <header class="unit-modal__header">
+            <div class="unit-modal__copy">
+              <h2>Selecciona una unidad</h2>
+              <p>{{ subjectLabel() }} · {{ courseLabel() }} · {{ yearLabel() }}</p>
+            </div>
+
+            <div class="unit-modal__header-actions">
+              <label class="unit-modal__semester-select">
+                <mat-icon>schedule</mat-icon>
+                <select [ngModel]="semester()" (ngModelChange)="updateSemester($event)">
+                  @for (item of semesters; track item.value) {
+                    <option [value]="item.value">{{ item.label }}</option>
+                  }
+                </select>
+                <mat-icon class="unit-modal__semester-chevron">expand_more</mat-icon>
+              </label>
+
+              <button type="button" class="unit-modal__close" (click)="closeUnitModal()" aria-label="Cerrar seleccion de unidad">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </header>
+
+          <div class="unit-modal__content">
+            @if (!unidadesFiltradas().length) {
+              <div class="unit-modal__empty">
+                No hay unidades disponibles para este curso, asignatura y semestre.
+              </div>
+            } @else {
+              <div class="unit-modal__grid">
+                @for (unidad of unidadesFiltradas(); track unidad.id) {
+                  <button
+                    type="button"
+                    class="unit-card-option"
+                    [class.is-selected]="selectedUnidad()?.id === unidad.id"
+                    (click)="selectUnidad(unidad)">
+                    <div class="unit-card-option__top">
+                      <div
+                        class="unit-card-option__number"
+                        [class.is-selected]="selectedUnidad()?.id === unidad.id"
+                        [style.background]="selectedUnidad()?.id === unidad.id ? unidad.color : ''"
+                        [style.color]="selectedUnidad()?.id === unidad.id ? '#ffffff' : ''">
+                        {{ unidad.numero }}
+                      </div>
+
+                      <div class="unit-card-option__heading">
+                        <h3>{{ unidad.nombre }}</h3>
+                        <div class="unit-card-option__meta">
+                          <span [class]="getSemestreClass(unidad)">{{ unidad.semestre }}</span>
+                          <span>{{ unidad.periodo }}</span>
+                          <span>{{ unidad.horas ? unidad.horas + 'h' : 'Sin horas definidas' }}</span>
+                        </div>
+                      </div>
+
+                      @if (selectedUnidad()?.id === unidad.id) {
+                        <div class="unit-card-option__check">
+                          <mat-icon>check</mat-icon>
+                        </div>
+                      }
+                    </div>
+
+                    <p class="unit-card-option__description">{{ unidad.descripcion }}</p>
+
+                    <div class="unit-card-option__chips">
+                      @for (oa of unidad.oa; track oa.id) {
+                        <span class="oa-chip" [class]="getOaChipClass(oa)">{{ oa.codigo }}</span>
+                      }
+                    </div>
+
+                    <div class="unit-card-option__footer">
+                      <span>{{ calcularTotalOa(unidad) }} OAs · {{ calcularClasesPlanificadas(unidad) }} clases planif.</span>
+                      <strong>{{ calcularCobertura(unidad) }}%</strong>
+                    </div>
+
+                    <div class="unit-card-option__progress">
+                      <div
+                        class="unit-card-option__progress-fill"
+                        [style.width.%]="calcularCobertura(unidad)"
+                        [style.background]="unidad.color"></div>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <footer class="unit-modal__footer">
+            <button type="button" class="btn btn--ghost" (click)="closeUnitModal()">Cancelar</button>
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="!selectedUnidad()"
+              (click)="aplicarUnidad()">
+              Seleccionar unidad
+            </button>
+          </footer>
+        </section>
+      </div>
+    }
+
+    <app-add-oa-other-unit-modal
+      [open]="isOtherUnitOaModalOpen()"
+      [subjectLabel]="subjectLabel()"
+      [courseLabel]="courseLabel()"
+      [units]="otherUnitOptions()"
+      [currentUnitNumber]="appliedUnidad()?.numero ?? null"
+      [preselectedObjectiveIds]="selectedOtherUnitOaIds()"
+      (close)="closeOtherUnitOaModal()"
+      (applySelection)="applyOtherUnitOas($event)" />
   </main>
 </app-teacher-modern-layout>

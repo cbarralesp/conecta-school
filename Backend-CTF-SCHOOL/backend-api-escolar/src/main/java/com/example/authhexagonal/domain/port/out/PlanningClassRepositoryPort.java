@@ -1,6 +1,7 @@
 package com.example.authhexagonal.domain.port.out;
 
 import com.example.authhexagonal.domain.model.PlanningClass;
+import com.example.authhexagonal.domain.model.PlanningClassObjectiveSelection;
 import com.example.authhexagonal.domain.model.CurriculumObjective;
 import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
@@ -56,6 +57,8 @@ public interface PlanningClassRepositoryPort {
     void deleteClass(Long classId);
 
     void syncCurriculumObjectives(Long classId, List<UUID> objectiveIds);
+
+    void saveObjectiveSelections(Long classId, List<PlanningClassObjectiveSelection> objectiveSelections);
 
     List<UUID> findCurriculumObjectiveIdsByClassId(Long classId);
 

@@ -33,6 +33,7 @@ const CANONICAL_MODULE_ORDER = [
   'CALIFICACIONES',
   'ACTIVIDADES',
   'CONTENIDO',
+  'PLANIFICACIONES',
   'PLANIFICACION',
   'USUARIOS',
   'ROLES',
@@ -51,6 +52,7 @@ const CANONICAL_MODULE_NAME_BY_CODE: Record<string, string> = {
   CALIFICACIONES: 'Evaluaciones',
   ACTIVIDADES: 'Actividades',
   CONTENIDO: 'Contenido',
+  PLANIFICACIONES: 'Planificaciones',
   PLANIFICACION: 'Planificación',
   USUARIOS: 'Usuarios',
   ROLES: 'Roles',
@@ -376,8 +378,6 @@ export class AdministrationApiService {
     switch (normalized) {
       case 'EVALUACIONES':
         return 'CALIFICACIONES';
-      case 'PLANIFICACIONES':
-        return 'PLANIFICACION';
       case 'DOCENTES':
         return 'PROFESORES';
       case 'MATRIZ_DE_ACCESO':

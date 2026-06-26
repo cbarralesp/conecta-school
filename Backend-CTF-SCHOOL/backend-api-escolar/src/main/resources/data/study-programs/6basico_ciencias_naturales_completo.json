@@ -1,0 +1,2769 @@
+{
+  "asignatura": "Ciencias Naturales",
+  "nivel": "6° Básico",
+  "fuente": "Ministerio de Educación de Chile - Programa de Estudio, Unidad de Currículum y Evaluación, Decreto N°439/2012, Segunda Edición 2018",
+  "estructura_curricular": {
+    "ejes_tematicos": [
+      {
+        "id": "ciencias_de_la_vida",
+        "nombre": "Ciencias de la Vida",
+        "oas": [
+          "OA1",
+          "OA2",
+          "OA3",
+          "OA4",
+          "OA5",
+          "OA6",
+          "OA7"
+        ],
+        "descripcion": "Fotosíntesis, redes alimentarias, efectos de la actividad humana en ecosistemas, sistema reproductor humano, pubertad, actividad física y drogas."
+      },
+      {
+        "id": "ciencias_fisicas_y_quimicas",
+        "nombre": "Ciencias Físicas y Químicas",
+        "oas": [
+          "OA8",
+          "OA9",
+          "OA10",
+          "OA11",
+          "OA12",
+          "OA13",
+          "OA14",
+          "OA15"
+        ],
+        "descripcion": "Energía: fuentes, transformaciones, calor, temperatura, cambios de estado de la materia, recursos energéticos renovables y no renovables."
+      },
+      {
+        "id": "ciencias_de_la_tierra_y_el_universo",
+        "nombre": "Ciencias de la Tierra y el Universo",
+        "oas": [
+          "OA16",
+          "OA17",
+          "OA18"
+        ],
+        "descripcion": "Capas de la Tierra (atmósfera, litósfera e hidrósfera), formación y propiedades del suelo, erosión y actividad humana."
+      }
+    ],
+    "nota": "En 6° básico el programa contempla 18 OAs de contenido, distribuidos en 3 ejes temáticos. Es el nivel con mayor número de OAs del ciclo básico. Las unidades integran ejes: la Unidad 1 cruza Ciencias de la Tierra con Ciencias de la Vida; la Unidad 2 integra Ciencias de la Vida con salud; las Unidades 3 y 4 se centran en Ciencias Físicas y Químicas."
+  },
+  "habilidades_de_investigacion_cientifica": [
+    {
+      "id": "OAa",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Identificar preguntas simples de carácter científico, que permitan realizar una investigación y formular una predicción de los resultados de ésta, fundamentándolos."
+    },
+    {
+      "id": "OAb",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Planificar y llevar a cabo investigaciones experimentales y no experimentales de manera independiente: en base a una pregunta formulada por ellos u otros; identificando variables que se mantienen, que se cambian y que dan resultado en una investigación experimental; trabajando de forma individual o colaborativa; obteniendo información sobre el tema en estudio a partir de diversas fuentes y aplicando estrategias para organizar y comunicar la información."
+    },
+    {
+      "id": "OAc",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Medir y registrar datos en forma precisa con instrumentos de medición, especificando las unidades de medida, identificando patrones simples y usando las TIC cuando corresponda."
+    },
+    {
+      "id": "OAd",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Seleccionar materiales e instrumentos, usándolos de manera segura y adecuada identificando los riesgos potenciales."
+    },
+    {
+      "id": "OAe",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Formular explicaciones razonables y conclusiones a partir de la comparación entre los resultados obtenidos en la experimentación y sus predicciones."
+    },
+    {
+      "id": "OAf",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Comunicar y representar evidencias y conclusiones de una investigación, utilizando modelos, presentaciones, TIC, informes, entre otros."
+    },
+    {
+      "id": "OAg",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Reflexionar, comunicar y proponer mejoras en sus investigaciones, identificando errores y aspectos a mejorar en sus procedimientos."
+    }
+  ],
+  "nota_habilidades": "En 6° básico el programa contempla 7 habilidades de investigación científica (OAa-OAg), igual número que en 5° básico (OAa-OAh, aunque la nomenclatura difiere). La categoría 'Analizar la evidencia y comunicar' incluye un OA de reflexión y mejora (OAg), que en 5° corresponde a OAh.",
+  "objetivos_de_aprendizaje": [
+    {
+      "id": "OA1",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Explicar, a partir de una investigación experimental, los requerimientos de agua, dióxido de carbono y energía lumínica para la producción de azúcar y liberación de oxígeno en la fotosíntesis, comunicando sus resultados y los aportes de científicos en este campo a través del tiempo."
+    },
+    {
+      "id": "OA2",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Representar, por medio de modelos, la transferencia de energía y materia desde los organismos fotosintéticos a otros seres vivos por medio de cadenas y redes alimentarias en diferentes ecosistemas."
+    },
+    {
+      "id": "OA3",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Analizar los efectos de la actividad humana sobre las redes alimentarias."
+    },
+    {
+      "id": "OA4",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Identificar y describir las funciones de las principales estructuras del sistema reproductor humano femenino y masculino."
+    },
+    {
+      "id": "OA5",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Describir y comparar los cambios que se producen en la pubertad en mujeres y hombres, reconociéndola como una etapa del desarrollo humano."
+    },
+    {
+      "id": "OA6",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Reconocer los beneficios de realizar actividad física en forma regular y de cuidar la higiene corporal en el período de la pubertad."
+    },
+    {
+      "id": "OA7",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Investigar y comunicar los efectos nocivos de algunas drogas para la salud, proponiendo conductas de protección."
+    },
+    {
+      "id": "OA8",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Explicar que la energía es necesaria para que los objetos cambien y los seres vivos realicen sus procesos vitales y que la mayoría de los recursos energéticos proviene directa o indirectamente del Sol, dando ejemplos de ello."
+    },
+    {
+      "id": "OA9",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Investigar en forma experimental la transformación de la energía de una forma a otra, dando ejemplos y comunicando sus conclusiones."
+    },
+    {
+      "id": "OA10",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Demostrar, por medio de la investigación experimental, que el calor fluye de un objeto caliente a uno frío hasta que ambos alcanzan la misma temperatura."
+    },
+    {
+      "id": "OA11",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Clasificar los recursos naturales energéticos en no renovables y renovables y proponer medidas para el uso responsable de la energía."
+    },
+    {
+      "id": "OA12",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Explicar, a partir de modelos, que la materia está formada por partículas en movimiento en sus estados sólido, líquido y gaseoso."
+    },
+    {
+      "id": "OA13",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Demostrar, mediante la investigación experimental, los cambios de estado de la materia, como fusión, evaporación, ebullición, condensación, solidificación y sublimación."
+    },
+    {
+      "id": "OA14",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Diferenciar entre calor y temperatura, considerando que el calor es una forma de energía y la temperatura es una medida de lo caliente de un objeto."
+    },
+    {
+      "id": "OA15",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Medir e interpretar la información obtenida al calentar y enfriar el agua, considerando las transformaciones de un estado a otro."
+    },
+    {
+      "id": "OA16",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Describir las características de las capas de la Tierra (atmósfera, litósfera e hidrósfera) que posibilitan el desarrollo de la vida y proveen recursos para el ser humano, y proponer medidas de protección de dichas capas."
+    },
+    {
+      "id": "OA17",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Investigar experimentalmente la formación del suelo, sus propiedades (como color, textura y capacidad de retención de agua) y la importancia de protegerlo de la contaminación, comunicando sus resultados."
+    },
+    {
+      "id": "OA18",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Explicar las consecuencias de la erosión sobre la superficie de la Tierra, identificando los agentes que la provocan, como el viento, el agua y las actividades humanas."
+    }
+  ],
+  "actitudes": [
+    {
+      "id": "a",
+      "descripcion": "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural."
+    },
+    {
+      "id": "b",
+      "descripcion": "Manifestar un estilo de trabajo riguroso, honesto y perseverante para lograr los aprendizajes de la asignatura."
+    },
+    {
+      "id": "c",
+      "descripcion": "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente."
+    },
+    {
+      "id": "d",
+      "descripcion": "Asumir responsabilidades e interactuar en forma colaborativa y flexible en los trabajos en equipo, aportando y enriqueciendo el trabajo común."
+    },
+    {
+      "id": "e",
+      "descripcion": "Manifestar compromiso con un estilo de vida saludable por medio del desarrollo físico y el autocuidado."
+    },
+    {
+      "id": "f",
+      "descripcion": "Reconocer la importancia de seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva."
+    }
+  ],
+  "vision_global_del_year": {
+    "total_semanas": 38,
+    "total_unidades": 4,
+    "nota": "El programa se organiza en 4 unidades: las dos primeras en el Semestre 1 y las dos últimas en el Semestre 2. La Unidad 1 es la más extensa (48 horas), integrando Ciencias de la Tierra con Ciencias de la Vida."
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "titulo": "Capas de la Tierra, suelo, erosión, fotosíntesis y redes alimentarias",
+      "semestre": 1,
+      "tiempo_estimado": "48 horas pedagógicas",
+      "oas_contenido": [
+        "OA16",
+        "OA17",
+        "OA18",
+        "OA1",
+        "OA2",
+        "OA3"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAd",
+        "OAe",
+        "OAf",
+        "OAg"
+      ],
+      "actitudes": [
+        "a",
+        "b",
+        "c"
+      ],
+      "proposito": "Esta unidad incorpora los ejes de Ciencias de la Tierra y el Universo y Ciencias de la Vida. En primer lugar, se espera que los estudiantes comprendan las características de las capas de la Tierra y de los distintos tipos de suelo, incluyendo las relaciones de interdependencia entre los seres vivos y el suelo en que habitan. Segundo, se espera que comprendan que la energía necesaria para los seres vivos es aportada por plantas, algas y microorganismos a través del proceso de fotosíntesis. Las habilidades de investigación científica incluyen la formulación de explicaciones, conclusiones y predicciones, así como la observación, medición y registro de datos.",
+      "conocimientos_previos": [
+        "Estados físicos de la materia.",
+        "Características y localización de la corteza, manto y núcleo terrestre.",
+        "Distribución del agua en la Tierra.",
+        "Componentes del hábitat que posibilitan el desarrollo de la vida.",
+        "Relaciones simples entre diversos organismos de un hábitat en aspectos como la alimentación."
+      ],
+      "palabras_clave": [
+        "Atmósfera",
+        "hidrósfera",
+        "litósfera",
+        "rocas",
+        "roca ígnea",
+        "roca metamórfica",
+        "roca sedimentaria",
+        "suelo",
+        "horizontes del suelo",
+        "recursos naturales",
+        "fósiles",
+        "contaminación de suelo",
+        "erosión",
+        "flujos de materia y energía",
+        "fotosíntesis",
+        "luz",
+        "agua",
+        "clorofila",
+        "almidón",
+        "dióxido de carbono",
+        "oxígeno",
+        "cadena alimentaria",
+        "tramas alimentarias",
+        "productores",
+        "consumidores",
+        "descomponedores",
+        "desequilibrio",
+        "contaminación",
+        "ecosistema"
+      ],
+      "conocimientos": [
+        "Características de la atmósfera, hidrósfera y litósfera.",
+        "Relación de las capas de la Tierra con el desarrollo de la vida y generación de recursos naturales.",
+        "Tipos de rocas, formación y características.",
+        "Formación del suelo e importancia para los seres vivos.",
+        "Horizontes del suelo y características.",
+        "Proceso de erosión, factores, causas y efectos.",
+        "Factores que intervienen en el proceso de fotosíntesis y sustancias requeridas y producidas.",
+        "Flujos de materia y energía entre los distintos eslabones de las cadenas y tramas alimentarias.",
+        "Alteraciones en los flujos de materia y energía por factores externos, por ejemplo, la actividad humana."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA16",
+          "descripcion": "Describir las características de las capas de la Tierra (atmósfera, litósfera e hidrósfera) que posibilitan el desarrollo de la vida y proveen recursos para el ser humano, y proponer medidas de protección de dichas capas.",
+          "indicadores_de_evaluacion": [
+            "Describen y ubican las diferentes capas que conforman la Tierra.",
+            "Relacionan las características de las capas externas de la Tierra con el desarrollo de diferentes seres vivos.",
+            "Dan ejemplos de algunos de los recursos que poseen las capas externas de la Tierra y su utilidad para el ser humano.",
+            "Predicen el impacto en el desarrollo de la vida y la alteración de las características de las capas de la Tierra por la acción humana.",
+            "Dan ejemplos de alteraciones en el aire, las aguas y los suelos producidas por el ser humano.",
+            "Evalúan las consecuencias de la contaminación sobre la flora, la fauna y el propio ser humano.",
+            "Comunican y representan, mediante modelos y presentaciones con TIC, conductas individuales y colectivas que evitan diversos tipos de contaminación."
+          ]
+        },
+        {
+          "oa": "OA17",
+          "descripcion": "Investigar experimentalmente la formación del suelo, sus propiedades (como color, textura y capacidad de retención de agua) y la importancia de protegerlo de la contaminación, comunicando sus resultados.",
+          "indicadores_de_evaluacion": [
+            "Relacionan la formación del suelo con los tipos de rocas.",
+            "Plantean métodos experimentales para demostrar la formación del suelo a partir de los diferentes tipos de rocas.",
+            "Explican la formación de los horizontes o estratos que conforman el suelo.",
+            "Describen la textura, la capacidad de almacenar agua, la presencia de aire, los elementos químicos y la materia orgánica como características básicas de los suelos.",
+            "Establecen similitudes y diferencias sobre las características básicas en diferentes tipos de suelo.",
+            "Predicen el tipo y las características del suelo, a partir de información climática y del paisaje de una zona determinada.",
+            "Investigan las relaciones de interdependencia entre los seres vivos y el suelo, en términos del intercambio de nutrientes.",
+            "Formulan conclusiones sobre las variables que intervienen en la alteración de los horizontes del suelo y sus consecuencias para los seres vivos."
+          ]
+        },
+        {
+          "oa": "OA18",
+          "descripcion": "Explicar las consecuencias de la erosión sobre la superficie de la Tierra, identificando los agentes que la provocan, como el viento, el agua y las actividades humanas.",
+          "indicadores_de_evaluacion": [
+            "Explican, a través de modelos, los mecanismos y efectos de la erosión sobre la superficie de la Tierra.",
+            "Describen las transformaciones que se producen en la superficie de la Tierra, a través del tiempo geológico, por efecto de la erosión.",
+            "Elaboran diagramas o gráficos con información sobre la erosión de una determinada superficie y las escalas de tiempo en que actúa.",
+            "Evalúan y comunican la influencia de los distintos factores en la erosión de la superficie de la Tierra (por ejemplo: vientos, agua, seres vivos)."
+          ]
+        },
+        {
+          "oa": "OA1",
+          "descripcion": "Explicar, a partir de una investigación experimental, los requerimientos de agua, dióxido de carbono y energía lumínica para la producción de azúcar y liberación de oxígeno en la fotosíntesis, comunicando sus resultados y los aportes de científicos en este campo a través del tiempo.",
+          "indicadores_de_evaluacion": [
+            "Distinguen los organismos capaces de realizar fotosíntesis (plantas, algas y algunos microorganismos).",
+            "Explican de forma simple el proceso de fotosíntesis, identificando los elementos necesarios (CO2, luz, agua) para que se produzca azúcar y liberación de oxígeno.",
+            "Obtienen evidencia experimental sobre las sustancias producidas en el proceso de fotosíntesis (almidón y O2).",
+            "Realizan experimentos simples que evidencian los requerimientos de luz y agua de las plantas para el proceso de la fotosíntesis.",
+            "Analizan críticamente y explican los aportes realizados por Jean Baptista van Helmont al estudio de las plantas.",
+            "Fundamentan predicciones sobre fenómenos o problemas ocurridos en el proceso de fotosíntesis."
+          ]
+        },
+        {
+          "oa": "OA2",
+          "descripcion": "Representar, por medio de modelos, la transferencia de energía y materia desde los organismos fotosintéticos a otros seres vivos por medio de cadenas y redes alimentarias en diferentes ecosistemas.",
+          "indicadores_de_evaluacion": [
+            "Explican que los organismos que realizan fotosíntesis son la base de los flujos de materia y energía necesaria para la vida de todos los seres vivos.",
+            "Observan y describen algunas relaciones tróficas presentes en su entorno cercano y evidencian la necesidad de obtener materia y energía a partir de otros organismos.",
+            "Describen, a partir de esquemas, los flujos de materia y energía entre los distintos eslabones de cadenas y tramas alimentarias.",
+            "Identifican la función de los distintos niveles tróficos (productores, consumidores de 1°, 2° y 3° orden, descomponedores).",
+            "Analizan posibles consecuencias de la alteración de los flujos de materia y energía en el ecosistema."
+          ]
+        },
+        {
+          "oa": "OA3",
+          "descripcion": "Analizar los efectos de la actividad humana sobre las redes alimentarias.",
+          "indicadores_de_evaluacion": [
+            "Identifican factores que pueden alterar los flujos de materia y energía en una trama trófica.",
+            "Predicen consecuencias para las cadenas y tramas si se altera uno o más de sus niveles tróficos.",
+            "Describen las principales acciones del ser humano que alteran el entorno.",
+            "Analizan situaciones que alteran el equilibrio natural (deforestación, contaminación y plantaciones) y proponen medidas preventivas y moderadoras, asumiendo compromisos personales."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA16",
+          "titulo": "Origen etimológico de atmósfera, litósfera e hidrósfera",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente explica que las palabras son compuestas. Los estudiantes buscan y leen en el diccionario o internet el origen de estas palabras y registran sus resultados en el cuaderno de ciencias.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 2,
+          "oa": "OA16",
+          "titulo": "Investigación y maqueta de las tres capas de la Tierra",
+          "habilidades": [
+            "OAb",
+            "OAd"
+          ],
+          "descripcion": "Organizados en tres grupos (uno por capa), indagan y leen sobre las características de la capa asignada (atmósfera, litósfera o hidrósfera), construyen un texto informativo y elaboran una maqueta con material reciclado que contenga las tres capas, rotulándola para una exposición científica."
+        },
+        {
+          "numero": 3,
+          "oa": "OA16",
+          "titulo": "Cosmovisión de pueblos originarios sobre la 'madre tierra'",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan en diferentes fuentes la cosmovisión de distintos pueblos originarios del país sobre la 'madre tierra' y su cuidado. Comunican sus resultados al curso por variados medios como software de presentación.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 4,
+          "oa": "OA16",
+          "titulo": "Recursos de las capas de la Tierra para tres seres vivos",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Escogen tres seres vivos e investigan sus características y formas de vida. Elaboran un dibujo explicativo sobre cómo los recursos de las capas de la Tierra posibilitan esas formas de vida. Responden preguntas sobre qué ocurriría si alguna capa no existiera.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 5,
+          "oa": "OA16",
+          "titulo": "Clasificación de recursos naturales renovables y no renovables",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan y leen los términos 'recurso natural', 'recurso natural renovable' y 'recurso natural no renovable'. Los explican ante sus compañeros con ejemplos simples y cercanos."
+        },
+        {
+          "numero": 6,
+          "oa": "OA16",
+          "titulo": "Tabla de clasificación de recursos por capa de la Tierra",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente expone un listado de términos (aire, agua, suelo, vegetales, animales, minerales, plásticos, petróleo, Sol, electricidad, etc.). Los estudiantes los clasifican en renovables y no renovables, comparan resultados con compañeros y escriben sobre su importancia para los seres vivos."
+        },
+        {
+          "numero": 7,
+          "oa": "OA16",
+          "titulo": "Relación objetos cotidianos con su capa de origen",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Elaboran una lista de diez objetos cotidianos, investigan el material que los compone y la capa de la Tierra en que se encuentra el material principal (ej: clavo-fierro-litósfera; bebida-agua-hidrósfera). Comunican resultados con TIC.",
+          "interdisciplinariedad": "Tecnología"
+        },
+        {
+          "numero": 8,
+          "oa": "OA16",
+          "titulo": "Tabla objeto-material-capa de la Tierra",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "El docente escribe en la pizarra términos variados. Los estudiantes organizan la información en una tabla con encabezados: objeto – material - capa de la Tierra, discuten en grupos pequeños y el docente retroalimenta."
+        },
+        {
+          "numero": 9,
+          "oa": "OA16",
+          "titulo": "Lectura sobre contaminación de las capas y presentación",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Leen textos sobre alteración y contaminación en las capas superficiales de la Tierra, responden preguntas (tipos de contaminantes, daños, zonas afectadas en Chile) y presentan ante el curso relacionando consecuencias con el desarrollo de la vida.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 10,
+          "oa": "OA16",
+          "titulo": "Evolución de la contaminación de una capa en 100 años",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Escogen una capa externa de la Tierra e investigan su contaminación en los últimos cien años. Organizan la información en esquemas, tablas y gráficos que muestren tendencias. Diseñan una presentación con software y proponen medidas para mitigar la contaminación.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 11,
+          "oa": "OA16",
+          "titulo": "Campaña de educación ambiental en el colegio",
+          "habilidades": [
+            "OAb",
+            "OAg"
+          ],
+          "descripcion": "Diseñan una campaña de educación ambiental. Definen conductas personales y colectivas para prevenir la alteración de las capas de la Tierra. Elaboran trípticos y exposiciones de difusión científica. Evalúan la actividad y proponen mejoras a los procedimientos."
+        },
+        {
+          "numero": 12,
+          "oa": "OA16",
+          "titulo": "Proyecto de reciclaje en el colegio y el hogar",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Planifican un proyecto de reciclaje (al menos seis meses): recolección y agrupación de materiales, sitio de acopio, traslado a recicladores, tablas de registro, e informes periódicos a la comunidad con software de presentación.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 13,
+          "oa": "OA16",
+          "titulo": "Mapa conceptual de las capas de la Tierra",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Construyen un mapa conceptual en papelógrafo con al menos los siguientes conceptos: capas de la Tierra, litósfera, atmósfera, hidrósfera, vida, seres vivos, recursos, alteración de capas, contaminación. Presentan y explican al curso."
+        },
+        {
+          "numero": 14,
+          "oa": "OA17",
+          "titulo": "Observación de las características del suelo en el patio",
+          "habilidades": [
+            "OAb",
+            "OAg"
+          ],
+          "descripcion": "Investigan términos (suelo, horizontes, erosión, humus, limo, arcilla, arena). En grupos de tres, van al patio a reconocer y registrar características del suelo respondiendo preguntas sobre rocas, seres vivos, humedad. Plantean predicciones sobre la formación del suelo y exponen con TIC."
+        },
+        {
+          "numero": 15,
+          "oa": "OA17",
+          "titulo": "Experimento de desintegración de rocas",
+          "habilidades": [
+            "OAa",
+            "OAe"
+          ],
+          "descripcion": "Experimentan fenómenos de desintegración de rocas: pasan lija sobre distintos tipos de rocas, frotan y golpean rocas, congelan piedra pómez mojada. Relacionan los residuos obtenidos con la formación del suelo e indagan en internet el mecanismo de formación. Exponen conclusiones."
+        },
+        {
+          "numero": 16,
+          "oa": "OA17",
+          "titulo": "Experimento de horizontes del suelo en frascos con agua",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Llenan tres frascos con agua hasta dos tercios, añaden una muestra de suelo diferente por frasco, agitan y dejan en reposo 30 minutos. Identifican y dibujan los horizontes, luego realizan un esquema de corte transversal del suelo rotulando los horizontes A, B, C y D con sus características."
+        },
+        {
+          "numero": 17,
+          "oa": "OA17",
+          "titulo": "Análisis de color, textura y capacidad de retención de agua de suelos locales",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "Toman muestras de distintos tipos de suelos de diferentes zonas de su localidad. Observan color, determinan textura (áspero/suave) y miden la cantidad de agua que escurre al comprimir cada muestra humedecida. Clasifican los suelos según textura (arena, arcilla, limo) y exponen resultados."
+        },
+        {
+          "numero": 18,
+          "oa": "OA17",
+          "titulo": "Experimento de capacidad de retención de humedad con embudos",
+          "habilidades": [
+            "OAb",
+            "OAg"
+          ],
+          "descripcion": "Planifican una investigación experimental con embudos (o botellas cortadas), distintos tipos de suelos (arcilloso, arenoso, pantanoso) y 100 mL de agua cada uno. Miden el volumen de agua recogida, comparan retención, e identifican errores y mejoras posibles del procedimiento."
+        },
+        {
+          "numero": 19,
+          "oa": "OA17",
+          "titulo": "Concepto de permeabilidad y permeabilidad de suelos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Investigan y leen en distintas fuentes el concepto de 'permeabilidad' y 'permeabilidad de los suelos'. Redactan un párrafo con la información obtenida y lo discuten en clases.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 20,
+          "oa": "OA17",
+          "titulo": "Observación de vida en una muestra de suelo extraída del patio",
+          "habilidades": [
+            "OAb",
+            "OAe"
+          ],
+          "descripcion": "En grupos de tres o cuatro, extraen un cuadrado de suelo del patio o jardín, observan con lupa la presencia de agua, humedad y formas de vida sobre e interior del suelo. Registran observaciones y discuten la importancia del suelo para el desarrollo de la vida."
+        },
+        {
+          "numero": 21,
+          "oa": "OA17",
+          "titulo": "Texto sobre importancia del suelo para los seres vivos",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Redactan un texto sobre la importancia del suelo para los seres vivos usando los conceptos: agua, horizontes, nutrientes, energía, ecosistemas, crecimiento, recursos naturales renovables, no renovables, animales, plantas, rocas y alimento.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 22,
+          "oa": "OA17",
+          "titulo": "Tabla de tipos de suelo y actividades humanas",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente reparte tarjetas con imágenes de actividades humanas (agricultura, minería, silvicultura, turismo, etc.). Los estudiantes construyen una tabla de tres columnas (tipo de suelo, características, actividad o posibles usos) y la completan discutiendo en grupos.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 23,
+          "oa": "OA17",
+          "titulo": "Debate: explotación vs. conservación del suelo",
+          "habilidades": [
+            "OAb",
+            "OAe"
+          ],
+          "descripcion": "El docente divide al curso en dos grupos. Uno investiga argumentos a favor de la explotación del suelo; el otro, argumentos a favor de su conservación. Realizan un debate moderado y establecen conclusiones conjuntas.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 24,
+          "oa": "OA18",
+          "titulo": "Definición de erosión a partir de imágenes de paisajes erosionados",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente muestra imágenes de suelos y paisajes erosionados. Los estudiantes en grupos pequeños definen el concepto de 'erosión' y la exponen al curso. Se registran las principales ideas para obtener una definición única para el curso."
+        },
+        {
+          "numero": 25,
+          "oa": "OA18",
+          "titulo": "Experimento de erosión con bandeja: agua y viento",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "En una bandeja con suelo húmedo semi-prensado, inclinada a ~8 cm del mesón, vierten agua de diversas formas (riachuelo, rocío, uniforme) y luego simulan viento con ventilador o secador. Observan, registran los cambios de forma y arrastre de material, y escriben conclusiones sobre los mecanismos de erosión."
+        },
+        {
+          "numero": 26,
+          "oa": "OA18",
+          "titulo": "Experimento de erosión comparando suelo desnudo vs. con vegetación",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Repiten el experimento anterior pero sustituyendo el suelo desnudo por suelo con pasto o vegetales. Registran resultados, identifican las variables que se mantienen y cambian, extraen conclusiones sobre qué tipo de suelo reduce mejor la erosión y elaboran diagramas rotulados comparativos."
+        },
+        {
+          "numero": 27,
+          "oa": "OA18",
+          "titulo": "Actividad humana y erosión: afiche por actividad",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Cada estudiante toma una tarjeta con una actividad humana (deforestación, minería, agricultura, obras públicas, etc.) y diseña un afiche explicativo de sus efectos erosivos, ejemplos en Chile y propuestas de mejora. Presentan brevemente al curso con TIC.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 28,
+          "oa": "OA18",
+          "titulo": "Imágenes de paisajes erosionados y medidas de mitigación",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "El docente expone imágenes de paisajes erosionados. Los estudiantes argumentan por escrito las posibles causas, luego indagan sobre medidas de mitigación históricas (barreras de vegetación, siembra directa, terrazas) y proponen medidas para cada caso. Presentan en diapositivas y practican alguna medida en salida a terreno.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 29,
+          "oa": "OA18",
+          "titulo": "Investigación sobre efectos de la erosión en la productividad del suelo",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan en fuentes variadas los efectos de la erosión en el paisaje y en la productividad agrícola, silvícola y ganadera. Discuten en parejas y registran conclusiones en sus cuadernos."
+        },
+        {
+          "numero": 30,
+          "oa": "OA18",
+          "titulo": "Experimento de mitigación de la erosión con montículo de suelo",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "Plantean una pregunta científica y una predicción. Vierten 500 mL de suelo en forma de montículo, aplican materiales a elección para evitar su dispersión y vierten 200 mL de agua desde 20 cm de altura. Comparan resultados con el resto del curso y reflexionan sobre la mejor forma de prevenir la erosión en pendiente."
+        },
+        {
+          "numero": 31,
+          "oa": "OA18",
+          "titulo": "Tabla causas-efectos-acciones de prevención de la erosión",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Elaboran una tabla de tres columnas (causas, efectos, acciones de prevención). El docente escribe en la pizarra los términos relevantes. Los estudiantes los ordenan en las columnas, proponen acciones de prevención y comparan con sus compañeros."
+        },
+        {
+          "numero": 32,
+          "oa": "OA18",
+          "titulo": "Salida a terreno: evidencias de erosión en el entorno",
+          "habilidades": [
+            "OAa",
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En terreno abierto con guía de trabajo, observan y dibujan evidencias de erosión en el entorno. Registran observaciones, responden preguntas sobre tiempo de los procesos erosivos y los agentes que actuaron. Elaboran una presentación digital y la exponen al curso."
+        },
+        {
+          "numero": 33,
+          "oa": "OA18",
+          "titulo": "Mapa de tipos de erosión en Chile y la propia región",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan las distintas formas de erosión natural y humana en Chile y su región. Hacen un mapa de Chile indicando las diversas zonas y tipos de erosión con rótulos. Redactan un texto de una página sobre erosión, sus tipos, consecuencias y posibles acciones para evitarla.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales; Lenguaje y Comunicación"
+        },
+        {
+          "numero": 34,
+          "oa": "OA1",
+          "titulo": "Salida a terreno: necesidades de las plantas y partes observables",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "En salida al patio o jardín, los estudiantes recuerdan las características de todos los seres vivos, se centran en cómo producen su alimento las plantas, y responden preguntas sobre fotosíntesis. Registran respuestas y dibujos rotulados de las plantas observadas."
+        },
+        {
+          "numero": 35,
+          "oa": "OA1",
+          "titulo": "Cartilla de supervivencia de una planta en el espacio",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Imaginan que una planta será enviada en una cápsula al espacio. Escriben creativamente una cartilla con todos los elementos y cuidados necesarios para su supervivencia, dibujan la planta rotulando sus partes y los elementos requeridos."
+        },
+        {
+          "numero": 36,
+          "oa": "OA1",
+          "titulo": "Experimento de requerimientos de las plantas: agua, luz y aire",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "En grupos pequeños, preparan cuatro vasos rotulados ('sin aire', 'sin agua', 'sin luz', 'todo') con tierra y semillas. Tras la germinación, diferencian las variables: el de 'sin aire' en bolsa cerrada, el de 'sin luz' en caja oscura, los otros dos cerca de una ventana soleada. Miden alturas cada dos días, grafican y escriben conclusiones evaluando posibles mejoras."
+        },
+        {
+          "numero": 37,
+          "oa": "OA1",
+          "titulo": "Investigación sobre el experimento de van Helmont",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En parejas investigan las creencias del siglo XVIII sobre la nutrición de las plantas y el experimento de van Helmont. Responden preguntas sobre qué intentó demostrar, sus conclusiones y qué elementos no consideró. Comparan respuestas y escriben las ideas comunes en la pizarra."
+        },
+        {
+          "numero": 38,
+          "oa": "OA1",
+          "titulo": "Experimento con azul de bromotimol y planta acuática (elodea)",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "Preparan tres tubos de ensayo con agua y azul de bromotimol, burbujean CO2 en dos de ellos, agregan elodea en los tubos A y B, cubren el tubo A con cartulina negra y exponen B y C a luz dos horas. Responden preguntas sobre la pregunta científica, la variable única, los cambios de color y los procesos en las plantas. Proponen mejoras al experimento."
+        },
+        {
+          "numero": 39,
+          "oa": "OA1",
+          "titulo": "Experimento del efecto de la luz en el crecimiento del pasto",
+          "habilidades": [
+            "OAb",
+            "OAe"
+          ],
+          "descripcion": "En parejas siembran pasto en dos vasos, miden altura inicial y luego cubren uno con papel aluminio y otro con plástico transparente. Tras cinco días desenvuelven ambos vasos y observan, miden y registran diferencias de color, textura, forma y altura. Comparan respuestas en plenario y elaboran conclusiones."
+        },
+        {
+          "numero": 40,
+          "oa": "OA1",
+          "titulo": "Experimento de liberación de oxígeno con elodea y embudos",
+          "habilidades": [
+            "OAb",
+            "OAe"
+          ],
+          "descripcion": "Colocan dos plantas de elodea en embudos invertidos dentro de recipientes con agua, cubiertos por tubos de ensayo. Uno a la luz y otro en oscuridad. Después de cuatro horas observan burbujas y responden preguntas sobre el gas producido y el proceso que lo originó. Dibujan el montaje rotulado y escriben conclusiones."
+        },
+        {
+          "numero": 41,
+          "oa": "OA1",
+          "titulo": "Mapa conceptual de fotosíntesis",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Elaboran un mapa conceptual con: luz, agua, aire, alimento, oxígeno, fotosíntesis, plantas, algas, microorganismos. Comparan sus mapas con los demás compañeros de curso."
+        },
+        {
+          "numero": 42,
+          "oa": "OA1",
+          "titulo": "Investigación sobre almacenamiento de azúcar en productos vegetales",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Buscan información sobre la importancia del azúcar para los seres vivos y su almacenamiento en las plantas. Manipulan y observan frutas, tubérculos, flores y semillas: realizan cortes longitudinales, los dibujan rotulando sus partes e identifican estructuras que almacenan almidón.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 43,
+          "oa": "OA1",
+          "titulo": "Plantas de hojas caducas en los meses fríos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan y leen en internet, libros y revistas sobre cómo las plantas de hojas caducas se mantienen durante los meses fríos. En el cuaderno redactan un texto de una página con ilustraciones.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 44,
+          "oa": "OA2",
+          "titulo": "Reflexión sobre los alimentos consumidos y su origen energético",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Realizan una lista de los últimos alimentos consumidos en el día. Responden preguntas sobre para qué los necesitan, si también de los alimentos proviene la materia para crecer y cómo está almacenada la energía en ellos. Contrastan sus respuestas con información bibliográfica."
+        },
+        {
+          "numero": 45,
+          "oa": "OA2",
+          "titulo": "Exploración de insectos y arácnidos en jardines: relaciones de alimentación",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Exploran jardines o entornos naturales buscando insectos y arácnidos. Observan características de su hábitat y conjeturan posibles fuentes de alimentación. Dibujan en el cuaderno las relaciones de alimentación entre animales y plantas observados."
+        },
+        {
+          "numero": 46,
+          "oa": "OA2",
+          "titulo": "Cuento sobre animales y sus relaciones alimentarias",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente entrega un cuento sobre la vida de algunos animales. Los estudiantes subrayan características del hábitat y fuentes de alimentación y las describen mediante un dibujo o esquema en el cuaderno."
+        },
+        {
+          "numero": 47,
+          "oa": "OA2",
+          "titulo": "Investigación sobre grandes carnívoros y estrategias de caza",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Indagan en fuentes bibliográficas sobre características de grandes carnívoros y sus estrategias de caza, incluyendo animales chilenos como el puma. Preparan una exposición oral con apoyo audiovisual."
+        },
+        {
+          "numero": 48,
+          "oa": "OA2",
+          "titulo": "Collage de cadenas alimentarias con recortes de revistas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Recortan fotografías de animales y plantas de revistas, las organizan según relaciones de alimentación y las pegan en cartulina indicando con flechas el traspaso de energía. Dibujan y pintan el hábitat de los organismos y exponen en la sala."
+        },
+        {
+          "numero": 49,
+          "oa": "OA2",
+          "titulo": "Identificación de productores, consumidores y descomponedores en ecosistemas chilenos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente entrega láminas con fotografías de ecosistemas chilenos y de otros lugares del mundo. Los estudiantes marcan con flechas las relaciones de alimentación e identifican organismos productores, consumidores y descomponedores."
+        },
+        {
+          "numero": 50,
+          "oa": "OA2",
+          "titulo": "Diagrama de red alimentaria con la especie humana",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Elaboran en una hoja un diagrama de una red alimentaria que incluya la especie humana en distintos niveles según el organismo que consume. Intercambian las redes con sus compañeros, las analizan y pegan en su cuaderno."
+        },
+        {
+          "numero": 51,
+          "oa": "OA2",
+          "titulo": "Video de vida salvaje: guía de preguntas sobre cadenas alimentarias",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan un video de vida salvaje y responden una guía de preguntas sobre organismos herbívoros y carnívoros, productores y consumidores, por qué los carnívoros son menos que los herbívoros y qué ocurre con los restos orgánicos. Registran respuestas en la pizarra y extraen conclusiones."
+        },
+        {
+          "numero": 52,
+          "oa": "OA2",
+          "titulo": "Red alimentaria de un ecosistema chileno en papelógrafo",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos de tres o cuatro, seleccionan un ecosistema chileno e investigan sus seres vivos y sus relaciones alimentarias. En un papelógrafo representan la red con fotos, recortes o dibujos, unen con flechas mostrando el flujo de energía y presentan al curso."
+        },
+        {
+          "numero": 53,
+          "oa": "OA2",
+          "titulo": "Análisis de alteraciones en una red alimentaria y sus consecuencias",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "A partir de la red alimentaria elaborada (o de una imagen), responden preguntas sobre qué ocurriría si se extinguiera un herbívoro o un carnívoro primario, o si aumentara/disminuyera la población de un organismo determinado. Crean nuevas preguntas para sus compañeros."
+        },
+        {
+          "numero": 54,
+          "oa": "OA2",
+          "titulo": "Red alimentaria regional con especies en peligro",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Por grupos y región del país, investigan características de especies: nombre común, dieta, estado de conservación. En un papelógrafo elaboran una red alimentaria marcando con una cruz las especies en peligro. Exponen y discuten posibles factores que podrían afectar el equilibrio."
+        },
+        {
+          "numero": 55,
+          "oa": "OA2",
+          "titulo": "Mapa conceptual de niveles tróficos, funciones y alteraciones",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Realizan un mapa conceptual que resuma los conceptos de la unidad incluyendo los distintos niveles tróficos, sus funciones, ejemplos y posibles alteraciones."
+        },
+        {
+          "numero": 56,
+          "oa": "OA2",
+          "titulo": "Experimento de descomposición en refrigerador vs. lugar cálido",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "Colocan desechos vegetales en dos recipientes con tapa: el recipiente A en el refrigerador y el B en un lugar cálido. Predicen posibles cambios. Tras tres días destapan y observan ambos, responden preguntas sobre diferencias observadas y sus causas. Contrastan predicciones con resultados."
+        },
+        {
+          "numero": 57,
+          "oa": "OA3",
+          "titulo": "Lectura y reflexión: carta del Jefe Seattle",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Leen la carta del Jefe Seattle al presidente de los Estados Unidos (1854). Extraen las ideas principales y elaboran una reflexión escrita sobre la necesidad de tomar conciencia sobre acciones que pudieran afectar el sistema del que formamos parte.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 58,
+          "oa": "OA3",
+          "titulo": "Poema o dibujo sobre elementos de la naturaleza del entorno",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Realizan un poema o dibujo que describa la belleza de elementos de la naturaleza de su entorno cercano y discuten sobre el valor que ello tiene para el ser humano.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 59,
+          "oa": "OA3",
+          "titulo": "Noticias sobre impacto ambiental del ser humano sobre especies",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Seleccionan noticias o artículos que ilustren el impacto ambiental producido por el ser humano sobre diversas especies. Reflexionan sobre las consecuencias y cómo la alteración en un nivel trófico daña indirectamente los otros. Elaboran noticias donde el ser humano proteja las especies y su hábitat.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 60,
+          "oa": "OA3",
+          "titulo": "Ventajas y desventajas de la deforestación y forestación",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan cuánto terreno de flora nativa ha sido reemplazado por cultivos y árboles para madera. Discuten en plenaria las ventajas y desventajas para los distintos niveles tróficos. Elaboran un texto con las principales conclusiones."
+        },
+        {
+          "numero": 61,
+          "oa": "OA3",
+          "titulo": "Observación comparativa de árboles vs. áreas sin árboles",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Salen al patio, jardín o parque para observar la riqueza de plantas, hongos e insectos que habitan en los árboles. Registran observaciones en una tabla y las comparan con la riqueza de áreas sin presencia de árboles. Responden preguntas sobre ventajas de la presencia del árbol y consecuencias de cortarlo."
+        },
+        {
+          "numero": 62,
+          "oa": "OA3",
+          "titulo": "Debate sobre contaminación: medidas reactivas vs. preventivas",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Identifican las principales fuentes de contaminación del entorno local. Organizan un debate con dos posiciones: responsabilidades frente a la contaminación ya generada vs. medidas preventivas. Investigan a fondo cada postura y preparan el debate.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 63,
+          "oa": "OA3",
+          "titulo": "Entrevista a profesionales sobre consecuencias de la contaminación",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Entrevistan a médicos, veterinarios o botánicos sobre consecuencias para la salud del ser humano, plantas y animales de la contaminación ambiental. Sistematizan la información y presentan sus principales hallazgos al curso."
+        },
+        {
+          "numero": 64,
+          "oa": "OA3",
+          "titulo": "Comics sobre medidas concretas para disminuir el impacto de desechos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Dibujan en cartulina un cómic que ilustre medidas concretas que estudiantes y familias puedan realizar para disminuir el impacto de los desechos en el ambiente cercano (mantener veredas limpias, ubicar puntos verdes, reciclar/reducir/reusar). Exponen en el colegio con TIC o paneles.",
+          "interdisciplinariedad": "Artes Visuales"
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA17",
+            "OA18",
+            "OAc"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican la formación de los horizontes o estratos que conforman el suelo.",
+            "Explican, a través de modelos, los mecanismos y efectos de la erosión sobre la superficie de la Tierra.",
+            "Formulan predicciones sobre los cambios en diversos tipos de suelos y sus paisajes por efecto de la erosión.",
+            "Elaboran diagramas o gráficos con información sobre la erosión de una determinada superficie.",
+            "Miden las variables a investigar de forma precisa.",
+            "Utilizan unidades de medición de forma precisa y pertinente.",
+            "Registran los datos obtenidos a través de tablas y gráficos."
+          ],
+          "actividad_evaluativa": "Observación de un esquema del suelo. 1) Demostrar experimentalmente que cada capa posee diferente capacidad de retención de agua. 2) Realizar una investigación para demostrar que el suelo vegetal retiene más agua que el de gravilla. 3) Explicar la importancia de preservar la capa vegetal. 4) Identificar y rotular los horizontes A, B, C y D. 5) Predecir consecuencias de la ausencia del horizonte A y del horizonte B. 6) Diagramar un trozo de suelo afectado por erosión del viento y del agua.",
+          "criterios_de_evaluacion": [
+            "Demuestran que planifican y llevan a cabo investigaciones para determinar la capacidad de retención del agua.",
+            "Identifican tipos de variables presentes en la investigación.",
+            "Observan, miden y registran datos sobre retención de agua.",
+            "Demuestran que organizan y representan información de diferentes formas.",
+            "Seleccionan materiales e instrumentos usándolos de manera segura y adecuada.",
+            "Argumentan la importancia del suelo para el desarrollo de los seres vivos.",
+            "Identifican los horizontes de suelo.",
+            "Predicen las consecuencias en el desarrollo de la vida por ausencia de horizontes del suelo.",
+            "Ilustran mediante un diagrama rotulado los efectos de la erosión por vientos y agua en los horizontes del suelo."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA18",
+            "OAd",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican, a través de modelos, los mecanismos y efectos de la erosión sobre la superficie de la Tierra.",
+            "Formulan predicciones sobre los cambios en diversos tipos de suelos y sus paisajes por efecto de la erosión.",
+            "Elaboran diagramas o gráficos con información sobre la erosión de una determinada superficie.",
+            "Evalúan y comunican la influencia de los distintos factores en la erosión.",
+            "Seleccionan materiales e instrumentos apropiados para obtener información relevante.",
+            "Manipulan correctamente los materiales e instrumentos de medición para evitar accidentes.",
+            "Comparan los resultados obtenidos con las predicciones formuladas previamente.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Experimento en caja de zapatos: agregan dos tercios de arena y el resto tierra vegetal; soplan la superficie con tubito de lápiz pasta y observan cómo la capa vegetal se destruye; repiten con agua de un jarro; repiten agregando suelo con vegetales. 1) Inferir los factores de erosión. 2) Explicar los mecanismos de acción por medio de diagramas. 3) Predecir cambios en el suelo y paisajes. 4) Proponer y argumentar medidas de protección del suelo.",
+          "criterios_de_evaluacion": [
+            "Demuestran que identifican tipos de variables presentes en una investigación.",
+            "Observan y registran datos.",
+            "Organizan y representan información sobre mecanismos de erosión.",
+            "Comunican y representan evidencias y reflexiones sobre posibles mejoras.",
+            "Reconocen la importancia del entorno natural y sus recursos.",
+            "Manifiestan un estilo de trabajo riguroso y perseverante.",
+            "Demuestran seguimiento de instrucciones y manipulación segura de materiales.",
+            "Identifican experimentalmente al viento y al agua como factores erosivos.",
+            "Predicen las transformaciones en el suelo y los paisajes.",
+            "Proponen y argumentan medidas de protección del suelo."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA1",
+            "OAd",
+            "OAc"
+          ],
+          "indicadores_de_evaluacion": [
+            "Realizan experimentos simples que evidencian los requerimientos de luz y agua de las plantas para la fotosíntesis.",
+            "Fundamentan predicciones sobre fenómenos en el proceso de fotosíntesis.",
+            "Explican de forma simple el proceso de fotosíntesis, identificando los elementos necesarios.",
+            "Seleccionan materiales e instrumentos apropiados para obtener información relevante.",
+            "Miden las variables a investigar de forma precisa.",
+            "Registran los datos obtenidos a través de tablas y gráficos."
+          ],
+          "actividad_evaluativa": "Montaje de tres tubos de ensayo con azul de bromotimol: Tubo 1 (caracol de agua dulce), Tubo 2 (rama de elodea), Tubo 3 (elodea + caracol). Todos en ambiente iluminado. 1) Predecir en cuál(es) el azul cambia a verde y fundamentar. 2) Explicar si se modificarían las predicciones si los tubos se mantienen en oscuridad. 3) Indicar la importancia de la luz y el CO2 para las plantas.",
+          "criterios_de_evaluacion": [
+            "Fundamentan predicciones: tubo 1 torna verde por CO2 de la respiración del caracol; tubo 2 permanece azul porque la elodea consume el CO2; tubo 3 permanece azul porque el CO2 del caracol es captado por la elodea.",
+            "Reconocen el efecto de la luz sobre la fotosíntesis argumentando que sin luz la elodea no la realiza y los tubos 2 y 3 cambiarían a verde.",
+            "Demuestran reconocer la importancia de la luz y el CO2 en la fotosíntesis.",
+            "Demuestran montar y manipular los materiales de la investigación de forma segura y adecuada."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA2",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Observan y describen algunas relaciones tróficas presentes en su entorno cercano.",
+            "Describen, a partir de esquemas, los flujos de materia y energía entre los eslabones de cadenas y tramas alimentarias.",
+            "Identifican la función de los distintos niveles tróficos.",
+            "Analizan posibles consecuencias de la alteración de los flujos de materia y energía.",
+            "Elaboran modelos concretos para comunicar evidencias y conclusiones."
+          ],
+          "actividad_evaluativa": "Análisis de una red trófica con distintas relaciones alimentarias (bosque con araucarias, Nothofagus, hongos, escarabajos, carpintero negro, ser humano). 1) Indicar qué tipo de consumidor sería el ser humano y justificar. 2) Completar una tabla de 'cambio en la trama – efecto – justificación' con: aumento de la población humana, aumento de la población de escarabajos, disminución de Nothofagus. 3) Explicar consecuencias de que algunas poblaciones aumenten.",
+          "criterios_de_evaluacion": [
+            "Reconocen al ser humano como consumidor primario (piñones) y secundario (hongos) según la red.",
+            "Realizan predicciones sobre cambios en la trama trófica: aumento de humanos puede disminuir araucarias y aumentar Nothofagus; aumento de escarabajos por aumento de Nothofagus o disminución del carpintero negro; disminución de Nothofagus produce disminución de consumidores secundarios y terciarios.",
+            "Reconocen posibles consecuencias de la alteración de las poblaciones en una trama trófica."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "titulo": "Sistema reproductor humano, pubertad, actividad física y drogas",
+      "semestre": 1,
+      "tiempo_estimado": null,
+      "oas_contenido": [
+        "OA4",
+        "OA5",
+        "OA6",
+        "OA7"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "a",
+        "d",
+        "e"
+      ],
+      "proposito": "En primer lugar se busca que los estudiantes puedan identificar las principales estructuras del sistema reproductor humano y describir su funcionamiento general. Se espera que identifiquen la pubertad como una etapa del desarrollo con una serie de cambios en hombres y mujeres. Segundo, se espera que conozcan aspectos básicos de una alimentación saludable y balanceada, comprendan la importancia de la higiene personal y reconozcan los efectos nocivos de algunas drogas en la salud.",
+      "conocimientos_previos": [
+        "Características generales de los seres vivos (crecen, responden a estímulos, se reproducen).",
+        "Función y localización de los sentidos y sus órganos.",
+        "Actividad física y descanso nocturno adecuado ayudan en el crecimiento y la salud.",
+        "Hábitos de vida saludable para mantener el cuerpo sano y prevenir enfermedades.",
+        "Efectos nocivos que produce el cigarrillo en el sistema respiratorio."
+      ],
+      "palabras_clave": [
+        "Útero",
+        "ovario",
+        "oviductos",
+        "ciclo uterino",
+        "menstruación",
+        "eyaculación",
+        "testículos",
+        "pubertad",
+        "óvulo",
+        "espermatozoide",
+        "tubos seminíferos",
+        "glándulas anexas",
+        "uretra",
+        "pene",
+        "glándulas mamarias",
+        "gónadas",
+        "drogas",
+        "prevención",
+        "autocuidado",
+        "factores de riesgo",
+        "dieta equilibrada",
+        "aporte energético"
+      ],
+      "conocimientos": [
+        "Estructura y función del sistema reproductor femenino y masculino.",
+        "Fabricación de espermatozoides en los testículos y de óvulos en los ovarios.",
+        "Efectos y consecuencias del consumo de drogas (alcohol, tabaco y otras) en la salud y factores de protección.",
+        "Requerimientos nutricionales de los organismos y su relación con parámetros fisiológicos de edad, sexo y actividad física."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA4",
+          "descripcion": "Identificar y describir las funciones de las principales estructuras del sistema reproductor humano femenino y masculino.",
+          "indicadores_de_evaluacion": [
+            "Identifican las principales estructuras del sistema reproductor femenino y masculino.",
+            "Describen las funciones básicas del sistema reproductor femenino y masculino y sus principales estructuras.",
+            "Representan, a partir de esquemas y diagramas, el sistema reproductor femenino y masculino."
+          ]
+        },
+        {
+          "oa": "OA5",
+          "descripcion": "Describir y comparar los cambios que se producen en la pubertad en mujeres y hombres, reconociéndola como una etapa del desarrollo humano.",
+          "indicadores_de_evaluacion": [
+            "Identifican las principales modificaciones biológicas visibles y conductuales que ocurren durante la pubertad.",
+            "Comparan los cambios que se producen en hombres y mujeres durante la pubertad."
+          ]
+        },
+        {
+          "oa": "OA6",
+          "descripcion": "Reconocer los beneficios de realizar actividad física en forma regular y de cuidar la higiene corporal en el período de la pubertad.",
+          "indicadores_de_evaluacion": [
+            "Explican por qué el deporte sistemático favorece la mantención del estado de salud.",
+            "Identifican parámetros fisiológicos relacionados con la práctica regular de deporte.",
+            "Planifican un calendario de actividades deportivas adaptado a un individuo particular.",
+            "Reconocen los beneficios de la higiene corporal en la mantención del estado de salud.",
+            "Identifican conductas higiénicas adecuadas para la edad.",
+            "Describen algunas enfermedades asociadas con una inadecuada higiene corporal.",
+            "Explican los cambios fisiológicos propios de la edad que implican un aseo higiénico diferencial."
+          ]
+        },
+        {
+          "oa": "OA7",
+          "descripcion": "Investigar y comunicar los efectos nocivos de algunas drogas para la salud, proponiendo conductas de protección.",
+          "indicadores_de_evaluacion": [
+            "Describen los principales efectos en el organismo humano del consumo de drogas (alcohol, tabaco y drogas ilícitas).",
+            "Identifican factores de riesgo en el consumo de drogas en la población chilena.",
+            "Distinguen consecuencias a nivel individual y social del consumo de algunas drogas.",
+            "Señalan conductas que previenen el consumo de drogas."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA4",
+          "titulo": "Conocimientos previos sobre los órganos del sistema reproductor",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente explora conocimientos previos preguntando qué órganos conforman el sistema reproductor femenino y masculino. Cada estudiante escribe un listado. Luego el docente presenta esquemas en blanco y los estudiantes los rotulan con sus conocimientos previos, contrastando con información del docente.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 2,
+          "oa": "OA4",
+          "titulo": "Modelo de los sistemas reproductores con materiales simples",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Con una imagen de referencia, elaboran un modelo de los sistemas reproductor masculino y femenino con plastilina, cartón u otros materiales. Rotulan sus estructuras y comparan ambos sistemas describiendo similitudes y diferencias.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 3,
+          "oa": "OA4",
+          "titulo": "Observación microscópica del testículo y esquema de espermatozoide",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan en documento fotográfico o microscopio óptico un corte transversal de testículo. A partir de una lectura sobre la función de los testículos realizan un esquema rotulado identificando los componentes principales de un espermatozoide (cabeza y cola) y los túbulos seminíferos.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 4,
+          "oa": "OA4",
+          "titulo": "Recorrido de los espermatozoides hasta el exterior",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente formula la pregunta sobre el recorrido de los espermatozoides. Se entrega un esquema de perfil del sistema reproductor masculino donde los estudiantes marcan el trayecto con flechas. El docente concluye con un diagrama del trayecto en las vías genitales.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 5,
+          "oa": "OA4",
+          "titulo": "Investigación y papelógrafo sobre el sistema reproductor femenino",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan en bibliotecas, internet o simuladores sobre las partes del sistema reproductor femenino y sus funciones (ovario, útero, oviducto, óvulo, cuello uterino, vagina). Presentan la información recolectada en un papelógrafo explicativo.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 6,
+          "oa": "OA4",
+          "titulo": "Observación microscópica del ovario y esquema rotulado",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente plantea la pregunta sobre el rol de los ovarios. Los estudiantes observan un corte transversal de ovario (fotografía o microscopio), realizan un esquema rotulado identificando ovario y óvulo, y extraen conclusiones sobre la función de los ovarios.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 7,
+          "oa": "OA4",
+          "titulo": "Tabla comparativa de los sistemas reproductores y sistema reproductor de un animal",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente entrega una guía con información de ambos sistemas reproductores. Los estudiantes leen comprensivamente y completan una tabla comparativa de semejanzas y diferencias. Luego investigan sobre el sistema reproductor de su animal preferido y lo presentan con TIC o afiche.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 8,
+          "oa": "OA4",
+          "titulo": "Deducción de función a partir de enfermedades o accidentes reproductivos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente orienta la investigación sobre enfermedades o accidentes en que uno u otro órgano del sistema reproductor deja de funcionar. Los estudiantes deducen la función del órgano afectado (ej: ausencia de testículo sin semen; oviductos tapados sin óvulo circulante).",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 9,
+          "oa": "OA4",
+          "titulo": "Organizador gráfico con conceptos del sistema reproductor",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Elaboran un organizador gráfico con relaciones cruzadas entre: ovarios, oviducto, útero, cuello uterino, vagina, testículos, tubos seminíferos, glándulas seminales, próstata y pene. Comparten su organizador con el resto del curso.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 10,
+          "oa": "OA5",
+          "titulo": "Ordenamiento de fotos de una persona en distintas edades",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente presenta fotos desordenadas de una misma persona (hombre y mujer) en distintas edades. Los estudiantes ordenan la secuencia según el desarrollo de la persona y describen los cambios ocurridos en su cuaderno.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 11,
+          "oa": "OA5",
+          "titulo": "Línea de tiempo de las etapas del desarrollo humano",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Buscan información sobre las características de la niñez, pubertad, adolescencia, adultez y ancianidad y elaboran una línea de tiempo que represente los cambios observados con las edades respectivas.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 12,
+          "oa": "OA5",
+          "titulo": "Clasificación de cambios de la pubertad por tipo y sexo",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "El docente entrega una lista de cambios ocurridos durante la pubertad y adolescencia. Los estudiantes los clasifican según su tipo (físico o psicológico) y sexo (hombres y/o mujeres). Debaten sus respuestas con sus compañeros y extraen conclusiones.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 13,
+          "oa": "OA5",
+          "titulo": "Diario de vida sobre etapas de la propia vida",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Desarrollan un diario de vida o bitácora que describe la etapa anterior vivida, la etapa en que se encuentran, y proyectan los cambios propios de la etapa siguiente.",
+          "interdisciplinariedad": "Lenguaje y Comunicación; Orientación"
+        },
+        {
+          "numero": 14,
+          "oa": "OA5",
+          "titulo": "Tabla comparativa de cambios físicos de la pubertad en hombres y mujeres",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Diseñan una tabla comparativa que describa los principales cambios físicos internos y externos en el desarrollo puberal en hombres y mujeres. Investigan en libros o internet, comparan sus registros con los de sus compañeros.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 15,
+          "oa": "OA6",
+          "titulo": "Investigación sobre consecuencias del sedentarismo",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre las consecuencias del sedentarismo en el organismo desde el punto de vista biológico y psíquico. En grupo resumen la información y la presentan al curso. Elaboran un afiche que promueva la actividad física o un video y lo exponen.",
+          "interdisciplinariedad": "Educación Física y Salud"
+        },
+        {
+          "numero": 16,
+          "oa": "OA6",
+          "titulo": "Debate sobre ventajas del deporte regular y el deporte intenso",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan y debaten en forma grupal sobre: ventajas del deporte regular, consecuencias del deporte intenso sobre la salud, importancia de pertenecer a un grupo para mantenerse activo, y relación entre deporte y reducción del tiempo para vicios. Comunican conclusiones al curso.",
+          "interdisciplinariedad": "Educación Física y Salud; Lenguaje y Comunicación"
+        },
+        {
+          "numero": 17,
+          "oa": "OA6",
+          "titulo": "Análisis de datos de parámetros fisiológicos de atletas y sedentarios",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Analizan datos sobre tiempo de recuperación de la frecuencia cardíaca y respiratoria, y cantidad de masa muscular en individuos atletas y sedentarios. Extraen tendencias y elaboran explicaciones sobre las diferencias encontradas.",
+          "interdisciplinariedad": "Educación Física y Salud"
+        },
+        {
+          "numero": 18,
+          "oa": "OA6",
+          "titulo": "Encuesta sobre frecuencia de deporte en compañeros",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Elaboran una encuesta sobre la frecuencia con que sus compañeros hacen deporte en la semana. Comparan los resultados con las recomendaciones de especialistas (mínimo tres veces por semana, 30 minutos). Escriben recomendaciones a partir de sus hallazgos.",
+          "interdisciplinariedad": "Educación Física y Salud"
+        },
+        {
+          "numero": 19,
+          "oa": "OA6",
+          "titulo": "Calendario de actividades deportivas semanales para la edad",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Proponen un calendario de actividades deportivas semanales adaptado a la edad y características de los estudiantes, con el apoyo del profesor de Educación Física.",
+          "interdisciplinariedad": "Educación Física y Salud"
+        },
+        {
+          "numero": 20,
+          "oa": "OA6",
+          "titulo": "Estuche de aseo: objetos e higiene en la pubertad",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente expone el contenido de un estuche de aseo completo. Cada estudiante elige un objeto y responde preguntas sobre qué es, de qué sirve, cómo se usa y su relación con la higiene. Analizan si el desodorante, colonias y perfumes son elementos de higiene.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 21,
+          "oa": "OA6",
+          "titulo": "Investigación sobre temas de higiene en la pubertad",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Buscan información sobre acné juvenil, secreciones vaginales, menstruación y aumento de sudoración. Investigan causas, precauciones higiénicas y posibles consecuencias del descuido. Elaboran un informe escrito o presentación oral con TIC.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 22,
+          "oa": "OA7",
+          "titulo": "Listado de drogas conocidas y sus efectos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Los estudiantes escriben en la pizarra una lista con las drogas que conocen y los efectos que producen. El docente entrega un documento con información sobre tipos de drogas y sus efectos. Organizan la información en una tabla y la contrastan con sus respuestas iniciales.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 23,
+          "oa": "OA7",
+          "titulo": "Investigación bibliográfica sobre una droga y exposición",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Realizan una investigación bibliográfica sobre una droga en particular y sus efectos en el organismo, tanto a nivel biológico como conductual. Preparan una exposición y presentan al curso sus principales hallazgos.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 24,
+          "oa": "OA7",
+          "titulo": "Consecuencias del alcohol y afiche de prevención del alcoholismo",
+          "habilidades": [
+            "OAb",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Repasan lo visto sobre el alcohol. Elaboran una lista de consecuencias del consumo excesivo tanto a nivel individual (cambios de comportamiento) como social (agresividad, accidentabilidad). Diseñan un afiche que promueva la prevención del alcoholismo.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 25,
+          "oa": "OA7",
+          "titulo": "Consecuencias del tabaco y tríptico informativo",
+          "habilidades": [
+            "OAb",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Investigan consecuencias del consumo de tabaco a nivel individual (consecuencias en la salud) y social (efectos del humo sobre otros, riesgos de incendios). Elaboran un tríptico informativo para la comunidad.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 26,
+          "oa": "OA7",
+          "titulo": "Análisis de gráficos CONACE sobre consumo de drogas en Chile",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Analizan gráficos sobre el consumo de drogas en Chile a lo largo de los años y en distintos grupos de edad. Identifican el grupo de mayor y menor consumo, describen tendencias y formulan explicaciones sobre las diferencias entre grupos.",
+          "interdisciplinariedad": "Matemática; Orientación"
+        },
+        {
+          "numero": 27,
+          "oa": "OA7",
+          "titulo": "Debate sobre medidas de prevención del consumo de marihuana y otras drogas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Organizan un debate sobre medidas de prevención (aumentar penas al tráfico, reducir horarios de venta de alcohol, test de drogas obligatorios, difusión de consecuencias). Anotan ideas principales en la pizarra y extraen conclusiones.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 28,
+          "oa": "OA7",
+          "titulo": "Video con testimonios de toxicómanos y carta de reflexión",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan una película o video con testimonios de toxicómanos. Discuten las conductas que favorecieron el consumo y las que pudieron haberlo protegido. Elaboran una carta para una persona que consume drogas, argumentando los efectos nocivos y la necesidad de cuidar el organismo.",
+          "interdisciplinariedad": "Orientación"
+        },
+        {
+          "numero": 29,
+          "oa": "OA7",
+          "titulo": "Cómic sobre situaciones de riesgo y protección frente a las drogas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En grupos pequeños con al menos un alumno con habilidades de dibujo, elaboran un cómic que ilustre situaciones de riesgo y conductas protectoras para evitar y prevenir el consumo de drogas.",
+          "interdisciplinariedad": "Artes Visuales; Orientación"
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA4"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican las principales estructuras del sistema reproductor femenino y masculino.",
+            "Describen las funciones básicas del sistema reproductor femenino y masculino y sus principales estructuras."
+          ],
+          "actividad_evaluativa": "1) Rotular en esquemas del sistema reproductor femenino (útero, ovario, vagina, vulva, oviducto) y masculino (testículo, pene, conducto deferente, vesícula seminal). 2) Describir la función de las estructuras rotuladas en el sistema reproductor masculino. 3) Pintar de azul los órganos donde se producen espermatozoides y de rojo donde se producen los óvulos.",
+          "criterios_de_evaluacion": [
+            "Demuestran identificar las principales estructuras de ambos sistemas reproductor rotulándolas en los esquemas.",
+            "Muestran que reconocen la función de las estructuras rotuladas para el sistema reproductor masculino.",
+            "Demuestran que reconocen los órganos productores de espermatozoides y óvulos."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA7",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Describen los principales efectos en el organismo humano del consumo de drogas (alcohol, tabaco y drogas ilícitas).",
+            "Distinguen consecuencias a nivel individual y social del consumo en exceso de algunas drogas.",
+            "Comunican en forma oral y escrita los resultados, evidencias y conclusiones obtenidas de las investigaciones."
+          ],
+          "actividad_evaluativa": "Esquema con efectos de algunas drogas: completar en los espacios la(s) droga(s) que producen los distintos efectos en órganos indicados (alcohol, tabaco, cocaína, marihuana, anfetamina). Responder además: a) ¿cuál(es) de estas drogas producen adicción?, b) mencionar formas de prevenir el consumo.",
+          "criterios_de_evaluacion": [
+            "Demuestran que relacionan las drogas con sus efectos: estado de alerta (cocaína/anfetamina), euforia (cocaína/anfetamina), alucinaciones (cocaína), dificultad para hablar (alcohol), disminución de reflejos (alcohol), arritmias (tabaco), irritación pulmonar (tabaco/marihuana), cáncer (tabaco).",
+            "Demuestran reconocer que todas las drogas presentes producen adicción.",
+            "Mencionan formas de prevención como abstinencia y selección cuidadosa de amistades."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA5",
+            "OAa",
+            "OAc",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican las principales modificaciones biológicas visibles y conductuales que ocurren durante la pubertad.",
+            "Comparan los cambios que se producen en hombres y mujeres durante la pubertad.",
+            "Seleccionan preguntas significativas de carácter científico para realizar una investigación.",
+            "Registran los datos obtenidos a través de tablas y gráficos.",
+            "Utilizan las TIC para registrar datos e información.",
+            "Comunican en forma oral y escrita los resultados.",
+            "Realizan presentaciones usando TIC para divulgar los procedimientos y resultados."
+          ],
+          "actividad_evaluativa": "Entrevistar en el colegio a 8 estudiantes (4 de 7-11 años y 4 de 11-14 años, iguales hombres y mujeres). Previo: construir y seleccionar preguntas sobre gustos, aficiones, intereses. Registrar datos en tablas o gráficos con apoyo de TIC. Comparar cambios en un mismo sexo en edades diferentes, y entre hombres y mujeres. Identificar en qué 'tramo' se encuentra cada entrevistado. Realizar presentación digital con información, evidencia, interpretación y conclusiones.",
+          "criterios_de_evaluacion": [
+            "Demuestran seleccionar preguntas útiles para realizar entrevistas e investigaciones.",
+            "Muestran organización de los datos en tablas y/o gráficos con TIC.",
+            "Demuestran reconocer las diferencias entre personas de un mismo sexo pero de diferentes edades durante la pubertad.",
+            "Demuestran conocer las diferencias entre personas de diferente sexo de igual y diferente edad.",
+            "Identifican cuáles son sus características y cambios biológicos y conductuales argumentándolos.",
+            "Comunican sus resultados e interpretaciones mediante exposiciones ante el curso con TIC."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "titulo": "Energía: fuentes, transformaciones, calor y recursos renovables",
+      "semestre": 2,
+      "tiempo_estimado": null,
+      "oas_contenido": [
+        "OA8",
+        "OA9",
+        "OA10",
+        "OA11"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAd",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "a",
+        "c",
+        "f"
+      ],
+      "proposito": "El principal objetivo es que los estudiantes comprendan que la energía es el motor del movimiento de los seres vivos y las máquinas. Se espera que aprendan cinco aspectos: reconozcan al Sol como principal fuente de energía; identifiquen las diferentes formas de energía (cinética, luminosa, térmica, sonora, eléctrica); experimenten con energía calórica; reconozcan situaciones de transformación de energía; e identifiquen fuentes renovables y no renovables.",
+      "conocimientos_previos": [
+        "Energía eléctrica y sus aplicaciones.",
+        "Concepto de temperatura.",
+        "Las fuerzas y los cambios que producen.",
+        "Luz y sonido.",
+        "El proceso de la fotosíntesis y alimentación."
+      ],
+      "palabras_clave": [
+        "Energía",
+        "transformaciones de energía",
+        "temperatura",
+        "calor",
+        "energías renovables y no renovables",
+        "energía química",
+        "energía solar",
+        "energía eólica",
+        "energía luminosa",
+        "trabajo"
+      ],
+      "conocimientos": [
+        "Concepto de energía.",
+        "Fuentes de energía.",
+        "Energías renovables y no renovables.",
+        "Formas que adopta la energía.",
+        "Concepto de calor.",
+        "Transformación de energía."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA8",
+          "descripcion": "Explicar que la energía es necesaria para que los objetos cambien y los seres vivos realicen sus procesos vitales y que la mayoría de los recursos energéticos proviene directa o indirectamente del Sol, dando ejemplos de ello.",
+          "indicadores_de_evaluacion": [
+            "Demuestran, a través de ejemplos, que el Sol es la fuente principal de energía en la Tierra.",
+            "Explican cómo el alimento de origen vegetal se transforma en una fuente de energía para los seres vivos.",
+            "Nombran y explican el proceso que permite que las plantas y animales capturen energía del medio.",
+            "Nombran aparatos de uso cotidiano en que se manifieste energía lumínica, sonora, eléctrica, calórica y cinética y describen los efectos que se producen.",
+            "Explican, a partir de ejemplos, el efecto y los cambios que produce la energía en los objetos y en los seres vivos.",
+            "Seleccionan y utilizan instrumentos que utilizan energía para su funcionamiento, de manera segura."
+          ]
+        },
+        {
+          "oa": "OA9",
+          "descripcion": "Investigar en forma experimental la transformación de la energía de una forma a otra, dando ejemplos y comunicando sus conclusiones.",
+          "indicadores_de_evaluacion": [
+            "Identifican situaciones de su entorno cercano en que se producen transformaciones de energía.",
+            "Realizan experimentos que involucren transformaciones entre energías: luminosa a calórica, mecánica a eléctrica, eléctrica a mecánica, eléctrica a calórica, luminosa a eléctrica.",
+            "Identifican preguntas científicas y predicciones fundamentándolas.",
+            "Construyen dibujos o diagramas para explicitar diferentes tipos de transformaciones de energía en el ámbito cotidiano.",
+            "Comunican y representan por medio de TIC situaciones cotidianas que muestren transformaciones de energía de una forma a otra."
+          ]
+        },
+        {
+          "oa": "OA10",
+          "descripcion": "Demostrar, por medio de la investigación experimental, que el calor fluye de un objeto caliente a uno frío hasta que ambos alcanzan la misma temperatura.",
+          "indicadores_de_evaluacion": [
+            "Describen el calor como una forma de energía a partir de ejemplos.",
+            "Explican las formas en que el calor se puede transmitir de un cuerpo a otro a partir de un experimento.",
+            "Planifican y conducen un experimento para demostrar la transferencia de calor de un cuerpo a otro.",
+            "Comunican y representan los resultados de un experimento de transferencia de calor utilizando modelos o TIC.",
+            "Construyen dibujos o diagramas para explicitar diferentes tipos de transformaciones de energía en que participa el calor.",
+            "Explican el proceso de transferencia de calor entre las partes de un artefacto de uso cotidiano."
+          ]
+        },
+        {
+          "oa": "OA11",
+          "descripcion": "Clasificar los recursos naturales energéticos en no renovables y renovables y proponer medidas para el uso responsable de la energía.",
+          "indicadores_de_evaluacion": [
+            "Explican el significado renovable o no renovable de la energía.",
+            "Comparan los recursos energéticos renovables y no renovables estableciendo similitudes y diferencias.",
+            "Clasifican las fuentes de energías según sean renovables o no renovables.",
+            "Analizan situaciones y extraen conclusiones acerca de las consecuencias del uso de fuentes de energía no renovables.",
+            "Señalan las fuentes de energías renovables y no renovables con que cuenta Chile.",
+            "Evalúan medidas para el uso responsable de la energía y las comunican por medio de presentaciones con TIC."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA8",
+          "titulo": "Definición de energía desde diccionarios y contextos cotidianos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Escriben lo que entienden por energía y en qué contexto lo han escuchado. Comparan sus ideas con diccionarios, enciclopedias e internet. Definen el concepto con sus palabras y dan ejemplos de distintos medios.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 2,
+          "oa": "OA8",
+          "titulo": "La energía solar como fuente primordial para seres humanos, animales y plantas",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Explican hechos experimentales que evidencian la existencia de fuentes de energía y proporcionan argumentos que permitan reconocer que la fuente de energía primordial para los seres vivos proviene de la radiación del Sol."
+        },
+        {
+          "numero": 3,
+          "oa": "OA8",
+          "titulo": "Contenido energético de alimentos en kJ y kcal",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En equipos, buscan en envases de alimentos de uso frecuente la energía expresada en kJ o kcal. Hacen un listado de productos similares de distintas marcas y de productos muy diferentes que aportan energías similares en volúmenes distintos. Publican resultados en el diario mural."
+        },
+        {
+          "numero": 4,
+          "oa": "OA8",
+          "titulo": "Diagrama del flujo de energía del Sol a un plato de comida",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Investigan el flujo de energía que va desde el Sol hasta un plato de comida ingerido por una persona. Hacen un diagrama que muestre este flujo y lo comunican al resto del alumnado."
+        },
+        {
+          "numero": 5,
+          "oa": "OA8",
+          "titulo": "Análisis crítico: 'al consumir pan comemos parte del Sol'",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Analizan y discuten aseveraciones como 'al consumir pan estamos comiendo parte del Sol' y 'en la noche, al usar una ampolleta estamos haciendo uso de energía solar'. Expresan el resultado fundamentando por escrito los aspectos en que están de acuerdo o en desacuerdo."
+        },
+        {
+          "numero": 6,
+          "oa": "OA8",
+          "titulo": "Búsqueda de fuentes de energía no originadas en el Sol",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Los estudiantes discuten y buscan fotografías que representen fuentes de energía que los seres humanos podemos utilizar que no se originen en el Sol (energía nuclear, geotérmica). Exponen las mejores fotos en el diario mural."
+        },
+        {
+          "numero": 7,
+          "oa": "OA8",
+          "titulo": "Molino de viento, de agua y poster de tipos de energía",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Hacen un listado de maquinarias que realizan trabajo, señalan la forma de energía que usan. Realizan un molino de viento y de agua. Analizan distintos medios de transporte desde el punto de vista energético. Construyen un poster con tipos de energía que utilizan diversos objetos del hogar."
+        },
+        {
+          "numero": 8,
+          "oa": "OA8",
+          "titulo": "Experimento de planta al sol vs. en sombra",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Colocan dos semillas de legumbre, riegan igual. Una en la sombra y la otra cubierta con un bol de cristal al sol. Comparan el crecimiento registrando diariamente en tabla y graficando. Identifican las variables y extraen conclusiones sobre qué afectó el crecimiento."
+        },
+        {
+          "numero": 9,
+          "oa": "OA8",
+          "titulo": "Visita a la Sala de la Energía y la Electricidad (MIM)",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Visita al Museo Interactivo Mirador para interactuar con fenómenos relacionados con energía. La visita se acompaña con una guía de trabajo donde responden preguntas y registran sus experiencias."
+        },
+        {
+          "numero": 10,
+          "oa": "OA9",
+          "titulo": "Listado y posibilidades de conversión entre formas de energía",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "A partir de un listado de las distintas formas de energía, discuten la posibilidad de que alguna de ellas se convierta en otra y señalan cómo sería posible."
+        },
+        {
+          "numero": 11,
+          "oa": "OA9",
+          "titulo": "Afiche de situaciones cotidianas de transformación de energía",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Señalan situaciones cotidianas en que la energía se transforma: luminosa a calórica (lupa quemando papel), mecánica a eléctrica (dínamos), eléctrica a mecánica (ventiladores), eléctrica a térmica (estufa eléctrica), luminosa a eléctrica (celdas fotoeléctricas). Hacen un afiche que ilustre estos tipos."
+        },
+        {
+          "numero": 12,
+          "oa": "OA9",
+          "titulo": "Rotulado de transformaciones de energía en aparatos cotidianos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "A partir de fotos o dibujos de aparatos eléctricos o mecánicos (radio, bicicleta, taladro, ampolleta, celda fotoeléctrica), rotulan los cambios de energía señalando el tipo que entra y el que sale en cada caso."
+        },
+        {
+          "numero": 13,
+          "oa": "OA9",
+          "titulo": "Investigación sobre objetos que transforman energía 'humana'",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre objetos que permiten transformar energía 'humana' en otro tipo de energía (martillo, tirabuzón, dínamo de bicicleta, honda, abre latas). Escriben un pequeño artículo, como para una revista científica escolar, con sus resultados.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 14,
+          "oa": "OA9",
+          "titulo": "Lámina de transformaciones de energía en generadores de electricidad",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Diseñan una lámina que muestre las transformaciones de energía en diferentes generadores de electricidad: central hidráulica, central térmica, pila y batería, celda fotoeléctrica, generador eólico. La utilizan para exponer frente a sus compañeros."
+        },
+        {
+          "numero": 15,
+          "oa": "OA9",
+          "titulo": "Construcción de un calefactor solar de agua con materiales reciclables",
+          "habilidades": [
+            "OAb",
+            "OAd"
+          ],
+          "descripcion": "En equipos, diseñan y construyen un calefactor solar para agua con botellas desechables, mangueras, cajas de cartón, aislantes, etc. Lo exhiben y explican su funcionamiento y ventajas en una feria científica escolar."
+        },
+        {
+          "numero": 16,
+          "oa": "OA9",
+          "titulo": "Diseño y construcción de una cocina solar casera",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre el funcionamiento de una cocina solar casera, realizan un diseño creativo y la construyen utilizando cartones, espejos o láminas reflectantes. La exhiben y explican funcionamiento, ventajas y peligros en una exposición escolar."
+        },
+        {
+          "numero": 17,
+          "oa": "OA9",
+          "titulo": "Dibujo de ciudad con formas de energía, fuentes y transformaciones",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En un dibujo que representa una ciudad, agregan las formas de energías utilizadas, señalan dónde o qué las produce y explican las transformaciones que experimenta cada una."
+        },
+        {
+          "numero": 18,
+          "oa": "OA9",
+          "titulo": "Mapa conceptual de fuentes de energía y transformaciones en la Tierra",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Confeccionan un mapa conceptual que señale las fuentes de energía más importantes y las transformaciones que de ellas se llevan a cabo en la Tierra: desde el punto de vista vegetal, animal, de las personas y de la civilización. Comunican al curso."
+        },
+        {
+          "numero": 19,
+          "oa": "OA10",
+          "titulo": "Discusión y medición de temperaturas de objetos en la sala",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Discuten sobre la temperatura de los objetos en la sala de clases (incluidos el aire, los muros y ellos mismos). Miden cuando es posible las temperaturas, verifican sus hipótesis y discuten y explican por qué tienen la misma o diferente temperatura."
+        },
+        {
+          "numero": 20,
+          "oa": "OA10",
+          "titulo": "Diferencias entre calor y temperatura: uso cotidiano vs. científico",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Discuten las ideas que poseen sobre las diferencias entre calor y temperatura y el modo en que los usan en la vida cotidiana. Investigan aspectos que los diferencian (cómo se miden y las unidades en que se expresan). Reescriben frases cotidianas ('¡qué calor hizo hoy!') para que coincidan con el significado científico.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 21,
+          "oa": "OA10",
+          "titulo": "Experimento de cómo aumentar la temperatura de distintos objetos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Proponen diferentes formas de aumentar la temperatura de un objeto (agua en un vaso, aire ambiente, un clavo). Planifican el procedimiento con medidas de seguridad, lo verifican experimentalmente y registran conclusiones."
+        },
+        {
+          "numero": 22,
+          "oa": "OA10",
+          "titulo": "Experimento de derretimiento de un cubo de hielo",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Discuten cómo es posible que un cubo de hielo se derrita y proponen procedimientos para acelerar su derretimiento. Consiguen trozos de hielo, aplican los procedimientos propuestos y los verifican. Analizan qué tienen en común todos los procedimientos desde el punto de vista de la energía."
+        },
+        {
+          "numero": 23,
+          "oa": "OA10",
+          "titulo": "Dibujos y listados de transferencias de calor en situaciones cotidianas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Hacen un listado de ejemplos en que se manifiesten transferencias de calor entre dos cuerpos. Diseñan dibujos que representen tales situaciones (cocina, verano, invierno, ropa), y explican los procesos físicos de transferencia de calor en cada caso."
+        },
+        {
+          "numero": 24,
+          "oa": "OA10",
+          "titulo": "Experimento de transferencia de calor entre sustancias a diferentes temperaturas",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En grupos, diseñan un experimento para verificar la transferencia de calor entre dos sustancias u objetos a diferentes temperaturas (conducción, convección o radiación). Lo realizan con medidas de seguridad e informan al curso con esquemas, escritos u otras formas de comunicación."
+        },
+        {
+          "numero": 25,
+          "oa": "OA10",
+          "titulo": "Conductores e aislantes en aparatos de cocina",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Examinan aparatos utilizados para cocinar e identifican las partes que son buenos conductores del calor y los aislantes térmicos. Discuten sobre la importancia de cada uno y explican lo que ocurriría si no se utilizaran estos elementos."
+        },
+        {
+          "numero": 26,
+          "oa": "OA10",
+          "titulo": "Desarmado de un termo: análisis de aislación térmica",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "En grupos, desarman un termo de comida o agua. Observan sus partes centrados en distribución de materiales, características de la cubierta y tipo de tapa. Para cada parte discuten su función desde el punto de vista de la aislación térmica y comparan observaciones con información de internet."
+        },
+        {
+          "numero": 27,
+          "oa": "OA10",
+          "titulo": "Construcción de una cocina solar que cueza un huevo",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Como desafío, cada grupo investiga el funcionamiento de una cocina solar, diseña y construye una con cartones, espejos o láminas reflectantes, verifica su efectividad para cocer un huevo, propone mejoras y presenta el dispositivo explicando su funcionamiento."
+        },
+        {
+          "numero": 28,
+          "oa": "OA10",
+          "titulo": "Investigación sobre María la Judía: 'baño María'",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan los aportes de María la Judía a la ciencia (inventora del 'baño María'). Realizan un esquema descriptivo del procedimiento y hacen una lista de sus características y utilidades en la vida cotidiana. Destacan la participación de la mujer en la ciencia.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 29,
+          "oa": "OA10",
+          "titulo": "Investigación sobre quemaduras y Coaniquem",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre la clasificación de las quemaduras por gravedad, estadísticas de accidentes y las instituciones de rehabilitación de niños quemados (Coaniquem). Investigan qué auxilio se debe prestar ante quemaduras. Anotan resultados y realizan exposiciones.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 30,
+          "oa": "OA10",
+          "titulo": "Investigación sobre materiales aislantes del calor en la cocina",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan sobre materiales aislantes del calor e identifican su uso en artefactos de la cocina. Formulan preguntas sobre las características físicas que deben tener estos materiales y diseñan actividades experimentales para verificarlas. Escriben un informe con conclusiones."
+        },
+        {
+          "numero": 31,
+          "oa": "OA11",
+          "titulo": "Exposición sobre energías renovables y no renovables con ventajas e impactos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Explican qué se entiende por energías renovables y no renovables, señalan cuáles son y por qué. Investigan el significado de estos términos y los contrastan con sus ideas originales. Organizan una exposición sobre cuáles son renovables, sus ventajas sobre las no renovables, sus impactos ambientales y sus potenciales fuentes por región del país."
+        },
+        {
+          "numero": 32,
+          "oa": "OA11",
+          "titulo": "Mapa de Chile con potenciales producciones de energías renovables y no renovables",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan e identifican en diferentes regiones del país las potenciales producciones de energía renovables y no renovables. En un dibujo del mapa de Chile señalan con colores y puntos los lugares donde estas energías están disponibles.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 33,
+          "oa": "OA11",
+          "titulo": "Debate sobre las fuentes de energía más útiles para la sociedad actual",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Debaten sobre cuáles serían las fuentes naturales de energía más útiles para los actuales requerimientos energéticos de la sociedad. Averiguan diversas opiniones de científicos, ingenieros, políticos y economistas. Extraen una conclusión."
+        },
+        {
+          "numero": 34,
+          "oa": "OA11",
+          "titulo": "Análisis de factibilidad de fuentes de energía según criterios",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Averiguan en variadas fuentes sobre las formas de energía que ofrece la naturaleza y su capacidad para satisfacer las demandas de la humanidad. Analizan la factibilidad de cada una y las ordenan según: abundancia, efectos medioambientales, y capacidad de renovación."
+        },
+        {
+          "numero": 35,
+          "oa": "OA11",
+          "titulo": "Investigación sobre combustibles fósiles y afiche de restricción",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "En grupos pequeños, recopilan información sobre los combustibles fósiles: origen y formas (petróleo, gas, carbón), derivados del petróleo, aparatos que los utilizan, usos corrientes de los derivados y efectos ambientales. Exponen en un afiche que llame a restringir el uso de combustibles fósiles."
+        },
+        {
+          "numero": 36,
+          "oa": "OA11",
+          "titulo": "Debate sobre problemas energéticos: energías hidráulicas vs. nucleares vs. eólicas",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Organizan un debate entre grupos con posiciones antagónicas (energías hidráulicas vs. nucleares, eólicas vs. geotérmicas) sobre los problemas energéticos del país y sus posibles soluciones. El docente modera. Los estudiantes recaban información que fundamente sus posturas."
+        },
+        {
+          "numero": 37,
+          "oa": "OA11",
+          "titulo": "Registro diario de usos de energía y propuestas de ahorro",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Dedican un día a anotar en qué y para qué utilizan energía desde que se levantan. Escriben esas actividades en una tabla de dos columnas: actividad y forma de ahorrar energía en ella. Concluyen respondiendo preguntas y formulando nuevas preguntas científicas."
+        },
+        {
+          "numero": 38,
+          "oa": "OA11",
+          "titulo": "Afiche de incentivo al ahorro de recursos energéticos",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Investigan en variadas fuentes sobre programas de educación que incentiven el ahorro de recursos energéticos en el país. En grupos seleccionan un tipo de recurso y realizan un afiche para incentivar el ahorro en el establecimiento."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA9",
+            "OAe",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican situaciones de su entorno cercano en que se producen transformaciones de energía.",
+            "Construyen dibujos o diagramas para explicitar diferentes tipos de transformaciones de energía en el ámbito cotidiano.",
+            "Comunican y representan, por medio de TIC, situaciones cotidianas que muestren transformaciones de energía.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "1) Para cada caso indicar qué transformación de energía se produce principalmente: a) ampolleta eléctrica encendida, b) ventilador funcionando, c) estufa a parafina encendida, d) radio sonando, e) persona comiéndose un pastel, f) automóvil viajando, g) carpintero poniendo un clavo con martillo, h) papas cociéndose en agua en olla. 2) Escribir secuencia de transformaciones de energía del Sol hasta hacer funcionar una lavadora. 3) Exponer resultados con presentación TIC.",
+          "criterios_de_evaluacion": [
+            "Demuestran que organizan y representan información de diferentes formas.",
+            "Identifican patrones simples y regularidades durante los procesos de transformación de energía.",
+            "Identifican correctamente las transformaciones de energía en las situaciones señaladas.",
+            "Señalan correctamente las sucesivas transformaciones desde el Sol hasta una lavadora.",
+            "Muestran el resultado de sus investigaciones mediante presentaciones apoyadas en TIC."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA10",
+            "OAc",
+            "OAd"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican las formas en que el calor se puede transmitir de un cuerpo a otro.",
+            "Planifican y conducen un experimento para demostrar la transferencia de calor de un cuerpo a otro.",
+            "Miden las variables a investigar de forma precisa.",
+            "Utilizan unidades de medición de forma precisa y pertinente.",
+            "Registran los datos obtenidos a través de tablas y gráficos.",
+            "Seleccionan materiales e instrumentos apropiados para obtener información relevante."
+          ],
+          "actividad_evaluativa": "Experimento con tres cubos de hielo iguales: uno sobre un plato sin cubrir, uno envuelto en papel de aluminio y uno envuelto en lana. Determinar qué cubo se funde primero. 1) Formular predicciones. 2) Diseñar, planificar y realizar el experimento. 3) Comparar predicción con lo observado. 4) Dar una explicación aplicando conocimientos. 5) Señalar situaciones cotidianas que aplican este fenómeno.",
+          "criterios_de_evaluacion": [
+            "Formulan e identifican preguntas que permiten realizar una investigación.",
+            "Planifican y llevan a cabo investigaciones de manera independiente.",
+            "Identifican tipos de variables presentes en una investigación.",
+            "Observan, miden y registran datos.",
+            "Organizan y representan información de diferentes formas.",
+            "Seleccionan materiales e instrumentos usándolos de manera segura y adecuada.",
+            "Demuestran que el hielo desnudo se funde primero que los envueltos.",
+            "Explican que los hielos envueltos están cubiertos con aislante térmico que hace más lenta la fusión.",
+            "Determinan cuál cubierta es mejor aislante térmico.",
+            "Demuestran conocer aplicaciones de materiales aislantes térmicos."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA11",
+            "OAb"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican el significado renovable o no renovable de la energía.",
+            "Comparan los recursos energéticos renovables y no renovables estableciendo similitudes y diferencias.",
+            "Discuten y extraen conclusiones sobre las consecuencias del uso de fuentes de energía no renovables.",
+            "Señalan las fuentes de energías renovables y no renovables con que cuenta Chile.",
+            "Evalúan medidas para el uso responsable de la energía y las comunican con TIC.",
+            "Diseñan una investigación experimental o no experimental.",
+            "Indagan en diferentes fuentes y obtienen información útil.",
+            "Diseñan estrategias para organizar y comunicar la información recogida."
+          ],
+          "actividad_evaluativa": "Realizar una investigación bibliográfica o en internet sobre energías renovables y no renovables, y preparar una presentación digital que responda: a) ¿qué son las energías renovables y no renovables?, b) ventajas y desventajas, c) múltiples ejemplos de cada tipo, d) principales problemas energéticos del mundo y Chile, e) medidas de uso responsable de la energía, f) síntesis de ideas principales, g) preguntas para motivar la reflexión, h) fuentes de información.",
+          "criterios_de_evaluacion": [
+            "Demuestran que planifican y llevan a cabo investigaciones bibliográficas de manera independiente.",
+            "Explican adecuadamente qué son las energías renovables y no renovables.",
+            "Identifican las ventajas relativas de las renovables sobre las no renovables.",
+            "Proporcionan ejemplos de energías renovables (hídricas, eólica, geotérmica, solar) y no renovables (petróleo, gas natural, carbón).",
+            "Organizan y representan información de diferentes formas.",
+            "Explican el desequilibrio entre necesidades de energía y producción aprovechable.",
+            "Muestran el impacto ambiental del uso de distintos tipos de energías.",
+            "Analizan la conexión entre contaminación por energías no renovables y el posible cambio climático."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA9",
+            "OAe",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican situaciones de su entorno cercano en que se producen transformaciones de energía.",
+            "Construyen dibujos o diagramas para explicitar diferentes tipos de transformaciones de energía.",
+            "Comunican y representan, por medio de TIC, situaciones cotidianas que muestren transformaciones de energía.",
+            "Concluyen información a partir de la investigación realizada.",
+            "Realizan presentaciones usando TIC para divulgar los procedimientos y resultados."
+          ],
+          "actividad_evaluativa": "'Carrera de estaciones' en grupos de dos o tres: Estación 1: escribir lista de diferentes transformaciones de energía estudiadas (hoja 1). Estación 2: seguir un plano del colegio identificando aparatos, instrumentos o máquinas que necesitan energía y su ubicación (hoja 2). Estación 3: describir y anotar las transformaciones de energía que se producen en los aparatos individualizados (hoja 3). Estación 4: comparar hojas 1, 2 y 3 en una tabla 'aparato – transformaciones de energía presentes' y copiarla en una diapositiva para contrastar observaciones con otros grupos.",
+          "criterios_de_evaluacion": [
+            "Demuestran que organizan y representan información de diferentes formas.",
+            "Identifican patrones simples y regularidades en los procesos de transformación de energía.",
+            "Identifican correctamente las transformaciones de energía en los aparatos encontrados.",
+            "Señalan correctamente las sucesivas transformaciones de energía.",
+            "Muestran el resultado de sus investigaciones mediante presentaciones apoyadas en TIC."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "titulo": "Materia, partículas, cambios de estado, calor y temperatura",
+      "semestre": 2,
+      "tiempo_estimado": null,
+      "oas_contenido": [
+        "OA12",
+        "OA13",
+        "OA14",
+        "OA15"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAd",
+        "OAe",
+        "OAf"
+      ],
+      "actitudes": [
+        "a",
+        "b",
+        "f"
+      ],
+      "proposito": "El objetivo central es que los estudiantes comprendan que la materia está formada por partículas en movimiento. Esto implica la comprensión de tres aspectos: primero, aprender los procesos de cambio de estado de la materia; segundo, comprender la relación entre calor, temperatura y cambio de estado; y tercero, percibir estos fenómenos de transformación en eventos cotidianos.",
+      "conocimientos_previos": [
+        "Estados físicos de la materia.",
+        "Características del agua y de los estados físicos del agua.",
+        "Ciclo del agua en la naturaleza."
+      ],
+      "palabras_clave": [
+        "Materia",
+        "partícula",
+        "movimiento de partículas",
+        "vibración",
+        "temperatura",
+        "calor",
+        "cambio de estado",
+        "fusión",
+        "evaporación",
+        "condensación",
+        "solidificación",
+        "sublimación",
+        "ebullición"
+      ],
+      "conocimientos": [
+        "Constitución particulada de la materia.",
+        "Movimiento de partículas en la materia y la acción del calor.",
+        "Estados físicos de la materia: sólido, líquido, gaseoso.",
+        "Cambios de estado: fusión, evaporación, condensación, solidificación, sublimación.",
+        "Participación del calor y la temperatura en los cambios de estado."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA12",
+          "descripcion": "Explicar, a partir de modelos, que la materia está formada por partículas en movimiento en sus estados sólido, líquido y gaseoso.",
+          "indicadores_de_evaluacion": [
+            "Diseñan modelos simples sobre la constitución particulada de la materia.",
+            "Formulan predicciones sobre el comportamiento de las partículas que forman la materia al transferirles calor.",
+            "Describen y comunican mediante diagramas y modelos el comportamiento de las partículas en sus estados sólido, líquido y gaseoso.",
+            "Relacionan el carácter dinámico de las partículas y sus diferencias de movimiento en los estados sólido, líquido y gaseoso."
+          ]
+        },
+        {
+          "oa": "OA13",
+          "descripcion": "Demostrar, mediante la investigación experimental, los cambios de estado de la materia, como fusión, evaporación, ebullición, condensación, solidificación y sublimación.",
+          "indicadores_de_evaluacion": [
+            "Definen el concepto de cambio de estado de la materia.",
+            "Dan ejemplos de cambios de estado en su entorno.",
+            "Explican los cambios de estado de la materia a nivel particulado.",
+            "Comparan los cambios de estado de la materia, registrando sus similitudes y diferencias.",
+            "Identifican algunas variables que influyen en los cambios de estado de la materia (energía calórica, volumen, presión).",
+            "Exploran y explican el efecto de la temperatura en los procesos de evaporación, condensación, ebullición, fusión, solidificación y sublimación.",
+            "Planifican y conducen experiencias prácticas de cambios de estado de la materia.",
+            "Establecen similitudes y diferencias en el comportamiento de las partículas en los procesos de cambio de estado."
+          ]
+        },
+        {
+          "oa": "OA14",
+          "descripcion": "Diferenciar entre calor y temperatura, considerando que el calor es una forma de energía y la temperatura es una medida de lo caliente de un objeto.",
+          "indicadores_de_evaluacion": [
+            "Relacionan el concepto de temperatura con la energía cinética media de las partículas de un objeto.",
+            "Definen el concepto de calor como transferencia de energía.",
+            "Realizan mediciones de temperatura en diversos objetos del entorno, expresándola en grados Celsius.",
+            "Observan e identifican objetos que ceden y absorben calor.",
+            "Comparan el uso de los términos 'calor' y 'temperatura' en situaciones cotidianas y científicas.",
+            "Establecen y comunican diferencias entre el calor y la temperatura."
+          ]
+        },
+        {
+          "oa": "OA15",
+          "descripcion": "Medir e interpretar la información obtenida al calentar y enfriar el agua, considerando las transformaciones de un estado a otro.",
+          "indicadores_de_evaluacion": [
+            "Miden y registran la temperatura y el tiempo asociado en el calentamiento y enfriamiento del agua hasta la ocurrencia de cambio de estado.",
+            "Construyen gráficos con datos de temperatura (T) y tiempo (t) del agua obtenidos experimentalmente al calentar agua en estado sólido hasta su ebullición.",
+            "Explican el comportamiento constante de la temperatura durante los cambios de estado del agua.",
+            "Establecen similitudes y diferencias entre el comportamiento de la temperatura y del calor en los cambios de estado."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA12",
+          "titulo": "Reflexión grupal sobre la constitución de los materiales",
+          "habilidades": [
+            "OAa"
+          ],
+          "descripcion": "Realizan una lista de al menos 10 materiales diferentes que tienen a la vista. En grupos pequeños reflexionan sobre qué tienen en común, de qué están constituidos y cuál es la estructura más pequeña que los forma. Exponen ante el curso y establecen conclusiones sobre la naturaleza particulada de la materia."
+        },
+        {
+          "numero": 2,
+          "oa": "OA12",
+          "titulo": "Modelado de partículas con plastilina en estados sólido, líquido y gaseoso",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Elaboran modelos de partículas con bolitas de plastilina (~2 cm de diámetro) y los usan para representar objetos del entorno. El docente pregunta cómo representar materiales líquidos y gaseosos con estos modelos. Discuten sobre el comportamiento de las partículas en esos estados y predicen y representan los diferentes estados."
+        },
+        {
+          "numero": 3,
+          "oa": "OA12",
+          "titulo": "Experimento con globos en distintos estados físicos (líquido, sólido, gas)",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Toman tres globos iguales: globos 1 y 2 con igual cantidad de agua (globo 2 al congelador) y globo 3 inflado con aire al mismo tamaño que el 1. Comparan propiedades de las tres sustancias en diferentes estados. Formulan hipótesis y realizan esquemas o dibujos explicativos de lo observado."
+        },
+        {
+          "numero": 4,
+          "oa": "OA12",
+          "titulo": "Análisis de procesos cotidianos de cambio de estado y factor común",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "El docente muestra procesos cotidianos de transformación de la materia (agua hirviendo, globo aerostático inflándose, tinta escapando de un lápiz, plástico dilatándose al sol). Los estudiantes comparan el estado de las partículas antes y después, identifican el factor común que permite el cambio y formulan explicaciones sobre el comportamiento de las partículas."
+        },
+        {
+          "numero": 5,
+          "oa": "OA12",
+          "titulo": "Comportamiento de partículas en encendedores y advertencias",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Investigan el comportamiento de las partículas del contenido de los encendedores. Infieren su estado físico al interior y describen el estado que adquiere al liberarse al ambiente. Formulan explicaciones, fundadas en el comportamiento de las partículas, sobre las etiquetas de advertencia como 'mantener a menos de 60°C'."
+        },
+        {
+          "numero": 6,
+          "oa": "OA12",
+          "titulo": "Relación de estados físicos con características de expansibilidad, fluidez, rigidez, etc.",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Construyen dos columnas en el cuaderno: 'estados físicos' (sólido, líquido, gaseoso) y 'características' (expansibilidad, compresibilidad, incompresibilidad, fluidez, rigidez, vibración, movimiento). Unen con líneas y para cada línea exponen ejemplos del entorno que evidencien la relación."
+        },
+        {
+          "numero": 7,
+          "oa": "OA12",
+          "titulo": "Diccionario científico enciclopédico del año (materia y partículas)",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "En grupos pequeños elaboran una entrada de un 'diccionario científico enciclopédico del año' con conceptos como materia, partículas, partículas en movimiento, estados físicos, acción del calor sobre las partículas, propiedades de sólidos, líquidos y gases. Seleccionan imágenes y redactan textos que presentan al curso.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 8,
+          "oa": "OA12",
+          "titulo": "Paisaje recortado: rotulado de estados físicos y predicciones de calor",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Obtienen una foto, dibujo o imagen de un paisaje. La recortan y pegan en el cuaderno. Rotulan los componentes e identifican en qué estado se encuentran. Plantean predicciones sobre la presencia del calor en el paisaje. Verifican o refutan su predicción indagando en diferentes fuentes. Explican el comportamiento de las partículas de cada elemento rotulado."
+        },
+        {
+          "numero": 9,
+          "oa": "OA13",
+          "titulo": "Experimento de fusión: agua sólida, mantequilla y cera de vela",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Observan cubos de agua sólida, mantequilla y cera de vela, registran características. Dividen cada material en dos recipientes. Un recipiente de cada material se expone al ambiente (o al Sol) y el otro no. Observan cambios de estado sólido a líquido, elaboran dibujos antes y después y formulan conclusiones sobre fusión."
+        },
+        {
+          "numero": 10,
+          "oa": "OA13",
+          "titulo": "Experimento de fusión y ebullición con mechero",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Toman tres recipientes con agua sólida, mantequilla y cera de vela sobre rejilla metálica con trípode. Calientan con mechero y observan transformaciones físicas. Mantienen el calentamiento hasta que el agua hierva; cortan suministro de calor y comparan los estados de los tres materiales. Dibujan diagramas, identifican ebullición y solidificación y formulan conclusiones."
+        },
+        {
+          "numero": 11,
+          "oa": "OA13",
+          "titulo": "Evaporación en situaciones cotidianas",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "El docente expone situaciones cotidianas: tender ropa lavada; gotas en hojas de plantas que luego desaparecen. Los estudiantes explican el fenómeno de evaporación. Elaboran un texto que describe la evaporación en situaciones cotidianas e indagan otros ejemplos en el hogar."
+        },
+        {
+          "numero": 12,
+          "oa": "OA13",
+          "titulo": "Condensación: bebidas heladas, vidrios empañados y azulejos del baño",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "El docente expone situaciones cotidianas de condensación (bebidas heladas se mojan, vidrios de bus se empañan en invierno, espejos del baño con agua caliente). Los estudiantes explican cada situación argumentando sobre el fenómeno de condensación y la participación del calor. Indagan métodos de obtención de agua dulce que involucren condensación."
+        },
+        {
+          "numero": 13,
+          "oa": "OA13",
+          "titulo": "Experimento de sublimación con yodo sólido",
+          "habilidades": [
+            "OAa",
+            "OAb"
+          ],
+          "descripcion": "En un recipiente agregan yodo sólido, tapan con toalla de papel blanca, esperan y luego retiran la tapa. Observan y describen el estado del yodo sobre la cara interna del papel. Registran observaciones y explican el proceso de sublimación. Comparan registros con compañeros y formulan preguntas para nueva investigación."
+        },
+        {
+          "numero": 14,
+          "oa": "OA13",
+          "titulo": "Relación de fenómenos cotidianos con cambios de estado",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Relacionan los cambios de estado con descripciones de fenómenos cotidianos (naftalina que se esfuma, charcos que desaparecen, oxígeno del aire que se convierte en líquido a temperatura muy baja, agua de un meteorito que se convierte en vapor, soldadura, helado casero con sal y hielo, rocío del pasto, lava que se endurece, leche que se desborda). Argumentan por escrito o con esquemas y diagramas cada fenómeno."
+        },
+        {
+          "numero": 15,
+          "oa": "OA13",
+          "titulo": "Investigación sobre diferencias entre evaporación y vaporización",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Investigan en internet, libros u otros medios las diferencias y similitudes entre 'evaporación' y 'vaporización'. Las registran en el cuaderno y dan al menos tres ejemplos de cada proceso."
+        },
+        {
+          "numero": 16,
+          "oa": "OA13",
+          "titulo": "Juego diseñado por los propios estudiantes sobre los cambios de estado",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Seleccionan y diseñan un juego sobre los cambios de estado (crucigrama, sopa de letras, completar oraciones, laberintos). El docente los recoge, cada estudiante extrae uno al azar y lo resuelve, luego se dirige al autor para retroalimentación. Formulan conclusiones y evalúan aciertos y mejoras."
+        },
+        {
+          "numero": 17,
+          "oa": "OA14",
+          "titulo": "Definición personal de temperatura y calor, y comparación grupal",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Escriben individualmente lo que entienden por 'temperatura' y 'calor'. Se reúnen en grupos de tres y comparten definiciones. Un representante expone ante el curso apoyado en TIC. El docente registra en la pizarra, discuten y establecen consensos que registran en sus cuadernos."
+        },
+        {
+          "numero": 18,
+          "oa": "OA14",
+          "titulo": "Investigación sobre temperaturas extremas: Chile, cobre, Sol, cero absoluto",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Indagan en diferentes fuentes para responder: temperatura ambiente más alta y baja registrada en el país (lugar y características), temperatura de fusión del cobre, la temperatura más baja posible según los científicos, y la temperatura estimada en las capas exteriores del Sol. Registran respuestas en el cuaderno."
+        },
+        {
+          "numero": 19,
+          "oa": "OA14",
+          "titulo": "Experimento de tres baldes: estimación y medición de temperatura",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Disponen de tres baldes (agua fría, tibia y caliente sin quemar). Miden con termómetro la caliente y la fría. Estiman la temperatura de la tibia poniendo un dedo alternadamente. Comparan la estimación con la medición real, identificando los datos más cercanos y más lejanos. Establecen conclusiones."
+        },
+        {
+          "numero": 20,
+          "oa": "OA14",
+          "titulo": "Experimento de dos manos en balde caliente y frío, luego en tibio",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Ponen una mano en agua caliente y otra en agua fría durante un minuto. Luego colocan ambas manos en agua tibia al mismo tiempo. Describen las sensaciones y reflexionan sobre si pueden estimar la temperatura. Responden: ¿es confiable nuestro sentido térmico?"
+        },
+        {
+          "numero": 21,
+          "oa": "OA14",
+          "titulo": "Experimento con bolsitas de té en agua fría y caliente",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Comparan la dispersión del té en agua fría vs. agua caliente. Luego repiten el procedimiento con una gota de tinta (gotario) en agua fría y caliente en vasos horizontales. Comparan ambas situaciones, establecen similitudes y diferencias y formulan explicaciones sobre las diferencias de comportamiento basadas en la agitación de partículas."
+        },
+        {
+          "numero": 22,
+          "oa": "OA14",
+          "titulo": "Experimento: globo sobre botella en agua caliente",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "Colocan un globo vacío sobre el cuello de una botella. Ubican la botella dentro de un recipiente con agua caliente. Observan y describen el comportamiento del globo, registran con dibujos y formulan explicaciones en términos de movimiento de partículas. Elaboran una presentación sobre las relaciones entre movimiento de partículas y temperatura."
+        },
+        {
+          "numero": 23,
+          "oa": "OA14",
+          "titulo": "Medición de temperatura del agua con termómetro de dilatación",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Miden con termómetro de dilatación la temperatura del agua caliente observando cómo sube la columna. Registran el valor. El docente formula preguntas sobre la razón por la que sube la columna. Investigan sobre los diferentes tipos de termómetros existentes, sus partes y propiedades."
+        },
+        {
+          "numero": 24,
+          "oa": "OA14",
+          "titulo": "Experimento: generación de calor por agitación de un recipiente envuelto",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Envuelven un pequeño jarro con hojas de papel de diario. Agitan el recipiente por 4-5 minutos. Registran nuevamente la temperatura del agua, identificando si hubo diferencias. El docente formula preguntas sobre la variación de temperatura y su relación con el calor generado. Concluyen la generación de energía calórica a partir de la agitación."
+        },
+        {
+          "numero": 25,
+          "oa": "OA14",
+          "titulo": "Experimento de propagación del calor: cuchara y palito en agua hirviendo",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Hierven agua en un recipiente, ponen una cuchara y un palito en el agua. Tras ~30 segundos, tantean la parte superior de cada uno. Registran observaciones y formulan explicaciones sobre el flujo de calor y la conductividad de los materiales."
+        },
+        {
+          "numero": 26,
+          "oa": "OA14",
+          "titulo": "Experimento de propagación del calor con tira de aluminio y cera de vela",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Forman una tira de aluminio con una línea de cera de vela endurecida. Con una pinza la sujetan por un extremo y calientan el otro con una vela. Observan y explican lo sucedido en términos del suministro y flujo de calor. Registran observaciones y las exponen con dibujos y TIC."
+        },
+        {
+          "numero": 27,
+          "oa": "OA14",
+          "titulo": "Experimento de fusión diferencial de cubos de hielo en distintos volúmenes de agua caliente",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Disponen de un recipiente grande y uno pequeño con agua caliente a igual temperatura. Introducen un cubo de hielo en cada uno y miden el tiempo de derretimiento. Formulan explicaciones, basadas en la cantidad de calor, sobre las causas que permiten que un cubo se derrita primero. Concluyen las diferencias entre calor y temperatura."
+        },
+        {
+          "numero": 28,
+          "oa": "OA14",
+          "titulo": "Investigación sobre uso de 'temperatura' y 'calor' en situaciones cotidianas y científicas",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Indagan sobre la forma de utilizar los conceptos de 'temperatura' y 'calor' en situaciones cotidianas y científicas. Finalmente definen con sus propias palabras ambos conceptos."
+        },
+        {
+          "numero": 29,
+          "oa": "OA15",
+          "titulo": "Experimento de condensación con agua y cubos de hielo en un recipiente",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Llenan un recipiente con agua a temperatura ambiente, agregan 4-5 cubos de hielo y revuelven continuamente. Registran la temperatura a medida que revuelven. Inspeccionan los costados del recipiente y registran la temperatura cuando la superficie externa se humedece. Responden preguntas sobre el proceso de cambio de estado y dibujan un diagrama rotulado de la experiencia.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 30,
+          "oa": "OA15",
+          "titulo": "Experimento de calentamiento de hielo hasta ebullición: tabla y gráfico T vs. t",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Colocan 200 g de hielo en un vaso precipitado con termómetro (-10°C a 120°C) sobre rejilla y mechero. Miden y registran la temperatura cada 10 segundos hasta que el agua hierva. Confeccionan una tabla con valores de tiempo y temperatura indicando las unidades. Grafican apoyándose en TIC.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 31,
+          "oa": "OA15",
+          "titulo": "Gráfico de temperatura vs. tiempo e identificación de zonas de cambio de estado",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Grafican temperatura vs. tiempo con datos del experimento anterior apoyándose en TIC como planillas digitales de cálculo. Identifican zonas donde la temperatura permanece constante y donde varía. Formulan explicaciones sobre las eventuales causas. Exponen al curso y formulan conclusiones. Utilizan el gráfico para determinar las temperaturas de fusión y ebullición del agua.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 32,
+          "oa": "OA15",
+          "titulo": "Relación de temperatura y calor al calentar y enfriar agua: gráfico comparativo",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Indagan y relacionan, mediante experimentación y diversas fuentes, el comportamiento de la temperatura y del calor en el agua cuando esta se calienta y enfría. Construyen un gráfico, identifican tipos de variables y establecen similitudes y diferencias, exponiendo conclusiones.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 33,
+          "oa": "OA15",
+          "titulo": "Experimento de temperatura de fusión y ebullición del agua con sal",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Introducen hielo molido en un vaso precipitado, miden temperatura hasta estabilización, luego añaden ~100 g de sal de cocina, revuelven y miden la temperatura cada 5 segundos hasta la ebullición. Comparan los datos con los del agua pura y formulan explicaciones sobre lo sucedido. Elaboran un informe y exponen conclusiones.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 34,
+          "oa": "OA15",
+          "titulo": "Interpretación comparativa de gráficos de agua pura vs. agua contaminada",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Interpretan datos entregados por el docente de temperatura vs. tiempo de dos muestras (agua pura y agua altamente contaminada). Elaboran gráficos y analizan las diferencias. Elaboran un afiche explicando las variaciones en cada tramo y extraen conclusiones sobre las consecuencias de la variación de temperatura para la vida en el medio ambiente.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 35,
+          "oa": "OA15",
+          "titulo": "Carta al 'tío Pedro': explicación de heladas en plantaciones",
+          "habilidades": [
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "El docente lee una carta de un personaje ficticio cuya plantación fue dañada por una helada. Los estudiantes indagan sobre el fenómeno de las heladas, responden qué ocurrió, analizan la participación del calor, la temperatura y el agua. Construyen esquemas ilustrativos, diseñan un tríptico con medidas preventivas para agricultores y escriben una carta de respuesta.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 36,
+          "oa": "OA15",
+          "titulo": "Gráfico único con términos de cambios de estado del agua",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "El docente escribe en la pizarra los términos: agua, 100°C, hielo, evaporación, ebullición, fusión, aumento, sólido, gas, descenso, líquido, temperatura, condensación, 0°C, variables, calor. Los estudiantes construyen un solo gráfico que ilustre estos términos y escriben un texto explicativo de media página.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 37,
+          "oa": "OA15",
+          "titulo": "Mapa conceptual de la curva temperatura vs. tiempo del agua",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "Elaboran un mapa conceptual sobre la explicación del gráfico temperatura vs. tiempo del agua, incorporando todos los procesos que en él se muestran e indicando la participación del calor.",
+          "interdisciplinariedad": "Matemática"
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA13",
+            "OAa"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican los cambios de estado de la materia a nivel particulado.",
+            "Identifican algunas variables que influyen en los cambios de estado de la materia.",
+            "Exploran y explican el efecto de la temperatura en los procesos de evaporación, condensación, ebullición, fusión, solidificación y sublimación.",
+            "Identifican cuáles son las preguntas de carácter científico que permiten realizar una investigación.",
+            "Fundamentan científicamente las predicciones formuladas."
+          ],
+          "actividad_evaluativa": "En el pupitre hay una placa de vidrio de ~10x20 cm. Procedimiento: a) observar y describir la superficie, b) acercar la placa a 5 cm de la cara y lanzar una bocanada de aire con la boca abierta, c) observar y describir lo ocurrido inmediatamente y segundos después, d) dar una explicación, e) indicar de dónde provino el agua y adónde se fue, f) señalar los cambios de estado y su nombre, g) formular una pregunta que podría contestarse con esta investigación.",
+          "criterios_de_evaluacion": [
+            "Demuestran que formulan e identifican preguntas que permiten realizar una investigación.",
+            "Identifican tipos de variables presentes en una investigación.",
+            "Demuestran que observan y registran datos.",
+            "Organizan y representan información de diferentes formas.",
+            "Seleccionan materiales e instrumentos usándolos de manera segura y adecuada.",
+            "Comunican y representan evidencias, conclusiones y reflexiones.",
+            "Reconocen que el aire exhalado contiene agua en estado gaseoso que se condensa al llegar al vidrio a menor temperatura.",
+            "Explican que el empañamiento desaparece porque el agua condensada se evapora muy rápido.",
+            "Demuestran conocer los procesos de condensación y evaporación."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA13",
+            "OA14",
+            "OA15",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Exploran y explican el efecto de la temperatura en los procesos de evaporación, condensación, ebullición, fusión, solidificación y sublimación.",
+            "Establecen similitudes y diferencias en el comportamiento de las partículas en los procesos de cambio de estado.",
+            "Establecen y comunican diferencias entre el calor y la temperatura.",
+            "Construyen gráficos con datos de temperatura (T) y tiempo (t) del agua.",
+            "Explican el comportamiento constante de la temperatura durante los cambios de estado del agua.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Observar un gráfico temperatura vs. tiempo para el agua. 1) Explicar cada zona del gráfico para el calentamiento e indicar las temperaturas significativas. 2) Indicar las regiones donde ocurren cambios de estado y explicar el comportamiento de las partículas. 3) Interpretar las zonas sin variación de temperatura. 4) Explicar el comportamiento de la temperatura y del calor destacando sus diferencias. 5) Relacionar las diferentes zonas del gráfico con los cambios de estado en el ciclo del agua.",
+          "criterios_de_evaluacion": [
+            "Demuestran que identifican los ejes del gráfico y las variables involucradas.",
+            "Interpretan la relación entre temperatura y tiempo.",
+            "Identifican las zonas donde la temperatura aumenta y donde se mantiene constante.",
+            "Indican las zonas del gráfico donde suceden los cambios de estado.",
+            "Explican las temperaturas aproximadas de fusión (0°C) y ebullición (100°C) del agua.",
+            "Demuestran interpretar completamente el gráfico temperatura vs. tiempo.",
+            "Explican el movimiento de las partículas en los cambios de estado.",
+            "Comparan el movimiento de partículas en cada estado físico y su variación en los cambios de estado.",
+            "Muestran que los cambios de estado del agua del gráfico ocurren también en el ciclo del agua."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA13",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Dan ejemplos de cambios de estado en su entorno.",
+            "Explican los cambios de estado de la materia a nivel particulado.",
+            "Comparan los cambios de estado de la materia registrando sus similitudes y diferencias.",
+            "Establecen similitudes y diferencias en el comportamiento de las partículas en los procesos de cambio de estado.",
+            "Explican los resultados obtenidos de la investigación realizada.",
+            "Comparan los resultados obtenidos con las predicciones formuladas previamente."
+          ],
+          "actividad_evaluativa": "Observar un diagrama con tres cuadros y la palabra 'Líquido' en el del medio y flechas entre ellos. 1) Completar el esquema indicando los estados de la materia y los cambios de estado que ocurren. 2) Completar en cada estado físico un diagrama que represente la organización de las partículas. 3) Explicar cómo el movimiento de las partículas se va alterando hasta cambiar de estado. 4) Mencionar similitudes y diferencias entre cambios de estado. 5) Por cada cambio de estado indicado, escribir tres ejemplos del entorno.",
+          "criterios_de_evaluacion": [
+            "Demuestran interpretar el diagrama reconociendo los movimientos de partículas desde un estado a otro.",
+            "Explican cómo las partículas se juntan o se alejan dependiendo del estado físico.",
+            "Indican los estados de la materia en cada cuadro del diagrama.",
+            "Reconocen que las partículas juntas de la izquierda corresponden al estado sólido.",
+            "Reconocen que el cuadro de la derecha corresponde al estado gaseoso.",
+            "Indican los cambios de estado con flechas respetando la dirección del proceso.",
+            "Dibujan modelos de partículas que diferencien los tres estados físicos.",
+            "Comparan similitudes y diferencias de los estados físicos y los cambios que experimenta.",
+            "Demuestran conocer ejemplos del entorno para cada cambio de estado."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA13",
+            "OAe"
+          ],
+          "indicadores_de_evaluacion": [
+            "Definen el concepto de cambio de estado de la materia.",
+            "Dan ejemplos de cambios de estado en su entorno.",
+            "Comparan los cambios de estado de la materia registrando sus similitudes y diferencias.",
+            "Establecen similitudes y diferencias en el comportamiento de las partículas en los procesos de cambio de estado.",
+            "Explican los resultados obtenidos de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Recorrer el colegio para encontrar al menos 3 situaciones cotidianas que muestren cambios de estado (empañado de vidrios, agua en latas de bebida heladas, cubetas de hielo, procedimientos al cocinar, etc.). Representar estos cambios en un diagrama o dibujo. Identificar qué cambios de estado no se lograron observar y por qué. Planificar una investigación para evidenciar los cambios ausentes. Con ayuda del docente, realizar la investigación, registrar cada etapa y evaluar la planificación identificando mejoras.",
+          "criterios_de_evaluacion": [
+            "Demuestran que reconocen los estados de la materia y sus cambios en situaciones cotidianas.",
+            "Representan los cambios de estado mediante diagramas o dibujos claros apoyados con flechas.",
+            "Demuestran reconocer limitaciones en la identificación de algunos cambios de estado en contextos cotidianos.",
+            "Proponen planificaciones de investigaciones para evidenciar los cambios de estado no observados.",
+            "Demuestran ejecutar con rigor la investigación planificada.",
+            "Evalúan su desempeño detectando fortalezas y debilidades a mejorar en futuras investigaciones."
+          ]
+        }
+      ]
+    }
+  ],
+  "resumen": {
+    "total_oas_contenido": 18,
+    "total_habilidades_investigacion": 7,
+    "total_unidades": 4,
+    "total_indicadores_evaluacion": 95,
+    "total_actividades": 168,
+    "total_ejemplos_evaluacion": 15,
+    "nota_evaluaciones": "La Unidad 2 contiene solo 3 ejemplos de evaluación (no 4 como las demás), tal como aparece en el programa original del Mineduc.",
+    "por_unidad": [
+      {
+        "unidad": 1,
+        "titulo": "Capas de la Tierra, suelo, erosión, fotosíntesis y redes alimentarias",
+        "oas_contenido": [
+          "OA16",
+          "OA17",
+          "OA18",
+          "OA1",
+          "OA2",
+          "OA3"
+        ],
+        "actividades": 64,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 34
+      },
+      {
+        "unidad": 2,
+        "titulo": "Sistema reproductor humano, pubertad, actividad física y drogas",
+        "oas_contenido": [
+          "OA4",
+          "OA5",
+          "OA6",
+          "OA7"
+        ],
+        "actividades": 29,
+        "ejemplos_evaluacion": 3,
+        "indicadores": 16
+      },
+      {
+        "unidad": 3,
+        "titulo": "Energía: fuentes, transformaciones, calor y recursos renovables",
+        "oas_contenido": [
+          "OA8",
+          "OA9",
+          "OA10",
+          "OA11"
+        ],
+        "actividades": 38,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 23
+      },
+      {
+        "unidad": 4,
+        "titulo": "Materia, partículas, cambios de estado, calor y temperatura",
+        "oas_contenido": [
+          "OA12",
+          "OA13",
+          "OA14",
+          "OA15"
+        ],
+        "actividades": 37,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 22
+      }
+    ]
+  }
+}

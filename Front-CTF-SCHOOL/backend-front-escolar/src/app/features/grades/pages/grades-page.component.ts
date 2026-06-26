@@ -1598,47 +1598,13 @@ export class GradesPageComponent {
       if (!current) {
         return current;
       }
-      const familyRecommendations = [...current.content.familyRecommendations];
-      while (familyRecommendations.length <= index) {
-        familyRecommendations.push('');
-      }
-      familyRecommendations[index] = value;
+      const familyRecommendations = [''];
+      familyRecommendations[0] = index === 0 ? value : (current.content.familyRecommendations[0] ?? '');
       return {
         ...current,
         content: {
           ...current.content,
           familyRecommendations
-        }
-      };
-    });
-  }
-
-  addPedagogicalRecommendation(): void {
-    this.pedagogicalDraft.update((current) => {
-      if (!current || current.content.familyRecommendations.length >= 4) {
-        return current;
-      }
-      return {
-        ...current,
-        content: {
-          ...current.content,
-          familyRecommendations: [...current.content.familyRecommendations, '']
-        }
-      };
-    });
-  }
-
-  removePedagogicalRecommendation(index: number): void {
-    this.pedagogicalDraft.update((current) => {
-      if (!current) {
-        return current;
-      }
-      const familyRecommendations = current.content.familyRecommendations.filter((_, itemIndex) => itemIndex !== index);
-      return {
-        ...current,
-        content: {
-          ...current.content,
-          familyRecommendations: familyRecommendations.length > 0 ? familyRecommendations : ['']
         }
       };
     });
@@ -2482,7 +2448,7 @@ export class GradesPageComponent {
         ...report.content,
         educatorName: report.content.educatorName || teacherName,
         teacherSignatureName: report.content.teacherSignatureName || teacherName,
-        familyRecommendations: report.content.familyRecommendations?.length ? report.content.familyRecommendations : ['']
+        familyRecommendations: this.normalizeSingleFamilyRecommendation(report.content.familyRecommendations)
       }
     };
   }
@@ -2514,6 +2480,13 @@ export class GradesPageComponent {
       }
     };
     return this.withPedagogicalTeacherDefaults(report);
+  }
+
+  private normalizeSingleFamilyRecommendation(recommendations: string[] | null | undefined): string[] {
+    const firstFilledRecommendation = (recommendations ?? [])
+      .map((item) => item?.trim() ?? '')
+      .find((item) => item.length > 0);
+    return [firstFilledRecommendation ?? ''];
   }
 
   private resolvePedagogicalLevelCode(courseName: string): 'PREKINDER' | 'KINDER' | 'GENERAL' {

@@ -1622,19 +1622,10 @@
                       <span>Recomendaciones a la familia</span>
                     </div>
                     <div class="pedagogical-recommendations pedagogical-recommendations--editable">
-                      @for (recommendation of report.content.familyRecommendations; track trackSimple($index)) {
-                        <div class="pedagogical-rec-editor">
-                          <span class="pedagogical-rec-dot"></span>
-                        <textarea class="pedagogical-rec-textarea" [value]="pedagogicalRecommendationValue($index)" (input)="updatePedagogicalRecommendation($index, $any($event.target).value)" placeholder="Agrega una recomendacion concreta para la familia..."></textarea>
-                        <button mat-icon-button type="button" class="pedagogical-rec-remove" (click)="removePedagogicalRecommendation($index)" aria-label="Eliminar recomendacion">
-                            <mat-icon>delete</mat-icon>
-                          </button>
-                        </div>
-                      }
-                      <button mat-stroked-button type="button" class="pedagogical-add-button" (click)="addPedagogicalRecommendation()">
-                        <mat-icon>add</mat-icon>
-                      Agregar recomendacion
-                      </button>
+                      <div class="pedagogical-rec-editor">
+                        <span class="pedagogical-rec-dot"></span>
+                        <textarea class="pedagogical-rec-textarea" [value]="pedagogicalRecommendationValue(0)" (input)="updatePedagogicalRecommendation(0, $any($event.target).value)" placeholder="Agrega una recomendacion concreta para la familia..."></textarea>
+                      </div>
                     </div>
                   </section>
 

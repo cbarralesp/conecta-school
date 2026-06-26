@@ -98,6 +98,8 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
             PlanningUnitStatus status,
             Long createdByUserId
     ) {
+        syncSequence("UNIDADES_PLANIFICACION", "ID");
+
         Long unitId = jdbcTemplate.queryForObject("""
                 INSERT INTO "UNIDADES_PLANIFICACION" (
                     "CARGA_DOCENTE_ID",
@@ -135,6 +137,16 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
         return findById(unitId).orElseThrow();
     }
 
+    private void syncSequence(String tableName, String columnName) {
+        jdbcTemplate.execute("""
+                SELECT setval(
+                    pg_get_serial_sequence('"%s"', '%s'),
+                    COALESCE((SELECT MAX("%s") FROM "%s"), 0) + 1,
+                    false
+                )
+                """.formatted(tableName, columnName, columnName, tableName));
+    }
+
     @Override
     public PlanningUnit updateUnit(Long unitId, String unitNumber, String name) {
         jdbcTemplate.update("""
@@ -144,6 +156,51 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                     "FECHA_ACTUALIZACION" = CURRENT_TIMESTAMP
                 WHERE "ID" = ?
                 """, unitNumber, name, unitId);
+
+        return findById(unitId).orElseThrow();
+    }
+
+    @Override
+    public PlanningUnit updateUnitDetails(
+            Long unitId,
+            String unitNumber,
+            String name,
+            Integer startWeek,
+            LocalDate startDate,
+            LocalDate endDate,
+            int estimatedWeeks,
+            int plannedClasses,
+            String generalDescription,
+            String learningObjectives,
+            String achievementIndicators
+    ) {
+        jdbcTemplate.update("""
+                UPDATE "UNIDADES_PLANIFICACION"
+                SET "NUMERO_UNIDAD" = ?,
+                    "NOMBRE" = ?,
+                    "SEMANA_INICIO" = ?,
+                    "FECHA_INICIO" = ?,
+                    "FECHA_TERMINO" = ?,
+                    "SEMANAS_ESTIMADAS" = ?,
+                    "CLASES_PLANIFICADAS" = ?,
+                    "DESCRIPCION_GENERAL" = ?,
+                    "OBJETIVOS_APRENDIZAJE" = ?,
+                    "INDICADORES_LOGRO" = ?,
+                    "FECHA_ACTUALIZACION" = CURRENT_TIMESTAMP
+                WHERE "ID" = ?
+                """,
+                unitNumber,
+                name,
+                startWeek,
+                startDate,
+                endDate,
+                estimatedWeeks,
+                plannedClasses,
+                generalDescription,
+                learningObjectives,
+                achievementIndicators,
+                unitId
+        );
 
         return findById(unitId).orElseThrow();
     }

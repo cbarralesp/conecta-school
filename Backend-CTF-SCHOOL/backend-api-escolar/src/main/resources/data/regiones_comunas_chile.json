@@ -1,4 +1,4 @@
-﻿{
+{
     "regiones":  [
                      {
                          "id":  1,
@@ -607,7 +607,7 @@
                      },
                      {
                          "id":  8,
-                         "nombre":  "Región de �\u0027uble",
+                         "nombre":  "Región de Ñuble",
                          "codigo":  "XVI",
                          "comunas":  [
                                          {
@@ -652,7 +652,7 @@
                                          },
                                          {
                                              "id":  811,
-                                             "nombre":  "�\u0027iquén"
+                                             "nombre":  "Ñiquén"
                                          },
                                          {
                                              "id":  812,
@@ -1333,7 +1333,7 @@
                                          },
                                          {
                                              "id":  1520,
-                                             "nombre":  "�\u0027uñoa"
+                                             "nombre":  "Ñuñoa"
                                          },
                                          {
                                              "id":  1521,
@@ -1490,3 +1490,6 @@
                      }
                  ]
 }
+
+
+

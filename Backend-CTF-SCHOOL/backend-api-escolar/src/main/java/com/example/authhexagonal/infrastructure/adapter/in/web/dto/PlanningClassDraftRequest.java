@@ -18,6 +18,7 @@ public record PlanningClassDraftRequest(
         String startActivity,
         String developmentActivity,
         String closingActivity,
-        List<UUID> objectiveIds
+        List<UUID> objectiveIds,
+        List<PlanningClassObjectiveSelectionRequest> objectiveSelections
 ) {
 }

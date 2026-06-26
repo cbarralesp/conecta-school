@@ -11,9 +11,11 @@ import com.example.authhexagonal.domain.model.PlanningUnitStatus;
 import com.example.authhexagonal.domain.model.PlanningUnitSummary;
 import com.example.authhexagonal.domain.port.in.CreatePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.DeletePlanningUnitUseCase;
+import com.example.authhexagonal.domain.port.in.GetPlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitsUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningUnitDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningUnitDetailsUseCase;
 import com.example.authhexagonal.domain.port.in.UpdatePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.out.PlanningCatalogRepositoryPort;
 import com.example.authhexagonal.domain.port.out.PlanningUnitRepositoryPort;
@@ -26,9 +28,11 @@ import java.util.List;
 public class PlanningUnitService implements
         CreatePlanningUnitUseCase,
         SavePlanningUnitDraftUseCase,
+        GetPlanningUnitUseCase,
         GetPlanningUnitCatalogsUseCase,
         GetPlanningUnitsUseCase,
         UpdatePlanningUnitUseCase,
+        UpdatePlanningUnitDetailsUseCase,
         DeletePlanningUnitUseCase {
 
     private final PlanningUnitRepositoryPort planningUnitRepositoryPort;
@@ -67,6 +71,12 @@ public class PlanningUnitService implements
     }
 
     @Override
+    public PlanningUnit getUnit(String username, Long unitId) {
+        return planningUnitRepositoryPort.findAccessibleById(username, unitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unidad de planificacion no encontrada"));
+    }
+
+    @Override
     public PlanningUnit updateUnit(String username, Long unitId, String unitNumber, String name) {
         PlanningUnit planningUnit = planningUnitRepositoryPort.findAccessibleById(username, unitId)
                 .orElseThrow(() -> new ResourceNotFoundException("Unidad de planificacion no encontrada"));
@@ -82,6 +92,32 @@ public class PlanningUnitService implements
                 planningUnit.id(),
                 unitNumber.trim(),
                 name.trim()
+        );
+    }
+
+    @Override
+    public PlanningUnit updateUnitDetails(String username, Long unitId, PlanningUnitCommand command) {
+        PlanningUnit planningUnit = planningUnitRepositoryPort.findAccessibleById(username, unitId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unidad de planificacion no encontrada"));
+
+        validateCommand(command, planningUnit.status());
+
+        int startWeek = command.startWeek() != null
+                ? command.startWeek()
+                : command.startDate().get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+
+        return planningUnitRepositoryPort.updateUnitDetails(
+                planningUnit.id(),
+                command.unitNumber().trim(),
+                command.name().trim(),
+                startWeek,
+                command.startDate(),
+                command.endDate(),
+                command.estimatedWeeks() == null ? 1 : command.estimatedWeeks(),
+                command.plannedClasses() == null ? 0 : command.plannedClasses(),
+                normalizeNullable(command.generalDescription()),
+                normalizeNullable(command.learningObjectives()),
+                normalizeNullable(command.achievementIndicators())
         );
     }
 

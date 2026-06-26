@@ -223,6 +223,10 @@ public class PlanningClassService implements
                 updatedClass.id(),
                 sanitizeObjectiveIds(command.objectiveIds())
         );
+        planningClassRepositoryPort.saveObjectiveSelections(
+                updatedClass.id(),
+                sanitizeObjectiveSelections(command.objectiveSelections())
+        );
 
         return reloadAccessibleClass(username, updatedClass.id());
     }
@@ -273,6 +277,13 @@ public class PlanningClassService implements
         String title = buildSuggestionTitle(command.objectiveAxis(), command.objectiveDescription(), command.objectiveCode());
         String objectiveSummary = "Al finalizar la clase, los estudiantes seran capaces de avanzar en %s mediante una experiencia enfocada en %s."
                 .formatted(command.objectiveCode(), excerpt.toLowerCase());
+        List<String> coveredIndicators = command.evaluationIndicators() == null || command.evaluationIndicators().isEmpty()
+                ? List.of()
+                : command.evaluationIndicators().stream()
+                .filter(java.util.Objects::nonNull)
+                .map(String::trim)
+                .filter(item -> !item.isBlank())
+                .toList();
 
         if (appreciation) {
             return new PlanningClassSuggestion(
@@ -293,6 +304,7 @@ public class PlanningClassService implements
                             "Pedir a algunos voluntarios que expliquen que elemento del lenguaje visual influyo mas en su opinion.",
                             "Cerrar sintetizando como observar, describir y argumentar fortalece la apreciacion artistica."
                     ),
+                    coveredIndicators,
                     "Ofrecer apoyos visuales y una guia breve de preguntas para estudiantes que requieran andamiaje en la observacion, expresion oral o escritura.",
                     buildFallbackStatusMessage(command, fallbackReasonCode),
                     buildFallbackProviderLabel(fallbackReasonCode)
@@ -320,6 +332,7 @@ public class PlanningClassService implements
                         "Invitar a algunos estudiantes a explicar que quisieron comunicar y que decisiones visuales tomaron para lograrlo.",
                         "Cerrar con una pregunta metacognitiva sobre que aprendieron, que les resulto desafiante y que mejorarian en una siguiente version."
                 ),
+                coveredIndicators,
                 "Preparar materiales alternativos, modelado paso a paso y opciones de respuesta visual u oral para estudiantes que requieran apoyos PIE o diferenciacion por nivel.",
                 buildFallbackStatusMessage(command, fallbackReasonCode),
                 buildFallbackProviderLabel(fallbackReasonCode)
@@ -338,7 +351,7 @@ public class PlanningClassService implements
             return buildLocalSuggestion(command, exception.reasonCode());
         } catch (Exception exception) {
             LOGGER.warn("AI suggestion unavailable, using local fallback: {}", exception.getMessage());
-            return buildLocalSuggestion(command, "OPENAI_REQUEST_FAILED");
+            return buildLocalSuggestion(command, "AI_REQUEST_FAILED");
         }
     }
 
@@ -357,6 +370,30 @@ public class PlanningClassService implements
         }
         if ("OPENAI_UNAUTHORIZED".equals(fallbackReasonCode)) {
             return "OpenAI rechazo la credencial configurada. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("GEMINI_INSUFFICIENT_QUOTA".equals(fallbackReasonCode)) {
+            return "Gemini no disponible por cuota en este momento. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("GEMINI_MISSING_API_KEY".equals(fallbackReasonCode)) {
+            return "Gemini no esta configurado aun. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("GEMINI_UNAUTHORIZED".equals(fallbackReasonCode)) {
+            return "Gemini rechazo la credencial configurada. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("DEEPSEEK_INSUFFICIENT_QUOTA".equals(fallbackReasonCode)) {
+            return "DeepSeek no disponible por cuota en este momento. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("DEEPSEEK_MISSING_API_KEY".equals(fallbackReasonCode)) {
+            return "DeepSeek no esta configurado aun. Se aplico una sugerencia local segun el eje %s de %s."
+                    .formatted(axis, command.objectiveCode());
+        }
+        if ("DEEPSEEK_UNAUTHORIZED".equals(fallbackReasonCode)) {
+            return "DeepSeek rechazo la credencial configurada. Se aplico una sugerencia local segun el eje %s de %s."
                     .formatted(axis, command.objectiveCode());
         }
 
@@ -410,6 +447,10 @@ public class PlanningClassService implements
         planningClassRepositoryPort.syncCurriculumObjectives(
                 createdClass.id(),
                 sanitizeObjectiveIds(command.objectiveIds())
+        );
+        planningClassRepositoryPort.saveObjectiveSelections(
+                createdClass.id(),
+                sanitizeObjectiveSelections(command.objectiveSelections())
         );
 
         return reloadAccessibleClass(username, createdClass.id());
@@ -502,6 +543,7 @@ public class PlanningClassService implements
                 .filter(objective -> objective.code().equalsIgnoreCase(objectiveCode.trim()))
                 .findFirst()
                 .orElse(new PlanningObjectiveOption(
+                        null,
                         objectiveCode.trim(),
                         "OA principal - " + unit.unitNumberLabel(),
                         description,
@@ -573,6 +615,31 @@ public class PlanningClassService implements
         return objectiveIds.stream()
                 .filter(Objects::nonNull)
                 .distinct()
+                .toList();
+    }
+
+    private List<com.example.authhexagonal.domain.model.PlanningClassObjectiveSelection> sanitizeObjectiveSelections(
+            List<com.example.authhexagonal.domain.model.PlanningClassObjectiveSelection> objectiveSelections
+    ) {
+        if (objectiveSelections == null || objectiveSelections.isEmpty()) {
+            return List.of();
+        }
+
+        return objectiveSelections.stream()
+                .filter(Objects::nonNull)
+                .map(selection -> new com.example.authhexagonal.domain.model.PlanningClassObjectiveSelection(
+                        selection.objectiveId(),
+                        selection.objectiveCode() == null ? null : selection.objectiveCode().trim(),
+                        selection.indicators() == null
+                                ? List.of()
+                                : selection.indicators().stream()
+                                .filter(Objects::nonNull)
+                                .map(String::trim)
+                                .filter(value -> !value.isBlank())
+                                .distinct()
+                                .toList()
+                ))
+                .filter(selection -> selection.objectiveId() != null || (selection.objectiveCode() != null && !selection.objectiveCode().isBlank()))
                 .toList();
     }
 

@@ -1,0 +1,984 @@
+﻿<app-teacher-modern-layout
+  title=""
+  activeItem="plannings"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="class-create-page">
+    <section class="page-header animate-in">
+      <div class="page-header__left">
+        <div class="breadcrumb">
+          <span class="breadcrumb__item">Inicio</span>
+          <span class="breadcrumb__divider">›</span>
+          <span class="breadcrumb__item">Planificaciones</span>
+          <span class="breadcrumb__divider">›</span>
+          <span class="breadcrumb__item is-current">Nueva clase</span>
+        </div>
+        <h1 class="page-header__title">Nueva clase</h1>
+      </div>
+    </section>
+
+    <section class="steps-card animate-in">
+      <nav class="steps-bar" aria-label="Pasos de nueva clase">
+        @for (step of steps; track step.number) {
+          <button
+            type="button"
+            class="step"
+            [class.is-active]="isStepActive(step.number)"
+            [class.is-completed]="isStepCompleted(step.number)"
+            [class.is-clickable]="canNavigateToStep(step.number)"
+            [disabled]="!canNavigateToStep(step.number)"
+            [attr.aria-current]="isStepActive(step.number) ? 'step' : null"
+            (click)="goToStep(step.number)">
+            <div class="step__number">
+              @if (isStepCompleted(step.number)) {
+                <mat-icon>check</mat-icon>
+              } @else {
+                <span>{{ step.number }}</span>
+              }
+            </div>
+            <span>{{ step.label }}</span>
+          </button>
+
+          @if (!$last) {
+            <div class="step__divider" [class.is-completed]="isStepCompleted(step.number)"></div>
+          }
+        }
+      </nav>
+    </section>
+
+    @if (activeStep() === 1) {
+      <div class="form-shell animate-in">
+        <div class="form-shell__main">
+          <section class="card">
+            <div class="card__body">
+              <div class="card-heading">
+                <div class="card-heading__icon">
+                  <mat-icon>school</mat-icon>
+                </div>
+                <div class="card-heading__copy">
+                  <h2>Selecciona el curso y la asignatura</h2>
+                  <p>Estos datos determinarán las unidades disponibles para la planificación de la clase.</p>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group col-6">
+                  <label class="form-label">Año <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>calendar_today</mat-icon>
+                    <select class="form-select" [ngModel]="year()" (ngModelChange)="updateYear($event)">
+                      @for (item of years(); track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Semestre <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>schedule</mat-icon>
+                    <select class="form-select" [ngModel]="semester()" (ngModelChange)="updateSemester($event)">
+                      @for (item of semesters; track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Curso <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>groups</mat-icon>
+                    <select class="form-select" [ngModel]="course()" (ngModelChange)="updateCourse($event)">
+                      @for (item of courses(); track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
+                </div>
+
+                <div class="form-group col-6">
+                  <label class="form-label">Asignatura <span class="required">*</span></label>
+                  <div class="select-field">
+                    <mat-icon>menu_book</mat-icon>
+                    <select class="form-select" [ngModel]="subject()" (ngModelChange)="updateSubject($event)">
+                      @for (item of subjects(); track item.value) {
+                        <option [value]="item.value">{{ item.label }}</option>
+                      }
+                    </select>
+                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                  </div>
+                </div>
+              </div>
+
+              <div class="info-box">
+                <div class="info-box__icon">
+                  <mat-icon>info</mat-icon>
+                </div>
+                <div class="info-box__text">
+                  {{ programReference() }}
+                </div>
+              </div>
+
+              @if (validationMessage()) {
+                <div class="validation-box" role="alert">
+                  <mat-icon>error_outline</mat-icon>
+                  <span>{{ validationMessage() }}</span>
+                </div>
+              }
+
+              <div class="form-footer">
+                <button type="button" class="btn btn--ghost" (click)="cancel()">Cancelar</button>
+                <button type="button" class="btn btn--primary" (click)="continue()">
+                  @if (isContinuing()) {
+                    <span>Cargando...</span>
+                  } @else {
+                    <span>Continuar</span>
+                  }
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="preview-card">
+          <h3>Vista previa</h3>
+
+          @if (isLoading()) {
+            <div class="preview-loading">Cargando programa...</div>
+          }
+
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>calendar_today</mat-icon>
+                <span>Año</span>
+              </div>
+              <strong>{{ yearLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>school</mat-icon>
+                <span>Curso</span>
+              </div>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>menu_book</mat-icon>
+                <span>Asignatura</span>
+              </div>
+              <strong>{{ subjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>schedule</mat-icon>
+                <span>Semestre</span>
+              </div>
+              <strong>{{ semesterLabel() }}</strong>
+            </div>
+          </div>
+
+          <div class="preview-stat-list">
+            @for (metric of metricCards(); track metric.label) {
+              <article class="preview-stat">
+                <div class="preview-stat__icon" [class]="'tone-' + metric.tone">
+                  <mat-icon>{{ metric.icon }}</mat-icon>
+                </div>
+                <div class="preview-stat__copy">
+                  <span>{{ metric.label }}</span>
+                  <strong>{{ metric.value }}</strong>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="preview-ejes">
+            <span class="preview-ejes__label">Ejes del programa</span>
+            <div class="preview-ejes__chips">
+              @for (axis of selectedUnidad()?.ejes ?? []; track axis) {
+                <span class="preview-ejes__chip">{{ axis }}</span>
+              } @empty {
+                <span class="preview-ejes__chip">Sin ejes disponibles</span>
+              }
+            </div>
+          </div>
+
+          @if (selectedObjectives().length) {
+            <div class="preview-divider"></div>
+
+            <section class="preview-selected-indicators">
+              <span class="preview-selected-indicators__title">Indicadores seleccionados</span>
+              <div class="preview-selected-indicators__list">
+                @for (objective of selectedObjectives(); track objective.id) {
+                  @if (objectiveIndicatorValue(objective.id).length) {
+                    <article class="preview-selected-indicators__card">
+                      <span class="preview-selected-indicators__objective">{{ objective.codigo }}</span>
+                      <div class="preview-selected-indicators__chips">
+                        @for (indicator of objectiveIndicatorValue(objective.id); track indicator) {
+                          <span class="preview-indicator-chip preview-indicator-chip--static">{{ indicator }}</span>
+                        }
+                      </div>
+                    </article>
+                  }
+                }
+              </div>
+            </section>
+          }
+        </aside>
+      </div>
+    } @else if (activeStep() === 2 || activeStep() === 3) {
+      <div class="form-shell animate-in">
+        <div class="form-shell__main">
+          <section class="card">
+            <div class="card__body">
+              <div class="card-heading">
+                <div class="card-heading__icon">
+                  <mat-icon>menu_book</mat-icon>
+                </div>
+                <div class="card-heading__copy">
+                  <h2>Selecciona la unidad</h2>
+                  <p>Elige la unidad que trabajarás en esta clase.</p>
+                </div>
+              </div>
+
+              <div class="info-box">
+                <div class="info-box__icon">
+                  <mat-icon>info</mat-icon>
+                </div>
+                <div class="info-box__text">
+                  {{ programReference() }}
+                </div>
+              </div>
+
+              <div class="units-section">
+                <h3 class="units-section__title">Unidades disponibles</h3>
+
+                <div class="unit-list">
+                  @for (unidad of unidadesDisponibles(); track unidad.id) {
+                    <button
+                      type="button"
+                      class="unit-option"
+                      [class.is-selected]="selectedUnidad()?.id === unidad.id"
+                      (click)="selectUnidad(unidad)">
+                      <span class="unit-option__radio" [class.is-selected]="selectedUnidad()?.id === unidad.id"></span>
+                      <span class="unit-option__number">{{ unidad.numero }}</span>
+                      <span class="unit-option__body">
+                        <strong>{{ unidad.nombre }}</strong>
+                        <small>{{ unidad.clasesEstimadas }} clases estimadas</small>
+                      </span>
+                      <span
+                        class="unit-option__badge"
+                        [class.is-selected]="selectedUnidad()?.id === unidad.id">
+                        {{ selectedUnidad()?.id === unidad.id ? 'Seleccionada' : 'Disponible' }}
+                      </span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              @if (step2ValidationMessage()) {
+                <div class="validation-box" role="alert">
+                  <mat-icon>error_outline</mat-icon>
+                  <span>{{ step2ValidationMessage() }}</span>
+                </div>
+              }
+
+              <div class="form-footer form-footer--spread">
+                <button type="button" class="btn btn--ghost btn--outline-purple" (click)="volver()">
+                  <mat-icon>arrow_back</mat-icon>
+                  <span>Volver</span>
+                </button>
+
+                <button type="button" class="btn btn--primary" [disabled]="!selectedUnidad()" (click)="continue()">
+                  <span>Continuar</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="preview-card">
+          <h3>Vista previa</h3>
+
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>calendar_today</mat-icon>
+                <span>Año</span>
+              </div>
+              <strong>{{ yearLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>school</mat-icon>
+                <span>Curso</span>
+              </div>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>menu_book</mat-icon>
+                <span>Asignatura</span>
+              </div>
+              <strong>{{ subjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>schedule</mat-icon>
+                <span>Semestre</span>
+              </div>
+              <strong>{{ semesterLabel() }}</strong>
+            </div>
+          </div>
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-stat-list">
+            @for (metric of metricCards(); track metric.label) {
+              <article class="preview-stat">
+                <div class="preview-stat__icon" [class]="'tone-' + metric.tone">
+                  <mat-icon>{{ metric.icon }}</mat-icon>
+                </div>
+                <div class="preview-stat__copy">
+                  <span>{{ metric.label }}</span>
+                  <strong>{{ metric.value }}</strong>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="preview-ejes">
+            <span class="preview-ejes__label">Ejes de la unidad</span>
+            <div class="preview-ejes__chips">
+              @for (axis of selectedUnidad()?.ejes ?? []; track axis) {
+                <span class="preview-ejes__chip">{{ axis }}</span>
+              } @empty {
+                <span class="preview-ejes__chip">Sin ejes disponibles</span>
+              }
+            </div>
+          </div>
+
+          @if (selectedObjectives().length) {
+            <div class="preview-divider"></div>
+
+            <section class="preview-selected-indicators">
+              <span class="preview-selected-indicators__title">Indicadores seleccionados</span>
+              <div class="preview-selected-indicators__list">
+                @for (objective of selectedObjectives(); track objective.id) {
+                  @if (objectiveIndicatorValue(objective.id).length) {
+                    <article class="preview-selected-indicators__card">
+                      <span class="preview-selected-indicators__objective">{{ objective.codigo }}</span>
+                      <div class="preview-selected-indicators__chips">
+                        @for (indicator of objectiveIndicatorValue(objective.id); track indicator) {
+                          <span class="preview-indicator-chip preview-indicator-chip--static">{{ indicator }}</span>
+                        }
+                      </div>
+                    </article>
+                  }
+                }
+              </div>
+            </section>
+          }
+        </aside>
+      </div>
+
+    } @else if (activeStep() === 4) {
+      <div class="form-shell form-shell--editor animate-in">
+        <div class="form-shell__main">
+          <section class="card class-editor-card">
+            <div class="card__body card__body--editor">
+              <div class="card-heading card-heading--editor">
+                <div class="card-heading__icon">
+                  <mat-icon>edit_note</mat-icon>
+                </div>
+                <div class="card-heading__copy">
+                  <h2>Datos de la clase</h2>
+                  <p>Completa la estructura pedagogica, evaluacion, recursos y apoyos de esta clase.</p>
+                </div>
+              </div>
+
+              <div class="suggestion-status">
+                <mat-icon>auto_awesome</mat-icon>
+                <span>{{ suggestionStatus() }}</span>
+              </div>
+
+              <div class="class-summary-grid">
+                <label class="editor-field editor-field--wide">
+                  <span class="editor-field__label">Titulo de la clase</span>
+                  <input
+                    type="text"
+                    class="editor-input"
+                    [ngModel]="classTitle()"
+                    (ngModelChange)="updateClassTitle($event)"
+                    placeholder="Ej: Lectura guiada y reconocimiento de OA" />
+                </label>
+
+                <label class="editor-field">
+                  <span class="editor-field__label">Fecha</span>
+                  <input
+                    type="date"
+                    class="editor-input"
+                    [ngModel]="classDate()"
+                    (ngModelChange)="updateClassDate($event)" />
+                </label>
+
+                <div class="editor-field">
+                  <span class="editor-field__label">Unidad</span>
+                  <div class="editor-input editor-input--static">
+                    Unidad {{ selectedUnidad()?.numero }} · {{ selectedUnidad()?.nombre }}
+                  </div>
+                </div>
+
+                <div class="editor-field">
+                  <span class="editor-field__label">Duracion estimada</span>
+                  <div class="editor-input editor-input--duration">
+                    <input
+                      type="number"
+                      min="1"
+                      step="5"
+                      [ngModel]="classDurationMinutes()"
+                      (ngModelChange)="updateClassDurationMinutes($event)" />
+                    <span>min</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="editor-layout editor-layout--single">
+                <div class="editor-main">
+                <div class="editor-section-title">
+                  <span>
+                    <mat-icon>layers</mat-icon>
+                    Estructura de la clase
+                  </span>
+
+                    <button
+                      type="button"
+                      class="ai-button"
+                      [disabled]="isGeneratingSuggestion()"
+                      (click)="generateClassSuggestion()">
+                      <mat-icon [class.is-spinning]="isGeneratingSuggestion()">
+                        {{ isGeneratingSuggestion() ? 'autorenew' : 'auto_awesome' }}
+                      </mat-icon>
+                      <span>{{ isGeneratingSuggestion() ? 'Generando...' : 'Generar con IA' }}</span>
+                    </button>
+                  </div>
+
+                  <article class="phase-card">
+                    <div class="phase-header">
+                      <div class="phase-name">
+                        <div class="phase-icon phase-icon--violet">
+                          <mat-icon>play_arrow</mat-icon>
+                        </div>
+                        <span>Inicio</span>
+                      </div>
+                      <span class="phase-duration">15 min</span>
+                    </div>
+
+                    <label class="phase-support">
+                      <span class="phase-support__label">Estrategia pedagogica</span>
+                      <select class="phase-support__select" [ngModel]="startStrategy()" (ngModelChange)="updateStartStrategy($event)">
+                        @for (strategy of startStrategyOptions; track strategy) {
+                          <option [value]="strategy">{{ strategy }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <textarea
+                      class="phase-editor"
+                      [ngModel]="startActivity()"
+                      (ngModelChange)="updateStartActivity($event)"
+                      placeholder="Activacion de conocimientos previos, motivacion o pregunta inicial."></textarea>
+                  </article>
+
+                  <article class="phase-card">
+                    <div class="phase-header">
+                      <div class="phase-name">
+                        <div class="phase-icon phase-icon--blue">
+                          <mat-icon>construction</mat-icon>
+                        </div>
+                        <span>Desarrollo</span>
+                      </div>
+                      <span class="phase-duration">60 min</span>
+                    </div>
+
+                    <label class="phase-support">
+                      <span class="phase-support__label">Organizacion</span>
+                      <select class="phase-support__select" [ngModel]="groupingMode()" (ngModelChange)="updateGroupingMode($event)">
+                        @for (grouping of groupingOptions; track grouping) {
+                          <option [value]="grouping">{{ grouping }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <textarea
+                      class="phase-editor phase-editor--development"
+                      [ngModel]="developmentActivity()"
+                      (ngModelChange)="updateDevelopmentActivity($event)"
+                      placeholder="Describe la actividad principal, instrucciones y mediacion docente."></textarea>
+                  </article>
+
+                  <article class="phase-card">
+                    <div class="phase-header">
+                      <div class="phase-name">
+                        <div class="phase-icon phase-icon--green">
+                          <mat-icon>flag</mat-icon>
+                        </div>
+                        <span>Cierre</span>
+                      </div>
+                      <span class="phase-duration">15 min</span>
+                    </div>
+
+                    <textarea
+                      class="phase-editor"
+                      [ngModel]="closingActivity()"
+                      (ngModelChange)="updateClosingActivity($event)"
+                      placeholder="Escribe la sintesis, metacognicion o ticket de salida de la clase."></textarea>
+                  </article>
+
+                  <article class="reflection-card">
+                    <div class="reflection-card__header">
+                      <mat-icon>sticky_note_2</mat-icon>
+                      <span>Reflexion docente</span>
+                    </div>
+
+                    <div class="reflection-grid">
+                      <textarea
+                        class="editor-input editor-input--textarea"
+                        [ngModel]="reflectionSuccess()"
+                        (ngModelChange)="updateReflectionSuccess($event)"
+                        placeholder="Que funciono en esta clase?"></textarea>
+
+                      <textarea
+                        class="editor-input editor-input--textarea"
+                        [ngModel]="reflectionImprove()"
+                        (ngModelChange)="updateReflectionImprove($event)"
+                        placeholder="Que se puede mejorar?"></textarea>
+                    </div>
+
+                    <div class="achievement-row">
+                      <span>Logro estimado</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        [ngModel]="objectiveAchievement()"
+                        (ngModelChange)="updateObjectiveAchievement($event)" />
+                      <strong>{{ objectiveAchievement() }}%</strong>
+                    </div>
+                  </article>
+                </div>
+
+                
+              </div>
+
+              <div class="form-footer form-footer--spread">
+                <button type="button" class="btn btn--ghost btn--outline-purple" (click)="volver()">
+                  <mat-icon>arrow_back</mat-icon>
+                  <span>Volver</span>
+                </button>
+
+                <button type="button" class="btn btn--primary" [disabled]="isSavingClass()" (click)="saveClass()">
+                  <mat-icon>save</mat-icon>
+                  <span>{{ isSavingClass() ? 'Guardando...' : 'Guardar clase' }}</span>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="preview-card preview-card--editor">
+          <h3>Vista previa</h3>
+
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>calendar_today</mat-icon>
+                <span>Año</span>
+              </div>
+              <strong>{{ yearLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>school</mat-icon>
+                <span>Curso</span>
+              </div>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>menu_book</mat-icon>
+                <span>Asignatura</span>
+              </div>
+              <strong>{{ subjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>view_agenda</mat-icon>
+                <span>Unidad</span>
+              </div>
+              <strong>{{ selectedUnidad()?.nombre }}</strong>
+            </div>
+          </div>
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-stat-list">
+            @for (metric of classPreviewMetrics(); track metric.label) {
+              <article class="preview-stat">
+                <div class="preview-stat__icon" [class]="'tone-' + metric.tone">
+                  <mat-icon>{{ metric.icon }}</mat-icon>
+                </div>
+                <div class="preview-stat__copy">
+                  <span>{{ metric.label }}</span>
+                  <strong>{{ metric.value }}</strong>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="preview-divider"></div>
+
+          <section class="preview-oa-compact">
+            <div class="preview-oa-compact__header">
+              <span class="preview-oa-compact__title">OA seleccionados</span>
+              <button type="button" class="preview-oa-compact__button" (click)="openObjectiveModal()">
+                <mat-icon>add_circle</mat-icon>
+                <span>Ver / agregar</span>
+              </button>
+            </div>
+
+            @if (selectedObjectives().length) {
+              <div class="preview-oa-compact__cards">
+                @for (objective of selectedObjectives(); track objective.id) {
+                  <div class="preview-oa-compact__card">
+                    <span class="oa-badge" [class]="
+                      objective.eje.toLowerCase().includes('escrit')
+                        ? 'oa-badge oa-badge--green'
+                        : objective.eje.toLowerCase().includes('oral')
+                          ? 'oa-badge oa-badge--amber'
+                          : 'oa-badge oa-badge--blue'
+                    ">
+                      {{ objective.codigo }} · {{ objective.eje || 'Lectura' }}
+                    </span>
+                    <p>{{ objective.descripcion }}</p>
+
+                    @if (previewObjectiveIndicator(objective.id)) {
+                      <div class="preview-indicator-editor">
+                        <span class="preview-indicator-editor__title">Indicadores</span>
+                        <div class="preview-indicator-list">
+                          <span class="preview-indicator-chip preview-indicator-chip--static">
+                            {{ previewObjectiveIndicator(objective.id) }}
+                          </span>
+                        </div>
+                        @if (previewObjectiveIndicatorOverflow(objective.id) > 0) {
+                          <small>+{{ previewObjectiveIndicatorOverflow(objective.id) }} indicador(es) seleccionado(s)</small>
+                        }
+                      </div>
+                    } @else {
+                      <small>Selecciona indicadores desde “Ver / agregar”.</small>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="preview-oa-compact__empty">
+                Aún no hay OA seleccionados para esta clase.
+              </div>
+            }
+          </section>
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-summary-box">
+            <span class="preview-summary-box__title">Estado IA</span>
+            <p>{{ suggestionStatus() }}</p>
+          </div>
+<section class="sidebar-box">
+                    <div class="sidebar-box__title">Evaluacion</div>
+
+                    <div class="chip-group">
+                      @for (item of evaluationTypeOptions; track item) {
+                        <button
+                          type="button"
+                          class="choice-chip"
+                          [class.is-active]="selectedEvaluationType() === item"
+                          (click)="updateEvaluationType(item)">
+                          {{ item }}
+                        </button>
+                      }
+                    </div>
+
+                    <div class="sidebar-box__subtitle">Para el aprendizaje</div>
+                    <div class="chip-group">
+                      @for (item of learningApproachOptions; track item) {
+                        <button
+                          type="button"
+                          class="choice-chip"
+                          [class.is-active]="selectedLearningApproach() === item"
+                          (click)="updateLearningApproach(item)">
+                          {{ item }}
+                        </button>
+                      }
+                    </div>
+
+                    <div class="sidebar-box__subtitle">Instrumento</div>
+                    <div class="chip-group">
+                      @for (item of instrumentOptions; track item) {
+                        <button
+                          type="button"
+                          class="choice-chip"
+                          [class.is-active]="selectedInstrument() === item"
+                          (click)="updateInstrument(item)">
+                          {{ item }}
+                        </button>
+                      }
+                    </div>
+                  </section>
+
+                  <section class="sidebar-box">
+                    <div class="sidebar-box__title">Recursos y diversidad</div>
+
+                    <div class="chip-group">
+                      @for (resource of resourceOptions; track resource) {
+                        <button
+                          type="button"
+                          class="choice-chip"
+                          [class.is-active]="hasActiveResource(resource)"
+                          (click)="toggleResource(resource)">
+                          {{ resource }}
+                        </button>
+                      }
+                    </div>
+
+                    <label class="sidebar-box__field">
+                      <span>Adaptaciones</span>
+                      <textarea
+                        class="editor-input editor-input--textarea editor-input--compact"
+                        [ngModel]="diversityNotes()"
+                        (ngModelChange)="updateDiversityNotes($event)"
+                        placeholder="Describe apoyos o adecuaciones para NEE, PIE o diferenciacion."></textarea>
+                    </label>
+                  </section>
+
+                  <section class="sidebar-box">
+                    <div class="sidebar-box__title">Habilidades y actitudes</div>
+
+                    <div class="mini-list">
+                      <span class="mini-list__title">Habilidades sugeridas</span>
+                      @for (skill of displayedSkills(); track skill) {
+                        <div class="mini-list__item">{{ skill }}</div>
+                      }
+                    </div>
+
+                    <div class="mini-list">
+                      <span class="mini-list__title">Actitudes</span>
+                      @for (attitude of displayedAttitudes(); track attitude) {
+                        <div class="mini-list__item">{{ attitude }}</div>
+                      }
+                    </div>
+
+                    <div class="mini-list">
+                      <span class="mini-list__title">Ejes OA seleccionados</span>
+                      <div class="axis-chip-list">
+                        @for (axis of selectedClassAxes(); track axis) {
+                          <span class="axis-chip">{{ axis }}</span>
+                        } @empty {
+                          <span class="axis-chip axis-chip--muted">Sin ejes</span>
+                        }
+                      </div>
+                    </div>
+                  </section>
+
+        </aside>
+      </div>
+
+      @if (isGeneratingSuggestion()) {
+        <div class="ai-generation-toast" role="status" aria-live="polite" aria-atomic="true">
+          <div class="ai-generation-toast__spinner">
+            <mat-icon class="is-spinning">autorenew</mat-icon>
+          </div>
+          <div class="ai-generation-toast__content">
+            <strong>Generando sugerencia con IA</strong>
+            <span>{{ suggestionStatus() }}</span>
+          </div>
+        </div>
+      }
+    } @else {
+      <section class="placeholder-card animate-in">
+        <div class="placeholder-card__icon">
+          <mat-icon>construction</mat-icon>
+        </div>
+        <h2>Paso {{ activeStep() }} en preparación</h2>
+        <p>La siguiente parte del flujo de Nueva clase quedara conectada en una siguiente iteración.</p>
+      </section>
+    }
+
+    @if (activeStep() === 3 || isObjectiveModalOpen()) {
+      <div class="oa-modal-overlay" (click)="closeObjectiveModal()">
+        <section class="oa-modal" (click)="$event.stopPropagation()">
+          <header class="oa-modal__header">
+            <div class="oa-modal__copy">
+              <h2>Selecciona los OA de la clase</h2>
+              <p>Unidad {{ selectedUnidad()?.numero }} · {{ selectedUnidad()?.nombre }}</p>
+            </div>
+
+            <div class="oa-modal__header-actions">
+              <div class="oa-modal__tabs oa-modal__tabs--header">
+                @for (tab of objectiveTabs(); track tab.key) {
+                  <button
+                    type="button"
+                    class="oa-modal__tab"
+                    [class.is-active]="selectedObjectiveTabKey() === tab.key"
+                    [class.oa-modal__tab--transversal]="tab.type === 'transversal'"
+                    (click)="selectObjectiveTab(tab.key)">
+                    {{ tab.name }}
+                  </button>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="oa-select-all"
+                [class.is-active]="activeObjectiveSelectionState().allSelected"
+                [class.is-partial]="activeObjectiveSelectionState().partiallySelected"
+                (click)="toggleActiveObjectiveSelection()">
+                <span
+                  class="oa-select-all__check"
+                  [class.is-active]="activeObjectiveSelectionState().allSelected || activeObjectiveSelectionState().partiallySelected">
+                  @if (activeObjectiveSelectionState().allSelected) {
+                    <mat-icon>check</mat-icon>
+                  } @else if (activeObjectiveSelectionState().partiallySelected) {
+                    <mat-icon>remove</mat-icon>
+                  }
+                </span>
+                <span>Seleccionar todo</span>
+                <small>{{ activeObjectiveSelectionState().selected }}/{{ activeObjectiveSelectionState().total }}</small>
+              </button>
+            </div>
+
+            <button type="button" class="oa-modal__close" (click)="closeObjectiveModal()" aria-label="Cerrar seleccion de OA">
+              <mat-icon>close</mat-icon>
+            </button>
+          </header>
+
+          @if (activeObjectiveTab()?.helperText) {
+            <div class="oa-modal__helper">
+              <mat-icon>info</mat-icon>
+              <p>{{ activeObjectiveTab()?.helperText }}</p>
+            </div>
+          }
+
+          <div class="oa-modal__list oa-modal__list--cards">
+            @for (objective of activeObjectiveOptions(); track objective.id) {
+              <article class="oa-card" [class.is-selected]="isObjectiveSelected(objective.id)">
+                <div class="oa-card__top">
+                  <button
+                    type="button"
+                    class="oa-card__checkbox"
+                    [class.is-selected]="isObjectiveSelected(objective.id)"
+                    [attr.aria-pressed]="isObjectiveSelected(objective.id)"
+                    (click)="toggleObjectiveSelection(objective.id)">
+                    @if (isObjectiveSelected(objective.id)) {
+                      <mat-icon>check</mat-icon>
+                    }
+                  </button>
+
+                  <button
+                    type="button"
+                    class="oa-card__summary"
+                    [class.is-open]="isObjectiveAccordionOpen(objective.id)"
+                    (click)="toggleObjectiveAccordion(objective.id)">
+                    <div class="oa-card__body">
+                      <span class="oa-badge" [class]="
+                        objective.eje.toLowerCase().includes('escrit')
+                          ? 'oa-badge oa-badge--green'
+                          : objective.eje.toLowerCase().includes('oral')
+                            ? 'oa-badge oa-badge--amber'
+                            : 'oa-badge oa-badge--blue'
+                      ">
+                        {{ objective.codigo }} · {{ objective.eje || 'Lectura' }}
+                      </span>
+                      <p>{{ objective.descripcion }}</p>
+                    </div>
+
+                    <span class="oa-card__expand" [class.is-open]="isObjectiveAccordionOpen(objective.id)">
+                      <mat-icon>expand_more</mat-icon>
+                    </span>
+                  </button>
+                </div>
+
+                @if (isObjectiveAccordionOpen(objective.id)) {
+                  @if (objective.evaluationIndicators.length) {
+                    <div class="oa-card__indicators">
+                      <span class="oa-card__indicators-title">Indicadores de evaluacion</span>
+                      <div class="oa-card__indicator-list">
+                        @for (indicator of objective.evaluationIndicators; track indicator) {
+                          <button
+                            type="button"
+                            class="oa-indicator-chip"
+                            [class.is-active]="hasObjectiveIndicator(objective.id, indicator)"
+                            [disabled]="!isObjectiveSelected(objective.id)"
+                            (click)="toggleObjectiveIndicator(objective.id, indicator)">
+                            <mat-icon>{{ hasObjectiveIndicator(objective.id, indicator) ? 'check' : 'add' }}</mat-icon>
+                            <span>{{ indicator }}</span>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="oa-card__indicators oa-card__indicators--empty">
+                      Este OA no trae indicadores sugeridos en el programa cargado.
+                    </div>
+                  }
+                }
+              </article>
+            } @empty {
+              <div class="oa-modal__empty">
+                No se encontraron OA para el filtro actual.
+              </div>
+            }
+          </div>
+
+          @if (step3ValidationMessage()) {
+            <div class="validation-box validation-box--modal" role="alert">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ step3ValidationMessage() }}</span>
+            </div>
+          }
+
+          <footer class="oa-modal__footer">
+            <button type="button" class="btn btn--ghost btn--outline-purple" (click)="closeObjectiveModal()">
+              <mat-icon>arrow_back</mat-icon>
+              <span>{{ activeStep() === 4 || isObjectiveModalOpen() ? 'Cerrar' : 'Volver' }}</span>
+            </button>
+
+            <button type="button" class="btn btn--primary" [disabled]="!selectedObjectiveIds().length" (click)="confirmObjectiveModal()">
+              <span>{{ activeStep() === 4 || isObjectiveModalOpen() ? 'Aplicar OA' : 'Continuar' }}</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </footer>
+        </section>
+      </div>
+    }
+  </main>
+</app-teacher-modern-layout>
+
+
+

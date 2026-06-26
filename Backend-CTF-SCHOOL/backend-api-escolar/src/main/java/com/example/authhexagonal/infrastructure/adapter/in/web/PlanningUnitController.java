@@ -3,9 +3,11 @@ package com.example.authhexagonal.infrastructure.adapter.in.web;
 import com.example.authhexagonal.domain.model.PlanningUnitCommand;
 import com.example.authhexagonal.domain.port.in.CreatePlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.DeletePlanningUnitUseCase;
+import com.example.authhexagonal.domain.port.in.GetPlanningUnitUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitCatalogsUseCase;
 import com.example.authhexagonal.domain.port.in.GetPlanningUnitsUseCase;
 import com.example.authhexagonal.domain.port.in.SavePlanningUnitDraftUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningUnitDetailsUseCase;
 import com.example.authhexagonal.domain.port.in.UpdatePlanningUnitUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitCatalogsResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningUnitCreateRequest;
@@ -35,7 +37,9 @@ public class PlanningUnitController {
     private final CreatePlanningUnitUseCase createPlanningUnitUseCase;
     private final SavePlanningUnitDraftUseCase savePlanningUnitDraftUseCase;
     private final GetPlanningUnitsUseCase getPlanningUnitsUseCase;
+    private final GetPlanningUnitUseCase getPlanningUnitUseCase;
     private final UpdatePlanningUnitUseCase updatePlanningUnitUseCase;
+    private final UpdatePlanningUnitDetailsUseCase updatePlanningUnitDetailsUseCase;
     private final DeletePlanningUnitUseCase deletePlanningUnitUseCase;
 
     public PlanningUnitController(
@@ -43,14 +47,18 @@ public class PlanningUnitController {
             CreatePlanningUnitUseCase createPlanningUnitUseCase,
             SavePlanningUnitDraftUseCase savePlanningUnitDraftUseCase,
             GetPlanningUnitsUseCase getPlanningUnitsUseCase,
+            GetPlanningUnitUseCase getPlanningUnitUseCase,
             UpdatePlanningUnitUseCase updatePlanningUnitUseCase,
+            UpdatePlanningUnitDetailsUseCase updatePlanningUnitDetailsUseCase,
             DeletePlanningUnitUseCase deletePlanningUnitUseCase
     ) {
         this.getPlanningUnitCatalogsUseCase = getPlanningUnitCatalogsUseCase;
         this.createPlanningUnitUseCase = createPlanningUnitUseCase;
         this.savePlanningUnitDraftUseCase = savePlanningUnitDraftUseCase;
         this.getPlanningUnitsUseCase = getPlanningUnitsUseCase;
+        this.getPlanningUnitUseCase = getPlanningUnitUseCase;
         this.updatePlanningUnitUseCase = updatePlanningUnitUseCase;
+        this.updatePlanningUnitDetailsUseCase = updatePlanningUnitDetailsUseCase;
         this.deletePlanningUnitUseCase = deletePlanningUnitUseCase;
     }
 
@@ -66,6 +74,16 @@ public class PlanningUnitController {
         return getPlanningUnitsUseCase.findUnits(authentication.getName()).stream()
                 .map(PlanningUnitSummaryResponse::fromDomain)
                 .toList();
+    }
+
+    @GetMapping("/{unitId}")
+    public PlanningUnitResponse getUnit(
+            Authentication authentication,
+            @PathVariable("unitId") Long unitId
+    ) {
+        return PlanningUnitResponse.fromDomain(
+                getPlanningUnitUseCase.getUnit(authentication.getName(), unitId)
+        );
     }
 
     @PostMapping
@@ -98,6 +116,17 @@ public class PlanningUnitController {
     ) {
         return PlanningUnitResponse.fromDomain(
                 updatePlanningUnitUseCase.updateUnit(authentication.getName(), unitId, request.unitNumber(), request.name())
+        );
+    }
+
+    @PutMapping("/{unitId}/details")
+    public PlanningUnitResponse updateUnitDetails(
+            Authentication authentication,
+            @PathVariable("unitId") Long unitId,
+            @Valid @RequestBody PlanningUnitCreateRequest request
+    ) {
+        return PlanningUnitResponse.fromDomain(
+                updatePlanningUnitDetailsUseCase.updateUnitDetails(authentication.getName(), unitId, toCommand(request))
         );
     }
 

@@ -484,7 +484,7 @@ export class TeacherModernToolbarComponent {
     { label: 'Evaluaciones', description: 'Libro de notas e informes', route: '/dashboard/calificaciones', icon: 'grading', keywords: ['evaluaciones', 'calificaciones', 'notas', 'ficha estudiante', 'informe de notas'] },
     { label: 'Planificacion', description: 'Vista general de planificacion', route: '/dashboard/planificacion', icon: 'edit_calendar', keywords: ['planificacion', 'planificar'] },
     { label: 'Nueva unidad', description: 'Crear unidad de planificacion', route: '/dashboard/planificacion/nueva-unidad', icon: 'library_add', keywords: ['unidad', 'nueva unidad', 'crear unidad'] },
-    { label: 'Nueva clase', description: 'Crear clase de planificacion', route: '/dashboard/planificacion/nueva-clase', icon: 'note_add', keywords: ['clase', 'nueva clase', 'crear clase'] },
+    { label: 'Nueva clase', description: 'Crear clase de planificacion', route: '/dashboard/planificaciones-nuevo/nueva-clase', icon: 'note_add', keywords: ['clase', 'nueva clase', 'crear clase'] },
     { label: 'Documentos', description: 'Documentos de planificacion', route: '/dashboard/planificacion/documentos', icon: 'description', keywords: ['documento', 'documentos', 'archivos'] },
     { label: 'Planificaciones nuevo', description: 'Modulo nuevo de planificaciones', route: '/dashboard/planificaciones-nuevo', icon: 'inventory_2', keywords: ['planificaciones nuevo', 'nuevo planificaciones'] },
     { label: 'Administracion', description: 'Panel de administracion', route: '/dashboard/administracion', icon: 'admin_panel_settings', keywords: ['administracion', 'admin'] },

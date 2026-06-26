@@ -338,7 +338,7 @@ export class TeacherModernSidebarComponent {
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
               { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
-              { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACION', exact: true },
+              { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACIONES', exact: true },
               { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
               { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge, moduleCode: 'PLANIFICACION' }
             ])
@@ -382,7 +382,7 @@ export class TeacherModernSidebarComponent {
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
               { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
-              { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACION', exact: true },
+              { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACIONES', exact: true },
               { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
               { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION', badge: this.planningBadge }
             ])

@@ -1,0 +1,2489 @@
+{
+  "asignatura": "Ciencias Naturales",
+  "nivel": "5° Básico",
+  "fuente": "Ministerio de Educación de Chile - Programa de Estudio, Unidad de Currículum y Evaluación, Decreto N°2960/2012, Segunda Edición 2018",
+  "estructura_curricular": {
+    "ejes_tematicos": [
+      {
+        "id": "ciencias_de_la_vida",
+        "nombre": "Ciencias de la Vida",
+        "oas": [
+          "OA1",
+          "OA2",
+          "OA3",
+          "OA4",
+          "OA5",
+          "OA6",
+          "OA7"
+        ],
+        "descripcion": "Incluye el estudio de la organización celular de los seres vivos, los sistemas digestivo, respiratorio y circulatorio, la alimentación y salud, los efectos del tabaco, y los microorganismos beneficiosos y dañinos."
+      },
+      {
+        "id": "ciencias_fisicas_y_quimicas",
+        "nombre": "Ciencias Físicas y Químicas",
+        "oas": [
+          "OA8",
+          "OA9",
+          "OA10",
+          "OA11"
+        ],
+        "descripcion": "Estudio de la energía eléctrica, sus transformaciones, la construcción de circuitos eléctricos simples, los materiales conductores y aisladores, y la importancia del uso responsable de la electricidad."
+      },
+      {
+        "id": "ciencias_de_la_tierra_y_el_universo",
+        "nombre": "Ciencias de la Tierra y el Universo",
+        "oas": [
+          "OA12",
+          "OA13",
+          "OA14"
+        ],
+        "descripcion": "Distribución del agua dulce y salada en la Tierra, características de océanos y lagos, y los efectos positivos y negativos de la actividad humana en los recursos hídricos."
+      }
+    ]
+  },
+  "habilidades_de_investigacion_cientifica": [
+    {
+      "id": "OAa",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Seleccionar preguntas significativas que se puedan investigar."
+    },
+    {
+      "id": "OAb",
+      "categoria": "Observar y preguntar",
+      "descripcion": "Formular predicciones de resultados de una investigación, de forma autónoma, fundamentándolas."
+    },
+    {
+      "id": "OAc",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Planificar y llevar a cabo investigaciones guiadas experimentales y no experimentales: en base a una pregunta formulada por ellos u otros; considerando el cambio de una sola variable; trabajando de forma individual o colaborativa; obteniendo información sobre el tema en estudio a partir de diversas fuentes y aplicando estrategias para organizar y comunicar la información."
+    },
+    {
+      "id": "OAd",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Medir y registrar datos en forma precisa con instrumentos de medición, especificando las unidades de medida y comparándolos utilizando tablas, gráficos y TIC cuando corresponda."
+    },
+    {
+      "id": "OAe",
+      "categoria": "Planificar y conducir una investigación",
+      "descripcion": "Seleccionar materiales e instrumentos usándolos de manera segura y adecuada, identificando los riesgos potenciales."
+    },
+    {
+      "id": "OAf",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Formular explicaciones razonables y conclusiones a partir de la comparación entre los resultados obtenidos y sus predicciones."
+    },
+    {
+      "id": "OAg",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Comunicar evidencias y conclusiones de una investigación, utilizando modelos, presentaciones, TIC e informes, entre otros."
+    },
+    {
+      "id": "OAh",
+      "categoria": "Analizar la evidencia y comunicar",
+      "descripcion": "Reflexionar y comunicar fortalezas y debilidades en la planificación y desarrollo de sus investigaciones en forma oral y escrita."
+    }
+  ],
+  "nota_habilidades": "En 5° básico el programa contempla 8 habilidades de investigación científica (OAa-OAh), agrupadas en 3 categorías: Observar y preguntar; Planificar y conducir una investigación; Analizar la evidencia y comunicar. Esto representa una progresión respecto a niveles anteriores (3° básico tenía 6 habilidades).",
+  "objetivos_de_aprendizaje": [
+    {
+      "id": "OA1",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Reconocer y explicar que los seres vivos están formados por una o más células y que estas se organizan en tejidos, órganos y sistemas."
+    },
+    {
+      "id": "OA2",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Identificar y describir por medio de modelos las estructuras básicas del sistema digestivo (boca, esófago, estómago, hígado, intestino delgado, intestino grueso, recto y ano) y sus funciones en la digestión, la absorción de alimentos y la eliminación de desechos."
+    },
+    {
+      "id": "OA3",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Explicar por medio de modelos la respiración (inspiración-espiración-intercambio de oxígeno y dióxido de carbono), identificando las estructuras básicas del sistema respiratorio (nariz, tráquea, bronquios, alvéolos, pulmones)."
+    },
+    {
+      "id": "OA4",
+      "eje": "ciencias_de_la_vida",
+      "descripcion": "Explicar la función de transporte del sistema circulatorio (sustancias alimenticias, oxígeno y dióxido de carbono), identificando sus estructuras básicas (corazón, vasos sanguíneos y sangre)."
+    },
+    {
+      "id": "OA5",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Analizar el consumo de alimento diario (variedad, tamaño y frecuencia de porciones) reconociendo los alimentos para el crecimiento, la reparación, el desarrollo y el movimiento del cuerpo."
+    },
+    {
+      "id": "OA6",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Investigar en diversas fuentes y comunicar los efectos nocivos que produce el cigarrillo (humo del tabaco) en los sistemas respiratorio y circulatorio."
+    },
+    {
+      "id": "OA7",
+      "eje": "ciencias_de_la_vida",
+      "subtopico": "Cuerpo humano y salud",
+      "descripcion": "Investigar e identificar algunos microorganismos beneficiosos y dañinos para la salud (bacterias, virus y hongos), y proponer medidas de cuidado e higiene del cuerpo."
+    },
+    {
+      "id": "OA8",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Reconocer los cambios que experimenta la energía eléctrica al pasar de una forma a otra (eléctrica a calórica, sonora, lumínica, etc.) e investigar los principales aportes de científicos en su estudio a través del tiempo."
+    },
+    {
+      "id": "OA9",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Construir un circuito eléctrico simple (cable, ampolleta, interruptor y pila), usarlo para resolver problemas cotidianos y explicar su funcionamiento."
+    },
+    {
+      "id": "OA10",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Observar y distinguir, por medio de la investigación experimental, los materiales conductores (cobre y aluminio) y aisladores (plásticos y goma) de electricidad, relacionándolos con la manipulación segura de artefactos tecnológicos y circuitos eléctricos domiciliarios."
+    },
+    {
+      "id": "OA11",
+      "eje": "ciencias_fisicas_y_quimicas",
+      "descripcion": "Explicar la importancia de la energía eléctrica en la vida cotidiana y proponer medidas para promover su ahorro y uso responsable."
+    },
+    {
+      "id": "OA12",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Describir la distribución del agua dulce y salada en la Tierra, considerando océanos, glaciares, ríos y lagos, aguas subterráneas, nubes, vapor de agua, etc. y comparar sus volúmenes, reconociendo la escasez relativa de agua dulce."
+    },
+    {
+      "id": "OA13",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Analizar y describir las características de los océanos y lagos: variación de temperatura, luminosidad y presión en relación con la profundidad; diversidad de flora y fauna; movimiento de las aguas, como olas, mareas, corrientes (El Niño y Humboldt)."
+    },
+    {
+      "id": "OA14",
+      "eje": "ciencias_de_la_tierra_y_el_universo",
+      "descripcion": "Investigar y explicar efectos positivos y negativos de la actividad humana en los océanos, lagos, ríos, glaciares, entre otros, proponiendo acciones de protección de las reservas hídricas en Chile y comunicando sus resultados."
+    }
+  ],
+  "actitudes": [
+    {
+      "id": "a",
+      "descripcion": "Demostrar curiosidad e interés por conocer seres vivos, objetos y/o eventos que conforman el entorno natural."
+    },
+    {
+      "id": "b",
+      "descripcion": "Manifestar un estilo de trabajo riguroso, honesto y perseverante para lograr los aprendizajes de la asignatura."
+    },
+    {
+      "id": "c",
+      "descripcion": "Reconocer la importancia del entorno natural y sus recursos, desarrollando conductas de cuidado y protección del ambiente."
+    },
+    {
+      "id": "d",
+      "descripcion": "Asumir responsabilidades e interactuar en forma colaborativa y flexible en los trabajos en equipo, aportando y enriqueciendo el trabajo común."
+    },
+    {
+      "id": "e",
+      "descripcion": "Manifestar compromiso con un estilo de vida saludable por medio del desarrollo físico y el autocuidado."
+    },
+    {
+      "id": "f",
+      "descripcion": "Reconocer la importancia de seguir normas y procedimientos que resguarden y promuevan la seguridad personal y colectiva."
+    }
+  ],
+  "vision_global_del_year": {
+    "total_semanas": 38,
+    "total_unidades": 4,
+    "nota": "El programa se organiza en 4 unidades. Cada unidad está compuesta por una selección de OAs; algunos pueden repetirse en más de una unidad."
+  },
+  "unidades": [
+    {
+      "numero": 1,
+      "titulo": "El agua en la Tierra: distribución, características y conservación",
+      "semestre": 1,
+      "tiempo_estimado": "28 horas pedagógicas",
+      "oas_contenido": [
+        "OA12",
+        "OA13",
+        "OA14"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAd",
+        "OAe",
+        "OAf",
+        "OAg"
+      ],
+      "actitudes": [
+        "a",
+        "b",
+        "c",
+        "f"
+      ],
+      "proposito": "El objetivo central de la unidad es que los estudiantes aprendan las múltiples características, distribución y estados en que se encuentra el agua en la naturaleza. Se espera que comprendan la proporción de la superficie terrestre cubierta por agua, las diversas características de los océanos, las corrientes marinas y sus efectos, las mareas y sus causas, y los efectos de la actividad humana sobre el agua.",
+      "conocimientos_previos": [
+        "El ciclo del agua.",
+        "Las características del tiempo atmosférico.",
+        "Los estados de la materia.",
+        "La Tierra y su estructura."
+      ],
+      "palabras_clave": [
+        "Océanos",
+        "corriente de Humboldt",
+        "corriente del Niño",
+        "de la Niña",
+        "contaminación de recursos hídricos"
+      ],
+      "conocimientos": [
+        "Proporción de la Tierra cubierta por agua: océanos, mares y agua dulce.",
+        "Características de los océanos: temperatura, luminosidad, presión, diversidad de flora y fauna.",
+        "Corriente de Humboldt, ubicación y sus efectos.",
+        "Corrientes del Niño y la Niña, sus ciclos y efectos en el clima, la flora y fauna marina.",
+        "Las mareas y sus causas.",
+        "La actividad humana y su impacto en los océanos, mares, lagos y cursos de agua dulce."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA12",
+          "descripcion": "Describir la distribución del agua dulce y salada en la Tierra, considerando océanos, glaciares, ríos y lagos, aguas subterráneas, nubes, vapor de agua, etc. y comparar sus volúmenes, reconociendo la escasez relativa de agua dulce.",
+          "indicadores_de_evaluacion": [
+            "Explican que si bien la superficie terrestre está mayoritariamente cubierta por mares y océanos, desde el punto de vista planetario su volumen es muy pequeño respecto al planeta.",
+            "Exponen el significado del término 'agua dulce' y su importancia en el desarrollo de la agricultura y la vida sobre el planeta.",
+            "Comparan algunas características del agua dulce y salada señalando los porcentajes de estas en la Tierra.",
+            "Ubican, en mapas o esquemas, los lugares de nuestro país donde se encuentran los mayores depósitos de agua dulce.",
+            "Señalan otros lugares en que el agua dulce está presente en la Tierra: ríos, lagos, casquetes polares, nubes, vapor de agua en la atmósfera, aguas subterráneas, y el papel que juega el ciclo del agua en su presencia.",
+            "Describen algunas creencias y leyendas de los pueblos originarios relacionadas con las aguas."
+          ]
+        },
+        {
+          "oa": "OA13",
+          "descripcion": "Analizar y describir las características de los océanos y lagos: variación de temperatura, luminosidad y presión en relación con la profundidad; diversidad de flora y fauna; movimiento de las aguas, como olas, mareas, corrientes (El Niño y Humboldt).",
+          "indicadores_de_evaluacion": [
+            "Analizan información que relaciona la temperatura, luminosidad y presión con la profundidad en océanos y lagos para evaluar predicciones.",
+            "Registran en mapas geofísicos diversas corrientes marinas globales (como la de Humboldt) y otras estacionales, como las del Niño y la Niña, y los efectos que provocan.",
+            "Seleccionan preguntas que se puedan investigar acerca de las diferencias entre el movimiento de las corrientes marinas, las olas y las mareas.",
+            "Relacionan diversidad de flora y fauna marina con el hábitat en que viven.",
+            "Comparan diversas zonas marinas en cuanto al tipo y distribución de organismos estableciendo diferencias y similitudes."
+          ]
+        },
+        {
+          "oa": "OA14",
+          "descripcion": "Investigar y explicar efectos positivos y negativos de la actividad humana en los océanos, lagos, ríos, glaciares, entre otros, proponiendo acciones de protección de las reservas hídricas en Chile y comunicando sus resultados.",
+          "indicadores_de_evaluacion": [
+            "Planifican investigaciones sobre las fuentes laborales que se basan en el recurso marítimo, tanto en transporte, pesca, y otras industrias.",
+            "Seleccionan evidencias que permitan detectar sectores de mar costero con mayores índices de contaminación.",
+            "Evalúan e indican medidas que la comunidad y las personas deben adoptar para preservar las fuentes de agua, tanto dulce como salada.",
+            "Clasifican y registran las formas de contaminación más frecuentes y significativas en los mares, ríos y lagos."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA12",
+          "titulo": "Estimación de la proporción de agua en la Tierra con globo terráqueo",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "En grupos pequeños, utilizan un globo terráqueo para idear métodos de estimación de la proporción de agua que cubre la superficie terrestre, apoyados en TIC. Analizan las ideas, llevan a cabo las más factibles, comparan resultados entre grupos, registran conclusiones y explican por qué se utiliza un globo terráqueo y no un planisferio.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 2,
+          "oa": "OA12",
+          "titulo": "Ubicación de reservas de agua dulce en el globo terráqueo",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Usan un globo terráqueo para ubicar los sectores donde se concentra el agua dulce (lagos, ríos, glaciares y casquetes polares), comparando la superficie de ellos con la que ocupan los mares y océanos. Escriben conclusiones en el cuaderno.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 3,
+          "oa": "OA12",
+          "titulo": "Experimentación con agua dulce y salada",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Experimentan haciendo agua dulce y agua salada, las definen con sus palabras, luego buscan la definición en internet o un libro de geografía y establecen las diferencias entre ellas."
+        },
+        {
+          "numero": 4,
+          "oa": "OA12",
+          "titulo": "Indagación sobre características y distribución del agua en la Tierra",
+          "habilidades": [
+            "OAc",
+            "OAf",
+            "OAg"
+          ],
+          "descripcion": "En grupos pequeños indagan en internet, libros o revistas sobre profundidad media de océanos y mares, porcentaje de agua en la Tierra, tipos de agua existentes y proporción de agua dulce y salada. Reflexionan individual y colectivamente y realizan una presentación breve al curso.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 5,
+          "oa": "OA12",
+          "titulo": "Distribución del agua dulce y el ciclo del agua",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Investigan y leen desde diferentes fuentes sobre la distribución del agua dulce, en qué estados físicos se encuentra y los procesos naturales que transforman el agua salada en dulce. Explican mediante un esquema o dibujo rotulado cómo participa el ciclo del agua."
+        },
+        {
+          "numero": 6,
+          "oa": "OA12",
+          "titulo": "Obtención de agua potable y desalinización",
+          "habilidades": [
+            "OAc",
+            "OAf",
+            "OAg"
+          ],
+          "descripcion": "Investigan los procesos utilizados para obtener agua potable en Chile y responden si es posible obtener agua dulce a partir del agua salada, investigando la viabilidad de la desalinización. Exponen resultados en afiches."
+        },
+        {
+          "numero": 7,
+          "oa": "OA12",
+          "titulo": "Diario mural sobre importancia de las fuentes de agua dulce",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Construyen y exponen, en diarios murales, sobre la importancia de las fuentes de agua dulce (ríos, lagos, represas, glaciares, casquetes polares, subsuelo o atmósfera). Expresan en un texto de una página la importancia y responsabilidad personal para preservarla."
+        },
+        {
+          "numero": 8,
+          "oa": "OA12",
+          "titulo": "Mapa de reservas de agua dulce en Chile",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Señalan en un mapa de Chile dónde se encuentran las reservas de agua dulce y discuten en grupos pequeños la factibilidad de llevarla a los centros de consumo. Elaboran un informe con sus conclusiones.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 9,
+          "oa": "OA12",
+          "titulo": "Ríos más caudalosos de Chile",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan los ríos más caudalosos de Chile y los ubican en un mapa. Responden preguntas sobre los usos del recurso hídrico en cada región y elaboran un informe con conclusiones.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 10,
+          "oa": "OA12",
+          "titulo": "Glaciares en el mundo y en Chile",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "En grupos pequeños, investigan las principales características de los glaciares, cómo se clasifican y forman, la erosión que producen y los localizan en un mapamundi. Preparan una presentación mediante software y la exponen en el curso.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 11,
+          "oa": "OA12",
+          "titulo": "Maqueta de un glaciar",
+          "habilidades": [
+            "OAc",
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "Buscan fotografías aéreas de un glaciar y confeccionan una maqueta con cartones, papeles, cartulinas y plumavit. La exponen a modo de feria científica, acompañada de un informativo con el nombre, ubicación geográfica y principales características del glaciar.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 12,
+          "oa": "OA12",
+          "titulo": "Creencias y leyendas de pueblos originarios sobre el agua",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan sobre las creencias, mitos y leyendas de los pueblos originarios de su región en relación al agua. En pequeños grupos analizan y discuten la información, planifican y ejecutan una 'feria cultural' con exposiciones de afiches, imágenes y modelos, y concluyen con un montaje teatral sobre las leyendas.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 13,
+          "oa": "OA13",
+          "titulo": "Hábitat en océanos y mares: profundidad, temperatura y biodiversidad",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "En grupos, investigan sobre los diferentes océanos y mares centrándose en cómo afecta la profundidad en el hábitat de los seres vivos (presión, temperatura, luminosidad). Comparan y grafican datos de temperatura entre océanos del mundo. Exponen sus resultados mediante TIC.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 14,
+          "oa": "OA13",
+          "titulo": "Maqueta del relieve del fondo marino",
+          "habilidades": [
+            "OAc",
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "Elaboran una maqueta con materiales reciclados sobre un corte al relieve del fondo marino, la rotulan y construyen un texto de una página con diagramas e ilustraciones que explique la formación de estos relieves. Presentan a sus compañeros.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 15,
+          "oa": "OA13",
+          "titulo": "Diversidad de flora y fauna marina de Chile",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Exponen mediante muestras audiovisuales apoyadas por TIC y material de diversas fuentes, la diversidad de flora y fauna marina de las costas del país: peces, crustáceos, mamíferos y especies de flora marina utilizadas en la alimentación."
+        },
+        {
+          "numero": 16,
+          "oa": "OA13",
+          "titulo": "Causas de olas, marejadas y tsunamis",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Investigan y leen desde diversas fuentes las causas de las olas, marejadas y las diferencian de los tsunamis. Registran la información en el cuaderno y diseñan posters o láminas referentes a las causas y diferencias. Exponen ante el curso."
+        },
+        {
+          "numero": 17,
+          "oa": "OA13",
+          "titulo": "Tipos de mareas y sus efectos",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Describen mediante un diagrama rotulado los tipos de mareas (altas, bajas, vivas, muertas) y sus efectos en algún puerto del país, y explican por escrito la intervención de la Luna y el Sol en estos fenómenos."
+        },
+        {
+          "numero": 18,
+          "oa": "OA13",
+          "titulo": "Corriente de Humboldt: collage y galería de arte",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Recolectan información por diferentes medios sobre los efectos, ventajas y desventajas de la corriente de Humboldt en el clima y la vida marina de las costas de Chile. Realizan un collage explicativo e implementan una 'galería de arte escolar' en el colegio.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 19,
+          "oa": "OA13",
+          "titulo": "Corrientes del Niño y la Niña en el Pacífico",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan sobre las corrientes marinas en el océano Pacífico apoyándose en TIC y aplican su conocimiento para marcar en un mapamundi el origen de las corrientes del Niño y la Niña y sus efectos en los sectores continentales.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 20,
+          "oa": "OA13",
+          "titulo": "Maquetas y modelos de corrientes, olas y mareas",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Desarrollan un proyecto que incluye la planificación de una investigación sobre las diferencias entre corrientes marinas, olas y mareas, y elaboran maquetas o modelos a escala que demuestren y expliquen esas diferencias."
+        },
+        {
+          "numero": 21,
+          "oa": "OA13",
+          "titulo": "Dinámica de los océanos: efectos del Niño y la Niña y las mareas",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "En grupos pequeños investigando con TIC, estudian los cambios climáticos asociados a las corrientes del Niño y la Niña, sus efectos sobre la actividad pesquera y las consecuencias de las mareas en actividades portuarias. Elaboran una carpeta con la información y presentan las ideas más relevantes en 3 diapositivas."
+        },
+        {
+          "numero": 22,
+          "oa": "OA14",
+          "titulo": "Actividades humanas en torno a mares, océanos, lagos y ríos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "A partir de noticias leídas por el docente sobre actividades humanas en las aguas, los estudiantes exponen colaborativamente sus conocimientos sobre los efectos en las reservas de agua, indagan en diferentes fuentes la validez de las ideas registradas y comunican sus conclusiones."
+        },
+        {
+          "numero": 23,
+          "oa": "OA14",
+          "titulo": "Entrevista a trabajadores vinculados con el mar, lagos o ríos",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "En grupos, elaboran una entrevista a trabajadores vinculados con el mar, lagos o ríos para indagar sobre sus recursos y fuentes laborales. Difunden las entrevistas en diarios murales del colegio.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 24,
+          "oa": "OA14",
+          "titulo": "Servicio Hidrográfico y Oceanográfico de la Armada (SHOA)",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Obtienen información sobre el SHOA visitando su sitio web, escriben un resumen de una página sobre sus funciones y lo exponen al curso apoyándose en TIC."
+        },
+        {
+          "numero": 25,
+          "oa": "OA14",
+          "titulo": "Corrientes oscilatorias, mareas, planos costeros y cartas náuticas",
+          "habilidades": [
+            "OAc",
+            "OAf",
+            "OAg"
+          ],
+          "descripcion": "Investigan y leen diversas fuentes sobre las corrientes del Niño y la Niña, las mareas en diferentes sectores del litoral, planos costeros y cartas náuticas. Realizan una presentación ante el curso sobre las características más significativas."
+        },
+        {
+          "numero": 26,
+          "oa": "OA14",
+          "titulo": "Análisis de artículos sobre producción y contaminación marina",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Seleccionan artículos o noticias sobre producción marítima, transporte, cultivos marinos, pesca industrial y artesanal, y contaminación de aguas. Discuten en grupos con moderador, toman acta y un representante expone las conclusiones."
+        },
+        {
+          "numero": 27,
+          "oa": "OA14",
+          "titulo": "Consumo de pescados y mariscos en Chile y otros países",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Buscan información sobre el consumo de pescados y mariscos en Chile y en otros países, elaboran un gráfico con los datos, explican las diferencias y proponen dietas alimenticias acordes con la geografía marina del país.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 28,
+          "oa": "OA14",
+          "titulo": "Aportes nutritivos de los productos del mar",
+          "habilidades": [
+            "OAd",
+            "OAf",
+            "OAg"
+          ],
+          "descripcion": "Investigan los productos alimenticios que ofrecen los mares, lagos y ríos, analizan sus aportes nutritivos comparados con otras carnes, fabrican gráficos que evidencian diferencias nutricionales y proponen acciones para informar y concientizar a la comunidad.",
+          "interdisciplinariedad": "Matemática; Educación Física y Salud"
+        },
+        {
+          "numero": 29,
+          "oa": "OA14",
+          "titulo": "Afiche sobre los recursos marinos de Chile",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Diseñan y confeccionan un gran afiche que resume las características de los recursos marinos del país (longitud del borde costero, aporte alimenticio, riesgos para turistas y necesidad de proteger los océanos), publicándolo en el colegio y enviando sus conclusiones a medios de comunicación.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 30,
+          "oa": "OA14",
+          "titulo": "Investigación sobre Margarita Astrálaga: bióloga marina",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Indagan sobre los trabajos de Margarita Astrálaga, bióloga colombiana y sus aportes en el Programa Océanos y Zonas Costeras del PNUMA. Elaboran fichas técnicas que exponen al curso y discuten la importancia e impacto de sus aportes."
+        },
+        {
+          "numero": 31,
+          "oa": "OA14",
+          "titulo": "Contaminación acuática: definición y reflexión grupal",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Escriben en sus cuadernos lo que entienden por contaminación acuática sin consultar fuentes, leen sus explicaciones en pequeños grupos, comparten e intercambian ideas y construyen un texto grupal a modo de conclusión. El docente sintetiza en la pizarra para construir una definición común.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 32,
+          "oa": "OA14",
+          "titulo": "Procesos de tratamiento de aguas servidas",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "A partir de un diagrama y lectura en diferentes fuentes sobre el tratamiento de aguas servidas, identifican los distintos métodos existentes, su utilidad y qué pasaría si no existieran. Realizan un organizador gráfico con la información recopilada."
+        },
+        {
+          "numero": 33,
+          "oa": "OA14",
+          "titulo": "Contaminación de medios acuáticos: causas, consecuencias y medidas",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "A partir de información del profesor e investigación propia, analizan y describen por escrito con diagramas las causas y consecuencias de la contaminación de puertos industriales, puertos comerciales, lagunas y ríos. Proponen formas de mitigar y sugieren leyes que regulen las actividades contaminantes."
+        },
+        {
+          "numero": 34,
+          "oa": "OA14",
+          "titulo": "Grandes derrames de petróleo en el mundo",
+          "habilidades": [
+            "OAa",
+            "OAf"
+          ],
+          "descripcion": "Investigan sobre los grandes derrames de petróleo en la historia, los localizan en un planisferio con alfileres indicando lugar, fecha y magnitud. Investigan sus efectos sobre la fauna y flora marina y las nuevas tecnologías para reciclar petróleo derramado. Escriben un artículo de estilo periodístico.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 35,
+          "oa": "OA14",
+          "titulo": "Estadísticas de accidentes en zonas costeras y medidas de seguridad",
+          "habilidades": [
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Obtienen estadísticas de accidentes en zonas costeras de Chile de los últimos años, las analizan y discuten con criterios de edad, sexo, fechas. Proponen medidas de precaución por escrito y organizan la información en afiches apoyándose en TIC.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 36,
+          "oa": "OA14",
+          "titulo": "Mapa conceptual integrador de la unidad",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Elaboran en grupo un mapa conceptual que integre todos los conceptos de la unidad, incluyendo como mínimo: fuentes hídricas, agua dulce y salada, océanos, mares, lagos, ríos, corriente de Humboldt, corriente del Niño y de la Niña, contaminación de recursos hídricos, dinámica de mares y océanos."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA13",
+            "OAa",
+            "OAf",
+            "OAg"
+          ],
+          "indicadores_de_evaluacion": [
+            "Analizan información que relaciona la temperatura, luminosidad y presión con la profundidad en océanos y lagos para evaluar predicciones.",
+            "Seleccionan preguntas que se puedan investigar acerca de las diferencias entre el movimiento de las corrientes marinas, las olas y las mareas.",
+            "Relacionan diversidad de flora y fauna marina con el hábitat en que viven.",
+            "Identifican cuáles son las preguntas que subyacen en una investigación.",
+            "Seleccionan preguntas significativas de una investigación.",
+            "Concluyen información a partir de la investigación realizada.",
+            "Realizan presentaciones usando TIC para divulgar los procedimientos y resultados obtenidos de las investigaciones que realizan."
+          ],
+          "actividad_evaluativa": "Lectura del texto sobre la corriente de Humboldt y sus efectos climáticos y económicos. A partir de él responden: ¿por qué el norte del país es desértico?, ¿cuáles son los beneficios de la corriente fría?, ¿en qué situación aparecen lluvias en zonas desérticas?, ¿por qué la corriente del Niño genera un déficit en la pesca?, y ¿qué preguntas investigativas podrían plantearse sobre las corrientes marinas?",
+          "criterios_de_evaluacion": [
+            "Demuestran que leen y analizan la información del texto respondiendo con argumentos extraídos de él.",
+            "Manifiestan que al ascender aguas frías desde lo profundo del océano se arrastra plancton, sosteniendo la cadena alimenticia de la pesca.",
+            "Argumentan que la corriente cálida del Niño altera la situación anterior generando lluvias y la desaparición del plancton.",
+            "Muestran que formulan preguntas significativas sobre las corrientes marinas que se puedan investigar."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA12",
+            "OA14",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Ubican, en mapas o esquemas, los lugares de nuestro país donde se encuentran los mayores depósitos de agua dulce.",
+            "Señalan otros lugares en que el agua dulce está presente en la Tierra: ríos, lagos, casquetes polares, nubes, vapor de agua en la atmósfera, aguas subterráneas.",
+            "Evalúan e indican medidas que la comunidad y las personas deben adoptar para preservar las fuentes de agua.",
+            "Clasifican y registran las formas de contaminación más frecuentes y significativas en los mares, ríos y lagos.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Dibujar un mapa de su región señalando los lugares donde se encuentran reservas de agua dulce indicando dónde se encuentra la mayor proporción; explicar el proceso natural que permite que las aguas dulces se acumulen en lagos, glaciales y napas subterráneas; señalar con dos ejemplos medidas que permitan preservar las fuentes de agua dulce y potable del país.",
+          "criterios_de_evaluacion": [
+            "Muestran que registran y representan información de las reservas de agua dulce en su región mediante un dibujo de un mapa.",
+            "Demuestran que relacionan el ciclo del agua con la acumulación de agua dulce en los lugares señalados.",
+            "Muestran comprender medidas que permiten preservar fuentes de agua en el país."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA14",
+            "OAc",
+            "OAg"
+          ],
+          "indicadores_de_evaluacion": [
+            "Planifican investigaciones sobre las fuentes laborales que se basan en el recurso marítimo.",
+            "Seleccionan evidencias que permitan detectar sectores de mar costero con mayores índices de contaminación.",
+            "Evalúan e indican medidas que la comunidad y las personas deben adoptar para preservar las fuentes de agua.",
+            "Clasifican y registran las formas de contaminación más frecuentes y significativas en los mares, ríos y lagos.",
+            "Organizan las tareas y responsabilidades de la investigación asignando trabajo individual y colectivo.",
+            "Realizan presentaciones usando TIC para divulgar los procedimientos y resultados obtenidos."
+          ],
+          "actividad_evaluativa": "Obtener información en libros, revistas, internet sobre disponibilidad del recurso hídrico de Chile, usos, fuentes laborales, formas de contaminación y medidas de protección. Preparar una exposición con TIC que represente adecuadamente los datos, dé ejemplos de fuentes laborales, indique sectores contaminados, nombre fuentes de contaminación y señale medidas para el ahorro y no contaminación.",
+          "criterios_de_evaluacion": [
+            "Demuestran que desarrollan investigaciones no experimentales sobre los recursos hídricos de Chile, indagando en diversas fuentes.",
+            "Demuestran que identifican la disponibilidad de recursos hídricos de Chile.",
+            "Muestran que reconocen el uso de los recursos hídricos, dando ejemplos de fuentes laborales.",
+            "Evidencian que identifican las formas más frecuentes de contaminación de las aguas y las medidas de prevención.",
+            "Muestran que registran y representan datos e información en diferentes formas.",
+            "Comunican y representan evidencias, conclusiones y reflexiones usando una variedad de formas."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA12",
+            "OAc",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Señalan otros lugares en que el agua dulce está presente en la Tierra.",
+            "Concluyen información a partir de la investigación realizada.",
+            "Exponen el significado del término 'agua dulce' y su importancia.",
+            "Comparan algunas características del agua dulce y salada señalando los porcentajes de estas en la Tierra."
+          ],
+          "actividad_evaluativa": "Experimento con una lata con cubos de hielo: secan la parte externa, introducen hielo hasta la mitad y observan qué ocurre en la superficie exterior después de algunos minutos. Responden: ¿qué ocurre en la superficie de la lata?, ¿de dónde proviene lo depositado?, ¿qué evidencia esto sobre la distribución del agua en la Tierra?, ¿el agua que se precipita es dulce o salada?, ¿qué relación hay con la formación de nubes?, ¿cuál es la forma que tiene la naturaleza de producir agua dulce?",
+          "criterios_de_evaluacion": [
+            "Muestran que registran y representan información de las reservas de agua dulce en su región.",
+            "Demuestran que relacionan el ciclo del agua con la acumulación de agua dulce.",
+            "Concluyen, a partir de una evidencia experimental, que en la atmósfera hay agua.",
+            "Relacionan la condensación del agua en la superficie de la lata con la condensación de agua en las nubes.",
+            "Demuestran que el agua dulce se produce a través de la condensación de ella en la atmósfera."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "titulo": "Organización celular y sistemas digestivo, circulatorio y alimentación",
+      "semestre": 1,
+      "tiempo_estimado": "48 horas pedagógicas",
+      "oas_contenido": [
+        "OA1",
+        "OA2",
+        "OA5",
+        "OA4"
+      ],
+      "oas_habilidades": [
+        "OAa",
+        "OAb",
+        "OAc",
+        "OAd",
+        "OAe",
+        "OAf",
+        "OAg"
+      ],
+      "actitudes": [
+        "e",
+        "b",
+        "d"
+      ],
+      "proposito": "Se espera que los estudiantes comprendan los diferentes niveles de organización de los seres vivos, desde la célula hasta la totalidad del organismo, aprendan algunas características de las células y reconozcan la importancia de la alimentación para las actividades vitales. Asimismo, se pretende que se aproximen al estudio de los sistemas digestivo y circulatorio y a la integración de los mismos.",
+      "conocimientos_previos": [
+        "Actividad física promueve la salud.",
+        "Órganos internos del cuerpo humano: corazón, pulmones, estómago, esqueleto y músculos."
+      ],
+      "palabras_clave": [
+        "Células",
+        "tejidos",
+        "crecimiento",
+        "sistema digestivo",
+        "boca",
+        "esófago",
+        "estómago",
+        "intestino delgado y grueso",
+        "absorción",
+        "eliminación",
+        "sistema respiratorio",
+        "nariz",
+        "tráquea",
+        "pulmones",
+        "diafragma",
+        "intercambio gaseoso",
+        "sistema circulatorio",
+        "nutrientes",
+        "corazón",
+        "vasos sanguíneos y sangre"
+      ],
+      "conocimientos": [
+        "Niveles de organización de los seres vivos.",
+        "Alimentos y su relación con las actividades vitales.",
+        "Aporte de algunos alimentos.",
+        "Sistema digestivo, estructuras y función.",
+        "Sistema respiratorio, estructuras y función.",
+        "Sistema circulatorio, estructuras y función.",
+        "Integración de sistemas."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA1",
+          "descripcion": "Reconocer y explicar que los seres vivos están formados por una o más células y que estas se organizan en tejidos, órganos y sistemas.",
+          "indicadores_de_evaluacion": [
+            "Explican que todos los seres vivos, animales y plantas, están constituidos por unidades estructurales llamadas células.",
+            "Identifican los niveles de organización de los seres vivos (célula, tejido, órgano, sistema, organismo).",
+            "Establecen relaciones simples entre los distintos niveles de organización de los organismos.",
+            "Explican que los órganos cumplen funciones específicas y que según sus funciones son agrupados en sistemas.",
+            "Explican que los organismos están constituidos por varios sistemas que funcionan coordinadamente."
+          ]
+        },
+        {
+          "oa": "OA2",
+          "descripcion": "Identificar y describir por medio de modelos las estructuras básicas del sistema digestivo (boca, esófago, estómago, hígado, intestino delgado, intestino grueso) y sus funciones en la digestión, la absorción de alimentos y la eliminación de desechos.",
+          "indicadores_de_evaluacion": [
+            "Identifican las principales estructuras que constituyen el sistema digestivo (boca, esófago, estómago, intestino delgado y grueso).",
+            "Relacionan las principales estructuras del sistema digestivo con la función que éstas realizan en el organismo.",
+            "Elaboran modelos para explicar el proceso digestivo y sus principales fases.",
+            "Reconocen que los nutrientes ya digeridos pueden ser absorbidos por estructuras especializadas al interior del organismo.",
+            "Identifican al intestino grueso como el tramo donde se realiza la absorción del agua.",
+            "Explican que la fracción de los alimentos que no fue absorbida es eliminada como desecho."
+          ]
+        },
+        {
+          "oa": "OA5",
+          "descripcion": "Analizar el consumo de alimento diario (variedad, tamaño y frecuencia de porciones) reconociendo los alimentos para el crecimiento, la reparación, el desarrollo y el movimiento del cuerpo.",
+          "indicadores_de_evaluacion": [
+            "Explican que gracias al consumo de alimentos se sanan las heridas y todos los tejidos corporales se renuevan y reparan.",
+            "Explican que todo movimiento del cuerpo es posible gracias al aporte energético de los alimentos.",
+            "Relacionan una mayor actividad física con la necesidad de consumir una mayor cantidad de alimentos.",
+            "Predicen posibles efectos de una baja ingesta de alimentos en el funcionamiento corporal.",
+            "Agrupan alimentos según sus características nutricionales.",
+            "Relacionan los distintos grupos de alimentos con el aporte específico que realizan en el cuerpo.",
+            "Relacionan el consumo de carnes y legumbres con los procesos de reparación y crecimiento del cuerpo.",
+            "Relacionan el consumo de vegetales con el aporte de sustancias que previenen la ocurrencia de enfermedades.",
+            "Elaboran dietas que consideran distintos alimentos que en su conjunto propician el desarrollo de un cuerpo sano."
+          ]
+        },
+        {
+          "oa": "OA4",
+          "descripcion": "Explicar la función de transporte del sistema circulatorio (sustancias alimenticias, oxígeno y dióxido de carbono), identificando sus estructuras básicas (corazón, vasos sanguíneos y sangre).",
+          "indicadores_de_evaluacion": [
+            "Identifican al corazón y vasos sanguíneos como estructuras a través de las cuales circula la sangre por el organismo.",
+            "Relacionan las estructuras musculares del corazón con su continuo trabajo de impulsar la sangre.",
+            "Identifican la existencia de vasos sanguíneos que llevan sangre al pulmón para eliminar el CO2 y absorber el oxígeno que luego es distribuido desde el corazón al resto del cuerpo.",
+            "Interpretan tablas y/o gráficos sobre frecuencia cardiaca, describiendo las variaciones del pulso con el ejercicio físico.",
+            "Predicen problemas que produciría la falta de sangre oxigenada en algún órgano.",
+            "Explican que el movimiento de la sangre permite el transporte de nutrientes y gases a todo el organismo."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA1",
+          "titulo": "Analogía de la célula con un ladrillo y una casa",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Explican en un párrafo con sus propias palabras la analogía 'un ladrillo es a una casa como una célula es a un ser vivo' y plantean otras analogías posibles.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 2,
+          "oa": "OA1",
+          "titulo": "Observación de organismos unicelulares y pluricelulares al microscopio",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan y exploran a través del microscopio óptico, imágenes o video un organismo unicelular y uno pluricelular. Concluyen que todos los seres vivos están formados por células y responden preguntas sobre si organismos más grandes tienen células más grandes."
+        },
+        {
+          "numero": 3,
+          "oa": "OA1",
+          "titulo": "Observación de células de piel de rana y cebolla al microscopio",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Observan imágenes de microscopía de la piel de una rana y la cubierta de una cebolla. Realizan un dibujo riguroso de sus observaciones y responden si tienen las mismas estructuras en su cubierta externa."
+        },
+        {
+          "numero": 4,
+          "oa": "OA1",
+          "titulo": "Modelado de células con plastilina y formación de tejidos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En parejas elaboran modelos de células (al menos 12) con plastilina de aproximadamente 2 cm de diámetro. Unen las células, nombran la estructura formada, dibujan su modelo y deducen otros lugares del cuerpo donde pueden encontrar estos tejidos."
+        },
+        {
+          "numero": 5,
+          "oa": "OA1",
+          "titulo": "Búsqueda e imágenes de distintos tejidos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Buscan en diferentes fuentes imágenes de distintos tejidos, comparan entre tejidos las células que los constituyen en cuanto a forma y tamaño relativo. Dibujan sus observaciones en el cuaderno o por medio de TIC."
+        },
+        {
+          "numero": 6,
+          "oa": "OA1",
+          "titulo": "Competencia de reconocimiento de órganos del cuerpo humano",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "En grupos compiten por mencionar la mayor cantidad de órganos del cuerpo humano. En la pizarra agrupan los órganos según las funciones que ellos creen que realizan y reflexionan sobre sus estructuras al microscopio."
+        },
+        {
+          "numero": 7,
+          "oa": "OA1",
+          "titulo": "Analogía juguete electrónico - sistema del cuerpo humano",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Observan un juguete o artículo electrónico, describen sus funciones, mencionan sus componentes internos y establecen similitudes y diferencias con la estructura y funcionamiento del cuerpo humano."
+        },
+        {
+          "numero": 8,
+          "oa": "OA1",
+          "titulo": "Ordenamiento de imágenes de niveles de organización",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan imágenes desordenadas de los niveles de organización de los seres vivos (célula, órgano, tejido y sistema), las ordenan y explican sus relaciones."
+        },
+        {
+          "numero": 9,
+          "oa": "OA1",
+          "titulo": "Construcción de modelo de niveles de organización de un sistema",
+          "habilidades": [
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "Escogen un sistema del cuerpo humano revisado anteriormente y elaboran un modelo que ilustre los distintos niveles de organización (célula, tejido, órgano, sistema) usando greda, plastilina, masa de harina o cartón. Rotulan las estructuras, anotan una escala aproximada y presentan su trabajo al curso."
+        },
+        {
+          "numero": 10,
+          "oa": "OA1",
+          "titulo": "Tarjetero de niveles de organización y juego",
+          "habilidades": [],
+          "descripcion": "Elaboran un tarjetero con los conceptos por un lado y las definiciones de cada nivel de organización, con dibujos y ejemplos por el otro. Juegan entre compañeros para verificar el aprendizaje."
+        },
+        {
+          "numero": 11,
+          "oa": "OA2",
+          "titulo": "Esquemas del sistema digestivo a partir de conocimientos previos",
+          "habilidades": [],
+          "descripcion": "En grupos pequeños, según lo que creen y recuerdan, realizan esquemas de las estructuras y funciones del sistema digestivo. Luego discuten con otros grupos sus dudas e imprecisiones."
+        },
+        {
+          "numero": 12,
+          "oa": "OA2",
+          "titulo": "Modelo del sistema digestivo con materiales simples",
+          "habilidades": [
+            "OAa",
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "En base a una imagen y lectura en clases realizan un modelo del sistema digestivo con plastilina, masa de harina, greda, cartón o pintura. Rotulan las estructuras modeladas y las contrastan con su esquema inicial."
+        },
+        {
+          "numero": 13,
+          "oa": "OA2",
+          "titulo": "Funciones de los componentes de la boca",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente escribe en la pizarra los componentes de la boca (labios, distintos tipos de dientes, lengua, saliva) y los estudiantes los dibujan y relacionan con flechas con funciones como masticación, deglución y digestión."
+        },
+        {
+          "numero": 14,
+          "oa": "OA2",
+          "titulo": "Experimento: función de la saliva con yodo",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Experimento práctico: en dos vasos con miga de pan, uno con agua y otro con agua mezclada con saliva. Ambos con gotas de yodo al final. Comparan los procedimientos y resultados e infieren la función de la saliva en la digestión de alimentos."
+        },
+        {
+          "numero": 15,
+          "oa": "OA2",
+          "titulo": "Importancia de la masticación: experimento con pastillas antiácidas",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Infieren experimentalmente la importancia de la masticación: una pastilla antiácida entera vs. en polvo en vasos con agua. Identifican qué representa cada elemento del experimento (carne, jugos gástricos, reacción digestiva) y concluyen la importancia de la masticación."
+        },
+        {
+          "numero": 16,
+          "oa": "OA2",
+          "titulo": "Transporte por el esófago: analogía con globo tubular",
+          "habilidades": [],
+          "descripcion": "Transportan una pelota de pimpón en un globo tubular o media. Discuten diferencias y similitudes entre el trabajo de la mano y la musculatura esofágica, y explican cómo el esófago puede transportar alimentos contra la gravedad."
+        },
+        {
+          "numero": 17,
+          "oa": "OA2",
+          "titulo": "El proceso de digestión: investigación y resumen en esquema",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Investigan y leen en diferentes fuentes el significado del concepto de 'digestión' y cómo el estómago e intestino delgado realizan dicho proceso. Resumen la información en un esquema y lo comparan con sus compañeros."
+        },
+        {
+          "numero": 18,
+          "oa": "OA2",
+          "titulo": "Cuestionario sobre el estómago e intestino",
+          "habilidades": [],
+          "descripcion": "Elaboran un cuestionario con preguntas abiertas para preparar una evaluación sobre la función y estructura del estómago e intestino. Se lo intercambian y responden entre compañeros."
+        },
+        {
+          "numero": 19,
+          "oa": "OA2",
+          "titulo": "Experimento del tamiz: analogía con la digestión y absorción",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Utilizando un tamiz, separan una mezcla de piedrecillas y ramitas de distinto tamaño. Luego escriben un texto que relaciona la fragmentación de las rocas con la digestión de alimentos, y las piedrecillas que pasaron el tamiz con los procesos de absorción."
+        },
+        {
+          "numero": 20,
+          "oa": "OA2",
+          "titulo": "El agua en la digestión: investigación con deportistas",
+          "habilidades": [
+            "OAc",
+            "OAf",
+            "OAg"
+          ],
+          "descripcion": "Investigan la cantidad de agua ingerida por deportistas durante el ejercicio y el tiempo que demora en llegar al intestino grueso para ser absorbida. Estiman las necesidades de beber agua en deportes como maratones. Escriben conclusiones y discuten con compañeros.",
+          "interdisciplinariedad": "Educación Física y Salud"
+        },
+        {
+          "numero": 21,
+          "oa": "OA2",
+          "titulo": "Esquema del sistema digestivo con silueta humana",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "A partir de una silueta humana, realizan un esquema simple que ilustra los procesos de digestión y absorción de nutrientes, rotulan sus estructuras y escriben una breve descripción de sus funciones."
+        },
+        {
+          "numero": 22,
+          "oa": "OA2",
+          "titulo": "Organizador gráfico de funciones del sistema digestivo",
+          "habilidades": [],
+          "descripcion": "Elaboran un organizador gráfico que sintetiza las funciones (digestión, absorción y eliminación) de las principales estructuras del sistema digestivo (boca, esófago, estómago e intestino delgado y grueso)."
+        },
+        {
+          "numero": 23,
+          "oa": "OA5",
+          "titulo": "Sensaciones al no ingerir alimentos: conocimientos previos",
+          "habilidades": [],
+          "descripcion": "Describen y comentan las sensaciones que han experimentado al pasar sin ingerir alimentos durante periodos prolongados. Realizan conjeturas sobre qué les ocurriría a sus cuerpos si estuvieran varios días sin consumir alimentos. Anotan conclusiones."
+        },
+        {
+          "numero": 24,
+          "oa": "OA5",
+          "titulo": "Cicatrices y procesos de reparación de tejidos",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Observan cicatrices en fotografías o en vivo, describen cómo fueron ocasionadas. Responden: ¿cómo es posible que una herida cicatrice?, ¿qué pasaría si no existieran procesos de reparación de tejidos?, ¿de dónde provienen los materiales para la reparación?"
+        },
+        {
+          "numero": 25,
+          "oa": "OA5",
+          "titulo": "Texto sobre la importancia de una alimentación adecuada en el crecimiento",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "A partir de información dada por el profesor y de investigación en fuentes diversas, desarrollan un texto escrito sobre 'la importancia de recibir una alimentación adecuada, especialmente en la etapa de crecimiento'. Preparan una exposición oral con TIC.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 26,
+          "oa": "OA5",
+          "titulo": "Collage de alimentos con criterios propios de clasificación",
+          "habilidades": [],
+          "descripcion": "En parejas recortan de revistas fotografías de diversos alimentos y realizan un collage agrupándolos según sus propios criterios. Comparten entre grupos los criterios utilizados, estableciendo similitudes y diferencias."
+        },
+        {
+          "numero": 27,
+          "oa": "OA5",
+          "titulo": "Grupos de alimentos según características nutricionales",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan y leen diversas fuentes sobre cómo se agrupan los alimentos según sus características nutricionales (azúcares, carnes, legumbres y verduras). Elaboran un resumen y lo contrastan con los criterios propuestos en la actividad anterior."
+        },
+        {
+          "numero": 28,
+          "oa": "OA5",
+          "titulo": "Aportes de los grupos de alimentos para el organismo",
+          "habilidades": [],
+          "descripcion": "El docente escribe grupos de alimentos en la pizarra e invita a discutir sus posibles aportes a las funciones vitales. Los estudiantes realizan un cuadro con los aportes de cada grupo y ejemplos de alimentos en cada caso."
+        },
+        {
+          "numero": 29,
+          "oa": "OA5",
+          "titulo": "Tablas y gráficos con contenido calórico de alimentos",
+          "habilidades": [
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Utilizando etiquetas de diferentes alimentos, elaboran tablas con datos sobre el contenido calórico. Realizan gráficos, interpretan sus tendencias y realizan conjeturas respecto a su aporte en el organismo.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 30,
+          "oa": "OA5",
+          "titulo": "Argumento para convencer a una persona vegetariana de comer carne",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan en internet y libros sobre la importancia del consumo de carne y legumbres para el normal crecimiento y reparación de tejidos. Apoyados por TIC exponen sus argumentos a una 'persona vegetariana' imaginaria.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 31,
+          "oa": "OA5",
+          "titulo": "Formas de alimentación: herbívoros, carnívoros y omnívoros",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente recuerda que existen animales herbívoros, carnívoros y omnívoros. Plantean ejemplos, investigan las cantidades consumidas, conjeturan ventajas y desventajas, y elaboran una tabla y un gráfico con la información.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 32,
+          "oa": "OA5",
+          "titulo": "Menú para personas que realizan actividad física",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan y leen en diversas fuentes sobre los alimentos que ingieren habitualmente los deportistas antes de realizar actividad física. Elaboran un menú para personas que realizan actividad física, argumentando las razones funcionales.",
+          "interdisciplinariedad": "Educación Física y Salud"
+        },
+        {
+          "numero": 33,
+          "oa": "OA5",
+          "titulo": "Análisis de la desnutrición infantil en Chile",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "El docente entrega una tabla con datos sobre la evolución de la desnutrición infantil en Chile. Elaboran un gráfico de barras, analizan las principales tendencias y complementan con información bibliográfica sobre los principales problemas asociados.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 34,
+          "oa": "OA5",
+          "titulo": "Pirámide alimenticia y alimentación saludable",
+          "habilidades": [],
+          "descripcion": "A partir de información entregada por el docente elaboran una pirámide alimenticia de gran tamaño con ejemplos de alimentos. Explican en forma oral por qué se usa una pirámide, qué es una alimentación saludable y su relación con la pirámide."
+        },
+        {
+          "numero": 35,
+          "oa": "OA5",
+          "titulo": "Encuesta sobre consumo de verduras y análisis estadístico",
+          "habilidades": [
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Realizan una encuesta sobre la frecuencia con que ellos y sus compañeros consumen algunos tipos de verduras. Con los datos elaboran un gráfico de barras y lo contrastan con información sobre la composición de las verduras y su relación con la prevención de enfermedades.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 36,
+          "oa": "OA5",
+          "titulo": "Elaboración de un menú semanal saludable",
+          "habilidades": [],
+          "descripcion": "Usando TIC, elaboran un menú semanal que contenga alimentos saludables en cantidades adecuadas usando la pirámide de alimentos como referencia. Comparten el menú con sus compañeros y discuten su pertinencia."
+        },
+        {
+          "numero": 37,
+          "oa": "OA4",
+          "titulo": "Analogía entre un sistema de cañerías y el sistema circulatorio",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente presenta una fotografía de un sistema de cañerías de agua. Los estudiantes listan sus elementos y lo comparan con una imagen del sistema circulatorio. Debaten diferencias y similitudes y registran conclusiones."
+        },
+        {
+          "numero": 38,
+          "oa": "OA4",
+          "titulo": "Maqueta del corazón",
+          "habilidades": [
+            "OAb",
+            "OAe"
+          ],
+          "descripcion": "Indagan y leen sobre la estructura y funcionamiento del corazón. A partir de la información elaboran una maqueta con materiales a elección, la rotulan y presentan oralmente sus modelos."
+        },
+        {
+          "numero": 39,
+          "oa": "OA4",
+          "titulo": "La sangre: nivel de organización y constituyentes",
+          "habilidades": [
+            "OAc",
+            "OAe",
+            "OAg"
+          ],
+          "descripcion": "Investigan y leen diferentes fuentes para responder si la sangre es una célula, tejido, órgano o sistema, justificando su respuesta. Realizan un dibujo de un zoom de una gota de sangre, rotulan sus elementos constituyentes y argumentan por qué es un tejido de consistencia líquida."
+        },
+        {
+          "numero": 40,
+          "oa": "OA4",
+          "titulo": "Gráficos de concentraciones de constituyentes de la sangre",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Utilizando tablas simples con concentraciones relativas de los principales constituyentes de la sangre, grafican los datos aproximados y explican las principales características y funciones de la sangre en el organismo.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 41,
+          "oa": "OA4",
+          "titulo": "Modelo del sistema circulatorio con silueta y lanas",
+          "habilidades": [
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Un alumno se acuesta sobre cartulinas blancas y otro dibuja el contorno de su silueta. Luego pegan lanas rojas y azules para mostrar el recorrido de los vasos sanguíneos, agregan el corazón y describen en el cuaderno el recorrido de la sangre."
+        },
+        {
+          "numero": 42,
+          "oa": "OA4",
+          "titulo": "Frecuencia cardiaca en diferentes niveles de actividad física",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Registran en tablas con TIC datos sobre frecuencia cardiaca en reposo, actividad baja e intensa. Elaboran gráficos, describen tendencias y concluyen la relación entre frecuencia cardiaca y ejercicio físico.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 43,
+          "oa": "OA4",
+          "titulo": "Representación teatral del sistema circulatorio",
+          "habilidades": [
+            "OAd"
+          ],
+          "descripcion": "Realizan una representación del sistema circulatorio en funcionamiento fuera de la sala. Diseñan cómo representarán el corazón, los vasos sanguíneos y la sangre que circula alcanzando cada célula del organismo."
+        },
+        {
+          "numero": 44,
+          "oa": "OA4",
+          "titulo": "Entrevista sobre accidentes vasculares",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Entrevistan a familiares o vecinos sobre lo que saben respecto a accidentes vasculares y sus efectos. Preparan una presentación con los datos recogidos e información bibliográfica."
+        },
+        {
+          "numero": 45,
+          "oa": "OA4",
+          "titulo": "Poster sobre el sistema circulatorio",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Elaboran un poster con información sobre la organización, funcionamiento y cuidados del sistema circulatorio. En el curso realizan una exposición de todos los posters."
+        },
+        {
+          "numero": 46,
+          "oa": "OA4",
+          "titulo": "Preguntas integradoras sobre el sistema circulatorio",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Responden preguntas como: ¿por qué la sangre del cuerpo no se detiene al final de las extremidades?, ¿cómo se estructura el interior del corazón?, ¿cómo la sangre oxigenada en los pulmones llega a las demás partes del cuerpo? Debaten sus respuestas."
+        },
+        {
+          "numero": 47,
+          "oa": "OA4",
+          "titulo": "Historia del conocimiento sobre el sistema circulatorio",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Investigan cómo ha evolucionado el conocimiento sobre la estructura del sistema circulatorio desde la antigua Grecia hasta la actualidad. Discuten sobre los procesos a través de los cuales los científicos construyen paulatinamente un conocimiento más preciso y reflexionan sobre el carácter provisorio de la información científica.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA2",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Relacionan las principales estructuras del sistema digestivo con la función que éstas realizan en el organismo.",
+            "Reconocen que los nutrientes ya digeridos pueden ser absorbidos por estructuras especializadas al interior del organismo.",
+            "Explican que la fracción de los alimentos que no fue absorbida es eliminada como desecho.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Observación y análisis de gráficos que muestran la cantidad de tres tipos de alimentos (A, B y C) al comienzo de cada zona del sistema digestivo. Responden: ¿en qué parte la digestión del alimento A y B comienza?, ¿qué ocurre con el alimento tipo C y qué tipo de comida podría ser?, ¿qué ocurre con la comida tipo B y de qué alimento se podría tratar?",
+          "criterios_de_evaluacion": [
+            "Demuestran comprender los procesos en las diferentes estructuras del sistema digestivo.",
+            "Evidencian reconocer que no todos los alimentos son digeribles, como la fibra.",
+            "Demuestran comprender que existen alimentos que se digieren en distintos lugares del tubo digestivo.",
+            "Evidencian que son capaces de extraer información a partir de la lectura de un gráfico de barras."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA4",
+            "OAb"
+          ],
+          "indicadores_de_evaluacion": [
+            "Interpretan tablas y/o gráficos sobre frecuencia cardiaca, describiendo las variaciones del pulso con el ejercicio físico.",
+            "Explican que el movimiento de la sangre permite el transporte de nutrientes y gases a todo el organismo.",
+            "Formulan autónomamente predicciones de los resultados que obtendrán en una investigación.",
+            "Explican los resultados obtenidos de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Análisis de una tabla que muestra el pulso de un estudiante en reposo (70), después de ejercicio moderado (120) y después de ejercicio intenso (160). Los estudiantes realizan un gráfico a partir de la tabla, describen cómo varía el pulso con la actividad física y explican por qué varía.",
+          "criterios_de_evaluacion": [
+            "Muestran que son capaces de elaborar un gráfico a partir de una tabla con título, nombre y unidades en los ejes, escalas apropiadas y correcto registro de datos.",
+            "Demuestran una adecuada interpretación de gráficos describiendo que el número de pulsaciones aumenta con el ejercicio físico.",
+            "Demuestran entender que el movimiento de la sangre permite el transporte de gases al organismo, explicando que el pulso varía porque los músculos necesitan más sangre con oxígeno y nutrientes."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA1",
+            "OAc"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican los niveles de organización de los seres vivos (célula, tejido, órgano, sistema, organismo).",
+            "Establecen relaciones simples entre los distintos niveles de organización de los organismos.",
+            "Diseñan una investigación simple a partir de la formulación y/o selección de una pregunta de investigación."
+          ],
+          "actividad_evaluativa": "1. Completar los espacios en la secuencia de niveles de organización: Célula → ___ → ___ → ___ → Organismo. 2. Escribir la misma secuencia usando ejemplos. 3. Analizar la afirmación de Pedro de que las células del músculo del elefante son más grandes que las de la ardilla: ¿qué debería hacer el amigo de Pedro para comprobarla?, ¿es correcta la afirmación?",
+          "criterios_de_evaluacion": [
+            "Demuestran comprender los niveles de organización completando correctamente la secuencia: célula, tejido, órgano, sistema y organismo.",
+            "Evidencian que son capaces de plantear ejemplos de los distintos niveles de organización.",
+            "Demuestran capacidad de planificar una investigación experimental para comparar el tamaño de células en organismos grandes y pequeños.",
+            "Evidencian evaluar una afirmación a partir de su conocimiento sobre célula, mencionando que organismos grandes tienen mayor cantidad de células, no células más grandes."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA4",
+            "OAb"
+          ],
+          "indicadores_de_evaluacion": [
+            "Interpretan tablas y/o gráficos sobre frecuencia cardiaca, describiendo las variaciones del pulso con el ejercicio físico.",
+            "Explican que el movimiento de la sangre permite el transporte de nutrientes y gases a todo el organismo.",
+            "Formulan autónomamente predicciones de los resultados que obtendrán en una investigación.",
+            "Explican los resultados obtenidos de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Serie de actividades físicas secuenciales (reposo, caminata, trote, carrera máxima) midiendo el pulso en cada caso y completando una tabla. Luego: realizar un gráfico, comprobar predicciones argumentando con la descripción del pulso durante actividad física, explicar mediante un modelo o maqueta por qué varía el pulso con la actividad física, y predecir qué ocurriría si el pulso no se viera alterado por las actividades físicas.",
+          "criterios_de_evaluacion": [
+            "Muestran que son capaces de elaborar un gráfico a partir de una tabla.",
+            "Demuestran una adecuada interpretación de gráficos describiendo que las pulsaciones aumentan con el ejercicio.",
+            "Demuestran entender que el movimiento de la sangre permite el transporte de nutrientes y gases al organismo.",
+            "Demuestra la importancia de la variación del pulso en la actividad física.",
+            "Identifica mediante un modelo al corazón, vasos sanguíneos y sangre como las estructuras básicas responsables del transporte de sustancias."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 3,
+      "titulo": "Sistema respiratorio, tabaco y microorganismos",
+      "semestre": 2,
+      "tiempo_estimado": null,
+      "oas_contenido": [
+        "OA3",
+        "OA6",
+        "OA7"
+      ],
+      "oas_habilidades": [
+        "OAb",
+        "OAc",
+        "OAe",
+        "OAf",
+        "OAg"
+      ],
+      "actitudes": [
+        "e",
+        "b",
+        "d"
+      ],
+      "proposito": "El objetivo central es que los estudiantes tomen conciencia sobre los efectos nocivos para la salud que producen el consumo de cigarrillos y el contagio de enfermedades por agentes infecciosos. A partir de estos conocimientos, se espera que adopten conductas favorables para su salud. Al mismo tiempo, se pretende que reconozcan la existencia de agentes como bacterias y hongos que son beneficiosos para la salud de las personas.",
+      "conocimientos_previos": [
+        "Actividad física y salud.",
+        "Aporte de los alimentos.",
+        "Sistema digestivo, respiratorio y circulatorio en cuanto a estructuras y función."
+      ],
+      "palabras_clave": [
+        "Cuerpo humano",
+        "cigarrillo",
+        "tabaco",
+        "agentes beneficiosos",
+        "agentes infecciosos",
+        "virus",
+        "bacterias",
+        "hongos",
+        "enfermedades",
+        "prevención",
+        "avances tecnológicos y salud"
+      ],
+      "conocimientos": [
+        "Efectos nocivos que produce el cigarrillo (humo del tabaco) en el organismo.",
+        "Agentes infecciosos causantes de enfermedades."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA3",
+          "descripcion": "Explicar por medio de modelos la respiración (inspiración-espiración-intercambio de oxígeno y dióxido de carbono), identificando las estructuras básicas del sistema respiratorio (nariz, tráquea, bronquios, alvéolos, pulmones).",
+          "indicadores_de_evaluacion": [
+            "Identifican las estructuras básicas que conforman el sistema respiratorio.",
+            "Describen la función de los pulmones en el intercambio de gases.",
+            "Identifican a la nariz y tráquea como conductos que poseen características que permiten proteger al organismo de enfermedades.",
+            "Describen cómo la contracción y relajación del diafragma y algunas estructuras torácicas permiten la expansión y contracción de los pulmones.",
+            "Explican mediante esquemas simples cómo se realiza el intercambio gaseoso.",
+            "Relacionan los cambios de frecuencia respiratoria a las necesidades de oxígeno del cuerpo."
+          ]
+        },
+        {
+          "oa": "OA6",
+          "descripcion": "Investigar en diversas fuentes y comunicar los efectos nocivos que produce el cigarrillo (humo del tabaco) en el sistema respiratorio y circulatorio.",
+          "indicadores_de_evaluacion": [
+            "Describen y analizan experiencias simples que evidencian los residuos producidos por el humo del tabaco.",
+            "Explican que se producen daños graves a la salud en personas fumadoras y también en personas expuestas al humo del tabaco de forma pasiva.",
+            "Identifican enfermedades del sistema respiratorio y circulatorio provocadas por el consumo de tabaco (trombosis, arritmias, infecciones respiratorias, asma, cáncer pulmonar).",
+            "Analizan las principales causas del consumo de tabaco en adolescentes, reconociendo el consumo de cigarrillos como una enfermedad adictiva.",
+            "Comparan el consumo de cigarrillo en Chile respecto a países desarrollados."
+          ]
+        },
+        {
+          "oa": "OA7",
+          "descripcion": "Investigar e identificar algunos microorganismos beneficiosos y dañinos para la salud (bacterias, virus y hongos), y proponer medidas de cuidado e higiene del cuerpo.",
+          "indicadores_de_evaluacion": [
+            "Describen el efecto beneficioso de algunas bacterias en el organismo.",
+            "Investigan los beneficios de algunos hongos comestibles.",
+            "Identifican agentes dañinos para la salud (bacterias, virus y hongos).",
+            "Describen cómo algunas enfermedades son producidas por el ingreso y multiplicación de agentes infecciosos en el organismo.",
+            "Distinguen las enfermedades producidas por agentes infecciosos de otros tipos de enfermedades.",
+            "Explican el uso de desinfectantes (cloro, alcohol, povidona yodada, agua oxigenada) como sustancias que eliminan gran parte de los agentes infecciosos.",
+            "Mencionan diversas acciones como lavarse las manos, cubrirse la boca al estornudar, lavar los alimentos, que permiten prevenir el contagio de enfermedades infecto-contagiosas."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA3",
+          "titulo": "Exploración visual y táctil de estructuras del sistema respiratorio",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Exploran de manera visual y táctil estructuras del sistema respiratorio que se encuentran fuera del tórax (nariz, laringe y tráquea). Dibujan las estructuras en el cuaderno, las rotulan y describen posibles funciones, luego contrastan sus ideas con información bibliográfica."
+        },
+        {
+          "numero": 2,
+          "oa": "OA3",
+          "titulo": "Rompecabezas de la anatomía del sistema respiratorio",
+          "habilidades": [
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Luego de leer sobre la estructura y función del sistema respiratorio, dibujan y pintan la anatomía interna sobre un cartón. Con un lápiz marcan algunas formas para formar un rompecabezas, lo cortan, desordenan e intercambian con sus compañeros para jugar a armarlo."
+        },
+        {
+          "numero": 3,
+          "oa": "OA3",
+          "titulo": "Filtros de aire en maquinarias y estructuras filtrantes del sistema respiratorio",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan y leen en diversas fuentes sobre elementos tecnológicos que poseen filtros de aire (campana de cocina, aspiradora, etc.). Pegan imágenes en el cuaderno, anotan posibles dificultades si estos filtros no funcionan bien, y marcan en un esquema del sistema respiratorio (mucus, pelos y cilios) las estructuras equivalentes."
+        },
+        {
+          "numero": 4,
+          "oa": "OA3",
+          "titulo": "Entrevista familiar sobre el paso de alimentos a las vías respiratorias",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Entrevistan a familiares sobre cómo creen ellos que el organismo evita el paso de alimentos a las vías respiratorias. Realizan un resumen de las principales ideas y discuten con el curso su validez científica."
+        },
+        {
+          "numero": 5,
+          "oa": "OA3",
+          "titulo": "Modelo mecánico de inspiración y espiración con botella y globo",
+          "habilidades": [
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Grafican un modelo mecánico de los procesos de inspiración y espiración usando una botella plástica cortada en la base (caja torácica), un globo en su interior (pulmón) y una membrana elástica adherida a la base (diafragma). Explican cómo el diafragma participa en los movimientos respiratorios."
+        },
+        {
+          "numero": 6,
+          "oa": "OA3",
+          "titulo": "Experimento de capacidad vital pulmonar",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Realizan una actividad experimental respondiendo a la pregunta: ¿cuál es nuestra capacidad vital? Respiran profundamente y soplan dentro de una bolsa de plástico tubular con escala de volumen. Registran los datos en una tabla y los procesan en un gráfico."
+        },
+        {
+          "numero": 7,
+          "oa": "OA3",
+          "titulo": "Esquemas del intercambio gaseoso pulmonar",
+          "habilidades": [],
+          "descripcion": "En base a información dada por el profesor, realizan esquemas simples del intercambio gaseoso a nivel pulmonar con la participación del sistema circulatorio. Rotulan las estructuras de ambos sistemas y señalan con distinto color la trayectoria de los gases (azul CO2, rojo O2)."
+        },
+        {
+          "numero": 8,
+          "oa": "OA3",
+          "titulo": "Cuento sobre el viaje de una molécula de O2 y CO2",
+          "habilidades": [],
+          "descripcion": "A partir de lecturas sobre el intercambio gaseoso, crean un cuento que relate la trayectoria recorrida por una molécula de O2 y otra de CO2, los sistemas y estructuras que participan y la importancia de la sangre en el transporte y distribución de estos gases.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 9,
+          "oa": "OA3",
+          "titulo": "Gráficos de frecuencia respiratoria y circulatoria durante ejercicio",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Con TIC confeccionan tablas y gráficos con datos sobre frecuencia respiratoria y circulatoria de estudiantes que realizan ejercicio durante distintos periodos de tiempo. Describen tendencias y relacionan el aumento del ejercicio físico con el aumento de la frecuencia respiratoria y circulatoria.",
+          "interdisciplinariedad": "Matemática; Educación Física y Salud"
+        },
+        {
+          "numero": 10,
+          "oa": "OA3",
+          "titulo": "¿Cómo respiran mis animales favoritos?",
+          "habilidades": [
+            "OAc",
+            "OAd",
+            "OAg"
+          ],
+          "descripcion": "Investigan cómo respiran sus animales favoritos. Seleccionan algunos animales, observan y dibujan sus formas y partes, describen el funcionamiento y el paso del aire, y registran la frecuencia respiratoria de cada uno. Presentan la información a sus compañeros y la comparan."
+        },
+        {
+          "numero": 11,
+          "oa": "OA3",
+          "titulo": "Tabla resumen del sistema respiratorio y sus relaciones con el circulatorio",
+          "habilidades": [
+            "OAd"
+          ],
+          "descripcion": "Elaboran una tabla resumen del sistema respiratorio de tres columnas: características estructurales de los órganos, función que realizan, y relaciones que se establecen entre estos y el sistema circulatorio."
+        },
+        {
+          "numero": 12,
+          "oa": "OA6",
+          "titulo": "Experimento demostrativo: residuos del humo del tabaco en algodón",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "El docente realiza una experiencia demostrativa: coloca un algodón en la entrada de una botella plástica con agua, introduce un cigarrillo en la tapa y hace que el agua salga arrastrando el humo. Los estudiantes observan los residuos en el algodón y responden preguntas sobre qué sustancias se retienen y qué órganos afectarán."
+        },
+        {
+          "numero": 13,
+          "oa": "OA6",
+          "titulo": "Comparación de radiografías de pulmones de fumador y no fumador",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "El docente muestra radiografías o fotografías de pulmones de una persona fumadora y una no fumadora. Los estudiantes las observan, registran diferencias y similitudes con procesador de texto, predicen dificultades para la persona fumadora en su vida diaria y proponen medidas de prevención."
+        },
+        {
+          "numero": 14,
+          "oa": "OA6",
+          "titulo": "Enfermedades respiratorias y circulatorias relacionadas con el tabaco",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan y leen en diversos textos sobre enfermedades del sistema respiratorio (infecciones, asma, cáncer pulmonar) y circulatorio (trombosis, arritmias, infartos) relacionadas con el consumo de tabaco, incluyendo a fumadores pasivos. Elaboran un informe y lo presentan con TIC."
+        },
+        {
+          "numero": 15,
+          "oa": "OA6",
+          "titulo": "Cuestionario sobre daños del cigarrillo aplicado a adultos fumadores",
+          "habilidades": [],
+          "descripcion": "Elaboran un cuestionario con preguntas sobre los daños del consumo del cigarrillo y lo aplican a adultos fumadores. Organizan la información y evalúan el nivel de conocimiento de las personas sobre el daño que se están ocasionando."
+        },
+        {
+          "numero": 16,
+          "oa": "OA6",
+          "titulo": "Análisis de tablas y gráficos sobre consumo de tabaco en Chile",
+          "habilidades": [],
+          "descripcion": "Observan tablas y/o gráficos con información sobre los niveles de consumo de tabaco en Chile respecto a otros países y las tasas de mortalidad asociadas. Responden preguntas, proponen un plan de acción y lo presentan al curso.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 17,
+          "oa": "OA6",
+          "titulo": "Debate sobre la ley antitabaco en Chile",
+          "habilidades": [],
+          "descripcion": "Investigan y leen sobre la ley antitabaco en Chile. En grupos pequeños realizan un debate respetando las distintas opiniones sobre si la ley es positiva o negativa para la sociedad. Escriben sus argumentos en un texto de una plana.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 18,
+          "oa": "OA6",
+          "titulo": "Construcción de señaléticas 'prohibido fumar'",
+          "habilidades": [
+            "OAe"
+          ],
+          "descripcion": "En grupos de tres estudiantes construyen señaléticas creativas que indiquen 'prohibido fumar' o 'no fumar' utilizando diversos materiales (cartón, cartulina, pintura). Las exponen en un lugar visible de la sala y/o escuela."
+        },
+        {
+          "numero": 19,
+          "oa": "OA6",
+          "titulo": "Afiche informativo sobre tabaquismo",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Elaboran un afiche informativo con textos breves, tablas, gráficos e imágenes sobre los efectos del tabaquismo y la importancia de cuidar la salud.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 20,
+          "oa": "OA6",
+          "titulo": "Carta a un consumidor de tabaco",
+          "habilidades": [],
+          "descripcion": "Redactan una carta para una persona consumidora de tabaco. La carta debe contener argumentos que intenten convencer a esa persona de dejar el cigarrillo.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 21,
+          "oa": "OA7",
+          "titulo": "Lluvia de ideas sobre microorganismos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "El docente muestra fotografías de microorganismos y realiza una lluvia de ideas. Los estudiantes anotan en la pizarra sus respuestas sobre qué organismos observan, si han estado en contacto con ellos, qué son las bacterias y los hongos, dónde se pueden encontrar."
+        },
+        {
+          "numero": 22,
+          "oa": "OA7",
+          "titulo": "Definición de microorganismos y sus utilidades",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "A partir de la información dada por el profesor definen con sus palabras el concepto de microorganismos, investigan ejemplos y la utilidad que estos tienen para los organismos y para el ambiente."
+        },
+        {
+          "numero": 23,
+          "oa": "OA7",
+          "titulo": "Historia de los hongos beneficiosos: obtención de antibióticos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan y leen en diversas fuentes cómo los hongos han beneficiado la salud de las personas a través del tiempo, por ejemplo con la obtención de antibióticos como la penicilina. Preparan una presentación con TIC.",
+          "interdisciplinariedad": "Historia, Geografía y Ciencias Sociales"
+        },
+        {
+          "numero": 24,
+          "oa": "OA7",
+          "titulo": "Texto argumentativo sobre los probióticos",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "El docente plantea la situación: luego de la ingesta de antibióticos por tiempos prolongados, los médicos suelen recomendar el consumo de probióticos. Los estudiantes elaboran un texto de media página argumentando las razones.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 25,
+          "oa": "OA7",
+          "titulo": "Cultivo de microorganismos en gelatina",
+          "habilidades": [
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Realizan cultivos de microorganismos en tres recipientes plásticos con gelatina: uno solo con gelatina, otro con gelatina más agua de tierra, y un tercero con gelatina, agua de tierra y azúcar. Colocan los envases cerca de una fuente de calor, observan a las 24 horas y registran en una tabla."
+        },
+        {
+          "numero": 26,
+          "oa": "OA7",
+          "titulo": "Listado de enfermedades contagiosas producidas por agentes infecciosos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Elaboran un listado de enfermedades que conocen, conjeturan sobre cuáles se pueden contagiar de una persona a otra y son producidas por agentes infecciosos. Confirman sus respuestas con información disponible en una guía elaborada por el docente."
+        },
+        {
+          "numero": 27,
+          "oa": "OA7",
+          "titulo": "Noticias sobre brotes de enfermedades contagiosas",
+          "habilidades": [],
+          "descripcion": "Revisan en periódicos e internet noticias sobre brotes de algunas enfermedades contagiosas estacionales y las archivan en el portafolio. Extraen las ideas principales y describen las medidas preventivas sugeridas por las autoridades."
+        },
+        {
+          "numero": 28,
+          "oa": "OA7",
+          "titulo": "Esquemas de cómo los agentes infecciosos causan enfermedades",
+          "habilidades": [
+            "OAg"
+          ],
+          "descripcion": "Dibujan en sus cuadernos esquemas que explican de manera simple cómo los agentes infecciosos ingresan, se reproducen y causan enfermedades (por ejemplo, el virus del resfrío común)."
+        },
+        {
+          "numero": 29,
+          "oa": "OA7",
+          "titulo": "Entrevista a manipuladores de alimentos sobre cuidados de higiene",
+          "habilidades": [
+            "OAc",
+            "OAd",
+            "OAg"
+          ],
+          "descripcion": "Consultan a alguna persona manipuladora de alimentos sobre los cuidados que deben tenerse (uso de guantes, gorro, lavado de cubiertos, mascarillas, lavado con cloro). Registran ideas en una tabla y proponen un plan de manipulación de alimentos para sus casas y escuela."
+        },
+        {
+          "numero": 30,
+          "oa": "OA7",
+          "titulo": "Normas de higiene del cuerpo para prevenir enfermedades",
+          "habilidades": [
+            "OAc",
+            "OAd",
+            "OAg"
+          ],
+          "descripcion": "Leen en diversas fuentes sobre las normas de higiene del cuerpo básicas para prevenir la contaminación por agentes infecto-contagiosos. Registran la información en una tabla, discuten el orden de importancia de cada medida y las presentan en un papelógrafo o TIC."
+        },
+        {
+          "numero": 31,
+          "oa": "OA7",
+          "titulo": "Botiquín de primeros auxilios y procedimiento para desinfectar heridas",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan qué elementos debe contener un botiquín y la utilidad de cada elemento. Con la ayuda de la persona encargada de primeros auxilios del colegio, confeccionan un botiquín. En el cuaderno anotan un procedimiento adecuado para desinfectar heridas."
+        },
+        {
+          "numero": 32,
+          "oa": "OA7",
+          "titulo": "Análisis de efectividad antimicrobiana de desinfectantes",
+          "habilidades": [
+            "OAd"
+          ],
+          "descripcion": "Analizan tablas de efectividad antimicrobiana de distintos desinfectantes y concentraciones, identifican su modo de aplicación y el tipo de superficie adecuada. Describen su eficacia y medidas de seguridad en su utilización. Registran en una tabla y comunican mediante una presentación."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA7",
+            "OAb"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican agentes dañinos para la salud (bacterias, virus y hongos).",
+            "Mencionan diversas acciones que permiten prevenir el contagio de enfermedades infecto-contagiosas.",
+            "Señalan los objetivos de una determinada investigación.",
+            "Formulan autónomamente predicciones de los resultados que obtendrán en una investigación."
+          ],
+          "actividad_evaluativa": "Lectura de titular de periódico sobre un brote de influenza. Responden: ¿qué tipo de agente produce esta enfermedad? y enumeran cuatro medidas de prevención que aconsejarían tomar en su escuela.",
+          "criterios_de_evaluacion": [
+            "Demuestran que reconocen a la influenza como una enfermedad de tipo viral.",
+            "Evidencian conocer medidas de prevención de contagio como: cubrirse la cara con pañuelos desechables al toser o estornudar; quedarse en casa si están enfermos; lavarse frecuentemente las manos; ventilar la sala de clases."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA6",
+            "OAc",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican que se producen daños graves a la salud en personas fumadoras y también en personas expuestas al humo del tabaco de forma pasiva.",
+            "Identifican enfermedades del sistema respiratorio y circulatorio provocadas por el consumo de tabaco.",
+            "Explican los resultados obtenidos de la investigación realizada.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Lectura de una tabla que muestra la relación entre el número de cigarrillos fumados por los padres (0, 20 y 40 diarios) y el número de niños con asma (3, 10 y 16 respectivamente). Construyen un gráfico de barras, describen cómo varía el número de niños enfermos con el consumo de cigarrillos, explican las consecuencias del tabaquismo sobre el sistema respiratorio e indican cómo prevenir el asma en niños de padres fumadores.",
+          "criterios_de_evaluacion": [
+            "Muestran que organizan información en gráficos con título, nombre y unidades en los ejes, escalas apropiadas y correcto registro de datos.",
+            "Evidencian que interpretan las variaciones de los datos, describiendo que a mayor consumo de cigarrillos por los padres, mayor número de niños con asma.",
+            "Señalan que los componentes del cigarro dañan los órganos del sistema respiratorio.",
+            "Mencionan formas de prevenir el asma en niños de padres fumadores."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA3",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Identifican las estructuras básicas que conforman el sistema respiratorio.",
+            "Describen la función de los pulmones en el intercambio de gases.",
+            "Explican mediante esquemas simples cómo se realiza el intercambio gaseoso.",
+            "Describen los resultados obtenidos de la investigación realizada.",
+            "Explican los resultados obtenidos de la investigación realizada."
+          ],
+          "actividad_evaluativa": "A partir de un esquema de un alvéolo pulmonar: 1. ¿Qué estructura se ilustra? 2. Dibujar flechas para mostrar el intercambio de gases (sólidas para O2, punteadas para CO2). 3. ¿Qué diferencias tiene la sangre que entra a los pulmones de la que sale? 4. ¿Qué propiedades tienen los vasos sanguíneos que facilita el intercambio gaseoso? 5. ¿Qué destino tiene la sangre oxigenada?",
+          "criterios_de_evaluacion": [
+            "Demuestran que reconocen algunas estructuras del sistema respiratorio, identificando los alvéolos pulmonares.",
+            "Manifiestan comprender cómo se produce el intercambio de gases, rotulando adecuadamente el movimiento de O2 y CO2.",
+            "Evidencian que identifican diferencias entre la sangre que entra y sale de los pulmones.",
+            "Demuestran comprender las propiedades de algunos vasos sanguíneos, como los capilares, indicando que son muy delgados lo que facilita el intercambio gaseoso.",
+            "Evidencian que reconocen que la sangre oxigenada es necesaria para el funcionamiento de todas las células del cuerpo."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA6",
+            "OAc",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican que se producen daños graves a la salud en personas fumadoras y también en personas expuestas al humo del tabaco de forma pasiva.",
+            "Identifican enfermedades del sistema respiratorio y circulatorio provocadas por el consumo de tabaco.",
+            "Explican los resultados obtenidos de la investigación realizada.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "En grupos con guantes de polietileno y mascarillas, exploran las proximidades del colegio buscando colillas de cigarrillo. Las recogen en bolsitas transparentes y las observan (vista y olfato, con lupa si disponible). Responden de forma fundamentada: ¿cuál corresponde a un cigarro no fumado?, ¿cómo demostrar experimentalmente que los filtros no detienen todos los agentes nocivos?, ¿cuáles son los eventuales daños a la salud que provoca el consumo de cigarrillos?",
+          "criterios_de_evaluacion": [
+            "Demuestran seguir ordenada y rigurosamente la planificación y procedimientos de investigación.",
+            "Muestran los residuos tóxicos depositados en una colilla e infieren su relación con el sistema respiratorio.",
+            "Demuestran reconocer diferentes estructuras del sistema respiratorio que se ven afectadas al ingerir humo, indicando su recorrido a partir de un modelo.",
+            "Demuestran conocer los efectos nocivos del consumo de cigarrillos para la salud.",
+            "Mencionan diferentes enfermedades respiratorias que pueden ser provocadas por el consumo de cigarrillos."
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 4,
+      "titulo": "Energía eléctrica: transformaciones, circuitos y uso responsable",
+      "semestre": 2,
+      "tiempo_estimado": null,
+      "oas_contenido": [
+        "OA8",
+        "OA9",
+        "OA10",
+        "OA11"
+      ],
+      "oas_habilidades": [
+        "OAb",
+        "OAc",
+        "OAe",
+        "OAf",
+        "OAg"
+      ],
+      "actitudes": [
+        "b",
+        "d",
+        "f"
+      ],
+      "proposito": "El estudio experimental de los circuitos eléctricos es idóneo para que los estudiantes aprendan el significado de los conceptos de corriente y energía eléctrica. Se espera que conozcan diferentes formas en se manifiesta la energía, comprendan la conformación de un circuito eléctrico simple, distingan entre materiales conductores y no conductores y dimensionen la importancia para el ser humano de la energía en general.",
+      "conocimientos_previos": [
+        "Diferencia entre emisores naturales y artificiales de luz.",
+        "Los aparatos eléctricos de uso domiciliario.",
+        "Propiedades de la materia."
+      ],
+      "palabras_clave": [
+        "Pila",
+        "batería eléctrica",
+        "cables",
+        "interruptor",
+        "ampolleta",
+        "circuito eléctrico simple",
+        "formas de energía",
+        "energía eléctrica",
+        "corriente eléctrica",
+        "generador eléctrico",
+        "conductores y aisladores eléctricos"
+      ],
+      "conocimientos": [
+        "Las diferentes formas que se presenta la energía: calórica, lumínica, eólica, eléctrica, etc.",
+        "Las máquinas y aparatos que funcionan con energía eléctrica.",
+        "Elementos de un circuito eléctrico simple y sus funciones.",
+        "Las conexiones en circuitos.",
+        "La función de conductores y aislantes en los circuitos eléctricos.",
+        "Importancia para el ser humano de la energía eléctrica."
+      ],
+      "objetivos_de_aprendizaje": [
+        {
+          "oa": "OA8",
+          "descripcion": "Reconocer los cambios que experimenta la energía eléctrica al pasar de una forma a otra (eléctrica a calórica, sonora, lumínica, etc.) e investigar los principales aportes de científicos en su estudio a través del tiempo.",
+          "indicadores_de_evaluacion": [
+            "Explican el significado del concepto de energía proporcionando ejemplos en que se evidencia.",
+            "Señalan formas en que se manifiesta la energía en la naturaleza.",
+            "Comparan las formas en que se manifiesta la energía en la naturaleza comunicando similitudes y diferencias.",
+            "Describen aparatos o máquinas que funcionan con energía eléctrica y a qué tipo de energía están asociadas.",
+            "Explican y comunican los principales aportes generados por diferentes científicos sobre la energía eléctrica."
+          ]
+        },
+        {
+          "oa": "OA9",
+          "descripcion": "Construir un circuito eléctrico simple (cable, ampolleta, interruptor y pila), usarlo para resolver problemas cotidianos y explicar su funcionamiento.",
+          "indicadores_de_evaluacion": [
+            "Representan en un dibujo los elementos que conforman un circuito eléctrico simple: pila o batería, interruptor, cables y dispositivo de carga (ampolleta).",
+            "Explican la función de cada uno de los elementos que constituyen un circuito eléctrico simple.",
+            "Analizan las partes del circuito de una linterna y lo representan por medio de símbolos apropiados.",
+            "Planifican el trabajo que le permitirá construir un circuito simple o linterna.",
+            "Conectan los dispositivos que conforman un circuito simple."
+          ]
+        },
+        {
+          "oa": "OA10",
+          "descripcion": "Observar y distinguir, por medio de la investigación experimental, los materiales conductores (cobre y aluminio) y aisladores (plásticos y goma) de electricidad, relacionándolos con la manipulación segura de artefactos tecnológicos y circuitos eléctricos domiciliarios.",
+          "indicadores_de_evaluacion": [
+            "Registran similitudes y diferencias entre materiales conductores y aisladores de la electricidad.",
+            "Clasifican materiales buenos y malos conductores de la electricidad.",
+            "Planifican un experimento que le permita diferenciar entre materiales conductores y aislantes de la corriente eléctrica.",
+            "Explican en qué partes de un circuito eléctrico son necesarios los buenos conductores y en qué partes los malos conductores eléctricos.",
+            "Explican y comunican las normas de seguridad frente a los peligros de la corriente eléctrica."
+          ]
+        },
+        {
+          "oa": "OA11",
+          "descripcion": "Explicar la importancia de la energía eléctrica en la vida cotidiana y proponer medidas para promover su ahorro y uso responsable.",
+          "indicadores_de_evaluacion": [
+            "Registran los dispositivos empleados cotidianamente que utilizan energía eléctrica.",
+            "Formulan predicciones y explicaciones sobre cómo cambiaría la vida de las personas si no dispusiéramos de energía eléctrica por un tiempo prolongado.",
+            "Explican los cambios de conductas destinadas a ahorrar energía eléctrica.",
+            "Proporcionan ejemplos que ponen en evidencia la importancia de la energía eléctrica en nuestra civilización."
+          ]
+        }
+      ],
+      "actividades": [
+        {
+          "numero": 1,
+          "oa": "OA8",
+          "titulo": "Lluvia de ideas sobre el concepto de energía",
+          "habilidades": [
+            "OAb",
+            "OAf"
+          ],
+          "descripcion": "En grupos pequeños intercambian ideas relacionadas con el concepto de energía y las escriben en la pizarra. Discuten convergencias y divergencias, llegan a un consenso y contrastan con lo que señalan textos escolares, enciclopedias o internet. Redactan conclusiones en sus cuadernos."
+        },
+        {
+          "numero": 2,
+          "oa": "OA8",
+          "titulo": "Análisis de artículos de diarios y revistas sobre la energía",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Leen y analizan artículos seleccionados de diarios y revistas referentes a la energía, extraen las ideas principales y preparan una exposición con programas informáticos. Discuten con compañeros la relación entre el concepto de energía y el contexto del artículo.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 3,
+          "oa": "OA8",
+          "titulo": "Observación y análisis de una linterna a pilas: transformaciones de energía",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Examinan una linterna a pilas, le sacan las pilas y la ampolleta, observan sus partes, la arman y la hacen funcionar. Describen sus partes y señalan las transformaciones de energía que se producen cuando está funcionando usando un esquema."
+        },
+        {
+          "numero": 4,
+          "oa": "OA8",
+          "titulo": "Documento sobre la energía eléctrica y sus transformaciones",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Individualmente leen y grupalmente analizan un documento sobre la energía eléctrica y sus transformaciones. Destacan las ideas más importantes, seleccionan una transformación, buscan información y preparan una breve exposición oral o panel de fotografías.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 5,
+          "oa": "OA8",
+          "titulo": "Experimento: electroimán con tornillo, alambre de cobre y pila",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Enrollan un alambre fino de cobre en un tornillo, conectan los extremos a una pila y acercan el extremo del tornillo hacia clips. Registran observaciones y responden preguntas sobre qué ocurre, de dónde proviene la energía y qué tipo de manifestaciones energéticas están presentes."
+        },
+        {
+          "numero": 6,
+          "oa": "OA8",
+          "titulo": "Generación de energía eléctrica en centrales hidroeléctricas",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Dibujan y escriben sobre conceptos de represa, flujo de agua, turbinas y generador eléctrico. El docente muestra un video de una central hidroeléctrica y discuten sobre las etapas de producción. Los estudiantes corrigen sus dibujos y textos iniciales.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 7,
+          "oa": "OA8",
+          "titulo": "Formas de transformar energías de la naturaleza en energía eléctrica",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "En grupos pequeños investigan las diferentes formas de transformar las energías presentes en la naturaleza en energía eléctrica (celdas fotoeléctricas, pilas, baterías, etc.). Cada grupo elige una forma, la estudia y prepara una presentación de cinco minutos."
+        },
+        {
+          "numero": 8,
+          "oa": "OA8",
+          "titulo": "Mapa conceptual sobre fuentes de energía y su transformación en energía eléctrica",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Construyen un mapa conceptual con TIC en que se enumeran las distintas fuentes de energía que ofrece la naturaleza e indican los medios a través de los cuales ellas pueden transformarse en energía eléctrica.",
+          "interdisciplinariedad": "Tecnología"
+        },
+        {
+          "numero": 9,
+          "oa": "OA8",
+          "titulo": "Experimento: motor eléctrico a pilas con palito de helado",
+          "habilidades": [
+            "OAc",
+            "OAe"
+          ],
+          "descripcion": "Hacen una perforación en el centro de un palito de helado, lo ajustan al eje de un motor eléctrico a pilas. Predicen qué ocurrirá al conectar el motor a una pila, verifican su predicción y describen las transformaciones de energía que se producen."
+        },
+        {
+          "numero": 10,
+          "oa": "OA8",
+          "titulo": "Aportes de científicos a la electricidad",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan y leen de diversas fuentes sobre los aportes a la electricidad de Benjamín Franklin, A. Volta, Ampere, Edison, George Ohm, entre otros. Preparan una presentación al curso y ubican a los científicos en una línea de tiempo."
+        },
+        {
+          "numero": 11,
+          "oa": "OA8",
+          "titulo": "Salida educativa: Sala de la Electricidad (MIM)",
+          "habilidades": [],
+          "descripcion": "Visita al Museo Interactivo Mirador (MIM) a la 'Sala de la Electricidad' para que los estudiantes interactúen con el tema. Se acompaña con una guía de trabajo donde responden preguntas relacionadas con el tema."
+        },
+        {
+          "numero": 12,
+          "oa": "OA9",
+          "titulo": "El concepto de circuito: lluvia de ideas y definición grupal",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Aportan ejemplos de lugares, aparatos o instrumentos donde se utiliza la palabra 'circuito'. El curso en conjunto con el docente revisa cada ejemplo, extrae las ideas comunes y enuncia un concepto general de circuito."
+        },
+        {
+          "numero": 13,
+          "oa": "OA9",
+          "titulo": "Elementos de un circuito eléctrico simple: exploración y comparación",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "El docente lee un texto sobre electricidad y circuitos y muestra los elementos de un circuito simple (batería, interruptor, cables, ampolleta). Los estudiantes escriben la función de cada elemento y se reúnen en grupos para compartir sus opiniones sobre el orden de disposición en el circuito."
+        },
+        {
+          "numero": 14,
+          "oa": "OA9",
+          "titulo": "La polaridad de la pila y su efecto en el circuito",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Indagan el significado de 'polaridad' en el contexto de electricidad, comparten oraciones donde esté bien empleada, predicen si la polaridad afectará el funcionamiento del circuito y verifican experimentalmente construyendo un circuito simple con ampolleta de linterna, cables y pila seca. Exponen resultados en un informe escrito.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 15,
+          "oa": "OA9",
+          "titulo": "Desarmado de una linterna e identificación de componentes",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Observan y manipulan una linterna, la desarman, identifican sus componentes, los dibujan en el cuaderno y los rotulan. Escriben una página sobre las funciones que cumple cada uno."
+        },
+        {
+          "numero": 16,
+          "oa": "OA9",
+          "titulo": "Afiche con símbolos eléctricos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan en diferentes fuentes los símbolos que se utilizan para representar pilas, baterías, interruptores, ampolletas, cables, etc. Diseñan y realizan un afiche con los símbolos para exponerlos en la sala de clases o laboratorio."
+        },
+        {
+          "numero": 17,
+          "oa": "OA9",
+          "titulo": "Representación de circuitos simples con dibujo técnico",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "El docente escribe en la pizarra nombres de instrumentos simples (linternas, lámparas, entre otros). Los estudiantes indagan sus componentes y representan los circuitos simples por medio de un dibujo técnico con símbolos correspondientes."
+        },
+        {
+          "numero": 18,
+          "oa": "OA9",
+          "titulo": "Diseño y construcción experimental de circuitos simples",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Diseñan en papel diferentes tipos de circuitos simples con pilas, cables, interruptores y ampolletas dispuestos de diferentes formas. Predicen lo que ocurrirá, anotan sus hipótesis, planifican el trabajo experimental, arman el circuito y verifican sus predicciones. Elaboran un informe con sus conclusiones."
+        },
+        {
+          "numero": 19,
+          "oa": "OA9",
+          "titulo": "Verificación experimental del efecto de la posición del interruptor y la ampolleta",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Con el circuito eléctrico simple funcionando, predicen si importa o influye en el funcionamiento del circuito: la polaridad de la pila, el lugar en que se coloque el interruptor y el lugar en que se coloque la ampolleta. Verifican experimentalmente sus predicciones."
+        },
+        {
+          "numero": 20,
+          "oa": "OA9",
+          "titulo": "Armado de un circuito a partir de un dibujo",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "En base a un dibujo de un circuito, identifican los elementos que lo componen, reproducen el esquema con símbolos eléctricos y arman el circuito haciendo que la ampolleta ilumine o no según su voluntad mediante el interruptor."
+        },
+        {
+          "numero": 21,
+          "oa": "OA10",
+          "titulo": "Definición de conductor y aislante: conceptos previos e investigación",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "Explican con sus propias palabras lo que entienden por conductor y aislante. Luego indagan sobre los términos en diferentes fuentes, registran la información, comparan sus respuestas con definiciones de diccionarios y aplican los conceptos para describir fenómenos físicos."
+        },
+        {
+          "numero": 22,
+          "oa": "OA10",
+          "titulo": "Clasificación de materiales en conductores y aisladores",
+          "habilidades": [
+            "OAb"
+          ],
+          "descripcion": "El docente escribe en la pizarra un listado de materiales (madera, agua, tierra, plástico, metal, aceite, entre otros). Los estudiantes los clasifican en dos columnas: buenos conductores y malos conductores o aisladores. Pueden incluir otros materiales y comparan la clasificación con sus compañeros."
+        },
+        {
+          "numero": 23,
+          "oa": "OA10",
+          "titulo": "Experimento de conductividad eléctrica con circuito simple",
+          "habilidades": [
+            "OAb",
+            "OAc",
+            "OAd",
+            "OAe",
+            "OAf"
+          ],
+          "descripcion": "Construyen un circuito eléctrico simple y prueban experimentalmente diferentes objetos de diferentes materiales (madera, vidrio, metales, corcho, goma, plástico, género, entre otros) para comprobar si se enciende la ampolleta. Registran los resultados en una tabla (objetos/material/conductividad) y clasifican los materiales en conductores y aisladores."
+        },
+        {
+          "numero": 24,
+          "oa": "OA10",
+          "titulo": "Reconocimiento de conductores y aisladores en instalaciones eléctricas del colegio",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Realizan un recorrido por el hogar o el colegio e identifican qué partes de las instalaciones eléctricas domiciliarias y artefactos eléctricos son conductores y cuáles aisladores. Escriben un párrafo que justifique la importancia que tienen estos dos elementos en un circuito."
+        },
+        {
+          "numero": 25,
+          "oa": "OA10",
+          "titulo": "Relatos de 'golpes de corriente' y recomendaciones de seguridad",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Indagan sobre experiencias de 'golpes de corriente', las registran y exponen al curso. Extraen conclusiones sobre los cuidados y prevención de riesgos. Hacen un listado de recomendaciones para manipular en forma segura circuitos y aparatos eléctricos y las presentan en un afiche o representación teatral."
+        },
+        {
+          "numero": 26,
+          "oa": "OA10",
+          "titulo": "Investigación sobre el tablero de seguridad del hogar",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan sobre la composición, características e información del tablero de seguridad de los hogares (caja de interruptores automáticos o de fusibles) y aplican sus conocimientos para explicar el funcionamiento del de su casa."
+        },
+        {
+          "numero": 27,
+          "oa": "OA10",
+          "titulo": "Tríptico sobre cuidados al manipular circuitos eléctricos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Redactan un tríptico informativo con los cuidados básicos que se debe tener al manipular circuitos eléctricos (estado de enchufes y artefactos, interruptores murales, uso inadecuado de extensibles, zapatillas, triples, etc.). Lo promueven y publican en lugares visibles del colegio."
+        },
+        {
+          "numero": 28,
+          "oa": "OA10",
+          "titulo": "Entrevista a un técnico o profesional en electricidad",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Preparan en grupos preguntas para entrevistar a un profesional o técnico en electricidad sobre precauciones en su trabajo y medidas de seguridad en el hogar y lugares públicos. Realizan la entrevista, comparten resultados y elaboran una publicación en una revista escolar o trípticos.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 29,
+          "oa": "OA10",
+          "titulo": "Diseño de señaléticas de 'alto voltaje'",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan el significado y características de señaléticas destinadas a informar sobre 'alto voltaje' y riesgos de descargas eléctricas. Discuten sobre los lugares apropiados para colocarlas en el colegio y diseñan autoadhesivos.",
+          "interdisciplinariedad": "Tecnología"
+        },
+        {
+          "numero": 30,
+          "oa": "OA10",
+          "titulo": "Afiche sobre conductores, aisladores y seguridad eléctrica",
+          "habilidades": [],
+          "descripcion": "Elaboran un afiche explicativo sobre la relación entre conductores y aisladores eléctricos y las medidas de protección y seguridad frente a los peligros potenciales de la energía eléctrica."
+        },
+        {
+          "numero": 31,
+          "oa": "OA10",
+          "titulo": "Tarjetas y mapa conceptual sobre conceptos de electricidad",
+          "habilidades": [],
+          "descripcion": "Elaboran tarjetas con los conceptos más relevantes aprendidos y sus definiciones. Realizan un mapa conceptual que incluye conceptos como energía, electricidad, circuito eléctrico, aislante, conductores, voltaje, seguridad, señaléticas y artefactos eléctricos."
+        },
+        {
+          "numero": 32,
+          "oa": "OA11",
+          "titulo": "Listado de dispositivos eléctricos cotidianos y predicciones sin electricidad",
+          "habilidades": [
+            "OAb",
+            "OAc"
+          ],
+          "descripcion": "Hacen un listado de dispositivos eléctricos y electrónicos que portan las personas, se encuentran en la casa, en oficinas o colegio, en automóviles y en las calles. Formulan predicciones sobre qué ocurriría si no se dispusiera de energía eléctrica durante un día, una semana, un mes."
+        },
+        {
+          "numero": 33,
+          "oa": "OA11",
+          "titulo": "Registro y gráfico del gasto de electricidad del hogar y el colegio",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Registran el gasto de electricidad de la casa y el colegio por 5 meses, lo tabulan y grafican. Proponen y discuten ideas para ahorrar energía eléctrica en el hogar y en el establecimiento, explicando qué conductas deben adoptarse.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 34,
+          "oa": "OA11",
+          "titulo": "Manual o tríptico educativo sobre formas de ahorro de energía",
+          "habilidades": [
+            "OAc",
+            "OAg"
+          ],
+          "descripcion": "Construyen un manual o tríptico educativo sobre formas de ahorro de energía eléctrica en el colegio, las casas, la vía pública, los edificios, las fábricas y el comercio. Lo distribuyen en la comunidad escolar mediante una campaña del uso eficiente de la energía.",
+          "interdisciplinariedad": "Artes Visuales"
+        },
+        {
+          "numero": 35,
+          "oa": "OA11",
+          "titulo": "Campaña de ahorro de energía en el colegio",
+          "habilidades": [
+            "OAc",
+            "OAf"
+          ],
+          "descripcion": "Observan y registran las conductas de los miembros del colegio en relación al uso de la energía eléctrica. Organizan una campaña tendiente a crear consciencia sobre el ahorro. Después de algunos días, vuelven a observar y evalúan el impacto de la campaña."
+        },
+        {
+          "numero": 36,
+          "oa": "OA11",
+          "titulo": "Cuestionario sobre conductas de ahorro de energía en adultos",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Confeccionan un cuestionario para evaluar las conductas de ahorro de energía de adultos. Lo aplican a familiares y docentes de la escuela, tabulan la información, identifican las tendencias principales y confeccionan un informe sobre las conclusiones y posibles campañas requeridas."
+        },
+        {
+          "numero": 37,
+          "oa": "OA11",
+          "titulo": "Evolución del uso de la energía eléctrica en los hogares en 100 años",
+          "habilidades": [
+            "OAc",
+            "OAd"
+          ],
+          "descripcion": "Investigan y leen sobre aspectos relacionados con el uso de la energía eléctrica en aparatos que existían hace 100 años, hace 50 años y existen hoy. Enfocan la investigación a los hogares y obtienen información de adultos mayores del entorno familiar."
+        },
+        {
+          "numero": 38,
+          "oa": "OA11",
+          "titulo": "Consumo per cápita de energía eléctrica en Chile: gráfico y predicciones",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Investigan qué se entiende por 'consumo per cápita de energía eléctrica'. Buscan estadísticas sobre el consumo per cápita en Chile hace 50, 40, 30 años, etc. Construyen un gráfico con estos datos y predicen cómo será el consumo en 10, 20 y 30 años en el futuro.",
+          "interdisciplinariedad": "Matemática"
+        },
+        {
+          "numero": 39,
+          "oa": "OA11",
+          "titulo": "Importancia de dispositivos eléctricos para la seguridad vial",
+          "habilidades": [
+            "OAf"
+          ],
+          "descripcion": "Observan videos donde se ejemplifica una situación riesgosa en baja visibilidad vial sin dispositivos eléctricos, y otra con ellos. Distinguen la importancia de estos materiales como dispositivos eléctricos para la seguridad."
+        },
+        {
+          "numero": 40,
+          "oa": "OA11",
+          "titulo": "Debate: nuevas centrales eléctricas vs. campañas de ahorro",
+          "habilidades": [
+            "OAc"
+          ],
+          "descripcion": "Organizan un debate dentro del curso dividido en dos equipos: uno que defiende la creación de nuevas centrales eléctricas y otro que defiende las campañas de ahorro de energía. Exponen las conclusiones generales del debate.",
+          "interdisciplinariedad": "Lenguaje y Comunicación"
+        },
+        {
+          "numero": 41,
+          "oa": "OA11",
+          "titulo": "Campaña sobre el respeto a los semáforos",
+          "habilidades": [],
+          "descripcion": "Analizan la importancia de los sistemas de semáforos para el tránsito vehicular y peatonal seguro. Organizan una campaña que refuerce en los conductores el respeto por los semáforos y en los peatones el cruzar las calles cuando existe luz verde para ellos."
+        }
+      ],
+      "ejemplos_de_evaluacion": [
+        {
+          "numero": 1,
+          "oas_evaluados": [
+            "OA9",
+            "OA10",
+            "OAb",
+            "OAc"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican la función de cada uno de los elementos que constituyen un circuito eléctrico simple.",
+            "Registran similitudes y diferencias entre materiales conductores y aisladores de la electricidad.",
+            "Conectan los dispositivos que conforman un circuito simple.",
+            "Clasifican materiales buenos y malos conductores de la electricidad.",
+            "Planifican un experimento que permita diferenciar entre materiales conductores y aislantes.",
+            "Explican y comunican las normas de seguridad frente a los peligros de la corriente eléctrica.",
+            "Formulan autónomamente predicciones de los resultados que obtendrán en una investigación.",
+            "Fundamentan científicamente las predicciones formuladas.",
+            "Controlan una variable de la investigación.",
+            "Identifican y organizan las tareas y responsabilidades de la investigación."
+          ],
+          "actividad_evaluativa": "Construir el montaje del circuito de la figura (interrumpido entre los puntos A y B). a) Explicar por qué la ampolleta no enciende. b) Con los materiales disponibles (goma de borrar, moneda, mina de lápiz, regla de plástico, palo de fósforo, clip), planificar y realizar una investigación para determinar cuáles son conductores y cuáles aisladores eléctricos. c) Explicar por qué las herramientas metálicas de los electricistas tienen mangos cubiertos con goma. d) Señalar por qué este experimento debe hacerse con pilas y no con la red domiciliaria.",
+          "criterios_de_evaluacion": [
+            "Evidencian que comprenden el funcionamiento o no funcionamiento de un circuito, expresando que la ampolleta no enciende porque el circuito está cortado y no pasa corriente.",
+            "Demuestran que son capaces de planificar y realizar una investigación simple probando la conducción de electricidad de cada material cerrando el circuito en los puntos A y B.",
+            "Muestran comprender que las herramientas de los electricistas poseen gomas para evitar accidentes por descargas eléctricas.",
+            "Evidencian reconocer medidas de seguridad argumentando que las pilas entregan corrientes muy bajas, mientras que la corriente domiciliaria puede tener consecuencias fatales."
+          ]
+        },
+        {
+          "numero": 2,
+          "oas_evaluados": [
+            "OA9",
+            "OA11",
+            "OAc"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican la función de cada uno de los elementos que constituyen un circuito eléctrico simple.",
+            "Planifican un experimento que permita diferenciar entre materiales conductores y aislantes.",
+            "Explican los cambios de conductas destinados a ahorrar energía eléctrica.",
+            "Diseñan una investigación simple a partir de la formulación y/o selección de una pregunta de investigación.",
+            "Identifican las variables que se desean investigar.",
+            "Controlan una variable de la investigación."
+          ],
+          "actividad_evaluativa": "1. Análisis de un circuito con limón como fuente de energía: a) ¿qué función cumple el limón?, b) ¿de qué material deberían ser las placas X e Y?, c) ¿dónde se colocaría un interruptor y por qué?, d) ¿por qué no se ponen limones en una linterna? 2. Elaborar un volante díptico con tres formas de ahorrar energía eléctrica en los hogares y tres en el colegio, explicando en cada caso por qué la propuesta es un ejemplo de economía energética.",
+          "criterios_de_evaluacion": [
+            "Reconocen que el limón cumple la función de fuente de energía eléctrica (equivalente a una pila o batería).",
+            "Evidencian que comprenden los conceptos de 'conductor' y 'aislador' dando ejemplos de los posibles materiales para las placas X e Y.",
+            "Explican que el interruptor se puede colocar indistintamente antes o después de la ampolleta ya que en ambas situaciones se interrumpe el circuito.",
+            "Planifican y llevan a cabo investigaciones para determinar formas de ahorro de energía.",
+            "Representan diferentes formas de ahorro de energía a través de dibujos, esquemas, gráficos, etc.",
+            "Fundamentan en cada caso por qué los ejemplos seleccionados significan un ahorro de energía."
+          ]
+        },
+        {
+          "numero": 3,
+          "oas_evaluados": [
+            "OA8",
+            "OAf"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican el significado del concepto de energía proporcionando ejemplos en que se evidencia.",
+            "Señalan formas en que se manifiesta la energía en la naturaleza.",
+            "Comparan las formas en que se manifiesta la energía en la naturaleza comunicando similitudes y diferencias.",
+            "Describen aparatos o máquinas que funcionan con energía eléctrica y a qué tipo de energía están asociadas.",
+            "Comparan los resultados obtenidos con las predicciones formuladas previamente.",
+            "Concluyen información a partir de la investigación realizada."
+          ],
+          "actividad_evaluativa": "Considerar un circuito eléctrico domiciliario con los siguientes aparatos conectados y funcionando: a) ampolleta, b) ventilador, c) estufa, d) radio. 1. Explicar cómo estos aparatos hacen uso de energía. 2. Explicar en qué tipo de energía se transforma, principalmente, la energía eléctrica en cada uno de los aparatos.",
+          "criterios_de_evaluacion": [
+            "Muestran reconocer la energía como una forma de realizar trabajo.",
+            "Utilizan la información y las observaciones como evidencia para apoyar sus ideas sobre las formas en que se manifiesta la energía.",
+            "Demuestran reconocer aparatos que funcionan con energía eléctrica y a qué tipos de energía se asocian: ampolleta → energía luminosa y calórica; ventilador → movimiento (energía mecánica); estufa → energía calórica; radio → energía mecánica-sonora."
+          ]
+        },
+        {
+          "numero": 4,
+          "oas_evaluados": [
+            "OA9",
+            "OAb",
+            "OAc"
+          ],
+          "indicadores_de_evaluacion": [
+            "Explican la función de cada uno de los elementos que constituyen un circuito eléctrico simple.",
+            "Conectan los dispositivos que conforman un circuito simple.",
+            "Explican y comunican las normas de seguridad frente a los peligros de la corriente eléctrica.",
+            "Formulan autónomamente predicciones de los resultados que obtendrán en una investigación.",
+            "Fundamentan científicamente las predicciones formuladas.",
+            "Controlan una variable de la investigación.",
+            "Identifican las tareas y responsabilidades que se desprenden de la investigación."
+          ],
+          "actividad_evaluativa": "Con dos pilas, una ampolleta y cables: a) construir un circuito con una sola pila y observar la luminosidad, b) predecir qué ocurrirá con la luminosidad si el circuito se conecta a dos pilas con polos iguales enfrentados, c) verificar la predicción, d) comparar predicción con resultado obtenido, e) predecir qué ocurrirá con polos de diferentes signos enfrentados, f) verificar, g) comparar predicción con resultado experimental, h) comparar la luminosidad entre el caso (a) y el (f) y explicar la causa de la diferencia.",
+          "criterios_de_evaluacion": [
+            "Formulan predicciones sobre los efectos que se producen al conectar las pilas de un circuito de diferente manera.",
+            "Evidencian que comprenden el funcionamiento o no funcionamiento de un circuito dependiendo de cómo están conectadas las pilas.",
+            "Demuestran que son capaces de planificar y realizar una investigación simple probando lo que ocurre al conectar de diferentes maneras las pilas.",
+            "Muestran comprender la forma en que se conectan los diferentes elementos de un circuito.",
+            "Evidencian reconocer medidas de seguridad frente a los peligros de la electricidad, argumentando que las pilas son seguras mientras que la corriente domiciliaria puede tener consecuencias fatales.",
+            "Explican que la diferencia de intensidad de la luz depende de la cantidad de energía que se le entregue."
+          ]
+        }
+      ]
+    }
+  ],
+  "resumen": {
+    "total_oas_contenido": 14,
+    "total_habilidades_investigacion": 8,
+    "total_unidades": 4,
+    "total_indicadores_evaluacion": 78,
+    "total_actividades": 156,
+    "total_ejemplos_evaluacion": 16,
+    "por_unidad": [
+      {
+        "unidad": 1,
+        "titulo": "El agua en la Tierra",
+        "oas_contenido": [
+          "OA12",
+          "OA13",
+          "OA14"
+        ],
+        "actividades": 36,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 15
+      },
+      {
+        "unidad": 2,
+        "titulo": "Organización celular y sistemas digestivo, circulatorio y alimentación",
+        "oas_contenido": [
+          "OA1",
+          "OA2",
+          "OA5",
+          "OA4"
+        ],
+        "actividades": 47,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 26
+      },
+      {
+        "unidad": 3,
+        "titulo": "Sistema respiratorio, tabaco y microorganismos",
+        "oas_contenido": [
+          "OA3",
+          "OA6",
+          "OA7"
+        ],
+        "actividades": 32,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 18
+      },
+      {
+        "unidad": 4,
+        "titulo": "Energía eléctrica: transformaciones, circuitos y uso responsable",
+        "oas_contenido": [
+          "OA8",
+          "OA9",
+          "OA10",
+          "OA11"
+        ],
+        "actividades": 41,
+        "ejemplos_evaluacion": 4,
+        "indicadores": 19
+      }
+    ]
+  }
+}

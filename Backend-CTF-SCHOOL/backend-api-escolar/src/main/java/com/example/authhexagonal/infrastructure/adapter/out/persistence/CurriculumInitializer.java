@@ -252,10 +252,7 @@ public class CurriculumInitializer implements CommandLineRunner {
                 )
                 VALUES (?, ?, ?, ?, TRUE, ?, 'Ensenanza basica', 2)
                 ON CONFLICT ("CODIGO") DO UPDATE
-                SET "NOMBRE" = EXCLUDED."NOMBRE",
-                    "AREA" = EXCLUDED."AREA",
-                    "ACTIVA" = TRUE,
-                    "DESCRIPCION" = EXCLUDED."DESCRIPCION"
+                SET "ACTIVA" = TRUE
                 """, code, name, area, color, description);
     }
 
@@ -372,6 +369,7 @@ public class CurriculumInitializer implements CommandLineRunner {
 
         jdbcTemplate.update("""
                 INSERT INTO "UNIDADES_PLANIFICACION" (
+                    "ID",
                     "CARGA_DOCENTE_ID",
                     "NUMERO_UNIDAD",
                     "NOMBRE",
@@ -387,6 +385,7 @@ public class CurriculumInitializer implements CommandLineRunner {
                     "CREADO_POR_USUARIO_ID"
                 )
                 SELECT
+                    ?,
                     ?,
                     'UNIDAD_I',
                     ?,
@@ -407,6 +406,7 @@ public class CurriculumInitializer implements CommandLineRunner {
                       AND "NUMERO_UNIDAD" = 'UNIDAD_I'
                 )
                 """,
+                nextTableId("UNIDADES_PLANIFICACION"),
                 loadId,
                 "Bases curriculares 1 Basico - " + subjectName,
                 "Unidad piloto para validar objetivos de aprendizaje desde bases curriculares.",
@@ -415,6 +415,14 @@ public class CurriculumInitializer implements CommandLineRunner {
                 userId,
                 loadId
         );
+    }
+
+    private Long nextTableId(String tableName) {
+        Long nextId = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(MAX(\"ID\"), 0) + 1 FROM \"" + tableName + "\"",
+                Long.class
+        );
+        return nextId == null ? 1L : nextId;
     }
 
     private void upsertObjectiveForFirstGrade(

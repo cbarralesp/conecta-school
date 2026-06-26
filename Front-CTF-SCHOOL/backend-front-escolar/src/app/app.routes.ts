@@ -180,7 +180,7 @@ export const routes: Routes = [
   {
     path: 'dashboard/planificaciones-nuevo',
     canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACIONES' },
     loadComponent: () =>
       import('./features/plannings/pages/plannings-home-page.component').then(
         (m) => m.PlanningsHomePageComponent
@@ -189,10 +189,19 @@ export const routes: Routes = [
   {
     path: 'dashboard/planificaciones-nuevo/nueva-unidad',
     canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACIONES' },
     loadComponent: () =>
       import('./features/plannings/pages/plannings-unit-create-page.component').then(
         (m) => m.PlanningsUnitCreatePageComponent
+      )
+  },
+  {
+    path: 'dashboard/planificaciones-nuevo/nueva-clase',
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACIONES' },
+    loadComponent: () =>
+      import('./features/plannings/pages/plannings-class-create-page.component').then(
+        (m) => m.PlanningsClassCreatePageComponent
       )
   },
   {

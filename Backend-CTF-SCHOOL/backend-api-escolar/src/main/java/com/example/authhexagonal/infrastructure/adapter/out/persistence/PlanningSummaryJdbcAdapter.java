@@ -171,14 +171,22 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
 
         if (filter.semester() != null) {
             if (filter.semester() == 1) {
-                sql.append(" AND EXTRACT(MONTH FROM cp.\"FECHA_PLANIFICADA\") BETWEEN 1 AND 6");
+                sql.append("""
+                         AND EXTRACT(MONTH FROM COALESCE(cp."FECHA_PLANIFICADA", up."FECHA_INICIO"))
+                             BETWEEN 1 AND 6
+                        """);
             } else if (filter.semester() == 2) {
-                sql.append(" AND EXTRACT(MONTH FROM cp.\"FECHA_PLANIFICADA\") BETWEEN 7 AND 12");
+                sql.append("""
+                         AND EXTRACT(MONTH FROM COALESCE(cp."FECHA_PLANIFICADA", up."FECHA_INICIO"))
+                             BETWEEN 7 AND 12
+                        """);
             }
         }
 
         if (filter.month() != null) {
-            sql.append(" AND EXTRACT(MONTH FROM cp.\"FECHA_PLANIFICADA\") = ?");
+            sql.append("""
+                     AND EXTRACT(MONTH FROM COALESCE(cp."FECHA_PLANIFICADA", up."FECHA_INICIO")) = ?
+                    """);
             args.add(filter.month());
         }
 
