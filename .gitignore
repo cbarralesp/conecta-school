@@ -38,6 +38,7 @@ build/
 # Temporary files
 tmp/
 temp/
+tmp_publish/
 backups/
 *.tmp
 *.swp
