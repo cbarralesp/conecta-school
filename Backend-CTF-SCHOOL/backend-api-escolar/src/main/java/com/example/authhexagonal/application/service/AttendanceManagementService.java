@@ -380,7 +380,11 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
                 student.fullName(),
                 normalizeStatus(entry == null ? "SIN_MARCAR" : entry.status()),
                 entry == null ? null : entry.arrivalTime(),
-                entry == null ? null : entry.note()
+                entry == null ? null : entry.note(),
+                entry == null ? null : entry.departureTime(),
+                entry == null ? null : sanitizeDepartureReason(entry.departureReason()),
+                entry == null ? null : entry.departureJustified(),
+                entry == null ? null : entry.departureNote()
         );
     }
 
@@ -388,10 +392,37 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
         String status = normalizeStatus(command.status());
         String arrivalTime = command.arrivalTime() == null || command.arrivalTime().isBlank() ? null : command.arrivalTime().trim();
         String note = command.note() == null || command.note().isBlank() ? null : command.note().trim();
+        String departureTime = command.departureTime() == null || command.departureTime().isBlank()
+                ? null
+                : command.departureTime().trim();
+        String departureReason = sanitizeDepartureReason(command.departureReason());
+        Boolean departureJustified = departureTime == null ? null : Boolean.TRUE.equals(command.departureJustified());
+        String departureNote = command.departureNote() == null || command.departureNote().isBlank()
+                ? null
+                : command.departureNote().trim();
+
         if (!"ATRASADO".equals(status)) {
             arrivalTime = null;
         }
-        return new DailyAttendanceCommand(command.studentId(), status, arrivalTime, note);
+
+        if (departureTime == null) {
+            departureReason = null;
+            departureJustified = null;
+            departureNote = null;
+        } else if (!"PRESENTE".equals(status) && !"ATRASADO".equals(status)) {
+            status = "PRESENTE";
+        }
+
+        return new DailyAttendanceCommand(
+                command.studentId(),
+                status,
+                arrivalTime,
+                note,
+                departureTime,
+                departureReason,
+                departureJustified,
+                departureNote
+        );
     }
 
     private String normalizeStatus(String status) {
@@ -413,6 +444,19 @@ public class AttendanceManagementService implements ManageAttendanceUseCase {
             return "Clases suspendidas";
         }
         return reason.trim();
+    }
+
+    private String sanitizeDepartureReason(String reason) {
+        if (reason == null || reason.isBlank()) {
+            return null;
+        }
+
+        return switch (reason.trim().toUpperCase(CHILE)) {
+            case "MEDICO" -> "MEDICO";
+            case "TRAMITE" -> "TRAMITE";
+            case "FAMILIAR" -> "FAMILIAR";
+            default -> "OTRO";
+        };
     }
 
     private String resolveSuspensionMessage(String reason) {

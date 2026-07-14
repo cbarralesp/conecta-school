@@ -12,6 +12,7 @@ import com.example.authhexagonal.domain.model.EnrollmentPickupContact;
 import com.example.authhexagonal.domain.model.EnrollmentStudentAccess;
 import com.example.authhexagonal.domain.model.EnrollmentSummary;
 import com.example.authhexagonal.domain.port.out.ManageEnrollmentsPort;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,13 +35,13 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     @Override
-    public EnrollmentSummary summarizeEnrollments(String search, Long courseId, String status) {
+    public EnrollmentSummary summarizeEnrollments(Integer schoolYear, String search, Long courseId, String status) {
         String normalizedSearch = search == null ? "" : search.trim();
         String normalizedStatus = normalizeStatusFilter(status);
+        Integer normalizedSchoolYear = normalizeSchoolYear(schoolYear);
         boolean inactiveFilter = "INACTIVA".equals(normalizedStatus);
-        long normalizedCourseId = courseId == null ? -1L : courseId;
-
-        return jdbcTemplate.queryForObject("""
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
                 SELECT
                     COUNT(1) AS total,
                     COUNT(*) FILTER (WHERE UPPER(m."ESTADO") = 'ACTIVO') AS active_count,
@@ -49,35 +51,27 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 JOIN "ALUMNOS" a ON a."ID" = m."ALUMNO_ID"
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
                 LEFT JOIN "MATRICULA_APODERADOS" ap ON ap."MATRICULA_ID" = m."ID" AND ap."ACTIVO" = TRUE
-                WHERE (
-                        (? = TRUE AND COALESCE(m."ACTIVA", FALSE) = FALSE)
-                     OR (? = FALSE AND m."ACTIVA" = TRUE)
-                )
-                  AND (? = '' OR UPPER(a."NOMBRE" || ' ' || a."APELLIDOS" || ' ' || a."RUN" || ' ' || COALESCE(ap."NOMBRE", '') || ' ' || COALESCE(ap."APELLIDOS", ''))
-                        LIKE '%' || UPPER(?) || '%')
-                  AND (? = -1 OR c."ID" = ?)
-                  AND (
-                        ? = ''
-                     OR (? = 'INACTIVA' AND UPPER(COALESCE(m."ESTADO", '')) IN ('INACTIVA', 'INACTIVO'))
-                     OR UPPER(COALESCE(m."ESTADO", '')) = UPPER(?)
-                  )
-                """,
+                WHERE
+                """);
+
+        appendEnrollmentFilters(sql, params, inactiveFilter, normalizedSearch, normalizedSchoolYear, courseId, normalizedStatus);
+
+        return jdbcTemplate.queryForObject(sql.toString(),
                 (rs, rowNum) -> new EnrollmentSummary(
                         rs.getInt("total"),
                         rs.getInt("active_count"),
                         rs.getInt("pending_count"),
                         rs.getInt("course_count")
                 ),
-                inactiveFilter, inactiveFilter,
-                normalizedSearch, normalizedSearch,
-                normalizedCourseId, normalizedCourseId,
-                normalizedStatus, normalizedStatus, normalizedStatus
+                params.toArray()
         );
     }
 
     @Override
-    public List<EnrollmentCourseOption> findActiveCourses() {
-        return jdbcTemplate.query("""
+    public List<EnrollmentCourseOption> findActiveCourses(Integer schoolYear) {
+        Integer normalizedSchoolYear = normalizeSchoolYear(schoolYear);
+        List<Object> params = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
                 SELECT
                     c."ID",
                     c."CODIGO",
@@ -101,8 +95,20 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 LEFT JOIN "CURSO_JORNADAS" cj
                   ON cj."ID" = c."JORNADA_ID"
                 WHERE c."ACTIVO" = TRUE
+                """);
+
+        if (normalizedSchoolYear != null) {
+            sql.append("""
+                  AND c."ANIO_ESCOLAR" = ?
+                    """);
+            params.add(normalizedSchoolYear);
+        }
+
+        sql.append("""
                 ORDER BY c."ANIO_ESCOLAR" DESC, COALESCE(cg."ORDEN", 999), c."LETRA", c."CODIGO"
-                """, (rs, rowNum) -> new EnrollmentCourseOption(
+                """);
+
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> new EnrollmentCourseOption(
                 rs.getLong("ID"),
                 rs.getString("CODIGO"),
                 rs.getString("NOMBRE"),
@@ -110,21 +116,22 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 rs.getString("LETRA"),
                 rs.getInt("ANIO_ESCOLAR"),
                 rs.getString("JORNADA")
-        ));
+        ), params.toArray());
     }
 
     @Override
-    public List<EnrollmentListItem> findEnrollments(String search, Long courseId, String status, Integer page, Integer size) {
+    public List<EnrollmentListItem> findEnrollments(Integer schoolYear, String search, Long courseId, String status, Integer page, Integer size) {
         String normalizedSearch = search == null ? "" : search.trim();
         String normalizedStatus = normalizeStatusFilter(status);
+        Integer normalizedSchoolYear = normalizeSchoolYear(schoolYear);
         boolean inactiveFilter = "INACTIVA".equals(normalizedStatus);
-        long normalizedCourseId = courseId == null ? -1L : courseId;
         boolean paginated = page != null && size != null;
         int normalizedPage = page == null ? 0 : Math.max(page, 0);
         int normalizedSize = size == null ? Integer.MAX_VALUE : Math.max(size, 1);
         int offset = normalizedPage * normalizedSize;
+        List<Object> params = new ArrayList<>();
 
-        String sql = """
+        StringBuilder sql = new StringBuilder("""
                 SELECT
                     m."ID",
                     a."ID" AS student_id,
@@ -132,6 +139,7 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     a."NOMBRE",
                     a."APELLIDOS",
                     c."ID" AS course_id,
+                    c."ANIO_ESCOLAR" AS course_school_year,
                     TRIM(
                         COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE")
                         || CASE
@@ -150,44 +158,25 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
                 LEFT JOIN "CURSO_GRADOS" cg ON cg."ID" = c."GRADO_ID"
                 LEFT JOIN "MATRICULA_APODERADOS" ap ON ap."MATRICULA_ID" = m."ID" AND ap."ACTIVO" = TRUE
-                WHERE (
-                        (? = TRUE AND COALESCE(m."ACTIVA", FALSE) = FALSE)
-                     OR (? = FALSE AND m."ACTIVA" = TRUE)
-                )
-                  AND (? = '' OR UPPER(a."NOMBRE" || ' ' || a."APELLIDOS" || ' ' || a."RUN" || ' ' || COALESCE(ap."NOMBRE", '') || ' ' || COALESCE(ap."APELLIDOS", ''))
-                        LIKE '%' || UPPER(?) || '%')
-                  AND (? = -1 OR c."ID" = ?)
-                  AND (
-                        ? = ''
-                     OR (? = 'INACTIVA' AND UPPER(COALESCE(m."ESTADO", '')) IN ('INACTIVA', 'INACTIVO'))
-                     OR UPPER(COALESCE(m."ESTADO", '')) = UPPER(?)
-                  )
+                WHERE
+                """);
+
+        appendEnrollmentFilters(sql, params, inactiveFilter, normalizedSearch, normalizedSchoolYear, courseId, normalizedStatus);
+
+        sql.append("""
                 ORDER BY a."NOMBRE", a."APELLIDOS"
-                """;
+                """);
 
         if (paginated) {
-            sql += """
+            sql.append("""
                     LIMIT ?
                     OFFSET ?
-                    """;
+                    """);
+            params.add(normalizedSize);
+            params.add(offset);
         }
 
-        Object[] params = paginated
-                ? new Object[] {
-                inactiveFilter, inactiveFilter,
-                normalizedSearch, normalizedSearch,
-                normalizedCourseId, normalizedCourseId,
-                normalizedStatus, normalizedStatus, normalizedStatus,
-                normalizedSize, offset
-        }
-                : new Object[] {
-                inactiveFilter, inactiveFilter,
-                normalizedSearch, normalizedSearch,
-                normalizedCourseId, normalizedCourseId,
-                normalizedStatus, normalizedStatus, normalizedStatus
-        };
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new EnrollmentListItem(
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> new EnrollmentListItem(
                 rs.getLong("ID"),
                 rs.getLong("student_id"),
                 rs.getString("RUN"),
@@ -196,10 +185,11 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 (rs.getString("NOMBRE") + " " + rs.getString("APELLIDOS")).trim(),
                 rs.getLong("course_id"),
                 rs.getString("course_name"),
+                rs.getInt("course_school_year"),
                 rs.getString("guardian_name"),
                 rs.getString("ESTADO"),
                 rs.getObject("FECHA_MATRICULA", LocalDate.class).toString()
-        ), params);
+        ), params.toArray());
     }
 
     @Override
@@ -213,6 +203,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     a."APELLIDOS",
                     a."FECHA_NACIMIENTO",
                     COALESCE(a."GENERO", '') AS genero,
+                    COALESCE(a."FOTO_PATH", '') AS foto_path,
+                    COALESCE(a."FOTO_MIME_TYPE", '') AS foto_mime_type,
                     c."ID" AS course_id,
                     TRIM(
                         COALESCE(NULLIF(BTRIM(c."NOMBRE"), ''), cg."NOMBRE")
@@ -261,6 +253,8 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 rs.getString("APELLIDOS"),
                 rs.getObject("FECHA_NACIMIENTO", LocalDate.class).toString(),
                 rs.getString("genero"),
+                rs.getString("foto_path"),
+                rs.getString("foto_mime_type"),
                 rs.getLong("course_id"),
                 rs.getString("course_name"),
                 rs.getString("course_level"),
@@ -402,6 +396,30 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     @Override
+    public boolean hasActiveEnrollmentForStudentInSchoolYear(Long studentId, int schoolYear) {
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM "MATRICULAS" m
+                JOIN "CURSOS" c ON c."ID" = m."CURSO_ID"
+                WHERE m."ALUMNO_ID" = ?
+                  AND m."ACTIVA" = TRUE
+                  AND c."ANIO_ESCOLAR" = ?
+                """, Integer.class, studentId, schoolYear);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public Optional<Integer> findCourseSchoolYear(Long courseId) {
+        return jdbcTemplate.query("""
+                SELECT "ANIO_ESCOLAR"
+                FROM "CURSOS"
+                WHERE "ID" = ?
+                  AND "ACTIVO" = TRUE
+                LIMIT 1
+                """, (rs, rowNum) -> rs.getInt("ANIO_ESCOLAR"), courseId).stream().findFirst();
+    }
+
+    @Override
     public Long createStudent(
             String run,
             String name,
@@ -474,6 +492,16 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                     "ACTIVO" = TRUE
                 WHERE "ID" = ?
                 """, run, name, lastName, address, birthDate, gender, regionId, communeId, livesWith, allergies, specialistDiagnoses, emergencyContact, specialNeeds, studentId);
+    }
+
+    @Override
+    public void updateStudentPhoto(Long studentId, String photoPath, String photoMimeType) {
+        jdbcTemplate.update("""
+                UPDATE "ALUMNOS"
+                SET "FOTO_PATH" = ?,
+                    "FOTO_MIME_TYPE" = ?
+                WHERE "ID" = ?
+                """, photoPath, photoMimeType, studentId);
     }
 
     @Override
@@ -829,6 +857,10 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
                 DELETE FROM "MATRICULA_RETIRO_RESPONSABLES"
                 WHERE "MATRICULA_ID" = ?
                 """, enrollmentId);
+        if (contacts == null) {
+            return;
+        }
+
         for (EnrollmentPickupContact contact : contacts) {
             jdbcTemplate.update("""
                     INSERT INTO "MATRICULA_RETIRO_RESPONSABLES" (
@@ -849,30 +881,121 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
 
     @Override
     public void replaceDocuments(Long enrollmentId, List<EnrollmentDocument> documents) {
+        List<EnrollmentDocument> existingDocuments = findDocumentsByEnrollmentId(enrollmentId);
         jdbcTemplate.update("""
                 DELETE FROM "MATRICULA_DOCUMENTOS"
                 WHERE "MATRICULA_ID" = ?
                 """, enrollmentId);
+        if (documents == null) {
+            return;
+        }
 
         for (EnrollmentDocument document : documents) {
+            EnrollmentDocument existingDocument = existingDocuments.stream()
+                    .filter(item -> item.documentKey().equals(document.documentKey()))
+                    .findFirst()
+                    .orElse(null);
             jdbcTemplate.update("""
                     INSERT INTO "MATRICULA_DOCUMENTOS" (
                         "MATRICULA_ID",
                         "DOCUMENTO_CLAVE",
                         "NOMBRE_ARCHIVO",
+                        "STORAGE_PROVIDER",
+                        "STORAGE_KEY",
+                        "NOMBRE_ORIGINAL",
+                        "NOMBRE_INTERNO",
+                        "MIME_TYPE",
+                        "SIZE_BYTES",
+                        "FILE_PATH",
                         "DRIVE_FILE_ID",
                         "DRIVE_URL",
                         "ACTIVO"
                     )
-                    VALUES (?, ?, ?, ?, ?, TRUE)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                     """,
                     enrollmentId,
                     document.documentKey(),
                     document.fileName(),
+                    resolveStorageProvider(existingDocument == null ? document.storageProvider() : existingDocument.storageProvider()),
+                    existingDocument == null ? document.storageKey() : existingDocument.storageKey(),
+                    document.fileName(),
+                    existingDocument == null ? null : extractStoredName(existingDocument.filePath()),
+                    existingDocument == null ? document.mimeType() : existingDocument.mimeType(),
+                    existingDocument == null ? document.sizeBytes() : existingDocument.sizeBytes(),
+                    existingDocument == null ? document.filePath() : existingDocument.filePath(),
+                    existingDocument == null ? document.driveFileId() : existingDocument.driveFileId(),
+                    existingDocument == null ? document.driveUrl() : existingDocument.driveUrl()
+            );
+        }
+    }
+
+    @Override
+    public EnrollmentDocument upsertDocument(Long enrollmentId, EnrollmentDocument document) {
+        Optional<EnrollmentDocument> existingDocument = findDocumentByEnrollmentIdAndKey(enrollmentId, document.documentKey());
+        if (existingDocument.isPresent()) {
+            jdbcTemplate.update("""
+                    UPDATE "MATRICULA_DOCUMENTOS"
+                    SET "NOMBRE_ARCHIVO" = ?,
+                        "STORAGE_PROVIDER" = ?,
+                        "STORAGE_KEY" = ?,
+                        "NOMBRE_ORIGINAL" = ?,
+                        "NOMBRE_INTERNO" = ?,
+                        "MIME_TYPE" = ?,
+                        "SIZE_BYTES" = ?,
+                        "FILE_PATH" = ?,
+                        "DRIVE_FILE_ID" = ?,
+                        "DRIVE_URL" = ?,
+                        "ACTIVO" = TRUE
+                    WHERE "ID" = ?
+                    """,
+                    document.fileName(),
+                    document.storageProvider(),
+                    document.storageKey(),
+                    document.fileName(),
+                    extractStoredName(document.filePath()),
+                    document.mimeType(),
+                    document.sizeBytes(),
+                    document.filePath(),
+                    document.driveFileId(),
+                    document.driveUrl(),
+                    existingDocument.get().id()
+            );
+        } else {
+            jdbcTemplate.update("""
+                    INSERT INTO "MATRICULA_DOCUMENTOS" (
+                        "MATRICULA_ID",
+                        "DOCUMENTO_CLAVE",
+                        "NOMBRE_ARCHIVO",
+                        "STORAGE_PROVIDER",
+                        "STORAGE_KEY",
+                        "NOMBRE_ORIGINAL",
+                        "NOMBRE_INTERNO",
+                        "MIME_TYPE",
+                        "SIZE_BYTES",
+                        "FILE_PATH",
+                        "DRIVE_FILE_ID",
+                        "DRIVE_URL",
+                        "ACTIVO"
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                    """,
+                    enrollmentId,
+                    document.documentKey(),
+                    document.fileName(),
+                    resolveStorageProvider(document.storageProvider()),
+                    document.storageKey(),
+                    document.fileName(),
+                    extractStoredName(document.filePath()),
+                    document.mimeType(),
+                    document.sizeBytes(),
+                    document.filePath(),
                     document.driveFileId(),
                     document.driveUrl()
             );
         }
+
+        return findDocumentByEnrollmentIdAndKey(enrollmentId, document.documentKey())
+                .orElseThrow();
     }
 
     @Override
@@ -1006,20 +1129,119 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
     }
 
     private List<EnrollmentDocument> findDocumentsByEnrollmentId(Long enrollmentId) {
+        try {
+            return jdbcTemplate.query("""
+                    SELECT "ID",
+                           "DOCUMENTO_CLAVE",
+                           "NOMBRE_ARCHIVO",
+                           COALESCE("STORAGE_PROVIDER", '') AS "STORAGE_PROVIDER",
+                           COALESCE("STORAGE_KEY", '') AS "STORAGE_KEY",
+                           COALESCE("DRIVE_FILE_ID", '') AS "DRIVE_FILE_ID",
+                           COALESCE("DRIVE_URL", '') AS "DRIVE_URL",
+                           COALESCE("MIME_TYPE", '') AS "MIME_TYPE",
+                           "SIZE_BYTES",
+                           COALESCE("FILE_PATH", '') AS "FILE_PATH"
+                    FROM "MATRICULA_DOCUMENTOS"
+                    WHERE "MATRICULA_ID" = ?
+                      AND "ACTIVO" = TRUE
+                    ORDER BY "ID"
+                    """, (rs, rowNum) -> mapEnrollmentDocument(rs), enrollmentId);
+        } catch (BadSqlGrammarException exception) {
+            return findLegacyDocumentsByEnrollmentId(enrollmentId);
+        }
+    }
+
+    private Optional<EnrollmentDocument> findDocumentByEnrollmentIdAndKey(Long enrollmentId, String documentKey) {
+        try {
+            return jdbcTemplate.query("""
+                    SELECT "ID",
+                           "DOCUMENTO_CLAVE",
+                           "NOMBRE_ARCHIVO",
+                           COALESCE("STORAGE_PROVIDER", '') AS "STORAGE_PROVIDER",
+                           COALESCE("STORAGE_KEY", '') AS "STORAGE_KEY",
+                           COALESCE("DRIVE_FILE_ID", '') AS "DRIVE_FILE_ID",
+                           COALESCE("DRIVE_URL", '') AS "DRIVE_URL",
+                           COALESCE("MIME_TYPE", '') AS "MIME_TYPE",
+                           "SIZE_BYTES",
+                           COALESCE("FILE_PATH", '') AS "FILE_PATH"
+                    FROM "MATRICULA_DOCUMENTOS"
+                    WHERE "MATRICULA_ID" = ?
+                      AND "DOCUMENTO_CLAVE" = ?
+                    ORDER BY "ID" DESC
+                    LIMIT 1
+                    """, (rs, rowNum) -> mapEnrollmentDocument(rs), enrollmentId, documentKey).stream().findFirst();
+        } catch (BadSqlGrammarException exception) {
+            return findLegacyDocumentByEnrollmentIdAndKey(enrollmentId, documentKey);
+        }
+    }
+
+    private List<EnrollmentDocument> findLegacyDocumentsByEnrollmentId(Long enrollmentId) {
         return jdbcTemplate.query("""
-                SELECT "ID", "DOCUMENTO_CLAVE", "NOMBRE_ARCHIVO", COALESCE("DRIVE_FILE_ID", '') AS "DRIVE_FILE_ID",
+                SELECT "ID", "DOCUMENTO_CLAVE", "NOMBRE_ARCHIVO",
+                       COALESCE("DRIVE_FILE_ID", '') AS "DRIVE_FILE_ID",
                        COALESCE("DRIVE_URL", '') AS "DRIVE_URL"
                 FROM "MATRICULA_DOCUMENTOS"
                 WHERE "MATRICULA_ID" = ?
                   AND "ACTIVO" = TRUE
                 ORDER BY "ID"
-                """, (rs, rowNum) -> new EnrollmentDocument(
+                """, (rs, rowNum) -> mapLegacyEnrollmentDocument(rs), enrollmentId);
+    }
+
+    private Optional<EnrollmentDocument> findLegacyDocumentByEnrollmentIdAndKey(Long enrollmentId, String documentKey) {
+        return jdbcTemplate.query("""
+                SELECT "ID", "DOCUMENTO_CLAVE", "NOMBRE_ARCHIVO",
+                       COALESCE("DRIVE_FILE_ID", '') AS "DRIVE_FILE_ID",
+                       COALESCE("DRIVE_URL", '') AS "DRIVE_URL"
+                FROM "MATRICULA_DOCUMENTOS"
+                WHERE "MATRICULA_ID" = ?
+                  AND "DOCUMENTO_CLAVE" = ?
+                ORDER BY "ID" DESC
+                LIMIT 1
+                """, (rs, rowNum) -> mapLegacyEnrollmentDocument(rs), enrollmentId, documentKey).stream().findFirst();
+    }
+
+    private EnrollmentDocument mapEnrollmentDocument(ResultSet rs) throws SQLException {
+        long sizeValue = rs.getLong("SIZE_BYTES");
+        Long sizeBytes = rs.wasNull() ? null : sizeValue;
+        return new EnrollmentDocument(
                 rs.getLong("ID"),
                 rs.getString("DOCUMENTO_CLAVE"),
                 rs.getString("NOMBRE_ARCHIVO"),
+                rs.getString("STORAGE_PROVIDER"),
+                rs.getString("STORAGE_KEY"),
                 rs.getString("DRIVE_FILE_ID"),
-                rs.getString("DRIVE_URL")
-        ), enrollmentId);
+                rs.getString("DRIVE_URL"),
+                rs.getString("MIME_TYPE"),
+                sizeBytes,
+                rs.getString("FILE_PATH")
+        );
+    }
+
+    private EnrollmentDocument mapLegacyEnrollmentDocument(ResultSet rs) throws SQLException {
+        return new EnrollmentDocument(
+                rs.getLong("ID"),
+                rs.getString("DOCUMENTO_CLAVE"),
+                rs.getString("NOMBRE_ARCHIVO"),
+                "",
+                "",
+                rs.getString("DRIVE_FILE_ID"),
+                rs.getString("DRIVE_URL"),
+                "",
+                null,
+                ""
+        );
+    }
+
+    private String extractStoredName(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            return null;
+        }
+        int separatorIndex = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+        return separatorIndex >= 0 ? filePath.substring(separatorIndex + 1) : filePath;
+    }
+
+    private String resolveStorageProvider(String storageProvider) {
+        return storageProvider == null || storageProvider.isBlank() ? "local" : storageProvider;
     }
 
     private EnrollmentEstablishment mapEstablishment(ResultSet rs) throws SQLException {
@@ -1502,6 +1724,68 @@ public class EnrollmentJdbcAdapter implements ManageEnrollmentsPort {
             return "INACTIVA";
         }
         return normalized;
+    }
+
+    private void appendEnrollmentFilters(
+            StringBuilder sql,
+            List<Object> params,
+            boolean inactiveFilter,
+            String normalizedSearch,
+            Integer normalizedSchoolYear,
+            Long courseId,
+            String normalizedStatus
+    ) {
+        if (inactiveFilter) {
+            sql.append("""
+                    COALESCE(m."ACTIVA", FALSE) = FALSE
+                    """);
+        } else {
+            sql.append("""
+                    m."ACTIVA" = TRUE
+                    """);
+        }
+
+        if (normalizedSearch != null && !normalizedSearch.isBlank()) {
+            sql.append("""
+                      AND UPPER(a."NOMBRE" || ' ' || a."APELLIDOS" || ' ' || a."RUN" || ' ' || COALESCE(ap."NOMBRE", '') || ' ' || COALESCE(ap."APELLIDOS", ''))
+                            LIKE '%' || UPPER(?) || '%'
+                    """);
+            params.add(normalizedSearch);
+        }
+
+        if (normalizedSchoolYear != null) {
+            sql.append("""
+                      AND c."ANIO_ESCOLAR" = ?
+                    """);
+            params.add(normalizedSchoolYear);
+        }
+
+        if (courseId != null && courseId > 0) {
+            sql.append("""
+                      AND c."ID" = ?
+                    """);
+            params.add(courseId);
+        }
+
+        if (normalizedStatus != null && !normalizedStatus.isBlank()) {
+            if ("INACTIVA".equals(normalizedStatus)) {
+                sql.append("""
+                          AND UPPER(COALESCE(m."ESTADO", '')) IN ('INACTIVA', 'INACTIVO')
+                        """);
+            } else {
+                sql.append("""
+                          AND UPPER(COALESCE(m."ESTADO", '')) = ?
+                        """);
+                params.add(normalizedStatus);
+            }
+        }
+    }
+
+    private Integer normalizeSchoolYear(Integer schoolYear) {
+        if (schoolYear == null || schoolYear < 2000 || schoolYear > 2100) {
+            return null;
+        }
+        return schoolYear;
     }
 
     private Long ensureRoleId(

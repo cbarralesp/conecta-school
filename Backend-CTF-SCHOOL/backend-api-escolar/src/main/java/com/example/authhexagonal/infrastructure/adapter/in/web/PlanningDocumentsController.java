@@ -6,8 +6,11 @@ import com.example.authhexagonal.domain.model.PlanningDocumentFilter;
 import com.example.authhexagonal.domain.port.in.DeletePlanningDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.DownloadPlanningDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.ListPlanningDocumentsUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningDocumentVisibilityUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningDocumentDeleteResponse;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningDocumentResponse;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PlanningDocumentVisibilityUpdateRequest;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -16,6 +19,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -37,15 +45,18 @@ public class PlanningDocumentsController {
     private final ListPlanningDocumentsUseCase listPlanningDocumentsUseCase;
     private final DownloadPlanningDocumentUseCase downloadPlanningDocumentUseCase;
     private final DeletePlanningDocumentUseCase deletePlanningDocumentUseCase;
+    private final UpdatePlanningDocumentVisibilityUseCase updatePlanningDocumentVisibilityUseCase;
 
     public PlanningDocumentsController(
             ListPlanningDocumentsUseCase listPlanningDocumentsUseCase,
             DownloadPlanningDocumentUseCase downloadPlanningDocumentUseCase,
-            DeletePlanningDocumentUseCase deletePlanningDocumentUseCase
+            DeletePlanningDocumentUseCase deletePlanningDocumentUseCase,
+            UpdatePlanningDocumentVisibilityUseCase updatePlanningDocumentVisibilityUseCase
     ) {
         this.listPlanningDocumentsUseCase = listPlanningDocumentsUseCase;
         this.downloadPlanningDocumentUseCase = downloadPlanningDocumentUseCase;
         this.deletePlanningDocumentUseCase = deletePlanningDocumentUseCase;
+        this.updatePlanningDocumentVisibilityUseCase = updatePlanningDocumentVisibilityUseCase;
     }
 
     @GetMapping
@@ -85,7 +96,7 @@ public class PlanningDocumentsController {
                 .contentType(resolveMediaType(download.document().mimeType()))
                 .contentLength(download.content().length)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-                        .filename(download.document().originalName())
+                        .filename(resolveDownloadFileName(download.document().originalName()), StandardCharsets.UTF_8)
                         .build()
                         .toString())
                 .body(resource);
@@ -98,6 +109,47 @@ public class PlanningDocumentsController {
     ) {
         deletePlanningDocumentUseCase.deleteDocument(authentication.getName(), documentId);
         return new PlanningDocumentDeleteResponse(documentId, "ELIMINADO", "Documento eliminado correctamente");
+    }
+
+    @PutMapping("/{documentId}/visibility")
+    public PlanningDocumentResponse updateVisibility(
+            Authentication authentication,
+            @PathVariable("documentId") Long documentId,
+            @Valid @RequestBody PlanningDocumentVisibilityUpdateRequest request
+    ) {
+        return applyVisibilityUpdate(authentication, documentId, request);
+    }
+
+    @PostMapping("/{documentId}/visibility")
+    public PlanningDocumentResponse updateVisibilityViaPost(
+            Authentication authentication,
+            @PathVariable("documentId") Long documentId,
+            @Valid @RequestBody PlanningDocumentVisibilityUpdateRequest request
+    ) {
+        return applyVisibilityUpdate(authentication, documentId, request);
+    }
+
+    @PatchMapping("/{documentId}/visibility")
+    public PlanningDocumentResponse updateVisibilityViaPatch(
+            Authentication authentication,
+            @PathVariable("documentId") Long documentId,
+            @Valid @RequestBody PlanningDocumentVisibilityUpdateRequest request
+    ) {
+        return applyVisibilityUpdate(authentication, documentId, request);
+    }
+
+    private PlanningDocumentResponse applyVisibilityUpdate(
+            Authentication authentication,
+            Long documentId,
+            PlanningDocumentVisibilityUpdateRequest request
+    ) {
+        return PlanningDocumentResponse.fromDomain(
+                updatePlanningDocumentVisibilityUseCase.updateVisibility(
+                        authentication.getName(),
+                        documentId,
+                        Boolean.TRUE.equals(request.visibleToStudents())
+                )
+        );
     }
 
     private PlanningDocumentFileType parseType(String type) {
@@ -113,5 +165,9 @@ public class PlanningDocumentsController {
         } catch (Exception exception) {
             return MediaType.APPLICATION_OCTET_STREAM;
         }
+    }
+
+    private String resolveDownloadFileName(String fileName) {
+        return fileName == null || fileName.isBlank() ? "documento" : fileName;
     }
 }

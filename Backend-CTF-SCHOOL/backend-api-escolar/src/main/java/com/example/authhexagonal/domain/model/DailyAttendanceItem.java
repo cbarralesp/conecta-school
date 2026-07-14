@@ -6,6 +6,10 @@ public record DailyAttendanceItem(
         String fullName,
         String status,
         String arrivalTime,
-        String note
+        String note,
+        String departureTime,
+        String departureReason,
+        Boolean departureJustified,
+        String departureNote
 ) {
 }

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.charset.StandardCharsets;
+
 @RestController
 @RequestMapping("/api/student/documents")
 public class StudentDocumentController {
@@ -52,7 +54,7 @@ public class StudentDocumentController {
                 .contentType(resolveMediaType(download.mimeType()))
                 .contentLength(download.content().length)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
-                        .filename(download.fileName())
+                        .filename(resolveDownloadFileName(download.fileName()), StandardCharsets.UTF_8)
                         .build()
                         .toString())
                 .body(resource);
@@ -64,5 +66,9 @@ public class StudentDocumentController {
         } catch (Exception exception) {
             return MediaType.APPLICATION_OCTET_STREAM;
         }
+    }
+
+    private String resolveDownloadFileName(String fileName) {
+        return fileName == null || fileName.isBlank() ? "documento" : fileName;
     }
 }

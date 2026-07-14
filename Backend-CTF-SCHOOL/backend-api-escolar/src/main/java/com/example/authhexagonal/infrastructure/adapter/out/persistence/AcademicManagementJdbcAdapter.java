@@ -141,7 +141,11 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 SELECT
                     "ID",
                     "CODIGO",
-                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
+                    CASE
+                        WHEN COALESCE(BTRIM("LETRA"), '') = '' THEN "NOMBRE"
+                        WHEN RIGHT(BTRIM("NOMBRE"), LENGTH(BTRIM("LETRA"))) = BTRIM("LETRA") THEN "NOMBRE"
+                        ELSE "NOMBRE" || ' ' || "LETRA"
+                    END AS "NOMBRE",
                     "ANIO_ESCOLAR",
                     "JORNADA"
                 FROM "CURSOS"
@@ -192,7 +196,11 @@ public class AcademicManagementJdbcAdapter implements ManageSchedulesPort, Manag
                 SELECT
                     "ID",
                     "CODIGO",
-                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
+                    CASE
+                        WHEN COALESCE(BTRIM("LETRA"), '') = '' THEN "NOMBRE"
+                        WHEN RIGHT(BTRIM("NOMBRE"), LENGTH(BTRIM("LETRA"))) = BTRIM("LETRA") THEN "NOMBRE"
+                        ELSE "NOMBRE" || ' ' || "LETRA"
+                    END AS "NOMBRE",
                     "ANIO_ESCOLAR",
                     "JORNADA"
                 FROM "CURSOS"

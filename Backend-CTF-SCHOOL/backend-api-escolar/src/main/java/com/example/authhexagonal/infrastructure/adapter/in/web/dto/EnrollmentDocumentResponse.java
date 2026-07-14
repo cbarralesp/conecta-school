@@ -6,16 +6,24 @@ public record EnrollmentDocumentResponse(
         Long id,
         String documentKey,
         String fileName,
+        String storageProvider,
+        String storageKey,
         String driveFileId,
-        String driveUrl
+        String driveUrl,
+        String mimeType,
+        Long sizeBytes
 ) {
     public static EnrollmentDocumentResponse fromDomain(EnrollmentDocument document) {
         return new EnrollmentDocumentResponse(
                 document.id(),
                 document.documentKey(),
                 document.fileName(),
+                document.storageProvider(),
+                document.storageKey(),
                 document.driveFileId(),
-                document.driveUrl()
+                document.driveUrl(),
+                document.mimeType(),
+                document.sizeBytes()
         );
     }
 }

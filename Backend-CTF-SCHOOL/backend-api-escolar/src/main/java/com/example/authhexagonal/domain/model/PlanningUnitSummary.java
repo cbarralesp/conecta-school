@@ -6,6 +6,7 @@ public record PlanningUnitSummary(
         Long id,
         String unitNumberLabel,
         String name,
+        String colorHex,
         String subjectName,
         String courseName,
         PlanningUnitStatus status,

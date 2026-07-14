@@ -5,9 +5,10 @@ import java.util.List;
 
 public enum PlanningEvaluationType {
     FORMATIVA("FORMATIVA", "Formativa"),
+    PROCESO("PROCESO", "Proceso"),
     SUMATIVA("SUMATIVA", "Sumativa"),
     DIAGNOSTICA("DIAGNOSTICA", "Diagnostica"),
-    SIN_EVALUACION("SIN_EVALUACION", "Sin evaluacion");
+    SIN_EVALUACION("SIN_EVALUACION", "Clase");
 
     private final String code;
     private final String label;

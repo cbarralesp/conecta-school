@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/catalogos/ubicaciones")
+@RequestMapping({"/api/catalogos/ubicaciones", "/api/catálogos/ubicaciones"})
 public class LocationCatalogController {
 
     private final GetLocationCatalogUseCase getLocationCatalogUseCase;

@@ -2,7 +2,6 @@ package com.example.authhexagonal.infrastructure.adapter.in.web.dto;
 
 import com.example.authhexagonal.domain.model.TeacherAssignedCourse;
 import com.example.authhexagonal.domain.model.TeacherDashboard;
-import com.example.authhexagonal.domain.model.TeacherPlanningItem;
 import com.example.authhexagonal.domain.model.TeacherScheduleItem;
 
 import java.util.List;
@@ -16,8 +15,7 @@ public record TeacherDashboardResponse(
         int pendingPlanningCount,
         List<TeacherAssignedCourse> assignedCourses,
         List<TeacherScheduleItem> weeklySchedule,
-        List<TeacherScheduleItem> todaySchedulePreview,
-        List<TeacherPlanningItem> planningItems
+        List<TeacherScheduleItem> todaySchedulePreview
 ) {
     public static TeacherDashboardResponse fromDomain(TeacherDashboard dashboard) {
         return new TeacherDashboardResponse(
@@ -29,8 +27,7 @@ public record TeacherDashboardResponse(
                 dashboard.pendingPlanningCount(),
                 dashboard.assignedCourses(),
                 dashboard.weeklySchedule(),
-                dashboard.todaySchedulePreview(),
-                dashboard.planningItems()
+                dashboard.todaySchedulePreview()
         );
     }
 }

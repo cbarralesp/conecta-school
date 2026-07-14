@@ -1,5 +1,6 @@
 package com.example.authhexagonal.infrastructure.adapter.in.web;
 
+import com.example.authhexagonal.application.support.AcademicSemesterResolver;
 import com.example.authhexagonal.domain.model.PlanningSummaryFilter;
 import com.example.authhexagonal.domain.model.PlanningClassStatus;
 import com.example.authhexagonal.domain.model.PlanningDocumentFileType;
@@ -44,7 +45,15 @@ public class PlanningSummaryController {
         return PlanningSummaryResponse.fromDomain(
                 getPlanningSummaryUseCase.getSummary(
                         authentication.getName(),
-                        new PlanningSummaryFilter(subjectId, year, courseId, semester, month, parseStatus(status), parseDocumentType(documentType))
+                        new PlanningSummaryFilter(
+                                subjectId,
+                                year,
+                                courseId,
+                                AcademicSemesterResolver.resolveProvidedOrCurrent(semester),
+                                month,
+                                parseStatus(status),
+                                parseDocumentType(documentType)
+                        )
                 )
         );
     }

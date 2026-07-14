@@ -4,8 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class SchemaCompatibilityInitializer {
@@ -26,6 +31,7 @@ public class SchemaCompatibilityInitializer {
         ensureScheduleCourseScope();
         ensureGradeEvaluationColumns();
         ensurePedagogicalReportsSchema();
+        ensurePedagogicalQuestionBankSchema();
         ensureCourseNormalizationSchema();
         ensureSubjectEvaluationType();
         ensureConceptualGradeValue();
@@ -36,8 +42,14 @@ public class SchemaCompatibilityInitializer {
         ensureCourseEnrollmentConsistency();
         ensureActivityCourseScope();
         ensureAttendanceRegisterSuspensionMetadata();
+        ensureAttendanceEarlyDepartureMetadata();
+        ensurePlanningUnitColors();
         ensureSpecialActivityTypes();
         ensureEnrollmentExtendedContacts();
+        ensureEnrollmentDocumentStorageMetadata();
+        ensureStudentProfilePhotoColumns();
+        ensureStudentLifeInterviewsSchema();
+        ensureStudentLifeRecordsSchema();
     }
 
     private void ensureTeacherStaffType() {
@@ -58,6 +70,24 @@ public class SchemaCompatibilityInitializer {
         jdbcTemplate.execute("""
                 ALTER TABLE "CARGAS_DOCENTES"
                 ADD COLUMN IF NOT EXISTS "PERIODO_ID" BIGINT
+                """);
+
+        jdbcTemplate.execute("""
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1
+                        FROM pg_constraint
+                        WHERE conname = 'UK_CARGAS_DOCENTES'
+                    ) THEN
+                        ALTER TABLE "CARGAS_DOCENTES"
+                        DROP CONSTRAINT "UK_CARGAS_DOCENTES";
+                    END IF;
+                END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                DROP INDEX IF EXISTS "UK_CARGAS_DOCENTES"
                 """);
 
         jdbcTemplate.execute("""
@@ -98,6 +128,17 @@ public class SchemaCompatibilityInitializer {
                         FOREIGN KEY ("PERIODO_ID") REFERENCES "PERIODOS_ACADEMICOS" ("ID");
                     END IF;
                 END $$;
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS "UK_CARGAS_DOCENTES_PERIODO"
+                ON "CARGAS_DOCENTES" (
+                    "PROFESOR_ID",
+                    "CURSO_ID",
+                    "ASIGNATURA_ID",
+                    "ANIO_ESCOLAR",
+                    COALESCE("PERIODO_ID", 0)
+                )
                 """);
     }
 
@@ -243,6 +284,40 @@ public class SchemaCompatibilityInitializer {
                 """);
     }
 
+    private void ensurePlanningUnitColors() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "UNIDADES_PLANIFICACION"
+                ADD COLUMN IF NOT EXISTS "COLOR_HEX" character varying(7)
+                """);
+
+        jdbcTemplate.execute("""
+                WITH ordered_units AS (
+                    SELECT
+                        up."ID",
+                        ROW_NUMBER() OVER (
+                            PARTITION BY up."CARGA_DOCENTE_ID"
+                            ORDER BY COALESCE(up."FECHA_CREACION", CURRENT_TIMESTAMP), up."ID"
+                        ) AS color_order
+                    FROM "UNIDADES_PLANIFICACION" up
+                    WHERE up."COLOR_HEX" IS NULL OR TRIM(up."COLOR_HEX") = ''
+                )
+                UPDATE "UNIDADES_PLANIFICACION" up
+                SET "COLOR_HEX" = CASE MOD(ordered_units.color_order - 1, 9)
+                    WHEN 0 THEN '#6d28d9'
+                    WHEN 1 THEN '#10b981'
+                    WHEN 2 THEN '#f59e0b'
+                    WHEN 3 THEN '#3b82f6'
+                    WHEN 4 THEN '#8b5cf6'
+                    WHEN 5 THEN '#f97316'
+                    WHEN 6 THEN '#ef4444'
+                    WHEN 7 THEN '#ec4899'
+                    ELSE '#94a3b8'
+                END
+                FROM ordered_units
+                WHERE ordered_units."ID" = up."ID"
+                """);
+    }
+
     private void ensurePedagogicalReportsSchema() {
         LOGGER.info("Verificando compatibilidad minima de esquema para informes pedagogicos");
 
@@ -269,6 +344,22 @@ public class SchemaCompatibilityInitializer {
                 CREATE INDEX IF NOT EXISTS "IDX_INFORMES_PEDAGOGICOS_ALUMNO"
                 ON "INFORMES_PEDAGOGICOS" ("ALUMNO_ID")
                 """);
+    }
+
+    private void ensurePedagogicalQuestionBankSchema() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para banco pedagogico de preguntas");
+
+        boolean tableExists = tableExists("PEDAGOGICAL_QUESTION_BANK");
+        Integer rowCount = tableExists
+                ? jdbcTemplate.queryForObject(""" 
+                SELECT COUNT(*)
+                FROM "PEDAGOGICAL_QUESTION_BANK"
+                """, Integer.class)
+                : 0;
+
+        if (!tableExists || rowCount == null || rowCount == 0) {
+            jdbcTemplate.execute(readSqlResource("db/migration/V19__pedagogical_question_bank.sql"));
+        }
     }
 
     private void ensureEnrollmentExtendedContacts() {
@@ -338,6 +429,95 @@ public class SchemaCompatibilityInitializer {
                     "ACTIVO" boolean DEFAULT TRUE NOT NULL
                 )
                 """);
+    }
+
+    private void ensureStudentLifeInterviewsSchema() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para entrevistas de hoja de vida");
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "HOJA_VIDA_ENTREVISTAS" (
+                    "ID" BIGSERIAL PRIMARY KEY,
+                    "ALUMNO_ID" BIGINT NOT NULL REFERENCES "ALUMNOS" ("ID"),
+                    "MATRICULA_ID" BIGINT REFERENCES "MATRICULAS" ("ID"),
+                    "FECHA" DATE NOT NULL,
+                    "HORA" TIME WITHOUT TIME ZONE,
+                    "TIPO" character varying(30) NOT NULL,
+                    "PARTICIPANTES" TEXT,
+                    "MOTIVO" character varying(500) NOT NULL,
+                    "RESPONSABLE" character varying(180),
+                    "ROL_RESPONSABLE" character varying(120),
+                    "ESTADO" character varying(30) NOT NULL DEFAULT 'Realizada',
+                    "SINTESIS" TEXT,
+                    "ACUERDOS" TEXT,
+                    "ACTIVA" BOOLEAN NOT NULL DEFAULT TRUE,
+                    "CREADO_EN" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    "ACTUALIZADO_EN" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_HOJA_VIDA_ENTREVISTAS_ALUMNO"
+                ON "HOJA_VIDA_ENTREVISTAS" ("ALUMNO_ID", "FECHA" DESC)
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_HOJA_VIDA_ENTREVISTAS_MATRICULA"
+                ON "HOJA_VIDA_ENTREVISTAS" ("MATRICULA_ID")
+                """);
+    }
+
+    private void ensureStudentLifeRecordsSchema() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para convivencia de hoja de vida");
+
+        jdbcTemplate.execute("""
+                CREATE TABLE IF NOT EXISTS "HOJA_VIDA_CONVIVENCIA" (
+                    "ID" BIGSERIAL PRIMARY KEY,
+                    "ALUMNO_ID" BIGINT NOT NULL REFERENCES "ALUMNOS" ("ID"),
+                    "MATRICULA_ID" BIGINT REFERENCES "MATRICULAS" ("ID"),
+                    "FECHA" DATE NOT NULL,
+                    "HORA" TIME WITHOUT TIME ZONE,
+                    "TIPO" character varying(30) NOT NULL,
+                    "CATEGORIA" character varying(180) NOT NULL,
+                    "AREA" character varying(180),
+                    "RESPONSABLE" character varying(180),
+                    "ESTADO" character varying(60),
+                    "PLAZO" character varying(120),
+                    "DESCRIPCION" TEXT,
+                    "ACTIVA" BOOLEAN NOT NULL DEFAULT TRUE,
+                    "CREADO_EN" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    "ACTUALIZADO_EN" TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_HOJA_VIDA_CONVIVENCIA_ALUMNO"
+                ON "HOJA_VIDA_CONVIVENCIA" ("ALUMNO_ID", "FECHA" DESC)
+                """);
+
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS "IDX_HOJA_VIDA_CONVIVENCIA_MATRICULA"
+                ON "HOJA_VIDA_CONVIVENCIA" ("MATRICULA_ID")
+                """);
+    }
+
+    private boolean tableExists(String tableName) {
+        Boolean exists = jdbcTemplate.queryForObject("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM information_schema.tables
+                    WHERE table_schema = 'public'
+                      AND table_name = ?
+                )
+                """, Boolean.class, tableName);
+        return Boolean.TRUE.equals(exists);
+    }
+
+    private String readSqlResource(String resourcePath) {
+        try {
+            return StreamUtils.copyToString(new ClassPathResource(resourcePath).getInputStream(), StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            throw new IllegalStateException("No fue posible leer el recurso SQL " + resourcePath, exception);
+        }
     }
 
     private void ensureCourseNormalizationSchema() {
@@ -937,6 +1117,16 @@ public class SchemaCompatibilityInitializer {
                 """);
     }
 
+    private void ensureAttendanceEarlyDepartureMetadata() {
+        jdbcTemplate.execute("""
+                ALTER TABLE "ASISTENCIA_DETALLES"
+                    ADD COLUMN IF NOT EXISTS "HORA_SALIDA" TIME,
+                    ADD COLUMN IF NOT EXISTS "MOTIVO_SALIDA" VARCHAR(40),
+                    ADD COLUMN IF NOT EXISTS "SALIDA_JUSTIFICADA" BOOLEAN,
+                    ADD COLUMN IF NOT EXISTS "OBSERVACION_SALIDA" VARCHAR(255)
+                """);
+    }
+
     private void ensureSpecialActivityTypes() {
         jdbcTemplate.execute("""
                 INSERT INTO "TIPOS_ACTIVIDAD" ("CODIGO", "NOMBRE", "DESCRIPCION", "COLOR_FONDO", "COLOR_TEXTO", "ICONO", "ACTIVO")
@@ -954,6 +1144,72 @@ public class SchemaCompatibilityInitializer {
                     "COLOR_TEXTO" = EXCLUDED."COLOR_TEXTO",
                     "ICONO" = EXCLUDED."ICONO",
                     "ACTIVO" = TRUE
+                """);
+    }
+
+    private void ensureEnrollmentDocumentStorageMetadata() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para documentos de matricula");
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "MATRICULA_DOCUMENTOS"
+                    ADD COLUMN IF NOT EXISTS "STORAGE_PROVIDER" VARCHAR(20) NOT NULL DEFAULT 'local',
+                    ADD COLUMN IF NOT EXISTS "STORAGE_KEY" VARCHAR(500),
+                    ADD COLUMN IF NOT EXISTS "NOMBRE_ORIGINAL" VARCHAR(255),
+                    ADD COLUMN IF NOT EXISTS "NOMBRE_INTERNO" VARCHAR(255),
+                    ADD COLUMN IF NOT EXISTS "MIME_TYPE" VARCHAR(150),
+                    ADD COLUMN IF NOT EXISTS "SIZE_BYTES" BIGINT,
+                    ADD COLUMN IF NOT EXISTS "FILE_PATH" VARCHAR(700)
+                """);
+
+        jdbcTemplate.execute("""
+                UPDATE "MATRICULA_DOCUMENTOS"
+                SET "NOMBRE_ORIGINAL" = COALESCE(NULLIF("NOMBRE_ORIGINAL", ''), "NOMBRE_ARCHIVO")
+                WHERE "NOMBRE_ARCHIVO" IS NOT NULL
+                """);
+
+        normalizeEnrollmentDocumentCatalog();
+    }
+
+    private void ensureStudentProfilePhotoColumns() {
+        LOGGER.info("Verificando compatibilidad minima de esquema para foto de perfil de alumnos");
+
+        jdbcTemplate.execute("""
+                ALTER TABLE "ALUMNOS"
+                    ADD COLUMN IF NOT EXISTS "FOTO_PATH" TEXT,
+                    ADD COLUMN IF NOT EXISTS "FOTO_MIME_TYPE" VARCHAR(120)
+                """);
+    }
+
+    private void normalizeEnrollmentDocumentCatalog() {
+        jdbcTemplate.execute("""
+                UPDATE "MATRICULA_DOCUMENTOS" old_docs
+                SET "DOCUMENTO_CLAVE" = 'image-consent'
+                WHERE old_docs."DOCUMENTO_CLAVE" = 'image-permission'
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM "MATRICULA_DOCUMENTOS" new_docs
+                      WHERE new_docs."MATRICULA_ID" = old_docs."MATRICULA_ID"
+                        AND new_docs."DOCUMENTO_CLAVE" = 'image-consent'
+                  )
+                """);
+
+        jdbcTemplate.execute("""
+                WITH legacy_other_candidate AS (
+                    SELECT MIN(old_docs."ID") AS "ID"
+                    FROM "MATRICULA_DOCUMENTOS" old_docs
+                    WHERE old_docs."DOCUMENTO_CLAVE" IN ('junaeb-sep', 'migratory-docs', 'priority-certificate')
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM "MATRICULA_DOCUMENTOS" new_docs
+                          WHERE new_docs."MATRICULA_ID" = old_docs."MATRICULA_ID"
+                            AND new_docs."DOCUMENTO_CLAVE" = 'other'
+                      )
+                    GROUP BY old_docs."MATRICULA_ID"
+                )
+                UPDATE "MATRICULA_DOCUMENTOS" old_docs
+                SET "DOCUMENTO_CLAVE" = 'other'
+                FROM legacy_other_candidate candidate
+                WHERE old_docs."ID" = candidate."ID"
                 """);
     }
 

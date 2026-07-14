@@ -16,8 +16,8 @@ public class StudentDashboardService implements GetStudentDashboardUseCase {
     }
 
     @Override
-    public StudentDashboard getDashboard(String username) {
-        return loadStudentDashboardPort.findByUsername(username)
+    public StudentDashboard getDashboard(String username, Integer schoolYear, Integer semester) {
+        return loadStudentDashboardPort.findByUsername(username, schoolYear, semester)
                 .orElseThrow(() -> new UsernameNotFoundException("Student dashboard not found"));
     }
 }

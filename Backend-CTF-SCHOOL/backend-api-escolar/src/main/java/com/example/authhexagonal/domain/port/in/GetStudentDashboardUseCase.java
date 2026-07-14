@@ -4,5 +4,5 @@ import com.example.authhexagonal.domain.model.StudentDashboard;
 
 public interface GetStudentDashboardUseCase {
 
-    StudentDashboard getDashboard(String username);
+    StudentDashboard getDashboard(String username, Integer schoolYear, Integer semester);
 }

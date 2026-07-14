@@ -36,8 +36,7 @@ public class TeacherDashboardService implements GetTeacherDashboardUseCase {
                 dashboard.pendingPlanningCount(),
                 dashboard.assignedCourses(),
                 dashboard.weeklySchedule(),
-                resolveTodaySchedulePreview(dashboard.weeklySchedule()),
-                dashboard.planningItems()
+                resolveTodaySchedulePreview(dashboard.weeklySchedule())
         );
     }
 

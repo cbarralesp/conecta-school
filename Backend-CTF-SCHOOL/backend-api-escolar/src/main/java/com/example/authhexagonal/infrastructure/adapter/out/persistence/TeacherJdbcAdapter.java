@@ -219,17 +219,6 @@ public class TeacherJdbcAdapter {
                     """, teacherId);
         }
 
-        if (tableExists("PLANIFICACIONES")) {
-            jdbcTemplate.update("""
-                    DELETE FROM "PLANIFICACIONES"
-                    WHERE "CARGA_DOCENTE_ID" IN (
-                        SELECT "ID"
-                        FROM "CARGAS_DOCENTES"
-                        WHERE "PROFESOR_ID" = ?
-                    )
-                    """, teacherId);
-        }
-
         if (tableExists("UNIDADES_PLANIFICACION")) {
             jdbcTemplate.update("""
                     DELETE FROM "UNIDADES_PLANIFICACION"

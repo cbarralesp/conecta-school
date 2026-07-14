@@ -61,7 +61,7 @@ public class CourseController {
                 .toList();
     }
 
-    @GetMapping("/profesores-catalogo")
+    @GetMapping({"/profesores-catalogo", "/profesores-catálogo"})
     public List<TeacherCatalogResponse> searchTeachers(@RequestParam(name = "search", defaultValue = "") String search) {
         return manageCoursesUseCase.searchTeachers(search).stream()
                 .map(TeacherCatalogResponse::fromDomain)

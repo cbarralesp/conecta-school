@@ -12,6 +12,8 @@ public record EnrollmentDetailResponse(
         String studentLastName,
         String birthDate,
         String gender,
+        String studentPhotoUrl,
+        String studentPhotoMimeType,
         Long courseId,
         String courseName,
         String courseLevel,
@@ -46,6 +48,8 @@ public record EnrollmentDetailResponse(
                 detail.studentLastName(),
                 detail.birthDate(),
                 detail.gender(),
+                buildStudentPhotoUrl(detail),
+                detail.studentPhotoMimeType(),
                 detail.courseId(),
                 detail.courseName(),
                 detail.courseLevel(),
@@ -71,5 +75,12 @@ public record EnrollmentDetailResponse(
                 EnrollmentStudentAccessResponse.fromDomain(detail.studentAccess()),
                 EnrollmentGuardianAccessResponse.fromDomain(detail.guardianAccess())
         );
+    }
+
+    private static String buildStudentPhotoUrl(EnrollmentDetail detail) {
+        if (detail.studentPhotoPath() == null || detail.studentPhotoPath().isBlank()) {
+            return "";
+        }
+        return "/matriculas/" + detail.id() + "/foto";
     }
 }

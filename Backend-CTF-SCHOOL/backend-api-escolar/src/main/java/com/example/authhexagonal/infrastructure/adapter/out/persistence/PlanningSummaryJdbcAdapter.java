@@ -42,13 +42,13 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
                     COALESCE(SUM(unit_row.total_documents), 0) AS total_documents,
                     COALESCE(SUM(unit_row.visible_documents), 0) AS visible_documents,
                     CASE
-                        WHEN COALESCE(SUM(unit_row.planned_classes), 0) <= 0 THEN
+                        WHEN COALESCE(SUM(unit_row.total_classes), 0) <= 0 THEN
                             CASE WHEN COALESCE(SUM(unit_row.published_classes), 0) > 0 THEN 100 ELSE 0 END
                         ELSE LEAST(
                             100,
                             ROUND(
                                 (COALESCE(SUM(unit_row.published_classes), 0)::numeric
-                                / NULLIF(SUM(unit_row.planned_classes), 0)::numeric) * 100
+                                / NULLIF(SUM(unit_row.total_classes), 0)::numeric) * 100
                             )::int
                         )
                     END AS semester_progress
@@ -83,10 +83,7 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
                 JOIN "PROFESORES" pr ON pr."ID" = cd."PROFESOR_ID"
                 JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID"
                 JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID"
-                WHERE (
-                    app_user.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
-                    OR pr."PERSONA_ID" = app_user.persona_id
-                )
+                WHERE 1 = 1
                 """);
         args.add(username);
 
@@ -115,8 +112,10 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
                     up."ID" AS id,
                     up."NUMERO_UNIDAD" AS unit_code,
                     up."NOMBRE" AS unit_name,
+                    COALESCE(up."COLOR_HEX", '#6d28d9') AS unit_color_hex,
                     a."ID" AS subject_id,
                     a."NOMBRE" AS subject_name,
+                    COALESCE(a."COLOR_HEX", '#7c3aed') AS subject_color_hex,
                     c."NOMBRE" AS course_name,
                     up."SEMANA_INICIO" AS start_week,
                     up."FECHA_INICIO" AS start_date,
@@ -138,10 +137,7 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
                     ON pd."UNIDAD_ID" = up."ID"
                    AND COALESCE(pd."ELIMINADO", FALSE) = FALSE
                    AND COALESCE(pd."ESTADO", 'ACTIVO') = 'ACTIVO'
-                WHERE (
-                    app_user.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
-                    OR pr."PERSONA_ID" = app_user.persona_id
-                )
+                WHERE 1 = 1
                 """);
         args.add(username);
 
@@ -220,8 +216,10 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
                     up."ID",
                     up."NUMERO_UNIDAD",
                     up."NOMBRE",
+                    up."COLOR_HEX",
                     a."ID",
                     a."NOMBRE",
+                    a."COLOR_HEX",
                     c."NOMBRE",
                     up."SEMANA_INICIO",
                     up."FECHA_INICIO",
@@ -241,12 +239,13 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
 
     private PlanningSummaryUnit mapSummaryUnit(ResultSet rs) throws SQLException {
         int plannedClasses = rs.getInt("planned_classes");
+        int totalClasses = rs.getInt("total_classes");
         int publishedClasses = rs.getInt("published_classes");
         int progressPercent;
-        if (plannedClasses <= 0) {
+        if (totalClasses <= 0) {
             progressPercent = publishedClasses > 0 ? 100 : 0;
         } else {
-            progressPercent = Math.min(100, (int) Math.round((publishedClasses * 100.0) / plannedClasses));
+            progressPercent = Math.min(100, (int) Math.round((publishedClasses * 100.0) / totalClasses));
         }
 
         PlanningSummaryStatus status = progressPercent <= 0
@@ -269,13 +268,17 @@ public class PlanningSummaryJdbcAdapter implements PlanningSummaryRepositoryPort
                 rs.getLong("id"),
                 compactUnitCode(rs.getString("unit_code")),
                 rs.getString("unit_name"),
+                rs.getString("unit_color_hex"),
                 rs.getLong("subject_id"),
                 rs.getString("subject_name"),
+                rs.getString("subject_color_hex"),
                 rs.getString("course_name"),
                 plannedClasses,
                 rs.getInt("total_classes"),
                 publishedClasses,
                 rs.getInt("total_documents"),
+                rs.getDate("start_date") == null ? null : rs.getDate("start_date").toLocalDate(),
+                rs.getDate("end_date") == null ? null : rs.getDate("end_date").toLocalDate(),
                 weekRange,
                 progressPercent,
                 status

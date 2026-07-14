@@ -30,7 +30,7 @@ public class AttendanceController {
         this.manageAttendanceUseCase = manageAttendanceUseCase;
     }
 
-    @GetMapping("/catalogo")
+    @GetMapping({"/catalogo", "/catálogo"})
     public AttendanceCatalog catalog() {
         return manageAttendanceUseCase.getCatalog();
     }
@@ -48,7 +48,16 @@ public class AttendanceController {
         List<DailyAttendanceCommand> commands = request.entries() == null
                 ? List.of()
                 : request.entries().stream()
-                .map(entry -> new DailyAttendanceCommand(entry.studentId(), entry.status(), entry.arrivalTime(), entry.note()))
+                .map(entry -> new DailyAttendanceCommand(
+                        entry.studentId(),
+                        entry.status(),
+                        entry.arrivalTime(),
+                        entry.note(),
+                        entry.departureTime(),
+                        entry.departureReason(),
+                        entry.departureJustified(),
+                        entry.departureNote()
+                ))
                 .toList();
         return manageAttendanceUseCase.saveDailyAttendance(
                 request.courseId(),

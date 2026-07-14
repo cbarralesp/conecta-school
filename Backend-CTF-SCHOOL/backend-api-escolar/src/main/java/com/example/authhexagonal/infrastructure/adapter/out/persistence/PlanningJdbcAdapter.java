@@ -54,10 +54,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                 JOIN "PROFESORES" pr ON pr."ID" = cd."PROFESOR_ID"
                 JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID" AND a."ACTIVA" = TRUE
                 JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID" AND c."ACTIVO" = TRUE
-                WHERE (
-                    cu.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
-                    OR pr."PERSONA_ID" = cu.persona_id
-                )
+                WHERE 1 = 1
                 ORDER BY school_year DESC, course_name, subject_name
                 """, (rs, rowNum) -> new PlanningUnitCatalogAssignment(
                 rs.getLong("load_id"),
@@ -87,6 +84,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
             Long loadId,
             String unitNumber,
             String name,
+            String colorHex,
             Integer startWeek,
             LocalDate startDate,
             LocalDate endDate,
@@ -105,6 +103,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                     "CARGA_DOCENTE_ID",
                     "NUMERO_UNIDAD",
                     "NOMBRE",
+                    "COLOR_HEX",
                     "SEMANA_INICIO",
                     "FECHA_INICIO",
                     "FECHA_TERMINO",
@@ -116,12 +115,13 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                     "ESTADO",
                     "CREADO_POR_USUARIO_ID"
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 RETURNING "ID"
                 """, Long.class,
                 loadId,
                 unitNumber,
                 name,
+                colorHex,
                 startWeek,
                 startDate,
                 endDate,
@@ -165,6 +165,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
             Long unitId,
             String unitNumber,
             String name,
+            String colorHex,
             Integer startWeek,
             LocalDate startDate,
             LocalDate endDate,
@@ -178,6 +179,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                 UPDATE "UNIDADES_PLANIFICACION"
                 SET "NUMERO_UNIDAD" = ?,
                     "NOMBRE" = ?,
+                    "COLOR_HEX" = ?,
                     "SEMANA_INICIO" = ?,
                     "FECHA_INICIO" = ?,
                     "FECHA_TERMINO" = ?,
@@ -191,6 +193,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                 """,
                 unitNumber,
                 name,
+                colorHex,
                 startWeek,
                 startDate,
                 endDate,
@@ -239,6 +242,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                     up."ID",
                     up."NUMERO_UNIDAD",
                     up."NOMBRE",
+                    COALESCE(up."COLOR_HEX", '#6d28d9') AS color_hex,
                     a."NOMBRE" AS subject_name,
                     c."NOMBRE" AS course_name,
                     up."ESTADO",
@@ -250,15 +254,13 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                 JOIN "PROFESORES" pr ON pr."ID" = cd."PROFESOR_ID"
                 JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID"
                 JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID"
-                WHERE (
-                    cu.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
-                    OR pr."PERSONA_ID" = cu.persona_id
-                )
+                WHERE 1 = 1
                 ORDER BY up."FECHA_CREACION" DESC, up."ID" DESC
                 """, (rs, rowNum) -> new PlanningUnitSummary(
                 rs.getLong("ID"),
                 resolveUnitNumberLabel(rs.getString("NUMERO_UNIDAD")),
                 rs.getString("NOMBRE"),
+                rs.getString("color_hex"),
                 rs.getString("subject_name"),
                 rs.getString("course_name"),
                 PlanningUnitStatus.valueOf(rs.getString("ESTADO")),
@@ -279,6 +281,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                     c."NOMBRE" AS course_name,
                     up."NUMERO_UNIDAD",
                     up."NOMBRE",
+                    COALESCE(up."COLOR_HEX", '#6d28d9') AS color_hex,
                     up."SEMANA_INICIO",
                     up."FECHA_INICIO",
                     up."FECHA_TERMINO",
@@ -321,6 +324,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                     c."NOMBRE" AS course_name,
                     up."NUMERO_UNIDAD",
                     up."NOMBRE",
+                    COALESCE(up."COLOR_HEX", '#6d28d9') AS color_hex,
                     up."SEMANA_INICIO",
                     up."FECHA_INICIO",
                     up."FECHA_TERMINO",
@@ -340,10 +344,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                 JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID"
                 JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID"
                 JOIN "USUARIOS" creator ON creator."ID" = up."CREADO_POR_USUARIO_ID"
-                WHERE (
-                    cu.role_code IN ('SUPERADMIN', 'DIRECTOR', 'INSPECTOR', 'SECRETARIA')
-                    OR pr."PERSONA_ID" = cu.persona_id
-                )
+                WHERE 1 = 1
                 """, this::mapPlanningUnit, username, unitId).stream().findFirst();
     }
 
@@ -358,6 +359,7 @@ public class PlanningJdbcAdapter implements PlanningUnitRepositoryPort, Planning
                 rs.getString("NUMERO_UNIDAD"),
                 resolveUnitNumberLabel(rs.getString("NUMERO_UNIDAD")),
                 rs.getString("NOMBRE"),
+                rs.getString("color_hex"),
                 rs.getObject("SEMANA_INICIO", Integer.class),
                 rs.getDate("FECHA_INICIO").toLocalDate(),
                 rs.getDate("FECHA_TERMINO").toLocalDate(),

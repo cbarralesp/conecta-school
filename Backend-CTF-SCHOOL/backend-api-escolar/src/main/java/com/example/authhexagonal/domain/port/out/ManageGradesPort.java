@@ -44,6 +44,14 @@ public interface ManageGradesPort {
 
     List<PedagogicalQuestionBankRow> findPedagogicalQuestionBank(String levelCode);
 
+    Optional<PedagogicalQuestionBankRow> findPedagogicalQuestionBankQuestionById(Long questionId);
+
+    Long createPedagogicalQuestionBankQuestion(String areaKey, String levelCode, String questionKind, String questionText);
+
+    boolean updatePedagogicalQuestionBankQuestion(Long questionId, String questionText);
+
+    boolean deactivatePedagogicalQuestionBankQuestion(Long questionId);
+
     Optional<String> findPedagogicalReportContent(Long courseId, Long periodId, Long studentId);
 
     void savePedagogicalReportContent(Long courseId, Long periodId, Long studentId, String contentJson);

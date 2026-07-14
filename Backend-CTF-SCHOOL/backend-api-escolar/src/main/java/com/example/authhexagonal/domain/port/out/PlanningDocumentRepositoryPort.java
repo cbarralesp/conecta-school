@@ -12,5 +12,7 @@ public interface PlanningDocumentRepositoryPort {
 
     Optional<PlanningDocument> findAccessibleById(String username, Long documentId);
 
+    PlanningDocument updateVisibility(Long documentId, boolean visibleToStudents);
+
     void markDeleted(Long documentId);
 }

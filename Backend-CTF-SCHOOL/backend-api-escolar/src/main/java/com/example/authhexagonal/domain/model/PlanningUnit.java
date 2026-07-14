@@ -13,6 +13,7 @@ public record PlanningUnit(
         String unitNumber,
         String unitNumberLabel,
         String name,
+        String colorHex,
         Integer startWeek,
         LocalDate startDate,
         LocalDate endDate,

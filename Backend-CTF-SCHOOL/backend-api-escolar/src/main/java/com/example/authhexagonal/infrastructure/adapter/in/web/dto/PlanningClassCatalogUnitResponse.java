@@ -11,6 +11,8 @@ public record PlanningClassCatalogUnitResponse(
         String subjectName,
         Long courseId,
         String courseName,
+        Integer schoolYear,
+        Integer semester,
         String status
 ) {
     public static PlanningClassCatalogUnitResponse fromDomain(PlanningClassCatalogUnit unit) {
@@ -23,6 +25,8 @@ public record PlanningClassCatalogUnitResponse(
                 unit.subjectName(),
                 unit.courseId(),
                 unit.courseName(),
+                unit.schoolYear(),
+                unit.semester(),
                 unit.status()
         );
     }

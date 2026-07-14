@@ -6,6 +6,9 @@ import com.example.authhexagonal.domain.model.GradeEvaluationCommand;
 import com.example.authhexagonal.domain.model.GradeReportView;
 import com.example.authhexagonal.domain.model.GradeSaveCommand;
 import com.example.authhexagonal.domain.model.PedagogicalQuestionBankArea;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankCreateCommand;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankQuestion;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankUpdateCommand;
 import com.example.authhexagonal.domain.model.PedagogicalReportArea;
 import com.example.authhexagonal.domain.model.PedagogicalReportContent;
 import com.example.authhexagonal.domain.model.PedagogicalReportItem;
@@ -14,6 +17,8 @@ import com.example.authhexagonal.domain.model.PedagogicalReportView;
 import com.example.authhexagonal.domain.model.StudentGradeProfileView;
 import com.example.authhexagonal.domain.port.in.ManageGradesUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.GradeEvaluationRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalQuestionBankCreateRequest;
+import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalQuestionBankUpdateRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalReportAreaRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalReportContentRequest;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.PedagogicalReportSaveRequest;
@@ -32,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/calificaciones")
+@RequestMapping({"/api/calificaciones", "/api/calificaciónes"})
 public class GradesController {
 
     private final ManageGradesUseCase manageGradesUseCase;
@@ -41,7 +46,7 @@ public class GradesController {
         this.manageGradesUseCase = manageGradesUseCase;
     }
 
-    @GetMapping("/catalogo")
+    @GetMapping({"/catalogo", "/catálogo"})
     public GradeCatalog catalog() {
         return manageGradesUseCase.getCatalog();
     }
@@ -115,6 +120,34 @@ public class GradesController {
             @RequestParam(name = "levelCode", required = false) String levelCode
     ) {
         return manageGradesUseCase.getPedagogicalQuestionBank(levelCode);
+    }
+
+    @PostMapping("/informes-pedagogicos/banco")
+    public PedagogicalQuestionBankQuestion createPedagogicalQuestion(
+            @Valid @RequestBody PedagogicalQuestionBankCreateRequest request
+    ) {
+        return manageGradesUseCase.createPedagogicalQuestionBankQuestion(new PedagogicalQuestionBankCreateCommand(
+                request.areaKey(),
+                request.levelCode(),
+                request.questionKind(),
+                request.questionText()
+        ));
+    }
+
+    @PutMapping("/informes-pedagogicos/banco/{questionId}")
+    public PedagogicalQuestionBankQuestion updatePedagogicalQuestion(
+            @PathVariable("questionId") Long questionId,
+            @Valid @RequestBody PedagogicalQuestionBankUpdateRequest request
+    ) {
+        return manageGradesUseCase.updatePedagogicalQuestionBankQuestion(new PedagogicalQuestionBankUpdateCommand(
+                questionId,
+                request.questionText()
+        ));
+    }
+
+    @DeleteMapping("/informes-pedagogicos/banco/{questionId}")
+    public void deletePedagogicalQuestion(@PathVariable("questionId") Long questionId) {
+        manageGradesUseCase.deletePedagogicalQuestionBankQuestion(questionId);
     }
 
     @GetMapping("/informes-pedagogicos")

@@ -7,6 +7,10 @@ public record AttendanceRecordEntry(
         LocalDate attendanceDate,
         String status,
         String arrivalTime,
-        String note
+        String note,
+        String departureTime,
+        String departureReason,
+        Boolean departureJustified,
+        String departureNote
 ) {
 }

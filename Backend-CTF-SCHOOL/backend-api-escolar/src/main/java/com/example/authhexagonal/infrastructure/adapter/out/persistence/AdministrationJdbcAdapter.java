@@ -56,7 +56,6 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             "ACTIVIDADES",
             "CONTENIDO",
             "PLANIFICACIONES",
-            "PLANIFICACION",
             "USUARIOS",
             "ROLES",
             "MATRIZ_ACCESO",
@@ -74,7 +73,6 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
             Map.entry("ACTIVIDADES", "Actividades"),
             Map.entry("CONTENIDO", "Contenido"),
             Map.entry("PLANIFICACIONES", "Planificaciones"),
-            Map.entry("PLANIFICACION", "Planificación"),
             Map.entry("USUARIOS", "Usuarios"),
             Map.entry("ROLES", "Roles"),
             Map.entry("MATRIZ_ACCESO", "Matriz de acceso"),
@@ -113,14 +111,21 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     public List<AdministrationRoleOption> findRoleOptions() {
         ensureDefaultRolesPresent();
         return jdbcTemplate.query("""
-                SELECT "CODIGO", "NOMBRE", "DESCRIPCION"
-                FROM "ADMIN_ROLES"
-                WHERE "ACTIVO" = TRUE
-                ORDER BY "ORDEN_VISUAL"
+                SELECT
+                    roles."CODIGO",
+                    roles."NOMBRE",
+                    roles."DESCRIPCION",
+                    COUNT(settings."USUARIO_ID") FILTER (WHERE settings."ESTADO" = 'Activo') AS user_count
+                FROM "ADMIN_ROLES" roles
+                LEFT JOIN "ADMIN_USER_SETTINGS" settings ON settings."ROL_ID" = roles."ID"
+                WHERE roles."ACTIVO" = TRUE
+                GROUP BY roles."ID", roles."CODIGO", roles."NOMBRE", roles."DESCRIPCION", roles."ORDEN_VISUAL"
+                ORDER BY roles."ORDEN_VISUAL"
                 """, (rs, rowNum) -> new AdministrationRoleOption(
                 rs.getString("CODIGO"),
                 rs.getString("NOMBRE"),
-                rs.getString("DESCRIPCION")
+                rs.getString("DESCRIPCION"),
+                rs.getInt("user_count")
         ));
     }
 
@@ -982,17 +987,24 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     public Optional<String> findEffectiveRoleCodeByUsername(String username) {
+        String resolvedStaffType = "UPPER(COALESCE(NULLIF(TRIM(prof.\"TIPO_PERSONAL\"), ''), 'DOCENTE'))";
         return jdbcTemplate.query("""
-                SELECT r."CODIGO"
+                SELECT CASE
+                    WHEN UPPER(r."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'ASISTENTE'
+                    ELSE r."CODIGO"
+                END AS "CODIGO"
                 FROM "USUARIOS" u
                 LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
                 LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                LEFT JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
+                LEFT JOIN "PROFESORES" prof ON prof."PERSONA_ID" = p."ID"
                 WHERE UPPER(u."USUARIO") = UPPER(?)
-                """, (rs, rowNum) -> rs.getString("CODIGO"), username).stream().findFirst();
+                """.formatted(resolvedStaffType), (rs, rowNum) -> rs.getString("CODIGO"), username).stream().findFirst();
     }
 
     public Optional<AuthenticatedAdminUser> findAuthenticationUser(String username) {
         String normalizedIdentifier = normalizeRunIdentifier(username);
+        String resolvedStaffType = "UPPER(COALESCE(NULLIF(TRIM(prof.\"TIPO_PERSONAL\"), ''), 'DOCENTE'))";
         List<AuthenticatedAdminUser> users = jdbcTemplate.query("""
                 SELECT
                     u."ID" AS user_id,
@@ -1001,16 +1013,23 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                     u."ACTIVO",
                     COALESCE(p."CORREO_ELECTRONICO", '') AS email,
                     TRIM(COALESCE(p."NOMBRES", '') || ' ' || COALESCE(p."APELLIDOS", '')) AS display_name,
-                    COALESCE(r."CODIGO", 'PROFESOR') AS role_code,
+                    COALESCE(
+                        CASE
+                            WHEN UPPER(r."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'ASISTENTE'
+                            ELSE r."CODIGO"
+                        END,
+                        'PROFESOR'
+                    ) AS role_code,
                     COALESCE(aus."ESTADO", CASE WHEN u."ACTIVO" THEN 'Activo' ELSE 'Inactivo' END) AS estado
                 FROM "USUARIOS" u
                 JOIN "PERSONAS" p ON p."ID" = u."PERSONA_ID"
                 LEFT JOIN "ADMIN_USER_SETTINGS" aus ON aus."USUARIO_ID" = u."ID"
                 LEFT JOIN "ADMIN_ROLES" r ON r."ID" = aus."ROL_ID"
+                LEFT JOIN "PROFESORES" prof ON prof."PERSONA_ID" = p."ID"
                 WHERE UPPER(u."USUARIO") = UPPER(?)
                    OR UPPER(COALESCE(p."CORREO_ELECTRONICO", '')) = UPPER(?)
                    OR REGEXP_REPLACE(UPPER(COALESCE(p."RUN", '')), '[^0-9K]', '', 'g') = ?
-                """, (rs, rowNum) -> new AuthenticatedAdminUser(
+                """.formatted(resolvedStaffType), (rs, rowNum) -> new AuthenticatedAdminUser(
                 rs.getLong("user_id"),
                 rs.getString("USUARIO"),
                 rs.getString("email"),
@@ -1239,6 +1258,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         return switch (normalized) {
             case "EVALUACIONES" -> "CALIFICACIONES";
             case "DOCENTES" -> "PROFESORES";
+            case "PLANIFICACION" -> "PLANIFICACIONES";
             case "MATRIZ_DE_ACCESO" -> "MATRIZ_ACCESO";
             default -> normalized;
         };

@@ -4,6 +4,7 @@ import com.example.authhexagonal.domain.port.in.GetStudentDashboardUseCase;
 import com.example.authhexagonal.infrastructure.adapter.in.web.dto.StudentDashboardResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,9 +19,13 @@ public class StudentDashboardController {
     }
 
     @GetMapping("/dashboard")
-    public StudentDashboardResponse dashboard(Authentication authentication) {
+    public StudentDashboardResponse dashboard(
+            Authentication authentication,
+            @RequestParam(name = "schoolYear", required = false) Integer schoolYear,
+            @RequestParam(name = "semester", required = false) Integer semester
+    ) {
         return StudentDashboardResponse.fromDomain(
-                getStudentDashboardUseCase.getDashboard(authentication.getName())
+                getStudentDashboardUseCase.getDashboard(authentication.getName(), schoolYear, semester)
         );
     }
 }

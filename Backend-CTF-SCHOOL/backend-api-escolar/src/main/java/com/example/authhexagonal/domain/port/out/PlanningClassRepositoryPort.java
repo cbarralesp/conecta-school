@@ -64,10 +64,13 @@ public interface PlanningClassRepositoryPort {
 
     List<CurriculumObjective> findCurriculumObjectivesByClassId(Long classId);
 
+    int resolveVisibleUnitNumber(Long courseId, Long subjectId, LocalDate plannedDate, Long unitId);
+
     Optional<PlanningClass> findAccessibleById(String username, Long classId);
 
     List<PlanningClass> findClasses(
             String username,
+            Integer year,
             Long courseId,
             Long subjectId,
             Integer semester,

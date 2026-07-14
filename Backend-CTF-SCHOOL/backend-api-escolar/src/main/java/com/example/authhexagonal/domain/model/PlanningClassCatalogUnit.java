@@ -9,6 +9,8 @@ public record PlanningClassCatalogUnit(
         String subjectName,
         Long courseId,
         String courseName,
+        Integer schoolYear,
+        Integer semester,
         String status
 ) {
 }

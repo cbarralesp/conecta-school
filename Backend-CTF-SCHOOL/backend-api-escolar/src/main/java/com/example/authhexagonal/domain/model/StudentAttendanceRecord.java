@@ -4,6 +4,10 @@ public record StudentAttendanceRecord(
         String date,
         String status,
         String timeLabel,
-        String note
+        String note,
+        String departureTime,
+        String departureReason,
+        Boolean departureJustified,
+        String departureNote
 ) {
 }

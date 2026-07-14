@@ -12,7 +12,7 @@ public record PlanningClassCreateRequest(
         @NotBlank String durationCode,
         @NotNull LocalDate plannedDate,
         @NotBlank String title,
-        @NotBlank String objectiveCode,
+        String objectiveCode,
         @NotBlank String evaluationType,
         String objectiveDescription,
         @NotBlank String startActivity,

@@ -11,6 +11,7 @@ public record EnrollmentListItemResponse(
         String fullName,
         Long courseId,
         String courseName,
+        int courseSchoolYear,
         String guardianFullName,
         String status,
         String enrollmentDate
@@ -25,6 +26,7 @@ public record EnrollmentListItemResponse(
                 item.fullName(),
                 item.courseId(),
                 item.courseName(),
+                item.courseSchoolYear(),
                 item.guardianFullName(),
                 item.status(),
                 item.enrollmentDate()

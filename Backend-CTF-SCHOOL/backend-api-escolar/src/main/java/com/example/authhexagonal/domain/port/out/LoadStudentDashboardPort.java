@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface LoadStudentDashboardPort {
 
-    Optional<StudentDashboard> findByUsername(String username);
+    Optional<StudentDashboard> findByUsername(String username, Integer schoolYear, Integer semester);
 }

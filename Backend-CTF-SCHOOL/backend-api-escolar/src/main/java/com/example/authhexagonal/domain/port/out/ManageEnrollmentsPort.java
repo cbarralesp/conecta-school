@@ -18,11 +18,11 @@ import java.util.Optional;
 
 public interface ManageEnrollmentsPort {
 
-    EnrollmentSummary summarizeEnrollments(String search, Long courseId, String status);
+    EnrollmentSummary summarizeEnrollments(Integer schoolYear, String search, Long courseId, String status);
 
-    List<EnrollmentCourseOption> findActiveCourses();
+    List<EnrollmentCourseOption> findActiveCourses(Integer schoolYear);
 
-    List<EnrollmentListItem> findEnrollments(String search, Long courseId, String status, Integer page, Integer size);
+    List<EnrollmentListItem> findEnrollments(Integer schoolYear, String search, Long courseId, String status, Integer page, Integer size);
 
     Optional<EnrollmentDetail> findEnrollmentDetailById(Long enrollmentId);
 
@@ -37,6 +37,10 @@ public interface ManageEnrollmentsPort {
     String previewGuardianUsername(String guardianRun, String guardianName, String guardianLastName);
 
     boolean hasActiveEnrollmentForStudent(Long studentId, Long excludeEnrollmentId);
+
+    boolean hasActiveEnrollmentForStudentInSchoolYear(Long studentId, int schoolYear);
+
+    Optional<Integer> findCourseSchoolYear(Long courseId);
 
     Long createStudent(
             String run,
@@ -70,6 +74,8 @@ public interface ManageEnrollmentsPort {
             String emergencyContact,
             String specialNeeds
     );
+
+    void updateStudentPhoto(Long studentId, String photoPath, String photoMimeType);
 
     boolean existsActiveCourse(Long courseId);
 
@@ -115,6 +121,8 @@ public interface ManageEnrollmentsPort {
     void replacePickupContacts(Long enrollmentId, List<EnrollmentPickupContact> contacts);
 
     void replaceDocuments(Long enrollmentId, List<EnrollmentDocument> documents);
+
+    EnrollmentDocument upsertDocument(Long enrollmentId, EnrollmentDocument document);
 
     EnrollmentStudentAccess provisionStudentAccess(
             String studentRun,

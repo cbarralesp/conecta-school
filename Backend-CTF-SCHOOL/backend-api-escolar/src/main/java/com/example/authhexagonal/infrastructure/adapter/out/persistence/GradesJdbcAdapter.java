@@ -30,9 +30,20 @@ public class GradesJdbcAdapter implements ManageGradesPort {
         return jdbcTemplate.query("""
                 SELECT
                     c."ID",
-                    c."NOMBRE" || CASE WHEN COALESCE(c."LETRA", '') <> '' THEN ' ' || c."LETRA" ELSE '' END AS "NOMBRE",
-                    c."ANIO_ESCOLAR"
+                    CASE
+                        WHEN COALESCE(BTRIM(c."LETRA"), '') = '' THEN c."NOMBRE"
+                        WHEN RIGHT(BTRIM(c."NOMBRE"), LENGTH(BTRIM(c."LETRA"))) = BTRIM(c."LETRA") THEN c."NOMBRE"
+                        ELSE c."NOMBRE" || ' ' || c."LETRA"
+                    END AS "NOMBRE",
+                    c."ANIO_ESCOLAR",
+                    TRIM(COALESCE(tp."NOMBRES", '') || ' ' || COALESCE(tp."APELLIDOS", '')) AS "TEACHER_NAME"
                 FROM "CURSOS" c
+                LEFT JOIN "CURSO_DOCENTES" cd
+                  ON cd."CURSO_ID" = c."ID"
+                LEFT JOIN "PROFESORES" pr
+                  ON pr."ID" = cd."PROFESOR_ID"
+                LEFT JOIN "PERSONAS" tp
+                  ON tp."ID" = pr."PERSONA_ID"
                 WHERE c."ACTIVO" = TRUE
                 ORDER BY
                     CASE
@@ -46,7 +57,8 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 """, (rs, rowNum) -> new GradeCourseOption(
                 rs.getLong("ID"),
                 rs.getString("NOMBRE"),
-                rs.getInt("ANIO_ESCOLAR")
+                rs.getInt("ANIO_ESCOLAR"),
+                rs.getString("TEACHER_NAME")
         ));
     }
 
@@ -54,16 +66,28 @@ public class GradesJdbcAdapter implements ManageGradesPort {
     public Optional<GradeCourseOption> findCourseById(Long courseId) {
         return jdbcTemplate.query("""
                 SELECT
-                    "ID",
-                    "NOMBRE" || CASE WHEN COALESCE("LETRA", '') <> '' THEN ' ' || "LETRA" ELSE '' END AS "NOMBRE",
-                    "ANIO_ESCOLAR"
-                FROM "CURSOS"
-                WHERE "ID" = ?
-                  AND "ACTIVO" = TRUE
+                    c."ID",
+                    CASE
+                        WHEN COALESCE(BTRIM(c."LETRA"), '') = '' THEN c."NOMBRE"
+                        WHEN RIGHT(BTRIM(c."NOMBRE"), LENGTH(BTRIM(c."LETRA"))) = BTRIM(c."LETRA") THEN c."NOMBRE"
+                        ELSE c."NOMBRE" || ' ' || c."LETRA"
+                    END AS "NOMBRE",
+                    c."ANIO_ESCOLAR",
+                    TRIM(COALESCE(tp."NOMBRES", '') || ' ' || COALESCE(tp."APELLIDOS", '')) AS "TEACHER_NAME"
+                FROM "CURSOS" c
+                LEFT JOIN "CURSO_DOCENTES" cd
+                  ON cd."CURSO_ID" = c."ID"
+                LEFT JOIN "PROFESORES" pr
+                  ON pr."ID" = cd."PROFESOR_ID"
+                LEFT JOIN "PERSONAS" tp
+                  ON tp."ID" = pr."PERSONA_ID"
+                WHERE c."ID" = ?
+                  AND c."ACTIVO" = TRUE
                 """, (rs, rowNum) -> new GradeCourseOption(
                 rs.getLong("ID"),
                 rs.getString("NOMBRE"),
-                rs.getInt("ANIO_ESCOLAR")
+                rs.getInt("ANIO_ESCOLAR"),
+                rs.getString("TEACHER_NAME")
         ), courseId).stream().findFirst();
     }
 
@@ -388,6 +412,75 @@ public class GradesJdbcAdapter implements ManageGradesPort {
                 rs.getString("QUESTION_TEXT"),
                 rs.getInt("SORT_ORDER")
         ), levelCode);
+    }
+
+    @Override
+    public Optional<PedagogicalQuestionBankRow> findPedagogicalQuestionBankQuestionById(Long questionId) {
+        if (!tableExists("PEDAGOGICAL_QUESTION_BANK")) {
+            return Optional.empty();
+        }
+        return jdbcTemplate.query("""
+                SELECT "ID", "AREA_KEY", "LEVEL_CODE", "QUESTION_KIND", "QUESTION_TEXT", "SORT_ORDER"
+                FROM "PEDAGOGICAL_QUESTION_BANK"
+                WHERE "ID" = ?
+                """, (rs, rowNum) -> new PedagogicalQuestionBankRow(
+                rs.getLong("ID"),
+                rs.getString("AREA_KEY"),
+                rs.getString("LEVEL_CODE"),
+                rs.getString("QUESTION_KIND"),
+                rs.getString("QUESTION_TEXT"),
+                rs.getInt("SORT_ORDER")
+        ), questionId).stream().findFirst();
+    }
+
+    @Override
+    public Long createPedagogicalQuestionBankQuestion(String areaKey, String levelCode, String questionKind, String questionText) {
+        syncSequence("PEDAGOGICAL_QUESTION_BANK", "ID");
+        Integer sortOrder = jdbcTemplate.queryForObject("""
+                SELECT COALESCE(MAX("SORT_ORDER"), 0) + 1
+                FROM "PEDAGOGICAL_QUESTION_BANK"
+                WHERE "AREA_KEY" = ?
+                  AND "LEVEL_CODE" = ?
+                  AND "QUESTION_KIND" = ?
+                  AND "ACTIVO" = TRUE
+                """, Integer.class, areaKey, levelCode, questionKind);
+
+        return jdbcTemplate.queryForObject("""
+                INSERT INTO "PEDAGOGICAL_QUESTION_BANK" (
+                    "AREA_KEY",
+                    "LEVEL_CODE",
+                    "QUESTION_KIND",
+                    "QUESTION_TEXT",
+                    "SORT_ORDER",
+                    "ACTIVO",
+                    "CREADO_EN",
+                    "ACTUALIZADO_EN"
+                )
+                VALUES (?, ?, ?, ?, ?, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                RETURNING "ID"
+                """, Long.class, areaKey, levelCode, questionKind, questionText, sortOrder == null ? 1 : sortOrder);
+    }
+
+    @Override
+    public boolean updatePedagogicalQuestionBankQuestion(Long questionId, String questionText) {
+        return jdbcTemplate.update("""
+                UPDATE "PEDAGOGICAL_QUESTION_BANK"
+                SET "QUESTION_TEXT" = ?,
+                    "ACTUALIZADO_EN" = CURRENT_TIMESTAMP
+                WHERE "ID" = ?
+                  AND "ACTIVO" = TRUE
+                """, questionText, questionId) > 0;
+    }
+
+    @Override
+    public boolean deactivatePedagogicalQuestionBankQuestion(Long questionId) {
+        return jdbcTemplate.update("""
+                UPDATE "PEDAGOGICAL_QUESTION_BANK"
+                SET "ACTIVO" = FALSE,
+                    "ACTUALIZADO_EN" = CURRENT_TIMESTAMP
+                WHERE "ID" = ?
+                  AND "ACTIVO" = TRUE
+                """, questionId) > 0;
     }
 
     @Override

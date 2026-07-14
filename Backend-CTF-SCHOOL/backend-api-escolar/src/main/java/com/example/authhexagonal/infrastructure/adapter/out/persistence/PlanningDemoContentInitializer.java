@@ -2,7 +2,9 @@ package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +17,20 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Component
+@ConditionalOnProperty(name = "app.planning.demo.enabled", havingValue = "true")
 public class PlanningDemoContentInitializer implements CommandLineRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlanningDemoContentInitializer.class);
-    private static final Path DEMO_DIRECTORY = Paths.get("uploads", "planning-classes");
 
     private final JdbcTemplate jdbcTemplate;
+    private final Path demoDirectory;
 
-    public PlanningDemoContentInitializer(JdbcTemplate jdbcTemplate) {
+    public PlanningDemoContentInitializer(
+            JdbcTemplate jdbcTemplate,
+            @Value("${app.uploads.root:uploads}") String uploadsRoot
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.demoDirectory = Paths.get(uploadsRoot).toAbsolutePath().normalize().resolve("planning-classes");
     }
 
     @Override
@@ -35,7 +42,7 @@ public class PlanningDemoContentInitializer implements CommandLineRunner {
         }
 
         try {
-            Files.createDirectories(DEMO_DIRECTORY);
+            Files.createDirectories(demoDirectory);
         } catch (IOException exception) {
             throw new IllegalStateException("No fue posible preparar el directorio de documentos demo", exception);
         }
@@ -508,7 +515,7 @@ public class PlanningDemoContentInitializer implements CommandLineRunner {
     }
 
     private Path createDemoFile(String fileName, String content) {
-        Path target = DEMO_DIRECTORY.resolve(fileName);
+        Path target = demoDirectory.resolve(fileName);
         if (Files.exists(target)) {
             return target;
         }

@@ -7,6 +7,7 @@ public record PlanningUnitCommand(
         Long courseId,
         String unitNumber,
         String name,
+        String colorHex,
         Integer startWeek,
         LocalDate startDate,
         LocalDate endDate,

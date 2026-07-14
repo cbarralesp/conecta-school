@@ -6,6 +6,9 @@ import com.example.authhexagonal.domain.model.GradeEvaluationCommand;
 import com.example.authhexagonal.domain.model.GradeSaveCommand;
 import com.example.authhexagonal.domain.model.GradeReportView;
 import com.example.authhexagonal.domain.model.PedagogicalQuestionBankArea;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankCreateCommand;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankQuestion;
+import com.example.authhexagonal.domain.model.PedagogicalQuestionBankUpdateCommand;
 import com.example.authhexagonal.domain.model.PedagogicalReportSaveCommand;
 import com.example.authhexagonal.domain.model.PedagogicalReportView;
 import com.example.authhexagonal.domain.model.StudentGradeProfileView;
@@ -31,6 +34,12 @@ public interface ManageGradesUseCase {
     GradeReportView getGradeReports(Long courseId, Long periodId);
 
     List<PedagogicalQuestionBankArea> getPedagogicalQuestionBank(String levelCode);
+
+    PedagogicalQuestionBankQuestion createPedagogicalQuestionBankQuestion(PedagogicalQuestionBankCreateCommand command);
+
+    PedagogicalQuestionBankQuestion updatePedagogicalQuestionBankQuestion(PedagogicalQuestionBankUpdateCommand command);
+
+    void deletePedagogicalQuestionBankQuestion(Long questionId);
 
     PedagogicalReportView getPedagogicalReport(Long courseId, Long periodId, Long studentId);
 

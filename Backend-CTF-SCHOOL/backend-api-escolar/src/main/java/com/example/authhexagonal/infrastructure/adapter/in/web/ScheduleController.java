@@ -31,7 +31,7 @@ public class ScheduleController {
         this.manageSchedulesUseCase = manageSchedulesUseCase;
     }
 
-    @GetMapping("/catalogo")
+    @GetMapping({"/catalogo", "/catálogo"})
     public ScheduleCatalogResponse catalog(@RequestParam(required = false) Long courseId) {
         return ScheduleCatalogResponse.fromDomain(manageSchedulesUseCase.getCatalog(courseId));
     }

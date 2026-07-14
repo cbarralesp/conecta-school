@@ -1,5 +1,6 @@
 package com.example.authhexagonal.application.service;
 
+import com.example.authhexagonal.application.support.AcademicSemesterResolver;
 import com.example.authhexagonal.domain.exception.ResourceNotFoundException;
 import com.example.authhexagonal.domain.model.ScheduleBlock;
 import com.example.authhexagonal.domain.model.ScheduleCatalog;
@@ -11,6 +12,7 @@ import com.example.authhexagonal.domain.port.in.ManageSchedulesUseCase;
 import com.example.authhexagonal.domain.port.out.ManageSchedulesPort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
@@ -30,9 +32,18 @@ public class ScheduleManagementService implements ManageSchedulesUseCase {
             validateCourseScope(courseId);
             manageSchedulesPort.ensureCourseSpecificScheduleBlocks(courseId);
         }
+        int currentYear = LocalDate.now().getYear();
+        int preferredSemester = AcademicSemesterResolver.resolveCurrentSemester();
         return new ScheduleCatalog(
                 manageSchedulesPort.findActiveScheduleCourses(),
-                manageSchedulesPort.findActiveSchedulePeriods(),
+                manageSchedulesPort.findActiveSchedulePeriods().stream()
+                        .sorted(Comparator
+                                .comparing((SchedulePeriodOption period) -> period.schoolYear() == currentYear ? 0 : 1)
+                                .thenComparing((SchedulePeriodOption period) ->
+                                        period.schoolYear() == currentYear && period.semester() == preferredSemester ? 0 : 1)
+                                .thenComparing(SchedulePeriodOption::schoolYear, Comparator.reverseOrder())
+                                .thenComparing(SchedulePeriodOption::semester))
+                        .toList(),
                 manageSchedulesPort.findActiveScheduleTeachers(),
                 manageSchedulesPort.findAvailableScheduleSubjects(),
                 manageSchedulesPort.findWeeklyScheduleBlocks(courseId)

@@ -10,6 +10,7 @@ public interface ListPlanningClassesUseCase {
 
     List<PlanningClass> listClasses(
             String username,
+            Integer year,
             Long courseId,
             Long subjectId,
             Integer semester,

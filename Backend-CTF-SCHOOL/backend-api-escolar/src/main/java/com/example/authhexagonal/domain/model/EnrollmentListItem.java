@@ -9,6 +9,7 @@ public record EnrollmentListItem(
         String fullName,
         Long courseId,
         String courseName,
+        int courseSchoolYear,
         String guardianFullName,
         String status,
         String enrollmentDate

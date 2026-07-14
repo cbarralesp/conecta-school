@@ -1,0 +1,17 @@
+SELECT setval(
+    'public."UNIDADES_PLANIFICACION_ID_seq"',
+    COALESCE((SELECT MAX("ID") FROM public."UNIDADES_PLANIFICACION"), 0),
+    true
+);
+
+SELECT setval(
+    'public."CLASES_PLANIFICACION_ID_seq"',
+    COALESCE((SELECT MAX("ID") FROM public."CLASES_PLANIFICACION"), 0),
+    true
+);
+
+SELECT setval(
+    'public."CLASES_PLANIFICACION_DOCUMENTOS_ID_seq"',
+    COALESCE((SELECT MAX("ID") FROM public."CLASES_PLANIFICACION_DOCUMENTOS"), 0),
+    true
+);

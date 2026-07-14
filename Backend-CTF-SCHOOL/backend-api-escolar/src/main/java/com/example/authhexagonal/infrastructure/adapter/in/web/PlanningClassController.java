@@ -100,6 +100,7 @@ public class PlanningClassController {
     @GetMapping
     public java.util.List<PlanningClassResponse> list(
             Authentication authentication,
+            @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "courseId", required = false) Long courseId,
             @RequestParam(name = "subjectId", required = false) Long subjectId,
             @RequestParam(name = "semester", required = false) Integer semester,
@@ -110,6 +111,7 @@ public class PlanningClassController {
     ) {
         return listPlanningClassesUseCase.listClasses(
                         authentication.getName(),
+                        year,
                         courseId,
                         subjectId,
                         semester,

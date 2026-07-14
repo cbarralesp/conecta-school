@@ -10,6 +10,8 @@ public record EnrollmentDetail(
         String studentLastName,
         String birthDate,
         String gender,
+        String studentPhotoPath,
+        String studentPhotoMimeType,
         Long courseId,
         String courseName,
         String courseLevel,

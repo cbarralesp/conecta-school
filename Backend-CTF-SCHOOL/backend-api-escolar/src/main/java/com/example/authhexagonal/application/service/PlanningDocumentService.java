@@ -7,6 +7,7 @@ import com.example.authhexagonal.domain.model.PlanningDocumentFilter;
 import com.example.authhexagonal.domain.port.in.DeletePlanningDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.DownloadPlanningDocumentUseCase;
 import com.example.authhexagonal.domain.port.in.ListPlanningDocumentsUseCase;
+import com.example.authhexagonal.domain.port.in.UpdatePlanningDocumentVisibilityUseCase;
 import com.example.authhexagonal.domain.port.out.FileStoragePort;
 import com.example.authhexagonal.domain.port.out.PlanningDocumentRepositoryPort;
 import org.slf4j.Logger;
@@ -22,7 +23,8 @@ import java.util.List;
 public class PlanningDocumentService implements
         ListPlanningDocumentsUseCase,
         DownloadPlanningDocumentUseCase,
-        DeletePlanningDocumentUseCase {
+        DeletePlanningDocumentUseCase,
+        UpdatePlanningDocumentVisibilityUseCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlanningDocumentService.class);
 
@@ -58,5 +60,13 @@ public class PlanningDocumentService implements
         LOGGER.info("Eliminando documento de planificacion id={} usuario={}", documentId, username);
         planningDocumentRepositoryPort.markDeleted(documentId);
         fileStoragePort.delete(document.filePath());
+    }
+
+    @Override
+    public PlanningDocument updateVisibility(String username, Long documentId, boolean visibleToStudents) {
+        PlanningDocument document = planningDocumentRepositoryPort.findAccessibleById(username, documentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Documento de planificacion no encontrado"));
+        LOGGER.info("Actualizando visibilidad documento planificacion id={} usuario={} visibleToStudents={}", documentId, username, visibleToStudents);
+        return planningDocumentRepositoryPort.updateVisibility(document.id(), visibleToStudents);
     }
 }

@@ -2,13 +2,11 @@ package com.example.authhexagonal.infrastructure.adapter.out.persistence;
 
 import com.example.authhexagonal.domain.model.TeacherAssignedCourse;
 import com.example.authhexagonal.domain.model.TeacherDashboard;
-import com.example.authhexagonal.domain.model.TeacherPlanningItem;
 import com.example.authhexagonal.domain.model.TeacherScheduleItem;
 import com.example.authhexagonal.domain.port.out.LoadTeacherDashboardPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -100,44 +98,20 @@ public class TeacherDashboardJdbcAdapter implements LoadTeacherDashboardPort {
                 rs.getString("room")
         ), teacherId);
 
-        List<TeacherPlanningItem> planningItems = jdbcTemplate.query("""
+        Map<String, Object> planningMetrics = jdbcTemplate.queryForMap("""
                 SELECT
-                    p."ID" AS planning_id,
-                    p."TITULO" AS title,
-                    p."UNIDAD" AS unit_name,
-                    p."OBJETIVO_APRENDIZAJE" AS learning_objective,
-                    p."ESTADO" AS status,
-                    p."FECHA_CLASE" AS class_date,
-                    c."NOMBRE" AS course_name,
-                    a."NOMBRE" AS subject_name,
-                    p."RECURSOS" AS resources,
-                    p."ACTIVIDADES" AS activities,
-                    p."EVALUACION" AS evaluation,
-                    p."OBSERVACIONES" AS observations
-                FROM "PLANIFICACIONES" p
-                JOIN "CARGAS_DOCENTES" cd ON cd."ID" = p."CARGA_DOCENTE_ID"
-                JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID"
-                JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID"
+                    COUNT(cp."ID") AS planned_classes_count,
+                    COUNT(cp."ID") FILTER (
+                        WHERE COALESCE(UPPER(cp."ESTADO"), 'BORRADOR') <> 'PUBLICADA'
+                    ) AS pending_planning_count
+                FROM "CLASES_PLANIFICACION" cp
+                JOIN "UNIDADES_PLANIFICACION" up ON up."ID" = cp."UNIDAD_ID"
+                JOIN "CARGAS_DOCENTES" cd ON cd."ID" = up."CARGA_DOCENTE_ID"
                 WHERE cd."PROFESOR_ID" = ?
-                ORDER BY p."FECHA_CLASE"
-                """, (rs, rowNum) -> new TeacherPlanningItem(
-                rs.getLong("planning_id"),
-                rs.getString("title"),
-                rs.getString("unit_name"),
-                rs.getString("learning_objective"),
-                rs.getString("status"),
-                rs.getDate("class_date").toLocalDate(),
-                rs.getString("course_name"),
-                rs.getString("subject_name"),
-                rs.getString("resources"),
-                rs.getString("activities"),
-                rs.getString("evaluation"),
-                rs.getString("observations")
-        ), teacherId);
+                """, teacherId);
 
-        int pendingPlanningCount = (int) planningItems.stream()
-                .filter(item -> !"COMPLETADA".equalsIgnoreCase(item.status()))
-                .count();
+        int plannedClassesCount = ((Number) planningMetrics.getOrDefault("planned_classes_count", 0)).intValue();
+        int pendingPlanningCount = ((Number) planningMetrics.getOrDefault("pending_planning_count", 0)).intValue();
 
         int assignedCoursesCount = (int) assignedCourses.stream()
                 .map(TeacherAssignedCourse::courseCode)
@@ -150,12 +124,11 @@ public class TeacherDashboardJdbcAdapter implements LoadTeacherDashboardPort {
                 teacher.get("first_names") + " " + teacher.get("last_names"),
                 (String) teacher.get("specialty"),
                 assignedCoursesCount,
-                planningItems.size(),
+                plannedClassesCount,
                 pendingPlanningCount,
                 assignedCourses,
                 weeklySchedule,
-                List.of(),
-                planningItems
+                List.of()
         ));
     }
 
@@ -182,7 +155,6 @@ public class TeacherDashboardJdbcAdapter implements LoadTeacherDashboardPort {
                 0,
                 0,
                 0,
-                List.of(),
                 List.of(),
                 List.of(),
                 List.of()
