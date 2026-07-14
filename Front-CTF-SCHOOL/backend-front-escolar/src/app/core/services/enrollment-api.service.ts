@@ -4,15 +4,20 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { API_CONFIG } from '../constants/api.config';
 import { formatCourseLevelLabel, formatScheduleLabel } from '../constants/course-levels';
-import { EnrollmentAccessPreview, EnrollmentAccessPreviewPayload, EnrollmentDetail, EnrollmentOverview, EnrollmentPayload } from '../models/enrollment.models';
+import { EnrollmentAccessPreview, EnrollmentAccessPreviewPayload, EnrollmentDetail, EnrollmentDocument, EnrollmentOverview, EnrollmentPayload, EnrollmentRenewalPayload } from '../models/enrollment.models';
 import { normalizeDashboardText } from '../utils/text-normalizer';
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentApiService {
+  private readonly schoolYears = [2025, 2026, 2027, 2028] as const;
   private readonly http = inject(HttpClient);
 
-  getOverview(filters?: { search?: string; courseId?: number | null; status?: string | null; page?: number; size?: number }): Observable<EnrollmentOverview> {
+  getOverview(filters?: { schoolYear?: number | null; search?: string; courseId?: number | null; status?: string | null; page?: number; size?: number }): Observable<EnrollmentOverview> {
     let params = new HttpParams();
+    const schoolYear = typeof filters?.schoolYear === 'number' ? filters.schoolYear : this.defaultSchoolYear();
+    if (typeof schoolYear === 'number') {
+      params = params.set('schoolYear', schoolYear);
+    }
     if (filters?.search?.trim()) {
       params = params.set('search', filters.search.trim());
     }
@@ -30,7 +35,7 @@ export class EnrollmentApiService {
     }
 
     return this.http.get<EnrollmentOverview>(`${API_CONFIG.baseUrl}/matriculas`, { params }).pipe(
-      map((overview) => this.normalizeOverview(overview))
+      map((overview) => this.normalizeOverview(overview, schoolYear))
     );
   }
 
@@ -61,6 +66,12 @@ export class EnrollmentApiService {
     );
   }
 
+  renew(enrollmentId: number, payload: EnrollmentRenewalPayload): Observable<EnrollmentDetail> {
+    return this.http.post<EnrollmentDetail>(`${API_CONFIG.baseUrl}/matriculas/${enrollmentId}/renovar`, payload).pipe(
+      map((detail) => this.normalizeDetail(detail))
+    );
+  }
+
   delete(enrollmentId: number): Observable<void> {
     return this.http.delete<void>(`${API_CONFIG.baseUrl}/matriculas/${enrollmentId}`);
   }
@@ -71,10 +82,70 @@ export class EnrollmentApiService {
     );
   }
 
-  private normalizeOverview(overview: EnrollmentOverview): EnrollmentOverview {
+  uploadDocument(enrollmentId: number, documentKey: string, file: File): Observable<EnrollmentDocument> {
+    const formData = new FormData();
+    formData.append('documentKey', documentKey);
+    formData.append('file', file, file.name);
+    return this.http.post<EnrollmentDocument>(`${API_CONFIG.baseUrl}/matriculas/${enrollmentId}/documentos`, formData).pipe(
+      map((document) => ({
+        ...document,
+        fileName: normalizeDashboardText(document.fileName ?? ''),
+        storageProvider: normalizeDashboardText(document.storageProvider ?? ''),
+        storageKey: normalizeDashboardText(document.storageKey ?? ''),
+        driveFileId: normalizeDashboardText(document.driveFileId ?? ''),
+        driveUrl: normalizeDashboardText(document.driveUrl ?? ''),
+        mimeType: normalizeDashboardText(document.mimeType ?? '')
+      }))
+    );
+  }
+
+  uploadStudentPhoto(enrollmentId: number, file: File): Observable<EnrollmentDetail> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<EnrollmentDetail>(`${API_CONFIG.baseUrl}/matriculas/${enrollmentId}/foto`, formData).pipe(
+      map((detail) => this.normalizeDetail(detail))
+    );
+  }
+
+  studentPhotoUrl(enrollmentId: number): string {
+    return `${API_CONFIG.baseUrl}/matriculas/${enrollmentId}/foto`;
+  }
+
+  documentPreviewUrl(enrollmentId: number, documentId: number): string {
+    return `${API_CONFIG.baseUrl}/matriculas/${enrollmentId}/documentos/${documentId}/download`;
+  }
+
+  downloadDocumentBlob(enrollmentId: number, documentId: number): Observable<Blob> {
+    return this.http.get(this.documentPreviewUrl(enrollmentId, documentId), { responseType: 'blob' });
+  }
+
+  private defaultSchoolYear(): number {
+    const currentYear = new Date().getFullYear();
+    return this.schoolYears.includes(currentYear as typeof this.schoolYears[number])
+      ? currentYear
+      : this.schoolYears[0];
+  }
+
+  private normalizeOverview(overview: EnrollmentOverview, schoolYear: number | null): EnrollmentOverview {
+    const filteredCourses = this.filterCoursesBySchoolYear(overview.courses, schoolYear);
+    const filteredEnrollments = this.filterEnrollmentsBySchoolYear(
+      overview.enrollments,
+      overview.courses,
+      schoolYear
+    );
+    const shouldUseClientFilteredData = schoolYear != null && filteredEnrollments.length !== overview.enrollments.length;
+
     return {
       ...overview,
-      courses: overview.courses.map((course) => ({
+      summary: shouldUseClientFilteredData
+        ? {
+          total: filteredEnrollments.length,
+          active: filteredEnrollments.filter((enrollment) => normalizeDashboardText(enrollment.status).toUpperCase() === 'ACTIVO').length,
+          pending: filteredEnrollments.filter((enrollment) => normalizeDashboardText(enrollment.status).toUpperCase() === 'PENDIENTE').length,
+          courses: new Set(filteredEnrollments.map((enrollment) => enrollment.courseId)).size
+        }
+        : overview.summary,
+      courses: filteredCourses.map((course) => ({
         ...course,
         code: normalizeDashboardText(course.code),
         name: normalizeDashboardText(course.name),
@@ -84,11 +155,13 @@ export class EnrollmentApiService {
       })),
       pagination: {
         page: overview.pagination?.page ?? 0,
-        size: overview.pagination?.size ?? overview.enrollments.length,
-        totalItems: overview.pagination?.totalItems ?? overview.summary.total,
-        totalPages: overview.pagination?.totalPages ?? (overview.summary.total > 0 ? 1 : 0)
+        size: shouldUseClientFilteredData ? filteredEnrollments.length : overview.pagination?.size ?? overview.enrollments.length,
+        totalItems: shouldUseClientFilteredData ? filteredEnrollments.length : overview.pagination?.totalItems ?? overview.summary.total,
+        totalPages: shouldUseClientFilteredData
+          ? (filteredEnrollments.length > 0 ? 1 : 0)
+          : overview.pagination?.totalPages ?? (overview.summary.total > 0 ? 1 : 0)
       },
-      enrollments: overview.enrollments.map((enrollment) => ({
+      enrollments: filteredEnrollments.map((enrollment) => ({
         ...enrollment,
         studentRun: normalizeDashboardText(enrollment.studentRun),
         studentName: normalizeDashboardText(enrollment.studentName),
@@ -101,6 +174,30 @@ export class EnrollmentApiService {
     };
   }
 
+  private filterCoursesBySchoolYear(courses: EnrollmentOverview['courses'], schoolYear: number | null): EnrollmentOverview['courses'] {
+    if (schoolYear == null) {
+      return courses;
+    }
+
+    return courses.filter((course) => course.schoolYear === schoolYear);
+  }
+
+  private filterEnrollmentsBySchoolYear(
+    enrollments: EnrollmentOverview['enrollments'],
+    courses: EnrollmentOverview['courses'],
+    schoolYear: number | null
+  ): EnrollmentOverview['enrollments'] {
+    if (schoolYear == null) {
+      return enrollments;
+    }
+
+    const yearsByCourseId = new Map(courses.map((course) => [course.id, course.schoolYear]));
+    return enrollments.filter((enrollment) => {
+      const enrollmentSchoolYear = enrollment.courseSchoolYear ?? yearsByCourseId.get(enrollment.courseId);
+      return enrollmentSchoolYear === schoolYear;
+    });
+  }
+
   private normalizeDetail(detail: EnrollmentDetail): EnrollmentDetail {
     return {
       ...detail,
@@ -108,6 +205,8 @@ export class EnrollmentApiService {
       studentName: normalizeDashboardText(detail.studentName),
       studentLastName: normalizeDashboardText(detail.studentLastName),
       gender: normalizeDashboardText(detail.gender),
+      studentPhotoUrl: detail.studentPhotoUrl ? this.studentPhotoUrl(detail.id) : '',
+      studentPhotoMimeType: normalizeDashboardText(detail.studentPhotoMimeType ?? ''),
       courseName: normalizeDashboardText(detail.courseName),
       courseLevel: normalizeDashboardText(detail.courseLevel ?? ''),
       courseLetter: normalizeDashboardText(detail.courseLetter ?? ''),
@@ -176,8 +275,11 @@ export class EnrollmentApiService {
         ...document,
         documentKey: normalizeDashboardText(document.documentKey),
         fileName: normalizeDashboardText(document.fileName),
+        storageProvider: normalizeDashboardText(document.storageProvider ?? ''),
+        storageKey: normalizeDashboardText(document.storageKey ?? ''),
         driveFileId: normalizeDashboardText(document.driveFileId ?? ''),
-        driveUrl: normalizeDashboardText(document.driveUrl ?? '')
+        driveUrl: normalizeDashboardText(document.driveUrl ?? ''),
+        mimeType: normalizeDashboardText(document.mimeType ?? '')
       })),
       studentAccess: {
         configureAccess: !!detail.studentAccess?.configureAccess,

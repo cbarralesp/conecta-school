@@ -8,10 +8,22 @@
     <section class="page-header">
       <div class="page-header__left">
         <h1 class="page-header__title">Control de asistencia</h1>
-        <p class="page-header__subtitle">Gestiona la asistencia por curso y periodo.</p>
+        <p class="page-header__subtitle">Gestiona la asistencia por curso y período.</p>
       </div>
 
       <div class="page-header__actions">
+        <label class="inline-field inline-field--header">
+          <span class="inline-field__label">Año:</span>
+          <label class="inline-select inline-field__control inline-field__control--year">
+            <mat-icon>calendar_today</mat-icon>
+            <select autocomplete="off" [value]="selectedSchoolYear()" (change)="updateSchoolYear($any($event.target).value)">
+              @for (schoolYear of schoolYears; track schoolYear) {
+                <option [value]="schoolYear" [selected]="schoolYear === selectedSchoolYear()">{{ schoolYear }}</option>
+              }
+            </select>
+          </label>
+        </label>
+
         <section class="attendance-tabs">
           <button type="button" class="attendance-tab" [class.is-active]="activeTab() === 'daily'" (click)="setTab('daily')">
             <mat-icon>calendar_today</mat-icon>
@@ -30,16 +42,6 @@
             Semestre
           </button>
         </section>
-
-        <button
-          mat-stroked-button
-          type="button"
-          class="header-button header-button--ghost"
-          [matMenuTriggerFor]="exportMenu"
-          [disabled]="isExporting()">
-          <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
-          Exportar
-        </button>
       </div>
     </section>
 
@@ -141,7 +143,7 @@
               <label class="inline-select inline-field__control inline-field__control--course">
                 <mat-icon>school</mat-icon>
                 <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
-                  @for (course of orderedCourses(); track course.id) {
+                  @for (course of coursesBySelectedYear(); track course.id) {
                     <option [value]="course.id">{{ course.name }}</option>
                   }
                 </select>
@@ -214,7 +216,7 @@
             <span>Marcar asistencia</span>
             <span>Estado</span>
             <span>Hora</span>
-            <span>Observaciones</span>
+            <span>Observaciónes</span>
           </div>
 
           @for (student of filteredDailyStudents(); track trackStudent($index, student)) {
@@ -266,13 +268,24 @@
               </div>
 
               <div class="note-cell">
-                <button type="button" class="note-trigger" [class.has-note]="!!student.note" (click)="openStudentNote(student)" [disabled]="isClassSuspended()">
-                  @if (student.note) {
-                    {{ student.note }}
-                  } @else {
-                    Agregar nota...
-                  }
-                </button>
+                <div class="note-cell__stack">
+                  <button type="button" class="note-trigger" [class.has-note]="!!student.note" (click)="openStudentNote(student)" [disabled]="isClassSuspended()">
+                    @if (student.note) {
+                      {{ student.note }}
+                    } @else {
+                      Agregar nota...
+                    }
+                  </button>
+
+                  <button
+                    type="button"
+                    class="withdrawal-trigger"
+                    [class.has-departure]="!!student.departureTime"
+                    (click)="openDepartureDialog(student)"
+                    [disabled]="isClassSuspended()">
+                    {{ student.departureTime ? 'Retirado' : 'Retirar' }}
+                  </button>
+                </div>
               </div>
             </article>
           } @empty {
@@ -353,7 +366,7 @@
               <label class="inline-select inline-field__control inline-field__control--course">
                 <mat-icon>school</mat-icon>
                 <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
-                  @for (course of orderedCourses(); track course.id) {
+                  @for (course of coursesBySelectedYear(); track course.id) {
                     <option [value]="course.id">{{ course.name }}</option>
                   }
                 </select>
@@ -398,14 +411,15 @@
                   </td>
                   @for (day of student.days; track day.date) {
                     <td class="status-dot-cell">
-                      <span class="day-cell" [ngClass]="dotClass(day.status)">
-                        @if (day.status === 'PRESENTE') { P }
-                        @else if (day.status === 'AUSENTE') { A }
-                        @else if (day.status === 'ATRASADO') { T }
-                        @else if (day.status === 'SUSPENDIDO') { S }
-                        @else if (day.status === 'CLASES_SUSPENDIDAS') { CS }
-                        @else { – }
-                      </span>
+                      @if (isWeeklyEditableStatus(day.status)) {
+                        <button type="button" class="day-cell day-cell--interactive" [ngClass]="dotClass(day.status)" (click)="updateWeeklyCell(student.studentId, day.date)">
+                          {{ shortStatusLabel(day.status) }}
+                        </button>
+                      } @else {
+                        <span class="day-cell" [ngClass]="dotClass(day.status)">
+                          {{ shortStatusLabel(day.status, '-') }}
+                        </span>
+                      }
                     </td>
                   }
                   <td class="weekly-percentage">{{ student.attendancePercentage }}%</td>
@@ -420,6 +434,36 @@
               }
             </tbody>
           </table>
+        </div>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="attendance-save-card">
+        <div class="attendance-save-shell">
+          <div class="attendance-progress">
+            <div class="attendance-progress__head">
+              <span>Progreso de marcación semanal</span>
+              <strong>{{ weeklyEditProgress().marked }} / {{ weeklyEditProgress().total }}</strong>
+            </div>
+            <div class="progress-track">
+              <span class="progress-track__fill" [style.width.%]="weeklyEditProgress().total > 0 ? (weeklyEditProgress().marked * 100) / weeklyEditProgress().total : 0"></span>
+            </div>
+          </div>
+
+          <div class="attendance-save-shell__actions">
+            <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="resetWeeklyAttendance()" [disabled]="isSaving() || weeklyEditProgress().dirty === 0">
+              <mat-icon>restart_alt</mat-icon>
+              Reiniciar
+            </button>
+            <button
+              mat-flat-button
+              type="button"
+              class="header-button header-button--primary"
+              (click)="saveWeeklyAttendance()"
+              [disabled]="isSaving() || weeklyEditProgress().dirty === 0">
+              <mat-icon>check</mat-icon>
+              {{ isSaving() ? 'Guardando...' : 'Guardar asistencia' }}
+            </button>
+          </div>
         </div>
       </mat-card>
 
@@ -484,7 +528,7 @@
               <label class="inline-select inline-field__control inline-field__control--course">
                 <mat-icon>school</mat-icon>
                 <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
-                  @for (course of orderedCourses(); track course.id) {
+                  @for (course of coursesBySelectedYear(); track course.id) {
                     <option [value]="course.id">{{ course.name }}</option>
                   }
                 </select>
@@ -577,7 +621,7 @@
                 }
                 <span><i class="is-vacation"></i>Vacaciones</span>
                 <span><i class="is-holiday"></i>Feriado</span>
-                <span><i class="is-suspension"></i>Suspension</span>
+                <span><i class="is-suspension"></i>Suspensión</span>
               </div>
             </div>
 
@@ -589,6 +633,17 @@
               @for (cell of monthlyCalendarCells(); track $index) {
                 @if (cell.kind === 'empty') {
                   <span class="monthly-calendar-grid__cell is-empty"></span>
+                } @else if (isMonthlyEditableCell(cell)) {
+                  <button
+                    type="button"
+                    class="monthly-calendar-grid__cell monthly-calendar-grid__cell--interactive"
+                    [ngClass]="[monthlyCellClass(cell), cell.isToday ? 'is-today' : '']"
+                    (click)="updateMonthlyCell(cell.date!)">
+                    <strong [class.attendance-special-marker]="!!cell.specialType">
+                      {{ cell.specialType ? specialDateShortLabel(cell.specialType) : cell.dayNumber }}
+                    </strong>
+                    <small>{{ shortStatusLabel(cell.individualStatus) }}</small>
+                  </button>
                 } @else {
                   <article
                     class="monthly-calendar-grid__cell"
@@ -600,14 +655,8 @@
                     @if (cell.specialType) {
                     } @else if (!selectedMonthlyStudent() && !cell.isWeekend && !cell.isFuture && cell.globalPercentage !== null) {
                       <small>{{ cell.globalPercentage }}%</small>
-                    } @else if (selectedMonthlyStudent() && !cell.isWeekend && !cell.isFuture && cell.individualStatus) {
-                      <small>
-                        @if (cell.individualStatus === 'PRESENTE') { P }
-                        @else if (cell.individualStatus === 'AUSENTE') { A }
-                        @else if (cell.individualStatus === 'ATRASADO') { T }
-                        @else if (cell.individualStatus === 'SUSPENDIDO') { S }
-                        @else if (cell.individualStatus === 'CLASES_SUSPENDIDAS') { CS }
-                      </small>
+                    } @else if (selectedMonthlyStudent() && !cell.isWeekend && !cell.isFuture) {
+                      <small>{{ shortStatusLabel(cell.individualStatus, 'X') }}</small>
                     }
                   </article>
                 }
@@ -630,6 +679,36 @@
             </footer>
           </section>
         </section>
+      </mat-card>
+
+      <mat-card appearance="outlined" class="attendance-save-card">
+        <div class="attendance-save-shell">
+          <div class="attendance-progress">
+            <div class="attendance-progress__head">
+              <span>Progreso de marcación mensual</span>
+              <strong>{{ monthlyEditProgress().marked }} / {{ monthlyEditProgress().total }}</strong>
+            </div>
+            <div class="progress-track">
+              <span class="progress-track__fill" [style.width.%]="monthlyEditProgress().total > 0 ? (monthlyEditProgress().marked * 100) / monthlyEditProgress().total : 0"></span>
+            </div>
+          </div>
+
+          <div class="attendance-save-shell__actions">
+            <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="resetMonthlyAttendance()" [disabled]="isSaving() || !selectedMonthlyStudent() || monthlyEditProgress().dirty === 0">
+              <mat-icon>restart_alt</mat-icon>
+              Reiniciar
+            </button>
+            <button
+              mat-flat-button
+              type="button"
+              class="header-button header-button--primary"
+              (click)="saveMonthlyAttendance()"
+              [disabled]="isSaving() || !selectedMonthlyStudent() || monthlyEditProgress().dirty === 0">
+              <mat-icon>check</mat-icon>
+              {{ isSaving() ? 'Guardando...' : 'Guardar asistencia' }}
+            </button>
+          </div>
+        </div>
       </mat-card>
 
       @if (monthlyView(); as monthlyReport) {
@@ -705,7 +784,7 @@
               <label class="inline-select inline-field__control inline-field__control--course">
                 <mat-icon>school</mat-icon>
                 <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
-                  @for (course of orderedCourses(); track course.id) {
+                  @for (course of coursesBySelectedYear(); track course.id) {
                     <option [value]="course.id">{{ course.name }}</option>
                   }
                 </select>
@@ -741,10 +820,20 @@
         <section class="semester-board">
           <section class="semester-calendar-card">
             <div class="semester-calendar-card__header">
+              <span class="semester-calendar-card__spacer" aria-hidden="true"></span>
               <div class="semester-calendar-card__title-block">
                 <h2>Calendario de asistencia</h2>
                 <p>{{ semesterHeadline() }}</p>
               </div>
+              <button
+                mat-stroked-button
+                type="button"
+                class="header-button header-button--ghost semester-calendar-card__action"
+                (click)="openAnnualView()"
+                [disabled]="isAnnualViewLoading()">
+                <mat-icon>{{ isAnnualViewLoading() ? 'hourglass_top' : 'visibility' }}</mat-icon>
+                Vista anual
+              </button>
             </div>
 
             <div class="semester-calendar-card__grid">
@@ -783,7 +872,7 @@
               <span><i class="semester-absent"></i>Inasistencia</span>
               <span><i class="semester-vacation"></i>Vacaciones</span>
               <span><i class="semester-holiday"></i>Feriado</span>
-              <span><i class="semester-suspension"></i>Suspension</span>
+              <span><i class="semester-suspension"></i>Suspensión</span>
             </div>
           </section>
         </section>
@@ -839,7 +928,7 @@
               </div>
             </article>
           } @empty {
-            <p class="empty-copy">No hay meses con informacion suficiente para mostrar en este semestre.</p>
+            <p class="empty-copy">No hay meses con información suficiente para mostrar en este semestre.</p>
           }
         </div>
       </mat-card>
@@ -868,6 +957,18 @@
         </div>
       </mat-card>
     }
+
+    <div class="attendance-export-footer">
+      <button
+        mat-stroked-button
+        type="button"
+        class="header-button header-button--ghost attendance-export-footer__button"
+        [matMenuTriggerFor]="exportMenu"
+        [disabled]="isExporting()">
+        <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+        Exportar
+      </button>
+    </div>
   </main>
 
   @if (noteDialog(); as noteDialogState) {
@@ -952,4 +1053,185 @@
       </section>
     </div>
   }
+
+  @if (departureDialog(); as withdrawalDialog) {
+    <div class="note-modal-backdrop" (click)="closeDepartureDialog()">
+      <section class="note-modal withdrawal-modal" (click)="$event.stopPropagation()">
+        <header class="note-modal__header withdrawal-modal__header">
+          <div class="note-modal__copy">
+            <span>Salida anticipada</span>
+            <h2>{{ withdrawalDialog.studentName }}</h2>
+            <small>Registra la salida del estudiante sin depender de notas manuales del frontend.</small>
+          </div>
+
+          <button type="button" class="note-modal__close" (click)="closeDepartureDialog()" aria-label="Cerrar popup">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="note-modal__body withdrawal-modal__body">
+          <div class="withdrawal-preview">
+            <div class="withdrawal-preview__badge">
+              <mat-icon>logout</mat-icon>
+            </div>
+            <div class="withdrawal-preview__copy">
+              <strong>Salida anticipada</strong>
+              <small>Estado actual: {{ statusLabel(withdrawalDialog.currentStatus) }}</small>
+            </div>
+            <span class="status-chip" [ngClass]="withdrawalDialog.departureTime ? 'is-warning' : 'is-info'">
+              {{ withdrawalDialog.departureTime ? 'Registrada' : 'Nueva' }}
+            </span>
+          </div>
+
+          <div class="withdrawal-grid">
+            <label class="note-modal__field">
+              <span>Hora de salida</span>
+              <input
+                type="time"
+                [value]="withdrawalDialog.departureTime"
+                (input)="updateDepartureTime($any($event.target).value)"
+              />
+            </label>
+
+            <div class="note-modal__field">
+              <span>Justificación</span>
+              <div class="segmented-choice">
+                <button type="button" [class.is-active]="withdrawalDialog.isJustified" (click)="updateDepartureJustified(true)">
+                  Justificado
+                </button>
+                <button type="button" [class.is-active]="!withdrawalDialog.isJustified" (click)="updateDepartureJustified(false)">
+                  Pendiente
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="note-modal__field">
+            <span>Motivo de la salida</span>
+            <div class="reason-pills">
+              <button type="button" class="reason-pill" [class.is-selected]="withdrawalDialog.reason === 'MEDICO'" (click)="updateDepartureReason('MEDICO')">
+                Control medico
+              </button>
+              <button type="button" class="reason-pill" [class.is-selected]="withdrawalDialog.reason === 'TRAMITE'" (click)="updateDepartureReason('TRAMITE')">
+                Trámite
+              </button>
+              <button type="button" class="reason-pill" [class.is-selected]="withdrawalDialog.reason === 'FAMILIAR'" (click)="updateDepartureReason('FAMILIAR')">
+                Familiar
+              </button>
+              <button type="button" class="reason-pill" [class.is-selected]="withdrawalDialog.reason === 'OTRO'" (click)="updateDepartureReason('OTRO')">
+                Otro
+              </button>
+            </div>
+          </div>
+
+          <label class="note-modal__field">
+            <span>Observación de la salida</span>
+            <textarea
+              rows="4"
+              [value]="withdrawalDialog.departureNote"
+              (input)="updateDepartureNote($any($event.target).value)"
+              placeholder="Ej: Salida anticipada a las 12:30 por control médico con apoderado."
+            ></textarea>
+          </label>
+        </div>
+
+        <footer class="note-modal__footer">
+          @if (withdrawalDialog.departureTime) {
+            <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="clearDepartureDialog()">
+              Eliminar retiro
+            </button>
+          }
+          <button mat-stroked-button type="button" class="header-button header-button--ghost" (click)="cancelDepartureDialog()">
+            {{ withdrawalDialog.departureTime ? 'Cancelar retiro' : 'Cancelar' }}
+          </button>
+          <button
+            mat-flat-button
+            type="button"
+            class="header-button header-button--primary"
+            [disabled]="!withdrawalDialog.departureTime"
+            (click)="saveDepartureDialog()">
+            Guardar salida
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (isAnnualViewOpen()) {
+    <div class="note-modal-backdrop" (click)="closeAnnualView()">
+      <section class="note-modal annual-modal" (click)="$event.stopPropagation()">
+        <header class="note-modal__header annual-modal__header">
+          <div class="note-modal__copy">
+            <span>Vista anual</span>
+            <h2>{{ selectedCourse()?.name ?? 'Curso seleccionado' }}</h2>
+            <small>
+              @if (selectedAnnualStudent()) {
+                {{ selectedAnnualStudent()?.fullName }}
+              } @else {
+                Todo el curso
+              }
+            </small>
+          </div>
+
+          <button type="button" class="note-modal__close" (click)="closeAnnualView()" aria-label="Cerrar popup">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="note-modal__body annual-modal__body">
+          @if (isAnnualViewLoading()) {
+            <div class="annual-modal__empty">
+              <mat-icon>hourglass_top</mat-icon>
+              <strong>Cargando calendario anual...</strong>
+            </div>
+          } @else {
+            <div class="annual-calendar">
+              @for (section of annualCalendarSections(); track section.title) {
+                <section class="annual-calendar__section">
+                  <div class="annual-calendar__section-head">
+                    <h3>{{ section.title }}</h3>
+                  </div>
+
+                  <div class="annual-calendar__grid">
+                    @for (month of section.months; track month.label) {
+                      <section class="semester-month annual-calendar__month">
+                        <strong class="semester-month__title">{{ month.label }}</strong>
+                        <div class="semester-month__body">
+                          <div class="semester-month__weekdays">
+                            @for (weekday of ['Lun', 'Mar', 'Mie', 'Jue', 'Vie']; track weekday) {
+                              <span class="semester-month__weekday">{{ weekday }}</span>
+                            }
+                          </div>
+
+                          <div class="semester-month__weeks">
+                            @for (week of month.weeks; track week.weekKey) {
+                              <div class="semester-month__week">
+                                @for (cell of week.cells; track $index) {
+                                  <span class="semester-month__cell" [class]="cell.statusClass" [attr.title]="cell.dayNumber !== null ? (cell.dayNumber + ': ' + cell.statusLabel) : null">
+                                    @if (cell.dayNumber !== null) {
+                                      <strong [class.attendance-special-marker]="!!cell.specialMarker">{{ cell.specialMarker || cell.dayNumber }}</strong>
+                                    }
+                                  </span>
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </section>
+                    }
+                  </div>
+                </section>
+              } @empty {
+                <div class="annual-modal__empty">
+                  <mat-icon>calendar_month</mat-icon>
+                  <strong>No hay información anual para mostrar.</strong>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
 </app-teacher-modern-layout>
+

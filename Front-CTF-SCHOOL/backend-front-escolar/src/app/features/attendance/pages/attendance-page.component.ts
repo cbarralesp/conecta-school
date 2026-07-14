@@ -12,7 +12,7 @@ import {
 import { Router } from '@angular/router';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { catchError, forkJoin, map, of } from 'rxjs';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule, NativeDateAdapter } from '@angular/material/core';
@@ -23,6 +23,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { resolveCurrentAcademicSemester } from '../../../core/utils/academic-semester';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { AttendanceApiService } from '../../../core/services/attendance-api.service';
 import {
@@ -67,6 +68,11 @@ interface SemesterCalendarMonth {
   weeks: { weekKey: string; cells: SemesterCalendarCell[] }[];
 }
 
+interface AnnualCalendarSection {
+  title: string;
+  months: SemesterCalendarMonth[];
+}
+
 interface SemesterAggregatedStudent {
   studentId: number;
   run: string;
@@ -107,6 +113,16 @@ interface ClassSuspensionDialogState {
   reason: string;
 }
 
+interface AttendanceDepartureDialogState {
+  studentId: number;
+  studentName: string;
+  currentStatus: string;
+  departureTime: string;
+  reason: 'MEDICO' | 'TRAMITE' | 'FAMILIAR' | 'OTRO';
+  isJustified: boolean;
+  departureNote: string;
+}
+
 class MondayFirstDateAdapter extends NativeDateAdapter {
   override getFirstDayOfWeek(): number {
     return 1;
@@ -138,23 +154,32 @@ class MondayFirstDateAdapter extends NativeDateAdapter {
   ]
 })
 export class AttendancePageComponent {
+  private static readonly SCHOOL_YEARS = [2025, 2026, 2027, 2028] as const;
+  private static readonly DEFAULT_SCHOOL_YEAR = 2026;
+
   @ViewChild('monthlyPdfReport') private monthlyPdfRef?: ElementRef<HTMLElement>;
 
   private readonly attendanceApiService = inject(AttendanceApiService);
   private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
+  private readonly currentSchoolYear = AttendancePageComponent.DEFAULT_SCHOOL_YEAR;
 
   readonly user = this.authStateService.user;
+  readonly schoolYears = AttendancePageComponent.SCHOOL_YEARS;
   readonly activeTab = signal<AttendanceTab>('daily');
   readonly dailySearch = signal('');
   readonly noteDialog = signal<AttendanceNoteDialogState | null>(null);
   readonly classSuspensionDialog = signal<ClassSuspensionDialogState | null>(null);
+  readonly departureDialog = signal<AttendanceDepartureDialogState | null>(null);
   readonly monthlySearch = signal('');
   readonly selectedMonthlyStudentId = signal<MonthlySelection>('all');
-  readonly selectedSemester = signal<SemesterSelection>('1');
+  readonly selectedSemester = signal<SemesterSelection>(
+    resolveCurrentAcademicSemester() === 2 ? '2' : '1'
+  );
   readonly selectedSemesterStudentId = signal<MonthlySelection>('all');
   readonly catalog = signal<AttendanceCatalog | null>(null);
+  readonly selectedSchoolYear = signal(this.defaultSchoolYear());
   readonly selectedCourseId = signal<number | null>(null);
   readonly selectedDate = signal(this.toIsoDate(new Date()));
   readonly selectedWeekStart = signal(this.toIsoDate(this.startOfWeek(new Date())));
@@ -163,12 +188,20 @@ export class AttendancePageComponent {
   readonly weeklyView = signal<WeeklyAttendanceView | null>(null);
   readonly monthlyView = signal<MonthlyAttendanceView | null>(null);
   readonly semesterViews = signal<MonthlyAttendanceView[]>([]);
+  readonly annualViews = signal<MonthlyAttendanceView[]>([]);
   readonly semesterCourseHighlights = signal<SemesterCourseAttendanceHighlight[]>([]);
+  readonly weeklyStatusBaseline = signal<Map<string, string>>(new Map());
+  readonly monthlyStatusBaseline = signal<Map<string, string>>(new Map());
   readonly isLoading = signal(false);
   readonly isSaving = signal(false);
   readonly isExporting = signal(false);
+  readonly isAnnualViewOpen = signal(false);
+  readonly isAnnualViewLoading = signal(false);
 
   readonly orderedCourses = computed(() => this.catalog()?.courses ?? []);
+  readonly coursesBySelectedYear = computed(() =>
+    this.orderedCourses().filter((course) => course.schoolYear === this.selectedSchoolYear())
+  );
   readonly selectedCourse = computed(
     () => this.orderedCourses().find((course) => course.id === this.selectedCourseId()) ?? null
   );
@@ -234,6 +267,38 @@ export class AttendancePageComponent {
       });
     }
     return specialDates;
+  });
+  readonly weeklyEditProgress = computed(() => {
+    const view = this.weeklyView();
+    const baseline = this.weeklyStatusBaseline();
+    if (!view) {
+      return { marked: 0, total: 0, dirty: 0 };
+    }
+
+    let marked = 0;
+    let total = 0;
+    let dirty = 0;
+
+    for (const student of view.students) {
+      for (const day of student.days) {
+        if (!this.isWeeklyEditableStatus(day.status)) {
+          continue;
+        }
+
+        total += 1;
+        if (day.status !== 'SIN_MARCAR') {
+          marked += 1;
+        }
+
+        const key = this.weeklyStatusKey(student.studentId, day.date);
+        const original = baseline.get(key) ?? 'SIN_MARCAR';
+        if ((day.status || 'SIN_MARCAR') !== original) {
+          dirty += 1;
+        }
+      }
+    }
+
+    return { marked, total, dirty };
   });
   readonly filteredMonthlyStudents = computed(() => {
     const query = this.monthlySearch().trim().toLowerCase();
@@ -334,8 +399,41 @@ export class AttendancePageComponent {
       percentage: Math.min(100, student.presentPercentage + student.latePercentage)
     };
   });
+  readonly monthlyEditableDates = computed(() => {
+    return new Set(
+      this.monthlyCalendarCells()
+        .filter((cell) => this.isMonthlyEditableCell(cell))
+        .map((cell) => cell.date as string)
+    );
+  });
+  readonly monthlyEditProgress = computed(() => {
+    const selectedStudent = this.selectedMonthlyStudent();
+    if (!selectedStudent) {
+      return { marked: 0, total: 0, dirty: 0 };
+    }
+
+    const baseline = this.monthlyStatusBaseline();
+    const editableDates = this.monthlyEditableDates();
+    const statusByDate = new Map(selectedStudent.days.map((day) => [day.date, day.status]));
+    let marked = 0;
+    let dirty = 0;
+
+    for (const date of editableDates) {
+      const status = statusByDate.get(date) ?? 'SIN_MARCAR';
+      if (status !== 'SIN_MARCAR') {
+        marked += 1;
+      }
+
+      const original = baseline.get(this.monthlyStatusKey(selectedStudent.studentId, date)) ?? 'SIN_MARCAR';
+      if (status !== original) {
+        dirty += 1;
+      }
+    }
+
+    return { marked, total: editableDates.size, dirty };
+  });
   readonly semesterMonths = computed(() => {
-    const schoolYear = this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+    const schoolYear = this.selectedCourse()?.schoolYear ?? this.selectedSchoolYear();
     const startMonth = this.selectedSemester() === '1' ? 1 : 7;
     return Array.from({ length: 6 }, (_, index) => {
       const monthNumber = startMonth + index;
@@ -396,6 +494,56 @@ export class AttendancePageComponent {
     }
     return this.semesterStudents().find((student) => student.studentId === selected) ?? null;
   });
+  readonly selectedAnnualStudent = computed(() => {
+    const selected = this.selectedSemesterStudentId();
+    if (selected === 'all') {
+      return null;
+    }
+
+    let fullName = '';
+    let run = '';
+    let presentCount = 0;
+    let absentCount = 0;
+    let lateCount = 0;
+    const days = new Map<string, string>();
+
+    for (const view of this.annualViews()) {
+      const student = view.students.find((item) => item.studentId === selected);
+      if (!student) {
+        continue;
+      }
+
+      fullName = student.fullName;
+      run = student.run;
+      presentCount += student.presentCount;
+      absentCount += student.absentCount;
+      lateCount += student.lateCount;
+
+      for (const day of student.days) {
+        days.set(day.date, day.status);
+      }
+    }
+
+    if (!fullName) {
+      return null;
+    }
+
+    const totalSchoolDays = this.annualViews().reduce((sum, view) => sum + (view.schoolDays ?? 0), 0);
+    const attendanceLike = presentCount + lateCount;
+    const percentage = totalSchoolDays > 0 ? Math.round((attendanceLike * 100) / totalSchoolDays) : 0;
+
+    return {
+      studentId: selected,
+      run,
+      fullName,
+      presentCount,
+      absentCount,
+      lateCount,
+      percentage,
+      riskStatus: this.resolveSemesterRisk(absentCount, lateCount),
+      days
+    } satisfies SemesterAggregatedStudent;
+  });
   readonly semesterSummary = computed(() => {
     const selectedStudent = this.selectedSemesterStudent();
     const months = this.semesterViews();
@@ -429,7 +577,7 @@ export class AttendancePageComponent {
   readonly semesterHeadline = computed(() => {
     const months = this.semesterViews();
     if (months.length === 0) {
-      const schoolYear = this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+      const schoolYear = this.selectedCourse()?.schoolYear ?? this.selectedSchoolYear();
       return this.selectedSemester() === '1'
         ? `Enero a Junio ${schoolYear}`
         : `Julio a Diciembre ${schoolYear}`;
@@ -442,6 +590,22 @@ export class AttendancePageComponent {
   readonly semesterCalendarMonths = computed<SemesterCalendarMonth[]>(() =>
     this.semesterViews().map((month) => this.buildSemesterCalendarMonth(month))
   );
+  readonly annualCalendarSections = computed<AnnualCalendarSection[]>(() => {
+    const months = this.annualViews()
+      .map((view) => this.buildSemesterCalendarMonth(view, this.selectedAnnualStudent()?.days ?? null))
+      .sort((left, right) => left.month - right.month);
+
+    return [
+      {
+        title: 'Marzo a Julio',
+        months: months.filter((month) => month.month >= 3 && month.month <= 7)
+      },
+      {
+        title: 'Agosto a Diciembre',
+        months: months.filter((month) => month.month >= 8 && month.month <= 12)
+      }
+    ].filter((section) => section.months.length > 0);
+  });
   readonly semesterMonthSummaryCards = computed<SemesterMonthSummaryCard[]>(() => {
     const selectedStudent = this.selectedSemesterStudent();
     const rows = this.semesterViews()
@@ -503,11 +667,13 @@ export class AttendancePageComponent {
   updateCourse(courseId: number | null): void {
     this.selectedCourseId.set(courseId);
     this.selectedMonthlyStudentId.set('all');
+    this.selectedSemesterStudentId.set('all');
     if (!courseId) {
       this.dailyView.set(null);
       this.weeklyView.set(null);
       this.monthlyView.set(null);
       this.semesterViews.set([]);
+      this.annualViews.set([]);
       this.semesterCourseHighlights.set([]);
       return;
     }
@@ -528,6 +694,28 @@ export class AttendancePageComponent {
 
     if (this.activeTab() === 'semester') {
       this.loadSemesterView();
+    }
+
+    if (this.isAnnualViewOpen()) {
+      this.loadAnnualView();
+    }
+  }
+
+  updateSchoolYear(value: string | number): void {
+    const nextYear = Number(value);
+    if (!Number.isFinite(nextYear)) {
+      return;
+    }
+
+    this.selectedSchoolYear.set(nextYear);
+    this.selectedCourseId.set(this.coursesBySelectedYear()[0]?.id ?? null);
+    this.selectedMonthlyStudentId.set('all');
+    this.selectedSemesterStudentId.set('all');
+    this.syncDateFiltersToSchoolYear(nextYear);
+    this.loadActiveView();
+
+    if (this.isAnnualViewOpen()) {
+      this.loadAnnualView();
     }
   }
 
@@ -578,6 +766,181 @@ export class AttendancePageComponent {
     this.selectedSemesterStudentId.set(studentId);
   }
 
+  updateWeeklyCell(studentId: number, date: string): void {
+    if (this.isSaving()) {
+      return;
+    }
+
+    this.weeklyView.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const students = current.students.map((student) => {
+        if (student.studentId !== studentId) {
+          return student;
+        }
+
+        return {
+          ...student,
+          days: student.days.map((day) =>
+            day.date === date && this.isWeeklyEditableStatus(day.status)
+              ? { ...day, status: this.nextInlineAttendanceStatus(day.status) }
+              : day
+          )
+        };
+      });
+
+      return this.recalculateWeekly(current, students);
+    });
+  }
+
+  resetWeeklyAttendance(): void {
+    const baseline = this.weeklyStatusBaseline();
+    this.weeklyView.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const students = current.students.map((student) => ({
+        ...student,
+        days: student.days.map((day) => ({
+          ...day,
+          status: baseline.get(this.weeklyStatusKey(student.studentId, day.date)) ?? 'SIN_MARCAR'
+        }))
+      }));
+
+      return this.recalculateWeekly(current, students);
+    });
+  }
+
+  saveWeeklyAttendance(): void {
+    const courseId = this.selectedCourseId();
+    const view = this.weeklyView();
+    if (!courseId || !view || this.isSaving()) {
+      return;
+    }
+
+    const changesByDate = new Map<string, Map<number, AttendanceStatus>>();
+    for (const student of view.students) {
+      for (const day of student.days) {
+        if (!this.isWeeklyEditableStatus(day.status)) {
+          continue;
+        }
+
+        const key = this.weeklyStatusKey(student.studentId, day.date);
+        const original = this.weeklyStatusBaseline().get(key) ?? 'SIN_MARCAR';
+        const currentStatus = (day.status || 'SIN_MARCAR') as AttendanceStatus;
+        if (currentStatus === original) {
+          continue;
+        }
+
+        const dateChanges = changesByDate.get(day.date) ?? new Map<number, AttendanceStatus>();
+        dateChanges.set(student.studentId, currentStatus);
+        changesByDate.set(day.date, dateChanges);
+      }
+    }
+
+    this.persistInlineAttendanceChanges(changesByDate, 'Asistencia semanal guardada correctamente');
+  }
+
+  updateMonthlyCell(date: string): void {
+    if (this.isSaving()) {
+      return;
+    }
+
+    const selectedStudentId = this.selectedMonthlyStudentId();
+    if (selectedStudentId === 'all') {
+      return;
+    }
+
+    this.monthlyView.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const students = current.students.map((student) => {
+        if (student.studentId !== selectedStudentId) {
+          return student;
+        }
+
+        const currentDays = new Map(student.days.map((day) => [day.date, day.status]));
+        currentDays.set(date, this.nextInlineAttendanceStatus(currentDays.get(date) ?? 'SIN_MARCAR'));
+
+        return this.recalculateMonthlyStudent(
+          {
+            ...student,
+            days: Array.from(currentDays.entries())
+              .map(([dayDate, status]) => ({ date: dayDate, status }))
+              .sort((left, right) => left.date.localeCompare(right.date))
+          },
+          current.schoolDays
+        );
+      });
+
+      return { ...current, students };
+    });
+  }
+
+  resetMonthlyAttendance(): void {
+    const selectedStudentId = this.selectedMonthlyStudentId();
+    if (selectedStudentId === 'all') {
+      return;
+    }
+
+    this.monthlyView.update((current) => {
+      if (!current) {
+        return current;
+      }
+
+      const originalDays = this.buildMonthlyStudentDaysFromBaseline(selectedStudentId);
+      return {
+        ...current,
+        students: current.students.map((student) =>
+          student.studentId === selectedStudentId
+            ? this.recalculateMonthlyStudent({ ...student, days: originalDays }, current.schoolDays)
+            : student
+        )
+      };
+    });
+  }
+
+  saveMonthlyAttendance(): void {
+    const courseId = this.selectedCourseId();
+    const selectedStudent = this.selectedMonthlyStudent();
+    if (!courseId || !selectedStudent || this.isSaving()) {
+      return;
+    }
+
+    const changesByDate = new Map<string, Map<number, AttendanceStatus>>();
+    const currentDays = new Map(selectedStudent.days.map((day) => [day.date, day.status]));
+
+    for (const date of this.monthlyEditableDates()) {
+      const currentStatus = (currentDays.get(date) ?? 'SIN_MARCAR') as AttendanceStatus;
+      const original = this.monthlyStatusBaseline().get(this.monthlyStatusKey(selectedStudent.studentId, date)) ?? 'SIN_MARCAR';
+      if (currentStatus === original) {
+        continue;
+      }
+
+      changesByDate.set(date, new Map([[selectedStudent.studentId, currentStatus]]));
+    }
+
+    this.persistInlineAttendanceChanges(changesByDate, 'Asistencia mensual guardada correctamente');
+  }
+
+  openAnnualView(): void {
+    if (!this.selectedCourseId()) {
+      return;
+    }
+
+    this.isAnnualViewOpen.set(true);
+    this.loadAnnualView();
+  }
+
+  closeAnnualView(): void {
+    this.isAnnualViewOpen.set(false);
+  }
+
   updateStudentNote(studentId: number, value: string): void {
     this.dailyView.update((current) => {
       if (!current) {
@@ -616,6 +979,133 @@ export class AttendancePageComponent {
 
     this.updateStudentNote(dialog.studentId, dialog.note.trim());
     this.closeStudentNote();
+  }
+
+  openDepartureDialog(student: DailyAttendanceStudent): void {
+    this.departureDialog.set({
+      studentId: student.studentId,
+      studentName: student.fullName,
+      currentStatus: student.status,
+      departureTime: student.departureTime ?? '',
+      reason: student.departureReason ?? 'MEDICO',
+      isJustified: student.departureJustified ?? true,
+      departureNote: student.departureNote ?? ''
+    });
+  }
+
+  closeDepartureDialog(): void {
+    this.departureDialog.set(null);
+  }
+
+  cancelDepartureDialog(): void {
+    this.closeDepartureDialog();
+  }
+
+  updateDepartureTime(value: string): void {
+    this.departureDialog.update((current) =>
+      current ? { ...current, departureTime: value || '' } : current
+    );
+  }
+
+  updateDepartureReason(reason: AttendanceDepartureDialogState['reason']): void {
+    this.departureDialog.update((current) => (current ? { ...current, reason } : current));
+  }
+
+  updateDepartureJustified(isJustified: boolean): void {
+    this.departureDialog.update((current) => (current ? { ...current, isJustified } : current));
+  }
+
+  updateDepartureNote(value: string): void {
+    this.departureDialog.update((current) => (current ? { ...current, departureNote: value } : current));
+  }
+
+  saveDepartureDialog(): void {
+    const dialog = this.departureDialog();
+    const current = this.dailyView();
+    const courseId = this.selectedCourseId();
+    if (!dialog || !current || !courseId || this.isSaving()) {
+      return;
+    }
+
+    const departureTime = dialog.departureTime.trim();
+    const students = current.students.map((student) => {
+      if (student.studentId !== dialog.studentId) {
+        return student;
+      }
+
+      const nextStatus =
+        departureTime && !['PRESENTE', 'ATRASADO'].includes(student.status) ? 'PRESENTE' : student.status;
+
+      return {
+        ...student,
+        status: nextStatus,
+        departureTime: departureTime || null,
+        departureReason: departureTime ? dialog.reason : null,
+        departureJustified: departureTime ? dialog.isJustified : null,
+        departureNote: departureTime ? dialog.departureNote.trim() || null : null
+      };
+    });
+
+    const nextView = this.recalculateDaily(current, students);
+    this.isSaving.set(true);
+    this.attendanceApiService
+      .saveDaily(this.buildDailySavePayload(courseId, nextView))
+      .subscribe({
+        next: (view) => {
+          this.dailyView.set(view);
+          this.isSaving.set(false);
+          this.closeDepartureDialog();
+          this.snackBar.open('Salida guardada correctamente', 'Cerrar', { duration: 2600 });
+          this.loadWeeklyView();
+          this.loadMonthlyView();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSaving.set(false);
+          this.showError(error, 'No fue posible guardar la salida');
+        }
+      });
+  }
+
+  clearDepartureDialog(): void {
+    const dialog = this.departureDialog();
+    const current = this.dailyView();
+    const courseId = this.selectedCourseId();
+    if (!dialog || !current || !courseId || this.isSaving()) {
+      return;
+    }
+
+    const nextView = {
+      ...current,
+      students: current.students.map((student) =>
+        student.studentId === dialog.studentId
+          ? {
+              ...student,
+              departureTime: null,
+              departureReason: null,
+              departureJustified: null,
+              departureNote: null
+            }
+          : student
+      )
+    };
+
+    this.isSaving.set(true);
+    this.attendanceApiService
+      .saveDaily(this.buildDailySavePayload(courseId, nextView))
+      .subscribe({
+        next: (view) => {
+          this.dailyView.set(view);
+          this.isSaving.set(false);
+          this.closeDepartureDialog();
+          this.snackBar.open('Salida eliminada correctamente', 'Cerrar', { duration: 2600 });
+          this.loadWeeklyView();
+          this.loadMonthlyView();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSaving.set(false);
+          this.showError(error, 'No fue posible eliminar la salida');
+        }
+      });
   }
 
   openClassSuspensionDialog(): void {
@@ -670,7 +1160,11 @@ export class AttendancePageComponent {
               arrivalTime:
                 status === 'ATRASADO'
                   ? student.arrivalTime || this.defaultArrivalTime()
-                  : null
+                  : null,
+              departureTime: ['PRESENTE', 'ATRASADO'].includes(status) ? student.departureTime : null,
+              departureReason: ['PRESENTE', 'ATRASADO'].includes(status) ? student.departureReason : null,
+              departureJustified: ['PRESENTE', 'ATRASADO'].includes(status) ? student.departureJustified : null,
+              departureNote: ['PRESENTE', 'ATRASADO'].includes(status) ? student.departureNote : null
             }
           : student
       );
@@ -727,7 +1221,11 @@ export class AttendancePageComponent {
       const students = current.students.map((student) => ({
         ...student,
         status: 'SIN_MARCAR',
-        arrivalTime: null
+        arrivalTime: null,
+        departureTime: null,
+        departureReason: null,
+        departureJustified: null,
+        departureNote: null
       }));
 
       return this.recalculateDaily(current, students);
@@ -754,18 +1252,7 @@ export class AttendancePageComponent {
 
     this.isSaving.set(true);
     this.attendanceApiService
-      .saveDaily({
-        courseId,
-        date: this.selectedDate(),
-        classSuspended: current.classSuspended,
-        suspensionReason: current.suspensionMessage,
-        entries: current.students.map((student) => ({
-          studentId: student.studentId,
-          status: student.status,
-          arrivalTime: student.arrivalTime,
-          note: student.note
-        }))
-      })
+      .saveDaily(this.buildDailySavePayload(courseId, current))
       .subscribe({
         next: (view) => {
           this.dailyView.set(view);
@@ -805,7 +1292,11 @@ export class AttendancePageComponent {
           studentId: student.studentId,
           status: student.status,
           arrivalTime: student.arrivalTime,
-          note: student.note
+          note: student.note,
+          departureTime: student.departureTime,
+          departureReason: student.departureReason,
+          departureJustified: student.departureJustified,
+          departureNote: student.departureNote
         }))
       })
       .subscribe({
@@ -942,6 +1433,36 @@ export class AttendancePageComponent {
     }
   }
 
+  shortStatusLabel(status: string | null | undefined, empty = 'X'): string {
+    switch (status) {
+      case 'PRESENTE':
+        return 'P';
+      case 'AUSENTE':
+        return 'A';
+      case 'ATRASADO':
+        return 'T';
+      case 'SUSPENDIDO':
+        return 'S';
+      case 'CLASES_SUSPENDIDAS':
+        return 'CS';
+      default:
+        return empty;
+    }
+  }
+
+  departureReasonLabel(reason: AttendanceDepartureDialogState['reason']): string {
+    switch (reason) {
+      case 'MEDICO':
+        return 'Control medico';
+      case 'TRAMITE':
+        return 'Tramite';
+      case 'FAMILIAR':
+        return 'Salida con apoderado';
+      default:
+        return 'Otro motivo';
+    }
+  }
+
   badgeClass(status: string): string {
     switch (status) {
       case 'PRESENTE':
@@ -1028,10 +1549,6 @@ export class AttendancePageComponent {
       return 'is-weekend';
     }
 
-    if (cell.isFuture) {
-      return 'is-future';
-    }
-
     if (cell.date && (this.monthlyView()?.suspendedDates ?? []).includes(cell.date)) {
       return 'is-suspension';
     }
@@ -1064,6 +1581,17 @@ export class AttendancePageComponent {
       default:
         return 'is-none';
     }
+  }
+
+  isMonthlyEditableCell(cell: MonthlyCalendarCell): boolean {
+    return (
+      cell.kind === 'day' &&
+      !!this.selectedMonthlyStudent() &&
+      !cell.specialType &&
+      !cell.isWeekend &&
+      !!cell.date &&
+      !(this.monthlyView()?.suspendedDates ?? []).includes(cell.date)
+    );
   }
 
   specialDateClass(type: AttendanceSpecialDateType): string {
@@ -1147,13 +1675,16 @@ export class AttendancePageComponent {
     this.attendanceApiService.getCatalog().subscribe({
       next: (catalog) => {
         this.catalog.set(catalog);
-        this.selectedCourseId.set(catalog.courses[0]?.id ?? null);
+        const schoolYear = this.defaultSchoolYear();
+        this.selectedSchoolYear.set(schoolYear);
+        this.selectedCourseId.set(this.firstCourseIdForSchoolYear(schoolYear));
+        this.syncDateFiltersToSchoolYear(schoolYear);
         this.isLoading.set(false);
         this.loadActiveView();
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el catalogo de asistencia');
+        this.showError(error, 'No fue posible cargar el catálogo de asistencia');
       }
     });
   }
@@ -1178,6 +1709,7 @@ export class AttendancePageComponent {
   private loadDailyView(): void {
     const courseId = this.selectedCourseId();
     if (!courseId) {
+      this.clearAttendanceViews();
       return;
     }
     this.isLoading.set(true);
@@ -1196,12 +1728,14 @@ export class AttendancePageComponent {
   private loadWeeklyView(): void {
     const courseId = this.selectedCourseId();
     if (!courseId) {
+      this.clearAttendanceViews();
       return;
     }
     this.isLoading.set(true);
     this.attendanceApiService.getWeekly(courseId, this.selectedWeekStart()).subscribe({
       next: (view) => {
         this.weeklyView.set(view);
+        this.weeklyStatusBaseline.set(this.buildWeeklyStatusBaseline(view));
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -1214,12 +1748,14 @@ export class AttendancePageComponent {
   private loadMonthlyView(): void {
     const courseId = this.selectedCourseId();
     if (!courseId) {
+      this.clearAttendanceViews();
       return;
     }
     this.isLoading.set(true);
     this.attendanceApiService.getMonthly(courseId, this.selectedMonth()).subscribe({
       next: (view) => {
         this.monthlyView.set(view);
+        this.monthlyStatusBaseline.set(this.buildMonthlyStatusBaseline(view));
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -1232,12 +1768,13 @@ export class AttendancePageComponent {
   private loadSemesterView(): void {
     const courseId = this.selectedCourseId();
     if (!courseId) {
+      this.clearAttendanceViews();
       return;
     }
 
     this.isLoading.set(true);
     const semesterMonths = this.semesterMonths();
-    const courseRankingRequests = this.orderedCourses().map((course) =>
+    const courseRankingRequests = this.coursesBySelectedYear().map((course) =>
       forkJoin(
         semesterMonths.map((month) =>
           this.attendanceApiService.getMonthly(course.id, month.value).pipe(catchError(() => of(null)))
@@ -1270,6 +1807,217 @@ export class AttendancePageComponent {
         this.showError(error, 'No fue posible cargar el resumen semestral');
       }
     });
+  }
+
+  private loadAnnualView(): void {
+    const courseId = this.selectedCourseId();
+    const schoolYear = this.selectedCourse()?.schoolYear ?? this.selectedSchoolYear();
+    if (!courseId) {
+      this.annualViews.set([]);
+      return;
+    }
+
+    this.isAnnualViewLoading.set(true);
+    forkJoin(
+      this.buildSchoolYearMonths(schoolYear).map((month) =>
+        this.attendanceApiService.getMonthly(courseId, month).pipe(catchError(() => of(null)))
+      )
+    ).subscribe({
+      next: (views) => {
+        this.annualViews.set(
+          views
+            .filter((view): view is MonthlyAttendanceView => !!view)
+            .sort((left, right) => this.parseMonthLabel(left.monthLabel) - this.parseMonthLabel(right.monthLabel))
+        );
+        this.isAnnualViewLoading.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isAnnualViewLoading.set(false);
+        this.showError(error, 'No fue posible cargar la vista anual de asistencia');
+      }
+    });
+  }
+
+  private clearAttendanceViews(): void {
+    this.dailyView.set(null);
+    this.weeklyView.set(null);
+    this.monthlyView.set(null);
+    this.semesterViews.set([]);
+    this.semesterCourseHighlights.set([]);
+    this.weeklyStatusBaseline.set(new Map());
+    this.monthlyStatusBaseline.set(new Map());
+    this.isLoading.set(false);
+  }
+
+  private buildWeeklyStatusBaseline(view: WeeklyAttendanceView): Map<string, string> {
+    const baseline = new Map<string, string>();
+    for (const student of view.students) {
+      for (const day of student.days) {
+        baseline.set(this.weeklyStatusKey(student.studentId, day.date), day.status || 'SIN_MARCAR');
+      }
+    }
+    return baseline;
+  }
+
+  private buildMonthlyStatusBaseline(view: MonthlyAttendanceView): Map<string, string> {
+    const baseline = new Map<string, string>();
+    for (const student of view.students) {
+      for (const day of student.days) {
+        baseline.set(this.monthlyStatusKey(student.studentId, day.date), day.status || 'SIN_MARCAR');
+      }
+    }
+    return baseline;
+  }
+
+  private weeklyStatusKey(studentId: number, date: string): string {
+    return `${studentId}|${date}`;
+  }
+
+  private monthlyStatusKey(studentId: number, date: string): string {
+    return `${studentId}|${date}`;
+  }
+
+  isWeeklyEditableStatus(status: string): boolean {
+    return status !== 'CLASES_SUSPENDIDAS';
+  }
+
+  private nextInlineAttendanceStatus(status: string): AttendanceStatus {
+    switch (status) {
+      case 'PRESENTE':
+        return 'AUSENTE';
+      case 'AUSENTE':
+        return 'SIN_MARCAR';
+      default:
+        return 'PRESENTE';
+    }
+  }
+
+  private recalculateWeekly(view: WeeklyAttendanceView, students: WeeklyAttendanceView['students']): WeeklyAttendanceView {
+    const nextStudents = students.map((student) => {
+      const editableDays = student.days.filter((day) => this.isWeeklyEditableStatus(day.status));
+      const totalDays = editableDays.length;
+      const presentCount = editableDays.filter((day) => day.status === 'PRESENTE').length;
+      const absentCount = editableDays.filter((day) => day.status === 'AUSENTE').length;
+      const lateCount = editableDays.filter((day) => day.status === 'ATRASADO').length;
+      const attendanceLike = presentCount + lateCount;
+
+      return {
+        ...student,
+        absences: absentCount,
+        lateCount,
+        attendancePercentage: totalDays > 0 ? Math.round((attendanceLike * 100) / totalDays) : 0,
+        statusBadge: this.resolveSemesterRisk(absentCount, lateCount)
+      };
+    });
+
+    const totalAbsences = nextStudents.reduce((sum, student) => sum + student.absences, 0);
+    const totalLate = nextStudents.reduce((sum, student) => sum + student.lateCount, 0);
+    const averageAttendance =
+      nextStudents.length > 0
+        ? Math.round(
+            nextStudents.reduce((sum, student) => sum + student.attendancePercentage, 0) / nextStudents.length
+          )
+        : 0;
+
+    return {
+      ...view,
+      students: nextStudents,
+      summary: {
+        averageAttendance,
+        totalAbsences,
+        totalLate,
+        activeAlerts: view.alerts.length
+      }
+    };
+  }
+
+  private recalculateMonthlyStudent(
+    student: MonthlyAttendanceStudent,
+    schoolDays: number
+  ): MonthlyAttendanceStudent {
+    const presentCount = student.days.filter((day) => day.status === 'PRESENTE').length;
+    const absentCount = student.days.filter((day) => day.status === 'AUSENTE').length;
+    const lateCount = student.days.filter((day) => day.status === 'ATRASADO').length;
+    const denominator = Math.max(1, schoolDays);
+
+    return {
+      ...student,
+      presentCount,
+      absentCount,
+      lateCount,
+      presentPercentage: Math.round((presentCount * 100) / denominator),
+      absentPercentage: Math.round((absentCount * 100) / denominator),
+      latePercentage: Math.round((lateCount * 100) / denominator),
+      riskStatus: this.resolveSemesterRisk(absentCount, lateCount)
+    };
+  }
+
+  private buildMonthlyStudentDaysFromBaseline(studentId: number): { date: string; status: string }[] {
+    const prefix = `${studentId}|`;
+    return Array.from(this.monthlyStatusBaseline().entries())
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([key, status]) => ({ date: key.slice(prefix.length), status }))
+      .sort((left, right) => left.date.localeCompare(right.date));
+  }
+
+  private persistInlineAttendanceChanges(
+    changesByDate: Map<string, Map<number, AttendanceStatus>>,
+    successMessage: string
+  ): void {
+    const courseId = this.selectedCourseId();
+    if (!courseId || this.isSaving()) {
+      return;
+    }
+
+    if (changesByDate.size === 0) {
+      this.snackBar.open('No hay cambios pendientes para guardar', 'Cerrar', { duration: 2400 });
+      return;
+    }
+
+    this.isSaving.set(true);
+    forkJoin(
+      Array.from(changesByDate.entries()).map(([date, studentChanges]) =>
+        this.attendanceApiService.getDaily(courseId, date).pipe(
+          switchMap((dailyView) =>
+            this.attendanceApiService.saveDaily({
+              courseId,
+              date,
+              classSuspended: dailyView.classSuspended,
+              suspensionReason: dailyView.suspensionMessage,
+              entries: dailyView.students.map((student) => {
+                const nextStatus = studentChanges.get(student.studentId) ?? (student.status as AttendanceStatus);
+                return {
+                  studentId: student.studentId,
+                  status: nextStatus,
+                  arrivalTime: nextStatus === 'ATRASADO' ? student.arrivalTime || this.defaultArrivalTime() : null,
+                  note: student.note,
+                  departureTime: student.departureTime,
+                  departureReason: student.departureReason,
+                  departureJustified: student.departureJustified,
+                  departureNote: student.departureNote
+                };
+              })
+            })
+          )
+        )
+      )
+    ).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.snackBar.open(successMessage, 'Cerrar', { duration: 2600 });
+        this.loadDailyView();
+        this.loadWeeklyView();
+        this.loadMonthlyView();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSaving.set(false);
+        this.showError(error, 'No fue posible guardar la asistencia');
+      }
+    });
+  }
+
+  private firstCourseIdForSchoolYear(schoolYear: number): number | null {
+    return this.orderedCourses().find((course) => course.schoolYear === schoolYear)?.id ?? null;
   }
 
   private buildSemesterCourseHighlight(
@@ -1323,17 +2071,33 @@ export class AttendancePageComponent {
     return bestHighlight;
   }
 
-  private buildSemesterCalendarMonth(view: MonthlyAttendanceView): SemesterCalendarMonth {
+  private syncDateFiltersToSchoolYear(schoolYear: number): void {
+    const currentDate = this.parseLocalDate(this.selectedDate());
+    const date = Number.isNaN(currentDate.getTime()) ? new Date(schoolYear, 0, 1) : currentDate;
+    date.setFullYear(schoolYear);
+
+    const currentWeekStart = this.startOfWeek(date);
+    const currentMonth = this.selectedMonth().split('-')[1] ?? `${date.getMonth() + 1}`.padStart(2, '0');
+
+    this.selectedDate.set(this.toIsoDate(date));
+    this.selectedWeekStart.set(this.toIsoDate(currentWeekStart));
+    this.selectedMonth.set(`${schoolYear}-${currentMonth}`);
+  }
+
+  private buildSemesterCalendarMonth(
+    view: MonthlyAttendanceView,
+    selectedStudentDaysOverride?: Map<string, string> | null
+  ): SemesterCalendarMonth {
     const monthMatch = view.monthLabel.match(/\b(20\d{2})\b/);
-    const year = monthMatch ? Number(monthMatch[1]) : this.selectedCourse()?.schoolYear ?? new Date().getFullYear();
+    const year = monthMatch ? Number(monthMatch[1]) : this.selectedCourse()?.schoolYear ?? this.selectedSchoolYear();
     const month = this.parseMonthLabel(view.monthLabel);
     const daysInMonth = new Date(year, month, 0).getDate();
     const firstDay = new Date(year, month - 1, 1);
     const firstWeekOffset = (firstDay.getDay() + 6) % 7;
-    const selectedStudent = this.selectedSemesterStudent();
+    const selectedStudent = selectedStudentDaysOverride ? true : !!this.selectedSemesterStudent();
     const daySummary = new Map(view.dailySummary.map((day) => [Number(day.dayLabel), day.attendancePercentage]));
     const dayStatusSummary = this.buildSemesterDayStatusSummary(view);
-    const studentDays = selectedStudent?.days ?? new Map<string, string>();
+    const studentDays = selectedStudentDaysOverride ?? this.selectedSemesterStudent()?.days ?? new Map<string, string>();
     const suspendedDates = new Set(view.suspendedDates ?? []);
     const specialDates = new Map(
       (view.specialDates ?? []).map((specialDate) => [specialDate.date, specialDate])
@@ -1571,7 +2335,11 @@ export class AttendancePageComponent {
           studentId: student.studentId,
           status: student.status,
           arrivalTime: student.arrivalTime,
-          note: student.note
+          note: student.note,
+          departureTime: student.departureTime,
+          departureReason: student.departureReason,
+          departureJustified: student.departureJustified,
+          departureNote: student.departureNote
         }))
       })
       .subscribe({
@@ -1593,6 +2361,25 @@ export class AttendancePageComponent {
           this.showError(error, 'No fue posible actualizar la suspensión de clases');
         }
       });
+  }
+
+  private buildDailySavePayload(courseId: number, view: DailyAttendanceView) {
+    return {
+      courseId,
+      date: this.selectedDate(),
+      classSuspended: view.classSuspended,
+      suspensionReason: view.suspensionMessage,
+      entries: view.students.map((student) => ({
+        studentId: student.studentId,
+        status: student.status,
+        arrivalTime: student.arrivalTime,
+        note: student.note,
+        departureTime: student.departureTime,
+        departureReason: student.departureReason,
+        departureJustified: student.departureJustified,
+        departureNote: student.departureNote
+      }))
+    };
   }
 
   private defaultArrivalTime(): string {
@@ -1620,6 +2407,17 @@ export class AttendancePageComponent {
     const month = `${date.getMonth() + 1}`.padStart(2, '0');
     const day = `${date.getDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private parseLocalDate(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year || this.currentSchoolYear, (month || 1) - 1, day || 1);
+  }
+
+  private defaultSchoolYear(): number {
+    return this.schoolYears.includes(this.currentSchoolYear as typeof this.schoolYears[number])
+      ? this.currentSchoolYear
+      : this.schoolYears[0];
   }
 
   private toYearMonth(date: Date): string {

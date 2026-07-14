@@ -13,6 +13,18 @@
         </div>
 
         <div class="page-header__actions">
+          <div class="inline-field inline-field--header">
+            <span class="inline-field__label">Año:</span>
+            <div class="inline-select inline-field__control inline-field__control--year">
+              <mat-icon>calendar_today</mat-icon>
+              <select [ngModel]="selectedSchoolYear()" (ngModelChange)="updateSchoolYear($event)">
+                @for (schoolYear of schoolYears; track schoolYear) {
+                  <option [ngValue]="schoolYear">{{ schoolYear }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
@@ -20,37 +32,8 @@
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informe pedagógico</button>
             }
           </section>
-
-          <button
-            mat-stroked-button
-            type="button"
-            class="header-button header-button--ghost"
-            [matMenuTriggerFor]="exportMenu"
-            [disabled]="isExporting()">
-            <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
-            Exportar
-          </button>
         </div>
       </section>
-
-      <mat-menu #exportMenu="matMenu" xPosition="before" class="export-menu">
-        <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
-          <mat-icon>data_object</mat-icon>
-          <span>JSON</span>
-        </button>
-        <button mat-menu-item type="button" (click)="exportGradeBook()">
-          <mat-icon>table_view</mat-icon>
-          <span>Excel</span>
-        </button>
-        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('word')">
-          <mat-icon>description</mat-icon>
-          <span>Word</span>
-        </button>
-        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('pdf')">
-          <mat-icon>picture_as_pdf</mat-icon>
-          <span>PDF</span>
-        </button>
-      </mat-menu>
 
       <section class="summary-grid">
         <mat-card appearance="outlined" class="summary-card sc-blue">
@@ -113,7 +96,7 @@
             <div class="inline-select inline-field__control inline-field__control--course">
               <mat-icon>school</mat-icon>
               <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
-                @for (course of courses(); track course.id) {
+                @for (course of coursesBySelectedYear(); track course.id) {
                   <option [ngValue]="course.id">{{ course.name }}</option>
                 }
               </select>
@@ -144,7 +127,7 @@
             <div class="inline-select inline-field__control inline-field__control--date">
               <mat-icon>calendar_month</mat-icon>
               <select [ngModel]="selectedPeriodId()" (ngModelChange)="updatePeriod($event)">
-                @for (period of periods(); track period.id) {
+                @for (period of periodsBySelectedYear(); track period.id) {
                   <option [ngValue]="period.id">{{ period.name }}</option>
                 }
               </select>
@@ -272,6 +255,18 @@
         </div>
 
         <div class="page-header__actions">
+          <div class="inline-field inline-field--header">
+            <span class="inline-field__label">Año:</span>
+            <div class="inline-select inline-field__control inline-field__control--year">
+              <mat-icon>calendar_today</mat-icon>
+              <select [ngModel]="selectedSchoolYear()" (ngModelChange)="updateSchoolYear($event)">
+                @for (schoolYear of schoolYears; track schoolYear) {
+                  <option [ngValue]="schoolYear">{{ schoolYear }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
@@ -279,37 +274,8 @@
               <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'reports'" (click)="setTab('reports')">Informe pedagógico</button>
             }
           </section>
-
-          <button
-            mat-stroked-button
-            type="button"
-            class="header-button header-button--ghost"
-            [matMenuTriggerFor]="profileExportMenu"
-            [disabled]="isExporting()">
-            <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
-            Exportar
-          </button>
         </div>
       </section>
-
-      <mat-menu #profileExportMenu="matMenu" xPosition="before" class="export-menu">
-        <button mat-menu-item type="button" (click)="exportJson()" [disabled]="isExporting()">
-          <mat-icon>data_object</mat-icon>
-          <span>JSON</span>
-        </button>
-        <button mat-menu-item type="button" (click)="exportGradeBook()">
-          <mat-icon>table_view</mat-icon>
-          <span>Excel</span>
-        </button>
-        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('word')">
-          <mat-icon>description</mat-icon>
-          <span>Word</span>
-        </button>
-        <button mat-menu-item type="button" disabled [matTooltip]="exportDisabledMessage('pdf')">
-          <mat-icon>picture_as_pdf</mat-icon>
-          <span>PDF</span>
-        </button>
-      </mat-menu>
 
       <section class="summary-grid">
         <mat-card appearance="outlined" class="summary-card sc-blue">
@@ -371,7 +337,7 @@
           <div class="inline-select inline-field__control inline-field__control--course">
             <mat-icon>school</mat-icon>
             <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
-              @for (course of courses(); track course.id) {
+              @for (course of coursesBySelectedYear(); track course.id) {
                 <option [ngValue]="course.id">{{ course.name }}</option>
               }
             </select>
@@ -396,7 +362,7 @@
           <div class="inline-select inline-field__control inline-field__control--date">
             <mat-icon>calendar_month</mat-icon>
             <select [ngModel]="selectedPeriodId()" (ngModelChange)="updatePeriod($event)">
-              @for (period of periods(); track period.id) {
+              @for (period of periodsBySelectedYear(); track period.id) {
                 <option [ngValue]="period.id">{{ period.name }}</option>
               }
             </select>
@@ -539,7 +505,7 @@
                                 <strong [ngClass]="evaluationEntryToneClass(entry, subject.evaluationType)">{{ evaluationEntryValue(entry, subject.evaluationType) }}</strong>
                               </div>
                             } @empty {
-                              <div class="profile-subject-row__detail-empty">Aun no hay evaluaciones registradas.</div>
+                              <div class="profile-subject-row__detail-empty">Aún no hay evaluaciones registradas.</div>
                             }
                           </div>
                         }
@@ -584,7 +550,7 @@
           } @else {
             <div class="profile-empty-state profile-empty-state--card">
               <strong>Sin ficha disponible</strong>
-              <span>No hay datos de estudiantes para el curso y periodo seleccionados.</span>
+              <span>No hay datos de estudiantes para el curso y período seleccionados.</span>
             </div>
           }
         </article>
@@ -704,7 +670,7 @@
               </section>
 
               <section class="pdf-bulletin__section">
-                <h3>Observaciones del profesor jefe</h3>
+                <h3>Observaciónes del profesor jefe</h3>
                 <div class="pdf-bulletin__observations">
                   @for (line of pdfObservationLines(student); track $index) {
                     <div class="pdf-bulletin__observation-row">
@@ -725,7 +691,7 @@
               </section>
 
               <footer class="pdf-bulletin__footer">
-                Torre Fuerte School - ConectaSchool - Documento generado automaticamente - {{ pdfIssueDate() }}
+                Torre Fuerte School - ConectaSchool - Documento generado automáticamente - {{ pdfIssueDate() }}
               </footer>
             </div>
           }
@@ -743,7 +709,7 @@
               <div class="report-preview-modal__actions">
                 <button mat-flat-button type="button" class="header-button header-button--primary report-preview-modal__save" (click)="savePreviewObservation()">
                   <mat-icon>save</mat-icon>
-                  Guardar observacion
+                  Guardar observación
                 </button>
                 <button mat-icon-button type="button" class="report-preview-modal__close" (click)="closeReportPreview()" aria-label="Cerrar vista previa">
                   <mat-icon>close</mat-icon>
@@ -864,13 +830,13 @@
                   </section>
 
                   <section class="pdf-bulletin__section">
-                    <h3>Observaciones del profesor jefe</h3>
+                    <h3>Observaciónes del profesor jefe</h3>
                     <div class="pdf-bulletin__observations">
                       <textarea
                         class="pdf-bulletin__observation-editor"
                         [value]="observationDraft()"
                         (input)="observationDraft.set($any($event.target).value)"
-                        placeholder="Escribe aqui las observaciones del profesor jefe..."></textarea>
+                        placeholder="Escribe aqui las observaciónes del profesor jefe..."></textarea>
                     </div>
                   </section>
 
@@ -884,7 +850,7 @@
                   </section>
 
                   <footer class="pdf-bulletin__footer">
-                    Torre Fuerte School - ConectaSchool - Documento generado automaticamente - {{ pdfIssueDate() }}
+                    Torre Fuerte School - ConectaSchool - Documento generado automáticamente - {{ pdfIssueDate() }}
                   </footer>
                 </div>
               </article>
@@ -898,15 +864,15 @@
           <mat-form-field appearance="outline">
             <mat-label>Curso</mat-label>
             <mat-select [value]="selectedCourseId()" (valueChange)="updateCourse($event)">
-              @for (course of courses(); track course.id) {
+              @for (course of coursesBySelectedYear(); track course.id) {
                 <mat-option [value]="course.id">{{ course.name }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Periodo</mat-label>
+            <mat-label>Período</mat-label>
             <mat-select [value]="selectedPeriodId()" (valueChange)="updatePeriod($event)">
-              @for (period of periods(); track period.id) {
+              @for (period of periodsBySelectedYear(); track period.id) {
                 <mat-option [value]="period.id">{{ period.name }}</mat-option>
               }
             </mat-select>
@@ -975,6 +941,18 @@
         </div>
 
         <div class="page-header__actions">
+          <div class="inline-field inline-field--header">
+            <span class="inline-field__label">Año:</span>
+            <div class="inline-select inline-field__control inline-field__control--year">
+              <mat-icon>calendar_today</mat-icon>
+              <select [ngModel]="selectedSchoolYear()" (ngModelChange)="updateSchoolYear($event)">
+                @for (schoolYear of schoolYears; track schoolYear) {
+                  <option [ngValue]="schoolYear">{{ schoolYear }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
           <section class="grades-tabs-bar">
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'book'" (click)="setTab('book')">Evaluaciones</button>
             <button mat-stroked-button type="button" [class.active-tab]="activeTab() === 'profile'" (click)="setTab('profile')">Informe de notas</button>
@@ -1050,7 +1028,7 @@
           <div class="inline-select inline-field__control inline-field__control--course">
             <mat-icon>school</mat-icon>
             <select [ngModel]="selectedCourseId()" (ngModelChange)="updateCourse($event)">
-              @for (course of courses(); track course.id) {
+              @for (course of coursesBySelectedYear(); track course.id) {
                 <option [ngValue]="course.id">{{ course.name }}</option>
               }
             </select>
@@ -1075,7 +1053,7 @@
           <div class="inline-select inline-field__control inline-field__control--date">
             <mat-icon>calendar_month</mat-icon>
             <select [ngModel]="selectedPeriodId()" (ngModelChange)="updatePeriod($event)">
-              @for (period of periods(); track period.id) {
+              @for (period of periodsBySelectedYear(); track period.id) {
                 <option [ngValue]="period.id">{{ period.name }}</option>
               }
             </select>
@@ -1125,7 +1103,7 @@
               } @empty {
                 <div class="profile-empty-state">
                   <strong>Sin ranking disponible</strong>
-                  <span>No hay estudiantes con datos para este periodo.</span>
+                  <span>No hay estudiantes con datos para este período.</span>
                 </div>
               }
             </div>
@@ -1143,7 +1121,7 @@
                   </span>
                   <span class="pedagogical-action-row__copy">
                     <strong>Ver ficha</strong>
-                    <small>Visualiza la ficha pedagogica completa del estudiante.</small>
+                    <small>Visualiza la ficha pedagógica completa del estudiante.</small>
                   </span>
                   <mat-icon class="pedagogical-action-row__arrow">chevron_right</mat-icon>
                 </button>
@@ -1174,7 +1152,7 @@
           } @else {
             <div class="profile-empty-state profile-empty-state--card">
               <strong>Sin informe disponible</strong>
-              <span>No hay datos de estudiantes para el curso y periodo seleccionados.</span>
+              <span>No hay datos de estudiantes para el curso y período seleccionados.</span>
             </div>
           }
         </article>
@@ -1214,7 +1192,7 @@
                     <strong>{{ pdfPeriodLabel() }}</strong>
                   </div>
                   <div class="pedagogical-student-field">
-                    <span>Educadora</span>
+                    <span>Docente</span>
                     <strong>{{ report.content.educatorName }}</strong>
                   </div>
                   <div class="pedagogical-student-field">
@@ -1308,7 +1286,7 @@
               </section>
 
               <section class="pedagogical-sign-row">
-                <div class="pedagogical-sign-box">Educadora<br />{{ report.content.teacherSignatureName || report.content.educatorName }}</div>
+                <div class="pedagogical-sign-box">Docente<br />{{ report.content.teacherSignatureName || report.content.educatorName }}</div>
                 <div class="pedagogical-sign-box">Apoderado/a<br />{{ report.content.guardianSignatureLabel }}</div>
               </section>
 
@@ -1369,7 +1347,7 @@
                         <strong>{{ pdfPeriodLabel() }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
-                        <span>Educadora</span>
+                        <span>Docente</span>
                         <strong>{{ report.content.educatorName }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
@@ -1463,7 +1441,7 @@
                   </section>
 
                   <section class="pedagogical-sign-row">
-                    <div class="pedagogical-sign-box">Educadora<br />{{ report.content.teacherSignatureName || report.content.educatorName }}</div>
+                    <div class="pedagogical-sign-box">Docente<br />{{ report.content.teacherSignatureName || report.content.educatorName }}</div>
                     <div class="pedagogical-sign-box">Apoderado/a<br />{{ report.content.guardianSignatureLabel }}</div>
                   </section>
 
@@ -1526,7 +1504,7 @@
                         <strong>{{ pdfPeriodLabel() }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
-                        <span>Educadora</span>
+                        <span>Docente</span>
                         <input type="text" [value]="report.content.educatorName" (input)="updatePedagogicalField('educatorName', $any($event.target).value)" />
                       </div>
                       <div class="pedagogical-student-field">
@@ -1583,7 +1561,7 @@
                               </div>
                             }
                           </div>
-                          <textarea class="pedagogical-textarea" [value]="area.observation" (input)="updatePedagogicalAreaObservation(area.key, $any($event.target).value)" placeholder="Escribe una observacion para esta area..."></textarea>
+                          <textarea class="pedagogical-textarea" [value]="area.observation" (input)="updatePedagogicalAreaObservation(area.key, $any($event.target).value)" placeholder="Escribe una observación para esta area..."></textarea>
                         </article>
                       }
                     </div>
@@ -1612,7 +1590,7 @@
                           </div>
                         }
                       </div>
-                      <textarea class="pedagogical-textarea" [value]="attitude.observation" (input)="updatePedagogicalAttitudeObservation($any($event.target).value)" placeholder="Escribe una observacion general sobre la disposicion al aprendizaje..."></textarea>
+                      <textarea class="pedagogical-textarea" [value]="attitude.observation" (input)="updatePedagogicalAttitudeObservation($any($event.target).value)" placeholder="Escribe una observación general sobre la disposición al aprendizaje..."></textarea>
                     </section>
                   }
 
@@ -1631,7 +1609,7 @@
 
                   <section class="pedagogical-sign-row">
                     <div class="pedagogical-sign-box pedagogical-sign-box--editable">
-                      <span>Firma educadora</span>
+                      <span>Firma docente</span>
                       <input type="text" [value]="report.content.teacherSignatureName" (input)="updatePedagogicalField('teacherSignatureName', $any($event.target).value)" />
                     </div>
                     <div class="pedagogical-sign-box pedagogical-sign-box--editable">
@@ -1651,28 +1629,71 @@
       @if (pedagogicalAreaEditor(); as editor) {
         <div class="report-preview-overlay" (click)="closePedagogicalAreaEditor()">
           <section class="pedagogical-bank-modal" (click)="$event.stopPropagation()">
-            <header class="pedagogical-bank-modal__header">
-              <div>
-                <h3>Banco de preguntas</h3>
-                <p>{{ editor.areaTitle }} - selecciona 4 preguntas</p>
-              </div>
-              <button mat-icon-button type="button" (click)="closePedagogicalAreaEditor()" aria-label="Cerrar banco de preguntas">
-                <mat-icon>close</mat-icon>
-              </button>
-            </header>
+              <header class="pedagogical-bank-modal__header">
+                <div>
+                  <h3>Banco de preguntas</h3>
+                  <p>{{ editor.areaTitle }} - selecciona 4 preguntas</p>
+                </div>
+                <div class="pedagogical-bank-modal__header-actions">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="pedagogical-bank-modal__new-button"
+                    (click)="openPedagogicalQuestionCreate()"
+                    [disabled]="pedagogicalQuestionMutationPending()">
+                    <mat-icon>add</mat-icon>
+                    Nueva pregunta
+                  </button>
+                  <button mat-icon-button type="button" (click)="closePedagogicalAreaEditor()" aria-label="Cerrar banco de preguntas">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </header>
 
-            <div class="pedagogical-bank-modal__body">
-              @for (question of pedagogicalEditorQuestions(); track question.id) {
-                <button type="button" class="pedagogical-bank-question" [class.is-selected]="isPedagogicalQuestionSelected(question.id)" (click)="togglePedagogicalQuestionSelection(question.id)">
-                  <span class="pedagogical-bank-question__check">
-                    <mat-icon>{{ isPedagogicalQuestionSelected(question.id) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-                  </span>
-                  <span>{{ question.label }}</span>
-                </button>
-              } @empty {
-                <div class="profile-empty-state">
-                  <strong>Sin preguntas disponibles</strong>
-                  <span>No hay preguntas configuradas para esta area.</span>
+              <div class="pedagogical-bank-modal__body">
+
+                @if (pedagogicalQuestionEditor(); as questionEditor) {
+                  <div class="pedagogical-bank-form">
+                    <div class="pedagogical-bank-form__head">
+                      <strong>{{ questionEditor.mode === 'create' ? 'Agregar pregunta' : 'Editar pregunta' }}</strong>
+                      <button mat-icon-button type="button" (click)="cancelPedagogicalQuestionEditor()" aria-label="Cancelar edicion de pregunta">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                    <textarea
+                      class="pedagogical-bank-form__textarea"
+                      [value]="questionEditor.label"
+                      (input)="updatePedagogicalQuestionEditorLabel($any($event.target).value)"
+                      placeholder="Escribe la pregunta del banco..."
+                    ></textarea>
+                    <div class="pedagogical-bank-form__actions">
+                      <button mat-stroked-button type="button" (click)="cancelPedagogicalQuestionEditor()" [disabled]="pedagogicalQuestionMutationPending()">Cancelar</button>
+                      <button mat-flat-button type="button" class="header-button header-button--primary" (click)="savePedagogicalQuestionEditor()" [disabled]="pedagogicalQuestionMutationPending()">
+                        {{ questionEditor.mode === 'create' ? 'Agregar' : 'Guardar cambios' }}
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                @for (question of pedagogicalEditorQuestions(); track question.id) {
+                  <button type="button" class="pedagogical-bank-question" [class.is-selected]="isPedagogicalQuestionSelected(question.id)" (click)="togglePedagogicalQuestionSelection(question.id)">
+                    <span class="pedagogical-bank-question__check">
+                      <mat-icon>{{ isPedagogicalQuestionSelected(question.id) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    </span>
+                    <span class="pedagogical-bank-question__label">{{ question.label }}</span>
+                    <span class="pedagogical-bank-question__actions">
+                      <button mat-icon-button type="button" (click)="$event.stopPropagation(); openPedagogicalQuestionEdit(question)" [disabled]="question.id <= 0 || pedagogicalQuestionMutationPending()" aria-label="Editar pregunta">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button type="button" (click)="$event.stopPropagation(); deletePedagogicalQuestion(question)" [disabled]="question.id <= 0 || pedagogicalQuestionMutationPending()" aria-label="Eliminar pregunta">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </span>
+                  </button>
+                } @empty {
+                  <div class="profile-empty-state">
+                    <strong>Sin preguntas disponibles</strong>
+                    <span>No hay preguntas configuradas para esta area.</span>
                 </div>
               }
             </div>
@@ -1692,8 +1713,8 @@
 
   @if (evaluationKindDialogOpen()) {
     <div class="dialog-backdrop" (click)="closeEvaluationKindDialog()"></div>
-    <section class="dialog-panel dialog-panel--compact" style="width:min(100%,740px);overflow:hidden;" role="dialog" aria-modal="true" aria-labelledby="evaluation-kind-title">
-      <header class="dialog-panel__header" style="position:relative;justify-content:center;padding:1.05rem 3.8rem .92rem;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);">
+    <section class="dialog-panel dialog-panel--compact evaluation-kind-dialog" style="width:min(100%,740px);overflow:hidden;" role="dialog" aria-modal="true" aria-labelledby="evaluation-kind-title">
+      <header class="dialog-panel__header evaluation-kind-dialog__header" style="position:relative;justify-content:center;padding:1.05rem 3.8rem .92rem;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);">
         <div style="display:grid;gap:.1rem;justify-items:center;align-items:center;text-align:center;width:100%;">
           <h2 id="evaluation-kind-title" style="margin:0;text-align:center;width:100%;display:flex;align-items:center;justify-content:center;min-height:32px;">Seleccionar tipo de evaluacion</h2>
         </div>
@@ -1702,9 +1723,10 @@
         </button>
       </header>
 
-      <div class="dialog-panel__body" style="padding:.72rem 1.15rem 1rem;">
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;">
+      <div class="dialog-panel__body evaluation-kind-dialog__body" style="padding:.72rem 1.15rem 1rem;">
+        <div class="evaluation-kind-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;">
           <button type="button"
+            class="evaluation-kind-option"
             [style.border]="selectedEvaluationKind() === 'DIAGNOSTICA' ? '1.5px solid #9bc0ff' : '1px solid #d8e5f3'"
             [style.boxShadow]="selectedEvaluationKind() === 'DIAGNOSTICA' ? '0 14px 30px rgba(37,99,235,.12)' : '0 8px 24px rgba(15,23,42,.05)'"
             style="min-height:150px;padding:.9rem .85rem;border-radius:20px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);display:grid;align-content:start;justify-items:start;gap:.65rem;text-align:left;cursor:pointer;transition:all .25s ease;color:#102849;"
@@ -1722,6 +1744,7 @@
           </button>
 
           <button type="button"
+            class="evaluation-kind-option"
             [style.border]="selectedEvaluationKind() === 'PROCESO' ? '1.5px solid #ffd08a' : '1px solid #d8e5f3'"
             [style.boxShadow]="selectedEvaluationKind() === 'PROCESO' ? '0 14px 30px rgba(217,119,6,.12)' : '0 8px 24px rgba(15,23,42,.05)'"
             style="min-height:150px;padding:.9rem .85rem;border-radius:20px;background:linear-gradient(180deg,#ffffff 0%,#fffaf3 100%);display:grid;align-content:start;justify-items:start;gap:.65rem;text-align:left;cursor:pointer;transition:all .25s ease;color:#102849;"
@@ -1739,6 +1762,7 @@
           </button>
 
           <button type="button"
+            class="evaluation-kind-option"
             [style.border]="selectedEvaluationKind() === 'SUMATIVA' ? '1.5px solid #90e0b1' : '1px solid #d8e5f3'"
             [style.boxShadow]="selectedEvaluationKind() === 'SUMATIVA' ? '0 14px 30px rgba(5,150,105,.14)' : '0 8px 24px rgba(15,23,42,.05)'"
             style="min-height:150px;padding:.9rem .85rem;border-radius:20px;background:linear-gradient(180deg,#ffffff 0%,#f4fdf8 100%);display:grid;align-content:start;justify-items:start;gap:.65rem;text-align:left;cursor:pointer;transition:all .25s ease;color:#102849;"
@@ -1752,7 +1776,7 @@
                 <span style="display:inline-flex;align-items:center;justify-content:center;min-height:25px;padding:0 .62rem;border-radius:999px;background:#e9fbf0;color:#059669;font-size:.7rem;font-weight:700;border:1px solid #bdebcf;">Afecta promedio</span>
               </div>
             </div>
-            <small style="color:#667b97;font-size:.74rem;font-weight:600;line-height:1.4;">Registra evaluaciones con calificacion formal.</small>
+            <small style="color:#667b97;font-size:.74rem;font-weight:600;line-height:1.4;">Registra evaluaciones con calificación formal.</small>
           </button>
         </div>
       </div>

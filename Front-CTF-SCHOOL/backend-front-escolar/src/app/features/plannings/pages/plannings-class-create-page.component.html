@@ -20,18 +20,18 @@
 
     <section class="steps-card animate-in">
       <nav class="steps-bar" aria-label="Pasos de nueva clase">
-        @for (step of steps; track step.number) {
+        @for (step of steps(); track step.actualStep) {
           <button
             type="button"
             class="step"
-            [class.is-active]="isStepActive(step.number)"
-            [class.is-completed]="isStepCompleted(step.number)"
-            [class.is-clickable]="canNavigateToStep(step.number)"
-            [disabled]="!canNavigateToStep(step.number)"
-            [attr.aria-current]="isStepActive(step.number) ? 'step' : null"
-            (click)="goToStep(step.number)">
+            [class.is-active]="isStepActive(step.actualStep)"
+            [class.is-completed]="isStepCompleted(step.actualStep)"
+            [class.is-clickable]="canNavigateToStep(step.actualStep)"
+            [disabled]="!canNavigateToStep(step.actualStep)"
+            [attr.aria-current]="isStepActive(step.actualStep) ? 'step' : null"
+            (click)="goToStep(step.actualStep)">
             <div class="step__number">
-              @if (isStepCompleted(step.number)) {
+              @if (isStepCompleted(step.actualStep)) {
                 <mat-icon>check</mat-icon>
               } @else {
                 <span>{{ step.number }}</span>
@@ -41,7 +41,7 @@
           </button>
 
           @if (!$last) {
-            <div class="step__divider" [class.is-completed]="isStepCompleted(step.number)"></div>
+            <div class="step__divider" [class.is-completed]="isStepCompleted(step.actualStep)"></div>
           }
         }
       </nav>
@@ -58,7 +58,7 @@
                 </div>
                 <div class="card-heading__copy">
                   <h2>Selecciona el curso y la asignatura</h2>
-                  <p>Estos datos determinarán las unidades disponibles para la planificación de la clase.</p>
+                  <p>Estos datos determinarán {{ isInitialEducationFlow() ? 'los ámbitos' : 'las unidades' }} disponibles para la planificación de la clase.</p>
                 </div>
               </div>
 
@@ -102,19 +102,71 @@
                   </div>
                 </div>
 
-                <div class="form-group col-6">
-                  <label class="form-label">Asignatura <span class="required">*</span></label>
-                  <div class="select-field">
-                    <mat-icon>menu_book</mat-icon>
-                    <select class="form-select" [ngModel]="subject()" (ngModelChange)="updateSubject($event)">
-                      @for (item of subjects(); track item.value) {
-                        <option [value]="item.value">{{ item.label }}</option>
-                      }
-                    </select>
-                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                @if (isInitialEducationFlow()) {
+                  <div class="form-group col-6">
+                    <label class="form-label">Asignatura visible <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>menu_book</mat-icon>
+                      <select class="form-select" [ngModel]="prekinderVisibleSubjectKey()" (ngModelChange)="updatePrekinderVisibleSubject($event)">
+                        @for (item of normalizedPrekinderSubjectOptions(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label class="form-label">ámbito <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>hub</mat-icon>
+                      <select class="form-select" [ngModel]="prekinderAmbit()" disabled>
+                        @for (item of prekinderAmbitOptions(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label class="form-label">Núcleo <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>layers</mat-icon>
+                      <select class="form-select" [ngModel]="prekinderNucleus()" disabled>
+                        @for (item of prekinderNucleusOptions(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="form-group col-6">
+                    <label class="form-label">Asignatura <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>menu_book</mat-icon>
+                      <select class="form-select" [ngModel]="subject()" (ngModelChange)="updateSubject($event)">
+                        @for (item of subjects(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              @if (isInitialEducationFlow()) {
+                <div class="info-box">
+                  <div class="info-box__icon">
+                    <mat-icon>auto_awesome</mat-icon>
+                  </div>
+                  <div class="info-box__text">
+                    Educación inicial usa una ruta curricular guiada: selecciona la asignatura visible y el sistema completara ámbito y Núcleo automáticamente.
                   </div>
                 </div>
-              </div>
+              }
 
               <div class="info-box">
                 <div class="info-box__icon">
@@ -129,6 +181,22 @@
                 <div class="validation-box" role="alert">
                   <mat-icon>error_outline</mat-icon>
                   <span>{{ validationMessage() }}</span>
+                </div>
+              }
+
+              @if (hasSelectionContext() && (isInitialEducationFlow() ? !selectedProgram() : !manualPlanningUnits().length)) {
+                <div class="manual-actions">
+                  @if (isInitialEducationFlow()) {
+                    <button type="button" class="btn btn--success" [disabled]="!canCreateManualClass()" (click)="createManualClass()">
+                      <mat-icon>add_circle</mat-icon>
+                      <span>Crear clase</span>
+                    </button>
+                  }
+
+                  <button type="button" class="btn btn--success-soft" (click)="goToManualUnit()">
+                    <mat-icon>library_add</mat-icon>
+                    <span>Crear {{ unitSingularLabel() }}</span>
+                  </button>
                 </div>
               }
 
@@ -236,7 +304,7 @@
           }
         </aside>
       </div>
-    } @else if (activeStep() === 2 || activeStep() === 3) {
+    } @else if (activeStep() === 2 || (!isInitialEducationFlow() && activeStep() === 3)) {
       <div class="form-shell animate-in">
         <div class="form-shell__main">
           <section class="card">
@@ -246,8 +314,8 @@
                   <mat-icon>menu_book</mat-icon>
                 </div>
                 <div class="card-heading__copy">
-                  <h2>Selecciona la unidad</h2>
-                  <p>Elige la unidad que trabajarás en esta clase.</p>
+                  <h2>Selecciona {{ isInitialEducationFlow() ? 'el ámbito' : 'la unidad' }}</h2>
+                  <p>Elige {{ isInitialEducationFlow() ? 'el ámbito' : 'la unidad' }} que trabajaras en esta clase.</p>
                 </div>
               </div>
 
@@ -261,29 +329,35 @@
               </div>
 
               <div class="units-section">
-                <h3 class="units-section__title">Unidades disponibles</h3>
+                <h3 class="units-section__title">{{ unitPluralLabelTitle() }} disponibles</h3>
 
-                <div class="unit-list">
-                  @for (unidad of unidadesDisponibles(); track unidad.id) {
-                    <button
-                      type="button"
-                      class="unit-option"
-                      [class.is-selected]="selectedUnidad()?.id === unidad.id"
-                      (click)="selectUnidad(unidad)">
-                      <span class="unit-option__radio" [class.is-selected]="selectedUnidad()?.id === unidad.id"></span>
-                      <span class="unit-option__number">{{ unidad.numero }}</span>
-                      <span class="unit-option__body">
-                        <strong>{{ unidad.nombre }}</strong>
-                        <small>{{ unidad.clasesEstimadas }} clases estimadas</small>
-                      </span>
-                      <span
-                        class="unit-option__badge"
-                        [class.is-selected]="selectedUnidad()?.id === unidad.id">
-                        {{ selectedUnidad()?.id === unidad.id ? 'Seleccionada' : 'Disponible' }}
-                      </span>
-                    </button>
-                  }
-                </div>
+                @if (unidadesDisponibles().length) {
+                  <div class="unit-list">
+                    @for (unidad of unidadesDisponibles(); track unidad.id) {
+                      <button
+                        type="button"
+                        class="unit-option"
+                        [class.is-selected]="selectedUnidad()?.id === unidad.id"
+                        (click)="selectUnidad(unidad)">
+                        <span class="unit-option__radio" [class.is-selected]="selectedUnidad()?.id === unidad.id"></span>
+                        <span class="unit-option__number">{{ unidad.numero }}</span>
+                        <span class="unit-option__body">
+                          <strong>{{ unidad.nombre }}</strong>
+                          <small>{{ unidad.clasesEstimadas }} clases estimadas</small>
+                        </span>
+                        <span
+                          class="unit-option__badge"
+                          [class.is-selected]="selectedUnidad()?.id === unidad.id">
+                          {{ selectedUnidad()?.id === unidad.id ? 'Seleccionada' : 'Disponible' }}
+                        </span>
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <div class="empty-manual-hint">
+                    No hay {{ unitPluralLabel() }} cread{{ isInitialEducationFlow() ? 'os' : 'as' }} para esta asignatura. Crea primero {{ isInitialEducationFlow() ? 'un ámbito' : 'una unidad' }} para continuar con la clase.
+                  </div>
+                }
               </div>
 
               @if (step2ValidationMessage()) {
@@ -362,7 +436,7 @@
           </div>
 
           <div class="preview-ejes">
-            <span class="preview-ejes__label">Ejes de la unidad</span>
+            <span class="preview-ejes__label">Ejes de {{ isInitialEducationFlow() ? 'el ámbito' : 'la unidad' }}</span>
             <div class="preview-ejes__chips">
               @for (axis of selectedUnidad()?.ejes ?? []; track axis) {
                 <span class="preview-ejes__chip">{{ axis }}</span>
@@ -396,6 +470,83 @@
         </aside>
       </div>
 
+    } @else if (isInitialEducationFlow() && activeStep() === 3) {
+      <div class="form-shell animate-in">
+        <div class="form-shell__main">
+          <section class="card">
+            <div class="card__body">
+              <div class="card-heading">
+                <div class="card-heading__icon">
+                  <mat-icon>task_alt</mat-icon>
+                </div>
+                <div class="card-heading__copy">
+                  <h2>Selecciona los OA e indicadores</h2>
+                  <p>Usaremos la asignatura visible, ámbito y nucleo ya resueltos para abrir la seleccion curricular.</p>
+                </div>
+              </div>
+
+              <div class="info-box">
+                <div class="info-box__icon">
+                  <mat-icon>auto_awesome</mat-icon>
+                </div>
+                <div class="info-box__text">
+                  El popup ya viene precargado con los OA e indicadores disponibles para esta seleccion.
+                </div>
+              </div>
+
+              <div class="form-footer form-footer--spread">
+                <button type="button" class="btn btn--ghost btn--outline-purple" (click)="volver()">
+                  <mat-icon>arrow_back</mat-icon>
+                  <span>Volver</span>
+                </button>
+
+                <button type="button" class="btn btn--primary" (click)="openInitialEducationOaModal()">
+                  <span>Abrir OA</span>
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="preview-card">
+          <h3>Vista previa</h3>
+
+          <div class="preview-listing">
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>school</mat-icon>
+                <span>Curso</span>
+              </div>
+              <strong>{{ courseLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>menu_book</mat-icon>
+                <span>Asignatura</span>
+              </div>
+              <strong>{{ subjectLabel() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>hub</mat-icon>
+                <span>ámbito</span>
+              </div>
+              <strong>{{ prekinderAmbit() }}</strong>
+            </div>
+
+            <div class="preview-listing__row">
+              <div class="preview-listing__label">
+                <mat-icon>layers</mat-icon>
+                <span>Núcleo</span>
+              </div>
+              <strong>{{ prekinderNucleus() }}</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
     } @else if (activeStep() === 4) {
       <div class="form-shell form-shell--editor animate-in">
         <div class="form-shell__main">
@@ -407,7 +558,7 @@
                 </div>
                 <div class="card-heading__copy">
                   <h2>Datos de la clase</h2>
-                  <p>Completa la estructura pedagogica, evaluacion, recursos y apoyos de esta clase.</p>
+                  <p>Completa la estructura pedagógica, evaluacion, recursos y apoyos de esta clase.</p>
                 </div>
               </div>
 
@@ -437,9 +588,12 @@
                 </label>
 
                 <div class="editor-field">
-                  <span class="editor-field__label">Unidad</span>
-                  <div class="editor-input editor-input--static">
-                    Unidad {{ selectedUnidad()?.numero }} · {{ selectedUnidad()?.nombre }}
+                  <span class="editor-field__label">{{ unitSingularLabelTitle() }}</span>
+                  <div
+                    class="editor-input editor-input--static editor-input--unit"
+                    [title]="selectedContextFullLabel()"
+                    (dblclick)="showSelectedUnitFullName()">
+                    <span>{{ selectedContextFullLabel() }}</span>
                   </div>
                 </div>
 
@@ -465,6 +619,17 @@
                     Estructura de la clase
                   </span>
 
+                  <div class="editor-section-title__actions">
+                    @if (isInitialEducationFlow()) {
+                      <button
+                        type="button"
+                        class="ai-button ai-button--secondary"
+                        (click)="openInitialEducationActivityModal()">
+                        <mat-icon>lightbulb</mat-icon>
+                        <span>Sugerir actividades</span>
+                      </button>
+                    }
+
                     <button
                       type="button"
                       class="ai-button"
@@ -475,6 +640,7 @@
                       </mat-icon>
                       <span>{{ isGeneratingSuggestion() ? 'Generando...' : 'Generar con IA' }}</span>
                     </button>
+                  </div>
                   </div>
 
                   <article class="phase-card">
@@ -489,7 +655,7 @@
                     </div>
 
                     <label class="phase-support">
-                      <span class="phase-support__label">Estrategia pedagogica</span>
+                      <span class="phase-support__label">Estrategia pedagógica</span>
                       <select class="phase-support__select" [ngModel]="startStrategy()" (ngModelChange)="updateStartStrategy($event)">
                         @for (strategy of startStrategyOptions; track strategy) {
                           <option [value]="strategy">{{ strategy }}</option>
@@ -631,7 +797,7 @@
             <div class="preview-listing__row">
               <div class="preview-listing__label">
                 <mat-icon>view_agenda</mat-icon>
-                <span>Unidad</span>
+                <span>{{ unitSingularLabelTitle() }}</span>
               </div>
               <strong>{{ selectedUnidad()?.nombre }}</strong>
             </div>
@@ -711,7 +877,7 @@
             <p>{{ suggestionStatus() }}</p>
           </div>
 <section class="sidebar-box">
-                    <div class="sidebar-box__title">Evaluacion</div>
+                    <div class="sidebar-box__title">Evaluación</div>
 
                     <div class="chip-group">
                       @for (item of evaluationTypeOptions; track item) {
@@ -830,13 +996,13 @@
       </section>
     }
 
-    @if (activeStep() === 3 || isObjectiveModalOpen()) {
+    @if ((!isInitialEducationFlow() && activeStep() === 3) || isObjectiveModalOpen()) {
       <div class="oa-modal-overlay" (click)="closeObjectiveModal()">
         <section class="oa-modal" (click)="$event.stopPropagation()">
           <header class="oa-modal__header">
             <div class="oa-modal__copy">
               <h2>Selecciona los OA de la clase</h2>
-              <p>Unidad {{ selectedUnidad()?.numero }} · {{ selectedUnidad()?.nombre }}</p>
+              <p>{{ unitSingularLabelTitle() }} {{ selectedUnidad()?.numero }} · {{ selectedUnidad()?.nombre }}</p>
             </div>
 
             <div class="oa-modal__header-actions">
@@ -972,6 +1138,68 @@
             <button type="button" class="btn btn--primary" [disabled]="!selectedObjectiveIds().length" (click)="confirmObjectiveModal()">
               <span>{{ activeStep() === 4 || isObjectiveModalOpen() ? 'Aplicar OA' : 'Continuar' }}</span>
               <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </footer>
+        </section>
+      </div>
+    }
+
+    <app-initial-education-oa-modal
+      [open]="isInitialEducationOaModalOpen()"
+      [courseLabel]="courseLabel()"
+      [subjectLabel]="subjectLabel()"
+      [ambitLabel]="prekinderAmbit()"
+      [nucleusLabel]="prekinderNucleus()"
+      [objectives]="initialEducationObjectiveOptions()"
+      [preselectedObjectiveIds]="selectedObjectiveIds()"
+      [preselectedIndicatorKeys]="selectedInitialEducationIndicatorKeys()"
+      (close)="closeInitialEducationOaModal()"
+      (applySelection)="applyInitialEducationOas($event)" />
+
+    <app-initial-education-activity-suggestion-modal
+      [open]="isInitialEducationActivityModalOpen()"
+      [courseLabel]="courseLabel()"
+      [subjectLabel]="subjectLabel()"
+      [ambitLabel]="prekinderAmbit()"
+      [nucleusLabel]="prekinderNucleus()"
+      [suggestions]="initialEducationActivitySuggestions()"
+      (close)="closeInitialEducationActivityModal()"
+      (applySuggestion)="applyInitialEducationActivitySuggestion($event)" />
+
+    @if (dateConflictDialog(); as conflict) {
+      <div class="date-conflict-overlay" (click)="cancelDateConflict()">
+        <section class="date-conflict-modal" role="dialog" aria-modal="true" aria-labelledby="date-conflict-title" (click)="$event.stopPropagation()">
+          <header class="date-conflict-modal__header">
+            <div class="date-conflict-modal__icon">
+              <mat-icon>event_busy</mat-icon>
+            </div>
+            <div>
+              <h2 id="date-conflict-title">Fecha ocupada</h2>
+              <p>Ya existe una clase planificada para esa fecha.</p>
+            </div>
+            <button type="button" class="date-conflict-modal__close" (click)="cancelDateConflict()" aria-label="Cerrar aviso">
+              <mat-icon>close</mat-icon>
+            </button>
+          </header>
+
+          <div class="date-conflict-modal__body">
+            <div class="date-conflict-modal__date">
+              <span>Fecha seleccionada</span>
+              <strong>{{ formatDateForWarning(conflict.plannedDate) }}</strong>
+            </div>
+            <p>
+              La clase <strong>"{{ conflict.title }}"</strong> ya usa esta fecha.
+              Puedes cancelar para cambiarla o guardar igualmente si corresponde planificar más de una clase el mismo día.
+            </p>
+          </div>
+
+          <footer class="date-conflict-modal__footer">
+            <button type="button" class="btn btn--ghost" (click)="cancelDateConflict()">
+              Cancelar y cambiar fecha
+            </button>
+            <button type="button" class="btn btn--primary" [disabled]="isSavingClass()" (click)="confirmDateConflict()">
+              <mat-icon>save</mat-icon>
+              Guardar igual
             </button>
           </footer>
         </section>

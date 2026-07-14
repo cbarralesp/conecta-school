@@ -6,13 +6,14 @@ import { FormArray, FormBuilder, FormControl, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { catchError, debounceTime, merge, of, startWith, switchMap } from 'rxjs';
+import { catchError, debounceTime, from, lastValueFrom, merge, of, startWith, switchMap, toArray, concatMap } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { EnrollmentApiService } from '../../../core/services/enrollment-api.service';
 import {
   EnrollmentAccessPreview,
   EnrollmentCourseOption,
   EnrollmentDetail,
+  EnrollmentDocument,
   EnrollmentGuardianAccess,
   EnrollmentPayload,
   EnrollmentStudentAccess
@@ -72,7 +73,7 @@ export class EnrollmentFormPageComponent {
     { id: 4, label: 'Establec.', icon: 'school' },
     { id: 5, label: 'Documentos', icon: 'folder_open' }
   ] as const;
-  readonly pageTitle = computed(() => this.isEditMode ? 'Editar Matrícula' : 'Nueva Matrícula');
+  readonly pageTitle = computed(() => this.isEditMode ? 'Editar Matricula' : 'Nueva Matricula');
   readonly subtitle = computed(() =>
     this.isEditMode
       ? 'Actualizando información del estudiante'
@@ -183,6 +184,12 @@ export class EnrollmentFormPageComponent {
     'DAEM'
   ] as const;
   readonly uploadedDocuments = signal<Record<string, string>>({});
+  readonly selectedDocumentFiles = signal<Record<string, File>>({});
+  readonly existingDocumentsByKey = signal<Record<string, EnrollmentDocument>>({});
+  readonly selectedStudentPhotoFile = signal<File | null>(null);
+  readonly studentPhotoPreviewUrl = signal('');
+  readonly existingStudentPhotoUrl = signal('');
+  readonly studentPhotoDisplayUrl = computed(() => this.studentPhotoPreviewUrl() || this.existingStudentPhotoUrl());
   readonly documentSections = [
     {
       title: 'Identidad y Registro Civil',
@@ -214,10 +221,13 @@ export class EnrollmentFormPageComponent {
     {
       title: 'Otros Documentos',
       documents: [
-        { key: 'junaeb-sep', icon: 'volunteer_activism', title: 'Comprobante JUNAEB o SEP', description: 'Si postula a beneficios o prioridad.' },
-        { key: 'migratory-docs', icon: 'travel_explore', title: 'Visa o documentos migratorios', description: 'Solo si corresponde a estudiante extranjero.' },
-        { key: 'image-permission', icon: 'photo_camera', title: 'Autorización de uso de imagen', description: 'Para actividades o material institucional.' },
-        { key: 'priority-certificate', icon: 'military_tech', title: 'Certificado Prioridad o PIE MINEDUC', description: 'Documento oficial si existe beneficio o condición asociada.' }
+        { key: 'contract', icon: 'contract', title: 'Contrato', description: 'Documento contractual de matricula, si corresponde.' },
+        { key: 'commitment-letter', icon: 'assignment_turned_in', title: 'Carta compromiso', description: 'Acuerdos o compromisos firmados por el apoderado.' },
+        { key: 'image-consent', icon: 'photo_camera', title: 'Consentimiento imagenes', description: 'Autorizacion para uso de imagenes en actividades o material institucional.' },
+        { key: 'interview', icon: 'record_voice_over', title: 'Entrevista', description: 'Registro de entrevista de admision, convivencia o seguimiento.' },
+        { key: 'simple-power', icon: 'gavel', title: 'Poder simple', description: 'Autorizacion simple para representacion o tramites especificos.' },
+        { key: 'payment-receipt', icon: 'receipt_long', title: 'Boleta', description: 'Comprobante de pago o respaldo administrativo.' },
+        { key: 'other', icon: 'folder_special', title: 'Otros', description: 'Cualquier otro documento complementario de la matrícula.' }
       ]
     }
   ] as const;
@@ -476,6 +486,37 @@ export class EnrollmentFormPageComponent {
     this.removePickupContact(index);
   }
 
+  onStudentPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.snackBar.open('Selecciona una imagen valida para la foto del alumno', 'Cerrar', { duration: 2600 });
+      if (input) {
+        input.value = '';
+      }
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('La foto no puede superar los 5 MB', 'Cerrar', { duration: 2600 });
+      if (input) {
+        input.value = '';
+      }
+      return;
+    }
+
+    this.revokeStudentPhotoPreview();
+    this.selectedStudentPhotoFile.set(file);
+    this.studentPhotoPreviewUrl.set(URL.createObjectURL(file));
+    if (input) {
+      input.value = '';
+    }
+  }
+
   onDocumentSelected(documentKey: string, event: Event): void {
     const input = event.target as HTMLInputElement | null;
     const file = input?.files?.[0];
@@ -483,10 +524,61 @@ export class EnrollmentFormPageComponent {
       return;
     }
 
+    this.selectedDocumentFiles.update((current) => ({
+      ...current,
+      [documentKey]: file
+    }));
     this.uploadedDocuments.update((current) => ({
       ...current,
       [documentKey]: file.name
     }));
+    this.existingDocumentsByKey.update((current) => {
+      const { [documentKey]: _removed, ...rest } = current;
+      return rest;
+    });
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  openUploadedDocument(documentKey: string): void {
+    const pendingFile = this.selectedDocumentFiles()[documentKey];
+    if (pendingFile) {
+      const url = URL.createObjectURL(pendingFile);
+      this.document.defaultView?.open(url, '_blank', 'noopener');
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      return;
+    }
+
+    const existingDocument = this.existingDocumentsByKey()[documentKey];
+    if (!existingDocument?.id || !this.enrollmentId) {
+      this.snackBar.open('No hay documento disponible para visualizar', 'Cerrar', { duration: 2500 });
+      return;
+    }
+
+    this.enrollmentApiService.downloadDocumentBlob(this.enrollmentId, existingDocument.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        this.document.defaultView?.open(url, '_blank', 'noopener');
+        window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible abrir el documento')
+    });
+  }
+
+  removeUploadedDocument(documentKey: string): void {
+    this.selectedDocumentFiles.update((current) => {
+      const { [documentKey]: _removed, ...rest } = current;
+      return rest;
+    });
+    this.uploadedDocuments.update((current) => {
+      const { [documentKey]: _removed, ...rest } = current;
+      return rest;
+    });
+    this.existingDocumentsByKey.update((current) => {
+      const { [documentKey]: _removed, ...rest } = current;
+      return rest;
+    });
   }
 
   uploadedDocumentName(documentKey: string): string {
@@ -543,7 +635,7 @@ export class EnrollmentFormPageComponent {
       return;
     }
 
-    const confirmed = window.confirm('Deseas reactivar esta matricula? El estudiante volvera a quedar activo en el curso.');
+    const confirmed = window.confirm('Deseas reactivar esta matrícula? El estudiante volvera a quedar activo en el curso.');
     if (!confirmed) {
       return;
     }
@@ -568,7 +660,7 @@ export class EnrollmentFormPageComponent {
     if (this.isSaving()) {
       return;
     }
-    const hasChanges = this.form.dirty || Object.keys(this.uploadedDocuments()).length > 0;
+    const hasChanges = this.form.dirty || Object.keys(this.uploadedDocuments()).length > 0 || !!this.selectedStudentPhotoFile();
     if (hasChanges && !window.confirm('¿Cancelar esta nueva matrícula y volver al listado?')) {
       return;
     }
@@ -742,7 +834,7 @@ export class EnrollmentFormPageComponent {
     this.syncSelectedCourseFromComposer();
   }
 
-  save(): void {
+  async save(): Promise<void> {
     if (this.isSaving()) {
       return;
     }
@@ -768,25 +860,41 @@ export class EnrollmentFormPageComponent {
       return;
     }
     this.isSaving.set(true);
-    const request$ = this.isEditMode
-      ? this.enrollmentApiService.update(this.enrollmentId!, payload)
-      : this.enrollmentApiService.create(payload);
+    try {
+      const detail = await lastValueFrom(
+        this.isEditMode
+          ? this.enrollmentApiService.update(this.enrollmentId!, payload)
+          : this.enrollmentApiService.create(payload)
+      );
 
-    request$.subscribe({
-      next: (detail) => {
+      let uploadedCount = 0;
+      let uploadedPhoto = false;
+      try {
+        uploadedPhoto = await this.uploadPendingStudentPhoto(detail.id);
+        uploadedCount = await this.uploadPendingDocuments(detail.id);
+      } catch (error) {
         this.isSaving.set(false);
-        this.snackBar.open(
-          this.isEditMode ? 'Matricula actualizada correctamente' : 'Matricula creada correctamente',
-          'Cerrar',
-          { duration: 2500 }
+        this.showError(
+          error as HttpErrorResponse,
+          'La matricula se guardo, pero no fue posible cargar la foto o uno de los documentos'
         );
         void this.router.navigate(['/dashboard/matriculas', detail.id]);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.isSaving.set(false);
-        this.showError(error, 'No fue posible guardar la matricula');
+        return;
       }
-    });
+
+      this.isSaving.set(false);
+      this.snackBar.open(
+        uploadedCount > 0 || uploadedPhoto
+          ? `${this.isEditMode ? 'Matricula actualizada' : 'Matricula creada'} con adjuntos cargados`
+          : this.isEditMode ? 'Matricula actualizada correctamente' : 'Matricula creada correctamente',
+        'Cerrar',
+        { duration: 2800 }
+      );
+      void this.router.navigate(['/dashboard/matriculas', detail.id]);
+    } catch (error) {
+      this.isSaving.set(false);
+      this.showError(error as HttpErrorResponse, 'No fue posible guardar la matricula');
+    }
   }
 
   anularMatricula(): void {
@@ -797,8 +905,8 @@ export class EnrollmentFormPageComponent {
     const isAlreadyInactive = this.isInactiveStatus(`${this.form.controls.status.value ?? ''}`);
     const confirmed = window.confirm(
       isAlreadyInactive
-        ? 'Esta matricula ya esta inactiva. Si continuas, se eliminara completamente de la base de datos junto con el alumno si no tiene otras matriculas. Deseas continuar?'
-        : 'Deseas inactivar esta matricula? Esta accion dejara al estudiante fuera de la matricula activa.'
+        ? 'Esta matrícula ya esta inactiva. Si continuas, se eliminara completamente de la base de datos junto con el alumno si no tiene otras matrículas. Deseas continuar?'
+        : 'Deseas inactivar esta matrícula? Esta accion dejara al estudiante fuera de la matrícula activa.'
     );
     if (!confirmed) {
       return;
@@ -870,7 +978,7 @@ export class EnrollmentFormPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el catalogo de cursos');
+        this.showError(error, 'No fue posible cargar el catálogo de cursos');
       }
     });
 
@@ -978,6 +1086,9 @@ export class EnrollmentFormPageComponent {
     });
 
     this.hydrateCourseComposer(detail);
+    this.selectedStudentPhotoFile.set(null);
+    this.revokeStudentPhotoPreview();
+    this.existingStudentPhotoUrl.set(detail.studentPhotoUrl ? `${detail.studentPhotoUrl}?v=${Date.now()}` : '');
 
     this.uploadedDocuments.set(
       Object.fromEntries(
@@ -986,6 +1097,14 @@ export class EnrollmentFormPageComponent {
           .map((document) => [document.documentKey, document.fileName])
       )
     );
+    this.existingDocumentsByKey.set(
+      Object.fromEntries(
+        (detail.documents ?? [])
+          .filter((document) => document.documentKey && document.fileName)
+          .map((document) => [document.documentKey, document])
+      )
+    );
+    this.selectedDocumentFiles.set({});
 
     while (this.pickupContacts.length > 0) {
       this.pickupContacts.removeAt(0);
@@ -1171,6 +1290,44 @@ export class EnrollmentFormPageComponent {
       fatherLastName: parts[0] ?? '',
       motherLastName: parts.slice(1).join(' ')
     };
+  }
+
+  private async uploadPendingDocuments(enrollmentId: number): Promise<number> {
+    const pendingEntries = Object.entries(this.selectedDocumentFiles());
+    if (!pendingEntries.length) {
+      return 0;
+    }
+
+    await lastValueFrom(
+      from(pendingEntries).pipe(
+        concatMap(([documentKey, file]) => this.enrollmentApiService.uploadDocument(enrollmentId, documentKey, file)),
+        toArray()
+      )
+    );
+
+    this.selectedDocumentFiles.set({});
+    return pendingEntries.length;
+  }
+
+  private async uploadPendingStudentPhoto(enrollmentId: number): Promise<boolean> {
+    const file = this.selectedStudentPhotoFile();
+    if (!file) {
+      return false;
+    }
+
+    const detail = await lastValueFrom(this.enrollmentApiService.uploadStudentPhoto(enrollmentId, file));
+    this.selectedStudentPhotoFile.set(null);
+    this.revokeStudentPhotoPreview();
+    this.existingStudentPhotoUrl.set(detail.studentPhotoUrl ? `${detail.studentPhotoUrl}?v=${Date.now()}` : '');
+    return true;
+  }
+
+  private revokeStudentPhotoPreview(): void {
+    const previewUrl = this.studentPhotoPreviewUrl();
+    if (previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    this.studentPhotoPreviewUrl.set('');
   }
 
   private splitGuardianName(fullName: string): { name: string; lastName: string } {
@@ -1443,7 +1600,7 @@ export class EnrollmentFormPageComponent {
           guardianLastName: guardianSplitName.lastName
         }).pipe(
           catchError(() => of<EnrollmentAccessPreview>({
-            studentUsername: this.buildBaseStudentUsernamePreview(),
+            studentUsername: this.buildStudentRunUsername(),
             guardianUsername: this.buildBaseGuardianUsernamePreview()
           }))
         );

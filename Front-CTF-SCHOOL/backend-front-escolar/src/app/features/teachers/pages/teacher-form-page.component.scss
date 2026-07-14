@@ -534,7 +534,8 @@ label {
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
   }
 
   .form-grid {
@@ -543,5 +544,17 @@ label {
 
   .form-group.full {
     grid-column: auto;
+  }
+
+  .form-actions,
+  .page-header__actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-actions button,
+  .page-header__actions button {
+    width: 100%;
+    justify-content: center;
   }
 }

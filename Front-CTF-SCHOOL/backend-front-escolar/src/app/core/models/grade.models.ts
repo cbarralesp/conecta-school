@@ -2,6 +2,7 @@ export interface GradeCourseOption {
   id: number;
   name: string;
   schoolYear: number;
+  teacherName?: string | null;
 }
 
 export interface GradePeriodOption {
@@ -155,6 +156,8 @@ export interface PedagogicalReportView {
 
 export interface PedagogicalQuestionBankQuestion {
   id: number;
+  levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL';
+  questionKind: 'AREA' | 'RECOMMENDATION';
   label: string;
   sortOrder: number;
 }
@@ -162,8 +165,20 @@ export interface PedagogicalQuestionBankQuestion {
 export interface PedagogicalQuestionBankArea {
   key: string;
   title: string;
+  levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL';
   questionKind: 'AREA' | 'RECOMMENDATION';
   questions: PedagogicalQuestionBankQuestion[];
+}
+
+export interface CreatePedagogicalQuestionBankQuestionPayload {
+  areaKey: string;
+  levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL';
+  questionKind: 'AREA' | 'RECOMMENDATION';
+  questionText: string;
+}
+
+export interface UpdatePedagogicalQuestionBankQuestionPayload {
+  questionText: string;
 }
 
 export interface SavePedagogicalReportPayload {

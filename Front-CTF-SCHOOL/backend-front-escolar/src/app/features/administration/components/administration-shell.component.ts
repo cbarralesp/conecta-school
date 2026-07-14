@@ -41,7 +41,7 @@ export class AdministrationShellComponent {
   private readonly authStateService = inject(AuthStateService);
 
   @Input() activeTab: AdministrationTab = 'users';
-  @Input() toolbarTitle = 'Administracion';
+  @Input() toolbarTitle = 'Administración';
 
   protected readonly userName = computed(() => this.authStateService.user()?.nombre ?? 'Administrador');
   protected readonly sidebarActiveItem = computed(() => {

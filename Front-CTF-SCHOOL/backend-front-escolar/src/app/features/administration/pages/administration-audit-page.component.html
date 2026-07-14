@@ -1,8 +1,8 @@
-<app-administration-shell activeTab="audit" toolbarTitle="Auditoria">
+<app-administration-shell activeTab="audit" toolbarTitle="Auditoría">
   <section class="audit-page">
     <section class="page-header">
       <div class="page-header__left">
-        <h1 class="page-header__title">Registro de Auditoria</h1>
+        <h1 class="page-header__title">Registro de Auditoría</h1>
         <p class="page-header__subtitle">Registro inmutable de las acciones realizadas por los administradores del sistema.</p>
       </div>
 
@@ -63,7 +63,7 @@
       @if (isLoading()) {
         <section class="empty-state">
           <mat-icon>hourglass_top</mat-icon>
-          <strong>Cargando auditoria</strong>
+          <strong>Cargando auditoría</strong>
           <p>Estamos preparando el registro de actividad del sistema.</p>
         </section>
       } @else if ((view()?.items?.length ?? 0) === 0) {

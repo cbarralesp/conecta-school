@@ -9,8 +9,8 @@
 
     <section class="page-header">
       <div class="page-header__left">
-        <h1 class="page-header__title">Unidades</h1>
-        <p class="page-header__subtitle">Gestiona las unidades de aprendizaje.</p>
+        <h1 class="page-header__title">{{ pageTitleLabel() }}</h1>
+        <p class="page-header__subtitle">{{ pageSubtitleLabel() }}</p>
       </div>
 
       <div class="page-header__actions">
@@ -58,8 +58,8 @@
 
     <section class="planning-tabs-card">
       <div class="planning-tabs-row">
-        <nav class="planning-tabs" aria-label="Secciones de planificaciones">
-          @for (tab of tabs; track tab.id) {
+        <nav class="planning-tabs" aria-label="Secciones de planificaciónes">
+          @for (tab of tabs(); track tab.id) {
             <button
               type="button"
               class="planning-tabs__item"
@@ -77,7 +77,7 @@
           </button>
           <button type="button" class="tabs-action-button tabs-action-button--primary" (click)="openCreateUnit()">
             <mat-icon>add</mat-icon>
-            Crear unidad
+            {{ createUnitLabel() }}
           </button>
         </div>
       </div>
@@ -89,7 +89,7 @@
           @if (isLoading()) {
             <section class="state-card state-card--loading">
               <div class="state-card__loader"></div>
-              <p>Cargando unidades...</p>
+              <p>{{ loadingUnitsLabel() }}</p>
             </section>
           } @else if (!hasUnits()) {
             <section class="empty-state-card">
@@ -108,15 +108,12 @@
                   </div>
                 </div>
               </div>
-
-              <h2>Aún no tienes unidades creadas</h2>
-              <p>
-                Comienza creando tu primera unidad para organizar los objetivos de aprendizaje y clases de este semestre.
-              </p>
+              <h2>{{ emptyStateTitleLabel() }}</h2>
+              <p>{{ emptyStateDescriptionLabel() }}</p>
 
               <button type="button" class="empty-state-card__button" (click)="openCreateUnit()">
                 <mat-icon>add</mat-icon>
-                Crear tu primera unidad
+                {{ firstCreateUnitLabel() }}
               </button>
 
               <button type="button" class="empty-state-card__link">
@@ -131,7 +128,7 @@
                 </div>
                 <div class="info-banner__copy">
                   <strong>Puedes planificar todo el año desde el inicio o ir planificando durante el semestre.</strong>
-                  <span>Crea unidades, agrega clases y define objetivos de aprendizaje a tu ritmo.</span>
+                  <span>{{ infoBannerLabel() }}</span>
                 </div>
                 <button type="button" class="info-banner__close" (click)="dismissInfo()" aria-label="Cerrar mensaje">
                   <mat-icon>close</mat-icon>
@@ -144,14 +141,17 @@
                 <article class="unit-card">
                   <button type="button" class="unit-card__header" (click)="toggleUnit(unit.id)">
                     <div class="unit-card__identity">
-                      <div class="unit-card__number" [class]="'tone-' + unit.tone">
-                        {{ $index + 1 }}
+                      <div class="unit-card__number" [style.background]="unit.accentColor">
+                        {{ unit.unitNumber ?? ($index + 1) }}
                       </div>
 
                       <div class="unit-card__copy">
                         <div class="unit-card__title-row">
                           <h3>{{ unit.title }}</h3>
-                          <span class="unit-card__period" [class]="'tone-' + unit.tone">{{ unit.period }}</span>
+                          <span
+                            class="unit-card__period"
+                            [style.background]="unit.accentSurfaceStrong"
+                            [style.color]="unit.accentColor">{{ unit.period }}</span>
                         </div>
                         <p>{{ unit.description }}</p>
                       </div>
@@ -175,7 +175,7 @@
                           <div
                             class="coverage-box__fill"
                             [style.width.%]="unit.coverage"
-                            [class]="'tone-' + unit.tone"></div>
+                            [style.background]="unit.accentColor"></div>
                         </div>
                       </div>
                       <button
@@ -201,60 +201,180 @@
                       <div class="unit-classes-card">
                         <div class="unit-classes-card__head">
                           <span>Clase</span>
+                          <span>Título</span>
                           <span>Objetivo de aprendizaje</span>
                           <span>Estado</span>
+                          <span>Recursos</span>
                           <span></span>
                         </div>
 
                         <div class="unit-classes-card__body">
                           @for (classRow of unit.classRows; track classRow.number) {
-                            <div class="unit-class-row">
-                              <div class="unit-class-row__number">
-                                {{ classRow.number }}
+                            <div class="unit-class-item">
+                              <div
+                                class="unit-class-row"
+                                [class]="'unit-class-row unit-class-row--' + classRow.tone + (classRow.isEvaluation ? ' unit-class-row--evaluation' : '')"
+                                [style.--unit-class-accent]="classRow.accentColor"
+                                [style.--unit-class-surface]="classRow.accentSurface"
+                                [class.is-selected]="isClassDetailSelected(classRow)"
+                                (click)="selectClassDetail(classRow, unit, $event)">
+                                <div class="unit-class-row__number">
+                                  {{ classRow.number }}
+                                </div>
+
+                                <div class="unit-class-row__title" [title]="classRow.title">
+                                  {{ classRow.title }}
+                                </div>
+
+                                <div class="unit-class-row__objective">
+                                  <span [title]="classRow.objective">{{ classRow.objectiveSummary }}</span>
+                                </div>
+
+                                <div class="unit-class-row__status">
+                                  <span class="status-pill" [class]="'status-pill--' + classRow.statusTone">
+                                    {{ classRow.statusLabel }}
+                                  </span>
+                                </div>
+
+                                <div class="unit-class-row__resources">
+                                  <button
+                                    type="button"
+                                    class="unit-class-row__resources-trigger"
+                                    [class.is-open]="isClassResourcesOpen(classRow)"
+                                    [disabled]="classRow.documentsCount === 0"
+                                    (click)="toggleClassResources(classRow, $event)">
+                                    <span class="unit-class-row__resources-count">
+                                      {{ classRow.documentsCount }}
+                                    </span>
+
+                                    @if (classRow.documents.length) {
+                                      <span
+                                        class="unit-class-row__resource-link"
+                                        [title]="classRow.documents[0].originalName">
+                                        <mat-icon>attach_file</mat-icon>
+                                        <span>{{ classRow.documents[0].originalName }}</span>
+                                      </span>
+                                    }
+
+                                    @if (classRow.documentsCount > 0) {
+                                      <mat-icon class="unit-class-row__resource-chevron">
+                                        {{ isClassResourcesOpen(classRow) ? 'expand_less' : 'expand_more' }}
+                                      </mat-icon>
+                                    }
+                                  </button>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  class="unit-class-row__menu"
+                                  (click)="toggleClassMenu(classRow, $event)"
+                                  aria-label="Acciones de clase">
+                                  <mat-icon>more_horiz</mat-icon>
+                                </button>
+
+                                @if (isClassMenuOpen(classRow)) {
+                                  <div class="unit-class-row__menu-panel">
+                                    <button type="button" (click)="viewClass(classRow, unit); $event.stopPropagation()">
+                                      <mat-icon>visibility</mat-icon>
+                                      Ver clase
+                                    </button>
+                                    <button type="button" (click)="editClass(classRow, unit); $event.stopPropagation()">
+                                      <mat-icon>edit</mat-icon>
+                                      Editar clase
+                                    </button>
+                                    <button type="button" (click)="deleteClass(classRow); $event.stopPropagation()">
+                                      <mat-icon>delete</mat-icon>
+                                      Eliminar clase
+                                    </button>
+                                    <button type="button" (click)="createClassFromUnit(unit, $event)">
+                                      <mat-icon>post_add</mat-icon>
+                                      Nueva clase
+                                    </button>
+                                    <button type="button" (click)="attachResourcesToClass(classRow, classResourceInput); $event.stopPropagation()">
+                                      <mat-icon>attach_file</mat-icon>
+                                      Adjuntar recursos
+                                    </button>
+                                  </div>
+                                }
                               </div>
 
-                              <div class="unit-class-row__objective">
-                                {{ classRow.objective }}
-                              </div>
+                              @if (isClassResourcesOpen(classRow) && classRow.documents.length) {
+                                <div
+                                  class="unit-class-row__documents-panel-inline"
+                                  [style.--unit-class-accent]="classRow.accentColor"
+                                  (click)="$event.stopPropagation()">
+                                  @for (document of classRow.documents; track document.id) {
+                                    <article class="unit-class-document-card">
+                                      <div class="unit-class-document-card__icon">
+                                        <mat-icon>{{ classDocumentIcon(document) }}</mat-icon>
+                                      </div>
 
-                              <div class="unit-class-row__status">
-                                <span class="status-pill" [class]="'status-pill--' + classRow.statusTone">
-                                  {{ classRow.statusLabel }}
-                                </span>
-                              </div>
+                                      <div class="unit-class-document-card__copy">
+                                        <button
+                                          type="button"
+                                          class="unit-class-document-card__title"
+                                          (click)="downloadClassDocument(document, $event)"
+                                          [title]="document.originalName">
+                                          {{ document.originalName }}
+                                        </button>
+                                        <div class="unit-class-document-card__meta unit-class-document-card__meta--primary">
+                                          <span><mat-icon>dns</mat-icon>{{ formatDocumentSize(document.sizeBytes) }}</span>
+                                        </div>
+                                        <div class="unit-class-document-card__meta unit-class-document-card__meta--secondary">
+                                          <span><mat-icon>calendar_today</mat-icon>{{ previewDateLabel(document.uploadedAt) }}</span>
+                                        </div>
+                                      </div>
 
-                              <button
-                                type="button"
-                                class="unit-class-row__menu"
-                                (click)="toggleClassMenu(classRow, $event)"
-                                aria-label="Acciones de clase">
-                                <mat-icon>more_horiz</mat-icon>
-                              </button>
+                                      <div class="unit-class-document-card__actions">
+                                        <div class="unit-class-document-card__visibility">
+                                          <button type="button" class="unit-class-document-card__audience is-active" disabled>
+                                            <mat-icon>check</mat-icon>
+                                            Visible docente
+                                          </button>
+                                          <button
+                                            type="button"
+                                            class="unit-class-document-card__audience"
+                                            [class.is-active]="document.visibleToStudents"
+                                            [disabled]="isUpdatingClassDocumentVisibility(document.id)"
+                                            (click)="toggleClassDocumentStudentVisibility(document, $event)">
+                                            <mat-icon>{{ document.visibleToStudents ? 'check' : 'radio_button_unchecked' }}</mat-icon>
+                                            Estudiante
+                                          </button>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          class="unit-class-document-card__delete"
+                                          (click)="deleteClassDocument(classRow, document, $event)"
+                                          aria-label="Eliminar documento">
+                                          <mat-icon>delete</mat-icon>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          class="unit-class-document-card__download"
+                                          (click)="downloadClassDocument(document, $event)">
+                                          <mat-icon>download</mat-icon>
+                                        </button>
+                                      </div>
+                                    </article>
+                                  }
 
-                              @if (isClassMenuOpen(classRow)) {
-                                <div class="unit-class-row__menu-panel">
-                                  <button type="button" (click)="viewClass(classRow, unit)">
-                                    <mat-icon>visibility</mat-icon>
-                                    Ver clase
-                                  </button>
-                                  <button type="button" (click)="editClass(classRow, unit)">
-                                    <mat-icon>edit</mat-icon>
-                                    Editar clase
-                                  </button>
-                                  <button type="button" (click)="deleteClass(classRow)">
-                                    <mat-icon>delete</mat-icon>
-                                    Eliminar clase
-                                  </button>
-                                  <button type="button" (click)="createClassFromUnit(unit)">
-                                    <mat-icon>post_add</mat-icon>
-                                    Nueva
-                                  </button>
-                                  <button type="button" (click)="attachResourcesToClass(classRow, classResourceInput)">
+                                  <button
+                                    type="button"
+                                    class="unit-class-row__documents-add-inline"
+                                    (click)="attachResourcesToClass(classRow, classResourceInput); $event.stopPropagation()">
                                     <mat-icon>attach_file</mat-icon>
-                                    Adjuntar recursos
+                                    Agregar documento
                                   </button>
                                 </div>
                               }
+                            </div>
+                          } @empty {
+                            <div class="unit-classes-empty">
+                              <mat-icon>event_available</mat-icon>
+                              <div>
+                                <strong>Aún no hay clases creadas</strong>
+                                <span>Usa Nueva clase para agregar clases a esta unidad.</span>
+                              </div>
                             </div>
                           }
                         </div>
@@ -269,7 +389,7 @@
 
         <aside class="planning-shell__summary">
           <section class="summary-card">
-            <h3>Resumen de unidades</h3>
+            <h3>{{ summaryTitleLabel() }}</h3>
 
             <div class="summary-donut" [class.is-empty]="!hasUnits()">
               <div class="summary-donut__ring" [style.--summary-progress]="averageCoverage()"></div>
@@ -293,6 +413,106 @@
               }
             </div>
           </section>
+
+          @if (selectedUnitDetail(); as detailUnit) {
+            <section class="unit-detail-card">
+              <div class="unit-detail-card__header">
+                <div>
+                  <span>Detalle de unidad</span>
+                  <strong>{{ detailUnit.title }}</strong>
+                </div>
+                <div class="unit-detail-card__donut">
+                  <div class="unit-detail-card__donut-ring" [style.--detail-progress]="selectedUnitClassProgress()"></div>
+                  <span>{{ selectedUnitClassProgress() }}%</span>
+                </div>
+              </div>
+
+              @if (selectedClassDetailRow(); as classDetailRow) {
+                <div class="unit-detail-card__class">
+                  <div class="unit-detail-card__class-head">
+                    <div class="unit-detail-card__class-number">{{ classDetailRow.number }}</div>
+                    <div>
+                      <span>Clase seleccionada</span>
+                      <strong>{{ classDetailRow.title }}</strong>
+                    </div>
+                  </div>
+
+                  @if (selectedClassDetail(); as classDetail) {
+                    <div class="unit-detail-card__class-meta">
+                      <div>
+                        <mat-icon>today</mat-icon>
+                        <span>{{ previewDateLabel(classDetail.plannedDate) }}</span>
+                      </div>
+                      <div>
+                        <mat-icon>attach_file</mat-icon>
+                        <span>{{ classDetail.documents.length }} recurso(s)</span>
+                      </div>
+                      <div>
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ previewDurationLabel(classDetail) }}</span>
+                      </div>
+                    </div>
+
+                    <div class="unit-detail-card__mini-progress">
+                      <span>Avance de clase</span>
+                      <strong>{{ selectedClassDetailProgress() }}%</strong>
+                      <div>
+                        <i [style.width.%]="selectedClassDetailProgress()"></i>
+                      </div>
+                    </div>
+
+                    @if (classDetail.documents.length) {
+                      <div class="unit-detail-card__documents">
+                        <span class="unit-detail-card__documents-label">Recursos adjuntos</span>
+                        <div class="unit-detail-card__documents-list">
+                          @for (document of classDetail.documents; track document.id) {
+                            <button
+                              type="button"
+                              class="unit-detail-card__document"
+                              (click)="downloadClassDocument(document, $event)">
+                              <div class="unit-detail-card__document-copy">
+                                <strong>{{ document.originalName }}</strong>
+                                <span>{{ classDocumentMeta(document) }}</span>
+                              </div>
+                              <mat-icon>download</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <p class="unit-detail-card__hint">Selecciona una clase guardada para ver fecha y recursos.</p>
+                  }
+                </div>
+              } @else {
+                <p class="unit-detail-card__hint">Selecciona una clase para ver su detalle aquí.</p>
+              }
+
+              <div class="unit-detail-card__dates">
+                <div>
+                  <mat-icon>event</mat-icon>
+                  <span>Inicio</span>
+                  <strong>{{ detailUnit.startDate ? previewDateLabel(detailUnit.startDate) : 'Por definir' }}</strong>
+                </div>
+                <div>
+                  <mat-icon>event_available</mat-icon>
+                  <span>Término</span>
+                  <strong>{{ detailUnit.endDate ? previewDateLabel(detailUnit.endDate) : 'Por definir' }}</strong>
+                </div>
+              </div>
+
+              <div class="unit-detail-card__progress">
+                <div>
+                  <span>Clases creadas</span>
+                  <strong>{{ detailUnit.classRows.length }} / {{ detailUnit.plannedClasses }}</strong>
+                </div>
+                <div>
+                  <span>Recursos</span>
+                  <strong>{{ detailUnit.resources }}</strong>
+                </div>
+              </div>
+            </section>
+          }
         </aside>
       </section>
     } @else if (activeTab() === 'schedule') {
@@ -313,7 +533,7 @@
               <div class="schedule-legend" aria-label="Leyenda del cronograma">
                 <span><i class="schedule-legend__dot schedule-legend__dot--unit"></i>Unidad</span>
                 <span><i class="schedule-legend__dot schedule-legend__dot--class"></i>Clase</span>
-                <span><i class="schedule-legend__dot schedule-legend__dot--evaluation"></i>Evaluacion</span>
+                <span><i class="schedule-legend__dot schedule-legend__dot--evaluation"></i>Evaluación</span>
               </div>
             </header>
 
@@ -323,7 +543,7 @@
                   <div
                     class="schedule-board__current-week"
                     [style.left]="
-                      'calc(var(--schedule-label-width) + ((100% - var(--schedule-label-width)) / 16) * '
+                      'calc(var(--schedule-label-width) + ((100% - var(--schedule-label-width)) / ' + scheduleWeeks.length + ') * '
                       + (currentWeek - 1)
                       + ')'
                     ">
@@ -429,7 +649,7 @@
               </div>
             </div>
 
-            <h2>Aun no tienes clases planificadas</h2>
+            <h2>Aún no tienes clases planificadas</h2>
             <p>Cuando crees unidades y agregues clases, aqui veras la secuencia completa del semestre en un solo flujo.</p>
           </section>
         } @else {
@@ -514,7 +734,11 @@
                           {{ row.unitLabel }}
                         </span>
                       </td>
-                      <td class="class-planning-table__objective">{{ row.objective }}</td>
+                      <td
+                        class="class-planning-table__objective"
+                        [attr.title]="row.objective">
+                        {{ row.objectiveDisplay }}
+                      </td>
                       <td>
                         <span class="class-planning-table__oa">{{ row.objectiveCode }}</span>
                       </td>
@@ -604,7 +828,7 @@
                 <section class="class-summary-card">
                   <div class="class-summary-card__title">
                     <mat-icon>apartment</mat-icon>
-                    <span>Contexto academico</span>
+                    <span>Contexto académico</span>
                   </div>
 
                   <div class="class-summary-card__grid">
@@ -634,17 +858,37 @@
                 <section class="class-summary-card">
                   <div class="class-summary-card__title">
                     <mat-icon>adjust</mat-icon>
-                    <span>OA seleccionados</span>
+                    <span>Objetivos de aprendizaje</span>
                   </div>
 
                   <div class="class-preview-oa-list">
-                    @for (objective of previewObjectives(); track objective.code + objective.description) {
+                    <div class="class-summary-card__eyebrow">OA propios de la unidad</div>
+                    @for (objective of previewUnitObjectives(); track objective.code + objective.description) {
                       <span class="class-preview-oa-chip">
-                        <mat-icon>check</mat-icon>
-                        {{ objective.code }} {{ objective.description }}
+                        {{ objective.code }}
                       </span>
                     } @empty {
-                      <span class="class-preview-oa-empty">No hay OA asociados para mostrar.</span>
+                      <span class="class-preview-oa-empty">No hay OA de unidad asociados para mostrar.</span>
+                    }
+                  </div>
+
+                  <div class="class-preview-selected-list">
+                    <div class="class-summary-card__eyebrow">OA seleccionados para la clase</div>
+                    @for (objective of previewClassObjectives(); track objective.code + objective.description) {
+                      <article class="class-preview-oa-detail">
+                        <div class="class-preview-oa-detail__header">
+                          <span class="class-preview-oa-chip class-preview-oa-chip--selected">
+                            <mat-icon>check</mat-icon>
+                            {{ objective.code }}
+                          </span>
+                          @if (objective.indicators.length) {
+                            <small>{{ objective.indicators.length }} indicadores</small>
+                          }
+                        </div>
+                        <p>{{ objective.description }}</p>
+                      </article>
+                    } @empty {
+                      <span class="class-preview-oa-empty">No hay OA seleccionados para esta clase.</span>
                     }
                   </div>
                 </section>
@@ -703,7 +947,24 @@
                   <div class="class-preview-support-grid">
                     <article class="class-preview-support-card">
                       <strong>Recursos</strong>
-                      <p>{{ previewResourcesText(previewClass) }}</p>
+                      @if (previewClass.documents.length) {
+                        <div class="class-preview-document-list">
+                          @for (document of previewClass.documents; track document.id) {
+                            <button
+                              type="button"
+                              class="class-preview-document"
+                              (click)="downloadClassDocument(document, $event)">
+                              <div class="class-preview-document__copy">
+                                <span>{{ document.originalName }}</span>
+                                <small>{{ classDocumentMeta(document) }}</small>
+                              </div>
+                              <mat-icon>download</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      } @else {
+                        <p>{{ previewResourcesText(previewClass) }}</p>
+                      }
                     </article>
 
                     <article class="class-preview-support-card">
@@ -730,13 +991,13 @@
                   <div><span>Unidad</span><strong>{{ previewClass.unitNumberLabel }}</strong></div>
                   <div><span>Fecha</span><strong>{{ previewDateLabel(previewClass.plannedDate) }}</strong></div>
                   <div><span>Duracion</span><strong>{{ previewDurationLabel(previewClass) }}</strong></div>
-                  <div><span>Evaluacion</span><strong>{{ previewEvaluationLabel(previewClass.evaluationType) }}</strong></div>
+                  <div><span>Evaluación</span><strong>{{ previewEvaluationLabel(previewClass.evaluationType) }}</strong></div>
                   <div><span>Instrumento</span><strong>{{ previewInstrumentLabel(previewClass) }}</strong></div>
                 </div>
 
                 <div class="class-preview-aside__objectives">
-                  <span>OA incluidos</span>
-                  @for (objective of previewObjectives(); track objective.code + objective.description) {
+                  <span>OA seleccionados</span>
+                  @for (objective of previewClassObjectives(); track objective.code + objective.description) {
                     <div class="class-preview-aside__objective">
                       <mat-icon>check</mat-icon>
                       <span>{{ objective.code }} · {{ objective.description }}</span>
@@ -756,3 +1017,5 @@
     }
   </main>
 </app-teacher-modern-layout>
+
+

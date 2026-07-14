@@ -19,6 +19,7 @@ import { StudentAttendanceDetail, StudentDashboard, StudentGradeEvaluation, Stud
 import { AuthService } from '../../../core/services/auth.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
+import { resolveCurrentAcademicSemester } from '../../../core/utils/academic-semester';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type StudentSection =
@@ -44,6 +45,7 @@ type StudentScheduleViewItem = {
 };
 
 type DashboardOverviewTab = 'grades' | 'performance' | 'attendance';
+type GradeSemesterFilter = '1' | '2';
 
 @Component({
   selector: 'app-student-dashboard-page',
@@ -86,6 +88,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
   readonly activeSection = signal<StudentSection>('overview');
   readonly studentSearch = signal('');
   readonly gradesSearch = signal('');
+  readonly gradesSemesterFilter = signal<GradeSemesterFilter>(resolveCurrentAcademicSemester() === 2 ? '2' : '1');
   readonly gradesSubjectFilter = signal('all');
   readonly selectedGradeSubjectName = signal<string | null>(null);
   readonly selectedOverviewTab = signal<DashboardOverviewTab>('grades');
@@ -374,8 +377,20 @@ export class StudentDashboardPageComponent implements OnDestroy {
     if (week.length > 0) {
       return week.slice(0, 5).map((day) => ({
         label: day.dayLabel,
-        value: day.status === 'PRESENTE' ? 100 : day.status === 'ATRASO' ? 70 : day.status === 'AUSENTE' ? 36 : 52,
-        color: day.status === 'PRESENTE' ? '#22c55e' : day.status === 'ATRASO' ? '#f59e0b' : day.status === 'AUSENTE' ? '#ef4444' : '#cbd5e1'
+        value: this.isAttendanceStatus(day.status, 'presente')
+          ? 100
+          : this.isAttendanceStatus(day.status, 'atraso')
+            ? 70
+            : this.isAttendanceStatus(day.status, 'ausente')
+              ? 36
+              : 52,
+        color: this.isAttendanceStatus(day.status, 'presente')
+          ? '#22c55e'
+          : this.isAttendanceStatus(day.status, 'atraso')
+            ? '#f59e0b'
+            : this.isAttendanceStatus(day.status, 'ausente')
+              ? '#ef4444'
+              : '#cbd5e1'
       }));
     }
 
@@ -429,7 +444,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
   readonly heroMeta = computed(() => `${this.currentCourseLabel()} · ${this.dashboard()?.studentRun ?? 'Sin RUN'} · Torre Fuerte School`);
   readonly topGradeSubjects = computed(() => this.gradeSubjects().slice(0, 6));
   readonly overviewAcademicSubjects = computed(() => {
-    const preferredOrder = ['Lenguaje', 'Matematica', 'Matemática', 'Ciencias'];
+    const preferredOrder = ['Lenguaje', 'Matemática', 'Matemática', 'Ciencias'];
     const subjects = this.gradeSubjects();
     const selected = preferredOrder
       .map((name) => subjects.find((subject) => this.normalizeText(subject.subjectName).includes(this.normalizeText(name))))
@@ -451,72 +466,121 @@ export class StudentDashboardPageComponent implements OnDestroy {
       3,
       ...(this.dashboard()?.gradeSummary ?? []).map((subject) => subject.evaluations.length)
     );
-    return Array.from({ length: Math.min(maxEvaluations, 4) }, (_, index) => index);
+    return Array.from({ length: Math.min(maxEvaluations, 3) }, (_, index) => index);
   });
   readonly gradeSubjects = computed(() => {
     const palette = ['tone-brand', 'tone-success', 'tone-warning', 'tone-violet', 'tone-sky'];
     const icons = ['calculate', 'menu_book', 'public', 'science', 'translate'];
     const summaries = this.dashboard()?.gradeSummary ?? [];
+    const registeredSubjectNames = Array.from(
+      new Set(
+        this.studentSubjects()
+          .map((subject) => subject.subjectName?.trim())
+          .filter((value): value is string => !!value)
+      )
+    );
 
-    if (summaries.length > 0) {
-      return summaries.map((subject, index) => ({
-        ...subject,
-        tone: palette[index % palette.length],
-        icon: icons[index % icons.length],
-        visibleEvaluations: this.gradeColumns().map((columnIndex) => subject.evaluations[columnIndex] ?? null)
-      }));
-    }
+    const baseSubjects = summaries.length > 0
+      ? summaries.map((subject) => ({
+          ...subject,
+          evaluations: [...subject.evaluations]
+        }))
+      : (() => {
+          const grouped = new Map<
+            string,
+            {
+              subjectName: string;
+              average: number | null;
+              latestScore: number | null;
+              evaluations: {
+                evaluationName: string;
+                score: number | null;
+                periodName: string;
+                recordedAt: string;
+              }[];
+            }
+          >();
 
-    const grouped = new Map<
-      string,
-      {
-        subjectName: string;
-        average: number | null;
-        latestScore: number | null;
-        evaluations: {
-          evaluationName: string;
-          score: number | null;
-          periodName: string;
-          recordedAt: string;
-        }[];
-      }
-    >();
+          for (const grade of this.dashboard()?.latestGrades ?? []) {
+            const current = grouped.get(grade.subjectName) ?? {
+              subjectName: grade.subjectName,
+              average: null,
+              latestScore: null,
+              evaluations: []
+            };
 
-    for (const grade of this.dashboard()?.latestGrades ?? []) {
-      const current = grouped.get(grade.subjectName) ?? {
-        subjectName: grade.subjectName,
-        average: null,
-        latestScore: null,
-        evaluations: []
-      };
+            current.evaluations.push({
+              evaluationName: grade.evaluationName,
+              score: grade.score,
+              periodName: grade.periodName,
+              recordedAt: grade.recordedAt
+            });
 
-      current.evaluations.push({
-        evaluationName: grade.evaluationName,
-        score: grade.score,
-        periodName: grade.periodName,
-        recordedAt: grade.recordedAt
-      });
+            const validScores = current.evaluations
+              .map((evaluation) => evaluation.score)
+              .filter((value): value is number => value !== null);
 
-      const validScores = current.evaluations
-        .map((evaluation) => evaluation.score)
-        .filter((value): value is number => value !== null);
+            current.average =
+              validScores.length > 0 ? validScores.reduce((sum, value) => sum + value, 0) / validScores.length : null;
+            current.latestScore = current.evaluations.at(-1)?.score ?? null;
 
-      current.average =
-        validScores.length > 0 ? validScores.reduce((sum, value) => sum + value, 0) / validScores.length : null;
-      current.latestScore = current.evaluations.at(-1)?.score ?? null;
+            grouped.set(grade.subjectName, current);
+          }
 
-      grouped.set(grade.subjectName, current);
-    }
+          return Array.from(grouped.values());
+        })();
 
-    return Array.from(grouped.values()).map((subject, index) => ({
+    const normalizedBaseMap = new Map(
+      baseSubjects.map((subject) => [this.normalizeText(subject.subjectName), subject] as const)
+    );
+
+    const mergedSubjects = [
+      ...baseSubjects,
+      ...registeredSubjectNames
+        .filter((subjectName) => !normalizedBaseMap.has(this.normalizeText(subjectName)))
+        .map((subjectName) => ({
+          subjectName,
+          average: null,
+          latestScore: null,
+          evaluations: [] as {
+            evaluationName: string;
+            score: number | null;
+            periodName: string;
+            recordedAt: string;
+          }[]
+        }))
+    ];
+
+    return mergedSubjects.map((subject, index) => ({
       ...subject,
       tone: palette[index % palette.length],
       icon: icons[index % icons.length],
       visibleEvaluations: this.gradeColumns().map((columnIndex) => subject.evaluations[columnIndex] ?? null)
     }));
   });
+  readonly semesterGradeSubjects = computed(() => {
+    const semester = this.gradesSemesterFilter();
+
+    return this.gradeSubjects()
+      .map((subject) => {
+        const evaluations = subject.evaluations.filter((evaluation) => this.matchesSemesterFilter(evaluation.periodName, semester));
+        const validScores = evaluations
+          .map((evaluation) => evaluation.score)
+          .filter((value): value is number => value !== null);
+
+        return {
+          ...subject,
+          evaluations,
+          visibleEvaluations: this.gradeColumns().map((columnIndex) => evaluations[columnIndex] ?? null),
+          average: validScores.length > 0
+            ? Number((validScores.reduce((sum, value) => sum + value, 0) / validScores.length).toFixed(1))
+            : null,
+          latestScore: evaluations.at(-1)?.score ?? null
+        };
+      });
+  });
   readonly gradesOverallAverage = computed(() => {
-    const averages = (this.dashboard()?.gradeSummary ?? [])
+    const averages = this.semesterGradeSubjects()
       .map((subject) => subject.average)
       .filter((value): value is number => value !== null);
     if (averages.length === 0) {
@@ -525,24 +589,29 @@ export class StudentDashboardPageComponent implements OnDestroy {
     return (averages.reduce((sum, value) => sum + value, 0) / averages.length).toFixed(1);
   });
   readonly totalEvaluationsCount = computed(() =>
-    (this.dashboard()?.gradeSummary ?? []).reduce((sum, subject) => sum + subject.evaluations.length, 0)
+    this.semesterGradeSubjects().reduce((sum, subject) => sum + subject.evaluations.length, 0)
   );
   readonly gradesHighlightedCount = computed(
-    () => this.gradeSubjects().filter((subject) => (subject.average ?? 0) >= 6.5).length
+    () => this.semesterGradeSubjects().filter((subject) => (subject.average ?? 0) >= 6.5).length
   );
-  readonly gradesLatestScore = computed(() => this.dashboard()?.latestGrades[0]?.score ?? null);
+  readonly gradesLatestScore = computed(() => {
+    const scores = this.semesterGradeSubjects()
+      .flatMap((subject) => subject.evaluations)
+      .filter((evaluation) => evaluation.score !== null);
+    return scores.at(-1)?.score ?? null;
+  });
   readonly gradesBestSubject = computed(() => {
-    const ordered = [...this.gradeSubjects()]
+    const ordered = [...this.semesterGradeSubjects()]
       .filter((subject) => subject.average !== null)
       .sort((left, right) => (right.average ?? 0) - (left.average ?? 0));
     return ordered[0] ?? null;
   });
-  readonly gradeSubjectOptions = computed(() => this.gradeSubjects().map((subject) => subject.subjectName));
+  readonly gradeSubjectOptions = computed(() => this.semesterGradeSubjects().map((subject) => subject.subjectName));
   readonly filteredGradeSubjects = computed(() => {
     const query = this.gradesSearch().trim().toLowerCase();
     const subjectFilter = this.gradesSubjectFilter();
 
-    return this.gradeSubjects().filter((subject) => {
+    return this.semesterGradeSubjects().filter((subject) => {
       const matchesQuery =
         !query ||
         subject.subjectName.toLowerCase().includes(query) ||
@@ -917,7 +986,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
   async downloadStudentSchedulePdf(): Promise<void> {
     const exportTarget = this.studentSchedulePdfRef?.nativeElement;
     if (!exportTarget || this.scheduleWeekDays().length === 0 || this.isExportingSchedulePdf()) {
-      this.snackBar.open('El horario todavia no esta listo para exportar', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('El horario todavía no está listo para exportar', 'Cerrar', { duration: 2600 });
       return;
     }
 
@@ -960,7 +1029,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
   async downloadStudentReportPdf(): Promise<void> {
     const exportTarget = this.studentReportPdfRef?.nativeElement;
     if (!exportTarget || this.isExportingReportPdf()) {
-      this.snackBar.open('El informe todavia no esta listo para exportar', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('El informe todavía no está listo para exportar', 'Cerrar', { duration: 2600 });
       return;
     }
 
@@ -1140,16 +1209,16 @@ export class StudentDashboardPageComponent implements OnDestroy {
 
     const lines = [
       total === 0
-        ? 'Sin asignaturas registradas para este periodo.'
+        ? 'Sin asignaturas registradas para este período.'
         : `${completed} de ${total} asignaturas con promedio registrado.`,
       generalAverage == null
-        ? 'Aun no registra notas en este periodo.'
+        ? 'Aún no registra notas en este período.'
         : generalAverage >= 6
-          ? 'Presenta un rendimiento destacado en el periodo actual.'
+          ? 'Presenta un rendimiento destacado en el período actual.'
           : generalAverage >= 4
             ? 'Mantiene un rendimiento estable con oportunidades de mejora.'
             : 'Requiere acompanamiento en asignaturas clave.',
-      `Documento generado automaticamente desde ConectaSchool el ${this.reportIssueDate()}.`
+      `Documento generado automáticamente desde ConectaSchool el ${this.reportIssueDate()}.`
     ];
 
     return lines.map((line) => this.reportText(line));
@@ -1178,6 +1247,17 @@ export class StudentDashboardPageComponent implements OnDestroy {
 
   updateGradesSubjectFilter(value: string): void {
     this.gradesSubjectFilter.set(value);
+  }
+
+  updateGradesSemesterFilter(value: GradeSemesterFilter): void {
+    if (this.gradesSemesterFilter() === value) {
+      return;
+    }
+
+    this.gradesSemesterFilter.set(value);
+    this.gradesSubjectFilter.set('all');
+    this.selectedGradeSubjectName.set(null);
+    this.loadDashboard(value);
   }
 
   gradeStatusLabel(subject: { average: number | null }): string {
@@ -1503,15 +1583,21 @@ export class StudentDashboardPageComponent implements OnDestroy {
       .toLowerCase();
   }
 
+  private isAttendanceStatus(value: string | null | undefined, expected: 'presente' | 'atraso' | 'ausente'): boolean {
+    return this.normalizeText(value ?? '').trim() === expected;
+  }
+
   private toMinutes(time: string): number {
     const [hours, minutes] = time.split(':').map((value) => Number.parseInt(value, 10));
     return (hours || 0) * 60 + (minutes || 0);
   }
 
-  private loadDashboard(): void {
+  private loadDashboard(semesterOverride?: GradeSemesterFilter): void {
     this.isLoading.set(true);
+    const requestedSemester = Number.parseInt(semesterOverride ?? this.gradesSemesterFilter(), 10);
+    const requestedSchoolYear = new Date().getFullYear();
 
-    this.studentApiService.getDashboard().subscribe({
+    this.studentApiService.getDashboard(requestedSemester, requestedSchoolYear).subscribe({
       next: (dashboard) => {
         this.dashboard.set(dashboard);
         const courseId = dashboard.enrolledCourses[0]?.id ?? null;
@@ -1623,9 +1709,19 @@ export class StudentDashboardPageComponent implements OnDestroy {
 
   private resolvePreferredStudentSchedulePeriodId(catalog: ScheduleCatalog): number | null {
     const currentYear = new Date().getFullYear();
-    const currentFirstSemester = catalog.periods.find((period) => period.schoolYear === currentYear && period.semester === 1);
-    if (currentFirstSemester) {
-      return currentFirstSemester.id;
+    const currentSemester = resolveCurrentAcademicSemester();
+    const preferredPeriod = catalog.periods.find(
+      (period) => period.schoolYear === currentYear && period.semester === currentSemester
+    );
+    if (preferredPeriod) {
+      return preferredPeriod.id;
+    }
+
+    const firstSemesterForYear = catalog.periods.find(
+      (period) => period.schoolYear === currentYear && period.semester === 1
+    );
+    if (firstSemesterForYear) {
+      return firstSemesterForYear.id;
     }
 
     const firstSemester = catalog.periods.find((period) => period.semester === 1);
@@ -1637,6 +1733,19 @@ export class StudentDashboardPageComponent implements OnDestroy {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toUpperCase();
+  }
+
+  private matchesSemesterFilter(periodName: string | null | undefined, semester: GradeSemesterFilter): boolean {
+    const normalized = this.normalizeText(periodName ?? '');
+    if (!normalized) {
+      return true;
+    }
+
+    if (semester === '1') {
+      return normalized.includes('1') || normalized.includes('primer');
+    }
+
+    return normalized.includes('2') || normalized.includes('segúndo');
   }
 
   private toRgba(hexColor: string, alpha: number): string {

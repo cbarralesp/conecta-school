@@ -2,12 +2,12 @@
   title="Matriculas"
   activeItem="enrollments"
   dashboardRoute="/dashboard"
-  [userName]="user()?.nombre ?? 'Administracion'"
-  userRole="Administracion">
+  [userName]="user()?.nombre ?? 'Administración'"
+  userRole="Administración">
   <main class="content-area">
     <section id="enrollment-form-top" class="page-header">
       <div>
-        <span class="page-header__overline">Administracion</span>
+        <span class="page-header__overline">Administración</span>
         <h2>{{ pageTitle() }}</h2>
         <p>{{ subtitle() }}</p>
       </div>
@@ -65,7 +65,7 @@
                   1. Datos del Estudiante
                 </div>
               </div>
-              <p class="card-subtitle">Ingresa la informacion personal y academica del alumno.</p>
+              <p class="card-subtitle">Ingresa la informacion personal y académica del alumno.</p>
 
               <div class="form-grid">
                 <div class="form-group">
@@ -155,8 +155,8 @@
                 </div>
 
                 <div class="form-group full">
-                  <label for="student-address">Direccion Particular *</label>
-                  <input id="student-address" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('address')" formControlName="address" placeholder="Calle, numero y departamento">
+                  <label for="student-address">Dirección Particular *</label>
+                  <input id="student-address" type="text" class="form-input" [class.form-input--invalid]="isControlInvalid('address')" formControlName="address" placeholder="Calle, número y departamento">
                   @if (getControlError('address')) {
                     <span class="field-error">{{ getControlError('address') }}</span>
                   }
@@ -169,7 +169,7 @@
 
                 <div class="form-group">
                   <label for="student-emergency-contact">En caso de emergencia llamar a...</label>
-                  <input id="student-emergency-contact" type="text" class="form-input" formControlName="emergencyContact" placeholder="Nombre y telefono de contacto">
+                  <input id="student-emergency-contact" type="text" class="form-input" formControlName="emergencyContact" placeholder="Nombre y teléfono de contacto">
                 </div>
 
                 <div class="form-group full">
@@ -188,13 +188,13 @@
                   <input type="checkbox" formControlName="configureAccess">
                   <span class="access-toggle__copy">
                     <strong>Configurar Acceso al Sistema</strong>
-                    <small>Gestion de usuarios y credenciales para estudiante y apoderado.</small>
+                    <small>Gestión de usuarios y credenciales para estudiante y apoderado.</small>
                   </span>
                 </label>
 
                 @if (shouldShowStudentAccessConfig()) {
                   <div class="access-config__panel">
-                    <div class="access-config__header">Gestion de Usuarios y Credenciales</div>
+                    <div class="access-config__header">Gestión de Usuarios y Credenciales</div>
 
                     <div class="access-user-card access-user-card--student" [formGroup]="studentAccessGroup">
                       <label class="access-toggle access-toggle--nested">
@@ -220,7 +220,7 @@
                                   <mat-icon>content_copy</mat-icon>
                                 </button>
                               </div>
-                              <span class="helper-text">Usuario por defecto: RUT del estudiante en formato 12345678-9.</span>
+                              <span class="helper-text">Usuario por defecto: RUT del estudiante en formato 12345678-9, sin puntos.</span>
                             </div>
 
                             <div class="form-group">
@@ -356,7 +356,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="guardian-phone">Telefono *</label>
+                  <label for="guardian-phone">Teléfono *</label>
                   <input id="guardian-phone" type="tel" class="form-input" [class.form-input--invalid]="isControlInvalid('guardian.phone')" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('guardian.phone')">
                   @if (getControlError('guardian.phone')) {
                     <span class="field-error">{{ getControlError('guardian.phone') }}</span>
@@ -372,8 +372,8 @@
                 </div>
 
                 <div class="form-group full">
-                  <label for="guardian-address">Direccion</label>
-                  <input id="guardian-address" type="text" class="form-input" formControlName="address" placeholder="Direccion del apoderado">
+                  <label for="guardian-address">Dirección</label>
+                  <input id="guardian-address" type="text" class="form-input" formControlName="address" placeholder="Dirección del apoderado">
                 </div>
               </div>
 
@@ -406,7 +406,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="father-phone">Telefono</label>
+                    <label for="father-phone">Teléfono</label>
                     <input id="father-phone" type="tel" class="form-input" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('father.phone')">
                   </div>
 
@@ -416,8 +416,8 @@
                   </div>
 
                   <div class="form-group full">
-                    <label for="father-address">Direccion</label>
-                    <input id="father-address" type="text" class="form-input" formControlName="address" placeholder="Direccion del padre">
+                    <label for="father-address">Dirección</label>
+                    <input id="father-address" type="text" class="form-input" formControlName="address" placeholder="Dirección del padre">
                   </div>
                 </div>
               </div>
@@ -446,7 +446,7 @@
                   </div>
 
                   <div class="form-group">
-                    <label for="mother-phone">Telefono</label>
+                    <label for="mother-phone">Teléfono</label>
                     <input id="mother-phone" type="tel" class="form-input" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('mother.phone')">
                   </div>
 
@@ -456,8 +456,8 @@
                   </div>
 
                   <div class="form-group full">
-                    <label for="mother-address">Direccion</label>
-                    <input id="mother-address" type="text" class="form-input" formControlName="address" placeholder="Direccion de la madre">
+                    <label for="mother-address">Dirección</label>
+                    <input id="mother-address" type="text" class="form-input" formControlName="address" placeholder="Dirección de la madre">
                   </div>
                 </div>
               </div>
@@ -490,7 +490,7 @@
                   <input type="checkbox" [checked]="hasGuardianPickupContact()" (change)="toggleGuardianPickupContact($event)">
                   <span class="pickup-sync-toggle__copy">
                     <strong>Usar datos del apoderado principal</strong>
-                    <small>Crea un responsable de retiro nuevo con el RUN, nombre, telefono y relacion del apoderado.</small>
+                    <small>Crea un responsable de retiro nuevo con el RUN, nombre, teléfono y relacion del apoderado.</small>
                   </span>
                 </label>
               </div>
@@ -534,7 +534,7 @@
                       </div>
 
                       <div class="form-group">
-                        <label>Telefono *</label>
+                        <label>Teléfono *</label>
                         <input type="tel" class="form-input" [class.form-input--invalid]="isArrayControlInvalid($index, 'phone')" formControlName="phone" placeholder="+56 9..." (input)="formatPhoneValue('pickupContacts.' + $index + '.phone')">
                         @if (getArrayControlError($index, 'phone')) {
                           <span class="field-error">{{ getArrayControlError($index, 'phone') }}</span>
@@ -632,14 +632,14 @@
                 </div>
 
                 <div class="form-group full">
-                  <label for="establishment-address">Direccion del Establecimiento</label>
+                  <label for="establishment-address">Dirección del Establecimiento</label>
                   <input id="establishment-address" type="text" class="form-input" formControlName="address" placeholder="Av. Libertador Bernardo O Higgins 1234">
                 </div>
               </div>
 
               <div class="subsection-title subsection-title--spaced">Curso a matricular</div>
               @if (isEditMode) {
-                <p class="course-note">Aqui puedes revisar y actualizar el curso matriculado usando la misma estructura de Nueva matricula.</p>
+                <p class="course-note">Aqui puedes revisar y actualizar el curso matriculado usando la misma estructura de Nueva matrícula.</p>
               }
               <div class="form-grid">
                 <div class="form-group">
@@ -751,14 +751,32 @@
                         </div>
 
                         <div class="doc-actions">
-                          <span class="badge-doc badge-doc--optional">Opcional</span>
-                          <label class="upload-btn-wrapper">
-                            <span class="btn-upload" [class.btn-upload--loaded]="hasUploadedDocument(document.key)">
-                              <mat-icon>{{ hasUploadedDocument(document.key) ? 'check_circle' : 'upload_file' }}</mat-icon>
-                              {{ hasUploadedDocument(document.key) ? 'Cargado' : 'Subir archivo' }}
-                            </span>
-                            <input type="file" (change)="onDocumentSelected(document.key, $event)">
-                          </label>
+                          @if (hasUploadedDocument(document.key)) {
+                            <div class="doc-icon-actions">
+                              <button class="doc-icon-action" type="button" title="Ver documento" aria-label="Ver documento" (click)="openUploadedDocument(document.key)">
+                                <mat-icon>visibility</mat-icon>
+                              </button>
+                              <button class="doc-icon-action doc-icon-action--danger" type="button" title="Eliminar documento" aria-label="Eliminar documento" (click)="removeUploadedDocument(document.key)">
+                                <mat-icon>delete_outline</mat-icon>
+                              </button>
+                            </div>
+                            <label class="upload-btn-wrapper">
+                              <span class="btn-upload btn-upload--loaded">
+                                <mat-icon>check_circle</mat-icon>
+                                Cargado
+                              </span>
+                              <input type="file" (change)="onDocumentSelected(document.key, $event)">
+                            </label>
+                          } @else {
+                            <span class="badge-doc badge-doc--optional">Opcional</span>
+                            <label class="upload-btn-wrapper">
+                              <span class="btn-upload">
+                                <mat-icon>upload_file</mat-icon>
+                                Subir archivo
+                              </span>
+                              <input type="file" (change)="onDocumentSelected(document.key, $event)">
+                            </label>
+                          }
                         </div>
                       </div>
                     }
@@ -782,10 +800,24 @@
         <div class="right-col">
           <section class="card sticky-card">
             <div class="student-photo-container">
-              <div class="photo-placeholder">
-                <mat-icon>photo_camera</mat-icon>
-              </div>
-              <span class="change-photo">Cambiar Foto</span>
+              <input
+                #studentPhotoInput
+                class="photo-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                (change)="onStudentPhotoSelected($event)">
+              <button
+                class="photo-placeholder"
+                [class.photo-placeholder--has-image]="studentPhotoDisplayUrl()"
+                type="button"
+                (click)="studentPhotoInput.click()">
+                @if (studentPhotoDisplayUrl()) {
+                  <img [src]="studentPhotoDisplayUrl()" alt="Foto del alumno">
+                } @else {
+                  <mat-icon>photo_camera</mat-icon>
+                }
+              </button>
+              <button class="change-photo" type="button" (click)="studentPhotoInput.click()">Cambiar Foto</button>
             </div>
 
             <div class="status-wrapper">

@@ -305,7 +305,7 @@ export class TeacherModernSidebarComponent {
               { key: 'dashboard', label: 'Dashboard', icon: 'space_dashboard', route: '/alumno' },
               { key: 'subjects', label: 'Asignaturas', icon: 'library_books', route: '/alumno/asignaturas' },
               { key: 'schedule', label: 'Horario', icon: 'schedule', route: '/alumno/horario' },
-              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/alumno/calificaciones' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/alumno/calificaciónes' },
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/alumno/asistencia' },
               { key: 'activities', label: 'Actividades', icon: 'event', route: '/alumno/actividades' }
             ]
@@ -321,7 +321,7 @@ export class TeacherModernSidebarComponent {
             ])
           },
           {
-            title: 'Gestion academica',
+            title: 'Gestión académica',
             collapsible: true,
             items: this.visibleTeacherItems([
               { key: 'enrollments', label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas', moduleCode: 'MATRICULAS' },
@@ -336,15 +336,15 @@ export class TeacherModernSidebarComponent {
             collapsible: true,
             items: this.visibleTeacherItems([
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
-              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciónes', moduleCode: 'CALIFICACIONES' },
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
               { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACIONES', exact: true },
               { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
-              { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', badge: this.planningBadge, moduleCode: 'PLANIFICACION' }
+              { key: 'student-life', label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' }
             ])
           },
           {
-            title: 'Administracion',
+            title: 'Administración',
             collapsible: true,
             items: this.visibleTeacherItems([
               { key: 'users', label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios', moduleCode: 'USUARIOS' },
@@ -365,7 +365,7 @@ export class TeacherModernSidebarComponent {
             ])
           },
           {
-            title: 'Gestion academica',
+            title: 'Gestión académica',
             collapsible: true,
             items: this.visibleTeacherItems([
               { key: 'enrollments', label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas', moduleCode: 'MATRICULAS' },
@@ -380,15 +380,15 @@ export class TeacherModernSidebarComponent {
             collapsible: true,
             items: this.visibleTeacherItems([
               { key: 'attendance', label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
-              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
+              { key: 'grades', label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciónes', moduleCode: 'CALIFICACIONES' },
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
               { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACIONES', exact: true },
               { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
-              { key: 'planning', label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION', badge: this.planningBadge }
+              { key: 'student-life', label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' }
             ])
           },
           {
-            title: 'Administracion',
+            title: 'Administración',
             collapsible: true,
             items: this.visibleTeacherItems([
               { key: 'users', label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios', moduleCode: 'USUARIOS' },

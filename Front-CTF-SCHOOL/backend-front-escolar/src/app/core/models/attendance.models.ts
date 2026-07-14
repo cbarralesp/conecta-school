@@ -24,6 +24,10 @@ export interface DailyAttendanceStudent {
   status: string;
   arrivalTime: string | null;
   note: string | null;
+  departureTime: string | null;
+  departureReason: 'MEDICO' | 'TRAMITE' | 'FAMILIAR' | 'OTRO' | null;
+  departureJustified: boolean | null;
+  departureNote: string | null;
 }
 
 export interface DailyAttendanceSummary {
@@ -53,6 +57,10 @@ export interface DailyAttendanceEntryPayload {
   status: string;
   arrivalTime: string | null;
   note: string | null;
+  departureTime: string | null;
+  departureReason: 'MEDICO' | 'TRAMITE' | 'FAMILIAR' | 'OTRO' | null;
+  departureJustified: boolean | null;
+  departureNote: string | null;
 }
 
 export interface SaveDailyAttendancePayload {
@@ -119,6 +127,10 @@ export interface MonthlyAttendanceStudent {
 export interface MonthlyAttendanceStudentDay {
   date: string;
   status: string;
+  departureTime?: string | null;
+  departureReason?: 'MEDICO' | 'TRAMITE' | 'FAMILIAR' | 'OTRO' | null;
+  departureJustified?: boolean | null;
+  departureNote?: string | null;
 }
 
 export interface MonthlyAttendanceDistribution {

@@ -40,6 +40,7 @@ import { TeacherModernToolbarComponent } from './teacher-modern-toolbar.componen
   styles: `
     .modern-layout {
       min-height: 100vh;
+      font-family: Roboto, 'Helvetica Neue', sans-serif;
       background: linear-gradient(180deg, #f4f8fd 0%, #eaf1fb 100%);
     }
 

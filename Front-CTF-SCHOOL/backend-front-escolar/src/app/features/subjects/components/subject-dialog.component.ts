@@ -36,7 +36,7 @@ interface SubjectDialogData {
       </h2>
 
       <mat-dialog-content>
-        <p class="dialog-copy">Mantiene estandarizado el catalogo academico del sistema.</p>
+        <p class="dialog-copy">Mantiene estandarizado el catálogo académico del sistema.</p>
 
         <form [formGroup]="form" class="dialog-form">
           <mat-form-field appearance="outline">
@@ -168,7 +168,7 @@ interface SubjectDialogData {
           </section>
 
           <mat-form-field appearance="outline" class="span-2">
-            <mat-label>Descripcion</mat-label>
+            <mat-label>Descripción</mat-label>
             <textarea matInput rows="2" formControlName="description"></textarea>
           </mat-form-field>
         </form>

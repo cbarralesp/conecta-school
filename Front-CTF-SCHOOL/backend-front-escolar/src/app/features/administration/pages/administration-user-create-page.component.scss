@@ -456,6 +456,12 @@ select.form-input {
 }
 
 @media (max-width: 960px) {
+  .page-header,
+  .form-section__header {
+    text-align: center;
+    justify-items: center;
+  }
+
   .grid-4,
   .grid-2 {
     grid-template-columns: 1fr;
@@ -469,6 +475,7 @@ select.form-input {
 
   .form-actions {
     flex-direction: column-reverse;
+    align-items: stretch;
   }
 
   .btn {

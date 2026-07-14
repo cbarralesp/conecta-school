@@ -1,11 +1,10 @@
-import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of, switchMap } from 'rxjs';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
@@ -30,16 +29,19 @@ type SemesterFilter = 'all' | 'S1' | 'S2';
 
 type ContentDocumentView = {
   id: number;
+  classId: number;
   title: string;
   type: Exclude<ContentFilter, 'all'>;
   sizeLabel: string;
   metaLabel: string;
   dateLabel: string;
   visibilityLabel: string;
+  visibleToStudents: boolean;
 };
 
 type ContentClassView = {
   id: number;
+  classNumber: number;
   title: string;
   plannedDate: string;
   dateLabel: string;
@@ -55,6 +57,7 @@ type ContentUnitView = {
   numberLabel: string;
   title: string;
   courseName: string;
+  subjectName: string;
   weekLabel: string;
   progress: number;
   color: 'blue' | 'purple' | 'green' | 'orange';
@@ -71,7 +74,6 @@ type ContentUnitView = {
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     SummaryMetricCardComponent,
@@ -90,6 +92,9 @@ export class ContentPageComponent {
   readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly filter = signal<ContentFilter>('all');
+  readonly classSearchDraft = signal('');
+  readonly classSearch = signal('');
+  readonly selectedYear = signal<number | null>(new Date().getFullYear());
   readonly selectedCourse = signal<number | 'all'>('all');
   readonly selectedSubject = signal<number | 'all'>('all');
   readonly selectedSemester = signal<SemesterFilter>('all');
@@ -100,6 +105,7 @@ export class ContentPageComponent {
   readonly classCatalogs = signal<PlanningClassCatalogs | null>(null);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
+  readonly pageSizeOptions = [10, 15, 20] as const;
 
   readonly unitTitleDraft = signal('');
   readonly unitAssignmentId = signal<number | null>(null);
@@ -108,7 +114,13 @@ export class ContentPageComponent {
   readonly classDurationDraft = signal('');
   readonly classPlannedDateDraft = signal('');
   readonly classFile = signal<File | null>(null);
+  readonly documentFile = signal<File | null>(null);
+  readonly documentVisibility = signal<'student' | 'teacher'>('teacher');
+  readonly currentDocumentName = signal('');
+  readonly currentDocumentClassId = signal<number | null>(null);
+  readonly currentDocumentId = signal<number | null>(null);
   readonly currentUnitId = signal<number | null>(null);
+  readonly updatingDocumentVisibilityIds = signal<number[]>([]);
   readonly editingUnitId = signal<number | null>(null);
   readonly editingUnitNumberDraft = signal('');
   readonly editingUnitTitleDraft = signal('');
@@ -118,6 +130,11 @@ export class ContentPageComponent {
   readonly isClassDialogOpen = signal(false);
   readonly isEditUnitDialogOpen = signal(false);
   readonly isEditClassDialogOpen = signal(false);
+  readonly isDocumentDialogOpen = signal(false);
+  readonly isEditingDocument = computed(() => this.currentDocumentId() != null);
+  readonly selectedDocumentFileName = computed(
+    () => (this.documentFile()?.name ?? this.currentDocumentName()) || 'Click para subir un archivo compatible'
+  );
 
   readonly stats = computed(() => {
     const summary = this.summary()?.summary;
@@ -185,11 +202,29 @@ export class ContentPageComponent {
   ]);
 
   readonly assignmentOptions = computed(() => this.unitCatalogs()?.teachingAssignments ?? []);
+  readonly yearOptions = computed(() => {
+    const values = Array.from(new Set(this.courses().map((course) => course.schoolYear))).sort((left, right) => left - right);
+    return values.map((value) => ({ value, label: String(value) }));
+  });
   readonly courseOptions = computed(() => {
-    return this.courses().map((course) => ({
-      id: course.id,
-      name: course.letter ? `${course.name} ${course.letter}` : course.name
-    }));
+    const year = this.selectedYear();
+    const options = this.courses()
+      .filter((course) => year == null || course.schoolYear === year)
+      .map((course) => ({
+        id: course.id,
+        name: course.letter ? `${course.name} ${course.letter}` : course.name
+      }))
+      .sort((left, right) => this.compareLabels(left.name, right.name));
+
+    const uniqueOptions = new Map<string, { id: number; name: string }>();
+    for (const option of options) {
+      const key = this.normalizeCompare(option.name);
+      if (!uniqueOptions.has(key)) {
+        uniqueOptions.set(key, option);
+      }
+    }
+
+    return Array.from(uniqueOptions.values());
   });
   readonly subjectOptions = computed(() => {
     const selectedCourse = this.selectedCourse();
@@ -204,17 +239,31 @@ export class ContentPageComponent {
       }
     }
 
-    return Array.from(subjects.entries()).map(([id, name]) => ({ id, name }));
+    return Array.from(subjects.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((left, right) => this.compareLabels(left.name, right.name));
   });
   readonly unitNumberOptions = computed(() => this.unitCatalogs()?.unitNumbers ?? []);
   readonly durationOptions = computed(() => this.classCatalogs()?.durationOptions ?? []);
   readonly selectedClassFileName = computed(() => this.classFile()?.name ?? 'Click para subir un archivo compatible');
   readonly totalUnits = computed(() => this.units().length);
   readonly shouldShowPaginator = computed(() => this.totalUnits() > this.pageSize());
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalUnits() / this.pageSize())));
+  readonly pageStart = computed(() => (this.totalUnits() === 0 ? 0 : this.pageIndex() * this.pageSize() + 1));
+  readonly pageEnd = computed(() => Math.min(this.totalUnits(), (this.pageIndex() + 1) * this.pageSize()));
+  readonly visiblePages = computed(() => {
+    const totalPages = this.totalPages();
+    const current = this.pageIndex();
+    const start = Math.max(0, current - 2);
+    const end = Math.min(totalPages, start + 5);
+    const adjustedStart = Math.max(0, end - 5);
+    return Array.from({ length: end - adjustedStart }, (_, index) => adjustedStart + index);
+  });
   readonly pagedUnits = computed(() => {
     const start = this.pageIndex() * this.pageSize();
     return this.units().slice(start, start + this.pageSize());
   });
+  private searchDebounceHandle: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.loadCourses();
@@ -224,6 +273,20 @@ export class ContentPageComponent {
 
   setFilter(value: ContentFilter): void {
     this.filter.set(value);
+    this.pageIndex.set(0);
+    this.loadContent();
+  }
+
+  setYearFilter(value: number | null): void {
+    this.selectedYear.set(value);
+    const hasSelectedCourse = this.courseOptions().some((course) => course.id === this.selectedCourse());
+    if (!hasSelectedCourse) {
+      this.selectedCourse.set('all');
+    }
+    const hasSelectedSubject = this.subjectOptions().some((subject) => subject.id === this.selectedSubject());
+    if (!hasSelectedSubject) {
+      this.selectedSubject.set('all');
+    }
     this.pageIndex.set(0);
     this.loadContent();
   }
@@ -238,6 +301,22 @@ export class ContentPageComponent {
     this.loadContent();
   }
 
+  setClassSearch(value: string): void {
+    this.classSearchDraft.set(value);
+    if (this.searchDebounceHandle) {
+      clearTimeout(this.searchDebounceHandle);
+    }
+    this.searchDebounceHandle = setTimeout(() => {
+      const nextValue = value.trim();
+      if (this.classSearch() === nextValue) {
+        return;
+      }
+      this.classSearch.set(nextValue);
+      this.pageIndex.set(0);
+      this.loadContent(false);
+    }, 260);
+  }
+
   setSubjectFilter(value: number | 'all'): void {
     this.selectedSubject.set(value);
     this.pageIndex.set(0);
@@ -250,9 +329,30 @@ export class ContentPageComponent {
     this.loadContent();
   }
 
-  handlePageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  setPage(page: number): void {
+    const nextPage = Math.max(0, Math.min(page, this.totalPages() - 1));
+    this.pageIndex.set(nextPage);
+  }
+
+  goToPreviousPage(): void {
+    if (this.pageIndex() > 0) {
+      this.pageIndex.update((value) => value - 1);
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.pageIndex() < this.totalPages() - 1) {
+      this.pageIndex.update((value) => value + 1);
+    }
+  }
+
+  updatePageSize(value: number | string): void {
+    const nextSize = Number(value);
+    if (!Number.isFinite(nextSize) || nextSize <= 0) {
+      return;
+    }
+    this.pageSize.set(nextSize);
+    this.pageIndex.set(0);
   }
 
   toggleUnit(unitId: number): void {
@@ -274,6 +374,26 @@ export class ContentPageComponent {
           : unit
       )
     );
+  }
+
+  openDocumentDialog(classId: number, event?: Event): void {
+    event?.stopPropagation();
+    this.currentDocumentClassId.set(classId);
+    this.currentDocumentId.set(null);
+    this.currentDocumentName.set('');
+    this.documentVisibility.set('teacher');
+    this.documentFile.set(null);
+    this.isDocumentDialogOpen.set(true);
+  }
+
+  openEditDocumentDialog(document: ContentDocumentView, event?: Event): void {
+    event?.stopPropagation();
+    this.currentDocumentClassId.set(document.classId);
+    this.currentDocumentId.set(document.id);
+    this.currentDocumentName.set(document.title);
+    this.documentVisibility.set(document.visibleToStudents ? 'student' : 'teacher');
+    this.documentFile.set(null);
+    this.isDocumentDialogOpen.set(true);
   }
 
   openUnitDialog(): void {
@@ -348,11 +468,22 @@ export class ContentPageComponent {
     this.classFile.set(null);
     this.editingUnitId.set(null);
     this.editingClassId.set(null);
+    this.currentDocumentClassId.set(null);
+    this.currentDocumentId.set(null);
+    this.currentDocumentName.set('');
+    this.documentFile.set(null);
+    this.documentVisibility.set('teacher');
+    this.isDocumentDialogOpen.set(false);
   }
 
   onClassFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.classFile.set(input.files?.[0] ?? null);
+  }
+
+  onDocumentFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.documentFile.set(input.files?.[0] ?? null);
   }
 
   createUnit(): void {
@@ -375,6 +506,7 @@ export class ContentPageComponent {
         courseId: assignment.courseId,
         unitNumber,
         name: title,
+        colorHex: assignment.subjectColorHex || '#6d28d9',
         startWeek: null,
         startDate: this.toIsoDate(startDate),
         endDate: this.toIsoDate(endDate),
@@ -426,7 +558,7 @@ export class ContentPageComponent {
             return of(planningClass);
           }
 
-          return this.planningApiService.uploadClassDocument(planningClass.id, file, true).pipe(
+          return this.planningApiService.uploadClassDocument(planningClass.id, file, false).pipe(
             switchMap(() => of(planningClass))
           );
         })
@@ -447,7 +579,7 @@ export class ContentPageComponent {
     const title = this.editingUnitTitleDraft().trim();
 
     if (unitId == null || !unitNumber || !title) {
-      this.snackBar.open('Completa el numero y titulo de la unidad', 'Cerrar', { duration: 2800 });
+      this.snackBar.open('Completa el número y titulo de la unidad', 'Cerrar', { duration: 2800 });
       return;
     }
 
@@ -490,20 +622,112 @@ export class ContentPageComponent {
     return contentClass.documents;
   }
 
-  downloadDocument(documentId: number): void {
-    this.planningApiService.downloadPlanningDocument(documentId).subscribe({
+  downloadDocument(contentDocument: ContentDocumentView): void {
+    this.planningApiService.downloadPlanningDocument(contentDocument.id).subscribe({
       next: (response) => {
-        const fileName = this.resolveFileName(response.headers) ?? `documento-${documentId}`;
         const blob = response.body ?? new Blob();
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = fileName;
+        link.download = contentDocument.title || `documento-${contentDocument.id}`;
+        link.style.display = 'none';
+        window.document.body.appendChild(link);
         link.click();
-        window.URL.revokeObjectURL(url);
+        window.setTimeout(() => {
+          window.document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 0);
       },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible descargar el documento')
     });
+  }
+
+  saveDocument(): void {
+    const classId = this.currentDocumentClassId();
+    const file = this.documentFile();
+    const visibleToStudents = this.documentVisibility() === 'student';
+    const currentDocumentId = this.currentDocumentId();
+
+    if (classId == null) {
+      this.snackBar.open('No se encontro la clase asociada al documento.', 'Cerrar', { duration: 2800 });
+      return;
+    }
+
+    if (currentDocumentId == null && !file) {
+      this.snackBar.open('Selecciona un archivo para continuar.', 'Cerrar', { duration: 2800 });
+      return;
+    }
+
+    const request$ = currentDocumentId != null && !file
+      ? this.planningApiService.updatePlanningDocumentVisibility(currentDocumentId, visibleToStudents).pipe(map(() => null))
+      : this.planningApiService.uploadClassDocument(classId, file!, visibleToStudents).pipe(
+          switchMap(() =>
+            currentDocumentId == null
+              ? of(null)
+              : this.planningApiService.deletePlanningDocument(currentDocumentId).pipe(switchMap(() => of(null)))
+          )
+        );
+
+    request$.subscribe({
+      next: () => {
+        this.closeDialogs();
+        this.snackBar.open(
+          currentDocumentId == null ? 'Documento agregado correctamente' : 'Documento actualizado correctamente',
+          'Cerrar',
+          { duration: 2600 }
+        );
+        this.loadContent();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible guardar el documento')
+    });
+  }
+
+  deleteDocument(document: ContentDocumentView, event?: Event): void {
+    event?.stopPropagation();
+    const confirmed = window.confirm(`Eliminar el documento "${document.title}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.planningApiService.deletePlanningDocument(document.id).subscribe({
+      next: () => {
+        this.snackBar.open('Documento eliminado correctamente', 'Cerrar', { duration: 2600 });
+        this.loadContent();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible eliminar el documento')
+    });
+  }
+
+  toggleDocumentStudentVisibility(document: ContentDocumentView, event?: Event): void {
+    event?.stopPropagation();
+
+    if (this.updatingDocumentVisibilityIds().includes(document.id)) {
+      return;
+    }
+
+    this.updatingDocumentVisibilityIds.update((current) => [...current, document.id]);
+
+    this.planningApiService.updatePlanningDocumentVisibility(document.id, !document.visibleToStudents).subscribe({
+      next: () => {
+        this.snackBar.open(
+          !document.visibleToStudents
+            ? 'Documento visible para estudiante'
+            : 'Documento marcado solo para docente',
+          'Cerrar',
+          { duration: 2400 }
+        );
+        this.updatingDocumentVisibilityIds.update((current) => current.filter((id) => id !== document.id));
+        this.loadContent(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.updatingDocumentVisibilityIds.update((current) => current.filter((id) => id !== document.id));
+        this.showError(error, 'No fue posible actualizar la visibilidad del documento');
+      }
+    });
+  }
+
+  isUpdatingDocumentVisibility(documentId: number): boolean {
+    return this.updatingDocumentVisibilityIds().includes(documentId);
   }
 
   iconForDocument(type: Exclude<ContentFilter, 'all'>): string {
@@ -536,28 +760,38 @@ export class ContentPageComponent {
         this.unitCatalogs.set(unitCatalogs);
         this.classCatalogs.set(classCatalogs);
       },
-      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los catalogos de contenido')
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los catálogos de contenido')
     });
   }
 
   private loadCourses(): void {
     this.courseApiService.findAll().subscribe({
-      next: (courses) => this.courses.set(courses.filter((course) => course.active)),
+      next: (courses) => {
+        this.courses.set(courses.filter((course) => course.active));
+        const selectedYear = this.selectedYear();
+        if (selectedYear != null && !this.yearOptions().some((year) => year.value === selectedYear)) {
+          this.selectedYear.set(this.yearOptions().at(-1)?.value ?? null);
+        }
+      },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos')
     });
   }
 
-  private loadContent(): void {
-    this.isLoading.set(true);
+  private loadContent(showLoader = true): void {
+    if (showLoader) {
+      this.isLoading.set(true);
+    }
     const selectedCourse = this.selectedCourse();
     const courseId = selectedCourse === 'all' ? undefined : selectedCourse;
     const selectedSubject = this.selectedSubject();
     const subjectId = selectedSubject === 'all' ? undefined : selectedSubject;
+    const year = this.selectedYear() ?? undefined;
     const semester = this.resolveSemesterNumber(this.selectedSemester());
     const documentType = this.resolveDocumentTypeFilter(this.filter());
+    const search = this.classSearch().trim() || undefined;
     forkJoin({
-      summary: this.planningApiService.getPlanningSummary({ courseId, subjectId, semester, documentType }),
-      classes: this.planningApiService.getClasses({ courseId, subjectId, semester, documentType })
+      summary: this.planningApiService.getPlanningSummary({ year, courseId, subjectId, semester, documentType }),
+      classes: this.planningApiService.getClasses({ year, courseId, subjectId, semester, documentType, search })
     }).subscribe({
       next: ({ summary, classes }) => {
         this.summary.set(summary);
@@ -566,7 +800,7 @@ export class ContentPageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el contenido academico');
+        this.showError(error, 'No fue posible cargar el contenido académico');
       }
     });
   }
@@ -580,22 +814,61 @@ export class ContentPageComponent {
     }
 
     const palette: ContentUnitView['color'][] = ['blue', 'purple', 'green', 'orange'];
+    const summaryUnitsById = new Map(summary.units.map((unit) => [unit.id, unit]));
+    const sortedUnitIds = Array.from(
+      new Set([
+        ...summary.units.map((unit) => unit.id),
+        ...classes.map((planningClass) => planningClass.unitId)
+      ])
+    ).sort((left, right) => {
+      const leftSummary = summaryUnitsById.get(left);
+      const rightSummary = summaryUnitsById.get(right);
 
-    return summary.units.flatMap((unit, index) => {
-      const unitClasses = (classesByUnit.get(unit.id) ?? []).map((planningClass) => this.mapClass(planningClass));
+      if (leftSummary && rightSummary) {
+        return this.compareUnits(leftSummary, rightSummary);
+      }
+
+      if (leftSummary) {
+        return -1;
+      }
+
+      if (rightSummary) {
+        return 1;
+      }
+
+      const leftClass = classesByUnit.get(left)?.[0] ?? null;
+      const rightClass = classesByUnit.get(right)?.[0] ?? null;
+      if (leftClass && rightClass) {
+        return this.comparePlanningUnitFallback(leftClass, rightClass);
+      }
+
+      return left - right;
+    });
+
+    return sortedUnitIds.flatMap((unitId, index) => {
+      const summaryUnit = summaryUnitsById.get(unitId) ?? null;
+      const sourceClasses = [...(classesByUnit.get(unitId) ?? [])]
+        .sort((left, right) => this.comparePlanningClasses(left, right));
+      const unitClasses = sourceClasses
+        .map((planningClass, classIndex) => this.mapClass(planningClass, classIndex + 1));
+
       if (unitClasses.length === 0) {
         return [];
       }
+
+      const firstClass = sourceClasses[0] ?? null;
       const totalDocuments = unitClasses.reduce((count, contentClass) => count + contentClass.documents.length, 0);
+      const fallbackWeekLabel = this.buildWeekLabelFromClasses(sourceClasses);
 
       return [{
-        id: unit.id,
-        courseId: this.resolveCourseId(unit.courseName),
-        numberLabel: unit.code,
-        title: unit.name,
-        courseName: unit.courseName,
-        weekLabel: unit.weekRange,
-        progress: unit.progressPercent,
+        id: unitId,
+        courseId: summaryUnit ? this.resolveCourseId(summaryUnit.courseName) : (firstClass?.courseId ?? -1),
+        numberLabel: this.normalizeUnitBadgeLabel(summaryUnit?.code ?? firstClass?.unitNumberLabel ?? `U${index + 1}`),
+        title: summaryUnit?.name ?? (firstClass?.unitName || 'Unidad'),
+        courseName: summaryUnit?.courseName ?? (firstClass?.courseName || ''),
+        subjectName: summaryUnit?.subjectName ?? (firstClass?.subjectName || ''),
+        weekLabel: summaryUnit?.weekRange ?? fallbackWeekLabel,
+        progress: summaryUnit?.progressPercent ?? (unitClasses.length > 0 ? 100 : 0),
         color: palette[index % palette.length],
         expanded: index === 0,
         classes: unitClasses,
@@ -604,9 +877,10 @@ export class ContentPageComponent {
     });
   }
 
-  private mapClass(planningClass: PlanningClass): ContentClassView {
+  private mapClass(planningClass: PlanningClass, classNumber: number): ContentClassView {
     return {
       id: planningClass.id,
+      classNumber,
       title: planningClass.title,
       plannedDate: planningClass.plannedDate,
       dateLabel: this.formatDate(planningClass.plannedDate),
@@ -620,12 +894,14 @@ export class ContentPageComponent {
   private mapDocument(document: PlanningClassDocument): ContentDocumentView {
     return {
       id: document.id,
+      classId: document.classId,
       title: document.originalName,
       type: this.resolveDocumentType(document),
       sizeLabel: this.formatBytes(document.sizeBytes),
-      metaLabel: document.visibleToStudents ? 'Visible a estudiantes' : 'Solo docente',
+      metaLabel: document.visibleToStudents ? 'Visible docente y estudiante' : 'Visible docente',
       dateLabel: this.formatDateTime(document.uploadedAt),
-      visibilityLabel: document.visibleToStudents ? 'Visible a estudiantes' : 'Solo docente'
+      visibilityLabel: document.visibleToStudents ? 'Visible estudiante activo' : 'Visible estudiante inactivo',
+      visibleToStudents: document.visibleToStudents
     };
   }
 
@@ -669,13 +945,30 @@ export class ContentPageComponent {
     }
   }
 
-  private resolveFileName(headers: HttpHeaders): string | null {
-    const disposition = headers.get('content-disposition') ?? headers.get('Content-Disposition');
-    if (!disposition) {
-      return null;
+  private buildWeekLabelFromClasses(classes: PlanningClass[]): string {
+    const weeks = classes
+      .map((planningClass) => {
+        const date = new Date(planningClass.plannedDate);
+        return Number.isNaN(date.getTime()) ? null : this.resolveAcademicWeek(date);
+      })
+      .filter((week): week is number => week != null);
+
+    if (!weeks.length) {
+      return '-';
     }
-    const match = disposition.match(/filename=\"?([^\";]+)\"?/i);
-    return match?.[1] ?? null;
+
+    const minWeek = Math.min(...weeks);
+    const maxWeek = Math.max(...weeks);
+    return minWeek === maxWeek ? String(minWeek) : `${minWeek}-${maxWeek}`;
+  }
+
+  private resolveAcademicWeek(date: Date): number {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const semesterStartMonth = month >= 7 ? 7 : 3;
+    const semesterStart = new Date(year, semesterStartMonth - 1, 1);
+    const diffDays = Math.max(0, Math.floor((date.getTime() - semesterStart.getTime()) / (1000 * 60 * 60 * 24)));
+    return Math.floor(diffDays / 7) + 1;
   }
 
   private formatBytes(value: number): string {
@@ -781,6 +1074,131 @@ export class ContentPageComponent {
       UNIDAD_VII: 'U7',
       UNIDAD_VIII: 'U8'
     } as Record<string, string>)[value] ?? value;
+  }
+
+  private normalizeUnitBadgeLabel(value: string): string {
+    const compact = this.compactUnitNumber(value);
+    if (/^U\d+$/i.test(compact)) {
+      return compact.toUpperCase();
+    }
+
+    const normalized = this.normalizeCompare(value)
+      .replace(/\s+/g, '')
+      .replace(/_/g, '');
+
+    const romanMap: Record<string, string> = {
+      unidadi: 'U1',
+      unidadii: 'U2',
+      unidadiii: 'U3',
+      unidadiv: 'U4',
+      unidadv: 'U5',
+      unidadvi: 'U6',
+      unidadvii: 'U7',
+      unidadviii: 'U8'
+    };
+
+    if (romanMap[normalized]) {
+      return romanMap[normalized];
+    }
+
+    const numericMatch = value.match(/\d+/);
+    if (numericMatch) {
+      return `U${numericMatch[0]}`;
+    }
+
+    return value;
+  }
+
+  private compareUnits(left: PlanningSummary['units'][number], right: PlanningSummary['units'][number]): number {
+    const courseDiff = this.compareLabels(left.courseName, right.courseName);
+    if (courseDiff !== 0) {
+      return courseDiff;
+    }
+
+    const subjectDiff = this.compareLabels(left.subjectName, right.subjectName);
+    if (subjectDiff !== 0) {
+      return subjectDiff;
+    }
+
+    const unitNumberDiff = this.extractUnitSortNumber(left.code) - this.extractUnitSortNumber(right.code);
+    if (unitNumberDiff !== 0) {
+      return unitNumberDiff;
+    }
+
+    return this.compareLabels(left.name, right.name);
+  }
+
+  private comparePlanningUnitFallback(left: PlanningClass, right: PlanningClass): number {
+    const courseDiff = this.compareLabels(left.courseName, right.courseName);
+    if (courseDiff !== 0) {
+      return courseDiff;
+    }
+
+    const subjectDiff = this.compareLabels(left.subjectName, right.subjectName);
+    if (subjectDiff !== 0) {
+      return subjectDiff;
+    }
+
+    const unitNumberDiff = this.extractUnitSortNumber(left.unitNumberLabel) - this.extractUnitSortNumber(right.unitNumberLabel);
+    if (unitNumberDiff !== 0) {
+      return unitNumberDiff;
+    }
+
+    const plannedDateDiff = left.plannedDate.localeCompare(right.plannedDate);
+    if (plannedDateDiff !== 0) {
+      return plannedDateDiff;
+    }
+
+    return this.compareLabels(left.unitName, right.unitName);
+  }
+
+  private compareContentClasses(left: ContentClassView, right: ContentClassView): number {
+    const classNumberDiff = left.classNumber - right.classNumber;
+    if (classNumberDiff !== 0) {
+      return classNumberDiff;
+    }
+
+    const plannedDateDiff = left.plannedDate.localeCompare(right.plannedDate);
+    if (plannedDateDiff !== 0) {
+      return plannedDateDiff;
+    }
+
+    return this.compareLabels(left.title, right.title);
+  }
+
+  private comparePlanningClasses(left: PlanningClass, right: PlanningClass): number {
+    const idDiff = left.id - right.id;
+    if (idDiff !== 0) {
+      return idDiff;
+    }
+
+    const plannedDateDiff = left.plannedDate.localeCompare(right.plannedDate);
+    if (plannedDateDiff !== 0) {
+      return plannedDateDiff;
+    }
+
+    return this.compareLabels(left.title, right.title);
+  }
+
+  private extractUnitSortNumber(value: string): number {
+    return this.extractFirstNumber(value);
+  }
+
+  private extractFirstNumber(value: string): number {
+    const match = value.match(/\d+/);
+    return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER;
+  }
+
+  private compareLabels(left: string, right: string): number {
+    return left.localeCompare(right, 'es', { numeric: true, sensitivity: 'base' });
+  }
+
+  private normalizeCompare(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase();
   }
 
   private toIsoDate(date: Date): string {

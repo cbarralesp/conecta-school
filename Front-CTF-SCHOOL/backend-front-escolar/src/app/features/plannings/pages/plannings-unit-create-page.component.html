@@ -9,32 +9,32 @@
       <div class="page-header__left">
         <div class="page-header__title-row">
           <div class="page-header__heading-inline">
-            <h1 class="page-header__title">Nueva unidad</h1>
+            <h1 class="page-header__title">{{ pageTitle() }}</h1>
           </div>
 
-          <button type="button" class="back-button" (click)="cancel()" aria-label="Volver a planificaciones">
+          <button type="button" class="back-button" (click)="cancel()" aria-label="Volver a planificaciónes">
             <mat-icon>arrow_back</mat-icon>
             <span>Volver</span>
           </button>
         </div>
-        <p class="page-header__subtitle">Nueva unidad para las unidades de aprendizaje.</p>
+        <p class="page-header__subtitle">{{ pageSubtitle() }}</p>
       </div>
     </section>
 
     <section class="steps-card animate-in">
-      <nav class="steps-bar" aria-label="Pasos de nueva unidad">
-        @for (step of steps; track step.number) {
+      <nav class="steps-bar" [attr.aria-label]="stepAriaLabel()">
+        @for (step of steps(); track step.actualStep) {
           <button
             type="button"
             class="step"
-            [class.is-active]="isStepActive(step.number)"
-            [class.is-completed]="isStepCompleted(step.number)"
-            [class.is-clickable]="canNavigateToStep(step.number)"
-            [disabled]="!canNavigateToStep(step.number)"
-            [attr.aria-current]="isStepActive(step.number) ? 'step' : null"
-            (click)="goToStep(step.number)">
+            [class.is-active]="isStepActive(step.actualStep)"
+            [class.is-completed]="isStepCompleted(step.actualStep)"
+            [class.is-clickable]="canNavigateToStep(step.actualStep)"
+            [disabled]="!canNavigateToStep(step.actualStep)"
+            [attr.aria-current]="isStepActive(step.actualStep) ? 'step' : null"
+            (click)="goToStep(step.actualStep)">
             <div class="step__number">
-              @if (isStepCompleted(step.number)) {
+              @if (isStepCompleted(step.actualStep)) {
                 <mat-icon>check</mat-icon>
               } @else {
                 <span>{{ step.number }}</span>
@@ -44,7 +44,7 @@
           </button>
 
           @if (!$last) {
-            <div class="step__divider" [class.is-completed]="isStepCompleted(step.number)"></div>
+            <div class="step__divider" [class.is-completed]="isStepCompleted(step.actualStep)"></div>
           }
         }
       </nav>
@@ -61,7 +61,7 @@
                 </div>
                 <div class="card-heading__copy">
                   <h2>Selecciona el curso y la asignatura</h2>
-                  <p>Estos datos determinaran las unidades disponibles desde el programa oficial Mineduc.</p>
+                  <p>{{ selectionCardDescription() }}</p>
                 </div>
               </div>
 
@@ -105,31 +105,83 @@
                   </div>
                 </div>
 
-                <div class="form-group col-6">
-                  <label class="form-label">Asignatura <span class="required">*</span></label>
-                  <div class="select-field">
-                    <mat-icon>menu_book</mat-icon>
-                    <select class="form-select" [ngModel]="subject()" (ngModelChange)="updateSubject($event)">
-                      @for (item of subjects(); track item.value) {
-                        <option [value]="item.value">{{ item.label }}</option>
-                      }
-                    </select>
-                    <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                @if (isInitialEducationFlow()) {
+                  <div class="form-group col-6">
+                    <label class="form-label">Asignatura visible <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>menu_book</mat-icon>
+                      <select class="form-select" [ngModel]="prekinderVisibleSubjectKey()" (ngModelChange)="updatePrekinderVisibleSubject($event)">
+                        @for (item of filteredPrekinderSubjectOptions(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label class="form-label">ámbito <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>hub</mat-icon>
+                      <select class="form-select" [ngModel]="prekinderAmbit()" disabled>
+                        @for (item of prekinderAmbitOptions(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label class="form-label">Núcleo <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>layers</mat-icon>
+                      <select class="form-select" [ngModel]="prekinderNucleus()" disabled>
+                        @for (item of prekinderNucleusOptions(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="form-group col-6">
+                    <label class="form-label">Asignatura <span class="required">*</span></label>
+                    <div class="select-field">
+                      <mat-icon>menu_book</mat-icon>
+                      <select class="form-select" [ngModel]="subject()" (ngModelChange)="updateSubject($event)">
+                        @for (item of subjects(); track item.value) {
+                          <option [value]="item.value">{{ item.label }}</option>
+                        }
+                      </select>
+                      <mat-icon class="select-field__chevron">expand_more</mat-icon>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              @if (isInitialEducationFlow()) {
+                <div class="info-box">
+                  <div class="info-box__icon">
+                    <mat-icon>auto_awesome</mat-icon>
+                  </div>
+                  <div class="info-box__text">
+                    Educación inicial usa una ruta curricular guiada: selecciona la asignatura visible y el sistema completara ámbito y Núcleo automáticamente.
                   </div>
                 </div>
-              </div>
+              }
 
               <div class="info-box">
                 <div class="info-box__icon">
                   <mat-icon>info</mat-icon>
-                </div>
+                  </div>
                 <div class="info-box__text">
                   {{ programReference() }}
                 </div>
               </div>
 
               <div class="color-panel">
-                <label class="form-label">Color de la unidad</label>
+                <label class="form-label">{{ colorSectionLabel() }}</label>
                 <div class="color-picker">
                   @for (color of colors; track color.value) {
                     <button
@@ -159,6 +211,20 @@
                 </div>
               }
 
+              @if (canCreateManualUnit()) {
+                <div class="manual-actions">
+                  <button type="button" class="btn btn--success" (click)="createManualUnit()">
+                    <mat-icon>add_circle</mat-icon>
+                    <span>{{ manualCreateLabel() }}</span>
+                  </button>
+
+                  <button type="button" class="btn btn--success-soft" (click)="goToManualClass()">
+                    <mat-icon>note_add</mat-icon>
+                    <span>Crear clase</span>
+                  </button>
+                </div>
+              }
+
               <div class="form-footer">
                 <button type="button" class="btn btn--ghost" (click)="cancel()">Cancelar</button>
                 <button type="button" class="btn btn--primary" (click)="continue()">
@@ -178,7 +244,7 @@
           <h3>Vista previa</h3>
 
           @if (isLoading()) {
-            <div class="preview-loading">Cargando programa...</div>
+            <div class="preview-loading">{{ isInitialEducationFlow() ? 'Cargando ruta curricular...' : 'Cargando programa...' }}</div>
           }
 
           <div class="preview-listing">
@@ -205,6 +271,24 @@
               </div>
               <strong>{{ subjectLabel() }}</strong>
             </div>
+
+            @if (isInitialEducationFlow()) {
+              <div class="preview-listing__row">
+                <div class="preview-listing__label">
+                  <mat-icon>hub</mat-icon>
+                  <span>ámbito</span>
+                </div>
+                <strong>{{ prekinderAmbit() || '-' }}</strong>
+              </div>
+
+              <div class="preview-listing__row">
+                <div class="preview-listing__label">
+                  <mat-icon>layers</mat-icon>
+                  <span>Núcleo</span>
+                </div>
+                <strong>{{ prekinderNucleus() || '-' }}</strong>
+              </div>
+            }
 
             <div class="preview-listing__row">
               <div class="preview-listing__label">
@@ -253,7 +337,7 @@
               </div>
 
               @if (!addedOtherUnitOas().length) {
-                <p class="preview-other-oas__empty">Aun no agregas OA complementarios desde otras unidades.</p>
+                <p class="preview-other-oas__empty">Aún no agregas OA complementarios desde otras unidades.</p>
               } @else {
                 <div class="preview-other-oas__list">
                   @for (objective of addedOtherUnitOas(); track objective.id) {
@@ -277,7 +361,7 @@
           <section class="card review-card">
             <div class="review-card__header">
               <div>
-                <h2>Revision final de la unidad</h2>
+                <h2>{{ reviewTitle() }}</h2>
                 <p>Revisa la informacion antes de guardar</p>
               </div>
 
@@ -291,7 +375,7 @@
                 <article class="review-section">
                   <div class="review-section__title">
                     <mat-icon>apartment</mat-icon>
-                    <span>Contexto academico</span>
+                    <span>Contexto académico</span>
                   </div>
 
                   <div class="review-context-grid">
@@ -320,7 +404,7 @@
                 <article class="review-section">
                   <div class="review-section__title">
                     <mat-icon>view_agenda</mat-icon>
-                    <span>Unidad seleccionada</span>
+                    <span>{{ selectedEntityLabel() }}</span>
                   </div>
 
                   <div class="review-unit">
@@ -408,7 +492,7 @@
             </div>
 
             <div class="preview-listing__row">
-              <span class="preview-listing__label review-preview-label">Periodo</span>
+              <span class="preview-listing__label review-preview-label">Período</span>
               <strong>{{ reviewPeriodLabel() }}</strong>
             </div>
 
@@ -439,7 +523,7 @@
 
           <button type="button" class="btn btn--primary" [disabled]="!isReadyToSave() || isSaving()" (click)="guardarUnidad()">
             <mat-icon>save</mat-icon>
-            <span>{{ isSaving() ? 'Guardando...' : 'Guardar unidad' }}</span>
+            <span>{{ isSaving() ? 'Guardando...' : saveActionLabel() }}</span>
           </button>
         </div>
       </div>
@@ -453,8 +537,8 @@
                   <mat-icon>calendar_month</mat-icon>
                 </div>
                 <div class="card-heading__copy">
-                  <h2>Configura las fechas y clases de la unidad</h2>
-                  <p>Define el periodo en que se trabajara esta unidad y el sistema calculara las clases disponibles segun tu horario semanal.</p>
+                  <h2>{{ step3Title() }}</h2>
+                  <p>{{ step3Description() }}</p>
                 </div>
               </div>
 
@@ -494,7 +578,7 @@
               <section class="days-panel">
                 <div class="days-panel__title">
                   <mat-icon>schedule</mat-icon>
-                  <span>Dias de clases (segun horario)</span>
+                  <span>Dias de clases (según horario)</span>
                 </div>
 
                 <div class="days-panel__chips">
@@ -524,7 +608,7 @@
               <section class="calculated-panel">
                 <div class="calculated-panel__title">
                   <mat-icon>calculate</mat-icon>
-                  <span>Clases calculadas automaticamente</span>
+                  <span>Clases calculadas automáticamente</span>
                 </div>
 
                 <div class="calculated-panel__metrics">
@@ -541,6 +625,11 @@
                   <article class="calculated-metric">
                     <strong>{{ totalCalculatedClasses() }}</strong>
                     <span>Total clases</span>
+                  </article>
+
+                  <article class="calculated-metric">
+                    <strong>{{ projectedEndDateLabel() }}</strong>
+                    <span>Término estimado</span>
                   </article>
                 </div>
               </section>
@@ -623,7 +712,7 @@
             <div class="preview-listing__row preview-listing__row--stacked">
               <div class="preview-listing__label">
                 <mat-icon>date_range</mat-icon>
-                <span>Periodo</span>
+                <span>Período</span>
               </div>
               <strong>{{ previewPeriod() }}</strong>
             </div>
@@ -752,5 +841,17 @@
       [preselectedObjectiveIds]="selectedOtherUnitOaIds()"
       (close)="closeOtherUnitOaModal()"
       (applySelection)="applyOtherUnitOas($event)" />
+
+    <app-initial-education-oa-modal
+      [open]="isInitialEducationOaModalOpen()"
+      [courseLabel]="courseLabel()"
+      [subjectLabel]="subjectLabel()"
+      [ambitLabel]="prekinderAmbit()"
+      [nucleusLabel]="prekinderNucleus()"
+      [objectives]="initialEducationObjectiveOptions()"
+      [preselectedObjectiveIds]="selectedObjectives().map((objective) => objective.id)"
+      [preselectedIndicatorKeys]="selectedInitialEducationIndicatorKeys()"
+      (close)="closeInitialEducationOaModal()"
+      (applySelection)="applyInitialEducationOas($event)" />
   </main>
 </app-teacher-modern-layout>

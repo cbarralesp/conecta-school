@@ -13,11 +13,10 @@ const MODULE_ROUTE_BY_CODE: Record<string, string> = {
   ASIGNATURAS: '/dashboard/asignaturas',
   HORARIO: '/dashboard/horario',
   ASISTENCIA: '/dashboard/asistencia',
-  CALIFICACIONES: '/dashboard/calificaciones',
+  CALIFICACIONES: '/dashboard/calificaciónes',
   ACTIVIDADES: '/dashboard/actividades',
   CONTENIDO: '/dashboard/contenido',
   PLANIFICACIONES: '/dashboard/planificaciones-nuevo',
-  PLANIFICACION: '/dashboard/planificacion',
   USUARIOS: '/dashboard/administracion/usuarios',
   ROLES: '/dashboard/administracion/roles',
   MATRIZ_ACCESO: '/dashboard/administracion/matriz-acceso',
@@ -112,16 +111,6 @@ export class UserModuleAccessService {
   }
 
   private normalizedModuleCandidates(moduleCode: string): string[] {
-    const normalized = this.normalizeModuleCode(moduleCode);
-
-    if (normalized === 'PLANIFICACIONES') {
-      return ['PLANIFICACIONES', 'PLANIFICACION'];
-    }
-
-    if (normalized === 'PLANIFICACION') {
-      return ['PLANIFICACION', 'PLANIFICACIONES'];
-    }
-
-    return [normalized];
+    return [this.normalizeModuleCode(moduleCode)];
   }
 }

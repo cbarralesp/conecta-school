@@ -5,8 +5,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { forkJoin } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { SubjectApiService } from '../../../core/services/subject-api.service';
+import { CourseApiService } from '../../../core/services/course-api.service';
+import { Course } from '../../../core/models/course.models';
 import { Subject, SubjectPayload } from '../../../core/models/subject.models';
 import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
@@ -28,7 +31,10 @@ import { SubjectDialogComponent } from '../components/subject-dialog.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SubjectsPageComponent {
+  private static readonly SCHOOL_YEARS = [2025, 2026, 2027, 2028] as const;
+
   private readonly subjectApiService = inject(SubjectApiService);
+  private readonly courseApiService = inject(CourseApiService);
   private readonly authStateService = inject(AuthStateService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -36,11 +42,34 @@ export class SubjectsPageComponent {
   readonly user = this.authStateService.user;
   readonly displayedColumns = ['subject', 'teachers', 'referenceLevel', 'status', 'actions'];
   readonly subjects = signal<Subject[]>([]);
+  readonly courses = signal<Course[]>([]);
+  readonly schoolYears = SubjectsPageComponent.SCHOOL_YEARS;
+  readonly selectedSchoolYear = signal(this.defaultSchoolYear());
   readonly searchTerm = signal('');
   readonly levelFilter = signal<'all' | 'initial' | 'basic' | 'media'>('all');
+  readonly subjectsForSelectedYear = computed(() => {
+    const schoolYear = Number(this.selectedSchoolYear());
+    const courseIdsForYear = new Set(
+      this.courses()
+        .filter((course) => course.schoolYear === schoolYear)
+        .map((course) => course.id)
+    );
+
+    if (courseIdsForYear.size === 0) {
+      return this.subjects();
+    }
+
+    return this.subjects().filter((subject) => {
+      if ((subject.applicableCourseIds ?? []).length === 0) {
+        return true;
+      }
+
+      return subject.applicableCourseIds.some((courseId) => courseIdsForYear.has(courseId));
+    });
+  });
   readonly hasActiveFilters = computed(() => this.searchTerm().trim().length > 0 || this.levelFilter() !== 'all');
   readonly summaryCards = computed(() => {
-    const subjects = this.subjects();
+    const subjects = this.subjectsForSelectedYear();
     const totalSuggestedHours = subjects.reduce((total, subject) => total + subject.suggestedHours, 0);
     return [
       {
@@ -72,10 +101,10 @@ export class SubjectsPageComponent {
   readonly filteredSubjects = computed(() => {
     const currentFilter = this.levelFilter();
     if (currentFilter === 'all') {
-      return this.subjects();
+      return this.subjectsForSelectedYear();
     }
 
-    return this.subjects().filter((subject) => {
+    return this.subjectsForSelectedYear().filter((subject) => {
       if (currentFilter === 'initial') {
         return this.isInitialLevel(subject);
       }
@@ -162,6 +191,10 @@ export class SubjectsPageComponent {
     this.loadSubjects();
   }
 
+  updateSchoolYear(value: string): void {
+    this.selectedSchoolYear.set(value);
+  }
+
   getLevelLabel(subject: Subject): string {
     const normalizedLevel = this.getNormalizedLevel(subject);
     if (normalizedLevel.includes('inicial')) {
@@ -191,11 +224,17 @@ export class SubjectsPageComponent {
   }
 
   private loadSubjects(): void {
-    this.subjectApiService.findAll({
-      search: this.searchTerm(),
-      level: this.levelFilter()
+    forkJoin({
+      subjects: this.subjectApiService.findAll({
+        search: this.searchTerm(),
+        level: this.levelFilter()
+      }),
+      courses: this.courseApiService.findAll()
     }).subscribe({
-      next: (subjects) => this.subjects.set(subjects),
+      next: ({ subjects, courses }) => {
+        this.subjects.set(subjects);
+        this.courses.set(courses);
+      },
       error: (error: HttpErrorResponse) =>
         this.showError(error, 'No fue posible cargar las asignaturas')
     });
@@ -212,5 +251,12 @@ export class SubjectsPageComponent {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private defaultSchoolYear(): string {
+    const currentYear = new Date().getFullYear();
+    return this.schoolYears.includes(currentYear as typeof this.schoolYears[number])
+      ? `${currentYear}`
+      : `${this.schoolYears[0]}`;
   }
 }

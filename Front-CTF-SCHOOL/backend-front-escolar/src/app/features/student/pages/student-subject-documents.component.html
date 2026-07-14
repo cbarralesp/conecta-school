@@ -2,6 +2,7 @@
   title=""
   activeItem="subjects"
   dashboardRoute="/alumno"
+  [userName]="studentDisplayName()"
   userRole="Alumno"
   searchPlaceholder="Buscar documentos, asignaturas, actividades...">
   <main class="student-content">
@@ -11,99 +12,114 @@
         <p>Cargando documentos de la asignatura...</p>
       </section>
     } @else if (documentsView(); as view) {
-      <section class="subject-hero">
-        <div class="subject-hero__icon">
-          <mat-icon>palette</mat-icon>
+      <section class="page-header">
+        <div class="page-header__left">
+          <div class="page-header__title-row">
+            <div class="page-header__icon">
+              <mat-icon>menu_book</mat-icon>
+            </div>
+
+            <div class="page-header__copy">
+              <h1 class="page-header__title">{{ view.subject.subjectName }}</h1>
+              <p class="page-header__subtitle">
+                Revisa los documentos y materiales publicados para esta asignatura.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div class="subject-hero__copy">
-          <div class="subject-hero__breadcrumb">
-            <a routerLink="/alumno/asignaturas">Mis Asignaturas</a>
-            <mat-icon>chevron_right</mat-icon>
-            <span>{{ view.subject.subjectName }}</span>
-            <mat-icon>chevron_right</mat-icon>
-            <strong>Documentos</strong>
-          </div>
-          <h1>{{ view.subject.subjectName }}</h1>
-          <p>
-            {{ view.subject.semesterLabel }} &middot; {{ view.subject.teacherName }} &middot;
-            {{ view.subject.weeklyBlocks }} bloque / semana
-          </p>
+        <div class="page-header__actions">
+          <a mat-stroked-button routerLink="/alumno/asignaturas" class="page-header__back-button">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Volver</span>
+          </a>
         </div>
       </section>
 
       <section class="metrics-grid">
-        <mat-card appearance="outlined" class="metric-card tone-brand">
-          <div class="metric-card__icon">
-            <mat-icon>description</mat-icon>
+        <mat-card appearance="outlined" class="summary-card sc-blue">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>description</mat-icon>
+            </div>
           </div>
-          <div>
+          <div class="summary-card__copy">
             <strong>{{ view.metrics.totalDocuments }}</strong>
             <span>Documentos totales</span>
           </div>
         </mat-card>
 
-        <mat-card appearance="outlined" class="metric-card tone-success">
-          <div class="metric-card__icon">
-            <mat-icon>visibility</mat-icon>
+        <mat-card appearance="outlined" class="summary-card sc-green">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>visibility</mat-icon>
+            </div>
           </div>
-          <div>
+          <div class="summary-card__copy">
             <strong>{{ view.metrics.reviewedDocuments }}</strong>
             <span>Documentos revisados</span>
           </div>
         </mat-card>
 
-        <mat-card appearance="outlined" class="metric-card tone-warning">
-          <div class="metric-card__icon">
-            <mat-icon>fiber_new</mat-icon>
+        <mat-card appearance="outlined" class="summary-card sc-yellow">
+          <div class="summary-card__head">
+            <div class="summary-card__icon">
+              <mat-icon>fiber_new</mat-icon>
+            </div>
           </div>
-          <div>
+          <div class="summary-card__copy">
             <strong>{{ view.metrics.newDocuments }}</strong>
             <span>Nuevos para ver</span>
           </div>
         </mat-card>
       </section>
 
-      <section class="toolbar-panel">
-        <div class="filter-chips">
-          @for (filter of view.filters; track filter.code) {
-            <button
-              mat-stroked-button
-              type="button"
-              class="filter-chip"
-              [class.is-active]="activeFilter() === filter.code"
-              (click)="setFilter(filter.code)"
-            >
-              <mat-icon>
-                {{
-                  filter.code === 'PDF'
-                    ? 'picture_as_pdf'
-                    : filter.code === 'WORD'
-                      ? 'description'
-                      : filter.code === 'PPT'
-                        ? 'slideshow'
-                        : filter.code === 'IMAGEN'
-                          ? 'image'
-                          : 'layers'
-                }}
-              </mat-icon>
-              <span>{{ filter.label }}</span>
-              <span class="filter-chip__count">{{ filter.count }}</span>
-            </button>
-          }
-        </div>
+      <mat-card appearance="outlined" class="filters-card">
+        <section class="toolbar-panel">
+          <div class="filter-chips">
+            @for (filter of view.filters; track filter.code) {
+              <button
+                mat-stroked-button
+                type="button"
+                class="filter-chip"
+                [class.filter-chip--all]="filter.code === 'TODOS'"
+                [class.filter-chip--pdf]="filter.code === 'PDF'"
+                [class.filter-chip--word]="filter.code === 'WORD'"
+                [class.filter-chip--ppt]="filter.code === 'PPT'"
+                [class.filter-chip--image]="filter.code === 'IMAGEN'"
+                [class.is-active]="activeFilter() === filter.code"
+                (click)="setFilter(filter.code)"
+              >
+                <mat-icon>
+                  {{
+                    filter.code === 'PDF'
+                      ? 'picture_as_pdf'
+                      : filter.code === 'WORD'
+                        ? 'description'
+                        : filter.code === 'PPT'
+                          ? 'slideshow'
+                          : filter.code === 'IMAGEN'
+                            ? 'image'
+                            : 'layers'
+                  }}
+                </mat-icon>
+                <span>{{ filter.label }}</span>
+                <span class="filter-chip__count">{{ filter.count }}</span>
+              </button>
+            }
+          </div>
 
-        <mat-form-field appearance="outline" class="toolbar-search">
-          <mat-label>Buscar documento</mat-label>
+          <label class="toolbar-search" aria-label="Buscar documento">
+            <mat-icon>description</mat-icon>
           <input
-            matInput
             [value]="searchTerm()"
             (input)="searchTerm.set(($any($event.target).value ?? '').toString())"
             placeholder="Nombre, tipo o material"
           />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-      </section>
+          <mat-icon>search</mat-icon>
+          </label>
+        </section>
+      </mat-card>
 
       @if (visibleUnits().length === 0) {
         <section class="empty-state">
@@ -117,20 +133,24 @@
             <mat-card appearance="outlined" class="unit-card">
               <header class="unit-card__header">
                 <div class="unit-card__lead">
-                  <div class="unit-card__badge">{{ unit.unitNumber }}</div>
+                  <div class="unit-card__badge">U{{ unit.unitNumber }}</div>
                   <div class="unit-card__copy">
-                    <h2>{{ unit.unitName }}</h2>
+                    <h2>{{ view.subject.courseName }} - {{ view.subject.subjectName }}</h2>
+                    <p class="unit-card__context unit-card__context--primary">U{{ unit.unitNumber }}: {{ unit.unitName }}</p>
+                    <p class="unit-card__context">{{ view.subject.courseName }} &middot; {{ view.subject.subjectName }}</p>
                     <div class="unit-card__meta">
                       <span><mat-icon>view_agenda</mat-icon>{{ unit.totalClasses }} clases</span>
                       <span><mat-icon>description</mat-icon>{{ unit.totalDocuments }} documentos</span>
-                      <span><mat-icon>schedule</mat-icon>{{ unit.durationWeeks }} semanas</span>
+                      <span><mat-icon>schedule</mat-icon>{{ unit.durationWeeks }}</span>
                     </div>
                   </div>
                 </div>
 
                 <div class="unit-card__progress">
                   <strong>{{ unit.progressPercent }}% completado</strong>
-                  <mat-progress-bar mode="determinate" [value]="unit.progressPercent"></mat-progress-bar>
+                  <div class="unit-card__progress-track">
+                    <div class="unit-card__progress-fill" [style.width.%]="unit.progressPercent"></div>
+                  </div>
                 </div>
               </header>
 
@@ -139,12 +159,13 @@
                   <mat-expansion-panel class="class-panel" [expanded]="subjectClass.hasNewDocuments">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
-                        <span class="class-panel__dot" [class.is-new]="subjectClass.hasNewDocuments"></span>
+                        <span class="class-panel__line"></span>
+                        <span class="class-panel__number">{{ $index + 1 }}</span>
                         <span class="class-panel__title">{{ subjectClass.classTitle }}</span>
                       </mat-panel-title>
                       <mat-panel-description>
                         @if (subjectClass.hasNewDocuments) {
-                          <span class="class-panel__badge">Nuevo</span>
+                          <span class="class-panel__badge">Nueva</span>
                         }
                         <span class="class-panel__date">{{ subjectClass.classDate }}</span>
                       </mat-panel-description>
@@ -170,22 +191,22 @@
                           </div>
 
                           <div class="document-card__copy">
-                            <strong>{{ document.fileName }}</strong>
-                            <div class="document-card__meta">
-                              <span>{{ document.fileSizeLabel }}</span>
-                              <span>{{ document.metaLabel }}</span>
-                              <span>{{ document.publishedAt }}</span>
+                            <button type="button" class="document-card__title" (click)="openDocument(document)" [title]="document.fileName">
+                              {{ document.fileName }}
+                            </button>
+                            <div class="document-card__meta document-card__meta--primary">
+                              <span><mat-icon>dns</mat-icon>{{ document.fileSizeLabel }}</span>
+                              <span><mat-icon>description</mat-icon>{{ document.metaLabel }}</span>
+                            </div>
+                            <div class="document-card__meta document-card__meta--secondary">
+                              <span><mat-icon>calendar_today</mat-icon>{{ document.publishedAt }}</span>
                             </div>
                           </div>
 
-                          <div class="document-card__status">
+                          <div class="document-card__actions">
                             <span class="status-badge" [class.is-new]="document.isNew" [class.is-reviewed]="document.reviewed">
                               {{ document.reviewed ? 'Revisado' : 'Nuevo' }}
                             </span>
-                          </div>
-
-                          <div class="document-card__actions">
-                            <button mat-stroked-button type="button" (click)="openDocument(document)">Ver</button>
                             <button mat-icon-button type="button" (click)="downloadDocument(document)" aria-label="Descargar documento">
                               <mat-icon>download</mat-icon>
                             </button>

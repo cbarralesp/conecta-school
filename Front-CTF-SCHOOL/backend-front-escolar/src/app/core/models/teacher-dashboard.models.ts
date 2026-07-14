@@ -17,21 +17,6 @@ export interface TeacherScheduleItem {
   room: string;
 }
 
-export interface TeacherPlanningItem {
-  id: number;
-  title: string;
-  unit: string;
-  learningObjective: string;
-  status: string;
-  classDate: string;
-  courseName: string;
-  subjectName: string;
-  resources: string;
-  activities: string;
-  evaluation: string;
-  observations: string;
-}
-
 export interface TeacherDashboard {
   teacherCode: string;
   teacherName: string;
@@ -42,33 +27,4 @@ export interface TeacherDashboard {
   assignedCourses: TeacherAssignedCourse[];
   weeklySchedule: TeacherScheduleItem[];
   todaySchedulePreview: TeacherScheduleItem[];
-  planningItems: TeacherPlanningItem[];
-}
-
-export interface TeacherPlanningDetail {
-  id: number;
-  title: string;
-  unit: string;
-  learningObjective: string;
-  status: string;
-  classDate: string;
-  courseName: string;
-  subjectName: string;
-  teacherName: string;
-  resources: string;
-  activities: string;
-  evaluation: string;
-  observations: string;
-}
-
-export interface TeacherPlanningUpdateRequest {
-  title: string;
-  unit: string;
-  learningObjective: string;
-  status: string;
-  classDate: string;
-  resources: string;
-  activities: string;
-  evaluation: string;
-  observations: string;
 }

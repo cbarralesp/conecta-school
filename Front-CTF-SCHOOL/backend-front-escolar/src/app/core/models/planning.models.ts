@@ -29,6 +29,7 @@ export interface PlanningUnitPayload {
   courseId: number;
   unitNumber: string;
   name: string;
+  colorHex: string;
   startWeek: number | null;
   startDate: string;
   endDate: string;
@@ -49,6 +50,7 @@ export interface PlanningUnit {
   unitNumber: string;
   unitNumberLabel: string;
   name: string;
+  colorHex: string;
   startWeek: number | null;
   startDate: string;
   endDate: string;
@@ -67,6 +69,7 @@ export interface PlanningUnitSummary {
   id: number;
   unitNumberLabel: string;
   name: string;
+  colorHex: string;
   subjectName: string;
   courseName: string;
   status: 'BORRADOR' | 'CREADA' | 'ACTIVA' | 'COMPLETADA';
@@ -83,6 +86,8 @@ export interface PlanningClassCatalogUnit {
   subjectName: string;
   courseId: number;
   courseName: string;
+  schoolYear: number | null;
+  semester: number | null;
   status: string;
 }
 
@@ -184,7 +189,7 @@ export interface PlanningClass {
   objectiveCode: string;
   objectiveTitle: string;
   objectiveDescription: string;
-  evaluationType: 'FORMATIVA' | 'SUMATIVA' | 'DIAGNOSTICA' | 'SIN_EVALUACION';
+  evaluationType: 'FORMATIVA' | 'PROCESO' | 'SUMATIVA' | 'DIAGNOSTICA' | 'SIN_EVALUACION';
   startActivity: string;
   developmentActivity: string;
   closingActivity: string;
@@ -303,13 +308,17 @@ export interface PlanningSummaryUnit {
   id: number;
   code: string;
   name: string;
+  unitColorHex: string | null;
   subjectId: number;
   subjectName: string;
+  subjectColorHex: string | null;
   courseName: string;
   plannedClasses: number;
   totalClasses: number;
   publishedClasses: number;
   totalDocuments: number;
+  startDate: string | null;
+  endDate: string | null;
   weekRange: string;
   progressPercent: number;
   status: PlanningSummaryStatus;

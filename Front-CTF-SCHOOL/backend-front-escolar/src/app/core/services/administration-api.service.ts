@@ -34,7 +34,6 @@ const CANONICAL_MODULE_ORDER = [
   'ACTIVIDADES',
   'CONTENIDO',
   'PLANIFICACIONES',
-  'PLANIFICACION',
   'USUARIOS',
   'ROLES',
   'MATRIZ_ACCESO',
@@ -43,7 +42,7 @@ const CANONICAL_MODULE_ORDER = [
 
 const CANONICAL_MODULE_NAME_BY_CODE: Record<string, string> = {
   DASHBOARD: 'Dashboard',
-  MATRICULAS: 'Matrículas',
+  MATRICULAS: 'Matriculas',
   PROFESORES: 'Docentes',
   CURSOS: 'Cursos',
   HORARIO: 'Horario',
@@ -53,7 +52,6 @@ const CANONICAL_MODULE_NAME_BY_CODE: Record<string, string> = {
   ACTIVIDADES: 'Actividades',
   CONTENIDO: 'Contenido',
   PLANIFICACIONES: 'Planificaciones',
-  PLANIFICACION: 'Planificación',
   USUARIOS: 'Usuarios',
   ROLES: 'Roles',
   MATRIZ_ACCESO: 'Matriz de acceso',
@@ -286,7 +284,8 @@ export class AdministrationApiService {
     return {
       code: role.code,
       name: normalizeDashboardText(role.name),
-      description: normalizeDashboardText(role.description)
+      description: normalizeDashboardText(role.description),
+      userCount: Number.isFinite(role.userCount) ? role.userCount : 0
     };
   }
 

@@ -1,6 +1,9 @@
 .course-students-page {
   display: grid;
   gap: 0.95rem;
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .page-header {
@@ -50,6 +53,14 @@
   white-space: nowrap;
 }
 
+.header-button :where(.mdc-button__label) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+}
+
 .header-button--ghost {
   border-color: #d8e3ef !important;
   color: #51667f !important;
@@ -59,6 +70,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .filters-card,
@@ -148,6 +160,7 @@
 
 .table-shell {
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .students-table {
@@ -380,7 +393,7 @@
   .page-header__actions,
   .filters-bar__right {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
   }
 }
 
@@ -392,8 +405,42 @@
 }
 
 @media (max-width: 720px) {
+  .course-students-page {
+    gap: 0.85rem;
+  }
+
+  .course-students-page > * {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-self: stretch;
+    box-sizing: border-box;
+  }
+
+  .page-header,
+  .filters-bar,
+  .students-card__header {
+    display: grid;
+    text-align: center;
+    justify-items: center;
+    width: 100%;
+  }
+
+  .page-header__left,
+  .page-header__actions,
+  .filters-bar__left,
+  .filters-bar__right {
+    width: 100%;
+    justify-content: center;
+  }
+
   .summary-grid {
     grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .summary-grid app-summary-metric-card {
+    width: 100%;
   }
 
   .page-header__title {
@@ -403,5 +450,149 @@
   .filters-card :where(.mat-mdc-card-content),
   .students-card :where(.mat-mdc-card-content) {
     padding: 0.95rem;
+  }
+
+  .page-header__actions button,
+  .filters-bar__right button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .table-shell {
+    overflow: visible;
+    width: 100%;
+  }
+
+  .students-table,
+  .students-table tbody,
+  .students-table tr,
+  .students-table td {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .students-table,
+  .students-table tbody,
+  .students-table tr {
+    display: block !important;
+  }
+
+  :host ::ng-deep .students-table tbody,
+  :host ::ng-deep .students-table .mdc-data-table__content,
+  :host ::ng-deep .students-table .mat-mdc-row,
+  :host ::ng-deep .students-table .mat-mdc-header-row {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  :host ::ng-deep .students-table .mat-mdc-cell {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .students-table td {
+    display: block;
+  }
+
+  .students-table thead {
+    display: none;
+  }
+
+  .students-table tr {
+    margin-bottom: 0.85rem;
+    padding: 0.85rem;
+    border: 1px solid #e5ecf4;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  .students-table td {
+    min-height: 0;
+    padding: 0.62rem 0 !important;
+    border-bottom: 1px solid #edf2f7;
+    text-align: left;
+  }
+
+  .students-table td:last-child {
+    border-bottom: 0;
+    padding-bottom: 0 !important;
+  }
+
+  .students-table td:not(.actions-cell) {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 0.7rem;
+    align-items: center;
+  }
+
+  .students-table td::before {
+    color: #7e90ad;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .students-table td:nth-child(1)::before { content: 'Alumno'; }
+  .students-table td:nth-child(2)::before { content: 'Apoderado'; }
+  .students-table td:nth-child(3)::before { content: 'Contacto'; }
+  .students-table td:nth-child(4)::before { content: 'Asistencia'; }
+  .students-table td:nth-child(5)::before { content: 'Promedio'; }
+  .students-table td:nth-child(6)::before { content: 'Estado'; }
+
+  .student-name-cell {
+    justify-content: flex-start;
+  }
+
+  .student-name-copy strong,
+  .student-name-copy span,
+  .guardian-cell,
+  .contact-cell span,
+  .contact-cell small {
+    overflow-wrap: anywhere;
+  }
+
+  .status-indicator {
+    justify-items: start;
+  }
+
+  .actions-cell {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    white-space: normal;
+  }
+
+  .actions-cell .mat-mdc-icon-button {
+    width: 42px;
+    height: 42px;
+    border: 1px solid #fee2e2;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .students-table td:not(.actions-cell) {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 0.35rem;
+  }
+
+  .student-name-cell,
+  .status-indicator {
+    justify-content: center;
+    justify-items: center;
   }
 }

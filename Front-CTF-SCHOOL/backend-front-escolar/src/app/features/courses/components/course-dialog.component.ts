@@ -430,7 +430,24 @@ interface CourseDialogData {
 
     @media (max-width: 720px) {
       .dialog-panel {
-        width: calc(100% - 1rem);
+        width: calc(100vw - 0.75rem);
+        max-height: calc(100dvh - 0.75rem);
+        border-radius: 22px;
+      }
+
+      .dialog-panel__header {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .dialog-panel__close {
+        justify-self: center;
+      }
+
+      .dialog-panel__body {
+        max-height: calc(100dvh - 11.5rem);
+        padding-inline: 0.95rem;
       }
 
       .dialog-form {
@@ -444,11 +461,25 @@ interface CourseDialogData {
 
       .dialog-panel__footer {
         flex-direction: column;
+        align-items: stretch;
       }
 
       .dialog-panel__footer .header-button {
         width: 100%;
         justify-content: center;
+      }
+
+      .dialog-section__title,
+      .dialog-section__title--spaced {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .assignment-student-row {
+        display: grid;
+        justify-items: center;
+        text-align: center;
       }
     }
   `,

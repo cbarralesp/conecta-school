@@ -8,10 +8,22 @@
     <section class="subjects-page__heading">
       <div class="subjects-page__heading-copy">
         <h1>Asignaturas del sistema</h1>
-        <p>Administra las asignaturas del establecimiento.</p>
+        <p>Administra las asignaturas del establecimiento para el año {{ selectedSchoolYear() }}.</p>
       </div>
 
       <div class="subjects-page__actions">
+        <label class="header-filter" aria-label="Filtrar por año">
+          <span class="header-filter__label">Año</span>
+          <span class="select-shell">
+            <mat-icon>calendar_month</mat-icon>
+            <select class="filter-select" [value]="selectedSchoolYear()" (change)="updateSchoolYear(($any($event.target).value ?? '').toString())">
+              @for (schoolYear of schoolYears; track schoolYear) {
+                <option [value]="schoolYear.toString()" [selected]="selectedSchoolYear() === schoolYear.toString()">{{ schoolYear }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
         <button mat-flat-button type="button" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
           Crear asignatura
@@ -56,17 +68,17 @@
 
     <mat-card appearance="outlined" class="subjects-card subjects-card--table">
       <mat-card-content>
-        @if (filteredSubjects().length === 0 && hasActiveFilters()) {
-          <section class="empty-state empty-state--compact">
-            <mat-icon>search_off</mat-icon>
-            <strong>No encontramos coincidencias</strong>
-            <p>Ajusta la busqueda o cambia el filtro de nivel para ver mas asignaturas.</p>
-          </section>
-        } @else if (subjects().length === 0) {
+        @if (subjects().length === 0) {
           <section class="empty-state">
             <mat-icon>library_books</mat-icon>
             <strong>No hay asignaturas registradas</strong>
-            <p>Crea la primera asignatura del catalogo academico.</p>
+            <p>Crea la primera asignatura del catálogo académico.</p>
+          </section>
+        } @else if (filteredSubjects().length === 0) {
+          <section class="empty-state empty-state--compact">
+            <mat-icon>search_off</mat-icon>
+            <strong>No encontramos coincidencias</strong>
+            <p>Ajusta el año, la busqueda o cambia el filtro de nivel para ver mas asignaturas.</p>
           </section>
         } @else {
           <div class="table-shell">

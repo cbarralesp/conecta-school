@@ -1,18 +1,28 @@
+import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { resolveCurrentAcademicSemester } from '../../../core/utils/academic-semester';
 import {
   AddOaOtherUnitModalComponent,
   OtherUnitObjectiveOption,
   OtherUnitOption
 } from '../components/add-oa-other-unit-modal.component';
 import {
+  InitialEducationOaModalComponent,
+  InitialEducationObjectiveOption,
+  InitialEducationSelectedObjective
+} from '../components/initial-education-oa-modal.component';
+import {
+  PlanningSummaryUnit,
   PlanningUnitCatalogAssignment,
   PlanningUnitPayload
 } from '../../../core/models/planning.models';
+import { Course } from '../../../core/models/course.models';
+import { Subject } from '../../../core/models/subject.models';
 import {
   StudyProgramDetail,
   StudyProgramObjectiveDetail,
@@ -20,14 +30,32 @@ import {
   StudyProgramUnit
 } from '../../../core/models/study-program.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { CourseApiService } from '../../../core/services/course-api.service';
+import { InitialEducationCurriculumApiService } from '../../../core/services/initial-education-curriculum-api.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
 import { StudyProgramApiService } from '../../../core/services/study-program-api.service';
+import { SubjectApiService } from '../../../core/services/subject-api.service';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
+import { InitialEducationCurriculumDetail } from '../../../core/models/initial-education-curriculum.models';
 
 type SelectOption = {
   value: string;
   label: string;
+};
+
+type PrekinderSubjectMapping = {
+  key: string;
+  visibleLabel: string;
+  ambit: string;
+  nucleus: string;
+  programSubjectName: string;
+  subjectAliases: string[];
+};
+
+type PrekinderSubjectOption = PrekinderSubjectMapping & {
+  subjectId: string;
+  subjectName: string;
 };
 
 type ColorOption = {
@@ -38,6 +66,7 @@ type ColorOption = {
 type StepItem = {
   number: number;
   label: string;
+  actualStep: number;
 };
 
 type PreviewMetric = {
@@ -86,7 +115,8 @@ type UnidadPrograma = {
     MatIconModule,
     MatSnackBarModule,
     TeacherModernLayoutComponent,
-    AddOaOtherUnitModalComponent
+    AddOaOtherUnitModalComponent,
+    InitialEducationOaModalComponent
   ],
   templateUrl: './plannings-unit-create-page.component.html',
   styleUrl: './plannings-unit-create-page.component.scss',
@@ -94,22 +124,125 @@ type UnidadPrograma = {
 })
 export class PlanningsUnitCreatePageComponent {
   private readonly authStateService = inject(AuthStateService);
+  private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly courseApiService = inject(CourseApiService);
+  private readonly subjectApiService = inject(SubjectApiService);
   private readonly planningApiService = inject(PlanningApiService);
   private readonly studyProgramApiService = inject(StudyProgramApiService);
+  private readonly initialEducationCurriculumApiService = inject(InitialEducationCurriculumApiService);
   private readonly scheduleApiService = inject(ScheduleApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private programLookupRequestId = 0;
+  private initialEducationLookupRequestId = 0;
 
   readonly user = this.authStateService.user;
-
-  readonly steps: StepItem[] = [
-    { number: 1, label: 'Curso y asignatura' },
-    { number: 2, label: 'Unidad del programa' },
-    { number: 3, label: 'Fechas y clases' },
-    { number: 4, label: 'Objetivos OA' },
-    { number: 5, label: 'Revision' }
+  private readonly prekinderMappings: readonly PrekinderSubjectMapping[] = [
+    {
+      key: 'lecto-escritura',
+      visibleLabel: 'Lecto escritura',
+      ambit: 'Comunicacion Integral',
+      nucleus: 'Lenguaje Verbal',
+      programSubjectName: 'Lenguaje Verbal',
+      subjectAliases: ['Lecto escritura', 'Lectoescritura', 'Lenguaje verbal', 'Lenguaje']
+    },
+    {
+      key: 'lectura-compartida',
+      visibleLabel: 'Lectura compartida',
+      ambit: 'Comunicacion Integral',
+      nucleus: 'Lenguaje Verbal',
+      programSubjectName: 'Lenguaje Verbal',
+      subjectAliases: ['Lectura compartida', 'Lecto escritura', 'Lectoescritura', 'Lenguaje verbal', 'Lenguaje']
+    },
+    {
+      key: 'artes',
+      visibleLabel: 'Artes',
+      ambit: 'Comunicacion Integral',
+      nucleus: 'Lenguajes Artisticos',
+      programSubjectName: 'Lenguajes Artisticos',
+      subjectAliases: ['Artes']
+    },
+    {
+      key: 'musica',
+      visibleLabel: 'Musica',
+      ambit: 'Comunicacion Integral',
+      nucleus: 'Lenguajes Artisticos',
+      programSubjectName: 'Lenguajes Artisticos',
+      subjectAliases: ['Musica']
+    },
+    {
+      key: 'matematica',
+      visibleLabel: 'Matemática',
+      ambit: 'Interaccion y Comprension del Entorno',
+      nucleus: 'Pensamiento Matematico',
+      programSubjectName: 'Pensamiento Matematico',
+      subjectAliases: ['Matemática']
+    },
+    {
+      key: 'ciencias-naturales',
+      visibleLabel: 'Ciencias naturales',
+      ambit: 'Interaccion y Comprension del Entorno',
+      nucleus: 'Exploracion del Entorno Natural',
+      programSubjectName: 'Exploracion del Entorno Natural',
+      subjectAliases: ['Ciencias naturales']
+    },
+    {
+      key: 'entorno-sociocultural',
+      visibleLabel: 'Social',
+      ambit: 'Interaccion y Comprension del Entorno',
+      nucleus: 'Comprension del Entorno Sociocultural',
+      programSubjectName: 'Comprension del Entorno Sociocultural',
+      subjectAliases: ['Social', 'Comprension del Entorno Sociocultural']
+    },
+    {
+      key: 'educacion-fisica',
+      visibleLabel: 'Educacion Fisica',
+      ambit: 'Desarrollo Personal y Social',
+      nucleus: 'Corporalidad y Movimiento',
+      programSubjectName: 'Corporalidad y Movimiento',
+      subjectAliases: ['Educacion Fisica']
+    },
+    {
+      key: 'social',
+      visibleLabel: 'Social',
+      ambit: 'Desarrollo Personal y Social',
+      nucleus: 'Identidad y Autonomia',
+      programSubjectName: 'Identidad y Autonomia',
+      subjectAliases: ['Social', 'Formacion personal y social', 'Identidad y Autonomia']
+    },
+    {
+      key: 'social-convivencia',
+      visibleLabel: 'Social',
+      ambit: 'Desarrollo Personal y Social',
+      nucleus: 'Convivencia y Ciudadania',
+      programSubjectName: 'Convivencia y Ciudadania',
+      subjectAliases: ['Social', 'Formacion personal y social', 'Convivencia y ciudadania']
+    },
+    {
+      key: 'ingles',
+      visibleLabel: 'Ingles',
+      ambit: 'Taller Complementario',
+      nucleus: 'Institucional',
+      programSubjectName: 'Ingles',
+      subjectAliases: ['Ingles']
+    }
   ];
+
+  readonly steps = computed<StepItem[]>(() => this.isInitialEducationFlow()
+    ? [
+        { number: 1, label: 'Curso y asignatura', actualStep: 1 },
+        { number: 2, label: 'Fechas y clases', actualStep: 3 },
+        { number: 3, label: 'Objetivos OA', actualStep: 4 },
+        { number: 4, label: 'Revision', actualStep: 5 }
+      ]
+    : [
+        { number: 1, label: 'Curso y asignatura', actualStep: 1 },
+        { number: 2, label: 'Unidad del programa', actualStep: 2 },
+        { number: 3, label: 'Fechas y clases', actualStep: 3 },
+        { number: 4, label: 'Objetivos OA', actualStep: 4 },
+        { number: 5, label: 'Revision', actualStep: 5 }
+      ]);
 
   readonly colors: ColorOption[] = [
     { value: '#6d28d9', label: 'Violeta' },
@@ -142,28 +275,38 @@ export class PlanningsUnitCreatePageComponent {
   readonly isContinuing = signal(false);
   readonly isUnitModalOpen = signal(false);
   readonly isOtherUnitOaModalOpen = signal(false);
+  readonly isInitialEducationOaModalOpen = signal(false);
   readonly isSaving = signal(false);
   readonly assignments = signal<PlanningUnitCatalogAssignment[]>([]);
+  readonly availableCourses = signal<Course[]>([]);
+  readonly availableSubjects = signal<Subject[]>([]);
   readonly availablePrograms = signal<StudyProgramSummary[]>([]);
   readonly selectedProgram = signal<StudyProgramDetail | null>(null);
+  readonly initialEducationObjectives = signal<InitialEducationObjectiveOption[]>([]);
   readonly unidadesFiltradas = signal<UnidadPrograma[]>([]);
   readonly selectedUnidad = signal<UnidadPrograma | null>(null);
   readonly appliedUnidad = signal<UnidadPrograma | null>(null);
   readonly addedOtherUnitOas = signal<OtherUnitObjectiveOption[]>([]);
+  readonly initialEducationSelectedObjectives = signal<ObjetivoAprendizaje[]>([]);
   readonly editingUnitId = signal<number | null>(null);
   readonly hydratedUnitId = signal<number | null>(null);
   readonly year = signal('');
   readonly course = signal('');
   readonly subject = signal('');
-  readonly semester = signal('1');
+  readonly prekinderAmbit = signal('');
+  readonly prekinderNucleus = signal('');
+  readonly prekinderVisibleSubjectKey = signal('');
+  readonly semester = signal(String(resolveCurrentAcademicSemester()));
   readonly selectedColor = signal('#6d28d9');
   readonly colorManuallySelected = signal(false);
   readonly existingUnitsCount = signal(0);
+  readonly latestExistingUnitEndDate = signal<string | null>(null);
   readonly validationMessage = signal('');
   readonly step3ValidationMessage = signal('');
   readonly reviewValidationMessage = signal('');
   readonly startDate = signal('');
   readonly endDate = signal('');
+  readonly dateRangeManuallyEdited = signal(false);
   readonly selectedClassDays = signal<string[]>(['Lunes', 'Miercoles', 'Viernes']);
   readonly manualClassAdjustment = signal<number | null>(null);
 
@@ -174,45 +317,143 @@ export class PlanningsUnitCreatePageComponent {
 
   readonly courses = computed<SelectOption[]>(() => {
     const selectedYear = this.year();
-    const unique = new Map<string, string>();
+    const courseMap = new Map<string, SelectOption>();
 
-    for (const assignment of this.assignments()) {
-      if (selectedYear && String(assignment.schoolYear) !== selectedYear) {
-        continue;
-      }
-      if (!unique.has(String(assignment.courseId))) {
-        unique.set(String(assignment.courseId), assignment.courseName);
-      }
-    }
+    this.assignments()
+      .filter((assignment) => !selectedYear || String(assignment.schoolYear) === selectedYear)
+      .forEach((assignment) => {
+        const value = String(assignment.courseId);
+        if (courseMap.has(value)) {
+          return;
+        }
 
-    return Array.from(unique.entries()).map(([value, label]) => ({ value, label }));
+        const course = this.availableCourses().find((item) => item.id === assignment.courseId);
+        const label = course?.letter
+          ? `${course.name} ${course.letter}`
+          : assignment.courseName;
+
+        courseMap.set(value, {
+          value,
+          label
+        });
+      });
+
+    return Array.from(courseMap.values())
+      .sort((left, right) => left.label.localeCompare(right.label, 'es', { numeric: true, sensitivity: 'base' }));
   });
 
   readonly subjects = computed<SelectOption[]>(() => {
-    const selectedYear = this.year();
     const selectedCourse = this.course();
-    const unique = new Map<string, string>();
+    const subjectMap = new Map<string, SelectOption>();
 
-    for (const assignment of this.assignments()) {
-      if (selectedYear && String(assignment.schoolYear) !== selectedYear) {
-        continue;
-      }
-      if (selectedCourse && String(assignment.courseId) !== selectedCourse) {
-        continue;
-      }
-      if (!unique.has(String(assignment.subjectId))) {
-        unique.set(String(assignment.subjectId), assignment.subjectName);
-      }
-    }
+    this.assignments()
+      .filter((assignment) => !selectedCourse || String(assignment.courseId) === selectedCourse)
+      .forEach((assignment) => {
+        const value = String(assignment.subjectId);
+        if (subjectMap.has(value)) {
+          return;
+        }
 
-    return Array.from(unique.entries()).map(([value, label]) => ({ value, label }));
+        const subject = this.availableSubjects().find((item) => item.id === assignment.subjectId);
+        subjectMap.set(value, {
+          value,
+          label: subject?.name ?? assignment.subjectName
+        });
+      });
+
+    return Array.from(subjectMap.values())
+      .sort((left, right) => left.label.localeCompare(right.label, 'es', { numeric: true, sensitivity: 'base' }));
   });
 
   readonly yearLabel = computed(() => this.findLabel(this.years(), this.year()));
   readonly courseLabel = computed(() => this.findLabel(this.courses(), this.course()));
-  readonly subjectLabel = computed(() => this.findLabel(this.subjects(), this.subject()));
+  readonly selectedCourseModel = computed(() =>
+    this.availableCourses().find((course) => String(course.id) === this.course()) ?? null
+  );
+  readonly isPrekinderFlow = computed(() => this.matchesPrekinderCourse(this.selectedCourseModel()));
+  readonly initialEducationProgramGrade = computed(() => this.resolveInitialEducationProgramGrade(this.selectedCourseModel()));
+  readonly prekinderSubjectOptions = computed<PrekinderSubjectOption[]>(() => {
+    if (!this.isInitialEducationFlow()) {
+      return [];
+    }
+
+    const selectedCourseId = Number(this.course());
+    const availableSubjects = this.availableSubjects()
+      .filter((subject) =>
+        this.assignments().some((assignment) =>
+          assignment.subjectId === subject.id
+          && (!selectedCourseId || assignment.courseId === selectedCourseId)
+        )
+      );
+
+    return this.prekinderMappings.flatMap((mapping) => {
+      const matchedSubject = availableSubjects.find((subject) =>
+        mapping.subjectAliases.some((alias) => this.normalizeMatchText(alias) === this.normalizeMatchText(subject.name))
+      );
+
+      if (!matchedSubject) {
+        return [];
+      }
+
+      return [{
+        ...mapping,
+        subjectId: String(matchedSubject.id),
+        subjectName: matchedSubject.name
+      }];
+    });
+  });
+  readonly prekinderAmbitOptions = computed<SelectOption[]>(() => {
+    const values = Array.from(new Set(this.prekinderSubjectOptions().map((item) => item.ambit)));
+    return values.map((value) => ({ value, label: value }));
+  });
+  readonly prekinderNucleusOptions = computed<SelectOption[]>(() => {
+    const selectedAmbit = this.prekinderAmbit();
+    const values = Array.from(
+      new Set(
+        this.prekinderSubjectOptions()
+          .filter((item) => !selectedAmbit || item.ambit === selectedAmbit)
+          .map((item) => item.nucleus)
+      )
+    );
+    return values.map((value) => ({ value, label: value }));
+  });
+  readonly filteredPrekinderSubjectOptions = computed<SelectOption[]>(() =>
+    Array.from(new Set(this.prekinderSubjectOptions().map((item) => item.visibleLabel)))
+      .map((label) => ({ value: label, label }))
+  );
+  readonly selectedPrekinderSubject = computed(() =>
+    this.resolvePreferredPrekinderSubjectByVisibleLabel(this.prekinderVisibleSubjectKey())
+  );
+  readonly isInitialEducationFlow = computed(() => this.matchesInitialEducationCourse(this.selectedCourseModel()));
+  readonly unitEntitySingular = computed(() => this.isInitialEducationFlow() ? 'ámbito' : 'unidad');
+  readonly unitEntitySingularCapitalized = computed(() => this.isInitialEducationFlow() ? 'ámbito' : 'Unidad');
+  readonly unitEntityPluralCapitalized = computed(() => this.isInitialEducationFlow() ? 'ámbitos' : 'Unidades');
+  readonly pageTitle = computed(() => this.isInitialEducationFlow() ? 'Nuevo ámbito' : 'Nueva unidad');
+  readonly pageSubtitle = computed(() => this.isInitialEducationFlow()
+    ? 'Nuevo ámbito para la planificación de educación inicial.'
+    : 'Nueva unidad para las unidades de aprendizaje.'
+  );
+  readonly stepAriaLabel = computed(() => `Pasos de ${this.pageTitle().toLowerCase()}`);
+  readonly selectionCardDescription = computed(() => this.isInitialEducationFlow()
+    ? 'Estos datos determinaran los ámbitos disponibles desde la ruta curricular oficial.'
+    : 'Estos datos determinaran las unidades disponibles desde el programa oficial Mineduc.'
+  );
+  readonly colorSectionLabel = computed(() => `Color del ${this.unitEntitySingular()}`);
+  readonly manualCreateLabel = computed(() => `Crear ${this.unitEntitySingular()} manual`);
+  readonly reviewTitle = computed(() => `Revision final del ${this.unitEntitySingular()}`);
+  readonly selectedEntityLabel = computed(() => `${this.unitEntitySingularCapitalized()} seleccionado`);
+  readonly saveActionLabel = computed(() => `Guardar ${this.unitEntitySingular()}`);
+  readonly step3Title = computed(() => `Configura las fechas y clases del ${this.unitEntitySingular()}`);
+  readonly step3Description = computed(() =>
+    `Define el periodo en que se trabajara este ${this.unitEntitySingular()} y el sistema calculara las clases disponibles según tu horario semanal.`
+  );
+  readonly subjectLabel = computed(() => this.selectedPrekinderSubject()?.visibleLabel ?? this.findLabel(this.subjects(), this.subject()));
+  readonly resolvedProgramSubjectName = computed(() =>
+    this.selectedPrekinderSubject()?.programSubjectName ?? this.findLabel(this.subjects(), this.subject())
+  );
+  readonly resolvedProgramGrade = computed(() => this.initialEducationProgramGrade() ?? this.extractGradeFromCourse(this.courseLabel()));
   readonly semesterLabel = computed(() => this.semester() === '2' ? 'Segundo semestre' : 'Primer semestre');
-  readonly appliedUnitTitle = computed(() => this.appliedUnidad()?.nombre || 'Unidad sin seleccionar');
+  readonly appliedUnitTitle = computed(() => this.appliedUnidad()?.nombre || `${this.unitEntitySingularCapitalized()} sin seleccionar`);
   readonly appliedUnitNumber = computed(() => this.appliedUnidad()?.numero ?? 0);
   readonly calculatedWeeks = computed(() => this.calculateWeeks(this.startDate(), this.endDate()));
   readonly classesPerWeek = computed(() => this.selectedClassDays().length);
@@ -221,8 +462,16 @@ export class PlanningsUnitCreatePageComponent {
     const manual = this.manualClassAdjustment();
     return manual && manual > 0 ? manual : this.totalCalculatedClasses();
   });
+  readonly projectedEndDate = computed(() =>
+    this.calculateProjectedEndDate(this.startDate(), this.selectedClassDays(), this.finalEstimatedClasses())
+  );
+  readonly projectedEndDateLabel = computed(() => this.formatFechaCorta(this.projectedEndDate()));
   readonly previewPeriod = computed(() => this.formatPeriodPreview(this.startDate(), this.endDate()));
   readonly selectedObjectives = computed<ObjetivoAprendizaje[]>(() => {
+    if (this.isInitialEducationFlow()) {
+      return this.initialEducationSelectedObjectives();
+    }
+
     const result = new Map<string, ObjetivoAprendizaje>();
 
     for (const objective of this.appliedUnidad()?.oa ?? []) {
@@ -243,17 +492,39 @@ export class PlanningsUnitCreatePageComponent {
 
     return Array.from(result.values());
   });
+  readonly hasInitialEducationCurriculum = computed(() =>
+    this.isInitialEducationFlow() &&
+    !!this.year() &&
+    !!this.course() &&
+    !!this.subject() &&
+    !!this.semester() &&
+    !!this.prekinderAmbit() &&
+    !!this.prekinderNucleus() &&
+    this.initialEducationObjectiveOptions().length > 0
+  );
   readonly programReference = computed(() => {
+    if (this.isInitialEducationFlow()) {
+      if (this.hasInitialEducationCurriculum()) {
+        return `Ruta curricular de educación inicial cargada para ${this.initialEducationProgramGrade() ?? 'educación inicial'} · ${this.subjectLabel()} · ${this.prekinderAmbit()} · ${this.prekinderNucleus()}.`;
+      }
+
+      return this.hasSelectionContext()
+        ? 'No se encontro una ruta curricular de educación inicial para la selección actual. Puedes continuar con un ámbito manual.'
+        : 'Selecciona curso, asignatura visible, ámbito y nucleo para cargar la ruta curricular de educación inicial.';
+    }
+
     const program = this.selectedProgram();
     if (!program) {
-      return 'No se encontro un programa oficial disponible para la seleccion actual.';
+      return this.hasSelectionContext()
+        ? 'No se encontro un programa oficial disponible para la selección actual. Puedes continuar con una unidad manual.'
+        : 'No se encontro un programa oficial disponible para la selección actual.';
     }
-    return `Esta planificacion se basa en el Programa de Estudio ${program.grade}, ${program.decree}, ${program.edition}.`;
+    return `Esta planificación se basa en el Programa de Estudio ${program.grade}, ${program.decree}, ${program.edition}.`;
   });
   readonly reviewProgramLabel = computed(() => {
     const program = this.selectedProgram();
     if (!program) {
-      return 'Programa oficial sin referencia';
+      return `${this.unitEntitySingularCapitalized()} manual sin programa oficial`;
     }
     return `Programa ${program.decree} · ${program.edition}`;
   });
@@ -276,19 +547,35 @@ export class PlanningsUnitCreatePageComponent {
     return `Dias: ${days.join(' · ')} · ${this.classesPerWeek()} clases/semana`;
   });
   readonly saveStateLabel = computed(() => this.isReadyToSave() ? 'Lista para guardar' : 'Faltan datos para guardar');
+  readonly hasSelectionContext = computed(() =>
+    !!this.year() && !!this.course() && !!this.subject() && !!this.semester()
+  );
+  readonly canCreateManualUnit = computed(() => {
+    if (!this.hasSelectionContext()) {
+      return false;
+    }
+
+    if (this.isInitialEducationFlow()) {
+      return !this.hasInitialEducationCurriculum();
+    }
+
+    return !this.selectedProgram();
+  });
 
   readonly metricCards = computed<PreviewMetric[]>(() => {
     const program = this.selectedProgram();
+    const availableUnits = this.unidadesFiltradas();
+    const availableObjectives = availableUnits.reduce((total, unit) => total + (unit.totalOa ?? 0), 0);
     return [
       {
-        label: 'Unidades disponibles',
-        value: program?.totalUnits ?? 0,
+        label: `${this.unitEntityPluralCapitalized()} disponibles`,
+        value: availableUnits.length,
         icon: 'menu_book',
         tone: 'violet'
       },
       {
         label: 'OA disponibles',
-        value: program?.totalObjectives ?? 0,
+        value: availableObjectives,
         icon: 'task_alt',
         tone: 'green'
       },
@@ -318,9 +605,19 @@ export class PlanningsUnitCreatePageComponent {
   readonly otherUnitOptions = computed<OtherUnitOption[]>(() =>
     this.buildOtherUnitOptions(this.selectedProgram())
   );
+  readonly initialEducationObjectiveOptions = computed<InitialEducationObjectiveOption[]>(() =>
+    this.initialEducationObjectives()
+  );
+  readonly selectedInitialEducationIndicatorKeys = computed(() =>
+    this.initialEducationSelectedObjectives().flatMap((objective) =>
+      (objective.evaluationIndicators ?? []).map((indicator) => `${objective.id}::${indicator}`)
+    )
+  );
   readonly selectedOtherUnitOaIds = computed(() => this.addedOtherUnitOas().map((item) => item.id));
 
   constructor() {
+    this.loadCourses();
+    this.loadSubjects();
     this.loadCatalogs();
   }
 
@@ -352,6 +649,7 @@ export class PlanningsUnitCreatePageComponent {
     this.year.set(value);
     this.syncCourseSelection();
     this.syncSubjectSelection();
+    this.syncUnitEditorRoute();
     this.colorManuallySelected.set(false);
     this.loadProgramForSelection();
     this.loadExistingUnitsForColorSuggestion();
@@ -360,6 +658,8 @@ export class PlanningsUnitCreatePageComponent {
   updateCourse(value: string): void {
     this.course.set(value);
     this.syncSubjectSelection();
+    this.syncUnitEditorRoute();
+    this.initialEducationSelectedObjectives.set([]);
     this.colorManuallySelected.set(false);
     this.loadProgramForSelection();
     this.loadExistingUnitsForColorSuggestion();
@@ -367,6 +667,43 @@ export class PlanningsUnitCreatePageComponent {
 
   updateSubject(value: string): void {
     this.subject.set(value);
+    this.syncPrekinderSelectorsFromCurrentSubject();
+    this.syncUnitEditorRoute();
+    this.initialEducationSelectedObjectives.set([]);
+    this.colorManuallySelected.set(false);
+    this.loadProgramForSelection();
+    this.loadExistingUnitsForColorSuggestion();
+  }
+
+  updatePrekinderAmbit(value: string): void {
+    this.prekinderAmbit.set(value);
+    this.syncPrekinderNucleusSelection();
+    this.syncPrekinderVisibleSubjectSelection();
+    this.syncUnitEditorRoute();
+    this.initialEducationSelectedObjectives.set([]);
+    this.colorManuallySelected.set(false);
+    this.loadProgramForSelection();
+    this.loadExistingUnitsForColorSuggestion();
+  }
+
+  updatePrekinderNucleus(value: string): void {
+    this.prekinderNucleus.set(value);
+    this.syncPrekinderVisibleSubjectSelection();
+    this.syncUnitEditorRoute();
+    this.initialEducationSelectedObjectives.set([]);
+    this.colorManuallySelected.set(false);
+    this.loadProgramForSelection();
+    this.loadExistingUnitsForColorSuggestion();
+  }
+
+  updatePrekinderVisibleSubject(value: string): void {
+    this.prekinderVisibleSubjectKey.set(value);
+    const selected = this.resolvePreferredPrekinderSubjectByVisibleLabel(value);
+    this.subject.set(selected?.subjectId ?? '');
+    this.prekinderAmbit.set(selected?.ambit ?? '');
+    this.prekinderNucleus.set(selected?.nucleus ?? '');
+    this.syncUnitEditorRoute();
+    this.initialEducationSelectedObjectives.set([]);
     this.colorManuallySelected.set(false);
     this.loadProgramForSelection();
     this.loadExistingUnitsForColorSuggestion();
@@ -374,6 +711,7 @@ export class PlanningsUnitCreatePageComponent {
 
   updateSemester(value: string): void {
     this.semester.set(value);
+    this.syncUnitEditorRoute();
     this.colorManuallySelected.set(false);
     this.loadProgramForSelection();
     this.loadExistingUnitsForColorSuggestion();
@@ -385,8 +723,16 @@ export class PlanningsUnitCreatePageComponent {
       return;
     }
 
+    if (this.isInitialEducationFlow()) {
+      this.validationMessage.set('');
+      this.step3ValidationMessage.set('');
+      this.reviewValidationMessage.set('');
+      this.prepareInitialEducationFlow();
+      return;
+    }
+
     if (!this.selectedProgram()) {
-      this.validationMessage.set('No se encontro un programa oficial asociado a la seleccion actual.');
+      this.validationMessage.set('No se encontro un programa oficial asociado a la selección actual.');
       return;
     }
 
@@ -409,6 +755,37 @@ export class PlanningsUnitCreatePageComponent {
     });
   }
 
+  createManualUnit(): void {
+    if (!this.hasSelectionContext()) {
+      this.validationMessage.set(`Debes completar año, curso, asignatura y semestre para crear un ${this.unitEntitySingular()} manual.`);
+      return;
+    }
+
+    this.validationMessage.set('');
+    this.step3ValidationMessage.set('');
+    this.reviewValidationMessage.set('');
+
+    const manualUnit = this.createManualUnitDraft();
+    this.unidadesFiltradas.set([manualUnit]);
+    this.selectedUnidad.set(manualUnit);
+    this.appliedUnidad.set(manualUnit);
+    this.closeUnitModal();
+    this.initializeStep3Form();
+    this.loadScheduleDaysForCurrentSelection();
+    this.activeStep.set(3);
+  }
+
+  goToManualClass(): void {
+    void this.router.navigate(['/dashboard/planificaciones-nuevo/nueva-clase'], {
+      queryParams: {
+        year: this.year() || undefined,
+        courseId: this.course() || undefined,
+        subjectId: this.subject() || undefined,
+        semester: this.semester() || undefined
+      }
+    });
+  }
+
   canNavigateToStep(step: number): boolean {
     if (step === this.activeStep()) {
       return true;
@@ -418,13 +795,16 @@ export class PlanningsUnitCreatePageComponent {
       case 1:
         return true;
       case 2:
+        if (this.isInitialEducationFlow()) {
+          return false;
+        }
         return this.hasStep1Data();
       case 3:
         return !!this.appliedUnidad();
       case 4:
         return !!this.appliedUnidad() && this.validateStep3();
       case 5:
-        return this.selectedObjectives().length > 0;
+        return !!this.appliedUnidad() && this.validateStep3() && this.canContinueWithoutObjectives();
       default:
         return false;
     }
@@ -442,11 +822,16 @@ export class PlanningsUnitCreatePageComponent {
     if (step === 1) {
       this.closeUnitModal();
       this.closeOtherUnitOaModal();
+      this.closeInitialEducationOaModal();
       this.activeStep.set(1);
       return;
     }
 
     if (step === 2) {
+      if (this.isInitialEducationFlow()) {
+        return;
+      }
+
       this.closeOtherUnitOaModal();
       this.openUnitModal();
       return;
@@ -455,6 +840,7 @@ export class PlanningsUnitCreatePageComponent {
     if (step === 3) {
       this.closeUnitModal();
       this.closeOtherUnitOaModal();
+      this.closeInitialEducationOaModal();
       this.activeStep.set(3);
       return;
     }
@@ -462,6 +848,10 @@ export class PlanningsUnitCreatePageComponent {
     if (step === 4) {
       this.closeUnitModal();
       this.activeStep.set(4);
+      if (this.isInitialEducationFlow()) {
+        this.openInitialEducationOaModal();
+        return;
+      }
       this.openOtherUnitOaModal();
       return;
     }
@@ -469,6 +859,7 @@ export class PlanningsUnitCreatePageComponent {
     if (step === 5) {
       this.closeUnitModal();
       this.closeOtherUnitOaModal();
+      this.closeInitialEducationOaModal();
       this.activeStep.set(5);
     }
   }
@@ -504,12 +895,36 @@ export class PlanningsUnitCreatePageComponent {
     this.isOtherUnitOaModalOpen.set(false);
   }
 
+  openInitialEducationOaModal(): void {
+    this.isInitialEducationOaModalOpen.set(true);
+  }
+
+  closeInitialEducationOaModal(): void {
+    this.isInitialEducationOaModalOpen.set(false);
+  }
+
   applyOtherUnitOas(objectives: OtherUnitObjectiveOption[]): void {
     this.addedOtherUnitOas.set(objectives);
     this.isOtherUnitOaModalOpen.set(false);
     this.reviewValidationMessage.set('');
     this.activeStep.set(5);
     this.snackBar.open(`${objectives.length} OA agregados desde otras unidades.`, 'Cerrar', {
+      duration: 2800
+    });
+  }
+
+  applyInitialEducationOas(objectives: InitialEducationSelectedObjective[]): void {
+    this.initialEducationSelectedObjectives.set(objectives.map((objective) => ({
+      id: objective.id,
+      codigo: objective.codigo,
+      descripcion: objective.descripcion,
+      eje: objective.eje,
+      evaluationIndicators: objective.evaluationIndicators
+    })));
+    this.isInitialEducationOaModalOpen.set(false);
+    this.reviewValidationMessage.set('');
+    this.activeStep.set(5);
+    this.snackBar.open(`${objectives.length} OA seleccionados para educación inicial.`, 'Cerrar', {
       duration: 2800
     });
   }
@@ -552,12 +967,14 @@ export class PlanningsUnitCreatePageComponent {
 
   updateStartDate(value: string): void {
     this.startDate.set(value);
+    this.dateRangeManuallyEdited.set(true);
     this.step3ValidationMessage.set('');
     this.reviewValidationMessage.set('');
   }
 
   updateEndDate(value: string): void {
     this.endDate.set(value);
+    this.dateRangeManuallyEdited.set(true);
     this.step3ValidationMessage.set('');
     this.reviewValidationMessage.set('');
   }
@@ -583,6 +1000,11 @@ export class PlanningsUnitCreatePageComponent {
 
   goBackToStep2(): void {
     this.step3ValidationMessage.set('');
+    if (this.isInitialEducationFlow()) {
+      this.activeStep.set(1);
+      return;
+    }
+
     this.activeStep.set(2);
     this.openUnitModal();
   }
@@ -595,19 +1017,41 @@ export class PlanningsUnitCreatePageComponent {
 
     this.step3ValidationMessage.set('');
     this.reviewValidationMessage.set('');
+    if (this.isInitialEducationFlow()) {
+      this.activeStep.set(4);
+      this.openInitialEducationOaModal();
+      return;
+    }
+
+    if (!this.selectedProgram()) {
+      this.activeStep.set(5);
+      return;
+    }
+
     this.activeStep.set(4);
     this.openOtherUnitOaModal();
   }
 
   goBackToStep4(): void {
     this.reviewValidationMessage.set('');
+    if (this.isInitialEducationFlow()) {
+      this.activeStep.set(4);
+      this.openInitialEducationOaModal();
+      return;
+    }
+
+    if (!this.selectedProgram()) {
+      this.activeStep.set(3);
+      return;
+    }
+
     this.activeStep.set(4);
     this.openOtherUnitOaModal();
   }
 
   guardarUnidad(): void {
     if (!this.isReadyToSave()) {
-      this.reviewValidationMessage.set('Faltan datos para guardar la unidad.');
+      this.reviewValidationMessage.set(`Faltan datos para guardar el ${this.unitEntitySingular()}.`);
       return;
     }
 
@@ -623,9 +1067,13 @@ export class PlanningsUnitCreatePageComponent {
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.snackBar.open(editingUnitId != null ? 'La unidad fue actualizada correctamente.' : 'La unidad fue guardada correctamente.', 'Cerrar', {
-          duration: 3200
-        });
+        this.snackBar.open(
+          editingUnitId != null
+            ? `El ${this.unitEntitySingular()} fue actualizado correctamente.`
+            : `El ${this.unitEntitySingular()} fue guardado correctamente.`,
+          'Cerrar',
+          { duration: 3200 }
+        );
         this.router.navigate(['/dashboard/planificaciones-nuevo'], {
           queryParams: {
             year: this.year(),
@@ -639,7 +1087,7 @@ export class PlanningsUnitCreatePageComponent {
         this.isSaving.set(false);
         const message = typeof error.error?.message === 'string'
           ? error.error.message
-          : 'No fue posible guardar la unidad.';
+          : `No fue posible guardar el ${this.unitEntitySingular()}.`;
         this.reviewValidationMessage.set(message);
         this.snackBar.open(message, 'Cerrar', { duration: 3500 });
       }
@@ -656,7 +1104,7 @@ export class PlanningsUnitCreatePageComponent {
       && this.startDate()
       && this.endDate()
       && this.finalEstimatedClasses() > 0
-      && this.selectedObjectives().length > 0
+      && this.canContinueWithoutObjectives()
     );
   }
 
@@ -700,13 +1148,16 @@ export class PlanningsUnitCreatePageComponent {
       return this.activeStep() > 1;
     }
     if (stepNumber === 2) {
+      if (this.isInitialEducationFlow()) {
+        return this.activeStep() > 1 && !!this.appliedUnidad();
+      }
       return this.activeStep() > 2 && !!this.appliedUnidad();
     }
     if (stepNumber === 3) {
       return this.activeStep() > 3 && this.validateStep3();
     }
     if (stepNumber === 4) {
-      return this.activeStep() > 4 && this.selectedObjectives().length > 0;
+      return this.activeStep() > 4 && this.canContinueWithoutObjectives();
     }
     return false;
   }
@@ -753,6 +1204,7 @@ export class PlanningsUnitCreatePageComponent {
       next: (catalogs) => {
         this.assignments.set(catalogs.teachingAssignments);
         this.initializeSelectionsFromRoute();
+        this.syncUnitEditorRoute();
         this.loadProgramForSelection();
       },
       error: (error: HttpErrorResponse) => {
@@ -760,6 +1212,66 @@ export class PlanningsUnitCreatePageComponent {
         this.showError(error, 'No fue posible cargar los cursos y asignaturas');
       }
     });
+  }
+
+  private loadCourses(): void {
+    this.courseApiService.findAll().subscribe({
+      next: (courses) => {
+        this.availableCourses.set(courses.filter((course) => course.active));
+        this.syncCourseSelection();
+        this.syncSubjectSelection();
+        this.loadProgramForSelection();
+        this.loadExistingUnitsForColorSuggestion();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos disponibles')
+    });
+  }
+
+  private loadSubjects(): void {
+    this.subjectApiService.findAll().subscribe({
+      next: (subjects) => {
+        this.availableSubjects.set(subjects.filter((subject) => subject.active));
+        this.syncSubjectSelection();
+        this.syncUnitEditorRoute();
+        this.loadProgramForSelection();
+        this.loadExistingUnitsForColorSuggestion();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar las asignaturas disponibles')
+    });
+  }
+
+  private syncUnitEditorRoute(): void {
+    const currentPath = this.router.url.split('?')[0] ?? '';
+    const targetPath = this.isInitialEducationFlow()
+      ? '/dashboard/planificaciones-nuevo/nuevo-ámbito'
+      : '/dashboard/planificaciones-nuevo/nueva-unidad';
+
+    if (currentPath === targetPath) {
+      return;
+    }
+
+    if (
+      currentPath !== '/dashboard/planificaciones-nuevo/nueva-unidad' &&
+      currentPath !== '/dashboard/planificaciones-nuevo/nuevo-ámbito'
+    ) {
+      return;
+    }
+
+    const nextUrl = this.router.serializeUrl(this.router.createUrlTree([targetPath], {
+      queryParams: this.buildCurrentEditorQueryParams()
+    }));
+
+    this.location.replaceState(nextUrl);
+  }
+
+  private buildCurrentEditorQueryParams(): Record<string, string | number | undefined> {
+    return {
+      year: this.year() || undefined,
+      courseId: this.course() || undefined,
+      subjectId: this.subject() || undefined,
+      semester: this.semester() || undefined,
+      unitId: this.editingUnitId() ?? undefined
+    };
   }
 
   private initializeSelectionsFromRoute(): void {
@@ -774,7 +1286,7 @@ export class PlanningsUnitCreatePageComponent {
 
     this.syncCourseSelection(courseIdParam ?? undefined);
     this.syncSubjectSelection(subjectIdParam ?? undefined);
-    this.semester.set(semesterParam === '2' ? '2' : '1');
+    this.semester.set(semesterParam === '2' ? '2' : String(resolveCurrentAcademicSemester()));
     this.editingUnitId.set(unitIdParam ? Number(unitIdParam) : null);
     this.loadExistingUnitsForColorSuggestion();
   }
@@ -783,7 +1295,7 @@ export class PlanningsUnitCreatePageComponent {
     const options = this.courses();
     const current = preferredValue ?? this.course();
     const exists = options.some((item) => item.value === current);
-    this.course.set(exists ? current : (options[0]?.value ?? ''));
+    this.course.set(exists ? current : this.resolveSuggestedCourseValue(options));
   }
 
   private syncSubjectSelection(preferredValue?: string): void {
@@ -791,46 +1303,110 @@ export class PlanningsUnitCreatePageComponent {
     const current = preferredValue ?? this.subject();
     const exists = options.some((item) => item.value === current);
     this.subject.set(exists ? current : (options[0]?.value ?? ''));
+    this.syncPrekinderSelectorsFromCurrentSubject();
+  }
+
+  private resolveSuggestedCourseValue(options: SelectOption[]): string {
+    if (!options.length) {
+      return '';
+    }
+
+    const selectedYear = this.year();
+    const subjectCountsByCourse = new Map<string, { label: string; subjectIds: Set<string> }>();
+
+    for (const assignment of this.assignments()) {
+      if (selectedYear && String(assignment.schoolYear) !== selectedYear) {
+        continue;
+      }
+
+      const key = String(assignment.courseId);
+      const current = subjectCountsByCourse.get(key) ?? {
+        label: assignment.courseName,
+        subjectIds: new Set<string>()
+      };
+      current.subjectIds.add(String(assignment.subjectId));
+      subjectCountsByCourse.set(key, current);
+    }
+
+    const rankedCourseValue = Array.from(subjectCountsByCourse.entries())
+      .sort((left, right) => {
+        const subjectDiff = right[1].subjectIds.size - left[1].subjectIds.size;
+        if (subjectDiff !== 0) {
+          return subjectDiff;
+        }
+
+        return left[1].label.localeCompare(right[1].label, 'es', { sensitivity: 'base' });
+      })[0]?.[0] ?? '';
+
+    return options.find((item) => item.value === rankedCourseValue)?.value ?? options[0]?.value ?? '';
   }
 
   private loadProgramForSelection(): void {
-    const subjectName = this.subjectLabel();
-    const grade = this.extractGradeFromCourse(this.courseLabel());
+    const requestId = ++this.programLookupRequestId;
+    const subjectName = this.resolvedProgramSubjectName();
+    const grade = this.resolvedProgramGrade();
+    this.loadInitialEducationCurriculumForSelection();
 
     if (!subjectName || !grade) {
-      this.availablePrograms.set([]);
-      this.selectedProgram.set(null);
-      this.isLoading.set(false);
+      if (requestId === this.programLookupRequestId) {
+        this.availablePrograms.set([]);
+        this.selectedProgram.set(null);
+        this.unidadesFiltradas.set([]);
+        this.selectedUnidad.set(null);
+        this.isLoading.set(false);
+      }
       return;
     }
 
     this.isLoading.set(true);
     this.studyProgramApiService.findPrograms({ subjectName, grade }).subscribe({
       next: (programs) => {
+        if (requestId !== this.programLookupRequestId) {
+          return;
+        }
+
         this.availablePrograms.set(programs);
         const selected = programs[0] ?? null;
         if (!selected) {
           this.selectedProgram.set(null);
+          this.unidadesFiltradas.set([]);
+          this.selectedUnidad.set(null);
           this.isLoading.set(false);
           return;
         }
 
         this.studyProgramApiService.getProgram(selected.id).subscribe({
           next: (program) => {
+            if (requestId !== this.programLookupRequestId) {
+              return;
+            }
+
             this.selectedProgram.set(program);
             this.cargarUnidadesDelPrograma();
             this.hydrateEditingUnit();
           },
           error: (error: HttpErrorResponse) => {
+            if (requestId !== this.programLookupRequestId) {
+              return;
+            }
+
             this.selectedProgram.set(null);
+            this.unidadesFiltradas.set([]);
+            this.selectedUnidad.set(null);
             this.isLoading.set(false);
             this.showError(error, 'No fue posible cargar el detalle del programa');
           }
         });
       },
       error: (error: HttpErrorResponse) => {
+        if (requestId !== this.programLookupRequestId) {
+          return;
+        }
+
         this.availablePrograms.set([]);
         this.selectedProgram.set(null);
+        this.unidadesFiltradas.set([]);
+        this.selectedUnidad.set(null);
         this.isLoading.set(false);
         this.showError(error, 'No fue posible buscar el programa oficial');
       }
@@ -845,6 +1421,7 @@ export class PlanningsUnitCreatePageComponent {
 
     if (!year || !courseId || !subjectId || !semester) {
       this.existingUnitsCount.set(0);
+      this.latestExistingUnitEndDate.set(null);
       this.applySuggestedColor();
       return;
     }
@@ -852,15 +1429,29 @@ export class PlanningsUnitCreatePageComponent {
     this.planningApiService.getPlanningSummary({ year, courseId, subjectId, semester }).subscribe({
       next: (summary) => {
         const editingUnitId = this.editingUnitId();
-        const count = summary.units.filter((unit) => unit.id !== editingUnitId).length;
-        this.existingUnitsCount.set(count);
+        const existingUnits = summary.units.filter((unit) => unit.id !== editingUnitId);
+        this.existingUnitsCount.set(existingUnits.length);
+        this.latestExistingUnitEndDate.set(this.resolveLatestUnitEndDate(existingUnits));
+        this.refreshSuggestedDateRange();
         this.applySuggestedColor();
       },
       error: () => {
         this.existingUnitsCount.set(0);
+        this.latestExistingUnitEndDate.set(null);
+        this.refreshSuggestedDateRange();
         this.applySuggestedColor();
       }
     });
+  }
+
+  private resolveLatestUnitEndDate(units: PlanningSummaryUnit[]): string | null {
+    const dates = units
+      .map((unit) => unit.endDate)
+      .filter((date): date is string => !!date)
+      .filter((date) => !Number.isNaN(new Date(`${date}T00:00:00`).getTime()))
+      .sort((left, right) => new Date(`${right}T00:00:00`).getTime() - new Date(`${left}T00:00:00`).getTime());
+
+    return dates[0] ?? null;
   }
 
   private applySuggestedColor(): void {
@@ -879,6 +1470,121 @@ export class PlanningsUnitCreatePageComponent {
     return courseName.replace(/\s+[A-Z]$/i, '').trim();
   }
 
+  private matchesPrekinderCourse(course: Course | null): boolean {
+    if (!course) {
+      return false;
+    }
+
+    const labels = [course.name, course.level, course.code];
+    return labels.some((value) => {
+      const normalized = this.normalizeMatchText(value);
+      return normalized.includes('PREKINDER') || normalized.includes('NT1');
+    });
+  }
+
+  private matchesInitialEducationCourse(course: Course | null): boolean {
+    if (!course) {
+      return false;
+    }
+
+    const labels = [course.name, course.level, course.code];
+    return labels.some((value) => {
+      const normalized = this.normalizeMatchText(value);
+      return normalized.includes('PREKINDER')
+        || normalized.includes('KINDER')
+        || normalized.includes('NT1')
+        || normalized.includes('NT2');
+    });
+  }
+
+  private resolveInitialEducationProgramGrade(course: Course | null): 'NT1' | 'NT2' | null {
+    if (!course) {
+      return null;
+    }
+
+    const labels = [course.name, course.level, course.code];
+    for (const value of labels) {
+      const normalized = this.normalizeMatchText(value);
+      if (normalized.includes('PREKINDER') || normalized.includes('NT1')) {
+        return 'NT1';
+      }
+      if (normalized.includes('KINDER') || normalized.includes('NT2')) {
+        return 'NT2';
+      }
+    }
+
+    return null;
+  }
+
+  private normalizeMatchText(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase();
+  }
+
+  private syncPrekinderSelectorsFromCurrentSubject(): void {
+    if (!this.isInitialEducationFlow()) {
+      this.prekinderAmbit.set('');
+      this.prekinderNucleus.set('');
+      this.prekinderVisibleSubjectKey.set('');
+      this.initialEducationObjectives.set([]);
+      return;
+    }
+
+    const currentSubjectId = this.subject();
+    const currentVisibleLabel = this.prekinderVisibleSubjectKey();
+    const selectedByLabel = this.resolvePreferredPrekinderSubjectByVisibleLabel(currentVisibleLabel);
+
+    if (selectedByLabel && selectedByLabel.subjectId === currentSubjectId) {
+      this.prekinderVisibleSubjectKey.set(selectedByLabel.visibleLabel);
+      this.prekinderAmbit.set(selectedByLabel.ambit);
+      this.prekinderNucleus.set(selectedByLabel.nucleus);
+      return;
+    }
+
+    const selected = this.prekinderSubjectOptions().find((item) => item.subjectId === currentSubjectId) ?? null;
+    this.prekinderVisibleSubjectKey.set(selected?.visibleLabel ?? '');
+    this.prekinderAmbit.set(selected?.ambit ?? '');
+    this.prekinderNucleus.set(selected?.nucleus ?? '');
+  }
+
+  private syncPrekinderNucleusSelection(): void {
+    const options = this.prekinderNucleusOptions();
+    const current = this.prekinderNucleus();
+    const exists = options.some((item) => item.value === current);
+    this.prekinderNucleus.set(exists ? current : (options[0]?.value ?? ''));
+  }
+
+  private syncPrekinderVisibleSubjectSelection(): void {
+    const options = this.filteredPrekinderSubjectOptions();
+    const current = this.prekinderVisibleSubjectKey();
+    const exists = options.some((item) => item.value === current);
+    const nextKey = exists ? current : (options[0]?.value ?? '');
+    this.prekinderVisibleSubjectKey.set(nextKey);
+
+    const selected = this.resolvePreferredPrekinderSubjectByVisibleLabel(nextKey);
+    this.subject.set(selected?.subjectId ?? '');
+  }
+
+  private resolvePreferredPrekinderSubjectByVisibleLabel(visibleLabel: string): PrekinderSubjectOption | null {
+    if (!visibleLabel) {
+      return null;
+    }
+
+    const normalizedVisibleLabel = this.normalizeMatchText(visibleLabel);
+    const matches = this.prekinderSubjectOptions()
+      .filter((item) => this.normalizeMatchText(item.visibleLabel) === normalizedVisibleLabel);
+
+    if (!matches.length) {
+      return null;
+    }
+
+    const currentSubjectId = this.subject();
+    return matches.find((item) => item.subjectId === currentSubjectId) ?? matches[0] ?? null;
+  }
+
   private findLabel(options: SelectOption[], value: string): string {
     return options.find((option) => option.value === value)?.label ?? '';
   }
@@ -887,9 +1593,27 @@ export class PlanningsUnitCreatePageComponent {
     const { startDate, endDate } = this.resolveDefaultUnitDateRange();
     this.startDate.set(startDate);
     this.endDate.set(endDate);
+    this.dateRangeManuallyEdited.set(false);
     this.manualClassAdjustment.set(null);
     this.step3ValidationMessage.set('');
     this.reviewValidationMessage.set('');
+  }
+
+  private refreshSuggestedDateRange(): void {
+    if (this.editingUnitId() != null || !this.appliedUnidad() || this.dateRangeManuallyEdited()) {
+      return;
+    }
+
+    const defaultRange = this.resolveSemesterDefaultDateRange();
+    const hasDefaultDates = this.startDate() === defaultRange.startDate && this.endDate() === defaultRange.endDate;
+    const hasEmptyDates = !this.startDate() && !this.endDate();
+    if (!hasDefaultDates && !hasEmptyDates) {
+      return;
+    }
+
+    const suggestedRange = this.resolveDefaultUnitDateRange();
+    this.startDate.set(suggestedRange.startDate);
+    this.endDate.set(suggestedRange.endDate);
   }
 
   private hydrateEditingUnit(): void {
@@ -918,6 +1642,8 @@ export class PlanningsUnitCreatePageComponent {
 
         this.startDate.set(unit.startDate);
         this.endDate.set(unit.endDate);
+        this.selectedColor.set(unit.colorHex || this.suggestedColor());
+        this.colorManuallySelected.set(true);
         this.manualClassAdjustment.set(unit.plannedClasses > 0 ? unit.plannedClasses : null);
         this.reviewValidationMessage.set('');
         this.step3ValidationMessage.set('');
@@ -962,7 +1688,7 @@ export class PlanningsUnitCreatePageComponent {
             const scheduleDays = Array.from(
               new Set(
                 entries
-                  .filter((entry) => entry.subjectId === subjectId && entry.blockType === 'CLASE')
+                  .filter((entry) => this.matchesSelectedScheduleSubject(entry, subjectId) && entry.blockType === 'CLASE')
                   .map((entry) => this.normalizeScheduleDay(entry.dayOfWeek))
                   .filter((day): day is string => !!day)
               )
@@ -982,6 +1708,25 @@ export class PlanningsUnitCreatePageComponent {
         this.isLoadingSchedule.set(false);
       }
     });
+  }
+
+  private matchesSelectedScheduleSubject(entry: { subjectId: number; subjectName: string }, subjectId: number): boolean {
+    if (entry.subjectId === subjectId) {
+      return true;
+    }
+
+    const selectedSubject = this.availableSubjects().find((item) => item.id === subjectId);
+    const normalizedCandidates = new Set(
+      [
+        selectedSubject?.name,
+        this.subjectLabel(),
+        this.resolvedProgramSubjectName()
+      ]
+        .map((value) => this.normalizeMatchText(value))
+        .filter((value) => !!value)
+    );
+
+    return normalizedCandidates.has(this.normalizeMatchText(entry.subjectName));
   }
 
   private mapProgramUnit(unit: StudyProgramUnit): UnidadPrograma {
@@ -1051,7 +1796,7 @@ export class PlanningsUnitCreatePageComponent {
         number: 0,
         name: 'Transversal',
         type: 'transversal',
-        helperText: 'Estos objetivos pueden trabajarse de forma transversal durante el ano o quedaron fuera de esta planificacion. Puedes agregarlos manualmente a una unidad desde "Editar unidad".',
+        helperText: 'Estos objetivos pueden trabajarse de forma transversal durante el año o quedaron fuera de esta planificación. Puedes agregarlos manualmente a una unidad desde "Editar unidad".',
         objectives: transversalObjectives
       }
     ];
@@ -1132,14 +1877,14 @@ export class PlanningsUnitCreatePageComponent {
   }
 
   private resolvePeriod(_unit: StudyProgramUnit): string {
-    return 'Periodo por definir';
+    return 'Período por definir';
   }
 
   private resolveDescription(unit: StudyProgramUnit): string {
     return unit.readingPurpose
       || unit.writingPurpose
       || unit.oralCommunicationPurpose
-      || 'Sin descripcion disponible.';
+      || 'Sin descripción disponible.';
   }
 
   private resolveUnitColor(number: number): string {
@@ -1158,7 +1903,7 @@ export class PlanningsUnitCreatePageComponent {
   }
 
   private hasStep1Data(): boolean {
-    return !!this.year() && !!this.course() && !!this.subject() && !!this.semester() && !!this.selectedProgram();
+    return !!this.year() && !!this.course() && !!this.subject() && !!this.semester();
   }
 
   private buildPlanningPayload(): PlanningUnitPayload {
@@ -1172,6 +1917,7 @@ export class PlanningsUnitCreatePageComponent {
       courseId: Number(this.course()),
       unitNumber: this.mapUnitNumberCode(unit.numero),
       name: unit.nombre,
+      colorHex: this.selectedColor(),
       startWeek: null,
       startDate: this.startDate(),
       endDate: this.endDate(),
@@ -1184,18 +1930,139 @@ export class PlanningsUnitCreatePageComponent {
   }
 
   private buildLearningObjectivesText(): string {
+    if (!this.selectedObjectives().length) {
+      return 'Unidad creada manualmente sin OA asociados desde un programa oficial.';
+    }
+
     return this.selectedObjectives()
       .map((objective) => `${this.formatObjectiveLabel(objective)}: ${objective.descripcion}`)
       .join('\n');
   }
 
   private buildAchievementIndicatorsText(): string {
+    if (!this.selectedObjectives().length) {
+      return 'Sin indicadores oficiales asociados. Unidad registrada en modo manual.';
+    }
+
     const indicators = this.selectedObjectives()
       .flatMap((objective) => objective.evaluationIndicators?.length
         ? objective.evaluationIndicators
         : [objective.descripcion]);
 
     return Array.from(new Set(indicators)).join('\n');
+  }
+
+  private canContinueWithoutObjectives(): boolean {
+    if (this.isInitialEducationFlow()) {
+      return this.selectedObjectives().length > 0;
+    }
+
+    return !this.selectedProgram() || this.selectedObjectives().length > 0;
+  }
+
+  private createManualUnitDraft(): UnidadPrograma {
+    const unitNumber = Math.max(1, this.existingUnitsCount() + 1);
+
+    return {
+      id: `manual-unit-${unitNumber}`,
+      numero: unitNumber,
+      nombre: `Unidad ${unitNumber}`,
+      semestre: this.semesterLabel(),
+      descripcion: 'Unidad creada manualmente porque la asignatura no cuenta con programa oficial asociado.',
+      oa: [],
+      totalOa: 0,
+      clasesPlanificadas: 0,
+      cobertura: 0,
+      color: this.selectedColor()
+    };
+  }
+
+  private prepareInitialEducationFlow(): void {
+    const draft = this.createInitialEducationUnitDraft();
+    this.unidadesFiltradas.set([draft]);
+    this.selectedUnidad.set(draft);
+    this.appliedUnidad.set(draft);
+    this.closeUnitModal();
+    this.closeOtherUnitOaModal();
+    this.initializeStep3Form();
+    this.loadScheduleDaysForCurrentSelection();
+    this.activeStep.set(3);
+  }
+
+  private createInitialEducationUnitDraft(): UnidadPrograma {
+    const unitNumber = Math.max(1, this.existingUnitsCount() + 1);
+    const subjectName = this.subjectLabel() || 'Experiencia';
+    const nucleus = this.prekinderNucleus();
+    const ambit = this.prekinderAmbit();
+    const descriptionParts = [ambit, nucleus].filter((value) => !!value);
+
+    return {
+      id: `initial-unit-${unitNumber}-${this.normalizeMatchText(subjectName)}`,
+      numero: unitNumber,
+      nombre: subjectName,
+      semestre: this.semesterLabel(),
+      descripcion: descriptionParts.length
+        ? `Planificación inicial asociada a ${descriptionParts.join(' · ')}.`
+        : 'Planificación inicial creada sin unidad de programa asociada.',
+      oa: [],
+      totalOa: 0,
+      clasesPlanificadas: 0,
+      cobertura: 0,
+      color: this.selectedColor()
+    };
+  }
+  private loadInitialEducationCurriculumForSelection(): void {
+    const requestId = ++this.initialEducationLookupRequestId;
+    if (!this.isInitialEducationFlow()) {
+      this.initialEducationObjectives.set([]);
+      return;
+    }
+
+    const grade = this.initialEducationProgramGrade();
+    const visibleSubject = this.subjectLabel();
+    const ambit = this.prekinderAmbit();
+    const nucleus = this.prekinderNucleus();
+
+    if (!grade || !visibleSubject || !ambit || !nucleus) {
+      this.initialEducationObjectives.set([]);
+      return;
+    }
+
+    this.initialEducationCurriculumApiService.getCurriculumDetail({
+      grade,
+      visibleSubject,
+      ambit,
+      nucleus
+    }).subscribe({
+      next: (curriculum) => {
+        if (requestId !== this.initialEducationLookupRequestId) {
+          return;
+        }
+
+        this.initialEducationObjectives.set(this.mapInitialEducationCurriculumObjectives(curriculum));
+      },
+      error: () => {
+        if (requestId !== this.initialEducationLookupRequestId) {
+          return;
+        }
+
+        this.initialEducationObjectives.set([]);
+      }
+    });
+  }
+
+  private mapInitialEducationCurriculumObjectives(curriculum: InitialEducationCurriculumDetail): InitialEducationObjectiveOption[] {
+    const subjectKey = this.normalizeMatchText(curriculum.visibleSubject).replace(/\s+/g, '-').toLowerCase();
+
+    return (curriculum.objectives ?? []).map((objective) => ({
+      id: `${curriculum.grade.toLowerCase()}-${subjectKey}-${objective.code.toLowerCase()}`,
+      codigo: objective.code,
+      titulo: curriculum.nucleus,
+      descripcion: objective.description,
+      eje: curriculum.visibleSubject,
+      indicadores: objective.evaluationIndicators ?? [],
+      activities: objective.activities ?? []
+    }));
   }
 
   private mapUnitNumberCode(number: number): string {
@@ -1240,6 +2107,63 @@ export class PlanningsUnitCreatePageComponent {
     return Math.max(1, Math.ceil(diffDays / 7));
   }
 
+  private calculateProjectedEndDate(startDate: string, selectedDays: string[], totalClasses: number): string {
+    if (!startDate || !selectedDays.length || totalClasses <= 0) {
+      return '';
+    }
+
+    const start = new Date(`${startDate}T00:00:00`);
+    if (Number.isNaN(start.getTime())) {
+      return '';
+    }
+
+    const targetWeekdays = new Set(
+      selectedDays
+        .map((day) => this.scheduleDayToWeekday(day))
+        .filter((day): day is number => day !== null)
+    );
+
+    if (!targetWeekdays.size) {
+      return '';
+    }
+
+    const targetClasses = Math.floor(totalClasses);
+    const cursor = new Date(start);
+    let countedClasses = 0;
+    let guardDays = 0;
+
+    while (guardDays < 730) {
+      if (targetWeekdays.has(cursor.getDay())) {
+        countedClasses += 1;
+        if (countedClasses >= targetClasses) {
+          return this.formatIsoDate(cursor);
+        }
+      }
+
+      cursor.setDate(cursor.getDate() + 1);
+      guardDays += 1;
+    }
+
+    return '';
+  }
+
+  private scheduleDayToWeekday(day: string): number | null {
+    return ({
+      Lunes: 1,
+      Martes: 2,
+      Miercoles: 3,
+      Jueves: 4,
+      Viernes: 5
+    } as Record<string, number>)[day] ?? null;
+  }
+
+  private formatIsoDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   private formatPeriodPreview(startDate: string, endDate: string): string {
     if (!startDate || !endDate) {
       return 'Sin periodo definido';
@@ -1256,13 +2180,13 @@ export class PlanningsUnitCreatePageComponent {
 
   private formatReviewPeriodLabel(startDate: string, endDate: string): string {
     if (!startDate || !endDate) {
-      return 'Periodo por definir';
+      return 'Período por definir';
     }
 
     const start = new Date(`${startDate}T00:00:00`);
     const end = new Date(`${endDate}T00:00:00`);
     if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
-      return 'Periodo por definir';
+      return 'Período por definir';
     }
 
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -1270,19 +2194,42 @@ export class PlanningsUnitCreatePageComponent {
   }
 
   private resolveDefaultUnitDateRange(): { startDate: string; endDate: string } {
-    const year = this.year() || '2026';
+    const previousEndDate = this.latestExistingUnitEndDate();
+    const defaultRange = this.resolveSemesterDefaultDateRange();
 
-    if (this.semester() === '2') {
-      return {
-        startDate: this.firstBusinessDayOfMonth(Number(year), 8),
-        endDate: `${year}-12-15`
-      };
+    if (!previousEndDate || this.editingUnitId() != null) {
+      return defaultRange;
     }
 
+    const suggestedStartDate = this.nextBusinessDay(previousEndDate);
+    if (!suggestedStartDate) {
+      return defaultRange;
+    }
+
+    const defaultEnd = new Date(`${defaultRange.endDate}T00:00:00`);
+    const suggestedStart = new Date(`${suggestedStartDate}T00:00:00`);
+    const endDate = suggestedStart <= defaultEnd
+      ? defaultRange.endDate
+      : this.addDays(suggestedStartDate, 56);
+
     return {
-      startDate: this.firstBusinessDayOfMonth(Number(year), 3),
-      endDate: `${year}-07-31`
+      startDate: suggestedStartDate,
+      endDate
     };
+  }
+
+  private resolveSemesterDefaultDateRange(): { startDate: string; endDate: string } {
+    const year = this.year() || '2026';
+
+    return this.semester() === '2'
+      ? {
+          startDate: this.firstBusinessDayOfMonth(Number(year), 7),
+          endDate: `${year}-12-15`
+        }
+      : {
+          startDate: this.firstBusinessDayOfMonth(Number(year), 3),
+          endDate: `${year}-07-31`
+        };
   }
 
   private firstBusinessDayOfMonth(year: number, month: number): string {
@@ -1296,6 +2243,30 @@ export class PlanningsUnitCreatePageComponent {
     const resolvedMonth = String(date.getMonth() + 1).padStart(2, '0');
     const resolvedDay = String(date.getDate()).padStart(2, '0');
     return `${resolvedYear}-${resolvedMonth}-${resolvedDay}`;
+  }
+
+  private nextBusinessDay(dateValue: string): string {
+    const date = new Date(`${dateValue}T00:00:00`);
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    date.setDate(date.getDate() + 1);
+    while (date.getDay() === 0 || date.getDay() === 6) {
+      date.setDate(date.getDate() + 1);
+    }
+
+    return this.formatIsoDate(date);
+  }
+
+  private addDays(dateValue: string, days: number): string {
+    const date = new Date(`${dateValue}T00:00:00`);
+    if (Number.isNaN(date.getTime())) {
+      return dateValue;
+    }
+
+    date.setDate(date.getDate() + days);
+    return this.formatIsoDate(date);
   }
 
   private validateStep3(): boolean {
@@ -1333,3 +2304,4 @@ export class PlanningsUnitCreatePageComponent {
     return this.classDays.findIndex((item) => item.value === day);
   }
 }
+

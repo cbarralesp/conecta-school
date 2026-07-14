@@ -230,7 +230,7 @@ export class TeacherSideMenuComponent {
               { label: 'Dashboard', icon: 'space_dashboard', route: '/alumno', exact: true },
               { label: 'Asignaturas', icon: 'library_books', route: '/alumno/asignaturas' },
               { label: 'Horario', icon: 'schedule', route: '/alumno/horario', exact: true },
-              { label: 'Evaluaciones', icon: 'grading', route: '/alumno/calificaciones', exact: true },
+              { label: 'Evaluaciones', icon: 'grading', route: '/alumno/calificaciónes', exact: true },
               { label: 'Asistencia', icon: 'fact_check', route: '/alumno/asistencia', exact: true },
               { label: 'Actividades', icon: 'event', route: '/alumno/actividades', exact: true }
             ]
@@ -245,7 +245,7 @@ export class TeacherSideMenuComponent {
             ])
           },
           {
-            title: 'Gestion academica',
+            title: 'Gestión académica',
             collapsible: true,
             items: this.visibleTeacherItems([
               { label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas', moduleCode: 'MATRICULAS' },
@@ -260,15 +260,15 @@ export class TeacherSideMenuComponent {
             collapsible: true,
             items: this.visibleTeacherItems([
               { label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
-              { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
+              { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciónes', moduleCode: 'CALIFICACIONES' },
               { label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
               { label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', exact: true, moduleCode: 'PLANIFICACIONES' },
               { label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
-              { label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION' }
+              { label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' }
             ])
           },
           {
-            title: 'Administracion',
+            title: 'Administración',
             collapsible: true,
             items: this.visibleTeacherItems([
               { label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios', exact: true, moduleCode: 'USUARIOS' },
@@ -288,7 +288,7 @@ export class TeacherSideMenuComponent {
             ])
           },
           {
-            title: 'Gestion academica',
+            title: 'Gestión académica',
             collapsible: true,
             items: this.visibleTeacherItems([
               { label: 'Matriculas', icon: 'assignment_ind', route: '/dashboard/matriculas', moduleCode: 'MATRICULAS' },
@@ -303,15 +303,15 @@ export class TeacherSideMenuComponent {
             collapsible: true,
             items: this.visibleTeacherItems([
               { label: 'Asistencia', icon: 'fact_check', route: '/dashboard/asistencia', moduleCode: 'ASISTENCIA' },
-              { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciones', moduleCode: 'CALIFICACIONES' },
+              { label: 'Evaluaciones', icon: 'grading', route: '/dashboard/calificaciónes', moduleCode: 'CALIFICACIONES' },
               { label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
               { label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', exact: true, moduleCode: 'PLANIFICACIONES' },
               { label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
-              { label: 'Planificacion', icon: 'edit_calendar', route: '/dashboard/planificacion', moduleCode: 'PLANIFICACION' }
+              { label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' }
             ])
           },
           {
-            title: 'Administracion',
+            title: 'Administración',
             collapsible: true,
             items: this.visibleTeacherItems([
               { label: 'Usuarios', icon: 'manage_accounts', route: '/dashboard/administracion/usuarios', moduleCode: 'USUARIOS' },
@@ -338,12 +338,12 @@ export class TeacherSideMenuComponent {
   protected readonly subtitle = computed(() => {
     switch (this.currentRole()) {
       case 'STUDENT':
-        return 'Portal academico estudiantil';
+        return 'Portal académico estudiantil';
       case 'ADMIN':
         return 'Control institucional y acceso completo al sistema';
       case 'TEACHER':
       default:
-        return 'Seguimiento academico docente';
+        return 'Seguimiento académico docente';
     }
   });
 
@@ -364,10 +364,10 @@ export class TeacherSideMenuComponent {
       case 'STUDENT':
         return 'Consulta tus cursos, horario, asistencia y evaluaciones desde un solo lugar.';
       case 'ADMIN':
-        return 'Accede a administracion, modulos academicos y herramientas docentes desde un solo lugar.';
+        return 'Accede a administracion, modulos académicos y herramientas docentes desde un solo lugar.';
       case 'TEACHER':
       default:
-        return 'Accede a tus cursos, horario, asistencia y evaluaciones con una navegacion ordenada.';
+        return 'Accede a tus cursos, horario, asistencia y evaluaciones con una navegación ordenada.';
     }
   });
 

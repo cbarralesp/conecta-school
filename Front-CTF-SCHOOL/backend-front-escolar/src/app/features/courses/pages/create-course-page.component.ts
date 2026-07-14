@@ -389,7 +389,7 @@ export class CreateCoursePageComponent {
         this.snackBar.open(
           typeof error.error?.message === 'string'
             ? error.error.message
-            : 'No fue posible cargar los cursos maestros. Reinicia el backend si aun no lo has hecho.',
+            : 'No fue posible cargar los cursos maestros. Reinicia el backend si aún no lo has hecho.',
           'Cerrar',
           { duration: 4500 }
         );

@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { NgStyle } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { resolveCurrentAcademicSemester } from '../../../core/utils/academic-semester';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { ScheduleApiService } from '../../../core/services/schedule-api.service';
 import { ScheduleBlock, ScheduleBlockType, ScheduleCatalog, ScheduleEntry, SchedulePeriodOption } from '../../../core/models/schedule.models';
@@ -50,6 +51,8 @@ interface ScheduleBoardRow {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SchedulePageComponent {
+  private static readonly SCHOOL_YEARS = [2025, 2026, 2027, 2028] as const;
+
   @ViewChild('pdfSchedule') private pdfScheduleRef?: ElementRef<HTMLElement>;
 
   private readonly scheduleApiService = inject(ScheduleApiService);
@@ -62,6 +65,8 @@ export class SchedulePageComponent {
   readonly user = this.authStateService.user;
   readonly catalog = signal<ScheduleCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
+  readonly schoolYears = SchedulePageComponent.SCHOOL_YEARS;
+  readonly selectedSchoolYear = signal(this.defaultSchoolYear());
   readonly selectedSemesterId = signal<number | null>(null);
   readonly selectedMobileDay = signal<DayKey>('LUNES');
   readonly scheduleEntries = signal<ScheduleEntry[]>([]);
@@ -72,16 +77,20 @@ export class SchedulePageComponent {
     this.catalog()?.courses.find((course) => course.id === this.selectedCourseId()) ?? null
   );
 
-  readonly periodOptions = computed<SchedulePeriodOption[]>(() => this.catalog()?.periods ?? []);
+  readonly periodOptions = computed<SchedulePeriodOption[]>(() =>
+    (this.catalog()?.periods ?? []).filter((period) => period.schoolYear === Number(this.selectedSchoolYear()))
+  );
 
   readonly selectedSemesterLabel = computed(
-    () => this.periodOptions().find((period) => period.id === this.selectedSemesterId())?.name ?? 'Periodo academico'
+    () => this.periodOptions().find((period) => period.id === this.selectedSemesterId())?.name ?? 'Período académico'
   );
 
   readonly orderedCourses = computed(() => {
-    const courses = [...(this.catalog()?.courses ?? [])];
+    const courses = [...(this.catalog()?.courses ?? [])].filter((course) => course.schoolYear === Number(this.selectedSchoolYear()));
     return courses.sort((left, right) => this.courseSortWeight(left.name) - this.courseSortWeight(right.name));
   });
+
+  readonly coursesBySelectedYear = computed(() => this.orderedCourses());
 
   readonly boardRows = computed<ScheduleBoardRow[]>(() => {
     const blocks = this.catalog()?.blocks ?? [];
@@ -146,6 +155,27 @@ export class SchedulePageComponent {
   });
 
   constructor() {
+    effect(() => {
+      const catalog = this.catalog();
+      if (!catalog) {
+        return;
+      }
+
+      const selectedYear = Number(this.selectedSchoolYear());
+      const periodsForYear = catalog.periods.filter((period) => period.schoolYear === selectedYear);
+      const coursesForYear = catalog.courses.filter((course) => course.schoolYear === selectedYear);
+
+      const currentSemesterId = this.selectedSemesterId();
+      if (!currentSemesterId || !periodsForYear.some((period) => period.id === currentSemesterId)) {
+        this.selectedSemesterId.set(this.resolvePreferredSemesterId(catalog));
+      }
+
+      const currentCourseId = this.selectedCourseId();
+      if (!currentCourseId || !coursesForYear.some((course) => course.id === currentCourseId)) {
+        this.selectedCourseId.set(this.resolvePreferredCourseId(catalog));
+      }
+    });
+
     this.loadCatalog();
   }
 
@@ -172,6 +202,24 @@ export class SchedulePageComponent {
   updateSemester(periodId: number | null): void {
     this.selectedSemesterId.set(periodId);
     this.reloadSelectedCourse();
+  }
+
+  updateSchoolYear(value: string): void {
+    this.selectedSchoolYear.set(value);
+    const catalog = this.catalog();
+    if (!catalog) {
+      return;
+    }
+
+    const nextPeriodId = this.resolvePreferredSemesterId(catalog);
+    const nextCourseId = this.resolvePreferredCourseId(catalog);
+    this.selectedSemesterId.set(nextPeriodId);
+    this.selectedCourseId.set(nextCourseId);
+    this.scheduleEntries.set([]);
+
+    if (nextCourseId) {
+      this.loadScopedCatalog(nextCourseId, catalog);
+    }
   }
 
   setSelectedMobileDay(day: DayKey): void {
@@ -204,7 +252,7 @@ export class SchedulePageComponent {
 
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '780px',
-      maxWidth: '84vw',
+      maxWidth: 'calc(100vw - 1rem)',
       autoFocus: false,
       panelClass: 'schedule-dialog-panel',
       backdropClass: 'schedule-dialog-backdrop',
@@ -228,7 +276,7 @@ export class SchedulePageComponent {
 
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '780px',
-      maxWidth: '84vw',
+      maxWidth: 'calc(100vw - 1rem)',
       autoFocus: false,
       panelClass: 'schedule-dialog-panel',
       backdropClass: 'schedule-dialog-backdrop',
@@ -284,7 +332,7 @@ export class SchedulePageComponent {
 
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '560px',
-      maxWidth: '84vw',
+      maxWidth: 'calc(100vw - 1rem)',
       autoFocus: false,
       panelClass: 'schedule-dialog-panel',
       backdropClass: 'schedule-dialog-backdrop',
@@ -306,7 +354,7 @@ export class SchedulePageComponent {
 
     const dialogRef = this.dialog.open(ScheduleDialogComponent, {
       width: '560px',
-      maxWidth: '84vw',
+      maxWidth: 'calc(100vw - 1rem)',
       autoFocus: false,
       panelClass: 'schedule-dialog-panel',
       backdropClass: 'schedule-dialog-backdrop',
@@ -551,6 +599,7 @@ export class SchedulePageComponent {
   private loadCatalog(): void {
     this.scheduleApiService.getCatalog().subscribe({
         next: (catalog) => {
+          this.catalog.set(catalog);
           this.selectedSemesterId.set(this.resolvePreferredSemesterId(catalog));
           const preferredCourseId = this.resolvePreferredCourseId(catalog);
           this.selectedCourseId.set(preferredCourseId);
@@ -558,7 +607,7 @@ export class SchedulePageComponent {
             this.loadScopedCatalog(preferredCourseId, catalog);
           }
         },
-      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar el catalogo horario')
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar el catálogo horario')
     });
   }
 
@@ -664,17 +713,18 @@ export class SchedulePageComponent {
           this.loadSchedule(nextCourseId, this.selectedSemesterId()!);
         }
       },
-      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible refrescar el catalogo horario')
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible refrescar el catálogo horario')
     });
   }
 
   private resolvePreferredCourseId(catalog: ScheduleCatalog): number | null {
     const currentCourseId = this.selectedCourseId();
-    if (currentCourseId && catalog.courses.some((course) => course.id === currentCourseId)) {
+    const selectedYear = Number(this.selectedSchoolYear());
+    if (currentCourseId && catalog.courses.some((course) => course.id === currentCourseId && course.schoolYear === selectedYear)) {
       return currentCourseId;
     }
 
-    const orderedCourses = [...catalog.courses].sort(
+    const orderedCourses = catalog.courses.filter((course) => course.schoolYear === selectedYear).sort(
       (left, right) => this.courseSortWeight(left.name) - this.courseSortWeight(right.name)
     );
 
@@ -692,6 +742,9 @@ export class SchedulePageComponent {
           subjects: baseCatalog?.subjects ?? catalog.subjects
         };
         this.catalog.set(scopedCatalog);
+        if (!scopedCatalog.periods.some((period) => period.id === this.selectedSemesterId())) {
+          this.selectedSemesterId.set(this.resolvePreferredSemesterId(scopedCatalog));
+        }
         const periodId = this.selectedSemesterId();
         if (periodId) {
           this.loadSchedule(courseId, periodId);
@@ -703,12 +756,15 @@ export class SchedulePageComponent {
 
   private resolvePreferredSemesterId(catalog: ScheduleCatalog): number | null {
     const currentSemesterId = this.selectedSemesterId();
-    if (currentSemesterId && catalog.periods.some((period) => period.id === currentSemesterId)) {
+    const selectedYear = Number(this.selectedSchoolYear());
+    if (currentSemesterId && catalog.periods.some((period) => period.id === currentSemesterId && period.schoolYear === selectedYear)) {
       return currentSemesterId;
     }
 
-    const firstSemester = catalog.periods.find((period) => period.semester === 1);
-    return firstSemester?.id ?? catalog.periods[0]?.id ?? null;
+    const periodsForYear = catalog.periods.filter((period) => period.schoolYear === selectedYear);
+    const preferredSemester = periodsForYear.find((period) => period.semester === resolveCurrentAcademicSemester());
+    const firstSemester = periodsForYear.find((period) => period.semester === 1);
+    return preferredSemester?.id ?? firstSemester?.id ?? periodsForYear[0]?.id ?? null;
   }
 
   private isBasicCourse(name: string): boolean {
@@ -769,5 +825,12 @@ export class SchedulePageComponent {
     }
 
     return 99;
+  }
+
+  private defaultSchoolYear(): string {
+    const currentYear = new Date().getFullYear();
+    return this.schoolYears.includes(currentYear as typeof this.schoolYears[number])
+      ? `${currentYear}`
+      : `${this.schoolYears[0]}`;
   }
 }

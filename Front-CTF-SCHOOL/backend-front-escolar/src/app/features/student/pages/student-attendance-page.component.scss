@@ -82,18 +82,19 @@
 }
 
 .page-header__title {
-  font-size: 1.55rem;
-  line-height: 1.08;
-  font-weight: 800;
-  color: #173553;
+  font-size: var(--student-std-title-size);
+  line-height: var(--student-std-title-line-height);
+  font-weight: var(--student-std-title-weight);
+  color: var(--student-std-title-color);
+  letter-spacing: var(--student-std-title-letter-spacing);
 }
 
 .page-header__subtitle {
   margin-top: 0.25rem;
-  font-size: 0.95rem;
-  color: #6b8099;
-  font-weight: 500;
-  line-height: 1.4;
+  font-size: var(--student-std-subtitle-size);
+  color: var(--student-std-subtitle-color);
+  font-weight: var(--student-std-subtitle-weight);
+  line-height: var(--student-std-subtitle-line-height);
 }
 
 .page-header__actions {
@@ -106,13 +107,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  min-height: 42px;
-  padding: 0 1rem;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(220, 229, 241, 0.95);
-  color: #4f6288;
-  font-size: 0.82rem;
+  min-height: 34px;
+  padding: 0 0.8rem;
+  border-radius: 10px;
+  background: #f8fbff;
+  box-shadow: inset 0 0 0 1px rgba(219, 229, 240, 0.95);
+  color: #485d77;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -199,21 +200,22 @@
 }
 
 .summary-card__copy strong {
-  font-size: 1.5rem;
+  font-size: var(--student-std-metric-value-size);
   line-height: 1;
-  font-weight: 800;
+  font-weight: var(--student-std-metric-value-weight);
   color: #0f172a;
 }
 
 .summary-card__copy span {
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #8a9bb5;
+  font-size: var(--student-std-metric-label-size);
+  font-weight: var(--student-std-metric-label-weight);
+  color: #485d77;
 }
 
 .summary-card__copy small {
-  font-size: 0.8rem;
-  color: #5f7398;
+  font-size: var(--student-std-metric-meta-size);
+  font-weight: var(--student-std-metric-meta-weight);
+  color: #64748b;
 }
 
 .sc-brand .summary-card__icon {
@@ -262,15 +264,16 @@
 }
 
 .panel-card__header h2 {
-  font-size: 0.98rem;
-  font-weight: 800;
-  color: #182447;
+  font-size: var(--student-std-card-title-size);
+  font-weight: var(--student-std-card-title-weight);
+  color: var(--student-std-card-title-color);
+  letter-spacing: var(--student-std-card-title-letter-spacing);
 }
 
 .panel-card__header p {
   margin-top: 0.2rem;
-  font-size: 0.78rem;
-  color: #7a8daf;
+  font-size: var(--student-std-card-body-size);
+  color: var(--student-std-card-body-color);
 }
 
 .panel-card__badge {
@@ -303,16 +306,17 @@
 }
 
 .calendar-card__title-block h2 {
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #1c2a4b;
+  font-size: var(--student-std-card-title-size);
+  font-weight: var(--student-std-card-title-weight);
+  color: var(--student-std-card-title-color);
+  letter-spacing: var(--student-std-card-title-letter-spacing);
 }
 
 .calendar-card__title-block p {
   margin-top: 0.26rem;
-  font-size: 0.8rem;
-  color: #7890b8;
-  font-weight: 600;
+  font-size: var(--student-std-card-body-size);
+  color: var(--student-std-card-body-color);
+  font-weight: var(--student-std-subtitle-weight);
 }
 
 .calendar-card__actions {
@@ -962,5 +966,50 @@
   .comparison-list__row span,
   .comparison-list__row strong {
     min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-header,
+  .page-header__left,
+  .page-header__actions,
+  .panel-card__header {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .page-header__actions,
+  .calendar-card__actions {
+    justify-content: center;
+  }
+
+  .summary-grid,
+  .calendar-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .monthly-summary-row,
+  .record-row,
+  .comparison-list__row {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    gap: 0.45rem;
+    padding: 0.8rem;
+    border: 1px solid #edf1f7;
+    border-radius: 14px;
+  }
+
+  .subject-row__metric--attendance,
+  .summary-breakdown__row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .page-header__badge,
+  .calendar-card__actions button {
+    width: min(100%, 320px);
+    justify-content: center;
   }
 }

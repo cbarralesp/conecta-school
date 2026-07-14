@@ -79,7 +79,7 @@ export const routes: Routes = [
       )
   },
   {
-    path: 'alumno/calificaciones',
+    path: 'alumno/calificaciónes',
     canActivate: [authGuard, roleGuard],
     data: { roles: studentOnly, section: 'grades' },
     loadComponent: () =>
@@ -124,60 +124,6 @@ export const routes: Routes = [
       )
   },
   {
-    path: 'dashboard/planning/:id',
-    canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
-    loadComponent: () =>
-      import('./features/dashboard/pages/planning-detail-page.component').then(
-        (m) => m.PlanningDetailPageComponent
-      )
-  },
-  {
-    path: 'dashboard/planificacion',
-    canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
-    loadComponent: () =>
-      import('./features/planning/pages/planning-overview-page.component').then(
-        (m) => m.PlanningOverviewPageComponent
-      )
-  },
-  {
-    path: 'dashboard/planificacion/nueva-unidad',
-    canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
-    loadComponent: () =>
-      import('./features/planning/pages/planning-unit-create.component').then(
-        (m) => m.PlanningUnitCreateComponent
-      )
-  },
-  {
-    path: 'dashboard/planificacion/nueva-clase',
-    canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
-    loadComponent: () =>
-      import('./features/planning/pages/planning-class-create.component').then(
-        (m) => m.PlanningClassCreateComponent
-      )
-  },
-  {
-    path: 'dashboard/planificacion/clases/:id/editar',
-    canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
-    loadComponent: () =>
-      import('./features/planning/pages/planning-class-create.component').then(
-        (m) => m.PlanningClassCreateComponent
-      )
-  },
-  {
-    path: 'dashboard/planificacion/documentos',
-    canActivate: [authGuard, roleGuard, moduleAccessGuard],
-    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACION' },
-    loadComponent: () =>
-      import('./features/planning/pages/planning-documents.component').then(
-        (m) => m.PlanningDocumentsComponent
-      )
-  },
-  {
     path: 'dashboard/planificaciones-nuevo',
     canActivate: [authGuard, roleGuard, moduleAccessGuard],
     data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACIONES' },
@@ -188,6 +134,15 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/planificaciones-nuevo/nueva-unidad',
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACIONES' },
+    loadComponent: () =>
+      import('./features/plannings/pages/plannings-unit-create-page.component').then(
+        (m) => m.PlanningsUnitCreatePageComponent
+      )
+  },
+  {
+    path: 'dashboard/planificaciones-nuevo/nuevo-ámbito',
     canActivate: [authGuard, roleGuard, moduleAccessGuard],
     data: { roles: teacherOrAdmin, moduleCode: 'PLANIFICACIONES' },
     loadComponent: () =>
@@ -359,11 +314,29 @@ export const routes: Routes = [
       )
   },
   {
-    path: 'dashboard/calificaciones',
+    path: 'dashboard/calificaciónes',
     canActivate: [authGuard, roleGuard, moduleAccessGuard],
     data: { roles: teacherOrAdmin, moduleCode: 'CALIFICACIONES' },
     loadComponent: () =>
       import('./features/grades/pages/grades-page.component').then((m) => m.GradesPageComponent)
+  },
+  {
+    path: 'dashboard/hoja-vida',
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CALIFICACIONES' },
+    loadComponent: () =>
+      import('./features/student-life/pages/student-life-page.component').then(
+        (m) => m.StudentLifePageComponent
+      )
+  },
+  {
+    path: 'dashboard/hoja-vida/:id',
+    canActivate: [authGuard, roleGuard, moduleAccessGuard],
+    data: { roles: teacherOrAdmin, moduleCode: 'CALIFICACIONES' },
+    loadComponent: () =>
+      import('./features/student-life/pages/student-life-page.component').then(
+        (m) => m.StudentLifePageComponent
+      )
   },
   {
     path: 'dashboard/administracion',

@@ -10,7 +10,7 @@
   @if (isLoading()) {
     <section class="modern-dashboard__loading">
       <mat-spinner diameter="48" />
-      <p>Cargando informacion del profesor...</p>
+      <p>Cargando información del profesor...</p>
     </section>
   } @else if (dashboard(); as dashboard) {
     <section class="modern-dashboard__heading">
@@ -43,6 +43,27 @@
         </mat-card>
       }
     </section>
+
+    <mat-card appearance="outlined" class="life-action-card">
+      <div class="life-action-card__icon">
+        <mat-icon>folder_shared</mat-icon>
+      </div>
+      <div class="life-action-card__copy">
+        <span>Hoja de vida</span>
+        <strong>Registros de convivencia y entrevistas</strong>
+        <small>Accede rapidamente al seguimiento escolar del estudiante.</small>
+      </div>
+      <div class="life-action-card__actions">
+        <button mat-flat-button type="button" class="life-action-card__button life-action-card__button--blue" (click)="openInterviewLauncher()">
+          <mat-icon>add</mat-icon>
+          Nueva entrevista
+        </button>
+        <button mat-stroked-button type="button" class="life-action-card__button life-action-card__button--green" (click)="openAnnotationLauncher()">
+          <mat-icon>edit_note</mat-icon>
+          Nueva anotacion
+        </button>
+      </div>
+    </mat-card>
 
     <section class="modern-dashboard__grid">
       <mat-card appearance="outlined" class="panel-card">
@@ -101,8 +122,85 @@
   } @else {
     <section class="modern-dashboard__empty">
       <mat-icon>school</mat-icon>
-      <strong>No se encontro informacion del resumen docente.</strong>
+      <strong>No se encontró información del resumen docente.</strong>
       <p>Revisa si el backend esta entregando el dashboard del profesor autenticado.</p>
+    </section>
+  }
+
+  @if (lifeLauncherOpen()) {
+    <div class="life-launcher-backdrop" (click)="closeLifeLauncher()"></div>
+    <section class="life-launcher-dialog" role="dialog" aria-modal="true" aria-labelledby="life-launcher-title">
+      <header class="life-launcher-dialog__header">
+        <div>
+          <span>Hoja de vida</span>
+          <h2 id="life-launcher-title">{{ lifeLauncherMode() === 'annotation' ? 'Nueva anotacion' : 'Nueva entrevista' }}</h2>
+        </div>
+        <button type="button" class="life-launcher-dialog__close" (click)="closeLifeLauncher()" aria-label="Cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="life-launcher-dialog__body">
+        <section class="life-launcher-student-strip">
+          <span class="life-launcher-student-strip__icon">
+            <mat-icon>{{ lifeLauncherMode() === 'annotation' ? 'edit_note' : 'forum' }}</mat-icon>
+          </span>
+          <span>
+            <small>{{ lifeLauncherMode() === 'annotation' ? 'Registro de convivencia' : 'Registro formal' }}</small>
+            <strong>
+              {{ lifeLauncherMode() === 'annotation'
+                ? 'Selecciona curso y estudiante para abrir la nueva anotacion.'
+                : 'Selecciona curso y estudiante para abrir la ficha de entrevista.' }}
+            </strong>
+          </span>
+        </section>
+
+        <div class="life-launcher-form-grid">
+          <label class="life-launcher-field">
+            <span>Curso</span>
+            <div class="life-launcher-control">
+              <mat-icon>school</mat-icon>
+              <select [ngModel]="selectedLifeCourseId()" (ngModelChange)="updateLifeCourse($event)">
+                @for (course of lifeCourseOptions(); track course.id) {
+                  <option [value]="course.id">{{ course.name }}</option>
+                }
+              </select>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+          </label>
+
+          <label class="life-launcher-field">
+            <span>Estudiante</span>
+            <div class="life-launcher-control">
+              <mat-icon>person</mat-icon>
+              <select [ngModel]="selectedLifeEnrollmentId()" (ngModelChange)="selectedLifeEnrollmentId.set($event)">
+                <option value="">Seleccionar estudiante</option>
+                @for (student of lifeStudentOptions(); track student.id) {
+                  <option [value]="student.id">{{ student.nombre }}</option>
+                }
+              </select>
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </div>
+          </label>
+        </div>
+
+        @if (isLoadingStudentLife()) {
+          <div class="life-launcher-loading">
+            <mat-spinner diameter="24" />
+            <span>Cargando estudiantes...</span>
+          </div>
+        }
+      </div>
+
+      <footer class="life-launcher-dialog__actions">
+        <button mat-stroked-button type="button" class="life-launcher-back" (click)="closeLifeLauncher()">
+          Volver
+        </button>
+        <button mat-flat-button type="button" class="life-launcher-save" (click)="startDashboardLifeAction()">
+          <mat-icon>arrow_forward</mat-icon>
+          Continuar
+        </button>
+      </footer>
     </section>
   }
 </app-teacher-modern-layout>

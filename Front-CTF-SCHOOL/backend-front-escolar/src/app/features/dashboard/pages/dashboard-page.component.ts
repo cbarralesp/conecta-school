@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,12 +10,19 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TeacherDashboard } from '../../../core/models/teacher-dashboard.models';
 import { TeacherDashboardApiService } from '../../../core/services/teacher-dashboard-api.service';
+import {
+  StudentLifeCourseOption,
+  StudentLifeListItem,
+  StudentLifeOverview
+} from '../../../core/models/student-life.models';
+import { StudentLifeApiService } from '../../../core/services/student-life-api.service';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [
+    FormsModule,
     RouterLink,
     MatButtonModule,
     MatCardModule,
@@ -30,11 +38,19 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
 export class DashboardPageComponent {
   private readonly authStateService = inject(AuthStateService);
   private readonly teacherDashboardApiService = inject(TeacherDashboardApiService);
+  private readonly studentLifeApiService = inject(StudentLifeApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   readonly user = this.authStateService.user;
   readonly isLoading = signal(true);
   readonly dashboard = signal<TeacherDashboard | null>(null);
+  readonly isLoadingStudentLife = signal(false);
+  readonly lifeLauncherOpen = signal(false);
+  readonly lifeLauncherMode = signal<'interview' | 'annotation'>('interview');
+  readonly studentLifeOverview = signal<StudentLifeOverview | null>(null);
+  readonly selectedLifeCourseId = signal('');
+  readonly selectedLifeEnrollmentId = signal('');
   readonly todayHeaderLabel = this.formatTodayHeader();
 
   readonly modernCards = computed(() => [
@@ -104,23 +120,35 @@ export class DashboardPageComponent {
       detail: `${this.dashboard()?.pendingPlanningCount ?? 0} pendientes`,
       icon: 'grading',
       tone: 'warning',
-      route: '/dashboard/calificaciones'
+      route: '/dashboard/calificaciónes'
     },
     {
-      title: 'Planificacion',
+      title: 'Planificaciones',
       detail: 'Crear clase',
       icon: 'description',
       tone: 'accent',
-      route: '/dashboard/planificacion'
+      route: '/dashboard/planificaciones-nuevo'
     },
     {
-      title: 'Subir documentos',
+      title: 'Contenido',
       detail: 'Materiales de clase',
       icon: 'upload_file',
       tone: 'rose',
-      route: '/dashboard/planificacion/documentos'
+      route: '/dashboard/contenido'
     }
   ]);
+
+  readonly lifeCourseOptions = computed<StudentLifeCourseOption[]>(() =>
+    this.studentLifeOverview()?.courses ?? []
+  );
+
+  readonly lifeStudentOptions = computed<StudentLifeListItem[]>(() => {
+    const students = this.studentLifeOverview()?.students ?? [];
+    const courseId = Number(this.selectedLifeCourseId());
+    return Number.isFinite(courseId) && courseId > 0
+      ? students.filter((student) => student.courseId === courseId)
+      : students;
+  });
 
   readonly teacherInitials = computed(() => {
     const source = this.dashboard()?.teacherName ?? this.user()?.nombre ?? 'Docente';
@@ -135,6 +163,46 @@ export class DashboardPageComponent {
 
   constructor() {
     this.loadDashboard();
+  }
+
+  openInterviewLauncher(): void {
+    this.openLifeLauncher('interview');
+  }
+
+  openAnnotationLauncher(): void {
+    this.openLifeLauncher('annotation');
+  }
+
+  openLifeLauncher(mode: 'interview' | 'annotation'): void {
+    this.lifeLauncherMode.set(mode);
+    this.ensureSelectedLifeCourse();
+    this.selectedLifeEnrollmentId.set('');
+    this.lifeLauncherOpen.set(true);
+    if (!this.studentLifeOverview()) {
+      this.loadStudentLifeOptions();
+    }
+  }
+
+  closeLifeLauncher(): void {
+    this.lifeLauncherOpen.set(false);
+  }
+
+  updateLifeCourse(courseId: string): void {
+    this.selectedLifeCourseId.set(courseId);
+    this.selectedLifeEnrollmentId.set('');
+  }
+
+  startDashboardLifeAction(): void {
+    const student = this.selectedLifeStudent();
+    if (!student) {
+      this.snackBar.open('Selecciona un estudiante para continuar', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    this.lifeLauncherOpen.set(false);
+    void this.router.navigate(['/dashboard/hoja-vida', student.id], {
+      queryParams: { tab: this.lifeLauncherMode() === 'annotation' ? 'Convivencia' : 'Entrevista' }
+    });
   }
 
   private formatTodayHeader(): string {
@@ -194,8 +262,47 @@ export class DashboardPageComponent {
       pendingPlanningCount: 0,
       assignedCourses: [],
       weeklySchedule: [],
-      todaySchedulePreview: [],
-      planningItems: []
+      todaySchedulePreview: []
     };
+  }
+
+  private loadStudentLifeOptions(): void {
+    this.isLoadingStudentLife.set(true);
+    this.studentLifeApiService.getOverview({
+      schoolYear: new Date().getFullYear(),
+      page: 0,
+      size: 250
+    }).subscribe({
+      next: (overview) => {
+        this.studentLifeOverview.set(overview);
+        this.ensureSelectedLifeCourse();
+        this.isLoadingStudentLife.set(false);
+      },
+      error: () => {
+        this.isLoadingStudentLife.set(false);
+        this.snackBar.open('No fue posible cargar cursos y estudiantes', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
+
+  private ensureSelectedLifeCourse(): void {
+    const courses = this.studentLifeOverview()?.courses ?? [];
+    if (courses.length === 0) {
+      return;
+    }
+
+    const currentCourseId = Number(this.selectedLifeCourseId());
+    const hasCurrentCourse = courses.some((course) => course.id === currentCourseId);
+    if (!hasCurrentCourse) {
+      this.selectedLifeCourseId.set(String(courses[0].id));
+    }
+  }
+
+  private selectedLifeStudent(): StudentLifeListItem | null {
+    const enrollmentId = Number(this.selectedLifeEnrollmentId());
+    if (!Number.isFinite(enrollmentId) || enrollmentId <= 0) {
+      return null;
+    }
+    return this.studentLifeOverview()?.students.find((student) => student.id === enrollmentId) ?? null;
   }
 }

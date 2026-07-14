@@ -1,0 +1,98 @@
+@if (open) {
+  <div class="initial-oa-modal-overlay" (click)="closeModal()">
+    <section class="initial-oa-modal" (click)="$event.stopPropagation()">
+      <header class="initial-oa-modal__header">
+        <div class="initial-oa-modal__copy">
+          <h2>Selecciona OA e indicadores</h2>
+          <p>{{ courseLabel }} · {{ ambitLabel }} · {{ nucleusLabel }} · {{ subjectLabel }}</p>
+        </div>
+
+        <button type="button" class="initial-oa-modal__close" (click)="closeModal()" aria-label="Cerrar modal">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="initial-oa-modal__content">
+        @if (!objectives.length) {
+          <div class="initial-oa-modal__empty">
+            No hay OA disponibles para esta combinacion todavia.
+          </div>
+        } @else {
+          <div class="initial-oa-modal__list">
+            @for (objective of objectives; track objective.id) {
+              <article
+                class="initial-oa-card"
+                [class.is-selected]="isObjectiveSelected(objective.id)"
+                (click)="selectObjectiveCard(objective)">
+                <div class="initial-oa-card__header">
+                  <button
+                    type="button"
+                    class="initial-oa-card__checkbox"
+                    [class.is-selected]="isObjectiveSelected(objective.id)"
+                    (click)="$event.stopPropagation(); toggleObjective(objective)"
+                    [attr.aria-pressed]="isObjectiveSelected(objective.id)"
+                    [attr.aria-label]="isObjectiveSelected(objective.id) ? 'Quitar OA' : 'Seleccionar OA'">
+                    <span class="initial-oa-card__checkbox-box">
+                      @if (isObjectiveSelected(objective.id)) {
+                        <mat-icon>check</mat-icon>
+                      }
+                    </span>
+                  </button>
+
+                  <div class="initial-oa-card__summary">
+                    <div class="initial-oa-card__copy">
+                      <span class="initial-oa-card__badge">{{ objective.codigo }} · {{ objective.titulo }}</span>
+                      <strong>{{ objective.descripcion }}</strong>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="initial-oa-card__expand"
+                    (click)="$event.stopPropagation(); toggleExpanded(objective.id)"
+                    [attr.aria-label]="isExpanded(objective.id) ? 'Contraer OA' : 'Expandir OA'">
+                    <mat-icon class="initial-oa-card__chevron" [class.is-open]="isExpanded(objective.id)">expand_more</mat-icon>
+                  </button>
+                </div>
+
+                @if (isExpanded(objective.id)) {
+                  <div class="initial-oa-card__body" (click)="$event.stopPropagation()">
+                    <div class="initial-oa-card__section-title">Indicadores sugeridos</div>
+
+                    <div class="initial-oa-card__indicators">
+                      @for (indicator of objective.indicadores; track indicator) {
+                        <label
+                          class="indicator-chip"
+                          [class.is-selected]="isIndicatorSelected(objective.id, indicator)"
+                          (click)="$event.stopPropagation()">
+                          <input
+                            type="checkbox"
+                            [checked]="isIndicatorSelected(objective.id, indicator)"
+                            (click)="$event.stopPropagation()"
+                            (change)="toggleIndicator(objective, indicator)" />
+                          <span>{{ indicator }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="initial-oa-modal__footer">
+        <button type="button" class="btn btn--ghost" (click)="closeModal()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Volver</span>
+        </button>
+
+        <button type="button" class="btn btn--primary" [disabled]="!hasSelection" (click)="apply()">
+          Confirmar OA
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+

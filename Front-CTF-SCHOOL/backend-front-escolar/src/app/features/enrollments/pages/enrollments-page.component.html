@@ -8,10 +8,22 @@
   <main class="enrollments-content" [formGroup]="filtersForm">
       <section class="page-header">
         <div class="page-header__left">
-          <h1 class="page-header__title">Matriculas del sistema</h1>
-          <p class="page-header__subtitle">Administra las matriculas, datos de estudiantes y apoderados.</p>
+          <h1 class="page-header__title">Matriculas estudiantes</h1>
+          <p class="page-header__subtitle">Administra las matriculas de los estudiantes.</p>
         </div>
         <div class="page-header__actions">
+          <label class="filter-field header-filter header-filter--year" aria-label="Filtrar por año">
+            <span class="filter-field__inline-label">Año</span>
+            <span class="select-shell">
+              <mat-icon>calendar_month</mat-icon>
+              <select class="filter-select" formControlName="schoolYear">
+                @for (schoolYear of schoolYears; track schoolYear) {
+                  <option [value]="schoolYear">{{ schoolYear }}</option>
+                }
+              </select>
+            </span>
+          </label>
+
           <label class="filter-field header-filter" aria-label="Filtrar por curso">
             <span class="filter-field__inline-label">Curso</span>
             <span class="select-shell">
@@ -24,21 +36,17 @@
               </select>
             </span>
           </label>
-
-          <button
-            mat-stroked-button
-            type="button"
-            class="export-button"
-            [matMenuTriggerFor]="exportMenu"
-            [disabled]="isExporting()"
-          >
-            <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
-            Exportar
-          </button>
           <button mat-flat-button type="button" class="create-button create-button--header" (click)="goToCreate()">
             <mat-icon>add</mat-icon>
-            Nueva matricula
+            Nueva matrícula
           </button>
+          
+
+          <button mat-stroked-button type="button" class="renew-button" (click)="openRenewalPrototype()">
+            <mat-icon>autorenew</mat-icon>
+            Renovar
+          </button>
+
         </div>
       </section>
 
@@ -118,7 +126,7 @@
             <section class="empty-state">
               <mat-icon>groups</mat-icon>
               <strong>No hay matriculas para mostrar</strong>
-              <p>Ajusta los filtros o registra la primera matricula.</p>
+              <p>Ajusta los filtros o registra la primera matrícula.</p>
             </section>
           } @else {
             <div class="table-shell">
@@ -142,7 +150,7 @@
                 </ng-container>
 
                 <ng-container matColumnDef="enrollmentDate">
-                  <th mat-header-cell *matHeaderCellDef>Fecha matricula</th>
+                  <th mat-header-cell *matHeaderCellDef>Fecha matrícula</th>
                   <td mat-cell *matCellDef="let item">{{ formatEnrollmentDate(item.enrollmentDate) }}</td>
                 </ng-container>
 
@@ -175,7 +183,7 @@
                       <button mat-icon-button type="button" (click)="goToDetail(item.id)" title="Ver ficha" aria-label="Ver ficha">
                         <mat-icon>visibility</mat-icon>
                       </button>
-                      <button mat-icon-button type="button" (click)="goToEdit(item.id)" title="Editar matricula" aria-label="Editar matricula">
+                      <button mat-icon-button type="button" (click)="goToEdit(item.id)" title="Editar matrícula" aria-label="Editar matrícula">
                         <mat-icon>edit</mat-icon>
                       </button>
                       @if (isInactive(item.status)) {
@@ -183,12 +191,12 @@
                           mat-icon-button
                           type="button"
                           (click)="reactivateEnrollment(item)"
-                          title="Reactivar matricula"
-                          aria-label="Reactivar matricula">
+                          title="Reactivar matrícula"
+                          aria-label="Reactivar matrícula">
                           <mat-icon>restart_alt</mat-icon>
                         </button>
                       }
-                      <button mat-icon-button color="warn" type="button" (click)="confirmDelete(item)" title="Eliminar matricula" aria-label="Eliminar matricula">
+                      <button mat-icon-button color="warn" type="button" (click)="confirmDelete(item)" title="Eliminar matrícula" aria-label="Eliminar matrícula">
                         <mat-icon>delete</mat-icon>
                       </button>
                     </div>
@@ -215,5 +223,270 @@
           }
         </mat-card-content>
       </mat-card>
+
+      <section class="page-footer-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          class="export-button"
+          [matMenuTriggerFor]="exportMenu"
+          [disabled]="isExporting()"
+        >
+          <mat-icon>{{ isExporting() ? 'hourglass_top' : 'download' }}</mat-icon>
+          Exportar data
+        </button>
+      </section>
+
+      @if (isRenewalOpen()) {
+        <section class="renewal-modal-overlay" (click)="closeRenewal()">
+          <article class="renewal-modal" (click)="$event.stopPropagation()">
+            <header class="renewal-modal__header">
+              <div class="renewal-modal__copy">
+                <span class="renewal-modal__eyebrow">Renovacion anual</span>
+                <div class="renewal-modal__title-row">
+                  <h2>Renovar matrícula</h2>
+                  <span class="renewal-year-pill">Año actual {{ renewalSourceYear() }}</span>
+                </div>
+                <p>Selecciona un alumno, confirma sus datos y crea la matrícula del próximo año.</p>
+              </div>
+              <button type="button" class="renewal-modal__close" (click)="closeRenewal()" aria-label="Cerrar renovacion">
+                <mat-icon>close</mat-icon>
+              </button>
+            </header>
+
+            <nav class="renewal-steps" aria-label="Pasos de renovacion">
+              @for (step of renewalSteps; track step.number) {
+                <button
+                  type="button"
+                  class="renewal-step"
+                  [class.is-active]="isRenewalStepActive(step.number)"
+                  [class.is-completed]="isRenewalStepCompleted(step.number)"
+                  [disabled]="!canNavigateRenewalStep(step.number)"
+                  (click)="goToRenewalStep(step.number)">
+                  <span class="renewal-step__number">
+                    @if (isRenewalStepCompleted(step.number)) {
+                      <mat-icon>check</mat-icon>
+                    } @else {
+                      {{ step.number }}
+                    }
+                  </span>
+                  <span>{{ step.label }}</span>
+                </button>
+                @if (step.number < renewalSteps.length) {
+                  <span class="renewal-step__divider" [class.is-completed]="isRenewalStepCompleted(step.number)"></span>
+                }
+              }
+            </nav>
+
+            <div class="renewal-modal__body">
+              @if (renewalStep() === 1) {
+                <section class="renewal-panel">
+                  <div class="renewal-filter-grid">
+                    <label class="renewal-field">
+                      <span>Año origen</span>
+                      <select [value]="renewalSourceYear()" (change)="updateRenewalSourceYear($any($event.target).value)">
+                        @for (schoolYear of schoolYears; track schoolYear) {
+                          <option [value]="schoolYear.toString()" [selected]="renewalSourceYear() === schoolYear.toString()">{{ schoolYear }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <label class="renewal-field">
+                      <span>Curso actual</span>
+                      <select [value]="renewalSourceCourseId()" (change)="updateRenewalSourceCourse($any($event.target).value)">
+                        <option value="">Todos los cursos</option>
+                        @for (course of renewalCourseOptions(); track course.id) {
+                          <option [value]="course.id">{{ courseFilterLabel(course) }}</option>
+                        }
+                      </select>
+                    </label>
+                  </div>
+
+                  <label class="renewal-search">
+                    <mat-icon>search</mat-icon>
+                    <input
+                      [value]="renewalSearch()"
+                      (input)="renewalSearch.set($any($event.target).value)"
+                      placeholder="Buscar alumno por nombre, RUN o curso..." />
+                  </label>
+
+                  <div class="renewal-table-head" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span>Estudiante</span>
+                    <span>RUN</span>
+                    <span>Curso actual</span>
+                    <span>Estado</span>
+                  </div>
+
+                  <div class="renewal-list">
+                    @if (isLoadingRenewalCandidates()) {
+                      <div class="renewal-empty">
+                        <mat-icon>hourglass_empty</mat-icon>
+                        <strong>Cargando alumnos activos</strong>
+                        <p>Estamos preparando la lista de renovacion.</p>
+                      </div>
+                    } @else {
+                      @for (item of renewalCandidates(); track item.id) {
+                      <button
+                        type="button"
+                        class="renewal-student"
+                        [class.is-selected]="renewalSelectedEnrollmentId() === item.id"
+                        (click)="selectRenewalCandidate(item)">
+                        <mat-icon class="renewal-student__radio">
+                          {{ renewalSelectedEnrollmentId() === item.id ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                        </mat-icon>
+                        <span class="renewal-student__avatar">{{ initials(item) }}</span>
+                        <span class="renewal-student__copy">
+                          <strong>{{ item.fullName }}</strong>
+                          <small>{{ item.studentRun }} · {{ item.courseName }}</small>
+                        </span>
+                        <span class="renewal-student__run">{{ item.studentRun }}</span>
+                        <span class="renewal-student__course">{{ item.courseName }}</span>
+                        <span class="renewal-status-pill">{{ item.status }}</span>
+                      </button>
+                      } @empty {
+                        <div class="renewal-empty">
+                          <mat-icon>groups</mat-icon>
+                          <strong>No hay alumnos para renovar</strong>
+                          <p>Ajusta el año actual o revisa si ya tienen matrícula activa en {{ renewalTargetYear() }}.</p>
+                        </div>
+                      }
+                    }
+                  </div>
+
+                  <p class="renewal-helper">
+                    <mat-icon>info</mat-icon>
+                    Selecciona un estudiante activo del año {{ renewalSourceYear() }} para renovar su matrícula.
+                  </p>
+                </section>
+              }
+
+              @if (renewalStep() === 2) {
+                <section class="renewal-panel">
+                  @if (isLoadingRenewalDetail()) {
+                    <div class="renewal-empty">
+                      <mat-icon>hourglass_top</mat-icon>
+                      <strong>Cargando ficha del alumno</strong>
+                    </div>
+                  } @else {
+                    <div class="renewal-summary-card">
+                      <h3>Información del estudiante</h3>
+                      <div class="renewal-data-grid">
+                        <span><small>Nombre</small><strong>{{ formatFullName(renewalDetail()) }}</strong></span>
+                        <span><small>RUN</small><strong>{{ renewalDetail()?.studentRun }}</strong></span>
+                        <span><small>Curso actual</small><strong>{{ renewalDetail()?.courseName }}</strong></span>
+                        <span><small>Fecha nacimiento</small><strong>{{ formatEnrollmentDate(renewalDetail()?.birthDate ?? '') }}</strong></span>
+                        <span class="is-wide"><small>Dirección</small><strong>{{ renewalDetail()?.address || 'Sin información' }}</strong></span>
+                        <span class="is-wide"><small>Necesidades especiales</small><strong>{{ renewalDetail()?.specialNeeds || 'No' }}</strong></span>
+                      </div>
+                    </div>
+
+                    <div class="renewal-summary-card">
+                      <h3>Apoderado principal</h3>
+                      <div class="renewal-data-grid">
+                        <span><small>Nombre</small><strong>{{ renewalDetail()?.guardian?.name }} {{ renewalDetail()?.guardian?.lastName }}</strong></span>
+                        <span><small>RUN</small><strong>{{ renewalDetail()?.guardian?.run || 'Sin información' }}</strong></span>
+                        <span><small>Teléfono</small><strong>{{ renewalDetail()?.guardian?.phone || 'Sin información' }}</strong></span>
+                        <span><small>Correo</small><strong>{{ renewalDetail()?.guardian?.email || 'Sin información' }}</strong></span>
+                      </div>
+                    </div>
+                  }
+                </section>
+              }
+
+              @if (renewalStep() === 3) {
+                <section class="renewal-panel">
+                  <div class="renewal-form-grid">
+                    <label class="renewal-field">
+                      <span>Año a matricular</span>
+                      <select [value]="renewalTargetYear()" (change)="updateRenewalTargetYear($any($event.target).value)">
+                        @for (schoolYear of schoolYears; track schoolYear) {
+                          <option [value]="schoolYear.toString()" [selected]="renewalTargetYear() === schoolYear.toString()">{{ schoolYear }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label class="renewal-field">
+                      <span>Curso a matricular</span>
+                      <select [value]="renewalTargetCourseId()" (change)="updateRenewalTargetCourse($any($event.target).value)" [disabled]="isLoadingRenewalTargetCourses()">
+                        <option value="">{{ isLoadingRenewalTargetCourses() ? 'Cargando cursos...' : 'Selecciona un curso existente' }}</option>
+                        @for (course of renewalTargetCourseOptions(); track course.id) {
+                          <option [value]="course.id">{{ courseFilterLabel(course) }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label class="renewal-field">
+                      <span>Nivel</span>
+                      <input type="text" [value]="renewalTargetLevel()" readonly />
+                    </label>
+                    <label class="renewal-field">
+                      <span>Letra</span>
+                      <input type="text" [value]="renewalTargetLetter()" readonly />
+                    </label>
+                    <label class="renewal-field">
+                      <span>Jornada</span>
+                      <input type="text" [value]="renewalTargetSchedule()" readonly />
+                    </label>
+                    <label class="renewal-field">
+                      <span>Fecha matrícula</span>
+                      <input type="date" [value]="renewalDate()" (input)="renewalDate.set($any($event.target).value)" />
+                    </label>
+                  </div>
+
+                  @if (!isLoadingRenewalTargetCourses() && renewalTargetCourseOptions().length === 0) {
+                    <p class="renewal-helper renewal-helper--warning">
+                      <mat-icon>info</mat-icon>
+                      No hay cursos registrados en BD para el año {{ renewalTargetYear() }}.
+                    </p>
+                  } @else if (!isLoadingRenewalTargetCourses() && !renewalTargetCourseId()) {
+                    <p class="renewal-helper renewal-helper--warning">
+                      <mat-icon>info</mat-icon>
+                      Selecciona un curso existente de BD para continuar.
+                    </p>
+                  }
+                </section>
+              }
+
+              @if (renewalStep() === 4) {
+                <section class="renewal-panel">
+                  <div class="renewal-confirm">
+                    <mat-icon>published_with_changes</mat-icon>
+                    <div>
+                      <h3>Confirmar renovacion</h3>
+                      <p>{{ formatFullName(renewalDetail()) }} sera matriculado en {{ renewalTargetBaseName() }} {{ renewalTargetLetter() }} para el año {{ renewalTargetYear() }}.</p>
+                      @if (renewalTargetCourseId()) {
+                        <strong class="renewal-confirm__suggestion">Sugerencia final: {{ renewalTargetBaseName() }} {{ renewalTargetLetter() }} - {{ renewalTargetYear() }}</strong>
+                      }
+                    </div>
+                  </div>
+                  <div class="renewal-data-grid">
+                    <span><small>Curso actual</small><strong>{{ renewalDetail()?.courseName }}</strong></span>
+                    <span><small>Curso destino</small><strong>{{ renewalTargetBaseName() }} {{ renewalTargetLetter() }}</strong></span>
+                    <span><small>Año destino</small><strong>{{ renewalTargetYear() }}</strong></span>
+                    <span><small>Jornada</small><strong>{{ renewalTargetSchedule() }}</strong></span>
+                    <span class="is-wide"><small>Apoderado</small><strong>{{ renewalDetail()?.guardian?.name }} {{ renewalDetail()?.guardian?.lastName }}</strong></span>
+                  </div>
+                </section>
+              }
+            </div>
+
+            <footer class="renewal-modal__footer">
+              <button mat-stroked-button type="button" class="renewal-secondary" (click)="renewalStep() === 1 ? closeRenewal() : previousRenewalStep()" [disabled]="isRenewing()">
+                {{ renewalStep() === 1 ? 'Cancelar' : 'Atras' }}
+              </button>
+              @if (renewalStep() < 4) {
+                <button mat-flat-button type="button" class="renewal-primary" (click)="nextRenewalStep()" [disabled]="isLoadingRenewalDetail()">
+                  Continuar
+                </button>
+              } @else {
+                <button mat-flat-button type="button" class="renewal-primary" (click)="submitRenewal()" [disabled]="isRenewing()">
+                  <mat-icon>{{ isRenewing() ? 'hourglass_top' : 'check_circle' }}</mat-icon>
+                  Crear matrícula
+                </button>
+              }
+            </footer>
+          </article>
+        </section>
+      }
     </main>
 </app-teacher-modern-layout>

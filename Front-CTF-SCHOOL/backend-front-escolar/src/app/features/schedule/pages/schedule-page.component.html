@@ -11,6 +11,18 @@
         <p class="page-header__subtitle">Organiza, ajusta y exporta el horario semanal por curso y semestre.</p>
       </div>
       <div class="page-header__actions">
+        <label class="header-filter" aria-label="Filtrar por año">
+          <span class="header-filter__label">Año</span>
+          <span class="select-shell">
+            <mat-icon>calendar_month</mat-icon>
+            <select class="filter-select" [value]="selectedSchoolYear()" (change)="updateSchoolYear(($any($event.target).value ?? '').toString())">
+              @for (schoolYear of schoolYears; track schoolYear) {
+                <option [value]="schoolYear.toString()" [selected]="selectedSchoolYear() === schoolYear.toString()">{{ schoolYear }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
         <button mat-flat-button type="button" class="header-button header-button--primary" (click)="openCreateDialog()">
           <mat-icon>add</mat-icon>
           Nuevo horario
@@ -41,7 +53,7 @@
       <app-summary-metric-card label="Clases semanales" [value]="scheduledClassCount()" icon="calendar_view_week" tone="blue" />
       <app-summary-metric-card label="Profesores asignados" [value]="scheduledTeacherCount()" icon="groups" tone="green" />
       <app-summary-metric-card label="Recreos visibles" [value]="scheduledBreakCount()" icon="free_breakfast" tone="amber" />
-      <app-summary-metric-card label="Carga pedagogica" [value]="pedagogicalLoad()" icon="schedule" tone="red" />
+      <app-summary-metric-card label="Carga pedagógica" [value]="pedagogicalLoad()" icon="schedule" tone="red" />
     </section>
 
     <mat-card appearance="outlined" class="filters-card">
@@ -49,14 +61,12 @@
         <div class="schedule-card__toolbar">
           <div class="schedule-card__filters">
             <label class="inline-field">
-              <span class="inline-field__label">Curso</span>
+              <span class="inline-field__label">Curso:</span>
               <label class="inline-select inline-field__control inline-field__control--course">
                 <mat-icon>school</mat-icon>
-                <select
-                  [value]="selectedCourseId() ?? ''"
-                  (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
-                  @for (course of orderedCourses(); track course.id) {
-                    <option [value]="course.id">{{ course.name }}</option>
+                <select [value]="selectedCourseId() ?? ''" (change)="updateCourse($any($event.target).value ? +$any($event.target).value : null)">
+                  @for (course of coursesBySelectedYear(); track course.id) {
+                    <option [value]="course.id" [selected]="selectedCourseId() === course.id">{{ course.name }}</option>
                   }
                 </select>
               </label>
@@ -66,9 +76,10 @@
               <span class="inline-field__label">Semestre</span>
               <label class="inline-select inline-field__control inline-field__control--semester">
                 <mat-icon>calendar_month</mat-icon>
-                <select [value]="selectedSemesterId()" (change)="updateSemester(+$any($event.target).value)">
+                <select [value]="selectedSemesterId() ?? ''" (change)="updateSemester($any($event.target).value ? +$any($event.target).value : null)">
+                  <option value="" [selected]="selectedSemesterId() === null">Selecciona semestre</option>
                   @for (semester of periodOptions(); track semester.id) {
-                    <option [value]="semester.id">{{ semester.name }}</option>
+                    <option [value]="semester.id" [selected]="selectedSemesterId() === semester.id">{{ semester.name }}</option>
                   }
                 </select>
               </label>

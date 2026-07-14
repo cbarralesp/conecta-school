@@ -3,7 +3,7 @@
     title=""
     activeItem="activities"
     dashboardRoute="/alumno"
-    [userName]="user()?.nombre ?? 'Estudiante'"
+    [userName]="studentDisplayName()"
     userRole="Alumno"
     searchPlaceholder="Buscar actividades, horario, asignaturas...">
     <main class="activities-content activities-content--filled student-content">
@@ -18,7 +18,7 @@
                     <mat-icon>calendar_month</mat-icon>
                   </div>
                   <div>
-                    <h1 class="student-page-head__title">Calendario Académico</h1>
+                    <h1 class="student-page-head__title">Calendario Acad&eacute;mico</h1>
                     <p class="student-page-head__subtitle">Consulta el calendario del establecimiento y revisa las actividades publicadas para ti.</p>
                   </div>
               </div>
@@ -38,7 +38,9 @@
                 <button class="student-nav-btn" type="button" (click)="goToPreviousMonth()" aria-label="Mes anterior">
                   <mat-icon>chevron_left</mat-icon>
                 </button>
-                <button class="student-nav-today" type="button" (click)="goToToday()">{{ todayButtonLabel() }}</button>
+                <button class="student-month-display" type="button" (click)="goToToday()" aria-label="Ir a hoy">
+                  {{ todayButtonLabel() }}
+                </button>
                 <button class="student-nav-btn" type="button" (click)="goToNextMonth()" aria-label="Mes siguiente">
                   <mat-icon>chevron_right</mat-icon>
                 </button>
@@ -55,58 +57,51 @@
             </div>
           </section>
 
-          <section class="student-calendar-shell">
-            <div class="student-calendar-head">
-              @for (weekDay of weekDays; track weekDay; let i = $index) {
-                <div
-                  class="student-calendar-head__cell"
-                  [class.is-weekend]="i >= 5"
-                  [class.is-sunday]="i === 6">
-                  {{ weekDay }}
-                </div>
-              }
-            </div>
-
+          <section class="calendar-card calendar-card--modern student-calendar-card">
             @if (isLoading()) {
-              <div class="loading-copy">Cargando actividades del calendario...</div>
+              <div class="loading-copy loading-copy--modern">Cargando actividades del calendario...</div>
             } @else {
-              <div class="student-calendar-grid">
-                @for (week of studentVisibleDayActivities(); track $index) {
-                  @for (day of week; track day.isoDate; let dayIndex = $index) {
-                    <article
-                      class="student-day-cell"
-                      [class.is-empty]="!day.inCurrentMonth"
-                      [class.is-weekend]="dayIndex >= 5"
-                      [class.is-sunday]="dayIndex === 6"
-                      [class.is-today]="day.today">
-                      <div class="student-day-cell__num-wrap">
-                        <div
-                          class="student-day-cell__num"
-                          [class.is-today]="day.today"
-                          [class.is-weekend]="dayIndex >= 5"
-                          [class.is-sunday]="dayIndex === 6"
-                          [class.is-other-month]="!day.inCurrentMonth">
-                          {{ day.dayOfMonth }}
-                        </div>
-                      </div>
-
-                      <div class="student-day-cell__events">
-                        @for (activity of day.visibleActivities; track activity.id) {
-                          <article [class]="'student-chip ' + studentActivityChipClass(activity)">
-                            <span>{{ activity.title }}</span>
-                          </article>
-                        }
-
-                        @if (hiddenActivityCount(day, 3) > 0) {
-                          <button type="button" class="student-chip-more" (click)="selectDate(day.isoDate)">
-                            +{{ hiddenActivityCount(day, 3) }} mas
-                          </button>
-                        }
-                      </div>
-                    </article>
+              <section class="calendar-board student-calendar-board">
+                <div class="calendar-board__weekdays">
+                  @for (day of workWeekDays; track day) {
+                    <span class="calendar-board__weekday">
+                      {{ day }}
+                    </span>
                   }
+                </div>
+
+                @for (week of workMonthGrid(); track $index) {
+                  <div class="calendar-board__week">
+                    @for (day of week; track day.isoDate) {
+                      <article
+                        class="calendar-board__day student-calendar-board__day"
+                        [class.calendar-board__day--selected]="selectedDate() === day.isoDate"
+                        [class.calendar-board__day--today]="day.today"
+                        [class.calendar-board__day--other]="!day.inCurrentMonth"
+                        (click)="selectDate(day.isoDate)">
+                        <header class="calendar-board__day-header">
+                          <span class="calendar-board__number">{{ day.dayOfMonth }}</span>
+                        </header>
+
+                        <div class="calendar-board__events student-calendar-board__events">
+                          @for (activity of day.activities; track activity.id) {
+                            <article
+                              class="calendar-board__event-pill student-calendar-board__event-pill"
+                              [style.--event-accent]="activity.backgroundColor"
+                              [style.--event-text]="activity.textColor"
+                              (click)="openStudentActivityDetails(activity, $event)">
+                              <strong>{{ activity.title }}</strong>
+                              @if (activity.description) {
+                                <small>{{ activity.description }}</small>
+                              }
+                            </article>
+                          }
+                        </div>
+                      </article>
+                    }
+                  </div>
                 }
-              </div>
+              </section>
             }
           </section>
 
@@ -115,7 +110,7 @@
               <div class="student-panel__head">
                 <div class="student-panel__title">
                   <mat-icon>schedule</mat-icon>
-                  <span>Proximas actividades</span>
+                  <span>Próximas actividades</span>
                 </div>
               </div>
 
@@ -123,11 +118,11 @@
                 @if (upcomingItems().length === 0) {
                   <section class="empty-inline">
                     <mat-icon>event_busy</mat-icon>
-                    <span>No hay actividades proximas por ahora.</span>
+                    <span>No hay actividades próximas por ahora.</span>
                   </section>
                 } @else {
                   @for (item of upcomingItems().slice(0, 4); track item.id) {
-                    <article class="student-upcoming-row">
+                    <article class="student-upcoming-row" (click)="openStudentActivityDetails(item.activity, $event)">
                       <div class="student-upcoming-row__date">
                         <div class="student-upcoming-row__day">{{ item.dateStr.slice(8, 10) }}</div>
                         <div class="student-upcoming-row__month">{{ formatShortDate(item.dateStr) }}</div>
@@ -138,7 +133,7 @@
                         <div class="student-upcoming-row__sub">
                           {{ item.typeLabel }}
                           @if (item.activity.location) {
-                            · {{ item.activity.location }}
+                            &middot; {{ item.activity.location }}
                           }
                         </div>
                       </div>
@@ -181,6 +176,7 @@
               </div>
             </article>
           </section>
+
         </section>
       </div>
 
@@ -191,7 +187,7 @@
               <div class="pdf-export-brand">
                 <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
                 <div class="pdf-export-brand-copy">
-                  <strong>Calendario academico</strong>
+                  <strong>Calendario acad&eacute;mico</strong>
                   <span>Torre Fuerte School</span>
                 </div>
               </div>
@@ -203,25 +199,29 @@
 
             <section class="pdf-export-grid">
               <div class="pdf-export-weekdays">
-                @for (weekDay of weekDays; track weekDay) {
+                @for (weekDay of workWeekDays; track weekDay) {
                   <span>{{ weekDay }}</span>
                 }
               </div>
 
-              @for (week of exportMonthGrid(); track $index) {
+              @for (week of workExportMonthGrid(); track $index) {
                 <div class="pdf-export-week">
                   @for (day of week; track day.isoDate) {
-                    <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
+                    <article
+                      class="pdf-export-day"
+                      [class.outside-month]="!day.inCurrentMonth"
+                      [class.pdf-export-day--has-activities]="day.activities.length > 0">
                       <header>{{ day.dayOfMonth }}</header>
                       <div class="pdf-export-events">
                         @for (activity of day.activities; track activity.id) {
                           <div
                             class="pdf-export-activity"
-                            [style.background]="activity.backgroundColor"
                             [style.color]="activity.textColor"
                           >
                             <strong>{{ activity.title }}</strong>
-                            <span>{{ formatTime(activity.time) }}</span>
+                            @if (activity.description) {
+                              <p>{{ activity.description }}</p>
+                            }
                           </div>
                         }
                       </div>
@@ -245,12 +245,28 @@
     <main class="activities-page">
       <section class="page-header">
         <div class="page-header__left">
-          <span class="page-header__overline">Gestión escolar</span>
+          <span class="page-header__overline">Gesti&oacute;n escolar</span>
           <h1 class="page-header__title">Calendario de actividades</h1>
           <p class="page-header__subtitle">{{ pageDescription() }}</p>
         </div>
 
         <div class="page-header__actions">
+          <label class="inline-field inline-field--header">
+            <span class="inline-field__label">A&ntilde;o</span>
+            <div class="inline-field__control inline-field__control--year">
+              <div class="inline-select">
+                <mat-icon>calendar_today</mat-icon>
+                <select [value]="visibleYear()" (change)="updateSchoolYear($any($event.target).value)">
+                  @for (schoolYear of schoolYears; track schoolYear) {
+                    <option [value]="schoolYear.toString()" [selected]="visibleYear() === schoolYear">
+                      {{ schoolYear }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+          </label>
+
           <label class="inline-field inline-field--header">
             <span class="inline-field__label">Curso</span>
             <div class="inline-field__control inline-field__control--course">
@@ -258,7 +274,7 @@
                 <mat-icon>school</mat-icon>
                 <select [value]="selectedCourseId() ?? ''" (change)="changeCourseFilter($any($event.target).value)">
                   <option value="">Todos</option>
-              @for (course of courses(); track course.id) {
+              @for (course of filteredCourses(); track course.id) {
                     <option [value]="course.id">{{ formatCourseLabel(course) }}</option>
               }
                 </select>
@@ -323,7 +339,7 @@
         <mat-card appearance="outlined" class="stat-card stat-card--amber">
           <div class="stat-card__icon"><mat-icon>upcoming</mat-icon></div>
           <div class="stat-card__copy">
-            <span class="stat-card__label">Próximas</span>
+            <span class="stat-card__label">Pr&oacute;ximas</span>
             <span class="stat-card__value">{{ stats().upcoming }}</span>
           </div>
         </mat-card>
@@ -339,79 +355,78 @@
 
       <section class="calendar-layout">
         <mat-card appearance="outlined" class="calendar-card calendar-card--modern">
-          <div class="calendar-card__nav">
-            <button mat-icon-button type="button" class="cal-nav__btn" (click)="goToPreviousMonth()">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-            <div class="cal-nav__center">
-              <span class="cal-nav__label">{{ monthLabel() }}</span>
-              <button mat-stroked-button type="button" class="cal-nav__today" (click)="goToToday()">Hoy</button>
-            </div>
-            <button mat-icon-button type="button" class="cal-nav__btn" (click)="goToNextMonth()">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-
-          @if (isLoading()) {
-            <div class="loading-copy loading-copy--modern">Cargando actividades del calendario...</div>
-          } @else {
-            <section class="calendar-board">
-              <div class="calendar-board__weekdays">
-                @for (day of weekDays; track day; let i = $index) {
-                  <span
-                    class="calendar-board__weekday"
-                    [class.calendar-board__weekday--weekend]="i >= 5"
-                    [class.calendar-board__weekday--sunday]="i === 6">
-                    {{ day }}
-                  </span>
-                }
+            <div class="calendar-card__nav">
+              <button mat-icon-button type="button" class="cal-nav__btn" (click)="goToPreviousMonth()">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <div class="cal-nav__center">
+                <span class="cal-nav__label">{{ calendarCourseTitle() }}</span>
               </div>
+              <button mat-icon-button type="button" class="cal-nav__btn" (click)="goToNextMonth()">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
 
-              @for (week of monthGrid(); track $index) {
-                <div class="calendar-board__week">
-                  @for (day of week; track day.isoDate; let dayIndex = $index) {
-                    <article
-                      class="calendar-board__day"
-                      [class.calendar-board__day--selected]="selectedDate() === day.isoDate"
-                      [class.calendar-board__day--today]="day.today"
-                      [class.calendar-board__day--other]="!day.inCurrentMonth"
-                      [class.calendar-board__day--weekend]="dayIndex >= 5"
-                      [class.calendar-board__day--sunday]="dayIndex === 6"
-                      (click)="selectDate(day.isoDate)"
-                      (dblclick)="handleDayDoubleClick(day.isoDate)"
-                    >
-                      <header class="calendar-board__day-header">
-                        <span class="calendar-board__number">{{ day.dayOfMonth }}</span>
-                      </header>
-
-                      <div class="calendar-board__events">
-                        @for (activity of visibleDayActivities(day); track activity.id) {
-                          <button
-                            type="button"
-                            class="calendar-board__event-pill"
-                            [style.background]="activity.backgroundColor"
-                            [style.color]="activity.textColor"
-                            (click)="$event.stopPropagation(); openActivityDetails(activity)"
-                          >
-                            {{ activity.title }}
-                          </button>
-                        }
-
-                        @if (hiddenActivityCount(day) > 0) {
-                          <button type="button" class="calendar-board__event-more" (click)="$event.stopPropagation(); openDayPreview(day.isoDate)">
-                            +{{ hiddenActivityCount(day) }}
-                          </button>
-                        }
-                      </div>
-                    </article>
+            @if (isLoading()) {
+              <div class="loading-copy loading-copy--modern">Cargando actividades del calendario...</div>
+            } @else {
+              <section class="calendar-board">
+                <div class="calendar-board__weekdays">
+                  @for (day of workWeekDays; track day) {
+                    <span
+                      class="calendar-board__weekday">
+                      {{ day }}
+                    </span>
                   }
                 </div>
-              }
-            </section>
-          }
+
+                @for (week of workMonthGrid(); track $index) {
+                  <div class="calendar-board__week">
+                    @for (day of week; track day.isoDate) {
+                      <article
+                        class="calendar-board__day"
+                        [class.calendar-board__day--selected]="selectedDate() === day.isoDate"
+                        [class.calendar-board__day--today]="day.today"
+                        [class.calendar-board__day--other]="!day.inCurrentMonth"
+                        (click)="selectDate(day.isoDate)"
+                        (dblclick)="handleDayDoubleClick(day.isoDate)"
+                      >
+                        <header class="calendar-board__day-header">
+                          <span class="calendar-board__number">{{ day.dayOfMonth }}</span>
+                        </header>
+
+                        <div class="calendar-board__events">
+                          @for (activity of visibleDayActivities(day); track activity.id) {
+                            <button
+                              type="button"
+                              class="calendar-board__event-pill"
+                              [style.--event-accent]="activity.backgroundColor"
+                              [style.--event-text]="activity.textColor"
+                              [attr.aria-label]="activityHoverDetail(activity)"
+                              (click)="$event.stopPropagation(); openActivityDetails(activity)"
+                            >
+                              <strong>{{ activity.title }}</strong>
+                              @if (activity.description) {
+                                <small>{{ activity.description }}</small>
+                              }
+                            </button>
+                          }
+
+                          @if (hiddenActivityCount(day) > 0) {
+                            <button type="button" class="calendar-board__event-more" (click)="$event.stopPropagation(); openDayPreview(day.isoDate)">
+                              +{{ hiddenActivityCount(day) }}
+                            </button>
+                          }
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+            }
         </mat-card>
 
-        <aside class="activity-sidebar">
+        <aside class="activity-sidebar" [class.activity-sidebar--all-courses]="isAllCoursesSelected()">
           <div class="activity-sidebar__header">
             <span class="activity-sidebar__date">{{ selectedDateLabel() }}</span>
             <div class="activity-sidebar__header-actions">
@@ -424,8 +439,15 @@
                 <mat-icon>visibility</mat-icon>
                 Ver detalle
               </button>
-              <button mat-icon-button type="button" class="activity-sidebar__add" (click)="openNewActivityDialog(selectedDate())">
-                <mat-icon>add</mat-icon>
+              <button
+                mat-flat-button
+                type="button"
+                class="activity-sidebar__add"
+                (click)="openNewActivityDialog(selectedDate())"
+                aria-label="Nueva actividad"
+                title="Nueva actividad">
+                <mat-icon>event_available</mat-icon>
+                <span>Nueva actividad</span>
               </button>
             </div>
           </div>
@@ -435,30 +457,36 @@
               <div class="activity-empty">
                 <mat-icon>event_available</mat-icon>
                 <strong>Sin actividades</strong>
-                <span>No hay eventos para este día.</span>
+                <span>No hay eventos para este d&iacute;a.</span>
               </div>
             } @else {
-              @for (act of selectedDayActivities(); track act.id) {
+              @for (act of sidebarSelectedDayActivities(); track act.id) {
                 <article class="activity-card" [style.--activity-accent]="act.colorHex">
-                  <span class="activity-card__bar" [style.background]="act.colorHex"></span>
-                  <div class="activity-card__body">
-                    <strong class="activity-card__title">{{ act.title }}</strong>
-                    <div class="activity-card__meta">
-                      <span class="activity-card__type">{{ act.typeLabel }}</span>
-                      @if (act.courseLabel) {
-                        <span class="activity-card__course">{{ act.courseLabel }}</span>
+                  <div class="activity-card__main">
+                    <div class="activity-card__body">
+                      <strong class="activity-card__title">{{ act.title }}</strong>
+                      <div class="activity-card__date-line">
+                        <span>{{ act.shortDate }}</span>
+                        <span>{{ act.timeLabel }}</span>
+                      </div>
+                      <div class="activity-card__meta">
+                        <span class="activity-card__type">{{ act.typeLabel }}</span>
+                        @if (act.courseLabel) {
+                          <span class="activity-card__course">{{ act.courseLabel }}</span>
+                        }
+                      </div>
+                      @if (act.description) {
+                        <p class="activity-card__description">{{ act.description }}</p>
                       }
-                    </div>
-                  </div>
-                  <div class="activity-card__actions">
-                    <div class="activity-card__topline">
-                      @if (act.status === 'UPCOMING') {
-                        <span class="activity-card__status activity-card__status--upcoming">Próxima</span>
-                      } @else if (act.status === 'IN_PROGRESS') {
-                        <span class="activity-card__status activity-card__status--active">En curso</span>
-                      } @else {
-                        <span class="activity-card__status activity-card__status--done">Finalizada</span>
-                      }
+                      <div class="activity-card__topline">
+                        @if (act.status === 'UPCOMING') {
+                          <span class="activity-card__status activity-card__status--upcoming">Pr&oacute;xima</span>
+                        } @else if (act.status === 'IN_PROGRESS') {
+                          <span class="activity-card__status activity-card__status--active">En curso</span>
+                        } @else {
+                          <span class="activity-card__status activity-card__status--done">Finalizada</span>
+                        }
+                      </div>
                     </div>
                     <div class="activity-card__tools">
                       <button mat-icon-button type="button" class="activity-card__btn" (click)="openActivityDetails(act.activity)" aria-label="Ver detalle de la actividad">
@@ -474,32 +502,43 @@
                   </div>
                 </article>
               }
+              @if (selectedDayActivities().length > sidebarSelectedDayActivities().length) {
+                <button type="button" class="sidebar-limit-note" (click)="openSelectedDayDetails()">
+                  Ver m&aacute;s (+{{ selectedDayActivities().length - sidebarSelectedDayActivities().length }})
+                </button>
+              }
             }
           </div>
 
-          <div class="upcoming-section">
-            <span class="upcoming-section__title">Próximas actividades</span>
-            <div class="upcoming-list-modern">
-              @for (act of upcomingItems(); track act.id) {
-                <button class="upcoming-row" type="button" (click)="selectDate(act.dateStr)">
-                  <span class="upcoming-row__dot" [style.background]="act.colorHex"></span>
-                  <div class="upcoming-row__copy">
-                    <strong>{{ act.title }}</strong>
-                    <span>{{ act.shortDate }}</span>
-                    @if (act.courseLabel) {
-                      <small>{{ act.courseLabel }}</small>
-                    }
+          @if (!isAllCoursesSelected()) {
+            <div class="upcoming-section">
+              <span class="upcoming-section__title">Pr&oacute;ximas actividades</span>
+              <div class="upcoming-list-modern">
+                @for (act of sidebarUpcomingItems(); track act.id) {
+                  <button class="upcoming-row" type="button" (click)="selectDate(act.dateStr)">
+                    <div class="upcoming-row__copy">
+                      <strong>{{ act.title }}</strong>
+                      <span>{{ act.shortDate }}</span>
+                      @if (act.courseLabel) {
+                        <small>{{ act.courseLabel }}</small>
+                      }
+                    </div>
+                    <mat-icon class="upcoming-row__arrow">chevron_right</mat-icon>
+                  </button>
+                }
+                @if (upcomingItems().length > sidebarUpcomingItems().length) {
+                  <div class="sidebar-limit-note sidebar-limit-note--muted">
+                    +{{ upcomingItems().length - sidebarUpcomingItems().length }} pr&oacute;ximas actividades no visibles
                   </div>
-                  <mat-icon class="upcoming-row__arrow">chevron_right</mat-icon>
-                </button>
-              }
+                }
+              </div>
             </div>
-          </div>
+          }
         </aside>
       </section>
 
       <ng-template #monthDetailDialog>
-        <section class="month-detail-dialog">
+        <section class="month-detail-dialog" [class.month-detail-dialog--all-courses]="isAllCoursesSelected()">
           <header class="month-detail-dialog__header">
             <div class="month-detail-dialog__heading">
               <span class="month-detail-dialog__eyebrow">Calendario de actividades</span>
@@ -516,7 +555,7 @@
             </div>
 
             <div class="month-detail-dialog__title">
-              <strong>{{ monthLabel() }}</strong>
+              <strong>{{ calendarCourseTitle() }}</strong>
               <mat-icon>calendar_month</mat-icon>
             </div>
 
@@ -525,7 +564,7 @@
 
           <section class="month-detail-dialog__calendar">
             <div class="weekdays-row">
-              @for (weekDay of weekDays; track weekDay) {
+              @for (weekDay of workWeekDays; track weekDay) {
                 <span>{{ weekDay }}</span>
               }
             </div>
@@ -533,30 +572,39 @@
             @if (isLoading()) {
               <div class="loading-copy">Cargando actividades del calendario...</div>
             } @else {
-              @for (week of monthGrid(); track $index) {
+              @for (week of workMonthGrid(); track $index) {
                 <div class="calendar-week">
                   @for (day of week; track day.isoDate) {
-                    <article class="calendar-day" [class.outside-month]="!day.inCurrentMonth" (dblclick)="handleDayDoubleClick(day.isoDate)">
+                    <article
+                      class="calendar-day"
+                      [class.outside-month]="!day.inCurrentMonth"
+                      [class.calendar-day--has-activities]="day.activities.length > 0"
+                      (dblclick)="handleDayDoubleClick(day.isoDate)"
+                    >
                       <header class="day-header">
                         <span class="day-number" [class.today]="day.today">{{ day.dayOfMonth }}</span>
                       </header>
 
                       <div class="day-events">
-                        @for (activity of visibleDayActivities(day); track activity.id) {
+                        @for (activity of detailDayActivities(day); track activity.id) {
                           <article
                             class="activity-pill"
                             [style.background]="activity.backgroundColor"
                             [style.color]="activity.textColor"
                             (click)="openActivityDetails(activity)"
                           >
+                            @if (isAllCoursesSelected() && activityCourseLabel(activity)) {
+                              <em>{{ activityCourseLabel(activity) }}</em>
+                            }
                             <strong>{{ activity.title }}</strong>
-                            <span>{{ formatTime(activity.time) }}</span>
+                            @if (activity.description) {
+                              <p>{{ activity.description }}</p>
+                            }
                           </article>
                         }
-
-                        @if (hiddenActivityCount(day) > 0) {
-                          <button type="button" class="activity-pill activity-pill--more" (click)="openDayPreview(day.isoDate)">
-                            +{{ hiddenActivityCount(day) }}
+                        @if (hiddenDetailActivityCount(day) > 0) {
+                          <button type="button" class="activity-pill activity-pill--more activity-pill--detail-more" (click)="openDayPreview(day.isoDate)">
+                            +{{ hiddenDetailActivityCount(day) }} actividades m&aacute;s
                           </button>
                         }
                       </div>
@@ -573,7 +621,7 @@
         <section class="day-preview-dialog">
           <header class="day-preview-dialog__header">
             <div class="day-preview-dialog__heading">
-              <span class="day-preview-dialog__eyebrow">Vista previa del día</span>
+              <span class="day-preview-dialog__eyebrow">Vista previa del d&iacute;a</span>
               <strong>{{ selectedDateLabel() }}</strong>
               <small>{{ selectedDayActivities().length }} actividades</small>
             </div>
@@ -587,21 +635,25 @@
             @for (act of selectedDayActivities(); track act.id) {
               <article class="day-preview-item" [style.--preview-accent]="act.colorHex">
                 <div class="day-preview-item__body">
-                  <strong>{{ act.title }}</strong>
-                  <div class="day-preview-item__meta">
+                  <strong class="day-preview-item__summary">
                     <span>{{ act.typeLabel }}</span>
                     @if (act.courseLabel) {
                       <span>{{ act.courseLabel }}</span>
                     }
                     <span>{{ formatTime(act.activity.time) }}</span>
-                  </div>
+                    <span>-</span>
+                    <span>{{ act.title }}</span>
+                  </strong>
+                  @if (act.description) {
+                    <p class="day-preview-item__description">{{ act.description }}</p>
+                  }
                 </div>
               </article>
             } @empty {
               <div class="activity-empty">
                 <mat-icon>event_available</mat-icon>
                 <strong>Sin actividades</strong>
-                <span>No hay eventos para este día.</span>
+                <span>No hay eventos para este d&iacute;a.</span>
               </div>
             }
           </div>
@@ -615,7 +667,7 @@
               <div class="pdf-export-brand">
                 <img src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School" />
                 <div class="pdf-export-brand-copy">
-                  <strong>Calendario academico</strong>
+                  <strong>Calendario acad&eacute;mico</strong>
                   <span>Torre Fuerte School</span>
                 </div>
               </div>
@@ -627,25 +679,29 @@
 
             <section class="pdf-export-grid">
               <div class="pdf-export-weekdays">
-                @for (weekDay of weekDays; track weekDay) {
+                @for (weekDay of workWeekDays; track weekDay) {
                   <span>{{ weekDay }}</span>
                 }
               </div>
 
-              @for (week of exportMonthGrid(); track $index) {
+              @for (week of workExportMonthGrid(); track $index) {
                 <div class="pdf-export-week">
                   @for (day of week; track day.isoDate) {
-                    <article class="pdf-export-day" [class.outside-month]="!day.inCurrentMonth">
+                    <article
+                      class="pdf-export-day"
+                      [class.outside-month]="!day.inCurrentMonth"
+                      [class.pdf-export-day--has-activities]="day.activities.length > 0">
                       <header>{{ day.dayOfMonth }}</header>
                       <div class="pdf-export-events">
                         @for (activity of day.activities; track activity.id) {
                           <div
                             class="pdf-export-activity"
-                            [style.background]="activity.backgroundColor"
                             [style.color]="activity.textColor"
                           >
                             <strong>{{ activity.title }}</strong>
-                            <span>{{ formatTime(activity.time) }}</span>
+                            @if (activity.description) {
+                              <p>{{ activity.description }}</p>
+                            }
                           </div>
                         }
                       </div>

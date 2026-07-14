@@ -7,18 +7,18 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.85rem;
-  flex-wrap: wrap;
+  gap: 0.55rem;
+  flex-wrap: nowrap;
 }
 
 .grades-tabs-bar button {
-  min-height: 42px;
-  padding: 0 1rem;
+  min-height: 40px;
+  padding: 0 0.78rem;
   border-radius: 10px;
   border-color: #dbe5f0 !important;
   background: #ffffff !important;
   color: #4f6482 !important;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
@@ -34,12 +34,14 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .page-header__left {
   display: grid;
   gap: 0.18rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .page-header__title {
@@ -61,9 +63,11 @@
 .page-header__actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  flex-wrap: wrap;
+  gap: 0.55rem;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  padding-top: 0.08rem;
 }
 
 .header-button {
@@ -272,6 +276,9 @@
   min-width: 0;
 }
 
+.inline-field--header {
+  gap: 0.48rem;
+}
 
 .inline-field__label {
   color: #64748b;
@@ -283,6 +290,10 @@
 
 .inline-field__control {
   width: 188px;
+}
+
+.inline-field__control--year {
+  width: 118px;
 }
 
 .inline-field__control--course {
@@ -402,7 +413,25 @@
 }
 
 .gradebook-table-shell {
-  overflow-x: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.gradebook-table-shell::after {
+  content: 'Desliza para ver promedio y estado';
+  position: sticky;
+  left: 0;
+  bottom: 0;
+  display: none;
+  padding: 0.45rem 1rem 0.6rem;
+  background: linear-gradient(180deg, rgba(248, 251, 255, 0), #f8fbff 38%);
+  color: #7f92ad;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
 }
 
 .book-empty-state {
@@ -427,7 +456,7 @@
 .gradebook-table__head,
 .gradebook-row {
   width: 100%;
-  min-width: 0;
+  min-width: max(100%, calc(320px + (var(--evaluation-columns, 1) * 96px) + 112px));
   display: grid;
   grid-template-columns: minmax(260px, 1.8fr) repeat(var(--evaluation-columns, 1), minmax(56px, 0.62fr)) minmax(72px, 0.7fr) 32px;
   align-items: center;
@@ -739,6 +768,10 @@
 
 .profile-filters-bar .inline-field__control--date {
   width: 170px;
+}
+
+.profile-filters-bar .inline-field__control--year {
+  width: 132px;
 }
 
 .profile-filters-bar .inline-field__control--course {
@@ -2006,6 +2039,29 @@
 }
 
 @media (max-width: 1120px) {
+  .page-header {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .page-header__left,
+  .page-header__actions {
+    width: 100%;
+  }
+
+  .page-header__left {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .page-header__actions {
+    justify-content: center;
+  }
+
+  .page-header__actions .inline-field--header {
+    flex: 0 0 auto;
+  }
+
   .summary-grid,
   .metric-grid,
   .profile-grid,
@@ -2024,15 +2080,66 @@
 
   .grades-tabs-bar {
     width: 100%;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.15rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: center;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+
+  .grades-tabs-bar button {
+    width: 100%;
+    min-width: 0;
+    padding: 0 0.45rem;
+    white-space: normal;
+    line-height: 1.15;
   }
 
   .gradebook-table__head,
   .gradebook-row {
-    grid-template-columns: minmax(240px, 1.5fr) repeat(var(--evaluation-columns, 1), minmax(50px, 0.6fr)) minmax(64px, 0.7fr) 32px;
+    min-width: max(100%, calc(220px + (var(--evaluation-columns, 1) * 76px) + 104px));
+    grid-template-columns: minmax(220px, 1.35fr) repeat(var(--evaluation-columns, 1), minmax(64px, 0.55fr)) minmax(72px, 0.62fr) 28px;
+    column-gap: 0.38rem;
+  }
+
+  .gradebook-table-shell::after {
+    display: block;
+  }
+
+  .gradebook-table__head,
+  .gradebook-row {
+    padding-inline: 0.85rem;
+  }
+
+  .avatar-chip {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 14px;
+  }
+
+  .student-copy strong {
+    font-size: 0.82rem;
+    line-height: 1.12;
+  }
+
+  .student-copy small {
+    font-size: 0.72rem;
+  }
+
+  .score-input-shell {
+    width: 64px;
+  }
+
+  .score-input-shell input,
+  .score-input-shell select {
+    height: 38px;
+    font-size: 0.82rem;
+  }
+
+  .average-pill {
+    min-width: 58px;
+    height: 36px;
+    border-radius: 12px;
   }
 
   .reports-main-card__section-head {
@@ -2047,6 +2154,8 @@
 
 @media (max-width: 960px) {
   .grades-content {
+    width: min(100%, 540px);
+    margin-inline: auto;
     padding: 1rem;
   }
 
@@ -2056,14 +2165,48 @@
     grid-template-columns: 1fr;
   }
 
-  .inline-field {
+  .page-header,
+  .grades-book-card__header {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .page-header__actions,
+  .grades-book-card__header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .grades-tabs-bar {
+    width: min(100%, 402px);
+    justify-content: center;
+    margin-inline: auto;
+  }
+
+  .grades-book-card__filters,
+  .profile-filters-bar {
+    justify-content: center;
+  }
+
+  .profile-filters-bar__actions {
     width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .inline-field {
+    width: min(calc(100vw - 3rem), 402px);
     flex-direction: column;
     align-items: stretch;
     gap: 0.4rem;
+    margin-inline: auto;
   }
 
   .inline-field__control,
+  .inline-field__control--year,
   .inline-field__control--course,
   .inline-field__control--date,
   .inline-field__control--subject,
@@ -2074,7 +2217,8 @@
   }
 
   .search-field {
-    width: 100%;
+    width: min(calc(100vw - 3rem), 402px);
+    margin-inline: auto;
   }
 
   .page-header__actions,
@@ -2085,16 +2229,75 @@
   .page-header__actions .header-button,
   .grades-book-card__header-actions .header-button,
   .book-save-footer .header-button {
-    width: 100%;
+    width: min(calc(100vw - 3rem), 402px);
     justify-content: center;
   }
 
+  .grades-book-card__header-actions .search-field,
+  .grades-book-card__header-actions .header-button {
+    width: min(calc(100vw - 5rem), 340px);
+  }
+
   .book-save-footer {
+    justify-content: center;
     padding: 0;
   }
 
   .dialog-panel {
     width: calc(100% - 1.2rem);
+  }
+
+  .evaluation-kind-dialog {
+    width: min(calc(100vw - 1.2rem), 420px) !important;
+    max-height: calc(100dvh - 1.2rem);
+    overflow-y: auto !important;
+  }
+
+  .evaluation-kind-dialog__header {
+    padding: 1rem 3rem 0.9rem 1rem !important;
+  }
+
+  .evaluation-kind-dialog__header h2 {
+    font-size: 1.08rem;
+    line-height: 1.18;
+  }
+
+  .evaluation-kind-dialog__body {
+    padding: 0.8rem !important;
+  }
+
+  .evaluation-kind-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.7rem !important;
+  }
+
+  .evaluation-kind-option {
+    min-height: auto !important;
+    width: 100%;
+    padding: 0.85rem !important;
+    align-content: center !important;
+    justify-items: center !important;
+    text-align: center !important;
+    overflow: hidden;
+  }
+
+  .evaluation-kind-option > div:first-child {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .evaluation-kind-option > div:first-child > div {
+    justify-items: center;
+  }
+
+  .evaluation-kind-option strong,
+  .evaluation-kind-option small,
+  .evaluation-kind-option span {
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
   }
 
   .dialog-field-grid,
@@ -2225,6 +2428,63 @@
   gap: 0.75rem;
 }
 
+.pedagogical-bank-modal__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.pedagogical-bank-modal__new-button {
+  min-height: 40px !important;
+  padding-inline: 1rem !important;
+}
+
+.pedagogical-bank-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pedagogical-bank-form {
+  border: 1px solid #d9e6f5;
+  border-radius: 18px;
+  background: #f8fbff;
+  padding: 0.95rem 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pedagogical-bank-form__head,
+.pedagogical-bank-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pedagogical-bank-form__head strong {
+  color: #102849;
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+
+.pedagogical-bank-form__textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border-radius: 16px;
+  border: 1px solid #cfe0f5;
+  background: #fff;
+  padding: 0.9rem 1rem;
+  font: inherit;
+  color: #163457;
+  outline: none;
+}
+
+.pedagogical-bank-form__textarea:focus {
+  border-color: #0f9f6e;
+  box-shadow: 0 0 0 3px rgba(15, 159, 110, 0.12);
+}
+
 .pedagogical-bank-question {
   width: 100%;
   border: 1px solid #d9e6f5;
@@ -2239,6 +2499,10 @@
   color: #102849;
 }
 
+.pedagogical-bank-question__label {
+  flex: 1;
+}
+
 .pedagogical-bank-question.is-selected {
   border-color: #0f9f6e;
   background: #f0fdf7;
@@ -2248,6 +2512,17 @@
   color: #0f9f6e;
   display: inline-flex;
   align-items: center;
+}
+
+.pedagogical-bank-question__actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.pedagogical-bank-question__actions .mat-icon {
+  color: #6f86ab;
 }
 
 .pedagogical-bank-modal__actions {

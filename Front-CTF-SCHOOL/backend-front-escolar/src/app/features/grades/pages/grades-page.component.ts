@@ -15,13 +15,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { resolveCurrentAcademicSemester } from '../../../core/utils/academic-semester';
 import { normalizeDashboardText } from '../../../core/utils/text-normalizer';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { AttendanceApiService } from '../../../core/services/attendance-api.service';
 import { GradeApiService } from '../../../core/services/grade-api.service';
 import {
+  CreatePedagogicalQuestionBankQuestionPayload,
   PedagogicalAnswer,
   PedagogicalQuestionBankArea,
+  PedagogicalQuestionBankQuestion,
   GradeEvaluationHeader,
   GradeBookStudentRow,
   GradeBookSummary,
@@ -35,7 +38,8 @@ import {
   GradeSaveEntryPayload,
   SavePedagogicalReportPayload,
   StudentGradeCard,
-  StudentGradeProfileView
+  StudentGradeProfileView,
+  UpdatePedagogicalQuestionBankQuestionPayload
 } from '../../../core/models/grade.models';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
@@ -54,9 +58,17 @@ type EvaluationKind = 'DIAGNOSTICA' | 'PROCESO' | 'SUMATIVA';
 type PedagogicalAreaEditorState = {
   areaKey: string;
   areaTitle: string;
+  areaLevelCode: 'PREKINDER' | 'KINDER' | 'GENERAL';
+  questionKind: 'AREA' | 'RECOMMENDATION';
   isAttitude: boolean;
   selectedQuestionIds: number[];
-  questions: Array<{ id: number; label: string; sortOrder: number }>;
+  questions: PedagogicalQuestionBankQuestion[];
+};
+
+type PedagogicalQuestionEditorState = {
+  mode: 'create' | 'edit';
+  questionId: number | null;
+  label: string;
 };
 
 type ReportSubjectDetail = {
@@ -113,8 +125,10 @@ export class GradesPageComponent {
   private gradeBookRequestId = 0;
   private profileRequestId = 0;
   private reportsRequestId = 0;
+  private readonly currentSchoolYear = new Date().getFullYear();
 
   readonly user = this.authStateService.user;
+  readonly schoolYears = [2025, 2026, 2027, 2028];
   readonly activeTab = signal<GradesTab>('book');
   readonly gradeBookSearch = signal('');
   readonly evaluationDialog = signal<EvaluationDialogState | null>(null);
@@ -123,6 +137,7 @@ export class GradesPageComponent {
   readonly evaluationDetailsDialog = signal<GradeEvaluationHeader | null>(null);
   readonly catalog = signal<GradeCatalog | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
+  readonly selectedSchoolYear = signal(this.currentSchoolYear);
   readonly selectedPeriodId = signal<number | null>(null);
   readonly selectedSubjectId = signal<number | null>(null);
   readonly selectedProfileStudentId = signal<number | null>(null);
@@ -141,6 +156,8 @@ export class GradesPageComponent {
   readonly pedagogicalReports = signal<Record<number, PedagogicalReportView>>({});
   readonly pedagogicalQuestionBank = signal<PedagogicalQuestionBankArea[]>([]);
   readonly pedagogicalQuestionBankLevel = signal<'PREKINDER' | 'KINDER' | 'GENERAL' | null>(null);
+  readonly pedagogicalQuestionEditor = signal<PedagogicalQuestionEditorState | null>(null);
+  readonly pedagogicalQuestionMutationPending = signal(false);
   readonly gradeBook = signal<GradeBookView | null>(null);
   readonly gradeBookNotice = signal<string | null>(null);
   readonly studentProfile = signal<StudentGradeProfileView | null>(null);
@@ -155,7 +172,13 @@ export class GradesPageComponent {
   readonly savedObservations = signal<Record<number, string>>({});
 
   readonly courses = computed(() => this.catalog()?.courses ?? []);
+  readonly coursesBySelectedYear = computed(() =>
+    this.courses().filter((course) => course.schoolYear === this.selectedSchoolYear())
+  );
   readonly periods = computed(() => this.catalog()?.periods ?? []);
+  readonly periodsBySelectedYear = computed(() =>
+    this.periods().filter((period) => period.schoolYear === this.selectedSchoolYear())
+  );
   readonly selectedCourse = computed(() => this.courses().find((course) => course.id === this.selectedCourseId()) ?? null);
   readonly selectedPeriod = computed(() => this.periods().find((period) => period.id === this.selectedPeriodId()) ?? null);
   readonly conceptOptions = CONCEPT_OPTIONS;
@@ -390,6 +413,7 @@ export class GradesPageComponent {
   });
 
   constructor() {
+    this.clearLegacyPedagogicalLocalReports();
     this.loadCatalog();
   }
 
@@ -410,6 +434,18 @@ export class GradesPageComponent {
   updateCourse(courseId: number | null): void {
     this.selectedCourseId.set(courseId);
     this.selectedSubjectId.set(null);
+    this.clearTabState();
+    this.loadActiveView();
+  }
+
+  updateSchoolYear(value: string | number): void {
+    const nextYear = Number(value);
+    if (!Number.isFinite(nextYear)) {
+      return;
+    }
+
+    this.selectedSchoolYear.set(nextYear);
+    this.syncSelectionsForSchoolYear();
     this.clearTabState();
     this.loadActiveView();
   }
@@ -546,7 +582,7 @@ export class GradesPageComponent {
       mode: 'create',
       evaluationId: null,
       code: `N${nextNumber}`,
-      name: `Evaluacion ${nextNumber}`,
+      name: `Evaluación ${nextNumber}`,
       weight: DEFAULT_EVALUATION_WEIGHT,
       evaluationDate: this.todayIso(),
       registrationType: 'SUMATIVA'
@@ -572,7 +608,7 @@ export class GradesPageComponent {
       mode: 'create',
       evaluationId: null,
       code: `DG${nextNumber}`,
-      name: `Evaluacion diagnostica ${nextNumber}`,
+      name: `Evaluación diagnóstica ${nextNumber}`,
       weight: 0,
       evaluationDate: this.todayIso(),
       registrationType: 'DIAGNOSTICA'
@@ -742,7 +778,7 @@ export class GradesPageComponent {
     this.gradeApiService.createEvaluation(payload).subscribe({
       next: (view) => {
         this.isSaving.set(false);
-        this.handleEvaluationViewUpdate(view, 'Evaluacion creada correctamente');
+        this.handleEvaluationViewUpdate(view, 'Evaluación creada correctamente');
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
@@ -771,7 +807,7 @@ export class GradesPageComponent {
     this.gradeApiService.updateEvaluation(dialog.evaluationId, payload).subscribe({
       next: (view) => {
         this.isSaving.set(false);
-        this.handleEvaluationViewUpdate(view, 'Evaluacion actualizada correctamente');
+        this.handleEvaluationViewUpdate(view, 'Evaluación actualizada correctamente');
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
@@ -791,7 +827,7 @@ export class GradesPageComponent {
     this.gradeApiService.deleteEvaluation(evaluationId, courseId, periodId, subjectId).subscribe({
       next: (view) => {
         this.isSaving.set(false);
-        this.handleEvaluationViewUpdate(view, 'Evaluacion eliminada correctamente');
+        this.handleEvaluationViewUpdate(view, 'Evaluación eliminada correctamente');
       },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
@@ -875,7 +911,7 @@ export class GradesPageComponent {
 
     const periods = this.periods().filter((period) => period.schoolYear === selectedCourse.schoolYear);
     if (periods.length === 0) {
-      this.snackBar.open('No hay periodos del ano escolar para exportar', 'Cerrar', { duration: 2800 });
+      this.snackBar.open('No hay periodos del año escolar para exportar', 'Cerrar', { duration: 2800 });
       return;
     }
 
@@ -927,10 +963,10 @@ export class GradesPageComponent {
 
   async exportPedagogicalStudentPdf(student: StudentGradeCard | null = this.activeReportStudent()): Promise<void> {
     if (!student) {
-      this.snackBar.open('Selecciona un estudiante para descargar el informe pedagogico', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('Selecciona un estudiante para descargar el informe pedagógico', 'Cerrar', { duration: 2600 });
       return;
     }
-    await this.exportPedagogicalReportsPdf([student], `informe-pedagogico-${this.slug(student.fullName)}.pdf`);
+    await this.exportPedagogicalReportsPdf([student], `informe-pedagógico-${this.slug(student.fullName)}.pdf`);
   }
 
   async exportMassivePdf(): Promise<void> {
@@ -1000,32 +1036,28 @@ export class GradesPageComponent {
     if (!student) {
       return;
     }
-    let report: PedagogicalReportView;
     try {
-      report = await this.ensurePedagogicalReport(student);
+      const report = await this.ensurePedagogicalReport(student);
+      this.previewStudent.set(student);
+      this.pedagogicalDraft.set(report);
+      this.isPedagogicalPreviewOpen.set(true);
     } catch {
-      report = this.buildLocalPedagogicalReport(student);
-      this.snackBar.open('Se abrio una vista local del informe pedagogico', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('No fue posible cargar el informe pedagógico desde el servidor', 'Cerrar', { duration: 3200 });
     }
-    this.previewStudent.set(student);
-    this.pedagogicalDraft.set(report);
-    this.isPedagogicalPreviewOpen.set(true);
   }
 
   async openPedagogicalSheetPreview(student: StudentGradeCard | null = this.activeReportStudent()): Promise<void> {
     if (!student) {
       return;
     }
-    let report: PedagogicalReportView;
     try {
-      report = await this.ensurePedagogicalReport(student);
+      const report = await this.ensurePedagogicalReport(student);
+      this.previewStudent.set(student);
+      this.pedagogicalDraft.set(report);
+      this.isPedagogicalSheetPreviewOpen.set(true);
     } catch {
-      report = this.buildLocalPedagogicalReport(student);
-      this.snackBar.open('Se abrio una vista local del informe pedagogico', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('No fue posible cargar el informe pedagógico desde el servidor', 'Cerrar', { duration: 3200 });
     }
-    this.previewStudent.set(student);
-    this.pedagogicalDraft.set(report);
-    this.isPedagogicalSheetPreviewOpen.set(true);
   }
 
   closePedagogicalSheetPreview(): void {
@@ -1073,13 +1105,10 @@ export class GradesPageComponent {
       };
       const saved = await firstValueFrom(this.gradeApiService.savePedagogicalReport(payload));
       this.pedagogicalReports.update((current) => ({ ...current, [saved.studentId]: saved }));
-      this.persistPedagogicalReportLocally(saved);
       this.pedagogicalDraft.set(saved);
-      this.snackBar.open('Informe pedagogico guardado', 'Cerrar', { duration: 2200 });
+      this.snackBar.open('Informe pedagógico guardado', 'Cerrar', { duration: 2200 });
     } catch {
-      this.pedagogicalReports.update((current) => ({ ...current, [draft.studentId]: draft }));
-      this.persistPedagogicalReportLocally(draft);
-      this.snackBar.open('Informe pedagogico guardado localmente', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('No fue posible guardar el informe pedagógico en el servidor', 'Cerrar', { duration: 3200 });
     }
   }
 
@@ -1094,7 +1123,7 @@ export class GradesPageComponent {
       ...current,
       [student.studentId]: value || this.buildDefaultObservation(student)
     }));
-    this.snackBar.open('Observacion guardada en la vista previa', 'Cerrar', { duration: 2200 });
+    this.snackBar.open('Observación guardada en la vista previa', 'Cerrar', { duration: 2200 });
   }
 
   updateProfileSubject(subjectId: number | null): void {
@@ -1154,11 +1183,11 @@ export class GradesPageComponent {
     }
 
     if (student.overallAverage == null) {
-      return 'Aun no registra notas en este periodo.';
+      return 'Aún no registra notas en este período.';
     }
 
     if (student.overallAverage >= 6) {
-      return 'Rendimiento destacado en el periodo actual.';
+      return 'Rendimiento destacado en el período actual.';
     }
 
     if (student.overallAverage >= 4) {
@@ -1185,7 +1214,7 @@ export class GradesPageComponent {
     const completed = this.profileCompletedSubjects(student);
     const total = student.subjects.length;
     if (total === 0) {
-      return 'Sin asignaturas registradas en este periodo.';
+      return 'Sin asignaturas registradas en este período.';
     }
 
     if (completed === total) {
@@ -1300,11 +1329,11 @@ export class GradesPageComponent {
   evaluationNamePlaceholder(registrationType: GradeRegistrationType | null | undefined): string {
     switch (registrationType) {
       case 'DIAGNOSTICA':
-        return 'Evaluacion diagnostica';
+        return 'Evaluación diagnóstica';
       case 'PROCESO':
         return 'Nota de proceso';
       default:
-        return 'Evaluacion de unidad';
+        return 'Evaluación de unidad';
     }
   }
 
@@ -1385,7 +1414,11 @@ export class GradesPageComponent {
   }
 
   pdfTeacherName(): string {
-    return this.pdfText(this.user()?.nombre?.trim() || 'Profesor jefe');
+    return this.pdfText(
+      this.selectedCourse()?.teacherName?.trim()
+      || this.user()?.nombre?.trim()
+      || 'Profesor jefe'
+    );
   }
 
   pdfStudentAttendance(student: StudentGradeCard | null): string {
@@ -1701,6 +1734,13 @@ export class GradesPageComponent {
       .trim();
   }
 
+  private resolvePedagogicalQuestionAreaLevelCode(
+    areaKey: string,
+    levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'
+  ): 'PREKINDER' | 'KINDER' | 'GENERAL' {
+    return areaKey === 'area-cognitiva' ? levelCode : 'GENERAL';
+  }
+
   async openPedagogicalAreaEditor(area: PedagogicalReportArea, isAttitude = false): Promise<void> {
     const draft = this.pedagogicalDraft();
     if (!draft) {
@@ -1709,12 +1749,9 @@ export class GradesPageComponent {
 
     const bank = await this.ensurePedagogicalQuestionBank(draft.levelCode);
     const bankArea = bank.find((entry) => entry.key === area.key && entry.questionKind === 'AREA');
-    if (!bankArea) {
-      this.snackBar.open('No hay preguntas configuradas para esta area', 'Cerrar', { duration: 2600 });
-      return;
-    }
-
-    const mergedQuestions = [...bankArea.questions];
+    const questionKind: 'AREA' | 'RECOMMENDATION' = bankArea?.questionKind ?? 'AREA';
+    const areaLevelCode = bankArea?.levelCode ?? this.resolvePedagogicalQuestionAreaLevelCode(area.key, draft.levelCode);
+    const mergedQuestions = [...(bankArea?.questions ?? [])];
     for (const item of area.items) {
       const normalizedLabel = this.normalizePedagogicalQuestionText(item.label);
       const exists = mergedQuestions.some((question) =>
@@ -1723,6 +1760,8 @@ export class GradesPageComponent {
       if (!exists) {
         mergedQuestions.unshift({
           id: -1 * (mergedQuestions.length + 1),
+          levelCode: areaLevelCode,
+          questionKind,
           label: item.label,
           sortOrder: 0
         });
@@ -1739,22 +1778,119 @@ export class GradesPageComponent {
     this.pedagogicalAreaEditor.set({
       areaKey: area.key,
       areaTitle: area.title,
+      areaLevelCode,
+      questionKind,
       isAttitude,
       selectedQuestionIds,
       questions: mergedQuestions
     });
+    this.pedagogicalQuestionEditor.set(null);
   }
 
   closePedagogicalAreaEditor(): void {
     this.pedagogicalAreaEditor.set(null);
+    this.pedagogicalQuestionEditor.set(null);
+    this.pedagogicalQuestionMutationPending.set(false);
   }
 
-  pedagogicalEditorQuestions(): Array<{ id: number; label: string; sortOrder: number }> {
+  pedagogicalEditorQuestions(): PedagogicalQuestionBankQuestion[] {
     const editor = this.pedagogicalAreaEditor();
     if (!editor) {
       return [];
     }
     return editor.questions;
+  }
+
+  openPedagogicalQuestionCreate(): void {
+    this.pedagogicalQuestionEditor.set({
+      mode: 'create',
+      questionId: null,
+      label: ''
+    });
+  }
+
+  openPedagogicalQuestionEdit(question: PedagogicalQuestionBankQuestion): void {
+    if (question.id <= 0) {
+      this.snackBar.open('Solo puedes editar preguntas guardadas en el banco', 'Cerrar', { duration: 2600 });
+      return;
+    }
+    this.pedagogicalQuestionEditor.set({
+      mode: 'edit',
+      questionId: question.id,
+      label: question.label
+    });
+  }
+
+  updatePedagogicalQuestionEditorLabel(value: string): void {
+    this.pedagogicalQuestionEditor.update((current) => current ? { ...current, label: value } : current);
+  }
+
+  cancelPedagogicalQuestionEditor(): void {
+    this.pedagogicalQuestionEditor.set(null);
+  }
+
+  async savePedagogicalQuestionEditor(): Promise<void> {
+    const editor = this.pedagogicalQuestionEditor();
+    const areaEditor = this.pedagogicalAreaEditor();
+    if (!editor || !areaEditor || this.pedagogicalQuestionMutationPending()) {
+      return;
+    }
+
+    const questionText = editor.label.trim();
+    if (!questionText) {
+      this.snackBar.open('Escribe el texto de la pregunta', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    this.pedagogicalQuestionMutationPending.set(true);
+    try {
+      if (editor.mode === 'create') {
+        const payload: CreatePedagogicalQuestionBankQuestionPayload = {
+          areaKey: areaEditor.areaKey,
+          levelCode: areaEditor.areaLevelCode,
+          questionKind: areaEditor.questionKind,
+          questionText
+        };
+        await firstValueFrom(this.gradeApiService.createPedagogicalQuestionBankQuestion(payload));
+        this.snackBar.open('Pregunta agregada al banco', 'Cerrar', { duration: 2200 });
+      } else if (editor.questionId != null) {
+        const payload: UpdatePedagogicalQuestionBankQuestionPayload = { questionText };
+        await firstValueFrom(this.gradeApiService.updatePedagogicalQuestionBankQuestion(editor.questionId, payload));
+        this.snackBar.open('Pregunta actualizada', 'Cerrar', { duration: 2200 });
+      }
+
+      await this.reloadPedagogicalAreaEditorQuestions();
+      this.pedagogicalQuestionEditor.set(null);
+    } catch {
+      this.snackBar.open('No fue posible guardar la pregunta', 'Cerrar', { duration: 2800 });
+    } finally {
+      this.pedagogicalQuestionMutationPending.set(false);
+    }
+  }
+
+  async deletePedagogicalQuestion(question: PedagogicalQuestionBankQuestion): Promise<void> {
+    if (question.id <= 0 || this.pedagogicalQuestionMutationPending()) {
+      this.snackBar.open('Solo puedes eliminar preguntas guardadas en el banco', 'Cerrar', { duration: 2600 });
+      return;
+    }
+
+    this.pedagogicalQuestionMutationPending.set(true);
+    try {
+      await firstValueFrom(this.gradeApiService.deletePedagogicalQuestionBankQuestion(question.id));
+      this.pedagogicalAreaEditor.update((current) => current ? {
+        ...current,
+        selectedQuestionIds: current.selectedQuestionIds.filter((id) => id !== question.id)
+      } : current);
+      if (this.pedagogicalQuestionEditor()?.questionId === question.id) {
+        this.pedagogicalQuestionEditor.set(null);
+      }
+      await this.reloadPedagogicalAreaEditorQuestions();
+      this.snackBar.open('Pregunta eliminada del banco', 'Cerrar', { duration: 2200 });
+    } catch {
+      this.snackBar.open('No fue posible eliminar la pregunta', 'Cerrar', { duration: 2800 });
+    } finally {
+      this.pedagogicalQuestionMutationPending.set(false);
+    }
   }
 
   isPedagogicalQuestionSelected(questionId: number): boolean {
@@ -1802,16 +1938,25 @@ export class GradesPageComponent {
     const currentArea = editor.isAttitude
       ? draft.content.attitudeArea
       : draft.content.developmentAreas.find((area) => area.key === editor.areaKey) ?? null;
-    const currentAnswers = new Map((currentArea?.items ?? []).map((item) => [this.normalizePedagogicalQuestionText(item.label), item.answer]));
+    const currentAnswersById = new Map(
+      (currentArea?.items ?? [])
+        .filter((item) => item.questionId != null)
+        .map((item) => [item.questionId as number, item.answer] as const)
+    );
+    const currentAnswersByLabel = new Map(
+      (currentArea?.items ?? []).map((item) => [this.normalizePedagogicalQuestionText(item.label), item.answer] as const)
+    );
 
     const items = editor.selectedQuestionIds
       .map((questionId) => questionMap.get(questionId))
-      .filter((question): question is { id: number; label: string; sortOrder: number } => !!question)
+      .filter((question): question is PedagogicalQuestionBankQuestion => !!question)
       .sort((left, right) => left.sortOrder - right.sortOrder)
       .map((question) => ({
         questionId: question.id > 0 ? question.id : null,
         label: question.label,
-        answer: currentAnswers.get(this.normalizePedagogicalQuestionText(question.label)) ?? 'NO'
+        answer: currentAnswersById.get(question.id)
+          ?? currentAnswersByLabel.get(this.normalizePedagogicalQuestionText(question.label))
+          ?? 'NO'
       }));
 
     if (editor.isAttitude) {
@@ -1838,6 +1983,7 @@ export class GradesPageComponent {
     }
 
     this.pedagogicalAreaEditor.set(null);
+    this.pedagogicalQuestionEditor.set(null);
   }
 
   formatEvaluationDate(value: string | null | undefined): string {
@@ -1866,14 +2012,19 @@ export class GradesPageComponent {
     this.gradeApiService.getCatalog().subscribe({
       next: (catalog) => {
         this.catalog.set(catalog);
-        this.selectedCourseId.set(catalog.courses[0]?.id ?? null);
-        this.selectedPeriodId.set(catalog.periods[0]?.id ?? null);
+        const availableYears = Array.from(new Set(catalog.courses.map((course) => course.schoolYear)));
+        this.selectedSchoolYear.set(
+          availableYears.includes(this.currentSchoolYear)
+            ? this.currentSchoolYear
+            : (availableYears[0] ?? this.currentSchoolYear)
+        );
+        this.syncSelectionsForSchoolYear();
         this.isLoading.set(false);
         this.loadActiveView();
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar el catalogo de evaluaciones');
+        this.showError(error, 'No fue posible cargar el catálogo de evaluaciones');
       }
     });
   }
@@ -2140,6 +2291,32 @@ export class GradesPageComponent {
     }
   }
 
+  private syncSelectionsForSchoolYear(): void {
+    const courses = this.coursesBySelectedYear();
+    const periods = this.periodsBySelectedYear();
+    const selectedCourseId = this.selectedCourseId();
+    const selectedPeriodId = this.selectedPeriodId();
+    const preferredSemester = resolveCurrentAcademicSemester();
+    const preferredPeriodId = periods.find((period) => period.semester === preferredSemester)?.id
+      ?? periods.find((period) => period.semester === 1)?.id
+      ?? periods[0]?.id
+      ?? null;
+
+    this.selectedCourseId.set(
+      courses.some((course) => course.id === selectedCourseId)
+        ? selectedCourseId
+        : (courses[0]?.id ?? null)
+    );
+    this.selectedPeriodId.set(
+      periods.some((period) => period.id === selectedPeriodId)
+        ? selectedPeriodId
+        : preferredPeriodId
+    );
+    this.selectedSubjectId.set(null);
+    this.selectedProfileStudentId.set(null);
+    this.selectedReportStudentId.set(null);
+  }
+
   private async exportPedagogicalReportsPdf(students: StudentGradeCard[], fileName: string): Promise<void> {
     const template = this.pedagogicalPdfTemplate?.nativeElement;
     if (!template || this.isExporting()) {
@@ -2186,9 +2363,9 @@ export class GradesPageComponent {
       }
 
       pdf.save(fileName);
-      this.snackBar.open('Informe pedagogico generado correctamente', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('Informe pedagógico generado correctamente', 'Cerrar', { duration: 2600 });
     } catch {
-      this.snackBar.open('No fue posible exportar el informe pedagogico', 'Cerrar', { duration: 3200 });
+      this.snackBar.open('No fue posible exportar el informe pedagógico', 'Cerrar', { duration: 3200 });
     } finally {
       this.pdfPedagogicalReport.set(null);
       this.isExporting.set(false);
@@ -2212,6 +2389,7 @@ export class GradesPageComponent {
     this.pdfStudent.set(null);
     this.pdfPedagogicalReport.set(null);
     this.pedagogicalAreaEditor.set(null);
+    this.pedagogicalQuestionEditor.set(null);
     this.pedagogicalDraft.set(null);
     this.pedagogicalReports.set({});
     this.isReportPreviewOpen.set(false);
@@ -2391,7 +2569,7 @@ export class GradesPageComponent {
     return [
       this.reportCompletionLabel(student),
       this.profileTrendLabel(student),
-      `Documento generado automaticamente desde ConectaSchool el ${this.pdfIssueDate()}.`
+      `Documento generado automáticamente desde ConectaSchool el ${this.pdfIssueDate()}.`
     ].join('\n');
   }
 
@@ -2407,22 +2585,19 @@ export class GradesPageComponent {
       throw new Error('Missing course or period');
     }
 
-    const localReport = this.readLocalPedagogicalReport(courseId, periodId, student.studentId);
-    if (localReport) {
-      const normalizedLocal = this.withPedagogicalTeacherDefaults(localReport);
-      this.pedagogicalReports.update((current) => ({ ...current, [student.studentId]: normalizedLocal }));
-      return normalizedLocal;
+    try {
+      const report = await firstValueFrom(this.gradeApiService.getPedagogicalReport(courseId, periodId, student.studentId));
+      const normalized = this.withPedagogicalTeacherDefaults(report);
+      this.pedagogicalReports.update((current) => ({ ...current, [student.studentId]: normalized }));
+      return normalized;
+    } catch {
+      throw new Error('No fue posible obtener el informe pedagógico desde el servidor');
     }
-
-    const report = await firstValueFrom(this.gradeApiService.getPedagogicalReport(courseId, periodId, student.studentId));
-    const normalized = this.withPedagogicalTeacherDefaults(report);
-    this.pedagogicalReports.update((current) => ({ ...current, [student.studentId]: normalized }));
-    return normalized;
   }
 
-  private async ensurePedagogicalQuestionBank(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'): Promise<PedagogicalQuestionBankArea[]> {
+  private async ensurePedagogicalQuestionBank(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL', force = false): Promise<PedagogicalQuestionBankArea[]> {
     const current = this.pedagogicalQuestionBank();
-    if (current.length > 0 && this.pedagogicalQuestionBankLevel() === levelCode) {
+    if (!force && current.length > 0 && this.pedagogicalQuestionBankLevel() === levelCode) {
       return current;
     }
 
@@ -2438,6 +2613,44 @@ export class GradesPageComponent {
     this.pedagogicalQuestionBank.set(bank);
     this.pedagogicalQuestionBankLevel.set(levelCode);
     return bank;
+  }
+
+  private async reloadPedagogicalAreaEditorQuestions(): Promise<void> {
+    const editor = this.pedagogicalAreaEditor();
+    const draft = this.pedagogicalDraft();
+    if (!editor || !draft) {
+      return;
+    }
+
+    const bank = await this.ensurePedagogicalQuestionBank(draft.levelCode, true);
+    const bankArea = bank.find((entry) => entry.key === editor.areaKey && entry.questionKind === editor.questionKind);
+    const currentArea = editor.isAttitude
+      ? draft.content.attitudeArea
+      : draft.content.developmentAreas.find((area) => area.key === editor.areaKey) ?? null;
+
+    let mergedQuestions = [...(bankArea?.questions ?? [])];
+    for (const item of currentArea?.items ?? []) {
+      const normalizedLabel = this.normalizePedagogicalQuestionText(item.label);
+      const exists = mergedQuestions.some((question) =>
+        this.normalizePedagogicalQuestionText(question.label) === normalizedLabel
+      );
+      if (!exists) {
+        mergedQuestions = [{
+          id: -1 * (mergedQuestions.length + 1),
+          levelCode: editor.areaLevelCode,
+          questionKind: editor.questionKind,
+          label: item.label,
+          sortOrder: 0
+        }, ...mergedQuestions];
+      }
+    }
+
+    this.pedagogicalAreaEditor.update((current) => current ? {
+      ...current,
+      areaLevelCode: bankArea?.levelCode ?? current.areaLevelCode,
+      questions: mergedQuestions,
+      selectedQuestionIds: current.selectedQuestionIds.filter((questionId) => mergedQuestions.some((question) => question.id === questionId))
+    } : current);
   }
 
   private withPedagogicalTeacherDefaults(report: PedagogicalReportView): PedagogicalReportView {
@@ -2506,12 +2719,12 @@ export class GradesPageComponent {
           'Reconoce colores basicos',
           'Reconoce formas geometricas simples',
           'Distingue tamanos: grande, mediano y pequeno',
-          'Clasifica objetos segun color, forma o tamano',
+          'Clasifica objetos según color, forma o tamano',
           'Reconoce vocales',
           'Asocia grafema y fonema de las vocales',
           'Reconoce consonantes trabajadas',
           'Cuenta numeros del 1 al 50',
-          'Escribe o copia numeros segun su nivel',
+          'Escribe o copia numeros según su nivel',
           'Participa en juegos simbolicos',
           'Participa en actividades creativas',
           'Resuelve problemas simples con apoyo concreto'
@@ -2520,19 +2733,19 @@ export class GradesPageComponent {
           'Reconoce colores basicos',
           'Reconoce formas geometricas simples',
           'Distingue tamanos: grande, mediano y pequeno',
-          'Clasifica objetos segun color, forma o tamano',
+          'Clasifica objetos según color, forma o tamano',
           'Reconoce vocales',
           'Asocia grafema y fonema de las vocales',
           'Reconoce consonantes trabajadas',
           'Cuenta numeros del 1 al 10',
-          'Escribe o copia numeros segun su nivel',
+          'Escribe o copia numeros según su nivel',
           'Participa en juegos simbolicos',
           'Participa en actividades creativas',
           'Resuelve problemas simples con apoyo concreto'
         ];
 
     return [
-      this.createFallbackQuestionBankArea(1000, 'personal-social', 'Personal y Social', [
+        this.createFallbackQuestionBankArea(1000, 'personal-social', 'Personal y Social', 'GENERAL', 'AREA', [
         'Establece vinculos positivos con sus pares y adultos.',
         'Expresa sus emociones de manera adecuada.',
         'Comparte materiales y participa en juegos grupales.',
@@ -2544,7 +2757,7 @@ export class GradesPageComponent {
         'Demuestra empatia frente a las emociones de sus companeros.',
         'Solicita ayuda cuando lo requiere.'
       ]),
-      this.createFallbackQuestionBankArea(2000, 'lenguaje-verbal', 'Lenguaje Verbal', [
+        this.createFallbackQuestionBankArea(2000, 'lenguaje-verbal', 'Lenguaje Verbal', 'GENERAL', 'AREA', [
         'Comprende instrucciones simples',
         'Comprende instrucciones de dos pasos',
         'Escucha relatos o cuentos con atencion',
@@ -2558,7 +2771,7 @@ export class GradesPageComponent {
         'Pronuncia palabras de manera comprensible',
         'Reconoce sonidos iniciales de palabras'
       ]),
-      this.createFallbackQuestionBankArea(3000, 'area-motriz', 'Area Motriz', [
+        this.createFallbackQuestionBankArea(3000, 'area-motriz', 'Area Motriz', 'GENERAL', 'AREA', [
         'Participa activamente en juegos al aire libre',
         'Corre, salta o se desplaza con coordinacion',
         'Mantiene equilibrio en actividades motrices',
@@ -2572,8 +2785,8 @@ export class GradesPageComponent {
         'Recorta siguiendo lineas simples',
         'Muestra coordinacion fina en trabajos de mesa'
       ]),
-      this.createFallbackQuestionBankArea(4000, 'area-cognitiva', 'Area Cognitiva', areaCognitivaQuestions),
-      this.createFallbackQuestionBankArea(5000, 'actitudes-aprendizaje', 'Actitudes y disposicion al aprendizaje', [
+        this.createFallbackQuestionBankArea(4000, 'area-cognitiva', 'Area Cognitiva', levelCode, 'AREA', areaCognitivaQuestions),
+        this.createFallbackQuestionBankArea(5000, 'actitudes-aprendizaje', 'Actitudes y disposición al aprendizaje', 'GENERAL', 'AREA', [
         'Muestra interes por las actividades propuestas',
         'Participa con entusiasmo en clases',
         'Respeta normas del aula',
@@ -2589,21 +2802,26 @@ export class GradesPageComponent {
   }
 
   private createFallbackQuestionBankArea(
-    baseId: number,
-    key: string,
-    title: string,
-    labels: string[]
+      baseId: number,
+      key: string,
+      title: string,
+      areaLevelCode: 'PREKINDER' | 'KINDER' | 'GENERAL',
+      questionKind: 'AREA' | 'RECOMMENDATION',
+      labels: string[]
   ): PedagogicalQuestionBankArea {
-    return {
-      key,
-      title,
-      questionKind: 'AREA',
-      questions: labels.map((label, index) => ({
-        id: baseId + index + 1,
-        label,
-        sortOrder: index + 1
-      }))
-    };
+      return {
+        key,
+        title,
+        levelCode: areaLevelCode,
+        questionKind,
+        questions: labels.map((label, index) => ({
+          id: baseId + index + 1,
+          levelCode: areaLevelCode,
+          questionKind,
+          label,
+          sortOrder: index + 1
+        }))
+      };
   }
 
   private defaultPedagogicalAreas(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'): PedagogicalReportArea[] {
@@ -2645,7 +2863,7 @@ export class GradesPageComponent {
   }
 
   private defaultPedagogicalAttitudeArea(): PedagogicalReportArea {
-    return this.createPedagogicalArea('actitudes-aprendizaje', 'Actitudes y disposicion al aprendizaje', 'stars', '#f0fdf4', '#15803d', [
+    return this.createPedagogicalArea('actitudes-aprendizaje', 'Actitudes y disposición al aprendizaje', 'stars', '#f0fdf4', '#15803d', [
       'Interes y entusiasmo por actividades',
       'Respeto por las normas del aula',
       'Perseverancia frente a desafios',
@@ -2672,30 +2890,18 @@ export class GradesPageComponent {
     };
   }
 
-  private pedagogicalStorageKey(courseId: number, periodId: number, studentId: number): string {
-    return `pedagogical-report:${courseId}:${periodId}:${studentId}`;
-  }
-
-  private persistPedagogicalReportLocally(report: PedagogicalReportView): void {
+  private clearLegacyPedagogicalLocalReports(): void {
     try {
-      localStorage.setItem(
-        this.pedagogicalStorageKey(report.courseId, report.periodId, report.studentId),
-        JSON.stringify(report)
-      );
-    } catch {
-      // Ignore local storage failures and keep the in-memory cache.
-    }
-  }
-
-  private readLocalPedagogicalReport(courseId: number, periodId: number, studentId: number): PedagogicalReportView | null {
-    try {
-      const raw = localStorage.getItem(this.pedagogicalStorageKey(courseId, periodId, studentId));
-      if (!raw) {
-        return null;
+      const keysToRemove: string[] = [];
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (key?.startsWith('pedagogical-report:')) {
+          keysToRemove.push(key);
+        }
       }
-      return JSON.parse(raw) as PedagogicalReportView;
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
     } catch {
-      return null;
+      // Ignore storage cleanup errors.
     }
   }
 
@@ -2758,7 +2964,7 @@ export class GradesPageComponent {
         of({
           period: {
             id: periodId,
-            name: this.periods().find((item) => item.id === periodId)?.name ?? `Periodo ${periodId}`,
+            name: this.periods().find((item) => item.id === periodId)?.name ?? `Período ${periodId}`,
             semester: this.periods().find((item) => item.id === periodId)?.semester ?? null
           },
           subjects: [],

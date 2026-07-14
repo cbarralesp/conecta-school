@@ -32,6 +32,8 @@ import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-lay
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CoursesPageComponent {
+  private static readonly SCHOOL_YEARS = [2025, 2026, 2027, 2028] as const;
+
   private readonly courseApiService = inject(CourseApiService);
   private readonly authStateService = inject(AuthStateService);
   private readonly snackBar = inject(MatSnackBar);
@@ -41,12 +43,15 @@ export class CoursesPageComponent {
   readonly displayedColumns = ['code', 'name', 'letter', 'schoolYear', 'scheduleType', 'students', 'actions'];
   readonly courses = signal<Course[]>([]);
   readonly teachers = signal<TeacherCatalogItem[]>([]);
+  readonly schoolYears = CoursesPageComponent.SCHOOL_YEARS;
+  readonly selectedSchoolYear = signal(this.defaultSchoolYear());
   readonly searchTerm = signal('');
   readonly levelFilter = signal('all');
   readonly scheduleFilter = signal('all');
 
   readonly summaryCards = computed(() => {
-    const courses = this.courses();
+    const schoolYear = Number(this.selectedSchoolYear());
+    const courses = this.courses().filter((course) => course.schoolYear === schoolYear);
     const schoolYears = Array.from(new Set(courses.map((course) => course.schoolYear))).sort((a, b) => b - a);
     const distinctShifts = Array.from(new Set(courses.map((course) => course.scheduleType))).length;
     const totalStudents = courses.reduce((total, course) => total + course.studentCount, 0);
@@ -62,7 +67,7 @@ export class CoursesPageComponent {
       {
         label: 'Año principal',
         value: schoolYears[0] ?? '-',
-        ring: 'ANO',
+        ring: 'A\u00d1O',
         icon: 'calendar_month',
         tone: 'success'
       },
@@ -87,6 +92,7 @@ export class CoursesPageComponent {
     const search = this.searchTerm().trim().toLowerCase();
     const level = this.levelFilter();
     const schedule = this.scheduleFilter();
+    const schoolYear = Number(this.selectedSchoolYear());
 
     return this.courses().filter((course) => {
       const matchesSearch = !search
@@ -99,8 +105,9 @@ export class CoursesPageComponent {
 
       const matchesLevel = level === 'all' || normalizedLevel === level;
       const matchesSchedule = schedule === 'all' || normalizedSchedule === schedule;
+      const matchesSchoolYear = course.schoolYear === schoolYear;
 
-      return matchesSearch && matchesLevel && matchesSchedule;
+      return matchesSearch && matchesLevel && matchesSchedule && matchesSchoolYear;
     });
   });
 
@@ -148,6 +155,10 @@ export class CoursesPageComponent {
 
   updateScheduleFilter(value: string): void {
     this.scheduleFilter.set(value);
+  }
+
+  updateSchoolYear(value: string): void {
+    this.selectedSchoolYear.set(value);
   }
 
   courseDisplayName(course: Course): string {
@@ -298,5 +309,12 @@ export class CoursesPageComponent {
     }
 
     return this.teachers().find((teacher) => teacher.id === teacherId)?.fullName ?? '';
+  }
+
+  private defaultSchoolYear(): string {
+    const currentYear = new Date().getFullYear();
+    return this.schoolYears.includes(currentYear as typeof this.schoolYears[number])
+      ? `${currentYear}`
+      : `${this.schoolYears[0]}`;
   }
 }

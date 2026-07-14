@@ -56,6 +56,7 @@ export class StudentSubjectDocumentsComponent implements OnDestroy {
   readonly documentsView = signal<StudentSubjectDocumentsResponse | null>(null);
   readonly activeFilter = signal<DocumentFilterCode>('TODOS');
   readonly searchTerm = signal('');
+  readonly studentDisplayName = signal('Estudiante');
 
   readonly visibleUnits = computed(() => {
     const response = this.documentsView();
@@ -95,6 +96,15 @@ export class StudentSubjectDocumentsComponent implements OnDestroy {
   );
 
   constructor() {
+    this.studentApiService.getDashboard().subscribe({
+      next: (dashboard) => {
+        this.studentDisplayName.set(dashboard.studentName || 'Estudiante');
+      },
+      error: () => {
+        this.studentDisplayName.set('Estudiante');
+      }
+    });
+
     this.route.paramMap.subscribe((params) => {
       const subjectId = Number(params.get('subjectId'));
       if (!Number.isFinite(subjectId) || subjectId <= 0) {
@@ -117,6 +127,28 @@ export class StudentSubjectDocumentsComponent implements OnDestroy {
 
   setFilter(filter: DocumentFilterCode): void {
     this.activeFilter.set(filter);
+  }
+
+  formatTeacherName(name: string): string {
+    const clean = (name ?? '').trim().replace(/\s+/g, ' ');
+    if (!clean) {
+      return 'Docente asignado';
+    }
+
+    const parts = clean.split(' ');
+    if (parts.length <= 2) {
+      return clean;
+    }
+
+    return `${parts[0]} ${parts[parts.length - 2]} ${parts[parts.length - 1]}`;
+  }
+
+  weeklyBlocksLabel(blocks: number): string {
+    if (blocks <= 0) {
+      return 'Sin bloques asignados';
+    }
+
+    return `${blocks} ${blocks === 1 ? 'bloque' : 'bloques'} / semana`;
   }
 
   openDocument(document: StudentSubjectDocumentItem): void {

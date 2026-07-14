@@ -1,0 +1,93 @@
+@if (open) {
+  <div class="initial-activity-modal-overlay" (click)="closeModal()">
+    <section class="initial-activity-modal" (click)="$event.stopPropagation()">
+      <header class="initial-activity-modal__header">
+        <div class="initial-activity-modal__copy">
+          <h2>Actividades sugeridas</h2>
+          <p>{{ courseLabel }} · {{ ambitLabel }} · {{ nucleusLabel }} · {{ subjectLabel }}</p>
+        </div>
+
+        <button type="button" class="initial-activity-modal__close" (click)="closeModal()" aria-label="Cerrar modal">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="initial-activity-modal__content">
+        @if (!suggestions.length) {
+          <div class="initial-activity-modal__empty">
+            No hay actividades sugeridas para los OA seleccionados todavia.
+          </div>
+        } @else {
+          <div class="initial-activity-list">
+            @for (suggestion of suggestions; track suggestion.id) {
+              <article class="initial-activity-card">
+                <div class="initial-activity-card__top">
+                  <div>
+                    <div class="initial-activity-card__badges">
+                      @for (code of suggestion.objectiveCodes; track code) {
+                        <span class="initial-activity-card__badge">{{ code }}</span>
+                      }
+                    </div>
+                    <h3>{{ suggestion.title }}</h3>
+                    <p>{{ suggestion.summary }}</p>
+                  </div>
+
+                  <button type="button" class="btn btn--primary" (click)="apply(suggestion)">
+                    Aplicar
+                  </button>
+                </div>
+
+                @if (suggestion.highlightedIndicators.length) {
+                  <div class="initial-activity-card__section">
+                    <span class="initial-activity-card__label">Indicadores considerados</span>
+                    <div class="initial-activity-card__chips">
+                      @for (indicator of suggestion.highlightedIndicators; track indicator) {
+                        <span class="initial-activity-card__chip">{{ indicator }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="initial-activity-card__grid">
+                  <section class="activity-block">
+                    <span class="activity-block__title">Inicio</span>
+                    <p>{{ suggestion.startActivity }}</p>
+                  </section>
+
+                  <section class="activity-block">
+                    <span class="activity-block__title">Desarrollo</span>
+                    <p>{{ suggestion.developmentActivity }}</p>
+                  </section>
+
+                  <section class="activity-block">
+                    <span class="activity-block__title">Cierre</span>
+                    <p>{{ suggestion.closingActivity }}</p>
+                  </section>
+                </div>
+
+                @if (suggestion.materials.length) {
+                  <div class="initial-activity-card__section">
+                    <span class="initial-activity-card__label">Materiales</span>
+                    <div class="initial-activity-card__chips">
+                      @for (material of suggestion.materials; track material) {
+                        <span class="initial-activity-card__chip initial-activity-card__chip--material">{{ material }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="initial-activity-modal__footer">
+        <button type="button" class="btn btn--ghost" (click)="closeModal()">
+          <mat-icon>arrow_back</mat-icon>
+          <span>Volver</span>
+        </button>
+      </footer>
+    </section>
+  </div>
+}
+

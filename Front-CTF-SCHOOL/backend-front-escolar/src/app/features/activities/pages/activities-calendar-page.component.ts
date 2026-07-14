@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+﻿import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, ElementRef, TemplateRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import html2canvas from 'html2canvas';
@@ -36,6 +36,8 @@ interface SelectedActivityItem {
   title: string;
   typeLabel: string;
   courseLabel: string | null;
+  timeLabel: string;
+  description: string | null;
   colorHex: string;
   dateStr: string;
   shortDate: string;
@@ -83,6 +85,7 @@ export class ActivitiesCalendarPageComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   private readonly today = new Date();
+  readonly schoolYears = [2025, 2026, 2027, 2028];
 
   readonly isLoading = signal(false);
   readonly isExportingPdf = signal(false);
@@ -93,6 +96,7 @@ export class ActivitiesCalendarPageComponent {
   readonly courses = signal<Course[]>([]);
   readonly selectedCourseId = signal<number | null>(null);
   readonly studentCourseName = signal<string>('');
+  readonly studentDisplayName = signal('Estudiante');
   readonly visibleYear = signal(this.today.getFullYear());
   readonly visibleMonth = signal(this.today.getMonth() + 1);
   readonly isReadOnly = signal(false);
@@ -102,10 +106,11 @@ export class ActivitiesCalendarPageComponent {
   readonly pageDescription = computed(() =>
     this.isReadOnly()
       ? 'Consulta el calendario mensual del establecimiento y revisa las actividades publicadas para ti en modo solo lectura.'
-      : 'Visualiza y administra las actividades, feriados y eventos del año escolar 2026.'
+      : 'Visualiza y administra las actividades, feriados y eventos del a\u00f1o escolar 2026.'
   );
 
-  readonly weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  readonly weekDays = ['Lun', 'Mar', 'Mi\u00e9', 'Jue', 'Vie', 'S\u00e1b', 'Dom'];
+  readonly workWeekDays = this.weekDays.slice(0, 5);
   readonly monthLabel = computed(() => this.calendar()?.monthLabel ?? 'Cargando...');
   readonly todayButtonLabel = computed(() =>
     new Intl.DateTimeFormat('es-CL', {
@@ -119,6 +124,10 @@ export class ActivitiesCalendarPageComponent {
   readonly exportCalendarView = computed(() => this.exportCalendar() ?? this.calendar());
   readonly exportMonthLabel = computed(() => this.exportCalendarView()?.monthLabel ?? this.monthLabel());
   readonly pdfTitle = computed(() => `Calendario ${this.exportMonthLabel()} - ${this.exportCourseName() ?? this.selectedCourseName()}`);
+  readonly filteredCourses = computed(() =>
+    this.courses().filter((course) => course.schoolYear === this.visibleYear())
+  );
+  readonly isAllCoursesSelected = computed(() => !this.selectedCourseId());
   readonly selectedCourseName = computed(() => {
     if (this.isReadOnly() && this.studentCourseName().trim()) {
       return this.studentCourseName().trim();
@@ -128,9 +137,11 @@ export class ActivitiesCalendarPageComponent {
     if (!selectedCourseId) {
       return 'Todos los cursos';
     }
-    const course = this.courses().find((item) => item.id === selectedCourseId);
+    const course = this.filteredCourses().find((item) => item.id === selectedCourseId)
+      ?? this.courses().find((item) => item.id === selectedCourseId);
     return course ? this.formatCourseLabel(course) : 'Curso';
   });
+  readonly calendarCourseTitle = computed(() => `Calendario ${this.monthLabel()} - ${this.selectedCourseName()}`);
   readonly stats = computed<ActivityStats>(() => {
     const calendar = this.calendar();
     if (!calendar) {
@@ -146,10 +157,12 @@ export class ActivitiesCalendarPageComponent {
     const days = this.calendarDays();
     return Array.from({ length: Math.ceil(days.length / 7) }, (_, index) => days.slice(index * 7, index * 7 + 7));
   });
+  readonly workMonthGrid = computed(() => this.monthGrid().map((week) => week.slice(0, 5)));
   readonly exportMonthGrid = computed(() => {
     const days = this.exportCalendarDays();
     return Array.from({ length: Math.ceil(days.length / 7) }, (_, index) => days.slice(index * 7, index * 7 + 7));
   });
+  readonly workExportMonthGrid = computed(() => this.exportMonthGrid().map((week) => week.slice(0, 5)));
   readonly calendarCells = computed(() =>
     this.calendarDays().map((day) => ({
       dateStr: day.isoDate,
@@ -164,40 +177,20 @@ export class ActivitiesCalendarPageComponent {
 
   readonly selectedDayActivities = computed<SelectedActivityItem[]>(() => {
     const selectedDate = this.selectedDate();
-    const todayIso = this.toIsoDate(this.today);
     const day = this.calendarDays().find((item) => item.isoDate === selectedDate);
 
     return (day?.activities ?? [])
       .slice()
       .sort((left, right) => (left.time ?? '23:59').localeCompare(right.time ?? '23:59'))
-      .map((activity) => ({
-        id: activity.id,
-        title: activity.title,
-        typeLabel: activity.activityTypeName,
-        courseLabel: this.activityCourseLabel(activity),
-        colorHex: activity.backgroundColor,
-        dateStr: activity.date,
-        shortDate: this.formatShortDate(activity.date),
-        status: this.resolveActivityStatus(activity, todayIso),
-        activity
-      }));
+      .map((activity) => this.toSelectedActivityItem(activity));
   });
 
   readonly upcomingItems = computed<SelectedActivityItem[]>(() => {
-    const todayIso = this.toIsoDate(this.today);
-
-    return (this.calendar()?.upcomingActivities ?? []).map((activity) => ({
-      id: activity.id,
-      title: activity.title,
-      typeLabel: activity.activityTypeName,
-      courseLabel: this.activityCourseLabel(activity),
-      colorHex: activity.backgroundColor,
-      dateStr: activity.date,
-      shortDate: this.formatShortDate(activity.date),
-      status: this.resolveActivityStatus(activity, todayIso),
-      activity
-    }));
+    return (this.calendar()?.upcomingActivities ?? []).map((activity) => this.toSelectedActivityItem(activity));
   });
+
+  readonly sidebarSelectedDayActivities = computed(() => this.limitSidebarItems(this.selectedDayActivities()));
+  readonly sidebarUpcomingItems = computed(() => this.limitSidebarItems(this.upcomingItems()));
 
   readonly selectedDateLabel = computed(() =>
     new Intl.DateTimeFormat('es-CL', {
@@ -206,15 +199,16 @@ export class ActivitiesCalendarPageComponent {
       year: 'numeric'
     }).format(new Date(`${this.selectedDate()}T00:00:00`))
   );
+  readonly selectedDateIsToday = computed(() => this.selectedDate() === this.toIsoDate(this.today));
   readonly studentLegendItems: StudentLegendItem[] = [
     { key: 'exam', label: 'Prueba' },
     { key: 'hw', label: 'Entrega' },
     { key: 'event', label: 'Evento' },
     { key: 'holiday', label: 'Feriado' },
-    { key: 'meeting', label: 'Reunion' }
+    { key: 'meeting', label: 'Reunión' }
   ];
   readonly studentVisibleDayActivities = computed(() =>
-    this.monthGrid().map((week) =>
+    this.workMonthGrid().map((week) =>
       week.map((day) => ({
         ...day,
         visibleActivities: day.activities.slice(0, 3)
@@ -256,7 +250,7 @@ export class ActivitiesCalendarPageComponent {
       { key: 'exam', label: 'Pruebas', value: totals.exam },
       { key: 'hw', label: 'Entregas', value: totals.hw },
       { key: 'event', label: 'Eventos', value: totals.event },
-      { key: 'meeting', label: 'Reuniones', value: totals.meeting },
+      { key: 'meeting', label: 'Reuniónes', value: totals.meeting },
       { key: 'holiday', label: 'Feriados', value: totals.holiday },
       { key: 'week', label: 'Esta semana', value: totals.week }
     ];
@@ -287,6 +281,25 @@ export class ActivitiesCalendarPageComponent {
   changeCourseFilter(rawValue: string | number | null): void {
     const nextCourseId = rawValue === null || rawValue === '' ? null : Number(rawValue);
     this.selectedCourseId.set(Number.isFinite(nextCourseId as number) ? nextCourseId : null);
+    this.loadCalendar();
+  }
+
+  updateSchoolYear(rawValue: string | number): void {
+    const nextYear = Number(rawValue);
+    if (!Number.isFinite(nextYear)) {
+      return;
+    }
+
+    this.visibleYear.set(nextYear);
+    this.syncCourseSelectionForYear();
+    const selectedMonth = this.visibleMonth();
+    const todayIso = this.toIsoDate(this.today);
+    const monthPrefix = `${nextYear}-${String(selectedMonth).padStart(2, '0')}`;
+    this.selectedDate.set(
+      todayIso.startsWith(monthPrefix)
+        ? todayIso
+        : this.toIsoDate(new Date(nextYear, selectedMonth - 1, 1))
+    );
     this.loadCalendar();
   }
 
@@ -325,6 +338,30 @@ export class ActivitiesCalendarPageComponent {
     return Math.max(day.activities.length - limit, 0);
   }
 
+  detailDayActivities(day: ActivityCalendarDay): SchoolActivity[] {
+    return this.isAllCoursesSelected() ? day.activities.slice(0, 4) : day.activities;
+  }
+
+  hiddenDetailActivityCount(day: ActivityCalendarDay): number {
+    return this.isAllCoursesSelected() ? Math.max(day.activities.length - 4, 0) : 0;
+  }
+
+  private limitSidebarItems(items: SelectedActivityItem[]): SelectedActivityItem[] {
+    return this.isAllCoursesSelected() ? items.slice(0, 6) : items;
+  }
+
+  activityHoverDetail(activity: SchoolActivity): string {
+    return [
+      activity.title,
+      activity.activityTypeName,
+      this.activityCourseLabel(activity),
+      activity.time,
+      activity.description
+    ]
+      .filter((value): value is string => !!value?.trim())
+      .join(' - ');
+  }
+
   activityCourseLabel(activity: SchoolActivity): string | null {
     if (activity.courseName?.trim()) {
       return activity.courseName.trim();
@@ -337,7 +374,7 @@ export class ActivitiesCalendarPageComponent {
     const calendar = this.calendar();
     const exportTarget = this.pdfCalendarRef?.nativeElement;
     if (!calendar || !exportTarget || this.monthGrid().length === 0) {
-      this.snackBar.open('El calendario todavía no está listo para exportar', 'Cerrar', { duration: 2600 });
+      this.snackBar.open('El calendario todav\u00eda no est\u00e1 listo para exportar', 'Cerrar', { duration: 2600 });
       return;
     }
 
@@ -345,7 +382,7 @@ export class ActivitiesCalendarPageComponent {
       this.isExportingPdf.set(true);
 
       if (!this.isReadOnly() && this.selectedCourseId() == null) {
-        const activeCourses = this.courses();
+        const activeCourses = this.filteredCourses();
         if (activeCourses.length === 0) {
           this.snackBar.open('No hay cursos disponibles para exportar', 'Cerrar', { duration: 2600 });
           return;
@@ -362,34 +399,11 @@ export class ActivitiesCalendarPageComponent {
         return;
       }
 
-      const canvas = await html2canvas(exportTarget, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true
-      });
-
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 8;
-      const printableWidth = pageWidth - margin * 2;
-      const printableHeight = pageHeight - margin * 2;
-      const scale = Math.min(printableWidth / canvas.width, printableHeight / canvas.height);
-      const renderedWidth = canvas.width * scale;
-      const renderedHeight = canvas.height * scale;
-      const x = (pageWidth - renderedWidth) / 2;
-      const y = (pageHeight - renderedHeight) / 2;
-
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, renderedWidth, renderedHeight, undefined, 'FAST');
-      pdf.save(this.buildPdfFileName(calendar.monthLabel));
+      await this.renderPdfFromCalendar(calendar, this.selectedCourseName());
 
       this.snackBar.open('Calendario descargado en PDF', 'Cerrar', { duration: 2600 });
-    } catch {
+    } catch (error) {
+      console.error('Error al generar PDF de calendario', error);
       this.snackBar.open('No fue posible generar el PDF del calendario', 'Cerrar', { duration: 3200 });
     } finally {
       this.exportCalendar.set(null);
@@ -466,8 +480,8 @@ export class ActivitiesCalendarPageComponent {
         selectedDate,
         courseId: this.selectedCourseId()
       },
-      width: '860px',
-      maxWidth: '84vw',
+      width: '1036px',
+      maxWidth: 'calc(100vw - 2rem)',
       maxHeight: '88vh',
       autoFocus: false,
       panelClass: 'activity-dialog-panel',
@@ -505,8 +519,8 @@ export class ActivitiesCalendarPageComponent {
         activity,
         courseId: activity.courseId ?? this.selectedCourseId()
       },
-      width: '860px',
-      maxWidth: '84vw',
+      width: '1036px',
+      maxWidth: 'calc(100vw - 2rem)',
       maxHeight: '88vh',
       autoFocus: false,
       panelClass: 'activity-dialog-panel',
@@ -534,7 +548,32 @@ export class ActivitiesCalendarPageComponent {
   }
 
   openActivityDetails(activity: SchoolActivity): void {
-    this.openEditActivityDialog(activity);
+    this.openStudentActivityDetails(activity);
+  }
+
+  openStudentActivityDetails(activity: SchoolActivity, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedDate.set(activity.date);
+
+    const calendar = this.calendar();
+    if (!calendar) {
+      return;
+    }
+
+    this.dialog.open(ActivityDialogComponent, {
+      data: {
+        activityTypes: calendar.activityTypes,
+        activity,
+        courseId: activity.courseId ?? this.selectedCourseId(),
+        readOnly: true
+      },
+      width: '720px',
+      maxWidth: 'calc(100vw - 2rem)',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: ['activity-dialog-panel', 'activity-dialog-panel--compact-detail'],
+      backdropClass: 'activity-dialog-backdrop'
+    });
   }
 
   openSelectedDayDetails(dateStr?: string): void {
@@ -605,7 +644,7 @@ export class ActivitiesCalendarPageComponent {
 
   formatTime(time: string | null): string {
     if (!time) {
-      return 'Todo el día';
+      return 'Todo el d\u00eda';
     }
     return time.slice(0, 5);
   }
@@ -619,6 +658,11 @@ export class ActivitiesCalendarPageComponent {
       .replace('.', '')
       .replace(/^0/, '')
       .toUpperCase();
+  }
+
+  activitySidebarIcon(activity: SchoolActivity): string {
+    const icon = (activity.icon ?? '').trim();
+    return icon.length > 0 ? icon : 'event';
   }
 
   studentActivityTone(activity: SchoolActivity): 'exam' | 'hw' | 'event' | 'holiday' | 'meeting' {
@@ -660,9 +704,9 @@ export class ActivitiesCalendarPageComponent {
     }
 
     if (
-      code.includes('reunion') ||
-      name.includes('reunion') ||
-      title.includes('reunion') ||
+      code.includes('reunión') ||
+      name.includes('reunión') ||
+      title.includes('reunión') ||
       title.includes('consejo') ||
       title.includes('apoderado')
     ) {
@@ -696,7 +740,7 @@ export class ActivitiesCalendarPageComponent {
       case 'holiday':
         return 'Feriado';
       case 'meeting':
-        return 'Reunion';
+        return 'Reunión';
       default:
         return 'Evento';
     }
@@ -716,7 +760,7 @@ export class ActivitiesCalendarPageComponent {
 
   studentMonthAriaLabel(): string {
     const label = this.monthLabel();
-    return `Modulo de actividades mensuales, calendario academico de ${label}.`;
+    return `Módulo de actividades mensuales, calendario académico de ${label}.`;
   }
 
   formatCourseLabel(course: Course): string {
@@ -760,11 +804,24 @@ export class ActivitiesCalendarPageComponent {
     this.courseApiService.findAll().subscribe({
       next: (courses) => {
         this.courses.set(courses.filter((course) => course.active));
+        this.syncCourseSelectionForYear();
       },
       error: () => {
         this.courses.set([]);
       }
     });
+  }
+
+  private syncCourseSelectionForYear(): void {
+    const selectedCourseId = this.selectedCourseId();
+    if (selectedCourseId == null) {
+      return;
+    }
+
+    const existsInSelectedYear = this.filteredCourses().some((course) => course.id === selectedCourseId);
+    if (!existsInSelectedYear) {
+      this.selectedCourseId.set(null);
+    }
   }
 
   private loadStudentCalendarContext(): void {
@@ -777,6 +834,7 @@ export class ActivitiesCalendarPageComponent {
 
       const currentCourse = dashboard?.enrolledCourses[0] ?? null;
       const currentCourseName = currentCourse?.courseName ?? '';
+      this.studentDisplayName.set(dashboard?.studentName?.trim() || 'Estudiante');
       const resolvedCourseId =
         this.resolveStudentCourseId(currentCourseName, activeCourses) ?? currentCourse?.id ?? null;
 
@@ -830,6 +888,7 @@ export class ActivitiesCalendarPageComponent {
     this.exportCalendar.set(calendar);
     this.exportCourseName.set(courseName);
     await this.waitForRender();
+    await this.waitForPdfAssets(exportTarget);
 
     const canvas = await html2canvas(exportTarget, {
       backgroundColor: '#ffffff',
@@ -855,7 +914,7 @@ export class ActivitiesCalendarPageComponent {
     const y = (pageHeight - renderedHeight) / 2;
 
     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, renderedWidth, renderedHeight, undefined, 'FAST');
-    pdf.save(this.buildPdfFileName(calendar.monthLabel, courseName));
+    this.downloadPdfFile(pdf, this.buildPdfFileName(calendar.monthLabel, courseName));
   }
 
   private buildPdfFileName(monthLabel: string, courseName?: string): string {
@@ -897,6 +956,19 @@ export class ActivitiesCalendarPageComponent {
     window.URL.revokeObjectURL(url);
   }
 
+  private downloadPdfFile(pdf: jsPDF, fileName: string): void {
+    const blob = pdf.output('blob');
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
   private resolveActivityStatus(activity: SchoolActivity, todayIso: string): 'UPCOMING' | 'IN_PROGRESS' | 'DONE' {
     const endDate = activity.endDate ?? activity.date;
     if (activity.date > todayIso) {
@@ -912,5 +984,37 @@ export class ActivitiesCalendarPageComponent {
 
   private waitForRender(): Promise<void> {
     return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  }
+
+  private toSelectedActivityItem(activity: SchoolActivity): SelectedActivityItem {
+    const todayIso = this.toIsoDate(this.today);
+
+    return {
+      id: activity.id,
+      title: activity.title,
+      typeLabel: activity.activityTypeName,
+      courseLabel: this.activityCourseLabel(activity),
+      timeLabel: this.formatTime(activity.time),
+      description: activity.description?.trim() || null,
+      colorHex: activity.backgroundColor,
+      dateStr: activity.date,
+      shortDate: this.formatShortDate(activity.date),
+      status: this.resolveActivityStatus(activity, todayIso),
+      activity
+    };
+  }
+
+  private async waitForPdfAssets(target: HTMLElement): Promise<void> {
+    const images = Array.from(target.querySelectorAll('img'));
+    await Promise.all(images.map((image) => {
+      if (image.complete && image.naturalWidth > 0) {
+        return Promise.resolve();
+      }
+
+      return new Promise<void>((resolve, reject) => {
+        image.addEventListener('load', () => resolve(), { once: true });
+        image.addEventListener('error', () => reject(new Error('No fue posible cargar una imagen del PDF')), { once: true });
+      });
+    }));
   }
 }

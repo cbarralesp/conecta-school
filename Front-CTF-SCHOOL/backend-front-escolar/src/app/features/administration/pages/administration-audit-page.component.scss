@@ -407,24 +407,150 @@ select.filter-control {
 }
 
 @media (max-width: 768px) {
+  .audit-page,
+  .page-header__left,
+  .table-card {
+    min-width: 0;
+  }
+
+  .page-header,
+  .filters-card {
+    text-align: center;
+    justify-items: center;
+  }
+
+  .page-header__left,
+  .page-header__actions,
+  .filter-field,
+  .filters-actions {
+    width: 100%;
+  }
+
+  .page-header__title,
+  .page-header__subtitle {
+    overflow-wrap: anywhere;
+  }
+
   .summary-grid,
   .filters-grid {
     grid-template-columns: 1fr;
   }
 
-  .page-header__actions,
-  .filters-actions,
-  .btn-secondary {
+  .summary-grid app-summary-metric-card {
     width: 100%;
   }
 
   .filters-actions {
-    justify-content: stretch;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
   }
 
   .btn-primary,
   .btn-secondary {
     width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .table-shell {
+    overflow: visible;
+  }
+
+  .audit-table,
+  .audit-table tbody,
+  .audit-table tr,
+  .audit-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .audit-table thead {
+    display: none;
+  }
+
+  .audit-table {
+    border-collapse: separate;
+  }
+
+  .audit-table tr {
+    margin: 0 0 0.75rem;
+    overflow: hidden;
+    border: 1px solid #e5ecf4;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .audit-table td {
+    display: grid;
+    grid-template-columns: minmax(92px, 0.36fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.78rem 0.9rem;
+    text-align: right;
+  }
+
+  .audit-table td::before {
+    color: #8193ad;
+    content: attr(data-label);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .audit-table td:nth-child(1)::before { content: 'Accion'; }
+  .audit-table td:nth-child(2)::before { content: 'Fecha'; }
+  .audit-table td:nth-child(3)::before { content: 'Rol'; }
+  .audit-table td:nth-child(4)::before { content: 'Estado'; }
+
+  .action-group {
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .user-info {
+    min-width: 0;
+  }
+
+  .user-info strong,
+  .user-info span,
+  .timestamp {
+    overflow-wrap: anywhere;
+  }
+
+  .role-pill,
+  .status-badge {
+    justify-self: end;
+    text-align: center;
+  }
+
+  .audit-paginator {
+    overflow-x: auto;
+  }
+
+  .audit-paginator ::ng-deep .mat-mdc-paginator-container {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .audit-table td {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .action-group {
+    justify-content: flex-start;
+  }
+
+  .role-pill,
+  .status-badge {
+    justify-self: start;
   }
 }

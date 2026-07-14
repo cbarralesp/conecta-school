@@ -47,13 +47,13 @@ interface CourseStudentsDialogData {
           <div class="students-dialog__empty">
             <mat-icon>hourglass_top</mat-icon>
             <strong>Cargando alumnos del curso</strong>
-            <p>Estamos consultando la informacion real de matriculas.</p>
+            <p>Estamos consultando la información real de matrículas.</p>
           </div>
         } @else if (filteredStudents().length === 0) {
           <div class="students-dialog__empty">
             <mat-icon>groups</mat-icon>
             <strong>No hay alumnos para mostrar</strong>
-            <p>Ajusta la busqueda o revisa las matriculas del curso.</p>
+            <p>Ajusta la busqueda o revisa las matrículas del curso.</p>
           </div>
         } @else {
           <div class="students-list">
@@ -438,23 +438,39 @@ interface CourseStudentsDialogData {
 
     @media (max-width: 720px) {
       .students-dialog {
-        width: min(96vw, 96vw);
+        width: calc(100vw - 0.75rem);
+        max-height: calc(100dvh - 0.75rem);
         padding: 0.9rem;
+        overflow: hidden;
+      }
+
+      .students-dialog__header {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .students-dialog__body {
+        max-height: calc(100dvh - 14rem);
       }
 
       .student-row {
         grid-template-columns: 1fr;
-        align-items: flex-start;
+        align-items: center;
+        justify-items: center;
+        text-align: center;
       }
 
       .student-row__meta {
         width: 100%;
-        justify-content: space-between;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
       .students-dialog__confirm-actions,
       .students-dialog__footer {
-        grid-auto-flow: row;
+        display: grid;
+        grid-template-columns: 1fr;
       }
 
       .students-dialog__confirm-actions button,

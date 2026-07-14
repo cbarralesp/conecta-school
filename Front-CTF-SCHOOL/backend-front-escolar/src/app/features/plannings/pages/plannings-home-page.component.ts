@@ -1,18 +1,26 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { AdministrationConfirmDialogComponent } from '../../administration/components/administration-confirm-dialog.component';
 import {
   PlanningClass,
+  PlanningClassDocument,
   PlanningSummary,
   PlanningSummaryUnit,
   PlanningUnitCatalogAssignment
 } from '../../../core/models/planning.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { Course } from '../../../core/models/course.models';
+import { Subject } from '../../../core/models/subject.models';
+import { CourseApiService } from '../../../core/services/course-api.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
+import { SubjectApiService } from '../../../core/services/subject-api.service';
+import { resolveCurrentAcademicSemester } from '../../../core/utils/academic-semester';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type PlanningTab = 'units' | 'schedule' | 'class-by-class' | 'evaluations';
@@ -34,11 +42,18 @@ type PlanningUnitCard = {
   unitNumber: number | null;
   title: string;
   period: string;
+  weekRange: string;
+  startDate: string | null;
+  endDate: string | null;
   description: string;
   classes: number;
+  plannedClasses: number;
   resources: number;
   coverage: number;
   tone: 'violet' | 'emerald' | 'amber' | 'blue';
+  accentColor: string;
+  accentSurface: string;
+  accentSurfaceStrong: string;
   statusLabel: string;
   classRows: PlanningUnitClassRow[];
 };
@@ -48,15 +63,23 @@ type PlanningUnitClassRow = {
   unitId: number;
   number: number;
   title: string;
+  tone: PlanningUnitCard['tone'];
+  accentColor: string;
+  accentSurface: string;
+  isEvaluation: boolean;
+  objectiveCode: string;
   objective: string;
+  objectiveSummary: string;
   statusLabel: string;
   statusTone: 'planned' | 'progress' | 'completed';
   documentsCount: number;
+  documents: PlanningClassDocument[];
 };
 
 type ClassPreviewObjective = {
   code: string;
   description: string;
+  indicators: string[];
 };
 
 type ClassPreviewPhase = {
@@ -70,11 +93,13 @@ type ClassByClassCard = {
   id: string;
   classId: number | null;
   unitId: number;
+  unitNumber: number | null;
   unitTitle: string;
   unitTone: PlanningUnitCard['tone'];
   classNumber: number;
   title: string;
   objective: string;
+  objectiveDisplay: string;
   objectiveCode: string;
   statusLabel: string;
   statusTone: PlanningUnitClassRow['statusTone'];
@@ -124,31 +149,39 @@ type ScheduleUnit = {
 })
 export class PlanningsHomePageComponent {
   private readonly authStateService = inject(AuthStateService);
+  private readonly courseApiService = inject(CourseApiService);
+  private readonly subjectApiService = inject(SubjectApiService);
   private readonly planningApiService = inject(PlanningApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly currentSchoolYear = new Date().getFullYear();
+  private readonly schoolYearOptions = [2025, 2026, 2027, 2028];
 
   readonly user = this.authStateService.user;
 
-  readonly tabs: Array<{ id: PlanningTab; label: string }> = [
-    { id: 'units', label: 'Unidades' },
+  readonly tabs = computed<Array<{ id: PlanningTab; label: string }>>(() => [
+    { id: 'units', label: this.isInitialEducationFlow() ? 'Ámbitos' : 'Unidades' },
     { id: 'schedule', label: 'Cronograma' },
     { id: 'class-by-class', label: 'Clase a clase' },
     { id: 'evaluations', label: 'Evaluaciones' }
-  ];
+  ]);
 
   readonly semesters: FilterOption<number>[] = [
     { value: 1, label: 'Primer semestre' },
     { value: 2, label: 'Segundo semestre' }
   ];
-  readonly scheduleWeeks = Array.from({ length: 16 }, (_, index) => index + 1);
+  readonly scheduleWeeks = Array.from({ length: 24 }, (_, index) => index + 1);
   readonly scheduleMonths = computed<ScheduleMonth[]>(() => {
     return this.selectedSemester() === 2
       ? [
-        { label: 'Agosto', startWeek: 1, span: 4 },
-        { label: 'Septiembre', startWeek: 5, span: 4 },
-        { label: 'Octubre', startWeek: 9, span: 4 },
-        { label: 'Noviembre', startWeek: 13, span: 4 }
+        { label: 'Julio', startWeek: 1, span: 4 },
+        { label: 'Agosto', startWeek: 5, span: 4 },
+        { label: 'Septiembre', startWeek: 9, span: 4 },
+        { label: 'Octubre', startWeek: 13, span: 4 },
+        { label: 'Noviembre', startWeek: 17, span: 4 },
+        { label: 'Diciembre', startWeek: 21, span: 4 }
       ]
       : [
         { label: 'Marzo', startWeek: 1, span: 4 },
@@ -170,8 +203,8 @@ export class PlanningsHomePageComponent {
     }
 
     const month = now.getMonth() + 1;
-    const semesterStartMonth = semester === 2 ? 8 : 3;
-    const semesterEndMonth = semester === 2 ? 11 : 6;
+    const semesterStartMonth = semester === 2 ? 7 : 3;
+    const semesterEndMonth = semester === 2 ? 12 : 6;
 
     if (month < semesterStartMonth || month > semesterEndMonth) {
       return null;
@@ -180,14 +213,14 @@ export class PlanningsHomePageComponent {
     const semesterStart = new Date(year, semesterStartMonth - 1, 1);
     const diffDays = Math.floor((now.getTime() - semesterStart.getTime()) / (1000 * 60 * 60 * 24));
     const week = Math.floor(diffDays / 7) + 1;
-    return Math.min(Math.max(week, 1), 16);
+    return Math.min(Math.max(week, 1), 24);
   });
   readonly scheduleUnits = computed<ScheduleUnit[]>(() => {
     const unitCards = this.unitCards();
     const classRecords = this.classRecords();
 
     return unitCards.map((unit) => {
-      const weekRange = this.parseWeekRange(unit.period);
+      const weekRange = this.resolveUnitScheduleRange(unit);
       const unitClasses = classRecords
         .filter((planningClass) => planningClass.unitId === unit.id)
         .sort((left, right) => left.plannedDate.localeCompare(right.plannedDate));
@@ -228,57 +261,105 @@ export class PlanningsHomePageComponent {
   readonly dashboard = signal<PlanningSummary | null>(null);
   readonly classRecords = signal<PlanningClass[]>([]);
   readonly assignments = signal<PlanningUnitCatalogAssignment[]>([]);
+  readonly availableCourses = signal<Course[]>([]);
+  readonly availableSubjects = signal<Subject[]>([]);
   readonly selectedYear = signal<number | null>(null);
   readonly selectedCourseId = signal<number | null>(null);
   readonly selectedSubjectId = signal<number | null>(null);
-  readonly selectedSemester = signal<number | null>(1);
+  readonly selectedSemester = signal<number | null>(resolveCurrentAcademicSemester());
+  readonly preferredUnitId = signal<number | null>(null);
   readonly openUnitId = signal<number | null>(null);
   readonly openClassMenuId = signal<number | null>(null);
+  readonly openClassResourcesId = signal<number | null>(null);
   readonly pendingUploadClassId = signal<number | null>(null);
+  readonly updatingDocumentVisibilityIds = signal<number[]>([]);
+  readonly selectedDetailUnitId = signal<number | null>(null);
+  readonly selectedDetailClassId = signal<number | null>(null);
   readonly selectedClassPreview = signal<PlanningClass | null>(null);
   readonly selectedPreviewUnit = signal<PlanningUnitCard | null>(null);
   readonly isPreviewLoading = signal(false);
 
   readonly years = computed<FilterOption<number>[]>(() => {
-    const values = Array.from(new Set(this.assignments().map((item) => item.schoolYear))).sort((a, b) => b - a);
+    const values = Array.from(
+      new Set([...this.schoolYearOptions, ...this.assignments().map((item) => item.schoolYear)])
+    ).sort((a, b) => a - b);
     return values.map((value) => ({ value, label: String(value) }));
   });
 
   readonly courses = computed<FilterOption<number>[]>(() => {
     const year = this.selectedYear();
-    const seen = new Map<number, string>();
+    const courseMap = new Map<number, FilterOption<number>>();
 
-    for (const assignment of this.assignments()) {
-      if (year != null && assignment.schoolYear !== year) {
-        continue;
-      }
-      if (!seen.has(assignment.courseId)) {
-        seen.set(assignment.courseId, assignment.courseName);
-      }
-    }
+    this.assignments()
+      .filter((assignment) => year == null || assignment.schoolYear === year)
+      .forEach((assignment) => {
+        if (courseMap.has(assignment.courseId)) {
+          return;
+        }
 
-    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }));
+        const course = this.availableCourses().find((item) => item.id === assignment.courseId);
+        const label = course?.letter
+          ? `${course.name} ${course.letter}`
+          : assignment.courseName;
+
+        courseMap.set(assignment.courseId, {
+          value: assignment.courseId,
+          label
+        });
+      });
+
+    return Array.from(courseMap.values())
+      .sort((left, right) => left.label.localeCompare(right.label, 'es', { numeric: true, sensitivity: 'base' }));
   });
 
   readonly subjects = computed<FilterOption<number>[]>(() => {
-    const year = this.selectedYear();
     const courseId = this.selectedCourseId();
-    const seen = new Map<number, string>();
+    const subjectMap = new Map<number, FilterOption<number>>();
 
-    for (const assignment of this.assignments()) {
-      if (year != null && assignment.schoolYear !== year) {
-        continue;
-      }
-      if (courseId != null && assignment.courseId !== courseId) {
-        continue;
-      }
-      if (!seen.has(assignment.subjectId)) {
-        seen.set(assignment.subjectId, assignment.subjectName);
-      }
-    }
+    this.assignments()
+      .filter((assignment) => courseId == null || assignment.courseId === courseId)
+      .forEach((assignment) => {
+        if (subjectMap.has(assignment.subjectId)) {
+          return;
+        }
 
-    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }));
+        const subject = this.availableSubjects().find((item) => item.id === assignment.subjectId);
+        subjectMap.set(assignment.subjectId, {
+          value: assignment.subjectId,
+          label: subject?.name ?? assignment.subjectName
+        });
+      });
+
+    return Array.from(subjectMap.values())
+      .sort((left, right) => left.label.localeCompare(right.label, 'es', { numeric: true, sensitivity: 'base' }));
   });
+  readonly selectedCourseModel = computed(() =>
+    this.availableCourses().find((course) => course.id === this.selectedCourseId()) ?? null
+  );
+  readonly isInitialEducationFlow = computed(() => this.matchesInitialEducationCourse(this.selectedCourseModel()));
+  readonly unitSingularLabel = computed(() => this.isInitialEducationFlow() ? 'ámbito' : 'unidad');
+  readonly unitPluralLabel = computed(() => this.isInitialEducationFlow() ? 'ámbitos' : 'unidades');
+  readonly pageTitleLabel = computed(() => this.isInitialEducationFlow() ? 'Ámbitos' : 'Unidades');
+  readonly pageSubtitleLabel = computed(() =>
+    this.isInitialEducationFlow() ? 'Gestiona los ámbitos de aprendizaje.' : 'Gestiona las unidades de aprendizaje.'
+  );
+  readonly createUnitLabel = computed(() => this.isInitialEducationFlow() ? 'Nuevo ámbito' : 'Crear unidad');
+  readonly firstCreateUnitLabel = computed(() => this.isInitialEducationFlow() ? 'Crear tu primer ámbito' : 'Crear tu primera unidad');
+  readonly summaryTitleLabel = computed(() => this.isInitialEducationFlow() ? 'Resumen de ámbitos' : 'Resumen de unidades');
+  readonly emptyStateTitleLabel = computed(() =>
+    this.isInitialEducationFlow() ? 'Aún no tienes ámbitos creados' : 'Aún no tienes unidades creadas'
+  );
+  readonly emptyStateDescriptionLabel = computed(() =>
+    this.isInitialEducationFlow()
+      ? 'Comienza creando tu primer ámbito para organizar los objetivos de aprendizaje y clases de este semestre.'
+      : 'Comienza creando tu primera unidad para organizar los objetivos de aprendizaje y clases de este semestre.'
+  );
+  readonly loadingUnitsLabel = computed(() => this.isInitialEducationFlow() ? 'Cargando ámbitos...' : 'Cargando unidades...');
+  readonly infoBannerLabel = computed(() =>
+    this.isInitialEducationFlow()
+      ? 'Crea ámbitos, agrega clases y define objetivos de aprendizaje a tu ritmo.'
+      : 'Crea unidades, agrega clases y define objetivos de aprendizaje a tu ritmo.'
+  );
 
   readonly hasRequiredFilters = computed(() =>
     this.selectedYear() != null &&
@@ -290,10 +371,39 @@ export class PlanningsHomePageComponent {
   readonly hasUnits = computed(() => (this.dashboard()?.units.length ?? 0) > 0);
 
   readonly averageCoverage = computed(() => this.dashboard()?.summary.semesterProgressPercent ?? 0);
+  readonly totalLearningObjectives = computed(() => {
+    const objectiveCodes = new Set<string>();
+
+    for (const planningClass of this.classRecords()) {
+      for (const objective of planningClass.curriculumObjectives) {
+        const normalizedCode = this.normalizeObjectiveCode(objective.codigo);
+        if (normalizedCode) {
+          objectiveCodes.add(normalizedCode);
+        }
+      }
+
+      for (const selection of planningClass.objectiveSelections) {
+        const normalizedCode = this.normalizeObjectiveCode(selection.objectiveCode);
+        if (normalizedCode) {
+          objectiveCodes.add(normalizedCode);
+        }
+      }
+
+      const normalizedMainCode = this.normalizeObjectiveCode(
+        planningClass.objectiveCode || this.extractObjectiveCode(planningClass.objectiveTitle || planningClass.objectiveDescription)
+      );
+      if (normalizedMainCode) {
+        objectiveCodes.add(normalizedMainCode);
+      }
+    }
+
+    return objectiveCodes.size;
+  });
 
   readonly unitCards = computed<PlanningUnitCard[]>(() => {
     const palette: PlanningUnitCard['tone'][] = ['violet', 'emerald', 'amber', 'blue'];
-    return (this.dashboard()?.units ?? []).map((unit, index) => this.mapUnitCard(unit, palette[index % palette.length]));
+    return this.sortPlanningUnits(this.dashboard()?.units ?? [])
+      .map((unit, index) => this.mapUnitCard(unit, palette[index % palette.length]));
   });
 
   readonly summaryItems = computed<SummaryItem[]>(() => {
@@ -303,17 +413,68 @@ export class PlanningsHomePageComponent {
     const hours = this.unitCards().reduce((acc, unit) => acc + unit.classes, 0);
     return [
       { label: 'Total de clases', value: String(totalClasses), icon: 'calendar_month', tone: 'violet' },
-      { label: 'Objetivos de aprendizaje', value: '0', icon: 'fact_check', tone: 'blue' },
-      { label: 'Unidades', value: String(totalUnits), icon: 'menu_book', tone: 'amber' },
+      { label: 'Objetivos de aprendizaje', value: String(this.totalLearningObjectives()), icon: 'fact_check', tone: 'blue' },
+      { label: this.isInitialEducationFlow() ? 'Ámbitos' : 'Unidades', value: String(totalUnits), icon: 'menu_book', tone: 'amber' },
       { label: 'Horas planificadas', value: `${hours} hrs`, icon: 'schedule', tone: 'emerald' },
       { label: 'Cobertura OA promedio', value: `${this.averageCoverage()}%`, icon: 'donut_small', tone: 'gray' }
     ];
   });
 
-  readonly currentTabLabel = computed(() => {
-    return this.tabs.find((tab) => tab.id === this.activeTab())?.label ?? 'Unidades';
+  readonly selectedUnitDetail = computed<PlanningUnitCard | null>(() => {
+    const units = this.unitCards();
+    const selectedId = this.selectedDetailUnitId() ?? this.openUnitId();
+    return units.find((unit) => unit.id === selectedId) ?? units[0] ?? null;
   });
-  readonly previewObjectives = computed<ClassPreviewObjective[]>(() => {
+
+  readonly selectedClassDetailRow = computed<PlanningUnitClassRow | null>(() => {
+    const unit = this.selectedUnitDetail();
+    if (!unit) {
+      return null;
+    }
+
+    const selectedClassId = this.selectedDetailClassId();
+    if (selectedClassId != null) {
+      const selectedRow = unit.classRows.find((classRow) => classRow.id === selectedClassId);
+      if (selectedRow) {
+        return selectedRow;
+      }
+    }
+
+    return unit.classRows[0] ?? null;
+  });
+
+  readonly selectedClassDetail = computed<PlanningClass | null>(() => {
+    const selectedRow = this.selectedClassDetailRow();
+    if (selectedRow?.id == null) {
+      return null;
+    }
+
+    return this.classRecords().find((planningClass) => planningClass.id === selectedRow.id) ?? null;
+  });
+
+  readonly selectedUnitClassProgress = computed(() => {
+    const unit = this.selectedUnitDetail();
+    const plannedClasses = unit?.plannedClasses ?? 0;
+    if (!unit || plannedClasses <= 0) {
+      return 0;
+    }
+
+    return Math.min(Math.round((unit.classRows.length / plannedClasses) * 100), 100);
+  });
+
+  readonly selectedClassDetailProgress = computed(() => {
+    const planningClass = this.selectedClassDetail();
+    if (!planningClass) {
+      return 0;
+    }
+
+    return planningClass.status === 'PUBLICADA' ? 100 : 50;
+  });
+
+  readonly currentTabLabel = computed(() => {
+    return this.tabs().find((tab) => tab.id === this.activeTab())?.label ?? this.pageTitleLabel();
+  });
+  readonly previewUnitObjectives = computed<ClassPreviewObjective[]>(() => {
     const planningClass = this.selectedClassPreview();
     if (!planningClass) {
       return [];
@@ -322,17 +483,62 @@ export class PlanningsHomePageComponent {
     if (planningClass.curriculumObjectives.length) {
       return planningClass.curriculumObjectives.map((objective) => ({
         code: objective.codigo,
-        description: objective.descripcion
+        description: objective.descripcion,
+        indicators: []
       }));
     }
 
     return planningClass.objectiveCode
       ? [{
         code: planningClass.objectiveCode,
-        description: planningClass.objectiveDescription || planningClass.objectiveTitle || 'OA principal de la clase.'
+        description: planningClass.objectiveDescription || planningClass.objectiveTitle || 'OA principal de la clase.',
+        indicators: []
       }]
       : [];
   });
+  readonly previewClassObjectives = computed<ClassPreviewObjective[]>(() => {
+    const planningClass = this.selectedClassPreview();
+    if (!planningClass) {
+      return [];
+    }
+
+    const unitObjectivesByCode = new Map(
+      this.previewUnitObjectives().map((objective) => [
+        this.normalizeObjectiveCode(objective.code),
+        objective
+      ] as const)
+    );
+
+    if (planningClass.objectiveSelections.length) {
+      const seenCodes = new Set<string>();
+
+      return planningClass.objectiveSelections.reduce<ClassPreviewObjective[]>((acc, selection) => {
+        const normalizedCode = this.normalizeObjectiveCode(selection.objectiveCode);
+        if (!normalizedCode || seenCodes.has(normalizedCode)) {
+          return acc;
+        }
+
+        seenCodes.add(normalizedCode);
+        const matchedObjective = unitObjectivesByCode.get(normalizedCode);
+
+        acc.push({
+          code: selection.objectiveCode || matchedObjective?.code || 'OA',
+          description: matchedObjective?.description || 'OA seleccionado para esta clase.',
+          indicators: selection.indicators ?? []
+        });
+        return acc;
+      }, []);
+    }
+
+    return planningClass.objectiveCode
+      ? [{
+        code: planningClass.objectiveCode,
+        description: planningClass.objectiveDescription || planningClass.objectiveTitle || 'OA principal de la clase.',
+        indicators: []
+      }]
+      : [];
+  });
+  readonly previewObjectives = computed<ClassPreviewObjective[]>(() => this.previewClassObjectives());
   readonly previewPhases = computed<ClassPreviewPhase[]>(() => {
     const planningClass = this.selectedClassPreview();
     if (!planningClass) {
@@ -364,7 +570,9 @@ export class PlanningsHomePageComponent {
     ];
   });
   readonly classByClassBoards = computed(() =>
-    this.unitCards().map((unit) => ({
+    [...this.unitCards()]
+      .sort((left, right) => this.compareUnitCards(left, right))
+      .map((unit) => ({
       unit,
       cards: unit.classRows.map((classRow) => this.mapClassByClassCard(unit, classRow))
     }))
@@ -407,6 +615,8 @@ export class PlanningsHomePageComponent {
   });
 
   constructor() {
+    this.loadCourses();
+    this.loadSubjects();
     this.loadCatalogs();
   }
 
@@ -439,6 +649,8 @@ export class PlanningsHomePageComponent {
   toggleUnit(unitId: number): void {
     this.openUnitId.update((current) => current === unitId ? null : unitId);
     this.openClassMenuId.set(null);
+    this.selectedDetailUnitId.set(unitId);
+    this.selectedDetailClassId.set(this.unitCards().find((unit) => unit.id === unitId)?.classRows[0]?.id ?? null);
   }
 
   isUnitOpen(unitId: number): boolean {
@@ -459,7 +671,7 @@ export class PlanningsHomePageComponent {
       return;
     }
 
-    this.router.navigate(['/dashboard/planificaciones-nuevo/nueva-unidad'], {
+    this.router.navigate([this.resolveUnitEditorRoute()], {
       queryParams: {
         year: this.selectedYear(),
         courseId: this.selectedCourseId(),
@@ -472,7 +684,7 @@ export class PlanningsHomePageComponent {
   openCreateClass(unit?: PlanningUnitCard): void {
     if (!this.hasRequiredFilters()) {
       this.snackBar.open(
-        'Debes seleccionar ano, curso, asignatura y semestre antes de crear una clase.',
+        'Debes seleccionar año, curso, asignatura y semestre antes de crear una clase.',
         'Cerrar',
         { duration: 3800 }
       );
@@ -495,7 +707,7 @@ export class PlanningsHomePageComponent {
     event.stopPropagation();
     if (classRow.id == null) {
       this.snackBar.open(
-        'Esta fila aun no corresponde a una clase guardada. Primero crea la clase desde "Nueva".',
+        'Esta fila aún no corresponde a una clase guardada. Primero crea la clase desde "Nueva".',
         'Cerrar',
         { duration: 3600 }
       );
@@ -505,12 +717,59 @@ export class PlanningsHomePageComponent {
     this.openClassMenuId.update((current) => current === classRow.id ? null : classRow.id);
   }
 
+  toggleClassResources(classRow: PlanningUnitClassRow, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (classRow.id == null || classRow.documentsCount === 0) {
+      return;
+    }
+
+    this.openClassResourcesId.update((current) => current === classRow.id ? null : classRow.id);
+  }
+
+  isClassResourcesOpen(classRow: PlanningUnitClassRow): boolean {
+    return classRow.id != null && this.openClassResourcesId() === classRow.id;
+  }
+
   isClassMenuOpen(classRow: PlanningUnitClassRow): boolean {
     return classRow.id != null && this.openClassMenuId() === classRow.id;
   }
 
   closeClassMenu(): void {
     this.openClassMenuId.set(null);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.openClassMenuId() !== null) {
+      this.closeClassMenu();
+    }
+  }
+
+  selectClassDetail(classRow: PlanningUnitClassRow, unit: PlanningUnitCard, event?: Event): void {
+    event?.stopPropagation();
+    if (classRow.id == null) {
+      return;
+    }
+
+    const isSameClassSelected = this.selectedDetailClassId() === classRow.id;
+    const isResourcesOpen = this.openClassResourcesId() === classRow.id;
+
+    this.selectedDetailUnitId.set(unit.id);
+    this.selectedDetailClassId.set(classRow.id);
+
+    if (classRow.documentsCount > 0) {
+      this.openClassResourcesId.set(isSameClassSelected && isResourcesOpen ? null : classRow.id);
+    } else {
+      this.openClassResourcesId.set(null);
+    }
+
+    this.closeClassMenu();
+  }
+
+  isClassDetailSelected(classRow: PlanningUnitClassRow): boolean {
+    return classRow.id != null && this.selectedDetailClassId() === classRow.id;
   }
 
   editClass(classRow: PlanningUnitClassRow, unit: PlanningUnitCard): void {
@@ -585,10 +844,17 @@ export class PlanningsHomePageComponent {
       unitId: previewClass.unitId,
       number: previewClass.id,
       title: previewClass.title,
+      tone: previewUnit.tone,
+      accentColor: previewUnit.accentColor,
+      accentSurface: previewUnit.accentSurface,
+      isEvaluation: previewClass.evaluationType !== 'SIN_EVALUACION',
+      objectiveCode: previewClass.objectiveCode,
       objective: previewClass.objectiveDescription || previewClass.objectiveTitle || previewClass.title,
+      objectiveSummary: this.buildObjectiveSummary(previewClass.objectiveCode, previewClass.objectiveTitle || previewClass.objectiveDescription),
       statusLabel: previewClass.status === 'PUBLICADA' ? 'Publicada' : 'Planificada',
       statusTone: previewClass.status === 'PUBLICADA' ? 'completed' : 'planned',
-      documentsCount: previewClass.documents.length
+      documentsCount: previewClass.documents.length,
+      documents: previewClass.documents
     }, previewUnit);
   }
 
@@ -601,19 +867,28 @@ export class PlanningsHomePageComponent {
       return;
     }
 
-    const confirmed = window.confirm(`Se eliminara la clase ${classRow.number}. Esta accion no se puede deshacer.`);
-    if (!confirmed) {
-      return;
-    }
-
-    this.planningApiService.deleteClass(classRow.id).subscribe({
-      next: () => {
-        this.snackBar.open('Clase eliminada correctamente.', 'Cerrar', { duration: 3200 });
-        this.loadSummary();
-      },
-      error: (error: HttpErrorResponse) => {
-        this.showError(error, 'No fue posible eliminar la clase');
+    this.dialog.open(AdministrationConfirmDialogComponent, {
+      width: '460px',
+      maxWidth: '92vw',
+      data: {
+        title: 'Eliminar clase',
+        message: `Se eliminara la clase ${classRow.number}. Esta accion no se puede deshacer.`,
+        confirmLabel: 'Eliminar'
       }
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.planningApiService.deleteClass(classRow.id!).subscribe({
+        next: () => {
+          this.snackBar.open('Clase eliminada correctamente.', 'Cerrar', { duration: 3200 });
+          this.loadSummary();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.showError(error, 'No fue posible eliminar la clase');
+        }
+      });
     });
   }
 
@@ -651,6 +926,7 @@ export class PlanningsHomePageComponent {
         this.pendingUploadClassId.set(null);
         input.value = '';
         this.snackBar.open('Recurso adjuntado correctamente.', 'Cerrar', { duration: 3200 });
+        this.openClassResourcesId.set(classId);
         this.loadSummary();
       },
       error: (error: HttpErrorResponse) => {
@@ -661,27 +937,111 @@ export class PlanningsHomePageComponent {
     });
   }
 
-  deleteUnit(unit: PlanningUnitCard, event?: Event): void {
+  deleteClassDocument(classRow: PlanningUnitClassRow, document: PlanningClassDocument, event?: Event): void {
+    event?.preventDefault();
     event?.stopPropagation();
-    const confirmed = window.confirm(`Se eliminara ${unit.title}. Esta accion no se puede deshacer.`);
-    if (!confirmed) {
+    this.closeClassMenu();
+
+    if (classRow.id == null) {
+      this.snackBar.open('Solo se pueden eliminar recursos de clases guardadas.', 'Cerrar', {
+        duration: 3200
+      });
       return;
     }
 
-    this.planningApiService.deleteUnit(unit.id).subscribe({
+    this.dialog.open(AdministrationConfirmDialogComponent, {
+      width: '460px',
+      maxWidth: '92vw',
+      data: {
+        title: 'Eliminar documento',
+        message: `Se eliminara ${document.originalName}. Esta accion no se puede deshacer.`,
+        confirmLabel: 'Eliminar'
+      }
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.planningApiService.removeClassDocument(classRow.id!, document.id).subscribe({
+        next: () => {
+          this.snackBar.open('Documento eliminado correctamente.', 'Cerrar', { duration: 3200 });
+          this.openClassResourcesId.set(classRow.id!);
+          this.loadSummary();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.showError(error, 'No fue posible eliminar el documento');
+        }
+      });
+    });
+  }
+
+  toggleClassDocumentStudentVisibility(document: PlanningClassDocument, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    if (this.updatingDocumentVisibilityIds().includes(document.id)) {
+      return;
+    }
+
+    this.updatingDocumentVisibilityIds.update((current) => [...current, document.id]);
+
+    this.planningApiService.updatePlanningDocumentVisibility(document.id, !document.visibleToStudents).subscribe({
       next: () => {
-        this.snackBar.open('Unidad eliminada correctamente.', 'Cerrar', { duration: 3200 });
+        this.snackBar.open(
+          !document.visibleToStudents
+            ? 'Documento visible para estudiante.'
+            : 'Documento marcado solo para docente.',
+          'Cerrar',
+          { duration: 2600 }
+        );
+        this.updatingDocumentVisibilityIds.update((current) => current.filter((id) => id !== document.id));
         this.loadSummary();
       },
       error: (error: HttpErrorResponse) => {
-        this.showError(error, 'No fue posible eliminar la unidad');
+        this.updatingDocumentVisibilityIds.update((current) => current.filter((id) => id !== document.id));
+        this.showError(error, 'No fue posible actualizar la visibilidad del documento');
       }
+    });
+  }
+
+  isUpdatingClassDocumentVisibility(documentId: number): boolean {
+    return this.updatingDocumentVisibilityIds().includes(documentId);
+  }
+
+  deleteUnit(unit: PlanningUnitCard, event?: Event): void {
+    event?.stopPropagation();
+    this.dialog.open(AdministrationConfirmDialogComponent, {
+      width: '460px',
+      maxWidth: '92vw',
+      data: {
+        title: `Eliminar ${this.unitSingularLabel()}`,
+        message: `Se eliminara ${unit.title}. Esta accion no se puede deshacer.`,
+        confirmLabel: 'Eliminar'
+      }
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.planningApiService.deleteUnit(unit.id).subscribe({
+        next: () => {
+          this.snackBar.open(
+            `${this.unitSingularLabel() === 'ámbito' ? 'Ámbito' : 'Unidad'} eliminado correctamente.`,
+            'Cerrar',
+            { duration: 3200 }
+          );
+          this.loadSummary();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.showError(error, `No fue posible eliminar el ${this.unitSingularLabel()}`);
+        }
+      });
     });
   }
 
   editUnit(unit: PlanningUnitCard, event?: Event): void {
     event?.stopPropagation();
-    this.router.navigate(['/dashboard/planificaciones-nuevo/nueva-unidad'], {
+    this.router.navigate([this.resolveUnitEditorRoute()], {
       queryParams: {
         year: this.selectedYear(),
         courseId: this.selectedCourseId(),
@@ -706,12 +1066,14 @@ export class PlanningsHomePageComponent {
 
   previewEvaluationLabel(value: PlanningClass['evaluationType'] | undefined): string {
     switch (value) {
+      case 'PROCESO':
+        return 'Proceso';
       case 'SUMATIVA':
         return 'Sumativa';
       case 'DIAGNOSTICA':
         return 'Diagnostica';
       case 'SIN_EVALUACION':
-        return 'Sin evaluacion';
+        return 'Clase';
       default:
         return 'Formativa';
     }
@@ -730,9 +1092,10 @@ export class PlanningsHomePageComponent {
       return 'Sin fecha definida';
     }
 
-    const [year, month, day] = value.split('-').map(Number);
+    const dateOnly = value.split('T')[0] ?? value;
+    const [year, month, day] = dateOnly.split('-').map(Number);
     if (!year || !month || !day) {
-      return value;
+      return dateOnly;
     }
 
     return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
@@ -756,6 +1119,56 @@ export class PlanningsHomePageComponent {
     }
 
     return 'Sin recursos adjuntos todavia.';
+  }
+
+  classDocumentMeta(document: PlanningClassDocument): string {
+    return this.formatBytes(document.sizeBytes);
+  }
+
+  formatDocumentSize(sizeBytes: number): string {
+    return this.formatBytes(sizeBytes);
+  }
+
+  classDocumentIcon(document: PlanningClassDocument): string {
+    switch (document.fileType) {
+      case 'PDF':
+        return 'picture_as_pdf';
+      case 'WORD':
+        return 'description';
+      case 'PPT':
+        return 'slideshow';
+      default:
+        return 'insert_drive_file';
+    }
+  }
+
+  downloadClassDocument(document: PlanningClassDocument, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    this.planningApiService.downloadPlanningDocument(document.id).subscribe({
+      next: (response) => {
+        const blob = response.body;
+        if (!blob) {
+          this.snackBar.open('No fue posible abrir el recurso adjunto.', 'Cerrar', { duration: 3200 });
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const anchor = window.document.createElement('a');
+        anchor.href = url;
+        anchor.download = document.originalName || document.storedName || 'recurso';
+        anchor.style.display = 'none';
+        window.document.body.appendChild(anchor);
+        anchor.click();
+        window.setTimeout(() => {
+          window.document.body.removeChild(anchor);
+          URL.revokeObjectURL(url);
+        }, 0);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.showError(error, 'No fue posible descargar el recurso');
+      }
+    });
   }
 
   scheduleGridColumn(startWeek: number, span = 1): string {
@@ -800,15 +1213,24 @@ export class PlanningsHomePageComponent {
       return;
     }
 
+    const planningClass = this.classRecords().find((record) => record.id === card.classId) ?? null;
+
     this.viewClass({
       id: card.classId,
       unitId: card.unitId,
       number: card.classNumber,
       title: card.title,
+      tone: unit.tone,
+      accentColor: unit.accentColor,
+      accentSurface: unit.accentSurface,
+      isEvaluation: planningClass?.evaluationType !== 'SIN_EVALUACION',
+      objectiveCode: card.objectiveCode,
       objective: card.objective,
+      objectiveSummary: this.buildObjectiveSummary(card.objectiveCode, card.objective),
       statusLabel: card.statusLabel,
       statusTone: card.statusTone,
-      documentsCount: 0
+      documentsCount: planningClass?.documents.length ?? 0,
+      documents: planningClass?.documents ?? []
     }, unit);
   }
 
@@ -826,19 +1248,54 @@ export class PlanningsHomePageComponent {
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading.set(false);
-        this.showError(error, 'No fue posible cargar los filtros de planificaciones');
+        this.showError(error, 'No fue posible cargar los filtros de planificaciónes');
       }
     });
   }
 
+  private loadCourses(): void {
+    this.courseApiService.findAll().subscribe({
+      next: (courses) => {
+        this.availableCourses.set(courses.filter((course) => course.active));
+        this.syncCourseSelection();
+        this.syncSubjectSelection();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos disponibles')
+    });
+  }
+
+  private loadSubjects(): void {
+    this.subjectApiService.findAll().subscribe({
+      next: (subjects) => {
+        this.availableSubjects.set(subjects.filter((subject) => subject.active));
+        this.syncSubjectSelection();
+      },
+      error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar las asignaturas disponibles')
+    });
+  }
+
   private initializeSelections(): void {
+    const queryParams = this.route.snapshot.queryParamMap;
+    const preferredYear = this.parseQueryNumber(queryParams.get('year'));
+    const preferredCourseId = this.parseQueryNumber(queryParams.get('courseId'));
+    const preferredSubjectId = this.parseQueryNumber(queryParams.get('subjectId'));
+    const preferredSemester = this.parseQueryNumber(queryParams.get('semester'));
+    const preferredUnitId = this.parseQueryNumber(queryParams.get('unitId'));
     const years = this.years();
-    this.selectedYear.set(years[0]?.value ?? null);
-    this.syncCourseSelection();
-    this.syncSubjectSelection();
-    if (this.selectedSemester() == null) {
-      this.selectedSemester.set(1);
-    }
+    this.selectedYear.set(
+      years.find((item) => item.value === preferredYear)?.value
+      ?? years.find((item) => item.value === this.currentSchoolYear)?.value
+      ?? years[0]?.value
+      ?? null
+    );
+    this.syncCourseSelection(preferredCourseId);
+    this.syncSubjectSelection(preferredSubjectId);
+    this.selectedSemester.set(
+      preferredSemester === 1 || preferredSemester === 2
+        ? preferredSemester
+        : resolveCurrentAcademicSemester()
+    );
+    this.preferredUnitId.set(preferredUnitId);
   }
 
   private syncFiltersAfterYearChange(): void {
@@ -846,18 +1303,83 @@ export class PlanningsHomePageComponent {
     this.syncSubjectSelection();
   }
 
-  private syncCourseSelection(): void {
-    const currentCourseId = this.selectedCourseId();
+  private syncCourseSelection(preferredCourseId?: number | null): void {
+    const currentCourseId = preferredCourseId ?? this.selectedCourseId();
     const options = this.courses();
     const exists = options.some((item) => item.value === currentCourseId);
-    this.selectedCourseId.set(exists ? currentCourseId : (options[0]?.value ?? null));
+    this.selectedCourseId.set(
+      exists
+        ? currentCourseId
+        : this.resolveSuggestedCourseId(options)
+    );
   }
 
-  private syncSubjectSelection(): void {
-    const currentSubjectId = this.selectedSubjectId();
+  private syncSubjectSelection(preferredSubjectId?: number | null): void {
+    const currentSubjectId = preferredSubjectId ?? this.selectedSubjectId();
     const options = this.subjects();
     const exists = options.some((item) => item.value === currentSubjectId);
     this.selectedSubjectId.set(exists ? currentSubjectId : (options[0]?.value ?? null));
+  }
+
+  private resolveSuggestedCourseId(options: FilterOption<number>[]): number | null {
+    if (!options.length) {
+      return null;
+    }
+
+    const year = this.selectedYear();
+    const subjectCountsByCourse = new Map<number, { label: string; subjectIds: Set<number> }>();
+
+    for (const assignment of this.assignments()) {
+      if (year != null && assignment.schoolYear !== year) {
+        continue;
+      }
+
+      const current = subjectCountsByCourse.get(assignment.courseId) ?? {
+        label: assignment.courseName,
+        subjectIds: new Set<number>()
+      };
+      current.subjectIds.add(assignment.subjectId);
+      subjectCountsByCourse.set(assignment.courseId, current);
+    }
+
+    const rankedCourseId = Array.from(subjectCountsByCourse.entries())
+      .sort((left, right) => {
+        const subjectDiff = right[1].subjectIds.size - left[1].subjectIds.size;
+        if (subjectDiff !== 0) {
+          return subjectDiff;
+        }
+
+        return left[1].label.localeCompare(right[1].label, 'es', { sensitivity: 'base' });
+      })[0]?.[0] ?? null;
+
+    return options.find((item) => item.value === rankedCourseId)?.value ?? options[0]?.value ?? null;
+  }
+
+  private parseQueryNumber(value: string | null): number | null {
+    if (value == null || value.trim() === '') {
+      return null;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private formatBytes(bytes: number): string {
+    if (!Number.isFinite(bytes) || bytes <= 0) {
+      return '0 B';
+    }
+
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+    const size = bytes / (1024 ** exponent);
+    const digits = size >= 10 || exponent === 0 ? 0 : 1;
+    return `${size.toFixed(digits)} ${units[exponent]}`;
+  }
+
+  private resolveUnitEditorRoute(): string {
+    return this.isInitialEducationFlow()
+      ? '/dashboard/planificaciones-nuevo/nuevo-ámbito'
+      : '/dashboard/planificaciones-nuevo/nueva-unidad';
   }
 
   private loadSummary(): void {
@@ -869,6 +1391,9 @@ export class PlanningsHomePageComponent {
     }
 
     this.isLoading.set(true);
+    const currentSelectedUnitId = this.selectedDetailUnitId() ?? this.openUnitId() ?? this.preferredUnitId();
+    const currentSelectedClassId = this.selectedDetailClassId();
+    const currentOpenResourcesClassId = this.openClassResourcesId();
     const filters = {
       year: this.selectedYear() ?? undefined,
       courseId: this.selectedCourseId() ?? undefined,
@@ -883,8 +1408,25 @@ export class PlanningsHomePageComponent {
       next: ({ summary, classes }) => {
         this.dashboard.set(summary);
         this.classRecords.set(classes);
-        this.openUnitId.set(summary.units[0]?.id ?? null);
+        const sortedUnits = this.sortPlanningUnits(summary.units);
+        const preferredUnitId = this.preferredUnitId();
+        const selectedUnitId = sortedUnits.some((unit) => unit.id === currentSelectedUnitId)
+          ? currentSelectedUnitId
+          : sortedUnits.some((unit) => unit.id === preferredUnitId)
+            ? preferredUnitId
+            : (sortedUnits[0]?.id ?? null);
+        const selectedClassId = classes.some((planningClass) => planningClass.id === currentSelectedClassId)
+          ? currentSelectedClassId
+          : classes.find((planningClass) => planningClass.unitId === selectedUnitId)?.id ?? null;
+        const openResourcesClassId = classes.some((planningClass) => planningClass.id === currentOpenResourcesClassId)
+          ? currentOpenResourcesClassId
+          : null;
+
+        this.openUnitId.set(selectedUnitId);
+        this.selectedDetailUnitId.set(selectedUnitId);
+        this.selectedDetailClassId.set(selectedClassId);
         this.openClassMenuId.set(null);
+        this.openClassResourcesId.set(openResourcesClassId);
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -897,25 +1439,79 @@ export class PlanningsHomePageComponent {
   }
 
   private mapUnitCard(unit: PlanningSummaryUnit, tone: PlanningUnitCard['tone']): PlanningUnitCard {
+    const accentColor = this.resolveUnitAccentColor(unit.unitColorHex ?? unit.subjectColorHex, tone);
+    const accentSurface = this.hexToRgba(accentColor, 0.08);
+    const accentSurfaceStrong = this.hexToRgba(accentColor, 0.16);
+
     return {
       id: unit.id,
       unitNumber: this.extractFirstNumber(unit.code),
       title: `${unit.code}: ${unit.name}`,
-      period: this.resolvePeriodLabel(unit.weekRange),
+      period: this.resolveDateRangeLabel(unit.startDate, unit.endDate),
+      weekRange: unit.weekRange,
+      startDate: unit.startDate,
+      endDate: unit.endDate,
       description: `Curso ${unit.courseName} · ${unit.subjectName}`,
-      classes: unit.plannedClasses,
+      classes: unit.totalClasses,
+      plannedClasses: this.resolvePlannedClassesTarget(unit),
       resources: unit.totalDocuments,
       coverage: unit.progressPercent,
       tone,
+      accentColor,
+      accentSurface,
+      accentSurfaceStrong,
       statusLabel: this.resolveStatusLabel(unit.status),
-      classRows: this.buildClassRows(unit)
+      classRows: this.buildClassRows(unit, tone)
     };
   }
 
-  private buildClassRows(unit: PlanningSummaryUnit): PlanningUnitClassRow[] {
+  private sortPlanningUnits(units: PlanningSummaryUnit[]): PlanningSummaryUnit[] {
+    return [...units].sort((left, right) => {
+      const leftNumber = this.extractFirstNumber(left.code) ?? Number.MAX_SAFE_INTEGER;
+      const rightNumber = this.extractFirstNumber(right.code) ?? Number.MAX_SAFE_INTEGER;
+
+      if (leftNumber !== rightNumber) {
+        return leftNumber - rightNumber;
+      }
+
+      return left.id - right.id;
+    });
+  }
+
+  private resolvePlannedClassesTarget(unit: PlanningSummaryUnit): number {
+    if (unit.plannedClasses > 0) {
+      return unit.plannedClasses;
+    }
+
+    const estimatedByDates = this.estimateWeeklyClassesFromDateRange(unit.startDate, unit.endDate);
+    return Math.max(unit.totalClasses, estimatedByDates);
+  }
+
+  private estimateWeeklyClassesFromDateRange(startDate: string | null, endDate: string | null): number {
+    if (!startDate || !endDate) {
+      return 0;
+    }
+
+    const [startYear, startMonth, startDay] = startDate.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endDate.split('-').map(Number);
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) {
+      return 0;
+    }
+
+    const diffDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.max(1, Math.floor(diffDays / 7) + 1);
+  }
+
+  private buildClassRows(unit: PlanningSummaryUnit, tone: PlanningUnitCard['tone']): PlanningUnitClassRow[] {
+    const accentColor = this.resolveUnitAccentColor(unit.unitColorHex ?? unit.subjectColorHex, tone);
+    const accentSurface = this.hexToRgba(accentColor, 0.08);
+
     const actualClasses = this.classRecords()
       .filter((planningClass) => planningClass.unitId === unit.id)
-      .sort((left, right) => left.plannedDate.localeCompare(right.plannedDate));
+      .sort((left, right) => this.comparePlanningClassesByDisplayOrder(left, right));
 
     if (actualClasses.length) {
       return actualClasses.map((planningClass, index) => ({
@@ -923,42 +1519,92 @@ export class PlanningsHomePageComponent {
         unitId: unit.id,
         number: index + 1,
         title: planningClass.title,
+        tone,
+        accentColor,
+        accentSurface,
+        isEvaluation: planningClass.evaluationType !== 'SIN_EVALUACION',
+        objectiveCode: planningClass.objectiveCode || this.extractObjectiveCode(planningClass.objectiveTitle || planningClass.objectiveDescription),
         objective: planningClass.objectiveDescription || planningClass.objectiveTitle || planningClass.title,
+        objectiveSummary: this.buildObjectiveSummary(
+          planningClass.objectiveCode || this.extractObjectiveCode(planningClass.objectiveTitle || planningClass.objectiveDescription),
+          planningClass.objectiveTitle || planningClass.objectiveDescription || planningClass.title
+        ),
         statusLabel: planningClass.status === 'PUBLICADA' ? 'Publicada' : 'Planificada',
         statusTone: planningClass.status === 'PUBLICADA' ? 'completed' : 'planned',
-        documentsCount: planningClass.documents.length
+        documentsCount: planningClass.documents.length,
+        documents: planningClass.documents
       }));
     }
 
-    const defaultObjectives = [
-      'Leer textos literarios breves y comentar su contenido.',
-      'Identificar personajes, ambiente y secuencia de hechos.',
-      'Expresar opiniones sobre lo leido con apoyo del docente.',
-      'Relacionar lo leido con experiencias y conocimientos previos.'
-    ];
+    return [];
+  }
 
-    const totalRows = Math.max(3, Math.min(unit.plannedClasses || 0, 4));
+  private resolveUnitAccentColor(
+    subjectColorHex: string | null | undefined,
+    tone: PlanningUnitCard['tone']
+  ): string {
+    return this.normalizeHexColor(subjectColorHex) ?? this.resolveToneColor(tone);
+  }
 
-    return Array.from({ length: totalRows }, (_, index) => {
-      const number = index + 1;
-      const isCompleted = unit.status === 'COMPLETADA';
-      const isProgressRow = unit.status === 'ACTIVA' && index === Math.min(2, totalRows - 1);
+  private resolveToneColor(tone: PlanningUnitCard['tone']): string {
+    switch (tone) {
+      case 'emerald':
+        return '#10b981';
+      case 'amber':
+        return '#f59e0b';
+      case 'blue':
+        return '#3b82f6';
+      case 'violet':
+      default:
+        return '#6d28d9';
+    }
+  }
 
-      return {
-        id: null,
-        unitId: unit.id,
-        number,
-        title: `Clase ${number}`,
-        objective: defaultObjectives[index] ?? `Clase ${number} de la unidad.`,
-        statusLabel: isCompleted ? 'Completada' : isProgressRow ? 'En progreso' : 'Planificada',
-        statusTone: isCompleted ? 'completed' : isProgressRow ? 'progress' : 'planned',
-        documentsCount: 0
-      };
-    });
+  private normalizeHexColor(value: string | null | undefined): string | null {
+    const normalized = value?.trim();
+    if (!normalized || !/^#[0-9a-fA-F]{6}$/.test(normalized)) {
+      return null;
+    }
+
+    return normalized;
+  }
+
+  private hexToRgba(hex: string, alpha: number): string {
+    const normalized = this.normalizeHexColor(hex);
+    if (!normalized) {
+      return `rgba(109, 40, 217, ${alpha})`;
+    }
+
+    const red = Number.parseInt(normalized.slice(1, 3), 16);
+    const green = Number.parseInt(normalized.slice(3, 5), 16);
+    const blue = Number.parseInt(normalized.slice(5, 7), 16);
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
   }
 
   private resolvePeriodLabel(weekRange: string): string {
     return weekRange && weekRange !== '-' ? `Semanas ${weekRange}` : 'Sin rango definido';
+  }
+
+  private resolveDateRangeLabel(startDate: string | null, endDate: string | null): string {
+    if (startDate && endDate) {
+      return `${this.formatShortDate(startDate)} - ${this.formatShortDate(endDate)}`;
+    }
+
+    if (startDate || endDate) {
+      return this.formatShortDate(startDate ?? endDate ?? '');
+    }
+
+    return 'Sin fechas definidas';
+  }
+
+  private formatShortDate(value: string): string {
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) {
+      return value;
+    }
+
+    const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return `${String(day).padStart(2, '0')} ${months[month - 1] ?? ''}`;
   }
 
   private resolveStatusLabel(status: PlanningSummaryUnit['status']): string {
@@ -975,6 +1621,48 @@ export class PlanningsHomePageComponent {
   private extractFirstNumber(value: string): number | null {
     const match = value.match(/\d+/);
     return match ? Number(match[0]) : null;
+  }
+
+  private extractObjectiveCode(value: string): string {
+    const match = value.match(/\bOA\s*\d+[A-Z]?\b/i);
+    return match ? match[0].replace(/\s+/g, '').toUpperCase() : 'OA';
+  }
+
+  private normalizeObjectiveCode(value: string | null | undefined): string {
+    return (value ?? '').replace(/\s+/g, '').trim().toUpperCase();
+  }
+
+  private matchesInitialEducationCourse(course: Course | null): boolean {
+    if (!course) {
+      return false;
+    }
+
+    const labels = [course.name, course.level, course.code];
+    return labels.some((value) => {
+      const normalized = this.normalizeMatchText(value);
+      return normalized.includes('PREKINDER')
+        || normalized.includes('KINDER')
+        || normalized.includes('NT1')
+        || normalized.includes('NT2');
+    });
+  }
+
+  private normalizeMatchText(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase();
+  }
+
+  private buildObjectiveSummary(code: string, value: string): string {
+    const cleanCode = (code || this.extractObjectiveCode(value)).replace(/\s+/g, '').toUpperCase();
+    const text = (value || '')
+      .replace(new RegExp(`^${cleanCode}\\s*[:·-]?\\s*`, 'i'), '')
+      .replace(/\bOA\s*\d+[A-Z]?\b\s*[:·-]?\s*/i, '')
+      .trim();
+    const words = text.split(/\s+/).filter(Boolean).slice(0, 3).join(' ');
+    return `${cleanCode} · ${words || 'Objetivo de aprendizaje'}...`;
   }
 
   private estimateClassDurationMinutes(code: string, label: string): number {
@@ -1020,10 +1708,23 @@ export class PlanningsHomePageComponent {
 
     if (matches.length === 1) {
       const startWeek = this.clampScheduleWeek(matches[0]);
-      return { startWeek, endWeek: Math.min(startWeek + 3, 16) };
+      return { startWeek, endWeek: Math.min(startWeek + 3, 24) };
     }
 
     return { startWeek: 1, endWeek: 4 };
+  }
+
+  private resolveUnitScheduleRange(unit: PlanningUnitCard): { startWeek: number; endWeek: number } {
+    if (unit.startDate && unit.endDate) {
+      const startWeek = this.resolveScheduleWeek(unit.startDate, 1);
+      const endWeek = this.resolveScheduleWeek(unit.endDate, startWeek);
+      return {
+        startWeek,
+        endWeek: Math.max(startWeek, endWeek)
+      };
+    }
+
+    return this.parseWeekRange(unit.weekRange);
   }
 
   private resolveScheduleWeek(plannedDate: string, fallbackWeek: number): number {
@@ -1036,7 +1737,7 @@ export class PlanningsHomePageComponent {
       return this.clampScheduleWeek(fallbackWeek);
     }
 
-    const semesterStartMonth = this.selectedSemester() === 2 ? 8 : 3;
+    const semesterStartMonth = this.selectedSemester() === 2 ? 7 : 3;
     const semesterStart = new Date(year, semesterStartMonth - 1, 1);
     const classDate = new Date(year, month - 1, day);
     if (Number.isNaN(classDate.getTime())) {
@@ -1049,14 +1750,7 @@ export class PlanningsHomePageComponent {
   }
 
   private resolveEvaluationLabel(type: PlanningClass['evaluationType']): string {
-    switch (type) {
-      case 'SUMATIVA':
-        return 'Eval. sumativa';
-      case 'DIAGNOSTICA':
-        return 'Eval. diagnostica';
-      default:
-        return 'Eval. formativa';
-    }
+    return 'Evaluación';
   }
 
   private resolveScheduleIcon(tone: PlanningUnitCard['tone']): string {
@@ -1077,7 +1771,7 @@ export class PlanningsHomePageComponent {
   }
 
   private clampScheduleWeek(week: number): number {
-    return Math.min(Math.max(week, 1), 16);
+    return Math.min(Math.max(week, 1), 24);
   }
 
   private mapClassByClassCard(unit: PlanningUnitCard, classRow: PlanningUnitClassRow): ClassByClassCard {
@@ -1089,11 +1783,13 @@ export class PlanningsHomePageComponent {
       id: `${unit.id}-${classRow.number}-${classRow.id ?? 'draft'}`,
       classId: classRow.id,
       unitId: unit.id,
+      unitNumber: unit.unitNumber,
       unitTitle: unit.title,
       unitTone: unit.tone,
       classNumber: classRow.number,
       title: planningClass?.title || classRow.title,
       objective: classRow.objective,
+      objectiveDisplay: classRow.objectiveSummary || this.buildObjectiveSummary(classRow.objectiveCode, classRow.objective),
       objectiveCode: planningClass?.objectiveCode || `OA${classRow.number}`,
       statusLabel: classRow.statusLabel,
       statusTone: classRow.statusTone,
@@ -1102,6 +1798,42 @@ export class PlanningsHomePageComponent {
       resourcesLabel: classRow.documentsCount > 0 ? `${classRow.documentsCount} recurso(s)` : 'Sin recursos',
       unitLabel: unit.unitNumber ? `Unidad ${unit.unitNumber}` : unit.title
     };
+  }
+
+  private compareUnitCards(left: PlanningUnitCard, right: PlanningUnitCard): number {
+    const leftNumber = left.unitNumber ?? Number.MAX_SAFE_INTEGER;
+    const rightNumber = right.unitNumber ?? Number.MAX_SAFE_INTEGER;
+
+    if (leftNumber !== rightNumber) {
+      return leftNumber - rightNumber;
+    }
+
+    return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
+  }
+
+  private comparePlanningClassesByDisplayOrder(left: PlanningClass, right: PlanningClass): number {
+    const byDate = this.compareIsoDates(left.plannedDate, right.plannedDate);
+    if (byDate !== 0) {
+      return byDate;
+    }
+
+    return left.id - right.id;
+  }
+
+  private compareIsoDates(left: string | null | undefined, right: string | null | undefined): number {
+    if (left && right) {
+      return left.localeCompare(right);
+    }
+
+    if (left) {
+      return -1;
+    }
+
+    if (right) {
+      return 1;
+    }
+
+    return 0;
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {

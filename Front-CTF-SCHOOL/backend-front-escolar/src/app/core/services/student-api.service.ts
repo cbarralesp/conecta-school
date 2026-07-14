@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_CONFIG } from '../constants/api.config';
 import {
@@ -15,9 +15,19 @@ import { normalizeDashboardText } from '../utils/text-normalizer';
 export class StudentApiService {
   private readonly http = inject(HttpClient);
 
-  getDashboard(): Observable<StudentDashboard> {
+  getDashboard(semester?: number, schoolYear?: number): Observable<StudentDashboard> {
+    let params = new HttpParams();
+
+    if (semester != null) {
+      params = params.set('semester', semester.toString());
+    }
+
+    if (schoolYear != null) {
+      params = params.set('schoolYear', schoolYear.toString());
+    }
+
     return this.http
-      .get<StudentDashboard>(`${API_CONFIG.baseUrl}/student/dashboard`)
+      .get<StudentDashboard>(`${API_CONFIG.baseUrl}/student/dashboard`, { params })
       .pipe(map((dashboard) => this.normalizeDashboard(dashboard)));
   }
 
@@ -94,7 +104,10 @@ export class StudentApiService {
           date: normalizeDashboardText(record.date),
           status: normalizeDashboardText(record.status),
           note: normalizeDashboardText(record.note),
-          timeLabel: normalizeDashboardText(record.timeLabel)
+          timeLabel: normalizeDashboardText(record.timeLabel),
+          departureTime: normalizeDashboardText(record.departureTime),
+          departureReason: normalizeDashboardText(record.departureReason),
+          departureNote: normalizeDashboardText(record.departureNote)
         })),
         historyDays: (response.historyDays ?? []).map((day) => ({
           ...day,

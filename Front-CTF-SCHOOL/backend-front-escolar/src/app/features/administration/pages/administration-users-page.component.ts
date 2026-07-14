@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import {
   AdministrationRoleCode,
+  AdministrationRoleOption,
   AdministrationUserStatus,
   AdministrationUserDetail,
   AdministrationUserListItem,
@@ -52,6 +53,7 @@ export class AdministrationUsersPageComponent {
   readonly isLoading = signal(true);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
+  readonly roleSummaryPage = signal(0);
   readonly pageSizeOptions = [10, 20, 50];
   readonly filtersForm = this.fb.nonNullable.group({
     search: [''],
@@ -61,8 +63,15 @@ export class AdministrationUsersPageComponent {
 
   readonly summary = computed(() => this.overview()?.summary ?? []);
   readonly roleOptions = computed(() => this.overview()?.roles ?? []);
+  readonly selectedRoleCode = computed(() => this.filtersForm.controls.roleCode.value);
+  readonly selectedRole = computed(
+    () => this.roleOptions().find((role) => role.code === this.selectedRoleCode()) ?? null
+  );
   readonly users = computed(() => this.overview()?.users ?? []);
   readonly totalUsers = computed(() => this.users().length);
+  readonly totalUsersByRole = computed(() =>
+    this.roleOptions().reduce((acc, role) => acc + (role.userCount ?? 0), 0)
+  );
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalUsers() / this.pageSize())));
   readonly pagedUsers = computed(() => {
     const start = this.pageIndex() * this.pageSize();
@@ -70,13 +79,42 @@ export class AdministrationUsersPageComponent {
   });
   readonly pageStart = computed(() => (this.totalUsers() === 0 ? 0 : this.pageIndex() * this.pageSize() + 1));
   readonly pageEnd = computed(() => Math.min(this.totalUsers(), this.pageStart() + this.pagedUsers().length - 1));
-  readonly summaryCards = computed(() =>
-    this.summary().slice(0, 4).map((item, index) => ({
+  readonly visibleActiveCount = computed(() => this.users().filter((user) => user.status === 'Activo').length);
+  readonly visibleBlockedCount = computed(() => this.users().filter((user) => user.status === 'Bloqueado').length);
+  readonly visiblePendingCount = computed(() => this.users().filter((user) => user.status === 'Pendiente').length);
+  readonly roleSummaryRows = computed(() =>
+    this.roleOptions().map((role) => ({
+      code: role.code,
+      name: role.name,
+      userCount: role.userCount ?? 0,
+      selected: role.code === this.selectedRoleCode()
+    }))
+  );
+  readonly roleSummaryPageSize = 3;
+  readonly roleSummaryTotalPages = computed(() =>
+    Math.max(1, Math.ceil(this.roleSummaryRows().length / this.roleSummaryPageSize))
+  );
+  readonly pagedRoleSummaryRows = computed(() => {
+    const start = this.roleSummaryPage() * this.roleSummaryPageSize;
+    return this.roleSummaryRows().slice(start, start + this.roleSummaryPageSize);
+  });
+  readonly summaryCards = computed(() => {
+    const selectedRole = this.selectedRole();
+    if (selectedRole) {
+      return [
+        { label: 'Rol seleccionado', value: selectedRole.name, icon: 'shield_person', toneClass: 'sc-violet' },
+        { label: 'Usuarios del rol', value: selectedRole.userCount ?? 0, icon: 'groups', toneClass: 'sc-blue' },
+        { label: 'Activos visibles', value: this.visibleActiveCount(), icon: 'check_circle', toneClass: 'sc-green' },
+        { label: 'Bloqueados visibles', value: this.visibleBlockedCount(), icon: 'lock', toneClass: 'sc-amber' }
+      ];
+    }
+
+    return this.summary().slice(0, 4).map((item, index) => ({
       ...item,
       icon: ['groups', 'check_circle', 'badge', 'insights'][index] ?? 'dashboard',
       toneClass: ['sc-blue', 'sc-green', 'sc-violet', 'sc-amber'][index] ?? 'sc-blue'
-    }))
-  );
+    }));
+  });
 
   constructor() {
     this.loadOverview();
@@ -88,6 +126,26 @@ export class AdministrationUsersPageComponent {
 
   goToCreate(): void {
     void this.router.navigate(['/dashboard/administracion/nuevo-usuario']);
+  }
+
+  applyRoleFilter(roleCode: '' | AdministrationRoleCode): void {
+    this.filtersForm.controls.roleCode.setValue(roleCode);
+  }
+
+  roleOptionLabel(role: AdministrationRoleOption): string {
+    return `${role.name} (${role.userCount ?? 0})`;
+  }
+
+  goToPreviousRoleSummaryPage(): void {
+    if (this.roleSummaryPage() > 0) {
+      this.roleSummaryPage.update((value) => value - 1);
+    }
+  }
+
+  goToNextRoleSummaryPage(): void {
+    if (this.roleSummaryPage() < this.roleSummaryTotalPages() - 1) {
+      this.roleSummaryPage.update((value) => value + 1);
+    }
   }
 
   rolePillClass(user: AdministrationUserListItem): string {
@@ -214,6 +272,10 @@ export class AdministrationUsersPageComponent {
         const lastPageIndex = Math.max(0, Math.ceil((overview.users?.length ?? 0) / this.pageSize()) - 1);
         if (this.pageIndex() > lastPageIndex) {
           this.pageIndex.set(lastPageIndex);
+        }
+        const lastRolePageIndex = Math.max(0, Math.ceil((overview.roles?.length ?? 0) / this.roleSummaryPageSize) - 1);
+        if (this.roleSummaryPage() > lastRolePageIndex) {
+          this.roleSummaryPage.set(lastRolePageIndex);
         }
         this.isLoading.set(false);
       },

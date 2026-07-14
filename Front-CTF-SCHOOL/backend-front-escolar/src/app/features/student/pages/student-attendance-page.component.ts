@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { StudentAttendanceDetail, StudentPortalSubject } from '../../../core/models/student.models';
+import { StudentAttendanceDetail, StudentAttendanceRecord, StudentPortalSubject } from '../../../core/models/student.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { StudentApiService } from '../../../core/services/student-api.service';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
@@ -42,6 +42,7 @@ export class StudentAttendancePageComponent {
   readonly calendarPage = signal(0);
 
   readonly welcomeInitial = computed(() => this.attendance()?.header.studentName.charAt(0).toUpperCase() ?? 'A');
+  readonly fullStudentName = computed(() => this.attendance()?.header.studentName ?? 'Estudiante');
   readonly cards = computed(() => {
     const detail = this.attendance();
     if (!detail) {
@@ -87,6 +88,7 @@ export class StudentAttendancePageComponent {
   });
   readonly recentRecords = computed(() => this.attendance()?.recentRecords.slice(0, 5) ?? []);
   readonly semesterLabel = computed(() => 'Este semestre');
+  readonly activeSemesterStartMonth = computed(() => (this.calendarPage() === 0 ? 1 : 7));
   readonly attendanceLevelLabel = computed(() => {
     const percentage = this.attendance()?.summary.percentage ?? 0;
     if (percentage >= 90) {
@@ -152,7 +154,7 @@ export class StudentAttendancePageComponent {
       },
       {
         title: 'Tardanzas',
-        subtitle: 'Seguimiento del periodo',
+        subtitle: 'Seguimiento del período',
         value: detail.summary.lateCount,
         percentage: Math.round((detail.summary.lateCount / total) * 100),
         tone: 'is-warning',
@@ -237,8 +239,9 @@ export class StudentAttendancePageComponent {
       monthBuckets.set(month, bucket);
     }
 
+    const startMonth = this.activeSemesterStartMonth();
     return Array.from({ length: 6 }, (_, index) => {
-      const month = index + 1;
+      const month = startMonth + index;
       const label = formatter.format(new Date(year, month - 1, 1)).replace(/^\w/, (char) => char.toUpperCase());
       const bucket = monthBuckets.get(month);
       const isVacation = month === 1 || month === 2;
@@ -334,11 +337,22 @@ export class StudentAttendancePageComponent {
     return !['PRESENTE', 'PRESENT'].includes(status.toUpperCase());
   }
 
+  recordMetaLabel(record: StudentAttendanceRecord): string {
+    if (record.departureTime) {
+      return record.departureJustified
+        ? `${record.timeLabel || `Salida ${record.departureTime}`} · salida justificada`
+        : `${record.timeLabel || `Salida ${record.departureTime}`} · salida pendiente`;
+    }
+
+    return record.timeLabel || 'Sin hora registrada';
+  }
+
   private loadAttendance(): void {
     this.isLoading.set(true);
     this.studentApiService.getStudentAttendance().subscribe({
       next: (attendance) => {
         this.attendance.set(attendance);
+        this.calendarPage.set(this.defaultCalendarPage(attendance));
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
@@ -387,7 +401,7 @@ export class StudentAttendancePageComponent {
     );
     const daysInMonth = new Date(year, month, 0).getDate();
     const isVacationMonth = month === 1 || month === 2;
-    const weeks = new Map<number, { weekKey: string; cells: { dayNumber: number | null; statusClass: string; statusLabel: string; specialMarker: string | null }[] }>();
+    const weeks = new Map<string, { weekKey: string; cells: { dayNumber: number | null; statusClass: string; statusLabel: string; specialMarker: string | null }[] }>();
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month - 1, day);
@@ -396,17 +410,23 @@ export class StudentAttendancePageComponent {
         continue;
       }
 
-      const weekIndex = Math.floor((day - 1) / 7);
       const isoDate = [
         year.toString().padStart(4, '0'),
         month.toString().padStart(2, '0'),
         day.toString().padStart(2, '0')
       ].join('-');
       const weekdayIndex = weekday - 1;
+      const mondayDate = new Date(date);
+      mondayDate.setDate(date.getDate() - weekdayIndex);
+      const weekKey = [
+        mondayDate.getFullYear().toString().padStart(4, '0'),
+        (mondayDate.getMonth() + 1).toString().padStart(2, '0'),
+        mondayDate.getDate().toString().padStart(2, '0')
+      ].join('-');
       const week =
-        weeks.get(weekIndex) ??
+        weeks.get(weekKey) ??
         {
-          weekKey: `${monthLabel}-${weekIndex}`,
+          weekKey,
           cells: Array.from({ length: 5 }, () => ({ dayNumber: null, statusClass: 'is-empty', statusLabel: '', specialMarker: null }))
         };
 
@@ -417,14 +437,22 @@ export class StudentAttendancePageComponent {
         statusLabel: historyEntry?.statusLabel ?? (isVacationMonth ? 'Vacaciones' : 'Sin clases'),
         specialMarker: historyEntry?.specialMarker ?? (isVacationMonth ? 'V' : null)
       };
-      weeks.set(weekIndex, week);
+      weeks.set(weekKey, week);
     }
 
     return {
       label: monthLabel,
       weekdays: this.heatmapWeekdays,
-      weeks: Array.from(weeks.values())
+      weeks: Array.from(weeks.entries())
+        .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+        .map(([, week]) => week)
     };
+  }
+
+  private defaultCalendarPage(attendance: StudentAttendanceDetail): number {
+    const monthLabel = `${attendance.currentMonth.monthLabel} ${attendance.header.periodLabel}`.toLowerCase();
+    const secondSemesterMonths = ['jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return secondSemesterMonths.some((month) => monthLabel.includes(month)) ? 1 : 0;
   }
 
   private calendarStatusClass(status: string): string {

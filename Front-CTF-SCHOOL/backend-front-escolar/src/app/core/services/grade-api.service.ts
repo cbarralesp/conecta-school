@@ -3,15 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { API_CONFIG } from '../constants/api.config';
 import {
+  CreatePedagogicalQuestionBankQuestionPayload,
   GradeBookView,
   GradeCatalog,
   GradeEvaluationPayload,
   PedagogicalQuestionBankArea,
+  PedagogicalQuestionBankQuestion,
   PedagogicalReportView,
   GradeReportView,
   SavePedagogicalReportPayload,
   SaveGradeBookPayload,
-  StudentGradeProfileView
+  StudentGradeProfileView,
+  UpdatePedagogicalQuestionBankQuestionPayload
 } from '../models/grade.models';
 import { normalizeDashboardText } from '../utils/text-normalizer';
 
@@ -26,7 +29,8 @@ export class GradeApiService {
         map((catalog) => ({
           courses: catalog.courses.map((course) => ({
             ...course,
-            name: normalizeDashboardText(course.name)
+            name: normalizeDashboardText(course.name),
+            teacherName: normalizeDashboardText(course.teacherName ?? '')
           })),
           periods: catalog.periods.map((period) => ({
             ...period,
@@ -81,6 +85,44 @@ export class GradeApiService {
       .pipe(map((view) => this.normalizeStudentProfile(view)));
   }
 
+  getPedagogicalQuestionBank(levelCode: 'PREKINDER' | 'KINDER' | 'GENERAL'): Observable<PedagogicalQuestionBankArea[]> {
+    return this.http
+      .get<PedagogicalQuestionBankArea[]>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos/banco`, {
+        params: { levelCode }
+      })
+      .pipe(
+        map((areas) => areas.map((area) => ({
+          ...area,
+          key: normalizeDashboardText(area.key),
+          title: normalizeDashboardText(area.title),
+          levelCode: area.levelCode,
+          questionKind: area.questionKind,
+          questions: (area.questions ?? []).map((question) => ({
+            ...question,
+            levelCode: question.levelCode,
+            questionKind: question.questionKind,
+            label: normalizeDashboardText(question.label)
+          }))
+        })))
+      );
+  }
+
+  createPedagogicalQuestionBankQuestion(payload: CreatePedagogicalQuestionBankQuestionPayload): Observable<PedagogicalQuestionBankQuestion> {
+    return this.http
+      .post<PedagogicalQuestionBankQuestion>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos/banco`, payload)
+      .pipe(map((question) => this.normalizeQuestionBankQuestion(question)));
+  }
+
+  updatePedagogicalQuestionBankQuestion(questionId: number, payload: UpdatePedagogicalQuestionBankQuestionPayload): Observable<PedagogicalQuestionBankQuestion> {
+    return this.http
+      .put<PedagogicalQuestionBankQuestion>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos/banco/${questionId}`, payload)
+      .pipe(map((question) => this.normalizeQuestionBankQuestion(question)));
+  }
+
+  deletePedagogicalQuestionBankQuestion(questionId: number): Observable<void> {
+    return this.http.delete<void>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos/banco/${questionId}`);
+  }
+
   getReports(courseId: number, periodId: number): Observable<GradeReportView> {
     return this.http
       .get<GradeReportView>(`${API_CONFIG.baseUrl}/calificaciones/informes`, {
@@ -101,25 +143,6 @@ export class GradeApiService {
     return this.http
       .put<PedagogicalReportView>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos`, payload)
       .pipe(map((view) => this.normalizePedagogicalReportView(view)));
-  }
-
-  getPedagogicalQuestionBank(levelCode: string): Observable<PedagogicalQuestionBankArea[]> {
-    return this.http
-      .get<PedagogicalQuestionBankArea[]>(`${API_CONFIG.baseUrl}/calificaciones/informes-pedagogicos/banco`, {
-        params: { levelCode }
-      })
-      .pipe(
-        map((areas) => areas.map((area) => ({
-          ...area,
-          key: normalizeDashboardText(area.key),
-          title: normalizeDashboardText(area.title),
-          questionKind: area.questionKind,
-          questions: (area.questions ?? []).map((question) => ({
-            ...question,
-            label: normalizeDashboardText(question.label)
-          }))
-        })))
-      );
   }
 
   private normalizeGradeBook(view: GradeBookView): GradeBookView {
@@ -256,5 +279,14 @@ export class GradeApiService {
       .map((item) => normalizeDashboardText(item))
       .find((item) => item.length > 0);
     return [firstFilledRecommendation ?? ''];
+  }
+
+  private normalizeQuestionBankQuestion(question: PedagogicalQuestionBankQuestion): PedagogicalQuestionBankQuestion {
+    return {
+      ...question,
+      levelCode: question.levelCode,
+      questionKind: question.questionKind,
+      label: normalizeDashboardText(question.label)
+    };
   }
 }

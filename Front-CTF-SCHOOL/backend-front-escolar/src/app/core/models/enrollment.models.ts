@@ -24,6 +24,7 @@ export interface EnrollmentListItem {
   fullName: string;
   courseId: number;
   courseName: string;
+  courseSchoolYear?: number | null;
   guardianFullName: string;
   status: string;
   enrollmentDate: string;
@@ -88,8 +89,12 @@ export interface EnrollmentDocument {
   id: number | null;
   documentKey: string;
   fileName: string;
+  storageProvider?: string | null;
+  storageKey?: string | null;
   driveFileId?: string | null;
   driveUrl?: string | null;
+  mimeType?: string | null;
+  sizeBytes?: number | null;
 }
 
 export interface EnrollmentStudentAccess {
@@ -134,6 +139,8 @@ export interface EnrollmentDetail {
   studentLastName: string;
   birthDate: string;
   gender: string;
+  studentPhotoUrl?: string | null;
+  studentPhotoMimeType?: string | null;
   courseId: number;
   regionId: number | null;
   communeId: number | null;
@@ -200,4 +207,10 @@ export interface EnrollmentPayload {
   documents: EnrollmentDocument[];
   studentAccess: EnrollmentStudentAccess;
   guardianAccess: EnrollmentGuardianAccess;
+}
+
+export interface EnrollmentRenewalPayload {
+  courseId: number;
+  courseSelection: EnrollmentCourseSelection;
+  enrollmentDate: string;
 }

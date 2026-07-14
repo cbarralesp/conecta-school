@@ -25,7 +25,7 @@ import { AdministrationStatusBadgeComponent } from './administration-status-badg
       <section class="detail-shell__content">
         <header class="detail-heading">
           <mat-icon>badge</mat-icon>
-          <span>Informacion de contacto</span>
+          <span>Información de contacto</span>
         </header>
 
         <div class="role-desc">
@@ -47,7 +47,7 @@ import { AdministrationStatusBadgeComponent } from './administration-status-badg
             <strong>{{ data.email }}</strong>
           </div>
           <div class="data-item">
-            <span>Telefono</span>
+            <span>Teléfono</span>
             <strong>{{ data.phone }}</strong>
           </div>
           <div class="data-item">
@@ -55,7 +55,7 @@ import { AdministrationStatusBadgeComponent } from './administration-status-badg
             <app-administration-status-badge [userStatus]="data.status"></app-administration-status-badge>
           </div>
           <div class="data-item">
-            <span>Ultimo acceso</span>
+            <span>Último acceso</span>
             <strong>{{ data.lastAccessLabel }}</strong>
           </div>
         </div>

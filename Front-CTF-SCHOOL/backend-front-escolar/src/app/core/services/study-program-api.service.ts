@@ -58,6 +58,27 @@ export class StudyProgramApiService {
           code: normalizeDashboardText(attitude.code),
           description: normalizeDashboardText(attitude.description)
         })),
+        objectiveCatalog: (program.objectiveCatalog ?? []).map((objective) => ({
+          ...objective,
+          code: normalizeDashboardText(objective.code),
+          axis: normalizeDashboardText(objective.axis),
+          description: normalizeDashboardText(objective.description),
+          subItems: (objective.subItems ?? []).map((item) => normalizeDashboardText(item))
+        })),
+        permanentObjectives: (program.permanentObjectives ?? []).map((objective) => ({
+          ...objective,
+          code: normalizeDashboardText(objective.code),
+          axis: normalizeDashboardText(objective.axis),
+          description: normalizeDashboardText(objective.description),
+          subItems: (objective.subItems ?? []).map((item) => normalizeDashboardText(item)),
+          evaluationIndicators: (objective.evaluationIndicators ?? []).map((item) => normalizeDashboardText(item)),
+          activities: (objective.activities ?? []).map((activity) => ({
+            ...activity,
+            title: normalizeDashboardText(activity.title),
+            description: normalizeDashboardText(activity.description),
+            teacherNote: normalizeDashboardText(activity.teacherNote)
+          }))
+        })),
         units: (program.units ?? []).map((unit) => ({
           ...unit,
           name: normalizeDashboardText(unit.name),

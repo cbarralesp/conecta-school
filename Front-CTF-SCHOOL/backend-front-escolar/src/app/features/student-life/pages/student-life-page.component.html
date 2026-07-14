@@ -1,0 +1,1576 @@
+﻿<app-teacher-modern-layout
+  title=""
+  activeItem="student-life"
+  dashboardRoute="/dashboard"
+  searchPlaceholder="Buscar estudiantes, apoderados, cursos, documentos..."
+  [userName]="user()?.nombre ?? 'Usuario'"
+  userRole="Inspectora General">
+  <main class="life-page">
+    @if (isDetailView()) {
+      <section class="detail-page">
+        <section class="student-profile-card">
+          <div
+            class="student-profile-avatar"
+            [class.tone-blue]="selectedStudent()?.avatarTone === 'blue'"
+            [class.tone-emerald]="selectedStudent()?.avatarTone === 'emerald'"
+            [class.tone-amber]="selectedStudent()?.avatarTone === 'amber'"
+            [class.tone-violet]="selectedStudent()?.avatarTone === 'violet'"
+            [class.tone-rose]="selectedStudent()?.avatarTone === 'rose'">
+            @if (selectedStudent()?.foto) {
+              <img [src]="selectedStudent()?.foto" [alt]="selectedStudent()?.nombre">
+            } @else {
+              <span>{{ initials(selectedStudent()?.nombre ?? '') }}</span>
+            }
+          </div>
+
+          <div class="student-profile-main">
+            <h1>{{ selectedStudent()?.nombre ?? 'Cargando estudiante' }}</h1>
+            <p>RUN {{ selectedStudent()?.run ?? '-' }} · {{ selectedStudent()?.curso ?? '-' }}</p>
+            <span>Apoderado: {{ selectedStudent()?.apoderado ?? '-' }}</span>
+          </div>
+
+          <div class="profile-actions">
+            <button mat-stroked-button type="button" class="export-button profile-action profile-action--back" (click)="volverListado()">
+              <mat-icon>arrow_back</mat-icon>
+              Volver
+            </button>
+          </div>
+        </section>
+
+        <div class="life-detail-grid">
+          <section class="life-detail-main">
+            <nav class="life-tabs" aria-label="Secciones hoja de vida">
+              @for (tab of lifeTabs; track tab.label) {
+                <button
+                  type="button"
+                  class="life-tab"
+                  [class.is-active]="selectedLifeTab() === tab.label"
+                  (click)="updateLifeTab(tab.label)">
+                  <mat-icon>{{ tab.icon }}</mat-icon>
+                  {{ tab.label }}
+                </button>
+              }
+            </nav>
+
+            @if (selectedLifeTab() === 'Documentos') {
+              <mat-card appearance="outlined" class="detail-card documents-card">
+                <mat-card-content>
+                  <header class="detail-card-header documents-header">
+                    <div>
+                      <h2>Documentos del estudiante</h2>
+                      <p>Archivos obligatorios, certificados y documentos de seguimiento.</p>
+                    </div>
+
+                  </header>
+
+                  <div class="documents-table-shell">
+                    <table class="documents-table">
+                      <thead>
+                        <tr>
+                          <th>Documento</th>
+                          <th>Tipo de archivo</th>
+                          <th>Fecha de subida</th>
+                          <th>Estado</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (documento of documentosEstudiante(); track documento.id) {
+                          <tr>
+                            <td>
+                              <div class="document-cell">
+                                <span
+                                  class="document-icon"
+                                  [class.document-icon--word]="documento.tipo === 'DOCX'">
+                                  <mat-icon>{{ documento.icon }}</mat-icon>
+                                </span>
+                                <strong>{{ documento.nombre }}</strong>
+                              </div>
+                            </td>
+                            <td>
+                              <span class="file-pill" [class.file-pill--word]="documento.tipo === 'DOCX'">
+                                {{ documento.tipo }}
+                              </span>
+                            </td>
+                            <td>{{ documento.fecha }}</td>
+                            <td>
+                              <span
+                                class="document-status"
+                                [class.document-status--pending]="documento.estado === 'Pendiente'"
+                                [class.document-status--expired]="documento.estado === 'Vencido'">
+                                {{ documento.estado }}
+                              </span>
+                            </td>
+                            <td>
+                              <div class="actions-group document-actions">
+                                <button
+                                  mat-icon-button
+                                  type="button"
+                                  aria-label="Opciones del documento"
+                                  #documentMenuTrigger="matMenuTrigger"
+                                  [matMenuTriggerFor]="documentMenu">
+                                  <mat-icon>more_vert</mat-icon>
+                                </button>
+                                <mat-menu #documentMenu="matMenu" xPosition="before" class="document-menu">
+                                  <button mat-menu-item type="button" class="document-menu-item" [disabled]="!documento.documentId" (click)="$event.stopPropagation(); documentMenuTrigger.closeMenu(); verDocumento(documento)">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span>Ver documento</span>
+                                  </button>
+                                  <button mat-menu-item type="button" class="document-menu-item" [disabled]="!documento.documentId" (click)="$event.stopPropagation(); documentMenuTrigger.closeMenu(); descargarDocumento(documento)">
+                                    <mat-icon>download</mat-icon>
+                                    <span>Descargar documento</span>
+                                  </button>
+                                  <button mat-menu-item type="button" class="document-menu-item document-menu-item--upload" (click)="$event.stopPropagation(); documentMenuTrigger.closeMenu(); subirDocumento(documento)">
+                                    <mat-icon>cloud_upload</mat-icon>
+                                    <span>Subir documento</span>
+                                  </button>
+                                  <button mat-menu-item type="button" class="document-menu-item" (click)="$event.stopPropagation(); documentMenuTrigger.closeMenu(); abrirDocumentosMatricula(documento)">
+                                    <mat-icon>open_in_new</mat-icon>
+                                    <span>Ver en matricula</span>
+                                  </button>
+                                </mat-menu>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <footer class="documents-progress-panel">
+                    <div class="progress-ring progress-ring--small" [style.--progress-value]="documentCompletion().percentage + '%'">
+                      <span>{{ documentCompletion().percentage }}%</span>
+                    </div>
+                    <div>
+                      <h3>Documentos completos</h3>
+                      <p>{{ documentCompletion().completed }} de {{ documentCompletion().total }} documentos cargados</p>
+                    </div>
+                    <button mat-stroked-button type="button" class="export-button">
+                      Ver detalle
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </footer>
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Resumen') {
+              <mat-card appearance="outlined" class="detail-card">
+                <mat-card-content>
+                  <header class="detail-card-header">
+                    <div>
+                      <h2>Resumen de hoja de vida</h2>
+                      <p>Vista general del estado académico, asistencia, convivencia y documentos del estudiante.</p>
+                    </div>
+                  </header>
+
+                  <section class="life-summary-grid">
+                    <article class="summary-item summary-item--green">
+                      <span><mat-icon>event_available</mat-icon></span>
+                      <p>Asistencia<br><small>{{ selectedAttendanceDetail() }}</small></p>
+                      <strong>{{ selectedAttendanceLabel() }}</strong>
+                    </article>
+
+                    <article class="summary-item summary-item--blue">
+                      <span><mat-icon>event_note</mat-icon></span>
+                      <p>Evaluaciones<br><small>{{ selectedGradeDetail() }}</small></p>
+                      <strong>{{ selectedGradeLabel() }}</strong>
+                    </article>
+
+                    <article class="summary-item summary-item--amber">
+                      <span><mat-icon>verified_user</mat-icon></span>
+                      <p>Hoja de vida<br><small>{{ selectedStudent()?.curso ?? '-' }}</small></p>
+                      <strong>{{ selectedStudent()?.estado ?? '-' }}</strong>
+                    </article>
+
+                    <article class="summary-item summary-item--blue">
+                      <span><mat-icon>description</mat-icon></span>
+                      <p>Documentos<br><small>{{ selectedDocumentsDetail() }}</small></p>
+                      <strong>{{ selectedDocumentsCount() }}</strong>
+                    </article>
+                  </section>
+
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Asistencia') {
+              <mat-card appearance="outlined" class="detail-card attendance-card">
+                <mat-card-content>
+                  <header class="detail-card-header">
+                    <div>
+                      <h2>Asistencia del estudiante</h2>
+                      <p>Registro de asistencia, atrasos y justificativos del período actual.</p>
+                    </div>
+                  </header>
+
+                  <div class="evaluations-table-shell">
+                    <table class="evaluations-table attendance-table">
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Jornada</th>
+                          <th>Estado</th>
+                          <th>Registro</th>
+                          <th>Detalle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (registro of registrosAsistencia(); track registro.id) {
+                          <tr>
+                            <td><strong>{{ registro.fecha }}</strong></td>
+                            <td>{{ registro.jornada }}</td>
+                            <td>
+                              <span
+                                class="document-status"
+                                [class.document-status--pending]="registro.estado === 'Atraso'"
+                                [class.document-status--expired]="registro.estado === 'Ausente'">
+                                {{ registro.estado }}
+                              </span>
+                            </td>
+                            <td>{{ registro.hora }}</td>
+                            <td>{{ registro.detalle }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <footer class="info-card evaluations-info">
+                    <div class="info-card__icon"><mat-icon>info</mat-icon></div>
+                    <p>Las inasistencias sin respaldo quedan pendientes hasta recibir justificativo del apoderado.</p>
+                  </footer>
+
+                  <section class="attendance-calendar-card">
+                    <header>
+                      <div>
+                        <div class="attendance-calendar-title">
+                          <button mat-icon-button type="button" aria-label="Mes anterior" (click)="cambiarMesAsistencia('anterior')">
+                            <mat-icon>chevron_left</mat-icon>
+                          </button>
+                          <h3>{{ selectedAttendanceMonthLabel() }}</h3>
+                          <button mat-icon-button type="button" aria-label="Mes siguiente" (click)="cambiarMesAsistencia('siguiente')">
+                            <mat-icon>chevron_right</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="attendance-calendar-legend">
+                        <span><i class="is-present"></i>Presente</span>
+                        <span><i class="is-late"></i>Atraso</span>
+                        <span><i class="is-absent"></i>Ausente</span>
+                        <span><i class="is-justified"></i>Justificado</span>
+                      </div>
+                    </header>
+
+                    <div class="attendance-calendar-grid">
+                      @for (weekday of ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']; track weekday) {
+                        <strong>{{ weekday }}</strong>
+                      }
+
+                      @for (dia of calendarioAsistencia(); track $index) {
+                        <article
+                          class="attendance-calendar-day"
+                          [class.is-empty]="dia.estado === 'Vacio'"
+                          [class.is-present]="dia.estado === 'Presente'"
+                          [class.is-late]="dia.estado === 'Atraso'"
+                          [class.is-absent]="dia.estado === 'Ausente'"
+                          [class.is-justified]="dia.estado === 'Justificado'"
+                          [class.is-holiday]="dia.estado === 'Feriado'">
+                          @if (dia.dia !== null) {
+                            <span>{{ dia.dia }}</span>
+                            @if (dia.etiqueta) {
+                              <small>{{ dia.etiqueta }}</small>
+                            }
+                          }
+                        </article>
+                      }
+                    </div>
+                  </section>
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Evaluaciones') {
+              <mat-card appearance="outlined" class="detail-card evaluations-card">
+                <mat-card-content>
+                  <header class="detail-card-header">
+                    <div>
+                      <h2>Evaluaciones del estudiante</h2>
+                      <p>Resumen por asignatura, notas registradas y promedio actual.</p>
+                    </div>
+                  </header>
+
+                  <div class="evaluations-table-shell">
+                    <table class="evaluations-table">
+                      <thead>
+                        <tr>
+                          <th>Asignatura</th>
+                          <th>
+                            <div class="notes-header">
+                              <span class="note-columns">
+                                @for (column of noteColumns(); track column) {
+                                  <strong>{{ column }}</strong>
+                                }
+                              </span>
+                            </div>
+                          </th>
+                          <th>Promedio</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (evaluacion of evaluacionesEstudiante(); track evaluacion.id) {
+                          <tr>
+                            <td>
+                              <strong>{{ evaluacion.asignatura }}</strong>
+                            </td>
+                            <td>
+                              <span class="grades-list">
+                                @for (column of noteColumns(); track column; let index = $index) {
+                                  <span class="grade-entry">
+                                    <strong>{{ noteValues(evaluacion)[index] || '-' }}</strong>
+                                  </span>
+                                }
+                              </span>
+                            </td>
+                            <td>
+                              <span class="grade-pill">{{ evaluacion.promedio }}</span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <footer class="info-card evaluations-info">
+                    <div class="info-card__icon"><mat-icon>info</mat-icon></div>
+                    <p>Las evaluaciones formativas pueden aparecer sin nota y se consideran para seguimiento pedagógico.</p>
+                  </footer>
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Entrevista') {
+              <mat-card appearance="outlined" class="detail-card">
+                <mat-card-content>
+                  <header class="detail-card-header">
+                    <div>
+                      <h2>Entrevistas del estudiante</h2>
+                      <p>Registro de entrevistas con apoderado, estudiante y equipo de apoyo.</p>
+                    </div>
+
+                    <button mat-flat-button type="button" class="annotation-button" (click)="nuevaEntrevista()">
+                      <mat-icon>add</mat-icon>
+                      Nueva entrevista
+                    </button>
+                  </header>
+
+                  <div class="evaluations-table-shell">
+                    <table class="evaluations-table interviews-table">
+                      <colgroup>
+                        <col class="interview-col-date">
+                        <col class="interview-col-type">
+                        <col class="interview-col-participants">
+                        <col class="interview-col-topic">
+                        <col class="interview-col-status">
+                        <col class="interview-col-actions">
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Tipo</th>
+                          <th>Participantes</th>
+                          <th>Motivo</th>
+                          <th>Estado</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (entrevista of entrevistasEstudiante; track entrevista.id) {
+                          <tr>
+                            <td>
+                              <strong>{{ entrevista.fecha }}</strong>
+                              <small class="cell-note">{{ entrevista.hora }}</small>
+                            </td>
+                            <td>
+                              <span
+                                class="file-pill"
+                                [class.file-pill--word]="entrevista.tipo === 'Estudiante'"
+                                [class.file-pill--team]="entrevista.tipo === 'Equipo'">
+                                {{ entrevista.tipo }}
+                              </span>
+                            </td>
+                            <td>
+                              <div class="interview-participants">
+                                <mat-icon>{{ entrevista.tipo === 'Equipo' ? 'groups' : 'person' }}</mat-icon>
+                                <span>
+                                  @for (participante of participantNames(entrevista); track participante) {
+                                    <small>{{ participante }}</small>
+                                  }
+                                </span>
+                              </div>
+                            </td>
+                            <td>{{ entrevista.motivo }}</td>
+                            <td>
+                              <span
+                                class="document-status"
+                                [class.document-status--pending]="entrevista.estado === 'Programada'"
+                                [class.document-status--expired]="entrevista.estado === 'Pendiente'">
+                                {{ entrevista.estado }}
+                              </span>
+                            </td>
+                            <td>
+                              <div class="actions-group document-actions">
+                                <button
+                                  mat-icon-button
+                                  type="button"
+                                  aria-label="Opciones de entrevista"
+                                  #interviewMenuTrigger="matMenuTrigger"
+                                  [matMenuTriggerFor]="interviewMenu">
+                                  <mat-icon>more_vert</mat-icon>
+                                </button>
+                                <mat-menu #interviewMenu="matMenu" xPosition="before" class="interview-actions-menu">
+                                  <button mat-menu-item type="button" class="interview-menu-item" (click)="$event.stopPropagation(); interviewMenuTrigger.closeMenu(); verEntrevista(entrevista)">
+                                    <mat-icon>visibility</mat-icon>
+                                    <span>Ver acta</span>
+                                  </button>
+                                  <button mat-menu-item type="button" class="interview-menu-item" (click)="$event.stopPropagation(); interviewMenuTrigger.closeMenu(); editarEntrevista(entrevista)">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Editar</span>
+                                  </button>
+                                  <button mat-menu-item type="button" class="interview-menu-item interview-menu-item--danger" (click)="$event.stopPropagation(); interviewMenuTrigger.closeMenu(); eliminarEntrevista(entrevista)">
+                                    <mat-icon>delete</mat-icon>
+                                    <span>Eliminar</span>
+                                  </button>
+                                  <button mat-menu-item type="button" class="interview-menu-item" (click)="$event.stopPropagation(); interviewMenuTrigger.closeMenu(); descargarEntrevistaPdf(entrevista)">
+                                    <mat-icon>description</mat-icon>
+                                    <span>Descargar PDF</span>
+                                  </button>
+                                </mat-menu>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <footer class="documents-progress-panel">
+                    <div class="progress-ring progress-ring--small">
+                      <span>{{ entrevistasEstudiante.length }}</span>
+                    </div>
+                    <div>
+                      <h3>Entrevistas registradas</h3>
+                      <p>{{ interviewStatusSummary() }}</p>
+                    </div>
+                  </footer>
+                </mat-card-content>
+              </mat-card>
+            } @else {
+              <mat-card appearance="outlined" class="detail-card">
+                <mat-card-content>
+                  <header class="detail-card-header">
+                    <div>
+                      <h2>Seguimiento y convivencia</h2>
+                      <p>Registro de situaciónes, entrevistas y acuerdos de convivencia.</p>
+                    </div>
+
+                    <button mat-flat-button type="button" class="annotation-button" (click)="openAnnotationDialog()">
+                      <mat-icon>add</mat-icon>
+                      Nueva anotacion
+                    </button>
+                  </header>
+
+                  <div class="record-filter-bar">
+                    @for (filter of recordFilters; track filter.label) {
+                      <button
+                        mat-stroked-button
+                        type="button"
+                        class="filter-chip"
+                        [class.is-active]="selectedRecordFilter() === filter.label"
+                        (click)="updateRecordFilter(filter.label)">
+                        <mat-icon>{{ filter.icon }}</mat-icon>
+                        {{ filter.label }}
+                      </button>
+                    }
+                  </div>
+
+                  <div class="timeline-list">
+                    @for (registro of filteredRecords(); track registro.id) {
+                      <article class="timeline-row" [class.timeline-row--negative]="registro.tipo === 'Negativa'">
+                        <div class="timeline-icon">
+                          <mat-icon>{{ registro.icon }}</mat-icon>
+                        </div>
+
+                        <div class="timeline-date">
+                          <strong>{{ registro.fecha }}</strong>
+                          <span>{{ registro.hora }}</span>
+                        </div>
+
+                        <div class="timeline-content">
+                          <h3>{{ registro.titulo }}</h3>
+                          <strong>{{ registro.responsable }}</strong>
+                          <p>{{ registro.detalle }}</p>
+                        </div>
+
+                        <span
+                          class="record-badge"
+                          [class.record-badge--positive]="registro.tipo === 'Positiva'"
+                          [class.record-badge--negative]="registro.tipo === 'Negativa'"
+                          [class.record-badge--interview]="registro.tipo === 'Entrevista'"
+                          [class.record-badge--agreement]="registro.tipo === 'Acuerdo activo'"
+                          [class.record-badge--referral]="registro.tipo === 'Derivacion'">
+                          {{ registro.tipo }}
+                        </span>
+
+                        <button
+                          mat-icon-button
+                          type="button"
+                          class="row-menu-button"
+                          aria-label="Mas opciones"
+                          #recordMenuTrigger="matMenuTrigger"
+                          [matMenuTriggerFor]="recordMenu">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #recordMenu="matMenu" xPosition="before" class="record-actions-menu">
+                          <button mat-menu-item type="button" class="record-menu-item" (click)="$event.stopPropagation(); recordMenuTrigger.closeMenu(); verRegistroConvivencia(registro)">
+                            <mat-icon>visibility</mat-icon>
+                            <span>Ver</span>
+                          </button>
+                          <button mat-menu-item type="button" class="record-menu-item" (click)="$event.stopPropagation(); recordMenuTrigger.closeMenu(); editarRegistroConvivencia(registro)">
+                            <mat-icon>edit</mat-icon>
+                            <span>Editar</span>
+                          </button>
+                          <button mat-menu-item type="button" class="record-menu-item record-menu-item--danger" (click)="$event.stopPropagation(); recordMenuTrigger.closeMenu(); eliminarRegistroConvivencia(registro)">
+                            <mat-icon>delete</mat-icon>
+                            <span>Eliminar</span>
+                          </button>
+                        </mat-menu>
+                      </article>
+                    }
+                  </div>
+
+                  <footer class="history-footer">
+                    <button mat-stroked-button type="button" class="export-button" (click)="ejecutarAccionHojaVida()">
+                      Ver historial completo
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </footer>
+                </mat-card-content>
+              </mat-card>
+            }
+          </section>
+
+          <aside class="life-detail-aside">
+            @if (selectedLifeTab() === 'Resumen') {
+              <mat-card appearance="outlined" class="side-card document-side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Indicadores clave</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <button type="button" class="summary-item summary-item--button summary-item--green" (click)="goToSummaryIndicator('Convivencia')">
+                      <span><mat-icon>task_alt</mat-icon></span>
+                      <p>Estado general</p>
+                      <strong>{{ summaryIndicators().estado }}</strong>
+                    </button>
+                    <button type="button" class="summary-item summary-item--button summary-item--blue" (click)="goToSummaryIndicator('Evaluaciones')">
+                      <span><mat-icon>query_stats</mat-icon></span>
+                      <p>Promedio</p>
+                      <strong>{{ summaryIndicators().promedio }}</strong>
+                    </button>
+                    <button type="button" class="summary-item summary-item--button summary-item--amber" (click)="goToSummaryIndicator('Asistencia')">
+                      <span><mat-icon>schedule</mat-icon></span>
+                      <p>Atrasos</p>
+                      <strong>{{ summaryIndicators().atrasos }}</strong>
+                    </button>
+                    <button type="button" class="summary-item summary-item--button summary-item--red" (click)="goToSummaryIndicator('Convivencia')">
+                      <span><mat-icon>warning</mat-icon></span>
+                      <p>Alertas activas</p>
+                      <strong>{{ summaryIndicators().alertas }}</strong>
+                    </button>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card document-side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Pendientes inmediatos</h2>
+                  </header>
+
+                  @if (pendingSummaryActions().length > 0) {
+                    <div class="next-actions-list">
+                      @for (accion of pendingSummaryActions(); track accion.id) {
+                        <button
+                          type="button"
+                          class="next-action"
+                          [class.next-action--blue]="accion.tone === 'blue'"
+                          [class.next-action--amber]="accion.tone === 'amber'"
+                          [class.next-action--purple]="accion.tone === 'purple'"
+                          (click)="ejecutarAccionPendiente(accion)">
+                          <mat-icon>{{ accion.icon }}</mat-icon>
+                          <span>
+                            <strong>{{ accion.titulo }}</strong>
+                            <small>{{ accion.fecha }}</small>
+                            <em>{{ accion.detalle }}</em>
+                          </span>
+                          <mat-icon>chevron_right</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <div class="empty-side-state">
+                      <mat-icon>task_alt</mat-icon>
+                      <strong>Sin pendientes</strong>
+                      <small>No hay acciones inmediatas registradas.</small>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Documentos') {
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Resumen documental</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <div class="summary-item summary-item--green">
+                      <span><mat-icon>task_alt</mat-icon></span>
+                      <p>Vigentes</p>
+                      <strong>{{ documentStatusSummary().vigentes }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--amber">
+                      <span><mat-icon>pending_actions</mat-icon></span>
+                      <p>Pendientes</p>
+                      <strong>{{ documentStatusSummary().pendientes }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--red">
+                      <span><mat-icon>event_busy</mat-icon></span>
+                      <p>Vencidos</p>
+                      <strong>{{ documentStatusSummary().vencidos }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--blue">
+                      <span><mat-icon>cloud_done</mat-icon></span>
+                      <p>Cargados</p>
+                      <strong>{{ documentStatusSummary().cargados }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Documentos pendientes</h2>
+                  </header>
+
+                  @if (documentosPendientes().length > 0) {
+                    <div class="next-actions-list">
+                      @for (documento of documentosPendientes(); track documento.id) {
+                        <button
+                          type="button"
+                          class="next-action"
+                          [class.next-action--amber]="documento.estado === 'Pendiente'"
+                          [class.next-action--purple]="documento.estado === 'Vencido'"
+                          (click)="irADocumentoPendiente(documento)">
+                          <mat-icon>{{ documento.estado === 'Vencido' ? 'assignment_late' : documento.icon }}</mat-icon>
+                          <span>
+                            <strong>{{ documento.nombre }}</strong>
+                            <small>{{ documento.estado }}</small>
+                            <em>{{ documento.fecha }}</em>
+                          </span>
+                          <mat-icon>chevron_right</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  } @else {
+                    <div class="empty-side-state">
+                      <mat-icon>verified</mat-icon>
+                      <strong>Documentación al día</strong>
+                      <small>No hay documentos pendientes.</small>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Ultimas actualizaciones</h2>
+                  </header>
+
+                  @if (actualizacionesDocumentos().length > 0) {
+                    <div class="updates-timeline">
+                      @for (actualizacion of actualizacionesDocumentos(); track actualizacion.id) {
+                        <article
+                          class="update-item"
+                          [class.update-item--red]="actualizacion.tone === 'red'"
+                          [class.update-item--blue]="actualizacion.tone === 'blue'"
+                          [class.update-item--green]="actualizacion.tone === 'green'">
+                          <span class="update-dot"></span>
+                          <mat-icon>{{ actualizacion.icon }}</mat-icon>
+                          <div>
+                            <h3>{{ actualizacion.titulo }}</h3>
+                            <p>{{ actualizacion.detalle }}</p>
+                            <small>{{ actualizacion.fecha }}</small>
+                          </div>
+                        </article>
+                      }
+                    </div>
+
+                    <button mat-button type="button" class="side-link" (click)="updateLifeTab('Documentos')">
+                      Ver historial completo
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  } @else {
+                    <div class="empty-side-state">
+                      <mat-icon>history</mat-icon>
+                      <strong>Sin movimientos</strong>
+                      <small>Aún no hay documentos cargados o actualizados.</small>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Asistencia') {
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Resumen de asistencia</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <div class="summary-item summary-item--green">
+                      <span><mat-icon>event_available</mat-icon></span>
+                      <p>Presentes</p>
+                      <strong>{{ selectedAttendanceSummary()?.presentCount ?? 0 }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--red">
+                      <span><mat-icon>event_busy</mat-icon></span>
+                      <p>Ausencias</p>
+                      <strong>{{ selectedAttendanceSummary()?.absentCount ?? 0 }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--amber">
+                      <span><mat-icon>schedule</mat-icon></span>
+                      <p>Atrasos</p>
+                      <strong>{{ selectedAttendanceSummary()?.lateCount ?? 0 }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--blue">
+                      <span><mat-icon>task_alt</mat-icon></span>
+                      <p>Justificadas</p>
+                      <strong>{{ selectedJustifiedCount() }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Tendencia mensual</h2>
+                  </header>
+
+                  <div class="subject-average-list">
+                    @for (mes of tendenciaAsistencia(); track mes.mes) {
+                      <article class="subject-average">
+                        <div>
+                          <strong>{{ mes.mes }}</strong>
+                          <span class="subject-average__bar">
+                            <span [style.width.%]="mes.porcentaje"></span>
+                          </span>
+                        </div>
+                        <em>{{ mes.label }}</em>
+                      </article>
+                    }
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Acciones pendientes</h2>
+                  </header>
+
+                  <div class="next-actions-list">
+                    @for (accion of accionesAsistencia(); track accion.id) {
+                      <button
+                        type="button"
+                        class="next-action"
+                        [class.is-open]="selectedAttendanceAction() === accion.kind"
+                        [class.next-action--blue]="accion.tone === 'blue'"
+                        [class.next-action--amber]="accion.tone === 'amber'"
+                        [class.next-action--purple]="accion.tone === 'purple'"
+                        [attr.aria-expanded]="selectedAttendanceAction() === accion.kind"
+                        (click)="toggleAttendanceAction(accion)">
+                        <mat-icon>{{ accion.icon }}</mat-icon>
+                        <span>
+                          <strong>{{ accion.titulo }}</strong>
+                          <small>{{ accion.fecha }}</small>
+                          <em>{{ accion.detalle }}</em>
+                        </span>
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
+                      @if (selectedAttendanceAction() === accion.kind) {
+                        <div class="attendance-action-detail">
+                          @if (selectedAttendanceActionDetails().length > 0) {
+                            @for (detalle of selectedAttendanceActionDetails(); track detalle.id) {
+                              <article>
+                                <strong>{{ detalle.fecha }}</strong>
+                                <span>{{ detalle.registro }}</span>
+                                <small>{{ detalle.detalle }}</small>
+                              </article>
+                            }
+                          } @else {
+                            <article>
+                              <strong>Sin registros asociados</strong>
+                              <small>No se encontraron movimientos para esta acción.</small>
+                            </article>
+                          }
+                        </div>
+                      }
+                    }
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Evaluaciones') {
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Resumen de evaluaciones</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <div class="summary-item summary-item--green">
+                      <span><mat-icon>query_stats</mat-icon></span>
+                      <p>Promedio general</p>
+                      <strong>{{ selectedGradeLabel() }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--blue">
+                      <span><mat-icon>menu_book</mat-icon></span>
+                      <p>Asignaturas evaluadas</p>
+                      <strong>{{ selectedGradeSummary()?.subjects?.length ?? 0 }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--amber">
+                      <span><mat-icon>pending_actions</mat-icon></span>
+                      <p>Notas pendientes</p>
+                      <strong>{{ selectedPendingGradesCount() }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Promedio por asignatura</h2>
+                  </header>
+
+                  <div class="subject-average-list">
+                    @for (promedio of promediosAsignatura(); track promedio.asignatura) {
+                      <article class="subject-average">
+                        <div>
+                          <strong>{{ promedio.asignatura }}</strong>
+                          <span class="subject-average__bar">
+                            <span [style.width.%]="promedio.porcentaje"></span>
+                          </span>
+                        </div>
+                        <em>{{ promedio.promedio }}</em>
+                      </article>
+                    }
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Proximas evaluaciones</h2>
+                  </header>
+
+                  <div class="next-actions-list">
+                    @for (evaluacion of proximasEvaluaciones(); track evaluacion.id) {
+                      <button
+                        type="button"
+                        class="next-action"
+                        [class.next-action--blue]="evaluacion.tone === 'blue'"
+                        [class.next-action--amber]="evaluacion.tone === 'amber'"
+                        [class.next-action--purple]="evaluacion.tone === 'purple'"
+                        (click)="updateLifeTab('Evaluaciones')">
+                        <mat-icon>event_note</mat-icon>
+                        <span>
+                          <strong>{{ evaluacion.asignatura }}</strong>
+                          <small>{{ evaluacion.fecha }}</small>
+                          <em>{{ evaluacion.detalle }}</em>
+                        </span>
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            } @else if (selectedLifeTab() === 'Entrevista') {
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Resumen de entrevistas</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <div class="summary-item summary-item--green">
+                      <span><mat-icon>task_alt</mat-icon></span>
+                      <p>Realizadas</p>
+                      <strong>{{ interviewSummary().realizadas }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--amber">
+                      <span><mat-icon>event</mat-icon></span>
+                      <p>Programadas</p>
+                      <strong>{{ interviewSummary().programadas }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--red">
+                      <span><mat-icon>pending_actions</mat-icon></span>
+                      <p>Pendientes</p>
+                      <strong>{{ interviewSummary().pendientes }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Pr&oacute;xima entrevista</h2>
+                  </header>                  @if (nextInterview(); as entrevista) {
+                    <div class="next-actions-list">
+                      <button type="button" class="next-action next-action--amber" (click)="verProximaEntrevista(entrevista)">
+                        <mat-icon>event</mat-icon>
+                        <span>
+                          <strong>{{ entrevista.motivo }}</strong>
+                          <small>{{ entrevista.fecha }} {{ entrevista.hora }}</small>
+                          <em>{{ participantNames(entrevista)[0] || entrevista.tipo }}</em>
+                        </span>
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="empty-side-state">
+                      <mat-icon>event_available</mat-icon>
+                      <strong>Sin entrevistas pr&oacute;ximas</strong>
+                      <small>No hay entrevistas programadas.</small>
+                    </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            } @else {
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Resumen de convivencia</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <div class="summary-item summary-item--green">
+                      <span><mat-icon>thumb_up</mat-icon></span>
+                      <p>Anotaciones positivas</p>
+                      <strong>{{ convivenciaSummary().positivas }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--red">
+                      <span><mat-icon>thumb_down</mat-icon></span>
+                      <p>Anotaciones negativas</p>
+                      <strong>{{ convivenciaSummary().negativas }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--blue">
+                      <span><mat-icon>group</mat-icon></span>
+                      <p>Entrevistas con apoderado</p>
+                      <strong>{{ convivenciaSummary().entrevistas }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--amber">
+                      <span><mat-icon>volunteer_activism</mat-icon></span>
+                      <p>Compromisos activos</p>
+                      <strong>{{ convivenciaSummary().acuerdos }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Registros conectados</h2>
+                    <mat-icon>info</mat-icon>
+                  </header>
+
+                  <div class="summary-list">
+                    <div class="summary-item summary-item--blue">
+                      <span><mat-icon>history</mat-icon></span>
+                      <p>Total registros</p>
+                      <strong>{{ registrosConvivencia().length }}</strong>
+                    </div>
+                    <div class="summary-item summary-item--amber">
+                      <span><mat-icon>pending_actions</mat-icon></span>
+                      <p>Acciones visibles</p>
+                      <strong>{{ pendingSummaryActions().length }}</strong>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card appearance="outlined" class="side-card">
+                <mat-card-content>
+                  <header class="side-card-header">
+                    <h2>Proximas acciones</h2>
+                  </header>
+
+                  <div class="next-actions-list">
+                    @for (accion of pendingSummaryActions(); track accion.id) {
+                      <button
+                        type="button"
+                        class="next-action"
+                        [class.next-action--blue]="accion.tone === 'blue'"
+                        [class.next-action--amber]="accion.tone === 'amber'"
+                        [class.next-action--purple]="accion.tone === 'purple'"
+                        (click)="ejecutarAccionPendiente(accion)">
+                        <mat-icon>{{ accion.icon }}</mat-icon>
+                        <span>
+                          <strong>{{ accion.titulo }}</strong>
+                          <small>{{ accion.fecha }}</small>
+                          <em>{{ accion.detalle }}</em>
+                        </span>
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            }
+          </aside>
+        </div>
+      </section>
+    } @else {
+    <section class="page-header">
+      <div class="page-header__left">
+        <h1 class="page-header__title">Hoja de vida de estudiantes</h1>
+        <p class="page-header__subtitle">Consulta antecedentes, seguimiento y documentos del estudiante.</p>
+      </div>
+
+      <div class="page-header__actions">
+        <label class="filter-field header-filter header-filter--year" aria-label="Filtrar por año">
+          <span class="filter-field__inline-label">Año</span>
+          <span class="select-shell">
+            <mat-icon>calendar_month</mat-icon>
+            <select class="filter-select" [ngModel]="selectedYear()" (ngModelChange)="updateYear($event)">
+              @for (year of schoolYears; track year) {
+                <option [ngValue]="year">{{ year }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
+        <label class="filter-field header-filter" aria-label="Filtrar por curso">
+          <span class="filter-field__inline-label">Curso</span>
+          <span class="select-shell">
+            <mat-icon>school</mat-icon>
+            <select class="filter-select" [ngModel]="selectedCourse()" (ngModelChange)="updateCourse($event)">
+              <option value="">Todos los cursos</option>
+              @for (course of courseOptions(); track course.id) {
+                <option [value]="course.id">{{ course.name }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
+        <button mat-stroked-button type="button" class="export-button" (click)="exportar()">
+          <mat-icon>download</mat-icon>
+          Exportar
+        </button>
+      </div>
+    </section>
+
+    <section class="stats-row">
+      <app-summary-metric-card label="Total estudiantes" [value]="resumenModulo().totalEstudiantes" icon="groups" tone="blue" />
+      <app-summary-metric-card label="Con hoja activa" [value]="resumenModulo().conHojaActiva" icon="check_circle" tone="green" />
+      <app-summary-metric-card label="En seguimiento" [value]="resumenModulo().enSeguimiento" icon="track_changes" tone="amber" />
+      <app-summary-metric-card label="Documentos por revisar" [value]="resumenModulo().documentosPorRevisar" icon="description" tone="purple" />
+    </section>
+
+    <mat-card appearance="outlined" class="filters-card">
+      <mat-card-content>
+        <div class="list-toolbar">
+          <div class="list-toolbar__left">
+            <div class="view-toggle">
+              <button class="view-toggle__btn is-active" type="button" aria-label="Vista de lista">
+                <mat-icon>view_list</mat-icon>
+              </button>
+            </div>
+            <span class="list-toolbar__title">Estudiantes con hoja de vida</span>
+          </div>
+
+          <div class="list-toolbar__right">
+            <label class="search-box" aria-label="Buscar estudiante">
+              <mat-icon>search</mat-icon>
+              <input
+                type="search"
+                placeholder="Buscar estudiante..."
+                [ngModel]="searchTerm()"
+                (ngModelChange)="updateSearchTerm($event)">
+            </label>
+
+            <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="selectedStatus() === 'Todos'" (click)="updateStatus('Todos')">
+              Todos
+            </button>
+            <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="selectedStatus() === 'Activos'" (click)="updateStatus('Activos')">
+              Activos
+            </button>
+            <button mat-stroked-button type="button" class="filter-chip" [class.is-active]="selectedStatus() === 'Seguimiento'" (click)="updateStatus('Seguimiento')">
+              Seguimiento
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="table-card">
+      <mat-card-content>
+        <div class="table-shell">
+          <table class="students-table">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Curso</th>
+                <th>Apoderado</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (isLoading()) {
+                <tr>
+                  <td colspan="5" class="empty-cell">Cargando estudiantes...</td>
+                </tr>
+              } @else if (filteredStudents().length === 0) {
+                <tr>
+                  <td colspan="5" class="empty-cell">No hay estudiantes para los filtros seleccionados.</td>
+                </tr>
+              } @else {
+                @for (estudiante of filteredStudents(); track estudiante.id) {
+                <tr [class.is-featured]="estudiante.id === 1">
+                  <td>
+                    <div class="student-cell">
+                      <div
+                        class="student-avatar"
+                        [class.tone-blue]="estudiante.avatarTone === 'blue'"
+                        [class.tone-emerald]="estudiante.avatarTone === 'emerald'"
+                        [class.tone-amber]="estudiante.avatarTone === 'amber'"
+                        [class.tone-violet]="estudiante.avatarTone === 'violet'"
+                        [class.tone-rose]="estudiante.avatarTone === 'rose'">
+                        @if (estudiante.foto) {
+                          <img [src]="estudiante.foto" [alt]="estudiante.nombre">
+                        } @else {
+                          <span>{{ initials(estudiante.nombre) }}</span>
+                        }
+                      </div>
+                      <div>
+                        <strong>{{ estudiante.nombre }}</strong>
+                        <small>RUN {{ estudiante.run }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="course-pill">{{ estudiante.curso }}</span></td>
+                  <td>
+                    <div class="guardian-cell">
+                      <strong>{{ estudiante.apoderado }}</strong>
+                      <small>Apoderado principal</small>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="status-pill" [class.pending]="estudiante.estado === 'Seguimiento'">
+                      {{ estudiante.estado }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button mat-flat-button type="button" class="open-life-button" (click)="verHojaVida(estudiante)">
+                      Ver hoja de vida
+                    </button>
+                  </td>
+                </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="table-footer">
+          <span>Mostrando {{ pageStart() }} a {{ pageEnd() }} de {{ totalItems() }} estudiantes</span>
+          <nav class="pagination" aria-label="Paginacion">
+            <button type="button" (click)="cambiarPagina(currentPage() - 1)" aria-label="Pagina anterior">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            @for (page of [1, 2, 3]; track page) {
+              @if (page <= pagination().totalPages || pagination().totalPages === 0) {
+              <button type="button" [class.is-active]="currentPage() === page" (click)="cambiarPagina(page)">
+                {{ page }}
+              </button>
+              }
+            }
+            @if (pagination().totalPages > 4) {
+              <span>...</span>
+              <button type="button" (click)="cambiarPagina(pagination().totalPages)">{{ pagination().totalPages }}</button>
+            }
+            <button type="button" (click)="cambiarPagina(currentPage() + 1)" aria-label="Pagina siguiente">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </nav>
+        </footer>
+      </mat-card-content>
+    </mat-card>
+
+    <section class="support-grid">
+      <article class="info-card">
+        <div class="info-card__icon"><mat-icon>info</mat-icon></div>
+        <p>Selecciona un estudiante para abrir su hoja de vida completa.</p>
+      </article>
+
+      <article class="quick-card">
+        <h2>Accesos rapidos</h2>
+        <div class="quick-grid">
+          <button type="button" class="quick-link quick-link--blue">
+            <mat-icon>article</mat-icon>
+            <span>Anotaciones</span>
+          </button>
+          <button type="button" class="quick-link quick-link--violet">
+            <mat-icon>group</mat-icon>
+            <span>Entrevistas</span>
+          </button>
+          <button type="button" class="quick-link quick-link--green">
+            <mat-icon>folder</mat-icon>
+            <span>Documentos</span>
+          </button>
+          <button type="button" class="quick-link quick-link--red">
+            <mat-icon>health_and_safety</mat-icon>
+            <span>Salud</span>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    }
+  </main>
+
+  @if (annotationDialogOpen()) {
+    <div class="annotation-dialog-backdrop" (click)="closeAnnotationDialog()"></div>
+    <section
+      class="annotation-dialog"
+      [class.annotation-dialog--form]="selectedAnnotationType()"
+      [class.annotation-dialog--positive]="selectedAnnotationType() === 'Positiva'"
+      [class.annotation-dialog--negative]="selectedAnnotationType() === 'Negativa'"
+      [class.annotation-dialog--agreement]="selectedAnnotationType() === 'Acuerdo'"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="annotation-dialog-title">
+      <header class="annotation-dialog__header">
+        <div>
+          <span>{{ selectedAnnotationType() ? 'Registro de convivencia' : 'Nueva anotacion' }}</span>
+          <h2 id="annotation-dialog-title">
+            {{ selectedAnnotationType() ? (annotationForm.type === 'Positiva' ? 'Nueva anotacion positiva' : annotationForm.type === 'Acuerdo' ? 'Nuevo acuerdo de convivencia' : 'Nueva anotacion negativa') : 'Selecciona el tipo de registro' }}
+          </h2>
+        </div>
+        <button type="button" class="annotation-dialog__close" (click)="closeAnnotationDialog()" aria-label="Cerrar">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      @if (!selectedAnnotationType()) {
+        <div class="annotation-dialog__body">
+          @for (option of annotationOptions; track option.tipo) {
+            <button
+              type="button"
+              class="annotation-option"
+              [class.annotation-option--green]="option.tone === 'green'"
+              [class.annotation-option--red]="option.tone === 'red'"
+              [class.annotation-option--blue]="option.tone === 'blue'"
+              [class.annotation-option--amber]="option.tone === 'amber'"
+              (click)="selectAnnotationType(option)">
+              <span class="annotation-option__icon">
+                <mat-icon>{{ option.icon }}</mat-icon>
+              </span>
+              <span class="annotation-option__content">
+                <strong>{{ option.titulo }}</strong>
+                <em>{{ option.etiqueta }}</em>
+                <small>{{ option.descripcion }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      } @else {
+        <form class="annotation-form" (ngSubmit)="saveAnnotationForm()">
+          <section class="annotation-student-strip">
+            <div class="annotation-student-strip__icon">
+              <mat-icon>school</mat-icon>
+            </div>
+            <span>
+              <small>Estudiante</small>
+              <strong>{{ selectedStudent()?.nombre ?? 'Estudiante' }}</strong>
+              <em>{{ selectedStudent()?.curso ?? '-' }}</em>
+            </span>
+          </section>
+
+          <div class="annotation-form-grid">
+            <label class="annotation-form-field">
+              <span>Fecha de la anotacion</span>
+              <div class="annotation-control">
+                <mat-icon class="annotation-control__leading">event_note</mat-icon>
+                <input type="date" name="annotationDate" [(ngModel)]="annotationForm.date">
+                <mat-icon class="annotation-control__trailing">calendar_month</mat-icon>
+              </div>
+            </label>
+            <label class="annotation-form-field">
+              <span>Hora</span>
+              <div class="annotation-control">
+                <mat-icon class="annotation-control__leading">schedule</mat-icon>
+                <input type="time" name="annotationTime" [(ngModel)]="annotationForm.time">
+                <mat-icon class="annotation-control__trailing">schedule</mat-icon>
+              </div>
+            </label>
+            <label class="annotation-form-field">
+              <span>{{ annotationForm.type === 'Positiva' ? 'Tipo de reconocimiento' : annotationForm.type === 'Acuerdo' ? 'Tipo de acuerdo' : 'Tipo de observación' }}</span>
+              <div class="annotation-control">
+                <mat-icon class="annotation-control__leading">{{ annotationForm.type === 'Positiva' ? 'stars' : annotationForm.type === 'Acuerdo' ? 'volunteer_activism' : 'report' }}</mat-icon>
+                <select name="annotationCategory" [(ngModel)]="annotationForm.category">
+                  @if (annotationForm.type === 'Positiva') {
+                    <option>Esfuerzo y dedicacion</option>
+                    <option>Buen comportamiento</option>
+                    <option>Participacion destacada</option>
+                    <option>Logro académico</option>
+                    <option>Solidaridad</option>
+                  } @else if (annotationForm.type === 'Acuerdo') {
+                    <option>Compromiso conductual</option>
+                    <option>Acuerdo con apoderado</option>
+                    <option>Plan de apoyo</option>
+                    <option>Seguimiento de convivencia</option>
+                    <option>Derivacion interna</option>
+                    <option>Reparacion / mediacion</option>
+                  } @else {
+                    <option>Conducta disruptiva</option>
+                    <option>Incumplimiento de normas</option>
+                    <option>Conflicto de convivencia</option>
+                    <option>Falta de responsabilidad</option>
+                    <option>Seguimiento conductual</option>
+                  }
+                </select>
+                <mat-icon class="annotation-control__trailing">keyboard_arrow_down</mat-icon>
+              </div>
+            </label>
+            <label class="annotation-form-field">
+              <span>Area / Asignatura</span>
+              <div class="annotation-control">
+                <mat-icon class="annotation-control__leading">menu_book</mat-icon>
+                <select name="annotationArea" [(ngModel)]="annotationForm.area">
+                  @for (area of annotationAreaOptions(); track area) {
+                    <option [value]="area">{{ area }}</option>
+                  }
+                </select>
+                <mat-icon class="annotation-control__trailing">keyboard_arrow_down</mat-icon>
+              </div>
+            </label>
+            @if (annotationForm.type === 'Acuerdo') {
+              <label class="annotation-form-field">
+                <span>Responsable principal</span>
+                <div class="annotation-control">
+                  <mat-icon class="annotation-control__leading">person_pin</mat-icon>
+                  <select name="agreementResponsible" [(ngModel)]="annotationForm.responsible">
+                    <option>Estudiante</option>
+                    <option>Apoderado</option>
+                    <option>Profesor jefe</option>
+                    <option>Inspectoria</option>
+                    <option>Convivencia escolar</option>
+                    <option>Equipo PIE / apoyo</option>
+                  </select>
+                  <mat-icon class="annotation-control__trailing">keyboard_arrow_down</mat-icon>
+                </div>
+              </label>
+              <label class="annotation-form-field">
+                <span>Estado</span>
+                <div class="annotation-control">
+                  <mat-icon class="annotation-control__leading">task_alt</mat-icon>
+                  <select name="agreementStatus" [(ngModel)]="annotationForm.status">
+                    <option>Activo</option>
+                    <option>En seguimiento</option>
+                    <option>Cumplido</option>
+                    <option>No cumplido</option>
+                    <option>Reprogramado</option>
+                  </select>
+                  <mat-icon class="annotation-control__trailing">keyboard_arrow_down</mat-icon>
+                </div>
+              </label>
+              <label class="annotation-form-field annotation-form-field--wide">
+                <span>Plazo / revision</span>
+                <div class="annotation-control">
+                  <mat-icon class="annotation-control__leading">event_available</mat-icon>
+                  <select name="agreementDeadline" [(ngModel)]="annotationForm.deadline">
+                    <option>7 dias</option>
+                    <option>15 dias</option>
+                    <option>30 dias</option>
+                    <option>Fin de mes</option>
+                    <option>Pr&oacute;xima entrevista</option>
+                    <option>Fecha personalizada</option>
+                  </select>
+                  <mat-icon class="annotation-control__trailing">keyboard_arrow_down</mat-icon>
+                </div>
+              </label>
+            }
+          </div>
+
+          <label class="annotation-textarea">
+            <span>{{ annotationForm.type === 'Acuerdo' ? 'Compromisos y acciones de seguimiento' : 'Descripción' }}</span>
+            <textarea name="annotationDescription" maxlength="500" [(ngModel)]="annotationForm.description"></textarea>
+            <small>{{ annotationForm.description.length }} / 500</small>
+          </label>
+
+          <footer class="annotation-form-actions">
+            <button mat-stroked-button type="button" class="annotation-back-button" (click)="backToAnnotationTypes()">
+              <mat-icon>chevron_left</mat-icon>
+              Volver
+            </button>
+            <button mat-flat-button type="submit" class="annotation-save-button">
+              <mat-icon>save</mat-icon>
+              {{ annotationForm.type === 'Acuerdo' ? 'Guardar acuerdo' : 'Guardar anotacion' }}
+            </button>
+          </footer>
+        </form>
+      }
+    </section>
+  }
+
+  @if (interviewDialogOpen()) {
+    <div class="interview-dialog-backdrop" (click)="closeInterviewDialog()"></div>
+    <section class="interview-dialog" role="dialog" aria-modal="true" aria-labelledby="interview-dialog-title">
+      <header class="interview-dialog__header">
+        <h2 id="interview-dialog-title">{{ interviewDialogTitle() }}</h2>
+        @if (interviewDialogMode() !== 'view') {
+          <button mat-flat-button type="button" class="annotation-button" (click)="saveInterviewForm()">
+            <mat-icon>save</mat-icon>
+            {{ interviewDialogMode() === 'edit' ? 'Guardar cambios' : 'Guardar entrevista' }}
+          </button>
+        }
+        <button type="button" class="interview-dialog__close" (click)="closeInterviewDialog()" aria-label="Cerrar ficha">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <form class="interview-sheet" (ngSubmit)="saveInterviewForm()">
+        <article class="interview-report">
+          <header class="interview-report__header">
+            <div class="interview-report__brand">
+              <img class="interview-report__logo" src="/Logo-toolbar-transparent-cropped.png" alt="Torre Fuerte School">
+              <div>
+                <strong>Colegio Torre Fuerte School</strong>
+                <span>Control institucional - Plataforma ConectaSchool</span>
+              </div>
+            </div>
+
+            <div class="interview-report__meta">
+              <input type="text" value="Acta de entrevista y seguimiento escolar" aria-label="Titulo del documento" [disabled]="interviewDialogMode() === 'view'">
+              <span>{{ interviewForm.date || 'Fecha pendiente' }}</span>
+            </div>
+          </header>
+
+          <section class="interview-report__student-band">
+            <label class="interview-report__field">
+              <span>Estudiante</span>
+              <input type="text" name="studentName" [(ngModel)]="interviewForm.studentName" [disabled]="interviewDialogMode() === 'view'">
+            </label>
+
+            <label class="interview-report__field">
+              <span>Curso</span>
+              <input type="text" name="course" [(ngModel)]="interviewForm.course" [disabled]="interviewDialogMode() === 'view'">
+            </label>
+
+            <label class="interview-report__field">
+              <span>
+                Fecha
+                <mat-icon class="interview-report__field-icon">calendar_month</mat-icon>
+              </span>
+              <input type="date" name="date" [(ngModel)]="interviewForm.date" [disabled]="interviewDialogMode() === 'view'">
+            </label>
+
+            <label class="interview-report__field">
+              <span>Apoderado</span>
+              <select name="guardianName" [(ngModel)]="interviewForm.guardianName" [disabled]="interviewDialogMode() === 'view'">
+                @for (guardian of interviewGuardianOptions(); track guardian) {
+                  <option [value]="guardian">{{ guardian }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="interview-report__field">
+              <span>Tipo</span>
+              <select name="interviewType" [(ngModel)]="interviewForm.interviewType" [disabled]="interviewDialogMode() === 'view'">
+                <option value="Apoderado">Apoderado</option>
+                <option value="Estudiante">Estudiante</option>
+                <option value="Equipo">Equipo</option>
+              </select>
+            </label>
+
+            <label class="interview-report__field">
+              <span>Docente / responsable</span>
+              <select name="teacher" [(ngModel)]="interviewForm.teacher" [disabled]="interviewDialogMode() === 'view'">
+                @for (teacher of interviewTeacherOptions(); track teacher) {
+                  <option [value]="teacher">{{ teacher }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="interview-report__field">
+              <span>Hora</span>
+              <input type="time" name="time" [(ngModel)]="interviewForm.time" [disabled]="interviewDialogMode() === 'view'">
+            </label>
+          </section>
+
+          <section class="interview-report__section">
+            <div class="interview-report__section-title">
+              <mat-icon>forum</mat-icon>
+              <span>Motivo de la entrevista</span>
+            </div>
+            <label class="interview-report__text-field">
+              <input type="text" name="reason" [(ngModel)]="interviewForm.reason" placeholder="Ej. Seguimiento académico, convivencia, acuerdos..." [disabled]="interviewDialogMode() === 'view'">
+            </label>
+          </section>
+
+          <section class="interview-report__section">
+            <div class="interview-report__section-title">
+              <mat-icon>notes</mat-icon>
+              <span>Sintesis de lo conversado</span>
+            </div>
+            <label class="interview-report__text-field">
+              <textarea name="summary" rows="8" [(ngModel)]="interviewForm.summary" placeholder="Registra los puntos principales tratados durante la entrevista." [disabled]="interviewDialogMode() === 'view'"></textarea>
+            </label>
+          </section>
+
+          <section class="interview-report__section">
+            <div class="interview-report__section-title">
+              <mat-icon>task_alt</mat-icon>
+              <span>Acuerdos o compromisos</span>
+            </div>
+            <label class="interview-report__text-field">
+              <textarea name="agreements" rows="6" [(ngModel)]="interviewForm.agreements" placeholder="Define compromisos, responsables y proximas acciones." [disabled]="interviewDialogMode() === 'view'"></textarea>
+            </label>
+          </section>
+
+          <section class="interview-report__sign-row">
+            <label class="interview-report__sign-box">
+              <span>Firma del docente</span>
+              <input type="text" placeholder="Nombre y firma" [disabled]="interviewDialogMode() === 'view'">
+            </label>
+            <label class="interview-report__sign-box">
+              <span>Firma del apoderado</span>
+              <input type="text" placeholder="Nombre y firma" [disabled]="interviewDialogMode() === 'view'">
+            </label>
+          </section>
+
+          <footer class="interview-report__watermark">Torre Fuerte School - ConectaSchool</footer>
+        </article>
+      </form>
+    </section>
+  }
+</app-teacher-modern-layout>
+

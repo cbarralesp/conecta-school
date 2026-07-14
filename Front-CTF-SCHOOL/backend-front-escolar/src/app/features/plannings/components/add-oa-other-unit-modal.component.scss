@@ -12,7 +12,7 @@
 .other-oa-modal {
   width: 820px;
   max-width: calc(100vw - 48px);
-  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   display: grid;
   grid-template-rows: auto 1fr auto;
   background: #ffffff;
@@ -288,16 +288,22 @@
 @media (max-width: 720px) {
   .other-oa-modal-overlay {
     padding: 16px;
+    place-items: end center;
   }
 
   .other-oa-modal {
+    width: min(100%, 560px);
     max-width: calc(100vw - 32px);
-    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    border-radius: 26px 26px 0 0;
   }
 
   .other-oa-modal__header,
   .other-oa-modal__footer {
     padding-inline: 1rem;
+    display: grid;
+    justify-items: center;
+    text-align: center;
   }
 
   .other-oa-modal__content {
@@ -305,11 +311,26 @@
   }
 
   .other-oa-modal__footer {
-    display: grid;
     grid-template-columns: 1fr;
   }
 
+  .other-oa-modal__tabs {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .other-oa-modal__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .other-oa-modal__tab {
+    flex: 0 0 auto;
+  }
+
   .btn {
+    width: 100%;
     justify-content: center;
   }
 }

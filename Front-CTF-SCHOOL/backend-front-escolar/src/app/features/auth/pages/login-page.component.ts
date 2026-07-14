@@ -38,7 +38,6 @@ export class LoginPageComponent {
     }
 
     this.isLoading.set(true);
-
     this.authService
       .login(this.loginForm.getRawValue())
       .pipe(finalize(() => this.isLoading.set(false)))

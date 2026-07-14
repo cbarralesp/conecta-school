@@ -6,22 +6,547 @@
 }
 
 .page-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
 }
 
 .page-header__actions {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  padding-top: 0.05rem;
+}
+
+.page-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.renewal-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.renewal-modal {
+  width: 760px;
+  max-width: calc(100vw - 48px);
+  height: min(650px, calc(100dvh - 48px));
+  max-height: calc(100dvh - 48px);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 25px 70px rgba(15, 23, 42, 0.25);
+}
+
+.renewal-modal__header,
+.renewal-modal__footer {
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.renewal-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.renewal-modal__footer {
+  border-bottom: 0;
+  border-top: 1px solid #eef2f7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.renewal-modal__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.renewal-modal__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   flex-wrap: wrap;
 }
 
+.renewal-modal__eyebrow {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #059669;
+}
+
+.renewal-modal__copy h2,
+.renewal-confirm h3,
+.renewal-summary-card h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.renewal-year-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 0.62rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.renewal-modal__copy p,
+.renewal-confirm p,
+.renewal-empty p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.renewal-modal__close {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.renewal-modal__close .mat-icon {
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
+}
+
+.renewal-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.15rem;
+  border-bottom: 1px solid #eef2f7;
+  overflow-x: auto;
+}
+
+.renewal-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #94a3b8;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.renewal-step:not(:disabled) {
+  cursor: pointer;
+}
+
+.renewal-step__number {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid #dbe3ef;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.renewal-step__number .mat-icon {
+  width: 15px;
+  height: 15px;
+  font-size: 15px;
+}
+
+.renewal-step.is-active {
+  color: #047857;
+}
+
+.renewal-step.is-active .renewal-step__number {
+  border-color: #10b981;
+  background: #10b981;
+  color: #ffffff;
+}
+
+.renewal-step.is-completed {
+  color: #059669;
+}
+
+.renewal-step.is-completed .renewal-step__number {
+  border-color: #059669;
+  background: #059669;
+  color: #ffffff;
+}
+
+.renewal-step__divider {
+  width: 20px;
+  height: 2px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  flex: 0 0 auto;
+}
+
+.renewal-step__divider.is-completed {
+  background: #10b981;
+}
+
+.renewal-modal__body {
+  overflow: auto;
+  padding: 1rem 1.15rem;
+  min-height: 0;
+}
+
+.renewal-panel {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.renewal-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.45fr) minmax(220px, 1fr);
+  gap: 0.8rem;
+}
+
+.renewal-search {
+  height: 40px;
+  padding: 0 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1.5px solid #dce5ef;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
+.renewal-search .mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  color: #8da0ba;
+}
+
+.renewal-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #28415f;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.renewal-list {
+  display: grid;
+  gap: 0;
+  max-height: 310px;
+  overflow: auto;
+  border: 1px solid #dbe5f1;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.renewal-table-head {
+  display: grid;
+  grid-template-columns: 28px 38px minmax(170px, 1.35fr) minmax(100px, 0.8fr) minmax(110px, 0.9fr) 86px;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 0.65rem;
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.renewal-student {
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 28px 38px minmax(170px, 1.35fr) minmax(100px, 0.8fr) minmax(110px, 0.9fr) 86px;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border: 0;
+  border-bottom: 1px solid #edf2f7;
+  border-radius: 0;
+  background: #ffffff;
+  color: #0f172a;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.renewal-student.is-selected,
+.renewal-student:hover {
+  background: #eff6ff;
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+
+.renewal-student:last-child {
+  border-bottom: 0;
+}
+
+.renewal-student__radio {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.renewal-student.is-selected .renewal-student__radio {
+  color: #2563eb;
+}
+
+.renewal-student__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.renewal-student__copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.renewal-student__copy small {
+  display: none;
+}
+
+.renewal-student__copy strong,
+.renewal-data-grid strong,
+.renewal-student__run,
+.renewal-student__course {
+  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.renewal-student__copy small,
+.renewal-data-grid small {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.renewal-status-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #047857;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.renewal-status-pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.renewal-helper {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.renewal-helper .mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  color: #64748b;
+}
+
+.renewal-helper--warning {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.renewal-helper--warning .mat-icon {
+  color: #d97706;
+}
+
+.renewal-summary-card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.renewal-data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.renewal-data-grid span {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+  padding: 0.58rem 0.65rem;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.renewal-data-grid .is-wide {
+  grid-column: 1 / -1;
+}
+
+.renewal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.renewal-field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.renewal-field span {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.renewal-field :is(input, select) {
+  width: 100%;
+  min-height: 42px;
+  border: 1.5px solid #dce5ef;
+  border-radius: 12px;
+  outline: 0;
+  background: #ffffff;
+  color: #28415f;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0 0.75rem;
+}
+
+.renewal-confirm {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.85rem;
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  background: #f0fdf4;
+}
+
+.renewal-confirm > .mat-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #dcfce7;
+  color: #059669;
+  font-size: 24px;
+}
+
+.renewal-confirm__suggestion {
+  width: fit-content;
+  margin-top: 0.45rem;
+  display: inline-flex;
+  padding: 0.32rem 0.6rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #047857;
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.renewal-empty {
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  border: 1px dashed #dbe3ef;
+  border-radius: 16px;
+  color: #64748b;
+  padding: 1rem;
+}
+
+.renewal-empty .mat-icon {
+  color: #10b981;
+}
+
+.renewal-primary,
+.renewal-secondary {
+  min-height: 38px;
+  border-radius: 12px !important;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.renewal-primary {
+  background: #059669 !important;
+  color: #ffffff !important;
+}
+
+.renewal-primary .mat-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  margin-right: 0.25rem;
+}
+
 .header-filter {
-  min-width: 240px;
+  min-width: 205px;
+}
+
+.header-filter--year {
+  min-width: 145px;
 }
 
 .page-header__left {
@@ -56,9 +581,10 @@
   box-shadow: none !important;
 }
 
-.export-button {
+.export-button,
+.renew-button {
   height: 42px;
-  padding: 0 1rem !important;
+  padding: 0 0.8rem !important;
   border-radius: 14px !important;
   border: 1.5px solid #d8e3f0 !important;
   background: #ffffff !important;
@@ -68,16 +594,24 @@
   box-shadow: none !important;
 }
 
-.export-button .mat-icon {
+.renew-button {
+  border-color: #9de7c0 !important;
+  background: #effdf5 !important;
+  color: #047857 !important;
+}
+
+.export-button .mat-icon,
+.renew-button .mat-icon {
   width: 16px;
   height: 16px;
   font-size: 16px;
+  line-height: 16px;
   margin-right: 0.25rem;
 }
 
 .create-button--header {
   height: 42px;
-  padding: 0 1.2rem !important;
+  padding: 0 1rem !important;
   border-radius: 14px !important;
   font-size: 0.82rem;
 }
@@ -336,7 +870,11 @@
 }
 
 .header-filter .select-shell {
-  min-width: 200px;
+  min-width: 165px;
+}
+
+.header-filter--year .select-shell {
+  min-width: 105px;
 }
 
 .header-filter .filter-field__inline-label {
@@ -536,6 +1074,15 @@
 }
 
 @media (max-width: 1120px) {
+  .page-header {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header__actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
   .stats-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -551,13 +1098,50 @@
 }
 
 @media (max-width: 768px) {
+  .renewal-modal-overlay {
+    padding: 12px;
+  }
+
+  .renewal-modal {
+    width: 100%;
+    max-width: calc(100vw - 24px);
+    height: calc(100dvh - 24px);
+  }
+
+  .renewal-filter-grid,
+  .renewal-form-grid,
+  .renewal-data-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .renewal-table-head {
+    display: none;
+  }
+
+  .renewal-student {
+    grid-template-columns: 24px 34px minmax(0, 1fr);
+  }
+
+  .renewal-student__run,
+  .renewal-student__course,
+  .renewal-status-pill {
+    grid-column: 3;
+  }
+
   .page-header {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
 
   .page-header__title {
     font-size: 1.2rem;
+  }
+
+  .page-header__actions,
+  .list-toolbar__right,
+  .enrollments-paginator__controls {
+    justify-content: center;
   }
 
   .stats-row {
@@ -565,9 +1149,11 @@
   }
 
   .search-box,
-  .course-filter {
+  .course-filter,
+  .page-header__actions button {
     min-width: 100%;
     max-width: 100%;
     width: 100%;
+    justify-content: center;
   }
 }

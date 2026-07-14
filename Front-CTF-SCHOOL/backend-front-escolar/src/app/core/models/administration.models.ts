@@ -32,6 +32,7 @@ export interface AdministrationRoleOption {
   code: AdministrationRoleCode;
   name: string;
   description: string;
+  userCount?: number;
 }
 
 export interface AdministrationUserListItem {

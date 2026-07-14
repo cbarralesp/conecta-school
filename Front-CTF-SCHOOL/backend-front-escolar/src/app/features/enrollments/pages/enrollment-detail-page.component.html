@@ -3,14 +3,14 @@
   searchPlaceholder="Buscar estudiantes, cursos o apoderados..."
   activeItem="enrollments"
   dashboardRoute="/dashboard"
-  [userName]="user()?.nombre ?? 'Administracion'"
-  userRole="Administracion">
+  [userName]="user()?.nombre ?? 'Administración'"
+  userRole="Administración">
   <main class="content-area">
     <section class="page-header">
       <div>
-        <span class="page-header__overline">Administracion</span>
+        <span class="page-header__overline">Administración</span>
         <h2>Ficha del Estudiante</h2>
-        <p>Visualizacion de informacion matriculada</p>
+        <p>Visualización de información matriculada</p>
       </div>
       <div class="page-header__actions">
         @if (statusBadgeLabel() === 'Inactiva') {
@@ -40,7 +40,11 @@
         <aside class="profile-sidebar">
           <section class="card profile-card">
             <div class="profile-img-container">
-              <div class="profile-img profile-img--placeholder">{{ avatar() }}</div>
+              @if (student.studentPhotoUrl) {
+                <img class="profile-img profile-img--photo" [src]="student.studentPhotoUrl" alt="Foto de {{ fullName() }}">
+              } @else {
+                <div class="profile-img profile-img--placeholder">{{ avatar() }}</div>
+              }
               <div class="profile-name">{{ fullName() }}</div>
               <div class="profile-run">{{ student.studentRun }}</div>
               <span [class]="statusBadgeClass()">{{ statusBadgeLabel() }}</span>
@@ -101,8 +105,8 @@
                 <span class="info-value">{{ formattedBirthDate() }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Direccion</span>
-                <span class="info-value">{{ student.address || 'Sin direccion registrada' }}</span>
+                <span class="info-label">Dirección</span>
+                <span class="info-value">{{ student.address || 'Sin dirección registrada' }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Sexo</span>
@@ -110,7 +114,7 @@
               </div>
               <div class="info-item info-item--full">
                 <span class="info-label">Comentarios / Salud</span>
-                <span class="info-value info-value--muted">{{ student.specialNeeds || 'Sin observaciones registradas' }}</span>
+                <span class="info-value info-value--muted">{{ student.specialNeeds || 'Sin observaciónes registradas' }}</span>
               </div>
             </div>
           </section>
@@ -147,7 +151,7 @@
                 <span class="info-value">{{ student.guardian.run }}</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Telefono</span>
+                <span class="info-label">Teléfono</span>
                 <span class="info-value info-value--link">{{ student.guardian.phone }}</span>
               </div>
             </div>
@@ -180,7 +184,7 @@
 
                 <div class="info-grid info-grid--compact">
                   <div class="info-item">
-                    <span class="info-label">Ano escolar</span>
+                    <span class="info-label">Año escolar</span>
                     <span class="info-value">{{ courseInfo.schoolYear }}</span>
                   </div>
                   <div class="info-item">
@@ -235,22 +239,72 @@
               <div class="card-header">
                 <div class="card-title">
                   <mat-icon>folder_open</mat-icon>
-                  Documentacion
+                  Documentación
                 </div>
+                <span class="doc-summary">{{ documents().length }} recibidos</span>
               </div>
 
-              <div class="doc-list">
-                @for (document of documents(); track document.id ?? document.documentKey) {
-                  <div class="doc-item">
-                    <div class="doc-main">
-                      <mat-icon [class]="documentIconClass(document)">{{ documentIcon(document) }}</mat-icon>
-                      <span class="doc-name">{{ documentLabel(document) }}</span>
+              <div class="document-workspace document-workspace--tabs">
+                <div class="document-tabs" role="tablist" aria-label="Secciones de documentos">
+                  @for (section of documentSections; track section.key) {
+                    <button
+                      class="document-tab"
+                      [class.document-tab--active]="selectedDocumentSectionKey() === section.key"
+                      type="button"
+                      role="tab"
+                      [attr.aria-selected]="selectedDocumentSectionKey() === section.key"
+                      (click)="selectDocumentSection(section.key)">
+                      <span>{{ section.title }}</span>
+                      <strong>{{ sectionReceivedCount(section) }}/{{ section.documents.length }}</strong>
+                    </button>
+                  }
+                </div>
+
+                <div class="document-panel" role="tabpanel">
+                  <div class="document-panel__header">
+                    <div>
+                      <span class="document-panel__eyebrow">Expediente</span>
+                      <h3>{{ selectedDocumentSection().title }}</h3>
                     </div>
-                    <span [class]="documentStatusClass(document)">{{ documentStatus(document) }}</span>
+                    <span class="document-panel__count">
+                      {{ sectionReceivedCount(selectedDocumentSection()) }} de {{ selectedDocumentSection().documents.length }}
+                    </span>
                   </div>
-                } @empty {
-                  <div class="empty-state">Sin documentos registrados.</div>
-                }
+
+                  <div class="doc-list doc-list--panel">
+                    @for (slot of selectedDocumentSection().documents; track slot.key) {
+                      @let document = documentForKey(slot.key);
+                      <div class="doc-item doc-item--rich">
+                        <div class="doc-main">
+                          <mat-icon [class]="document ? documentIconClass(document) : 'doc-icon doc-icon--pending'">
+                            {{ document?.fileName ? 'check_circle' : 'radio_button_unchecked' }}
+                          </mat-icon>
+                          <div>
+                            <span class="doc-name">{{ slot.title }}</span>
+                            <span class="doc-description">{{ slot.description }}</span>
+                            @if (document; as uploadedDocument) {
+                              @if (uploadedDocument.fileName) {
+                                <span class="doc-file">{{ uploadedDocument.fileName }}</span>
+                              }
+                            }
+                          </div>
+                        </div>
+
+                        <div class="doc-actions">
+                          <span [class]="slotStatusClass(document)">{{ slotStatus(document) }}</span>
+                          <button class="icon-action" type="button" title="Previsualizar" [disabled]="!document?.id" (click)="openDocument(document)">
+                            <mat-icon>visibility</mat-icon>
+                          </button>
+                          <button class="icon-action" type="button" title="Descargar" [disabled]="!document?.id" (click)="downloadDocument(document)">
+                            <mat-icon>download</mat-icon>
+                          </button>
+                        </div>
+
+                        <span class="doc-meta">{{ documentMeta(document) }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
               </div>
             </section>
           </div>
@@ -259,3 +313,54 @@
     }
   </main>
 </app-teacher-modern-layout>
+
+@if (isPreviewLoading()) {
+  <div class="preview-overlay">
+    <section class="preview-dialog preview-dialog--loading" role="dialog" aria-modal="true">
+      <mat-icon>hourglass_top</mat-icon>
+      <strong>Cargando documento...</strong>
+    </section>
+  </div>
+}
+
+@if (documentPreview(); as preview) {
+  <div class="preview-overlay" (click)="closeDocumentPreview()">
+    <section class="preview-dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <header class="preview-header">
+        <div>
+          <span class="preview-eyebrow">Documento del alumno</span>
+          <h2>{{ preview.document.fileName }}</h2>
+          <p>{{ documentMeta(preview.document) }}</p>
+        </div>
+        <button class="preview-close" type="button" title="Cerrar" (click)="closeDocumentPreview()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="preview-body" [class.preview-body--center]="preview.kind === 'download'">
+        @if (preview.kind === 'image') {
+          <img class="preview-image" [src]="preview.url" [alt]="preview.document.fileName">
+        } @else if (preview.kind === 'pdf') {
+          <iframe class="preview-frame" [src]="preview.url" title="Previsualizacion de documento"></iframe>
+        } @else {
+          <div class="preview-download-state">
+            <mat-icon>description</mat-icon>
+            <h3>Previsualizacion no disponible</h3>
+            <p>Este tipo de archivo se puede descargar o abrir con una aplicacion compatible.</p>
+          </div>
+        }
+      </div>
+
+      <footer class="preview-actions">
+        <button class="btn btn-ghost" type="button" (click)="openPreviewInNewTab()">
+          <mat-icon>open_in_new</mat-icon>
+          Abrir en pestana
+        </button>
+        <button class="btn btn-primary" type="button" (click)="downloadPreviewDocument()">
+          <mat-icon>download</mat-icon>
+          Descargar
+        </button>
+      </footer>
+    </section>
+  </div>
+}

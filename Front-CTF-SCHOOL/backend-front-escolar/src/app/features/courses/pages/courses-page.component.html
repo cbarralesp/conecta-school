@@ -8,10 +8,22 @@
     <section class="courses-page__heading">
       <div class="courses-page__heading-copy">
         <h1>Cursos del establecimiento</h1>
-        <p>Gestion de niveles, jornadas y cupos para el ano escolar 2026</p>
+        <p>Gestión de niveles, jornadas y cupos para el año escolar {{ selectedSchoolYear() }}</p>
       </div>
 
       <div class="courses-page__actions">
+        <label class="header-filter" aria-label="Filtrar por año">
+          <span class="header-filter__label">Año</span>
+          <span class="select-shell">
+            <mat-icon>calendar_month</mat-icon>
+            <select class="filter-select" [value]="selectedSchoolYear()" (change)="updateSchoolYear(($any($event.target).value ?? '').toString())">
+              @for (schoolYear of schoolYears; track schoolYear) {
+                <option [value]="schoolYear.toString()" [selected]="selectedSchoolYear() === schoolYear.toString()">{{ schoolYear }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
         <button mat-flat-button type="button" routerLink="/dashboard/cursos/nuevo">
           <mat-icon>add</mat-icon>
           Nuevo curso
@@ -57,7 +69,7 @@
                 <select class="filter-select" [value]="levelFilter()" (change)="updateLevelFilter(($any($event.target).value ?? 'all').toString())">
                   <option value="all">Todos los niveles</option>
                   <option value="inicial">Inicial</option>
-                  <option value="basico">Basico</option>
+                  <option value="basico">Básico</option>
                   <option value="media">Medio</option>
                 </select>
               </span>
@@ -173,6 +185,74 @@
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
+          </div>
+
+          <div class="courses-mobile-list" aria-label="Listado de cursos en mobile">
+            @for (course of filteredCourses(); track course.id) {
+              <article class="course-mobile-card">
+                <header class="course-mobile-card__header">
+                  <span [class]="courseIconClass(course)">
+                    <mat-icon>{{ courseIcon(course) }}</mat-icon>
+                  </span>
+                  <div>
+                    <strong>{{ courseDisplayName(course) }}</strong>
+                    <small>{{ courseLeadLabel(course) }}</small>
+                  </div>
+                  <span class="code-pill">{{ course.code }}</span>
+                </header>
+
+                <dl class="course-mobile-card__details">
+                  <div>
+                    <dt>Nivel</dt>
+                    <dd>{{ courseLevelLabel(course) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Jornada</dt>
+                    <dd>
+                      <span [class]="courseShiftClass(course)">
+                        <mat-icon>{{ courseShiftIcon(course) }}</mat-icon>
+                        {{ courseShiftLabel(course) }}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Capacidad</dt>
+                    <dd>
+                      <div class="student-count">
+                        <div class="count-text">
+                          <span>{{ course.studentCount }}</span>
+                          <span>/ {{ courseMaxCapacity(course) }}</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                          <div
+                            class="progress-bar-fill"
+                            [class.warning]="courseCapacityTone(course) === 'warning'"
+                            [class.full]="courseCapacityTone(course) === 'full'"
+                            [style.width.%]="courseCapacityWidth(course)">
+                          </div>
+                        </div>
+                      </div>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Estado</dt>
+                    <dd><span class="status-pill status-pill--active">{{ course.active ? 'Activo' : 'Inactivo' }}</span></dd>
+                  </div>
+                </dl>
+
+                <footer class="course-mobile-card__actions">
+                  <button mat-icon-button (click)="openStudentsDialog(course)" aria-label="Listar alumnos del curso">
+                    <mat-icon>groups</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="openEditDialog(course)" aria-label="Editar curso">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="confirmDelete(course)" aria-label="Eliminar curso">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </footer>
+              </article>
+            }
           </div>
         }
       </mat-card-content>

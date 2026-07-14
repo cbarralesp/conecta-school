@@ -103,7 +103,14 @@ export class AttendanceApiService {
           riskStatus: normalizeDashboardText(student.riskStatus),
           days: student.days.map((day) => ({
             ...day,
-            status: normalizeDashboardText(day.status)
+            status: normalizeDashboardText(day.status),
+            departureReason: normalizeDashboardText(day.departureReason) as
+              | 'MEDICO'
+              | 'TRAMITE'
+              | 'FAMILIAR'
+              | 'OTRO'
+              | null,
+            departureNote: normalizeDashboardText(day.departureNote)
           }))
         }))
       }))
@@ -145,7 +152,14 @@ export class AttendanceApiService {
         ...student,
         fullName: normalizeDashboardText(student.fullName),
         status: normalizeDashboardText(student.status),
-        note: normalizeDashboardText(student.note)
+        note: normalizeDashboardText(student.note),
+        departureReason: normalizeDashboardText(student.departureReason) as
+          | 'MEDICO'
+          | 'TRAMITE'
+          | 'FAMILIAR'
+          | 'OTRO'
+          | null,
+        departureNote: normalizeDashboardText(student.departureNote)
       }))
     };
   }

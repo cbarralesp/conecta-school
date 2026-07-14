@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { API_CONFIG } from '../constants/api.config';
 import {
   PlanningClass,
@@ -54,6 +54,7 @@ export class PlanningApiService {
           ...unit,
           unitNumberLabel: normalizeDashboardText(unit.unitNumberLabel),
           name: normalizeDashboardText(unit.name),
+          colorHex: unit.colorHex,
           subjectName: normalizeDashboardText(unit.subjectName),
           courseName: normalizeDashboardText(unit.courseName),
           status: normalizeDashboardText(unit.status) as PlanningUnitSummary['status']
@@ -136,6 +137,7 @@ export class PlanningApiService {
   }
 
   getClasses(filters?: {
+    year?: number;
     courseId?: number;
     subjectId?: number;
     semester?: number;
@@ -145,6 +147,9 @@ export class PlanningApiService {
     search?: string;
   }): Observable<PlanningClass[]> {
     let params = new HttpParams();
+    if (filters?.year != null) {
+      params = params.set('year', filters.year);
+    }
     if (filters?.courseId != null) {
       params = params.set('courseId', filters.courseId);
     }
@@ -282,6 +287,24 @@ export class PlanningApiService {
     return this.http.delete<void>(`${API_CONFIG.baseUrl}/planning/documents/${documentId}`);
   }
 
+  updatePlanningDocumentVisibility(documentId: number, visibleToStudents: boolean): Observable<PlanningDocument> {
+    const url = `${API_CONFIG.baseUrl}/planning/documents/${documentId}/visibility`;
+    const payload = { visibleToStudents };
+
+    return this.http.put<PlanningDocument>(url, payload).pipe(
+      catchError(() =>
+        this.http.post<PlanningDocument>(url, payload).pipe(
+          catchError(() =>
+            this.http.patch<PlanningDocument>(url, payload).pipe(
+              catchError((error) => throwError(() => error))
+            )
+          )
+        )
+      ),
+      map((document) => this.normalizePlanningDocument(document))
+    );
+  }
+
   getPlanningSummary(filters?: PlanningSummaryFilters): Observable<PlanningSummary> {
     let params = new HttpParams();
     if (filters?.subjectId != null) {
@@ -319,6 +342,7 @@ export class PlanningApiService {
             ...unit,
             code: normalizeDashboardText(unit.code),
             name: normalizeDashboardText(unit.name),
+            unitColorHex: unit.unitColorHex,
             subjectName: normalizeDashboardText(unit.subjectName),
             courseName: normalizeDashboardText(unit.courseName),
             weekRange: normalizeDashboardText(unit.weekRange),

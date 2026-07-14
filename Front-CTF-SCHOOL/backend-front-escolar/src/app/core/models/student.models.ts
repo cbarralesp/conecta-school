@@ -150,6 +150,10 @@ export interface StudentAttendanceRecord {
   status: string;
   timeLabel: string;
   note: string;
+  departureTime?: string | null;
+  departureReason?: string | null;
+  departureJustified?: boolean | null;
+  departureNote?: string | null;
 }
 
 export interface StudentAttendanceHistoryDay {

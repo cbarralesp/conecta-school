@@ -313,6 +313,14 @@
   font-weight: 700;
 }
 
+.actions-row button :where(.mdc-button__label) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+}
+
 .actions-row button[mat-stroked-button] {
   background: #ffffff;
   border-color: #d9dde5;
@@ -353,8 +361,16 @@
 }
 
 @media (max-width: 720px) {
+  .edit-course-page {
+    padding-top: 0;
+  }
+
   .edit-course-form {
     grid-template-columns: 1fr;
+  }
+
+  .edit-course-card {
+    border-radius: 18px;
   }
 
   .edit-course-card mat-card-title,
@@ -363,13 +379,55 @@
     padding-right: 1.05rem;
   }
 
+  .edit-course-card mat-card-title,
+  .form-section-heading {
+    text-align: center;
+    justify-content: center;
+  }
+
   .form-section-heading--assignment {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+    text-align: center;
   }
 
   .students-search {
     min-width: 0;
     width: 100%;
+  }
+
+  .assignment-list-header {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .assignment-student-row {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .assignment-student-row div {
+    justify-items: center;
+  }
+
+  .assignment-student-row strong,
+  .assignment-student-row span,
+  .assignment-student-row small {
+    overflow-wrap: anywhere;
+  }
+
+  .assignment-controls {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .assignment-circle-btn {
+    width: 100%;
+    border-radius: 14px;
+  }
+
+  .actions-row button {
+    width: 100%;
+    justify-content: center;
   }
 }

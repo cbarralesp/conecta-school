@@ -2,6 +2,7 @@
   title=""
   activeItem="attendance"
   dashboardRoute="/alumno"
+  [userName]="fullStudentName()"
   userRole="Alumno"
   searchPlaceholder="Buscar asistencia, asignaturas, actividades...">
   <main class="attendance-content attendance-content--filled">
@@ -20,7 +21,7 @@
             </div>
             <div>
               <h1 class="page-header__title">Mi asistencia</h1>
-              <p class="page-header__subtitle">Revisa tu asistencia diaria, por periodo y tu resumen general.</p>
+              <p class="page-header__subtitle">Revisa tu asistencia diaria, por período y tu resumen general.</p>
             </div>
           </div>
 
@@ -108,8 +109,8 @@
               <div class="calendar-card__legend">
                 <span><i class="cd-vacation"></i>Vacaciones</span>
                 <span><i class="cd-holiday"></i>Interferiado</span>
-                <span><i class="cd-suspension"></i>Suspension</span>
-                <span><i class="cd-present"></i>Asistio</span>
+                <span><i class="cd-suspension"></i>Suspensión</span>
+                <span><i class="cd-present"></i>Asistió</span>
                 <span><i class="cd-late"></i>Tardanza</span>
                 <span><i class="cd-absent"></i>Inasistencia</span>
                 <span><i class="cd-none"></i>Sin clases</span>
@@ -157,7 +158,7 @@
                 <div class="panel-card__header">
                   <div>
                     <h2>Registros recientes</h2>
-                    <p>Ultimos movimientos cargados por el establecimiento.</p>
+                    <p>Últimos movimientos cargados por el establecimiento.</p>
                   </div>
                 </div>
 
@@ -181,12 +182,12 @@
 
                         <div class="record-row__note">
                           <strong>{{ record.status }}</strong>
-                          <span>{{ record.note || 'Sin observacion registrada.' }}</span>
+                          <span>{{ record.note || 'Sin observación registrada.' }}</span>
                         </div>
 
                         <div class="record-row__date">
                           <strong>{{ record.date }}</strong>
-                          <small>{{ record.timeLabel || 'Sin hora registrada' }}</small>
+                          <small>{{ recordMetaLabel(record) }}</small>
                         </div>
                       </article>
                     }
@@ -234,8 +235,8 @@
 
           <mat-card appearance="outlined" class="panel-card encouragement-card">
             <div class="encouragement-card__copy">
-              <h2>Sigue asi</h2>
-              <p>La constancia te ayuda a sostener tu avance academico durante el semestre.</p>
+              <h2>Sigue así</h2>
+              <p>La constancia te ayuda a sostener tu avance académico durante el semestre.</p>
               <button mat-stroked-button type="button">Ver mi asistencia</button>
             </div>
           </mat-card>
@@ -243,8 +244,8 @@
       } @else {
         <section class="empty-state">
           <mat-icon>fact_check</mat-icon>
-          <strong>No se encontro informacion de asistencia para este estudiante.</strong>
-          <p>Revisa si el usuario tiene matricula activa y registros asociados.</p>
+          <strong>No se encontró información de asistencia para este estudiante.</strong>
+          <p>Revisa si el usuario tiene matrícula activa y registros asociados.</p>
         </section>
       }
     </div>

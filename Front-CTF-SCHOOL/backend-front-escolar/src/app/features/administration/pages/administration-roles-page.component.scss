@@ -156,6 +156,18 @@
 }
 
 @media (max-width: 768px) {
+  .page-header,
+  .roles-toolbar {
+    text-align: center;
+    justify-items: center;
+  }
+
+  .page-header__actions,
+  .roles-toolbar__actions {
+    width: 100%;
+    justify-content: center;
+  }
+
   .summary-grid,
   .roles-grid {
     grid-template-columns: 1fr;

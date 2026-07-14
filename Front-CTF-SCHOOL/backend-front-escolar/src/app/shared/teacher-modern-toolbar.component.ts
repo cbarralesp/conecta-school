@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { AuthService } from '../core/services/auth.service';
 import { AuthStateService } from '../core/services/auth-state.service';
 
 type ToolbarSearchEntry = {
@@ -84,6 +85,16 @@ type ToolbarSearchEntry = {
           (click)="toggleSidebarTheme.emit()"
         >
           <mat-icon>{{ sidebarDarkMode ? 'dark_mode' : 'light_mode' }}</mat-icon>
+        </button>
+
+        <button
+          mat-icon-button
+          type="button"
+          class="modern-toolbar__icon modern-toolbar__icon--logout"
+          aria-label="Cerrar sesion"
+          (click)="logout()"
+        >
+          <mat-icon>logout</mat-icon>
         </button>
 
         <span class="modern-toolbar__user">
@@ -346,6 +357,15 @@ type ToolbarSearchEntry = {
       box-shadow: 0 0 0 2px #fff;
     }
 
+    .modern-toolbar__icon--logout {
+      color: #475569;
+    }
+
+    .modern-toolbar__icon--logout:hover {
+      color: #dc2626;
+      background: #fef2f2;
+    }
+
     .modern-toolbar__avatar {
       width: 34px;
       height: 34px;
@@ -424,39 +444,53 @@ type ToolbarSearchEntry = {
       }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
       .modern-toolbar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         gap: 0.8rem;
         padding: 0.75rem;
-        grid-template-columns: 1fr;
-        grid-template-areas:
-          'brand'
-          'context'
-          'search'
-          'actions';
       }
 
       .modern-toolbar__brand {
         padding: 0;
+        width: fit-content;
+        max-width: 100%;
+        justify-content: center;
+        justify-self: center;
         min-width: 0;
       }
 
-      .modern-toolbar__search-shell {
+      .modern-toolbar__context {
         width: 100%;
-        max-width: none;
-        justify-self: stretch;
+        justify-self: center;
+        text-align: center;
+      }
+
+      .modern-toolbar__search-shell {
+        width: min(calc(100vw - 3rem), 402px);
+        max-width: 100%;
+        align-self: center;
+        justify-self: center;
       }
 
       .modern-toolbar__actions {
         width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(5, 36px);
+        justify-content: center;
+        justify-items: center;
+        align-items: center;
         gap: 0.45rem;
       }
 
       .modern-toolbar__user {
         order: 2;
-        width: calc(100% - 3rem);
+        grid-column: 1 / -1;
+        width: fit-content;
+        margin-left: 0;
+        text-align: center;
       }
 
       .modern-toolbar__avatar-button {
@@ -467,12 +501,32 @@ type ToolbarSearchEntry = {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TeacherModernToolbarComponent {
+  private static readonly COMPOUND_SURNAME_PARTICLES = new Set([
+    'da',
+    'das',
+    'de',
+    'del',
+    'della',
+    'di',
+    'dos',
+    'du',
+    'la',
+    'las',
+    'los',
+    'mac',
+    'mc',
+    'san',
+    'santa',
+    'van',
+    'von'
+  ]);
+
   private static readonly SEARCH_ENTRIES: ToolbarSearchEntry[] = [
     { label: 'Dashboard', description: 'Vista general del sistema', route: '/dashboard', icon: 'dashboard', keywords: ['inicio', 'panel', 'dashboard'] },
     { label: 'Cursos', description: 'Gestionar cursos y niveles', route: '/dashboard/cursos', icon: 'school', keywords: ['curso', 'cursos', 'nivel', 'niveles'] },
     { label: 'Nuevo curso', description: 'Crear un curso nuevo', route: '/dashboard/cursos/nuevo', icon: 'add_circle', keywords: ['crear curso', 'nuevo curso', 'agregar curso'] },
     { label: 'Matriculas', description: 'Listado de matriculas', route: '/dashboard/matriculas', icon: 'badge', keywords: ['matricula', 'matriculas', 'estudiantes'] },
-    { label: 'Nueva matricula', description: 'Registrar una matricula nueva', route: '/dashboard/matriculas/nueva', icon: 'person_add', keywords: ['crear matricula', 'agregar matricula', 'nuevo estudiante'] },
+    { label: 'Nueva matrícula', description: 'Registrar una matricula nueva', route: '/dashboard/matriculas/nueva', icon: 'person_add', keywords: ['crear matricula', 'agregar matricula', 'nuevo estudiante'] },
     { label: 'Docentes', description: 'Gestionar docentes y asistentes', route: '/dashboard/profesores', icon: 'groups', keywords: ['docente', 'docentes', 'profesor', 'asistente'] },
     { label: 'Nuevo docente', description: 'Registrar docente', route: '/dashboard/profesores/nuevo', icon: 'person_add', keywords: ['crear docente', 'nuevo docente', 'profesor nuevo'] },
     { label: 'Nuevo asistente', description: 'Registrar asistente', route: '/dashboard/profesores/nuevo-asistente', icon: 'support_agent', keywords: ['crear asistente', 'nuevo asistente'] },
@@ -481,13 +535,13 @@ export class TeacherModernToolbarComponent {
     { label: 'Actividades', description: 'Calendario de actividades', route: '/dashboard/actividades', icon: 'event_note', keywords: ['actividad', 'actividades', 'calendario'] },
     { label: 'Contenido', description: 'Contenido pedagógico', route: '/dashboard/contenido', icon: 'folder', keywords: ['contenido', 'material', 'recursos'] },
     { label: 'Asistencia', description: 'Pase, resumen semanal y mensual', route: '/dashboard/asistencia', icon: 'fact_check', keywords: ['asistencia', 'pase', 'resumen semanal', 'resumen mensual'] },
-    { label: 'Evaluaciones', description: 'Libro de notas e informes', route: '/dashboard/calificaciones', icon: 'grading', keywords: ['evaluaciones', 'calificaciones', 'notas', 'ficha estudiante', 'informe de notas'] },
-    { label: 'Planificacion', description: 'Vista general de planificacion', route: '/dashboard/planificacion', icon: 'edit_calendar', keywords: ['planificacion', 'planificar'] },
-    { label: 'Nueva unidad', description: 'Crear unidad de planificacion', route: '/dashboard/planificacion/nueva-unidad', icon: 'library_add', keywords: ['unidad', 'nueva unidad', 'crear unidad'] },
-    { label: 'Nueva clase', description: 'Crear clase de planificacion', route: '/dashboard/planificaciones-nuevo/nueva-clase', icon: 'note_add', keywords: ['clase', 'nueva clase', 'crear clase'] },
-    { label: 'Documentos', description: 'Documentos de planificacion', route: '/dashboard/planificacion/documentos', icon: 'description', keywords: ['documento', 'documentos', 'archivos'] },
-    { label: 'Planificaciones nuevo', description: 'Modulo nuevo de planificaciones', route: '/dashboard/planificaciones-nuevo', icon: 'inventory_2', keywords: ['planificaciones nuevo', 'nuevo planificaciones'] },
-    { label: 'Administracion', description: 'Panel de administracion', route: '/dashboard/administracion', icon: 'admin_panel_settings', keywords: ['administracion', 'admin'] },
+    { label: 'Evaluaciones', description: 'Libro de notas e informes', route: '/dashboard/calificaciónes', icon: 'grading', keywords: ['evaluaciones', 'calificaciónes', 'notas', 'ficha estudiante', 'informe de notas'] },
+    { label: 'Hoja de vida', description: 'Antecedentes y seguimiento de estudiantes', route: '/dashboard/hoja-vida', icon: 'folder_shared', keywords: ['hoja de vida', 'antecedentes', 'seguimiento', 'alertas', 'estudiantes'] },
+    { label: 'Planificaciones', description: 'Vista general del modulo nuevo de planificaciónes', route: '/dashboard/planificaciones-nuevo', icon: 'inventory_2', keywords: ['planificaciones', 'planificacion', 'planificar'] },
+    { label: 'Nueva unidad', description: 'Crear unidad de planificación', route: '/dashboard/planificaciones-nuevo/nueva-unidad', icon: 'library_add', keywords: ['unidad', 'nueva unidad', 'crear unidad'] },
+    { label: 'Nueva clase', description: 'Crear clase de planificación', route: '/dashboard/planificaciones-nuevo/nueva-clase', icon: 'note_add', keywords: ['clase', 'nueva clase', 'crear clase'] },
+    { label: 'Contenido', description: 'Documentos y materiales conectados a planificaciónes', route: '/dashboard/contenido', icon: 'description', keywords: ['documento', 'documentos', 'archivos', 'contenido'] },
+    { label: 'Administración', description: 'Panel de administracion', route: '/dashboard/administracion', icon: 'admin_panel_settings', keywords: ['administracion', 'admin'] },
     { label: 'Usuarios', description: 'Gestionar usuarios', route: '/dashboard/administracion/usuarios', icon: 'manage_accounts', keywords: ['usuario', 'usuarios'] },
     { label: 'Roles', description: 'Gestionar roles', route: '/dashboard/administracion/roles', icon: 'security', keywords: ['rol', 'roles', 'permisos'] },
     { label: 'Matriz de acceso', description: 'Permisos por modulo', route: '/dashboard/administracion/matriz-acceso', icon: 'grid_view', keywords: ['matriz acceso', 'acceso', 'permisos'] },
@@ -499,11 +553,12 @@ export class TeacherModernToolbarComponent {
     { label: 'Dashboard', description: 'Resumen general del estudiante', route: '/alumno', icon: 'space_dashboard', keywords: ['inicio', 'dashboard', 'resumen'] },
     { label: 'Asignaturas', description: 'Tus asignaturas activas', route: '/alumno/asignaturas', icon: 'library_books', keywords: ['asignaturas', 'materias', 'ramos'] },
     { label: 'Horario', description: 'Horario semanal del estudiante', route: '/alumno/horario', icon: 'schedule', keywords: ['horario', 'bloques', 'clases'] },
-    { label: 'Evaluaciones', description: 'Notas y evaluaciones', route: '/alumno/calificaciones', icon: 'grading', keywords: ['evaluaciones', 'notas', 'calificaciones'] },
+    { label: 'Evaluaciones', description: 'Notas y evaluaciones', route: '/alumno/calificaciónes', icon: 'grading', keywords: ['evaluaciones', 'notas', 'calificaciónes'] },
     { label: 'Asistencia', description: 'Resumen de asistencia', route: '/alumno/asistencia', icon: 'fact_check', keywords: ['asistencia', 'inasistencias', 'atrasos'] },
     { label: 'Actividades', description: 'Actividades y calendario', route: '/alumno/actividades', icon: 'event', keywords: ['actividades', 'calendario', 'eventos'] }
   ];
 
+  private readonly authService = inject(AuthService);
   private readonly authStateService = inject(AuthStateService);
   private readonly router = inject(Router);
 
@@ -529,6 +584,10 @@ export class TeacherModernToolbarComponent {
     const sessionName = this.authStateService.user()?.nombre?.trim();
     const inputName = this.userName.trim();
 
+    if (inputName && !this.isGenericUserName(inputName)) {
+      return inputName;
+    }
+
     if (sessionName) {
       return sessionName;
     }
@@ -549,12 +608,16 @@ export class TeacherModernToolbarComponent {
   }
 
   protected get initials(): string {
-    return this.resolvedUserName
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((chunk) => chunk.charAt(0).toUpperCase())
-      .join('');
+    const shortNameParts = this.shortUserName.split(' ').filter(Boolean);
+    if (shortNameParts.length === 0) {
+      return 'D';
+    }
+
+    if (shortNameParts.length === 1) {
+      return shortNameParts[0].slice(0, 2).toUpperCase();
+    }
+
+    return `${shortNameParts[0].charAt(0)}${shortNameParts[shortNameParts.length - 1].charAt(0)}`.toUpperCase();
   }
 
   protected get shortUserName(): string {
@@ -566,7 +629,50 @@ export class TeacherModernToolbarComponent {
       return `${parts[0]} ${parts[1]}`;
     }
 
-    return `${parts[0]} ${parts[parts.length - 2]}`;
+    return `${parts[0]} ${this.displaySurname(parts)}`;
+  }
+
+  private displaySurname(parts: string[]): string {
+    if (parts.length <= 3) {
+      return parts[1] ?? parts[parts.length - 1];
+    }
+
+    const surnameStart = Math.floor(parts.length / 2);
+    const surnameParts: string[] = [];
+
+    for (let index = surnameStart; index < parts.length; index += 1) {
+      surnameParts.push(parts[index]);
+
+      const normalizedCurrent = this.normalizeNameParticle(parts[index]);
+      const normalizedNext = this.normalizeNameParticle(parts[index + 1] ?? '');
+
+      if (
+        TeacherModernToolbarComponent.COMPOUND_SURNAME_PARTICLES.has(normalizedCurrent) ||
+        TeacherModernToolbarComponent.COMPOUND_SURNAME_PARTICLES.has(normalizedNext)
+      ) {
+        continue;
+      }
+
+      break;
+    }
+
+    if (surnameParts.length === 0) {
+      return parts[parts.length - 1];
+    }
+
+    return surnameParts.join(' ');
+  }
+
+  private normalizeNameParticle(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
+  private isGenericUserName(value: string): boolean {
+    return ['docente', 'profesor', 'usuario', 'estudiante', 'administracion', 'administrador']
+      .includes(this.normalizeNameParticle(value));
   }
 
   protected updateSearchValue(value: string): void {
@@ -620,7 +726,7 @@ export class TeacherModernToolbarComponent {
   }
 
   protected logout(): void {
-    this.authStateService.clearSession();
+    this.authService.logout();
     void this.router.navigate(['/login']);
   }
 
