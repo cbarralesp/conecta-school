@@ -2528,6 +2528,8 @@
 
   .student-page-head__controls {
     align-items: stretch;
+    width: 100%;
+    justify-content: center;
   }
 
   .student-page-head__top {
@@ -2562,13 +2564,18 @@
     text-align: center;
   }
 
-  .student-month-display,
   .student-legend,
   .student-pdf-btn {
     width: 100%;
   }
 
+  .student-nav-group {
+    width: min(100%, 340px);
+  }
+
   .student-month-display {
+    flex: 1 1 auto;
+    min-width: 0;
     justify-content: center;
   }
 

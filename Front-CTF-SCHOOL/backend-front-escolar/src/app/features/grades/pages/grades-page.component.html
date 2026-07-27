@@ -480,7 +480,7 @@
                       <div class="profile-subject-row__copy">
                         <div class="profile-subject-row__title">
                           <span class="profile-subject-row__name">{{ subject.subjectName }}</span>
-                          @if (profileSubjectEntries(student, subject.subjectId).length > 3) {
+                          @if (profileSubjectEntries(student, subject.subjectId).length > 4) {
                             <button
                               type="button"
                               class="profile-subject-row__toggle-button"
@@ -491,15 +491,15 @@
                           }
                         </div>
                         <div class="profile-subject-row__notes">
-                          @for (entry of profileSubjectEntries(student, subject.subjectId).slice(0, 3); track $index) {
+                          @for (entry of profileSubjectEntries(student, subject.subjectId).slice(0, 4); track $index) {
                             <span class="profile-score-pill" [ngClass]="evaluationEntryToneClass(entry, subject.evaluationType)">{{ evaluationEntryValue(entry, subject.evaluationType) }}</span>
                           } @empty {
                             <span class="profile-score-pill is-empty">Sin notas</span>
                           }
                         </div>
-                        @if (isProfileSubjectExpanded(subject.subjectId) && profileSubjectEntries(student, subject.subjectId).length > 3) {
+                        @if (isProfileSubjectExpanded(subject.subjectId) && profileSubjectEntries(student, subject.subjectId).length > 4) {
                           <div class="profile-subject-row__detail">
-                            @for (entry of profileSubjectEntries(student, subject.subjectId).slice(3); track $index) {
+                            @for (entry of profileSubjectEntries(student, subject.subjectId).slice(4); track $index) {
                               <div class="profile-subject-row__detail-item">
                                 <span>{{ entry.label }}</span>
                                 <strong [ngClass]="evaluationEntryToneClass(entry, subject.evaluationType)">{{ evaluationEntryValue(entry, subject.evaluationType) }}</strong>
@@ -584,20 +584,20 @@
                   <strong>{{ pdfText(student.run) }}</strong>
                 </div>
                 <div class="pdf-bulletin__field">
-                  <span>Curso</span>
-                  <strong>{{ pdfCourseLabel() }}</strong>
+                  <span>Período</span>
+                  <strong>{{ pdfPeriodLabel() }}</strong>
                 </div>
                 <div class="pdf-bulletin__field">
                   <span>Profesor jefe</span>
                   <strong>{{ pdfTeacherName() }}</strong>
                 </div>
                 <div class="pdf-bulletin__field">
-                  <span>A&ntilde;o escolar</span>
-                  <strong>{{ pdfSchoolYear() }}</strong>
+                  <span>Curso</span>
+                  <strong>{{ pdfCourseLabel() }}</strong>
                 </div>
                 <div class="pdf-bulletin__field">
-                  <span>NÂ° de lista</span>
-                  <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                  <span>A&ntilde;o</span>
+                  <strong>{{ pdfSchoolYear() }}</strong>
                 </div>
               </section>
 
@@ -629,9 +629,9 @@
                   <thead>
                     <tr>
                       <th class="left">Asignatura</th>
-                      <th>Ev. 1</th>
-                      <th>Ev. 2</th>
-                      <th>Ev. 3</th>
+                      @for (evaluationIndex of reportEvaluationColumnIndexes(student); track evaluationIndex) {
+                        <th>Ev. {{ evaluationIndex + 1 }}</th>
+                      }
                       <th>Promedio</th>
                       <th>Concepto</th>
                     </tr>
@@ -642,9 +642,9 @@
                         <td class="left">
                           <strong>{{ pdfText(subject.subjectName) }}</strong>
                         </td>
-                        <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 0)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 0) }}</td>
-                        <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 1)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 1) }}</td>
-                        <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 2)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 2) }}</td>
+                        @for (evaluationIndex of reportEvaluationColumnIndexes(student); track evaluationIndex) {
+                          <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, evaluationIndex)">{{ pdfSubjectDisplayScore(student, subject.subjectId, evaluationIndex) }}</td>
+                        }
                         <td class="pdf-bulletin__cell-pill">
                           <span class="pdf-bulletin__avg-chip" [ngClass]="pdfSubjectAverageClass(student, subject.subjectId, subject.average, subject.conceptSummaryCode)">{{ pdfSubjectDisplayAverage(student, subject.subjectId, subject.average, subject.conceptSummaryCode) }}</span>
                         </td>
@@ -657,7 +657,7 @@
                   <tfoot>
                     <tr>
                       <td class="left">Promedio general semestral</td>
-                      <td colspan="3"></td>
+                      <td [attr.colspan]="reportEvaluationColumnIndexes(student).length"></td>
                       <td class="pdf-bulletin__cell-pill">
                         <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
                       </td>
@@ -744,20 +744,20 @@
                       <strong>{{ pdfText(student.run) }}</strong>
                     </div>
                     <div class="pdf-bulletin__field">
-                      <span>Curso</span>
-                      <strong>{{ pdfCourseLabel() }}</strong>
+                      <span>Período</span>
+                      <strong>{{ pdfPeriodLabel() }}</strong>
                     </div>
                     <div class="pdf-bulletin__field">
                       <span>Profesor jefe</span>
                       <strong>{{ pdfTeacherName() }}</strong>
                     </div>
                     <div class="pdf-bulletin__field">
-                      <span>A&ntilde;o escolar</span>
-                      <strong>{{ pdfSchoolYear() }}</strong>
+                      <span>Curso</span>
+                      <strong>{{ pdfCourseLabel() }}</strong>
                     </div>
                     <div class="pdf-bulletin__field">
-                      <span>NÂ° de lista</span>
-                      <strong>{{ reportStudentRank(student) ?? '-' }}</strong>
+                      <span>A&ntilde;o</span>
+                      <strong>{{ pdfSchoolYear() }}</strong>
                     </div>
                   </section>
 
@@ -789,9 +789,9 @@
                       <thead>
                         <tr>
                           <th class="left">Asignatura</th>
-                          <th>Ev. 1</th>
-                          <th>Ev. 2</th>
-                          <th>Ev. 3</th>
+                          @for (evaluationIndex of reportEvaluationColumnIndexes(student); track evaluationIndex) {
+                            <th>Ev. {{ evaluationIndex + 1 }}</th>
+                          }
                           <th>Promedio</th>
                           <th>Concepto</th>
                         </tr>
@@ -802,9 +802,9 @@
                             <td class="left">
                               <strong>{{ pdfText(subject.subjectName) }}</strong>
                             </td>
-                            <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 0)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 0) }}</td>
-                            <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 1)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 1) }}</td>
-                            <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, 2)">{{ pdfSubjectDisplayScore(student, subject.subjectId, 2) }}</td>
+                            @for (evaluationIndex of reportEvaluationColumnIndexes(student); track evaluationIndex) {
+                              <td [ngClass]="pdfSubjectDisplayClass(student, subject.subjectId, evaluationIndex)">{{ pdfSubjectDisplayScore(student, subject.subjectId, evaluationIndex) }}</td>
+                            }
                             <td class="pdf-bulletin__cell-pill">
                               <span class="pdf-bulletin__avg-chip" [ngClass]="pdfSubjectAverageClass(student, subject.subjectId, subject.average, subject.conceptSummaryCode)">{{ pdfSubjectDisplayAverage(student, subject.subjectId, subject.average, subject.conceptSummaryCode) }}</span>
                             </td>
@@ -817,7 +817,7 @@
                       <tfoot>
                         <tr>
                           <td class="left">Promedio general semestral</td>
-                          <td colspan="3"></td>
+                          <td [attr.colspan]="reportEvaluationColumnIndexes(student).length"></td>
                           <td class="pdf-bulletin__cell-pill">
                             <span class="pdf-bulletin__avg-chip" [ngClass]="pdfConceptClass(student.overallAverage)">{{ pdfScore(student.overallAverage) }}</span>
                           </td>
@@ -1184,8 +1184,8 @@
                     <strong>{{ report.studentName }}</strong>
                   </div>
                   <div class="pedagogical-student-field">
-                    <span>Nivel</span>
-                    <strong><span class="pedagogical-level-badge" [ngClass]="pedagogicalBadgeClass(report.levelCode)">{{ report.levelLabel }}</span></strong>
+                    <span>RUN</span>
+                    <strong>{{ report.studentRun || '-' }}</strong>
                   </div>
                   <div class="pedagogical-student-field">
                     <span>Período</span>
@@ -1196,8 +1196,8 @@
                     <strong>{{ report.content.educatorName }}</strong>
                   </div>
                   <div class="pedagogical-student-field">
-                    <span>RUN</span>
-                    <strong>{{ report.studentRun || '-' }}</strong>
+                    <span>Curso</span>
+                    <strong>{{ report.courseName || selectedCourse()?.name || '-' }}</strong>
                   </div>
                   <div class="pedagogical-student-field">
                     <span>Año</span>
@@ -1339,8 +1339,8 @@
                         <strong>{{ report.studentName }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
-                        <span>Nivel</span>
-                        <strong><span class="pedagogical-level-badge" [ngClass]="pedagogicalBadgeClass(report.levelCode)">{{ report.levelLabel }}</span></strong>
+                        <span>RUN</span>
+                        <strong>{{ report.studentRun || '-' }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
                         <span>Período</span>
@@ -1351,8 +1351,8 @@
                         <strong>{{ report.content.educatorName }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
-                        <span>RUN</span>
-                        <strong>{{ report.studentRun || '-' }}</strong>
+                        <span>Curso</span>
+                        <strong>{{ report.courseName || selectedCourse()?.name || '-' }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
                         <span>Año</span>
@@ -1496,8 +1496,8 @@
                         <strong>{{ report.studentName }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
-                        <span>Nivel</span>
-                        <strong><span class="pedagogical-level-badge" [ngClass]="pedagogicalBadgeClass(report.levelCode)">{{ report.levelLabel }}</span></strong>
+                        <span>RUN</span>
+                        <strong>{{ report.studentRun || '-' }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
                         <span>Período</span>
@@ -1508,8 +1508,8 @@
                         <input type="text" [value]="report.content.educatorName" (input)="updatePedagogicalField('educatorName', $any($event.target).value)" />
                       </div>
                       <div class="pedagogical-student-field">
-                        <span>RUN</span>
-                        <strong>{{ report.studentRun || '-' }}</strong>
+                        <span>Curso</span>
+                        <strong>{{ report.courseName || selectedCourse()?.name || '-' }}</strong>
                       </div>
                       <div class="pedagogical-student-field">
                         <span>Año</span>

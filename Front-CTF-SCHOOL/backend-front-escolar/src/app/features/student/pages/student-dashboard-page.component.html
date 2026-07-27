@@ -1072,14 +1072,6 @@
                     2° semestre
                   </button>
                 </div>
-                <button mat-stroked-button type="button" class="student-report-button" (click)="openReportPreview()">
-                  <mat-icon>visibility</mat-icon>
-                  Ver informe
-                </button>
-              <button mat-flat-button type="button" class="student-report-button student-report-button--primary" (click)="downloadStudentReportPdf()" [disabled]="isExportingReportPdf()">
-                <mat-icon>{{ isExportingReportPdf() ? 'hourglass_top' : 'download' }}</mat-icon>
-                {{ isExportingReportPdf() ? 'Descargando...' : 'Descargar' }}
-              </button>
               <span class="hero-year">{{ currentYearLabel() }}</span>
             </div>
           </div>

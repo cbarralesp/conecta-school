@@ -380,9 +380,10 @@
   .schedule-mobile-tabs{gap:.45rem;padding:.5rem .15rem .35rem}
   .schedule-mobile-tab{min-height:44px;padding:.68rem .2rem;border-radius:16px}
   .schedule-mobile-list{gap:.68rem;padding:.35rem .15rem .65rem}
-  .schedule-mobile-row{grid-template-columns:minmax(86px,.46fr) minmax(0,1fr);gap:.55rem}
+  .schedule-mobile-row{grid-template-columns:82px minmax(0,1fr);gap:.5rem}
   .schedule-mobile-row__time{justify-content:center;padding:.82rem .62rem;border-radius:18px;text-align:center}
   .schedule-mobile-row__time strong{font-size:.78rem}
+  .schedule-mobile-slot,.schedule-mobile-slot *{min-width:0}
   .schedule-mobile-slot{min-height:92px;border-radius:18px!important}
   .schedule-mobile-slot .subj-name{font-size:.82rem;line-height:1.18}
   .schedule-mobile-slot small{font-size:.72rem!important}
@@ -515,8 +516,7 @@
   .overview-quicklink strong{font-size:.82rem;line-height:1.14;overflow-wrap:anywhere}
   .overview-quicklink span{font-size:.76rem;line-height:1.32;overflow-wrap:anywhere}
   .grades-browser--flat .grades-browser__header{grid-template-columns:1fr}
-  .grades-browser__header--compact{grid-template-columns:1fr!important}
-  .grades-semester-toggle--header{width:100%;justify-content:center;overflow-x:auto}
+  .student-report-actions{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap}
   .grades-summary-strip{grid-template-columns:1fr}
   .grades-modern-table{display:none}
   .grades-mobile-cards{display:grid;gap:.85rem}
@@ -528,12 +528,13 @@
   .hero-stats,.notas-grid{grid-template-columns:1fr}
   .overview-quicklinks-grid{grid-template-columns:1fr}
   .overview-quicklink{min-height:0}
-  .student-content--schedule{padding-inline:.25rem}
+  .student-content--schedule{padding-inline:0}
+  .grades-semester-btn{padding:0 .72rem}
   .schedule-mobile-card{padding-inline:0}
   .schedule-mobile-tabs,
   .schedule-mobile-list{padding-inline:.1rem}
-  .schedule-mobile-row{grid-template-columns:minmax(82px,.42fr) minmax(0,1fr);gap:.48rem}
-  .schedule-mobile-row__time{padding:.74rem .5rem}
+  .schedule-mobile-row{grid-template-columns:74px minmax(0,1fr);gap:.42rem}
+  .schedule-mobile-row__time{padding:.7rem .42rem}
   .student-content--subjects{padding-inline:.85rem}
   .student-subject-card{padding:.9rem}
   .student-subject-card__top{gap:.7rem}

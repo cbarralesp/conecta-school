@@ -23,10 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
 public class AdministrationManagementService implements ManageAdministrationUseCase {
+    private static final ZoneId CHILE_ZONE = ZoneId.of("America/Santiago");
 
     private final ManageAdministrationPort manageAdministrationPort;
     private final PasswordEncoder passwordEncoder;
@@ -63,7 +65,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "CREATE",
                 "Creo un nuevo usuario",
                 created.email() + " con rol " + created.roleName(),
-                LocalDateTime.now()
+                currentChileDateTime()
         );
         return created;
     }
@@ -79,7 +81,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "ROLE_CHANGE",
                 "Actualizo configuracion de usuario",
                 updated.email() + " ahora usa rol " + updated.roleName(),
-                LocalDateTime.now()
+                currentChileDateTime()
         );
         return updated;
     }
@@ -93,7 +95,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "BLOCK",
                 "Bloqueo una cuenta",
                 user.email() + " (" + user.roleName() + ")",
-                LocalDateTime.now()
+                currentChileDateTime()
         );
     }
 
@@ -106,7 +108,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "ROLE_CHANGE",
                 "Desbloqueo una cuenta",
                 user.email() + " (" + user.roleName() + ")",
-                LocalDateTime.now()
+                currentChileDateTime()
         );
     }
 
@@ -119,7 +121,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "ROLE_CHANGE",
                 active ? "Activo una cuenta" : "Desactivo una cuenta",
                 user.email() + " (" + user.roleName() + ")",
-                LocalDateTime.now()
+                currentChileDateTime()
         );
     }
 
@@ -133,7 +135,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "BLOCK",
                 "Elimino un usuario",
                 user.email() + " fue removido del sistema",
-                LocalDateTime.now()
+                currentChileDateTime()
         );
     }
 
@@ -176,7 +178,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                 "ROLE_CHANGE",
                 "Actualizo la matriz de accesos",
                 roleChanges + " permisos de rol y " + overrideCount + " excepciones por usuario",
-                LocalDateTime.now()
+                currentChileDateTime()
         );
     }
 
@@ -216,6 +218,10 @@ public class AdministrationManagementService implements ManageAdministrationUseC
         return manageAdministrationPort.findAuditUserOptions().stream()
                 .map(value -> new AdministrationOptionItem(value, value))
                 .toList();
+    }
+
+    private LocalDateTime currentChileDateTime() {
+        return LocalDateTime.now(CHILE_ZONE);
     }
 
     private void validateUniqueness(AdministrationUserCommand command, Long excludeUserId) {

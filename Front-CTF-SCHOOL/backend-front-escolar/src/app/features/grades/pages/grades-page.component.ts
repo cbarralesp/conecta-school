@@ -26,6 +26,7 @@ import {
   PedagogicalQuestionBankArea,
   PedagogicalQuestionBankQuestion,
   GradeEvaluationHeader,
+  GradeScoreCell,
   GradeBookStudentRow,
   GradeBookSummary,
   GradeBookView,
@@ -1551,6 +1552,14 @@ export class GradesPageComponent {
     return this.pdfSubjectDetail(student, subjectId).evaluations;
   }
 
+  reportEvaluationColumnIndexes(student: StudentGradeCard): number[] {
+    const evaluationCount = student.subjects.reduce((max, subject) => {
+      const subjectCount = this.reportSubjectEntries(student, subject.subjectId).length;
+      return Math.max(max, subjectCount);
+    }, 0);
+    return Array.from({ length: evaluationCount }, (_, index) => index);
+  }
+
   profileSubjectScores(student: StudentGradeCard, subjectId: number): Array<number | null> {
     return this.pdfSubjectDetail(student, subjectId).scores;
   }
@@ -2523,9 +2532,41 @@ export class GradesPageComponent {
       return { evaluationType: book.subjectEvaluationType, scores: [], concepts: [], percentages: [], registrationTypes: [], average: null, conceptSummaryCode: null, evaluations: [] };
     }
 
-    const evaluationOrder = new Map(book.evaluations.map((evaluation) => [evaluation.id, evaluation.order]));
+    const evaluationById = new Map(book.evaluations.map((evaluation) => [evaluation.id, evaluation]));
     const orderedScores = [...studentRow.scores]
-      .sort((left, right) => (evaluationOrder.get(left.evaluationId) ?? 0) - (evaluationOrder.get(right.evaluationId) ?? 0))
+      .sort((left, right) => {
+        const leftEvaluation = evaluationById.get(left.evaluationId);
+        const rightEvaluation = evaluationById.get(right.evaluationId);
+        const leftOrder = leftEvaluation?.order ?? 0;
+        const rightOrder = rightEvaluation?.order ?? 0;
+        if (leftOrder !== rightOrder) {
+          return leftOrder - rightOrder;
+        }
+
+        const leftDate = leftEvaluation?.evaluationDate ?? '';
+        const rightDate = rightEvaluation?.evaluationDate ?? '';
+        if (leftDate !== rightDate) {
+          return rightDate.localeCompare(leftDate);
+        }
+
+        return right.evaluationId - left.evaluationId;
+      })
+      .reduce<GradeScoreCell[]>((deduped, score) => {
+        const existingIndex = deduped.findIndex((candidate) => candidate.code === score.code);
+        if (existingIndex === -1) {
+          deduped.push(score);
+          return deduped;
+        }
+
+        const current = deduped[existingIndex];
+        const currentHasValue = current.score != null || (current.conceptCode?.trim().length ?? 0) > 0 || current.percentage != null;
+        const incomingHasValue = score.score != null || (score.conceptCode?.trim().length ?? 0) > 0 || score.percentage != null;
+        if (!currentHasValue && incomingHasValue) {
+          deduped[existingIndex] = score;
+        }
+
+        return deduped;
+      }, [])
       .map((score) => ({
         label: score.code,
         score: score.score ?? null,
@@ -2534,18 +2575,10 @@ export class GradesPageComponent {
         registrationType: score.registrationType ?? 'SUMATIVA'
       }));
 
-    const scores = orderedScores
-      .slice(0, 3)
-      .map((score) => score.score);
-    const concepts = orderedScores
-      .slice(0, 3)
-      .map((score) => score.conceptCode);
-    const percentages = orderedScores
-      .slice(0, 3)
-      .map((score) => score.percentage);
-    const registrationTypes = orderedScores
-      .slice(0, 3)
-      .map((score) => score.registrationType);
+    const scores = orderedScores.map((score) => score.score);
+    const concepts = orderedScores.map((score) => score.conceptCode);
+    const percentages = orderedScores.map((score) => score.percentage);
+    const registrationTypes = orderedScores.map((score) => score.registrationType);
 
     const hasRealScores = studentRow.scores.some((score) => score.score != null && score.registrationType !== 'DIAGNOSTICA');
     const latestConceptCode = [...studentRow.scores]

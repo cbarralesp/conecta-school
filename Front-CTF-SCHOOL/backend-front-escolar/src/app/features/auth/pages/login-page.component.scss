@@ -389,6 +389,11 @@
   font-family: inherit;
 }
 
+.input-wrapper input::placeholder {
+  color: #a7b4c8;
+  font-weight: 400;
+}
+
 .input-wrapper input:focus {
   outline: none;
 }
@@ -406,6 +411,16 @@
 
 .input-wrapper input:focus + .input-label,
 .input-wrapper input:not(:placeholder-shown) + .input-label {
+  top: 0;
+  left: 0.92rem;
+  transform: translateY(-50%) scale(0.84);
+  padding: 0 0.42rem;
+  background: #fff;
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.input-wrapper--with-example .input-label {
   top: 0;
   left: 0.92rem;
   transform: translateY(-50%) scale(0.84);

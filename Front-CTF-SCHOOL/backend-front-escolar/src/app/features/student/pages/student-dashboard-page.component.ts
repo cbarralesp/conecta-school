@@ -92,7 +92,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
   readonly gradesSubjectFilter = signal('all');
   readonly selectedGradeSubjectName = signal<string | null>(null);
   readonly selectedOverviewTab = signal<DashboardOverviewTab>('grades');
-  readonly selectedScheduleMobileDay = signal('LUNES');
+  readonly selectedScheduleMobileDay = signal('');
   readonly overviewSchedulePage = signal(0);
   readonly isExportingSchedulePdf = signal(false);
   readonly isExportingReportPdf = signal(false);
@@ -851,6 +851,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
   });
   readonly activeScheduleMobileDay = computed(
     () => this.scheduleDisplayWeekDays().find((day) => day.key === this.selectedScheduleMobileDay())?.key
+      ?? this.scheduleDisplayWeekDays().find((day) => day.isToday)?.key
       ?? this.scheduleDisplayWeekDays()[0]?.key
       ?? 'LUNES'
   );
@@ -1257,7 +1258,7 @@ export class StudentDashboardPageComponent implements OnDestroy {
     this.gradesSemesterFilter.set(value);
     this.gradesSubjectFilter.set('all');
     this.selectedGradeSubjectName.set(null);
-    this.loadDashboard(value);
+    this.loadDashboard(value, false);
   }
 
   gradeStatusLabel(subject: { average: number | null }): string {
@@ -1592,8 +1593,10 @@ export class StudentDashboardPageComponent implements OnDestroy {
     return (hours || 0) * 60 + (minutes || 0);
   }
 
-  private loadDashboard(semesterOverride?: GradeSemesterFilter): void {
-    this.isLoading.set(true);
+  private loadDashboard(semesterOverride?: GradeSemesterFilter, showPageLoading = true): void {
+    if (showPageLoading) {
+      this.isLoading.set(true);
+    }
     const requestedSemester = Number.parseInt(semesterOverride ?? this.gradesSemesterFilter(), 10);
     const requestedSchoolYear = new Date().getFullYear();
 
@@ -1608,10 +1611,14 @@ export class StudentDashboardPageComponent implements OnDestroy {
           this.studentScheduleEntries.set([]);
           this.studentSchedulePeriodId.set(null);
         }
-        this.isLoading.set(false);
+        if (showPageLoading) {
+          this.isLoading.set(false);
+        }
       },
       error: (error: HttpErrorResponse) => {
-        this.isLoading.set(false);
+        if (showPageLoading) {
+          this.isLoading.set(false);
+        }
         this.snackBar.open(
           typeof error.error?.message === 'string'
             ? error.error.message
@@ -1622,15 +1629,17 @@ export class StudentDashboardPageComponent implements OnDestroy {
       }
     });
 
-    this.studentApiService.getStudentSubjects().subscribe({
-      next: (subjects) => this.studentSubjects.set(subjects),
-      error: () => this.studentSubjects.set([])
-    });
+    if (showPageLoading) {
+      this.studentApiService.getStudentSubjects().subscribe({
+        next: (subjects) => this.studentSubjects.set(subjects),
+        error: () => this.studentSubjects.set([])
+      });
 
-    this.studentApiService.getStudentAttendance().subscribe({
-      next: (attendance) => this.attendance.set(attendance),
-      error: () => this.attendance.set(null)
-    });
+      this.studentApiService.getStudentAttendance().subscribe({
+        next: (attendance) => this.attendance.set(attendance),
+        error: () => this.attendance.set(null)
+      });
+    }
   }
 
   private startOverviewTabRotation(): void {

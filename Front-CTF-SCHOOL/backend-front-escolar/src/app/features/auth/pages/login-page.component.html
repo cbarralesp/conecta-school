@@ -1,4 +1,4 @@
-<div class="login-shell">
+﻿<div class="login-shell">
   <aside class="brand-panel">
     <div class="brand-panel__photo"></div>
     <div class="brand-panel__overlay brand-panel__overlay--main"></div>
@@ -20,32 +20,32 @@
       <div class="brand-panel__hero">
         <div class="brand-panel__eyebrow">
           <span class="brand-panel__eyebrow-dot"></span>
-          Plataforma institucional · Est. 2024
+          Plataforma institucional &middot; Est. 2024
         </div>
         <h1 class="brand-panel__title">
           Forma hoy<br />
           <em>El futuro.</em>
         </h1>
         <p class="brand-panel__description">
-          Gestión académica integrada, seguimiento docente y operación diaria en una sola herramienta moderna.
+          Gesti&oacute;n acad&eacute;mica integrada, seguimiento docente y operaci&oacute;n diaria en una sola herramienta moderna.
         </p>
       </div>
 
       <div class="feature-grid">
         <article class="feature-card">
-          <span class="feature-card__icon feature-card__icon--blue">🎓</span>
-          <strong>Gestión</strong>
+          <span class="feature-card__icon feature-card__icon--blue">&#127891;</span>
+          <strong>Gesti&oacute;n</strong>
           <span>Cursos y notas.</span>
         </article>
 
         <article class="feature-card">
-          <span class="feature-card__icon feature-card__icon--gold">📊</span>
+          <span class="feature-card__icon feature-card__icon--gold">&#128202;</span>
           <strong>Progreso</strong>
           <span>Reportes en tiempo real.</span>
         </article>
 
         <article class="feature-card">
-          <span class="feature-card__icon feature-card__icon--green">🔒</span>
+          <span class="feature-card__icon feature-card__icon--green">&#128274;</span>
           <strong>Seguro</strong>
           <span>Datos encriptados.</span>
         </article>
@@ -53,7 +53,7 @@
 
       <div class="brand-panel__footer">
         <div class="brand-panel__footer-copy">
-          <span class="brand-panel__footer-star">☆</span>
+          <span class="brand-panel__footer-star">&#9734;</span>
           <span>Plataforma desarrollada por conecta school</span>
         </div>
         <div class="brand-panel__footer-links">
@@ -74,20 +74,20 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
         <div class="input-group">
-          <div class="input-wrapper">
+          <div class="input-wrapper input-wrapper--with-example">
             <span class="input-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M20 21V19C20 16.79 18.21 15 16 15H8C5.79 15 4 16.79 4 19V21" />
                 <circle cx="12" cy="8" r="4" />
               </svg>
             </span>
-            <input id="email" type="text" placeholder=" " formControlName="email" autocomplete="username" />
+            <input id="email" type="text" placeholder="Ej: 12345678-9" formControlName="email" autocomplete="username" />
             <label for="email" class="input-label">Usuario o RUT</label>
           </div>
         </div>
 
         <div class="input-group">
-          <div class="input-wrapper">
+          <div class="input-wrapper input-wrapper--with-example">
             <span class="input-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <rect x="4" y="11" width="16" height="10" rx="2" />
@@ -97,15 +97,15 @@
             <input
               id="password"
               [type]="hidePassword() ? 'password' : 'text'"
-              placeholder=" "
+              placeholder="Ingresa tu contrase&ntilde;a"
               formControlName="password"
               autocomplete="current-password" />
-            <label for="password" class="input-label">Contraseña</label>
+            <label for="password" class="input-label">Contrase&ntilde;a</label>
             <button
               type="button"
               class="toggle-password"
               (click)="hidePassword.set(!hidePassword())"
-              [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+              [attr.aria-label]="hidePassword() ? 'Mostrar contrase\u00f1a' : 'Ocultar contrase\u00f1a'">
               @if (hidePassword()) {
                 <svg viewBox="0 0 24 24" fill="none">
                   <path d="M2 12C3.73 8.64 7.12 6.5 12 6.5C16.88 6.5 20.27 8.64 22 12C20.27 15.36 16.88 17.5 12 17.5C7.12 17.5 3.73 15.36 2 12Z" />
@@ -131,20 +131,20 @@
               (change)="rememberMe.set($any($event.target).checked)" />
             <span>Recordarme</span>
           </label>
-          <a href="#" class="login-form__forgot">¿Olvidaste la clave?</a>
+          <a href="#" class="login-form__forgot">&iquest;Olvidaste la clave?</a>
         </div>
 
         <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
           @if (isLoading()) {
             <span class="spinner" aria-hidden="true"></span>
           } @else {
-            <span>Iniciar sesión</span>
+            <span>Iniciar sesi&oacute;n</span>
           }
         </button>
 
         <div class="login-form__divider" aria-hidden="true">
           <span></span>
-          <small>o continúa con</small>
+          <small>o contin&uacute;a con</small>
           <span></span>
         </div>
 
@@ -153,12 +153,15 @@
           <span>Google</span>
           <span class="badge-soon">Pronto</span>
         </button>
+
       </form>
 
       <div class="security-banner">
-        <div class="security-icon">✓</div>
-        <span class="security-text">Conexión protegida con cifrado SSL de 256-bits</span>
+        <div class="security-icon">&#10003;</div>
+        <span class="security-text">Conexi&oacute;n segura y datos protegidos</span>
       </div>
     </div>
   </section>
 </div>
+
+

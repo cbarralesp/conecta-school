@@ -221,7 +221,7 @@ export class PlanningApiService {
           indicatorsCovered: (suggestion.indicatorsCovered ?? []).map((item) => normalizeDashboardText(item)),
           diversitySupport: normalizeDashboardText(suggestion.diversitySupport),
           statusMessage: normalizeDashboardText(suggestion.statusMessage),
-          providerUsed: normalizeDashboardText(suggestion.providerUsed)
+          providerUsed: (suggestion.providerUsed ?? '').trim()
         }))
       );
   }

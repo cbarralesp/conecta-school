@@ -21,11 +21,11 @@ import { Course } from '../../../core/models/course.models';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { CourseApiService } from '../../../core/services/course-api.service';
 import { PlanningApiService } from '../../../core/services/planning-api.service';
-import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
 import { TeacherModernLayoutComponent } from '../../../shared/teacher-modern-layout.component';
 
 type ContentFilter = 'all' | 'pdf' | 'word' | 'ppt' | 'other';
 type SemesterFilter = 'all' | 'S1' | 'S2';
+type EducationStage = 'basic' | 'media';
 
 type ContentDocumentView = {
   id: number;
@@ -76,7 +76,6 @@ type ContentUnitView = {
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    SummaryMetricCardComponent,
     TeacherModernLayoutComponent
   ],
   templateUrl: './content-page.component.html',
@@ -98,6 +97,7 @@ export class ContentPageComponent {
   readonly selectedCourse = signal<number | 'all'>('all');
   readonly selectedSubject = signal<number | 'all'>('all');
   readonly selectedSemester = signal<SemesterFilter>('all');
+  readonly selectedEducationStage = signal<EducationStage>('basic');
   readonly units = signal<ContentUnitView[]>([]);
   readonly summary = signal<PlanningSummary | null>(null);
   readonly courses = signal<Course[]>([]);
@@ -210,6 +210,7 @@ export class ContentPageComponent {
     const year = this.selectedYear();
     const options = this.courses()
       .filter((course) => year == null || course.schoolYear === year)
+      .filter((course) => this.matchesEducationStage(course, this.selectedEducationStage()))
       .map((course) => ({
         id: course.id,
         name: course.letter ? `${course.name} ${course.letter}` : course.name
@@ -225,6 +226,12 @@ export class ContentPageComponent {
     }
 
     return Array.from(uniqueOptions.values());
+  });
+  readonly selectedCourseName = computed(() => {
+    const selectedCourse = this.selectedCourse();
+    return selectedCourse === 'all'
+      ? 'Todos los cursos'
+      : this.courseOptions().find((course) => course.id === selectedCourse)?.name ?? 'Curso';
   });
   readonly subjectOptions = computed(() => {
     const selectedCourse = this.selectedCourse();
@@ -243,6 +250,18 @@ export class ContentPageComponent {
       .map(([id, name]) => ({ id, name }))
       .sort((left, right) => this.compareLabels(left.name, right.name));
   });
+  readonly selectedSubjectName = computed(() => {
+    const selectedSubject = this.selectedSubject();
+    return selectedSubject === 'all'
+      ? 'Todas las asignaturas'
+      : this.subjectOptions().find((subject) => subject.id === selectedSubject)?.name ?? 'Asignatura';
+  });
+  readonly visibleClassCount = computed(() =>
+    this.units().reduce((total, unit) => total + unit.classes.length, 0)
+  );
+  readonly visibleDocumentCount = computed(() =>
+    this.units().reduce((total, unit) => total + unit.totalDocuments, 0)
+  );
   readonly unitNumberOptions = computed(() => this.unitCatalogs()?.unitNumbers ?? []);
   readonly durationOptions = computed(() => this.classCatalogs()?.durationOptions ?? []);
   readonly selectedClassFileName = computed(() => this.classFile()?.name ?? 'Click para subir un archivo compatible');
@@ -264,10 +283,13 @@ export class ContentPageComponent {
     return this.units().slice(start, start + this.pageSize());
   });
   private searchDebounceHandle: ReturnType<typeof setTimeout> | null = null;
+  private contentRequestId = 0;
+  private classCatalogsLoading = false;
+  private classCatalogsLoadedCallbacks: Array<() => void> = [];
 
   constructor() {
     this.loadCourses();
-    this.loadCatalogs();
+    this.loadUnitCatalogs();
     this.loadContent();
   }
 
@@ -295,6 +317,21 @@ export class ContentPageComponent {
     this.selectedCourse.set(value);
     const hasSelectedSubject = this.subjectOptions().some((subject) => subject.id === this.selectedSubject());
     if (!hasSelectedSubject) {
+      this.selectedSubject.set('all');
+    }
+    this.pageIndex.set(0);
+    this.loadContent();
+  }
+
+  setEducationStage(value: EducationStage): void {
+    if (this.selectedEducationStage() === value) {
+      return;
+    }
+
+    this.selectedEducationStage.set(value);
+    const hasSelectedCourse = this.courseOptions().some((course) => course.id === this.selectedCourse());
+    if (!hasSelectedCourse) {
+      this.selectedCourse.set('all');
       this.selectedSubject.set('all');
     }
     this.pageIndex.set(0);
@@ -404,6 +441,11 @@ export class ContentPageComponent {
   }
 
   openClassDialog(unitId: number): void {
+    if (!this.classCatalogs()) {
+      this.loadClassCatalogs(() => this.openClassDialog(unitId));
+      return;
+    }
+
     this.currentUnitId.set(unitId);
     this.classTitleDraft.set('');
     this.classDurationDraft.set(this.durationOptions()[0]?.code ?? '');
@@ -520,7 +562,7 @@ export class ContentPageComponent {
         next: () => {
           this.closeDialogs();
           this.snackBar.open('Unidad creada en borrador', 'Cerrar', { duration: 2600 });
-          this.loadCatalogs();
+          this.loadUnitCatalogs();
           this.loadContent();
         },
         error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible crear la unidad')
@@ -747,20 +789,70 @@ export class ContentPageComponent {
     return type;
   }
 
+  iconForSubject(subjectName: string): string {
+    const normalized = this.normalizeCompare(subjectName);
+    if (normalized.includes('matemat')) return 'calculate';
+    if (normalized.includes('ciencia')) return 'eco';
+    if (normalized.includes('historia')) return 'account_balance';
+    if (normalized.includes('arte')) return 'palette';
+    if (normalized.includes('musica')) return 'music_note';
+    if (normalized.includes('tecnolog')) return 'computer';
+    if (normalized.includes('fisica') || normalized.includes('deporte')) return 'sports_soccer';
+    if (normalized.includes('religion')) return 'volunteer_activism';
+    if (normalized.includes('ingles') || normalized.includes('idioma')) return 'translate';
+    return 'menu_book';
+  }
+
+  toneForSubject(subjectName: string): string {
+    const normalized = this.normalizeCompare(subjectName);
+    if (normalized.includes('matemat')) return 'green';
+    if (normalized.includes('ciencia')) return 'lime';
+    if (normalized.includes('historia')) return 'blue';
+    if (normalized.includes('arte')) return 'cobalt';
+    if (normalized.includes('musica')) return 'orange';
+    if (normalized.includes('tecnolog')) return 'cyan';
+    if (normalized.includes('fisica') || normalized.includes('deporte')) return 'red';
+    if (normalized.includes('religion')) return 'yellow';
+    if (normalized.includes('ingles') || normalized.includes('idioma')) return 'indigo';
+    return 'purple';
+  }
+
   visibleUnits(): ContentUnitView[] {
     return this.pagedUnits();
   }
 
-  private loadCatalogs(): void {
-    forkJoin({
-      unitCatalogs: this.planningApiService.getUnitCatalogs(),
-      classCatalogs: this.planningApiService.getClassCatalogs()
-    }).subscribe({
-      next: ({ unitCatalogs, classCatalogs }) => {
-        this.unitCatalogs.set(unitCatalogs);
-        this.classCatalogs.set(classCatalogs);
-      },
+  private loadUnitCatalogs(): void {
+    this.planningApiService.getUnitCatalogs().subscribe({
+      next: (unitCatalogs) => this.unitCatalogs.set(unitCatalogs),
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los catálogos de contenido')
+    });
+  }
+
+  private loadClassCatalogs(onLoaded?: () => void): void {
+    if (this.classCatalogs()) {
+      onLoaded?.();
+      return;
+    }
+    if (onLoaded) {
+      this.classCatalogsLoadedCallbacks.push(onLoaded);
+    }
+    if (this.classCatalogsLoading) {
+      return;
+    }
+
+    this.classCatalogsLoading = true;
+    this.planningApiService.getClassCatalogs().subscribe({
+      next: (classCatalogs) => {
+        this.classCatalogs.set(classCatalogs);
+        this.classCatalogsLoading = false;
+        const callbacks = this.classCatalogsLoadedCallbacks.splice(0);
+        callbacks.forEach((callback) => callback());
+      },
+      error: (error: HttpErrorResponse) => {
+        this.classCatalogsLoading = false;
+        this.classCatalogsLoadedCallbacks = [];
+        this.showError(error, 'No fue posible cargar las duraciones de clase');
+      }
     });
   }
 
@@ -778,6 +870,7 @@ export class ContentPageComponent {
   }
 
   private loadContent(showLoader = true): void {
+    const requestId = ++this.contentRequestId;
     if (showLoader) {
       this.isLoading.set(true);
     }
@@ -794,11 +887,17 @@ export class ContentPageComponent {
       classes: this.planningApiService.getClasses({ year, courseId, subjectId, semester, documentType, search })
     }).subscribe({
       next: ({ summary, classes }) => {
+        if (requestId !== this.contentRequestId) {
+          return;
+        }
         this.summary.set(summary);
         this.units.set(this.buildUnits(summary, classes));
         this.isLoading.set(false);
       },
       error: (error: HttpErrorResponse) => {
+        if (requestId !== this.contentRequestId) {
+          return;
+        }
         this.isLoading.set(false);
         this.showError(error, 'No fue posible cargar el contenido académico');
       }
@@ -844,6 +943,7 @@ export class ContentPageComponent {
 
       return left - right;
     });
+    const firstVisibleUnitId = sortedUnitIds.find((unitId) => (classesByUnit.get(unitId)?.length ?? 0) > 0);
 
     return sortedUnitIds.flatMap((unitId, index) => {
       const summaryUnit = summaryUnitsById.get(unitId) ?? null;
@@ -870,7 +970,7 @@ export class ContentPageComponent {
         weekLabel: summaryUnit?.weekRange ?? fallbackWeekLabel,
         progress: summaryUnit?.progressPercent ?? (unitClasses.length > 0 ? 100 : 0),
         color: palette[index % palette.length],
-        expanded: index === 0,
+        expanded: unitId === firstVisibleUnitId,
         classes: unitClasses,
         totalDocuments
       }];
@@ -1191,6 +1291,12 @@ export class ContentPageComponent {
 
   private compareLabels(left: string, right: string): number {
     return left.localeCompare(right, 'es', { numeric: true, sensitivity: 'base' });
+  }
+
+  private matchesEducationStage(course: Course, stage: EducationStage): boolean {
+    const label = this.normalizeCompare(`${course.level} ${course.name} ${course.code}`);
+    const isMedia = label.includes('media') || label.includes('medio');
+    return stage === 'media' ? isMedia : !isMedia;
   }
 
   private normalizeCompare(value: string): string {

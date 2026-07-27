@@ -27,6 +27,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +43,8 @@ import java.util.StringJoiner;
 @Component
 public class AdministrationJdbcAdapter implements ManageAdministrationPort, RegisterSecurityAuditPort {
 
+    private static final ZoneId STORAGE_ZONE = ZoneOffset.UTC;
+    private static final ZoneId DISPLAY_ZONE = ZoneId.of("America/Santiago");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     private static final DateTimeFormatter DISPLAY_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DISPLAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
@@ -631,7 +635,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         sql.append(" ORDER BY logs.\"OCURRIDO_AT\" DESC");
 
         return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
-            LocalDateTime occurredAt = rs.getTimestamp("OCURRIDO_AT").toLocalDateTime();
+            LocalDateTime occurredAt = readLocalDateTime(rs.getTimestamp("OCURRIDO_AT"));
             return new AdministrationAuditLogItem(
                     rs.getLong("ID"),
                     occurredAt.format(DATE_TIME_FORMATTER),
@@ -661,28 +665,30 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         jdbcTemplate.update("""
                 INSERT INTO "ADMIN_AUDIT_LOGS" ("USUARIO_ID", "NOMBRE_USUARIO", "TIPO", "ACCION", "CONTEXTO", "OCURRIDO_AT")
                 VALUES (?, ?, ?, ?, ?, ?)
-                """, userId, actorDisplay, type, actionLabel, context, Timestamp.valueOf(occurredAt));
+                """, userId, actorDisplay, type, actionLabel, context, toStorageTimestamp(occurredAt));
     }
 
     @Override
     public void registerSuccessfulLogin(String username) {
         findUserIdByUsername(username).ifPresent(userId -> {
+            Timestamp occurredAt = toStorageTimestamp(LocalDateTime.now(DISPLAY_ZONE));
             jdbcTemplate.update("""
                     UPDATE "ADMIN_USER_SETTINGS"
-                    SET "ULTIMO_ACCESO_AT" = CURRENT_TIMESTAMP,
-                        "ACTUALIZADO_AT" = CURRENT_TIMESTAMP
+                    SET "ULTIMO_ACCESO_AT" = ?,
+                        "ACTUALIZADO_AT" = ?
                     WHERE "USUARIO_ID" = ?
-                    """, userId);
-            recordAuditEvent(username, "LOGIN", "Inicio sesion en el sistema", "Acceso autenticado correctamente", LocalDateTime.now());
+                    """, occurredAt, occurredAt, userId);
+            recordAuditEvent(username, "LOGIN", "Inicio sesion en el sistema", "Acceso autenticado correctamente", LocalDateTime.now(DISPLAY_ZONE));
         });
     }
 
     @Override
     public void registerFailedLogin(String username) {
+        Timestamp occurredAt = toStorageTimestamp(LocalDateTime.now(DISPLAY_ZONE));
         jdbcTemplate.update("""
                 INSERT INTO "ADMIN_AUDIT_LOGS" ("USUARIO_ID", "NOMBRE_USUARIO", "TIPO", "ACCION", "CONTEXTO", "OCURRIDO_AT")
-                VALUES (NULL, 'Sistema Admin', 'FAILED_ATTEMPT', 'Intento de acceso fallido', ?, CURRENT_TIMESTAMP)
-                """, "Usuario: " + (username == null || username.isBlank() ? "desconocido" : username.trim()));
+                VALUES (NULL, 'Sistema Admin', 'FAILED_ATTEMPT', 'Intento de acceso fallido', ?, ?)
+                """, "Usuario: " + (username == null || username.isBlank() ? "desconocido" : username.trim()), occurredAt);
     }
 
     private RowMapper<AdministrationUserListItem> userListMapper() {
@@ -1278,7 +1284,15 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     private LocalDateTime readLocalDateTime(Timestamp timestamp) {
-        return timestamp == null ? null : timestamp.toLocalDateTime();
+        return timestamp == null
+                ? null
+                : timestamp.toLocalDateTime().atZone(STORAGE_ZONE).withZoneSameInstant(DISPLAY_ZONE).toLocalDateTime();
+    }
+
+    private Timestamp toStorageTimestamp(LocalDateTime timestamp) {
+        return timestamp == null
+                ? null
+                : Timestamp.valueOf(timestamp.atZone(DISPLAY_ZONE).withZoneSameInstant(STORAGE_ZONE).toLocalDateTime());
     }
 
     private LocalDate readLocalDate(Date value) {

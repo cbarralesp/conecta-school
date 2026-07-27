@@ -1446,10 +1446,12 @@ export class PlanningsClassCreatePageComponent {
           this.diversityNotes.set(suggestion.diversitySupport);
         }
 
+        const providerLabel = this.resolveSuggestionProviderLabel(suggestion.providerUsed, suggestion.statusMessage);
+
         this.isGeneratingSuggestion.set(false);
-        this.suggestionStatus.set(suggestion.statusMessage);
+        this.suggestionStatus.set(`${suggestion.statusMessage} Proveedor: ${providerLabel}.`);
         this.snackBar.open(
-          `Sugerencia aplicada desde ${this.resolveSuggestionProviderLabel(suggestion.providerUsed)} para ${suggestionPayload.objectiveCode}.`,
+          `Sugerencia aplicada desde ${providerLabel} para ${suggestionPayload.objectiveCode}.`,
           'Cerrar',
           { duration: 3600 }
         );
@@ -2483,20 +2485,34 @@ export class PlanningsClassCreatePageComponent {
     return fromCatalog?.subItems ?? [];
   }
 
-  private resolveSuggestionProviderLabel(providerUsed: string): string {
-    if (providerUsed?.startsWith('OPENAI:')) {
-      return `OpenAI (${providerUsed.replace('OPENAI:', '')})`;
+  private resolveSuggestionProviderLabel(providerUsed: string, statusMessage = ''): string {
+    const rawProvider = (providerUsed ?? '').trim().replace(/^['"]|['"]$/g, '');
+    const providerProbe = `${rawProvider} ${statusMessage ?? ''}`.toUpperCase();
+
+    if (providerProbe.includes('OPENAI')) {
+      const model = this.extractSuggestionProviderModel(rawProvider, 'OPENAI');
+      return model ? `OpenAI (${model})` : 'OpenAI';
     }
-    if (providerUsed?.startsWith('DEEPSEEK:')) {
-      return `DeepSeek (${providerUsed.replace('DEEPSEEK:', '')})`;
+    if (providerProbe.includes('DEEPSEEK')) {
+      const model = this.extractSuggestionProviderModel(rawProvider, 'DEEPSEEK');
+      return model ? `DeepSeek (${model})` : 'DeepSeek';
     }
-    if (providerUsed?.startsWith('GEMINI:')) {
-      return `Gemini (${providerUsed.replace('GEMINI:', '')})`;
+    if (providerProbe.includes('GEMINI')) {
+      const model = this.extractSuggestionProviderModel(rawProvider, 'GEMINI');
+      return model ? `Gemini (${model})` : 'Gemini';
     }
-    if (providerUsed?.startsWith('LOCAL_FALLBACK:')) {
+    if (providerProbe.includes('LOCAL_FALLBACK')) {
       return 'respaldo interno';
     }
     return 'proveedor interno';
+  }
+
+  private extractSuggestionProviderModel(providerUsed: string, providerPrefix: 'OPENAI' | 'DEEPSEEK' | 'GEMINI'): string {
+    const [prefix, ...modelParts] = providerUsed.split(':');
+    if (prefix?.trim().toUpperCase() !== providerPrefix) {
+      return '';
+    }
+    return modelParts.join(':').trim();
   }
 
   private extractSelectedObjectiveUuids(): string[] | undefined {

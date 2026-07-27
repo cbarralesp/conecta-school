@@ -593,9 +593,12 @@ public class PlanningClassJdbcAdapter implements
 
         sql.append(" ORDER BY cp.\"FECHA_PLANIFICADA\" DESC, cp.\"ID\" DESC");
 
-        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> mapPlanningClass(rs), args.toArray()).stream()
-                .map(planningClass -> withDocuments(planningClass, documentType))
-                .toList();
+        List<PlanningClass> planningClasses = jdbcTemplate.query(
+                sql.toString(),
+                (rs, rowNum) -> mapPlanningClass(rs),
+                args.toArray()
+        );
+        return withRelatedData(planningClasses, documentType);
     }
 
     @Override
@@ -890,6 +893,232 @@ public class PlanningClassJdbcAdapter implements
                 findCurriculumObjectivesByClassId(planningClass.id()),
                 planningClass.objectiveSelections()
         );
+    }
+
+    private List<PlanningClass> withRelatedData(
+            List<PlanningClass> planningClasses,
+            PlanningDocumentFileType documentType
+    ) {
+        if (planningClasses.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> classIds = planningClasses.stream().map(PlanningClass::id).toList();
+        java.util.Map<Long, List<PlanningClassDocument>> documentsByClass =
+                findDocumentsByClassIds(classIds, documentType);
+        java.util.Map<Long, List<UUID>> objectiveIdsByClass =
+                findCurriculumObjectiveIdsByClassIds(classIds);
+        java.util.Map<Long, List<CurriculumObjective>> objectivesByClass =
+                findCurriculumObjectivesByClassIds(classIds);
+
+        return planningClasses.stream()
+                .map(planningClass -> copyWithRelatedData(
+                        planningClass,
+                        documentsByClass.getOrDefault(planningClass.id(), List.of()),
+                        objectiveIdsByClass.getOrDefault(planningClass.id(), List.of()),
+                        objectivesByClass.getOrDefault(planningClass.id(), List.of())
+                ))
+                .toList();
+    }
+
+    private java.util.Map<Long, List<PlanningClassDocument>> findDocumentsByClassIds(
+            List<Long> classIds,
+            PlanningDocumentFileType documentType
+    ) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT
+                    "ID",
+                    "CLASE_ID",
+                    "NOMBRE_ORIGINAL",
+                    "NOMBRE_ARCHIVO",
+                    "EXTENSION",
+                    "MIME_TYPE",
+                    "PESO_BYTES",
+                    "RUTA_ARCHIVO",
+                    COALESCE("TIPO_ARCHIVO", CASE
+                        WHEN LOWER("EXTENSION") IN ('doc', 'docx') THEN 'WORD'
+                        WHEN LOWER("EXTENSION") = 'pdf' THEN 'PDF'
+                        WHEN LOWER("EXTENSION") IN ('ppt', 'pptx') THEN 'PPT'
+                        ELSE 'OTRO'
+                    END) AS "TIPO_ARCHIVO",
+                    "VISIBLE_ALUMNOS",
+                    "FECHA_CARGA"
+                FROM "CLASES_PLANIFICACION_DOCUMENTOS"
+                WHERE "CLASE_ID" IN (%s)
+                  AND COALESCE("ELIMINADO", FALSE) = FALSE
+                  AND COALESCE("ESTADO", 'ACTIVO') = 'ACTIVO'
+                """.formatted(placeholders(classIds.size())));
+
+        java.util.List<Object> args = new java.util.ArrayList<>(classIds);
+        if (documentType != null) {
+            sql.append("""
+                     AND COALESCE("TIPO_ARCHIVO", CASE
+                        WHEN LOWER("EXTENSION") IN ('doc', 'docx') THEN 'WORD'
+                        WHEN LOWER("EXTENSION") = 'pdf' THEN 'PDF'
+                        WHEN LOWER("EXTENSION") IN ('ppt', 'pptx') THEN 'PPT'
+                        ELSE 'OTRO'
+                     END) = ?
+                    """);
+            args.add(documentType.name());
+        }
+        sql.append(" ORDER BY \"CLASE_ID\", \"FECHA_CARGA\" DESC, \"ID\" DESC");
+
+        java.util.Map<Long, List<PlanningClassDocument>> result = new java.util.LinkedHashMap<>();
+        jdbcTemplate.query(sql.toString(), (rs) -> {
+            long classId = rs.getLong("CLASE_ID");
+            result.computeIfAbsent(classId, ignored -> new java.util.ArrayList<>()).add(mapDocument(rs));
+        }, args.toArray());
+        return result;
+    }
+
+    private java.util.Map<Long, List<UUID>> findCurriculumObjectiveIdsByClassIds(List<Long> classIds) {
+        java.util.Map<Long, List<UUID>> result = new java.util.LinkedHashMap<>();
+        try {
+            jdbcTemplate.query("""
+                    SELECT planning_class_id, objective_id
+                    FROM planning_class_curriculum_objectives
+                    WHERE planning_class_id IN (%s)
+                    ORDER BY planning_class_id, objective_id
+                    """.formatted(placeholders(classIds.size())), (rs) -> {
+                long classId = rs.getLong("planning_class_id");
+                UUID objectiveId = rs.getObject("objective_id", UUID.class);
+                result.computeIfAbsent(classId, ignored -> new java.util.ArrayList<>()).add(objectiveId);
+            }, classIds.toArray());
+        } catch (BadSqlGrammarException ignored) {
+            return java.util.Map.of();
+        }
+        return result;
+    }
+
+    private java.util.Map<Long, List<CurriculumObjective>> findCurriculumObjectivesByClassIds(List<Long> classIds) {
+        java.util.List<ClassObjectiveRow> rows;
+        try {
+            rows = jdbcTemplate.query("""
+                    SELECT
+                        pcco.planning_class_id,
+                        o.id,
+                        o.grade_id,
+                        o.codigo,
+                        o.tipo,
+                        COALESCE(o.eje, '') AS eje,
+                        o.descripcion
+                    FROM planning_class_curriculum_objectives pcco
+                    JOIN curriculum_objectives o ON o.id = pcco.objective_id
+                    JOIN curriculum_grades g ON g.id = o.grade_id
+                    JOIN curriculum_subjects s ON s.id = g.subject_id
+                    WHERE pcco.planning_class_id IN (%s)
+                    ORDER BY
+                        pcco.planning_class_id,
+                        s.nombre,
+                        CAST(g.grado AS INTEGER),
+                        CASE o.tipo
+                            WHEN 'conocimiento' THEN 1
+                            WHEN 'habilidad' THEN 2
+                            ELSE 3
+                        END,
+                        o.codigo
+                    """.formatted(placeholders(classIds.size())), (rs, rowNum) -> new ClassObjectiveRow(
+                    rs.getLong("planning_class_id"),
+                    new CurriculumObjective(
+                            rs.getObject("id", UUID.class),
+                            rs.getObject("grade_id", UUID.class),
+                            rs.getString("codigo"),
+                            rs.getString("tipo"),
+                            rs.getString("eje"),
+                            rs.getString("descripcion"),
+                            List.of()
+                    )
+            ), classIds.toArray());
+        } catch (BadSqlGrammarException ignored) {
+            return java.util.Map.of();
+        }
+
+        java.util.Map<UUID, List<String>> subItemsByObjective = findCurriculumSubItemsByObjectiveIds(
+                rows.stream().map(row -> row.objective().id()).distinct().toList()
+        );
+        java.util.Map<Long, List<CurriculumObjective>> result = new java.util.LinkedHashMap<>();
+        for (ClassObjectiveRow row : rows) {
+            CurriculumObjective objective = row.objective();
+            CurriculumObjective hydratedObjective = new CurriculumObjective(
+                    objective.id(),
+                    objective.gradeId(),
+                    objective.codigo(),
+                    objective.tipo(),
+                    objective.eje(),
+                    objective.descripcion(),
+                    subItemsByObjective.getOrDefault(objective.id(), List.of())
+            );
+            result.computeIfAbsent(row.classId(), ignored -> new java.util.ArrayList<>()).add(hydratedObjective);
+        }
+        return result;
+    }
+
+    private java.util.Map<UUID, List<String>> findCurriculumSubItemsByObjectiveIds(List<UUID> objectiveIds) {
+        if (objectiveIds.isEmpty()) {
+            return java.util.Map.of();
+        }
+
+        java.util.Map<UUID, List<String>> result = new java.util.LinkedHashMap<>();
+        try {
+            jdbcTemplate.query("""
+                    SELECT objective_id, descripcion
+                    FROM curriculum_objective_items
+                    WHERE objective_id IN (%s)
+                    ORDER BY objective_id, orden
+                    """.formatted(placeholders(objectiveIds.size())), (rs) -> {
+                UUID objectiveId = rs.getObject("objective_id", UUID.class);
+                result.computeIfAbsent(objectiveId, ignored -> new java.util.ArrayList<>())
+                        .add(rs.getString("descripcion"));
+            }, objectiveIds.toArray());
+        } catch (BadSqlGrammarException ignored) {
+            return java.util.Map.of();
+        }
+        return result;
+    }
+
+    private PlanningClass copyWithRelatedData(
+            PlanningClass planningClass,
+            List<PlanningClassDocument> documents,
+            List<UUID> objectiveIds,
+            List<CurriculumObjective> objectives
+    ) {
+        return new PlanningClass(
+                planningClass.id(),
+                planningClass.unitId(),
+                planningClass.subjectId(),
+                planningClass.subjectName(),
+                planningClass.courseId(),
+                planningClass.courseName(),
+                planningClass.unitNumberLabel(),
+                planningClass.unitName(),
+                planningClass.title(),
+                planningClass.plannedDate(),
+                planningClass.durationCode(),
+                planningClass.durationLabel(),
+                planningClass.objectiveCode(),
+                planningClass.objectiveTitle(),
+                planningClass.objectiveDescription(),
+                planningClass.evaluationType(),
+                planningClass.startActivity(),
+                planningClass.developmentActivity(),
+                planningClass.closingActivity(),
+                planningClass.status(),
+                planningClass.publishedToStudents(),
+                planningClass.createdBy(),
+                planningClass.createdAt(),
+                planningClass.updatedAt(),
+                documents,
+                objectiveIds,
+                objectives,
+                planningClass.objectiveSelections()
+        );
+    }
+
+    private String placeholders(int size) {
+        return String.join(", ", java.util.Collections.nCopies(size, "?"));
+    }
+
+    private record ClassObjectiveRow(Long classId, CurriculumObjective objective) {
     }
 
     private String resolveUnitNumberLabel(String unitNumber) {
