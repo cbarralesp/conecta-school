@@ -1,9 +1,10 @@
 services:
   db:
-    image: ${DB_IMAGE:-crbarrales/conectaschool:db-latest}
+    image: ${DB_IMAGE:-crbarrales/conectaschool-tfs:db-latest}
     container_name: sistema_escolar_db
     restart: always
     environment:
+      TZ: America/Santiago
       POSTGRES_DB: ${POSTGRES_DB:-sistema_escolar}
       POSTGRES_USER: ${POSTGRES_USER:-escolar_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-escolar_pass}
@@ -11,19 +12,29 @@ services:
       - postgres_data:/var/lib/postgresql/data
     expose:
       - "5432"
+<<<<<<< HEAD
+=======
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-escolar_user} -d ${POSTGRES_DB:-sistema_escolar}"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 600s
+>>>>>>> 9824f44 (chore(db): refresh init data and deploy config)
 
   backend:
-    image: ${BACKEND_IMAGE:-crbarrales/conectaschool:backend-latest}
+    image: ${BACKEND_IMAGE:-crbarrales/conectaschool-tfs:backend-latest}
     container_name: sistema_escolar_backend
     restart: always
     depends_on:
       - db
     environment:
+      TZ: America/Santiago
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/sistema_escolar}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-escolar_user}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-escolar_pass}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://127.0.0.1:4200,http://localhost,http://127.0.0.1,http://app.codestress.cl,https://app.codestress.cl}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://127.0.0.1:4200,http://localhost,http://127.0.0.1,http://app.codestress.cl,https://app.codestress.cl,http://tfs.conectaschool.cl,https://tfs.conectaschool.cl}
       APP_SECURITY_JWT_SECRET: ${APP_SECURITY_JWT_SECRET:-change-this-jwt-secret-in-production}
       JAVA_OPTS: ${JAVA_OPTS:--Xms128m -Xmx512m}
       SERVER_ADDRESS: 0.0.0.0
@@ -34,9 +45,11 @@ services:
       - backend_uploads:/app/uploads
 
   frontend:
-    image: ${FRONTEND_IMAGE:-crbarrales/conectaschool:frontend-latest}
+    image: ${FRONTEND_IMAGE:-crbarrales/conectaschool-tfs:frontend-latest}
     container_name: sistema_escolar_frontend
     restart: always
+    environment:
+      TZ: America/Santiago
     depends_on:
       - backend
     ports:
