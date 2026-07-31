@@ -269,6 +269,9 @@ export class PlanningsClassCreatePageComponent {
   readonly preferredPlanningUnitId = signal<number | null>(null);
   readonly editingClassId = signal<number | null>(null);
   readonly hydratedClassId = signal<number | null>(null);
+  readonly isEditingClass = computed(() => this.editingClassId() != null);
+  readonly pageTitle = computed(() => this.isEditingClass() ? 'Editar clase' : 'Nueva clase');
+  readonly saveClassButtonLabel = computed(() => this.isEditingClass() ? 'Guardar cambios' : 'Guardar clase');
   readonly validationMessage = signal('');
   readonly step2ValidationMessage = signal('');
   readonly step3ValidationMessage = signal('');
@@ -1625,9 +1628,12 @@ export class PlanningsClassCreatePageComponent {
         ? semesterParam
         : String(resolveCurrentAcademicSemester())
     );
-    this.preferredUnitNumber.set(unitNumberParam ? Number(unitNumberParam) : null);
-    this.preferredPlanningUnitId.set(unitIdParam ? Number(unitIdParam) : null);
-    this.editingClassId.set(classIdParam ? Number(classIdParam) : null);
+    const unitNumber = unitNumberParam ? Number(unitNumberParam) : null;
+    const unitId = unitIdParam ? Number(unitIdParam) : null;
+    const classId = classIdParam ? Number(classIdParam) : null;
+    this.preferredUnitNumber.set(Number.isFinite(unitNumber) ? unitNumber : null);
+    this.preferredPlanningUnitId.set(Number.isFinite(unitId) ? unitId : null);
+    this.editingClassId.set(Number.isFinite(classId) ? classId : null);
   }
 
   private syncCourseSelection(preferredValue?: string): void {
@@ -1691,7 +1697,7 @@ export class PlanningsClassCreatePageComponent {
         this.availablePrograms.set([]);
         this.selectedProgram.set(null);
         this.selectedUnidad.set(null);
-        this.isLoading.set(false);
+        this.finishProgramLookupWithoutProgram();
       }
       return;
     }
@@ -1708,7 +1714,7 @@ export class PlanningsClassCreatePageComponent {
         if (!selected) {
           this.selectedProgram.set(null);
           this.selectedUnidad.set(null);
-          this.isLoading.set(false);
+          this.finishProgramLookupWithoutProgram();
           return;
         }
 
@@ -1738,6 +1744,11 @@ export class PlanningsClassCreatePageComponent {
 
             this.selectedProgram.set(null);
             this.selectedUnidad.set(null);
+            if (this.editingClassId() != null) {
+              this.hydrateEditingClass();
+              return;
+            }
+
             this.isLoading.set(false);
             this.showError(error, 'No fue posible cargar el detalle del programa');
           }
@@ -1751,10 +1762,24 @@ export class PlanningsClassCreatePageComponent {
         this.availablePrograms.set([]);
         this.selectedProgram.set(null);
         this.selectedUnidad.set(null);
+        if (this.editingClassId() != null) {
+          this.hydrateEditingClass();
+          return;
+        }
+
         this.isLoading.set(false);
         this.showError(error, 'No fue posible buscar el programa oficial');
       }
     });
+  }
+
+  private finishProgramLookupWithoutProgram(): void {
+    if (this.editingClassId() != null) {
+      this.hydrateEditingClass();
+      return;
+    }
+
+    this.isLoading.set(false);
   }
 
   private extractGradeFromCourse(courseName: string): string {
@@ -2229,7 +2254,7 @@ export class PlanningsClassCreatePageComponent {
   private resolveUnitForEditing(unitNumberLabel: string, unitName: string, planningUnitId?: number | null): UnidadClase | null {
     const units = this.unidadesDisponibles();
     if (!units.length) {
-      return null;
+      return this.buildFallbackUnidadForEditing(unitNumberLabel, unitName, planningUnitId);
     }
 
     if (planningUnitId != null) {
@@ -2268,6 +2293,24 @@ export class PlanningsClassCreatePageComponent {
       ?? units.find((unit) => this.normalizeCompare(unit.nombre) === normalizedName)
       ?? units[0]
       ?? null;
+  }
+
+  private buildFallbackUnidadForEditing(unitNumberLabel: string, unitName: string, planningUnitId?: number | null): UnidadClase {
+    const resolvedNumber = this.extractFirstNumber(unitNumberLabel)
+      ?? this.preferredUnitNumber()
+      ?? 1;
+    const resolvedName = unitName?.trim()
+      || unitNumberLabel?.trim()
+      || `Unidad ${resolvedNumber}`;
+
+    return {
+      id: planningUnitId ?? -Math.abs(resolvedNumber),
+      numero: resolvedNumber,
+      nombre: resolvedName,
+      clasesEstimadas: 0,
+      oaDisponibles: 0,
+      ejes: []
+    };
   }
 
   private resolveSelectedObjectiveIdsForClass(planningClass: {
@@ -2803,13 +2846,20 @@ export class PlanningsClassCreatePageComponent {
     }
 
     const catalogs = this.classCatalogs()?.units ?? [];
+    const preferredPlanningUnitId = this.preferredPlanningUnitId();
+    if (preferredPlanningUnitId != null) {
+      const exactPlanningUnit = catalogs.find((unit) => unit.unitId === preferredPlanningUnitId);
+      if (exactPlanningUnit) {
+        return exactPlanningUnit;
+      }
+    }
+
     const filtered = catalogs.filter((unit) => this.matchesSelectedCatalogContext(unit));
 
     if (!filtered.length) {
       return null;
     }
 
-    const preferredPlanningUnitId = this.preferredPlanningUnitId();
     if (preferredPlanningUnitId != null) {
       const exactPlanningUnit = filtered.find((unit) => unit.unitId === preferredPlanningUnitId);
       if (exactPlanningUnit) {

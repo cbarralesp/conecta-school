@@ -64,7 +64,6 @@
           <span class="sr-only">Curso</span>
           <mat-icon>school</mat-icon>
           <select [ngModel]="selectedCourse()" (ngModelChange)="setCourseFilter($event)">
-            <option [ngValue]="'all'">Todos los cursos</option>
             @for (course of courseOptions(); track course.id) {
               <option [ngValue]="course.id">{{ course.name }}</option>
             }
@@ -159,7 +158,8 @@
                     <div class="content-card__copy">
                       <h2>
                         <span
-                          [class]="'content-card__unit-badge content-card__unit-badge--' + unit.color">
+                          [class]="'content-card__unit-badge content-card__unit-badge--' + unit.color"
+                          [style.background]="unit.colorHex ?? null">
                           {{ unit.numberLabel }}
                         </span>
                         <span class="content-card__unit-title">{{ unit.title }}</span>
@@ -193,7 +193,11 @@
                     } @else {
                       @for (contentClass of visibleClasses(unit); track contentClass.id) {
                         <article class="class-card">
-                          <span class="class-card__play"><mat-icon>play_arrow</mat-icon></span>
+                          <span
+                            [class]="'class-card__number class-card__number--' + unit.color"
+                            [style.background]="unit.colorHex ?? null">
+                            {{ contentClass.classNumber }}
+                          </span>
 
                           <div class="class-card__content">
                             <button type="button" class="class-card__head" (click)="toggleClass(unit.id, contentClass.id)">

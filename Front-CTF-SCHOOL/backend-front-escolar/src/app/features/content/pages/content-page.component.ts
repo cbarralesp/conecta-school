@@ -61,6 +61,7 @@ type ContentUnitView = {
   weekLabel: string;
   progress: number;
   color: 'blue' | 'purple' | 'green' | 'orange';
+  colorHex: string | null;
   expanded: boolean;
   classes: ContentClassView[];
   totalDocuments: number;
@@ -96,7 +97,7 @@ export class ContentPageComponent {
   readonly selectedYear = signal<number | null>(new Date().getFullYear());
   readonly selectedCourse = signal<number | 'all'>('all');
   readonly selectedSubject = signal<number | 'all'>('all');
-  readonly selectedSemester = signal<SemesterFilter>('all');
+  readonly selectedSemester = signal<SemesterFilter>(this.resolveDefaultSemesterFilter());
   readonly selectedEducationStage = signal<EducationStage>('basic');
   readonly units = signal<ContentUnitView[]>([]);
   readonly summary = signal<PlanningSummary | null>(null);
@@ -188,18 +189,17 @@ export class ContentPageComponent {
   readonly semesterChips = computed(() => {
     const units = this.units();
     return [
-      { key: 'S1' as const, label: 'Semestre 1', count: units.filter((unit) => this.resolveSemester(unit) === 'S1').length },
-      { key: 'S2' as const, label: 'Semestre 2', count: units.filter((unit) => this.resolveSemester(unit) === 'S2').length }
+      { key: 'S1' as const, label: 'Primer semestre', count: units.filter((unit) => this.resolveSemester(unit) === 'S1').length },
+      { key: 'S2' as const, label: 'Segundo semestre', count: units.filter((unit) => this.resolveSemester(unit) === 'S2').length }
     ];
   });
 
-  readonly semesterOptions = computed(() => [
-    { value: 'all' as const, label: 'Todos los semestres' },
-    ...this.semesterChips().map((chip) => ({
+  readonly semesterOptions = computed(() =>
+    this.semesterChips().map((chip) => ({
       value: chip.key,
-      label: `${chip.label} (${chip.count})`
+      label: chip.label
     }))
-  ]);
+  );
 
   readonly assignmentOptions = computed(() => this.unitCatalogs()?.teachingAssignments ?? []);
   readonly yearOptions = computed(() => {
@@ -229,9 +229,13 @@ export class ContentPageComponent {
   });
   readonly selectedCourseName = computed(() => {
     const selectedCourse = this.selectedCourse();
-    return selectedCourse === 'all'
-      ? 'Todos los cursos'
-      : this.courseOptions().find((course) => course.id === selectedCourse)?.name ?? 'Curso';
+    if (selectedCourse !== 'all') {
+      return this.courseOptions().find((course) => course.id === selectedCourse)?.name ?? 'Curso';
+    }
+    const defaultCourseId = this.resolveDefaultCourseId();
+    return defaultCourseId === 'all'
+      ? 'Curso'
+      : this.courseOptions().find((course) => course.id === defaultCourseId)?.name ?? 'Curso';
   });
   readonly subjectOptions = computed(() => {
     const selectedCourse = this.selectedCourse();
@@ -303,7 +307,7 @@ export class ContentPageComponent {
     this.selectedYear.set(value);
     const hasSelectedCourse = this.courseOptions().some((course) => course.id === this.selectedCourse());
     if (!hasSelectedCourse) {
-      this.selectedCourse.set('all');
+      this.selectedCourse.set(this.resolveDefaultCourseId());
     }
     const hasSelectedSubject = this.subjectOptions().some((subject) => subject.id === this.selectedSubject());
     if (!hasSelectedSubject) {
@@ -331,7 +335,7 @@ export class ContentPageComponent {
     this.selectedEducationStage.set(value);
     const hasSelectedCourse = this.courseOptions().some((course) => course.id === this.selectedCourse());
     if (!hasSelectedCourse) {
-      this.selectedCourse.set('all');
+      this.selectedCourse.set(this.resolveDefaultCourseId());
       this.selectedSubject.set('all');
     }
     this.pageIndex.set(0);
@@ -361,7 +365,7 @@ export class ContentPageComponent {
   }
 
   setSemesterFilter(value: SemesterFilter): void {
-    this.selectedSemester.set(this.selectedSemester() === value ? 'all' : value);
+    this.selectedSemester.set(value);
     this.pageIndex.set(0);
     this.loadContent();
   }
@@ -864,9 +868,38 @@ export class ContentPageComponent {
         if (selectedYear != null && !this.yearOptions().some((year) => year.value === selectedYear)) {
           this.selectedYear.set(this.yearOptions().at(-1)?.value ?? null);
         }
+        this.ensureSelectedCourse();
+        this.loadContent(false);
       },
       error: (error: HttpErrorResponse) => this.showError(error, 'No fue posible cargar los cursos')
     });
+  }
+
+  private ensureSelectedCourse(): void {
+    const hasSelectedCourse = this.courseOptions().some((course) => course.id === this.selectedCourse());
+    if (!hasSelectedCourse) {
+      this.selectedCourse.set(this.resolveDefaultCourseId());
+    }
+  }
+
+  private resolveDefaultCourseId(): number | 'all' {
+    const options = this.courseOptions();
+    const exactPrekinderA = options.find((course) => this.normalizeCompare(course.name) === 'prekinder a');
+    if (exactPrekinderA) {
+      return exactPrekinderA.id;
+    }
+
+    const prekinder = options.find((course) => this.normalizeCompare(course.name).includes('prekinder'));
+    if (prekinder) {
+      return prekinder.id;
+    }
+
+    return options[0]?.id ?? 'all';
+  }
+
+  private resolveDefaultSemesterFilter(): SemesterFilter {
+    const month = new Date().getMonth() + 1;
+    return month <= 6 ? 'S1' : 'S2';
   }
 
   private loadContent(showLoader = true): void {
@@ -912,7 +945,7 @@ export class ContentPageComponent {
       classesByUnit.set(planningClass.unitId, current);
     }
 
-    const palette: ContentUnitView['color'][] = ['blue', 'purple', 'green', 'orange'];
+    const palette: ContentUnitView['color'][] = ['purple', 'green', 'orange', 'blue'];
     const summaryUnitsById = new Map(summary.units.map((unit) => [unit.id, unit]));
     const sortedUnitIds = Array.from(
       new Set([
@@ -970,6 +1003,7 @@ export class ContentPageComponent {
         weekLabel: summaryUnit?.weekRange ?? fallbackWeekLabel,
         progress: summaryUnit?.progressPercent ?? (unitClasses.length > 0 ? 100 : 0),
         color: palette[index % palette.length],
+        colorHex: summaryUnit?.unitColorHex ?? null,
         expanded: unitId === firstVisibleUnitId,
         classes: unitClasses,
         totalDocuments

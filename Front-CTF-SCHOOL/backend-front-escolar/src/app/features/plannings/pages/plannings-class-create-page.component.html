@@ -12,9 +12,9 @@
           <span class="breadcrumb__divider">›</span>
           <span class="breadcrumb__item">Planificaciones</span>
           <span class="breadcrumb__divider">›</span>
-          <span class="breadcrumb__item is-current">Nueva clase</span>
+          <span class="breadcrumb__item is-current">{{ pageTitle() }}</span>
         </div>
-        <h1 class="page-header__title">Nueva clase</h1>
+        <h1 class="page-header__title">{{ pageTitle() }}</h1>
       </div>
     </section>
 
@@ -759,7 +759,7 @@
 
                 <button type="button" class="btn btn--primary" [disabled]="isSavingClass()" (click)="saveClass()">
                   <mat-icon>save</mat-icon>
-                  <span>{{ isSavingClass() ? 'Guardando...' : 'Guardar clase' }}</span>
+                  <span>{{ isSavingClass() ? 'Guardando...' : saveClassButtonLabel() }}</span>
                 </button>
               </div>
             </div>
