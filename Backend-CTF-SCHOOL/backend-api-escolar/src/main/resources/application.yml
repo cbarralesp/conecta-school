@@ -18,7 +18,7 @@ spring:
       max-file-size: ${APP_UPLOADS_MAX_FILE_SIZE:50MB}
       max-request-size: ${APP_UPLOADS_MAX_REQUEST_SIZE:60MB}
   datasource:
-    url: jdbc:postgresql://localhost:5432/sistema_escolar
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/sistema_escolar}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:1234}
     driver-class-name: org.postgresql.Driver
