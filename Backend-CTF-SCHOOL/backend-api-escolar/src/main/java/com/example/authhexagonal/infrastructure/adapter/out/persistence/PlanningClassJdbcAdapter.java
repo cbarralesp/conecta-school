@@ -67,6 +67,8 @@ public class PlanningClassJdbcAdapter implements
                         WHEN EXTRACT(MONTH FROM COALESCE(up."FECHA_INICIO", up."FECHA_TERMINO", CURRENT_DATE)) BETWEEN 1 AND 6 THEN 1
                         ELSE 2
                     END AS semester,
+                    COALESCE(up."CLASES_PLANIFICADAS", 0) AS planned_classes,
+                    COUNT(cp."ID") AS created_classes,
                     up."ESTADO"
                 FROM app_user cu
                 JOIN "UNIDADES_PLANIFICACION" up ON 1 = 1
@@ -74,7 +76,22 @@ public class PlanningClassJdbcAdapter implements
                 JOIN "PROFESORES" pr ON pr."ID" = cd."PROFESOR_ID"
                 JOIN "ASIGNATURAS" a ON a."ID" = cd."ASIGNATURA_ID"
                 JOIN "CURSOS" c ON c."ID" = cd."CURSO_ID"
+                LEFT JOIN "CLASES_PLANIFICACION" cp ON cp."UNIDAD_ID" = up."ID"
                 WHERE 1 = 1
+                GROUP BY
+                    up."ID",
+                    up."NUMERO_UNIDAD",
+                    up."NOMBRE",
+                    up."OBJETIVOS_APRENDIZAJE",
+                    up."CLASES_PLANIFICADAS",
+                    up."FECHA_INICIO",
+                    up."FECHA_TERMINO",
+                    up."ESTADO",
+                    a."ID",
+                    a."NOMBRE",
+                    c."ID",
+                    c."NOMBRE",
+                    cd."ANIO_ESCOLAR"
                 ORDER BY up."FECHA_CREACION" DESC, up."ID" DESC
                 """, (rs, rowNum) -> mapCatalogUnit(rs), username);
     }
@@ -805,6 +822,8 @@ public class PlanningClassJdbcAdapter implements
                 rs.getString("course_name"),
                 rs.getObject("school_year", Integer.class),
                 rs.getObject("semester", Integer.class),
+                rs.getInt("planned_classes"),
+                rs.getInt("created_classes"),
                 rs.getString("ESTADO")
         );
     }

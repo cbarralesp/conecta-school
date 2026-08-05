@@ -88,6 +88,8 @@ export interface PlanningClassCatalogUnit {
   courseName: string;
   schoolYear: number | null;
   semester: number | null;
+  plannedClasses?: number | null;
+  createdClasses?: number | null;
   status: string;
 }
 

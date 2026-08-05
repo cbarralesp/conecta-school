@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
@@ -84,6 +84,8 @@ type ContentUnitView = {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContentPageComponent {
+  private readonly maxDocumentSizeBytes = 50 * 1024 * 1024;
+  private readonly maxDocumentSizeLabel = '50 MB';
   private readonly authStateService = inject(AuthStateService);
   private readonly courseApiService = inject(CourseApiService);
   private readonly planningApiService = inject(PlanningApiService);
@@ -206,6 +208,27 @@ export class ContentPageComponent {
     const values = Array.from(new Set(this.courses().map((course) => course.schoolYear))).sort((left, right) => left - right);
     return values.map((value) => ({ value, label: String(value) }));
   });
+  readonly availableEducationStages = computed<EducationStage[]>(() => {
+    const year = this.selectedYear();
+    const availableStages = new Set<EducationStage>();
+
+    for (const course of this.courses()) {
+      if (year != null && course.schoolYear !== year) {
+        continue;
+      }
+
+      const hasAssignments = this.assignmentOptions().some((assignment) => assignment.courseId === course.id);
+      if (!hasAssignments) {
+        continue;
+      }
+
+      availableStages.add(this.resolveEducationStage(course));
+    }
+
+    return (['basic', 'media'] as const).filter((stage) => availableStages.has(stage));
+  });
+  readonly hasBasicStage = computed(() => this.availableEducationStages().includes('basic'));
+  readonly hasMediaStage = computed(() => this.availableEducationStages().includes('media'));
   readonly courseOptions = computed(() => {
     const year = this.selectedYear();
     const options = this.courses()
@@ -292,6 +315,17 @@ export class ContentPageComponent {
   private classCatalogsLoadedCallbacks: Array<() => void> = [];
 
   constructor() {
+    effect(() => {
+      const stages = this.availableEducationStages();
+      if (!stages.length) {
+        return;
+      }
+
+      if (!stages.includes(this.selectedEducationStage())) {
+        this.selectedEducationStage.set(stages[0]);
+      }
+    }, { allowSignalWrites: true });
+
     this.loadCourses();
     this.loadUnitCatalogs();
     this.loadContent();
@@ -524,12 +558,22 @@ export class ContentPageComponent {
 
   onClassFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.classFile.set(input.files?.[0] ?? null);
+    const file = input.files?.[0] ?? null;
+    if (!this.acceptDocumentFile(file, input)) {
+      this.classFile.set(null);
+      return;
+    }
+    this.classFile.set(file);
   }
 
   onDocumentFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.documentFile.set(input.files?.[0] ?? null);
+    const file = input.files?.[0] ?? null;
+    if (!this.acceptDocumentFile(file, input)) {
+      this.documentFile.set(null);
+      return;
+    }
+    this.documentFile.set(file);
   }
 
   createUnit(): void {
@@ -1328,9 +1372,12 @@ export class ContentPageComponent {
   }
 
   private matchesEducationStage(course: Course, stage: EducationStage): boolean {
+    return this.resolveEducationStage(course) === stage;
+  }
+
+  private resolveEducationStage(course: Course): EducationStage {
     const label = this.normalizeCompare(`${course.level} ${course.name} ${course.code}`);
-    const isMedia = label.includes('media') || label.includes('medio');
-    return stage === 'media' ? isMedia : !isMedia;
+    return label.includes('media') || label.includes('medio') ? 'media' : 'basic';
   }
 
   private normalizeCompare(value: string): string {
@@ -1349,8 +1396,27 @@ export class ContentPageComponent {
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {
-    this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
+    const message = error.status === 413
+      ? `El archivo supera el tamaño permitido (${this.maxDocumentSizeLabel}).`
+      : typeof error.error?.message === 'string' ? error.error.message : fallback;
+
+    this.snackBar.open(message, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private acceptDocumentFile(file: File | null, input: HTMLInputElement): boolean {
+    if (!file) {
+      return true;
+    }
+    if (file.size <= this.maxDocumentSizeBytes) {
+      return true;
+    }
+
+    input.value = '';
+    this.snackBar.open(`El archivo supera el tamaño permitido (${this.maxDocumentSizeLabel}).`, 'Cerrar', {
+      duration: 4200
+    });
+    return false;
   }
 }

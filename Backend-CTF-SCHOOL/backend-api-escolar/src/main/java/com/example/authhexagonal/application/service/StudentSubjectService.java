@@ -40,7 +40,9 @@ public class StudentSubjectService implements GetStudentSubjectsUseCase, GetStud
 
     @Override
     public List<StudentPortalSubject> getSubjects(String username) {
-        return studentSubjectRepositoryPort.findSubjects(username);
+        return studentSubjectRepositoryPort.findSubjects(username).stream()
+                .map(subject -> withDocumentMetrics(username, subject))
+                .toList();
     }
 
     @Override
@@ -61,6 +63,20 @@ public class StudentSubjectService implements GetStudentSubjectsUseCase, GetStud
         int totalDocuments = rows.size();
         int reviewedDocuments = (int) rows.stream().filter(StudentSubjectDocumentRow::reviewed).count();
         return new StudentSubjectMetrics(totalDocuments, reviewedDocuments, totalDocuments - reviewedDocuments);
+    }
+
+    private StudentPortalSubject withDocumentMetrics(String username, StudentPortalSubject subject) {
+        List<StudentSubjectDocumentRow> rows = studentSubjectRepositoryPort.findSubjectDocumentRows(username, subject.subjectId());
+        StudentSubjectMetrics metrics = buildMetrics(rows);
+        return new StudentPortalSubject(
+                subject.subjectId(),
+                subject.subjectName(),
+                subject.courseName(),
+                subject.weeklyBlocks(),
+                subject.teacherName(),
+                metrics.totalDocuments(),
+                metrics.newDocuments()
+        );
     }
 
     private List<StudentDocumentTypeFilter> buildFilters(List<StudentSubjectDocumentRow> rows) {

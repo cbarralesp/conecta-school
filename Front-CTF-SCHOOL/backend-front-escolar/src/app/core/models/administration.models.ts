@@ -112,6 +112,7 @@ export interface AdministrationAuditLogItem {
 export interface AdministrationAuditLogView {
   actionOptions: { value: string; label: string }[];
   userOptions: { value: string; label: string }[];
+  roleOptions: { value: string; label: string }[];
   items: AdministrationAuditLogItem[];
 }
 

@@ -57,7 +57,7 @@ public interface ManageAdministrationPort {
 
     void replaceUserModuleOverrides(List<AdministrationUserModuleOverride> overrides);
 
-    List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
+    List<AdministrationAuditLogItem> findAuditLogs(String type, String user, String roleCode, LocalDate dateStart, LocalDate dateEnd);
 
     List<String> findAuditUserOptions();
 

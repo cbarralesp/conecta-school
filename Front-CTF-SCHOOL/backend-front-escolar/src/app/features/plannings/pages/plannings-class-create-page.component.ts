@@ -79,6 +79,7 @@ type UnidadClase = {
   numero: number;
   nombre: string;
   clasesEstimadas: number;
+  clasesCreadas: number;
   oaDisponibles: number;
   ejes: string[];
 };
@@ -1961,6 +1962,7 @@ export class PlanningsClassCreatePageComponent {
       numero: unit.number ?? index + 1,
       nombre: unit.name,
       clasesEstimadas: unit.estimatedHours ?? 0,
+      clasesCreadas: 0,
       oaDisponibles: unit.objectives?.length ?? 0,
       ejes
     };
@@ -1973,6 +1975,7 @@ export class PlanningsClassCreatePageComponent {
       numero: 1,
       nombre: this.prekinderAmbit() || this.subjectLabel() || 'ámbito inicial',
       clasesEstimadas: 1,
+      clasesCreadas: 0,
       oaDisponibles: objectives.length,
       ejes: this.prekinderNucleus() ? [this.prekinderNucleus()] : []
     };
@@ -1987,10 +1990,22 @@ export class PlanningsClassCreatePageComponent {
       id: unit.unitId,
       numero: this.extractFirstNumber(unit.unitNumberLabel) || index + 1,
       nombre: unit.unitName,
-      clasesEstimadas: 0,
+      clasesEstimadas: Math.max(unit.plannedClasses ?? 0, unit.createdClasses ?? 0),
+      clasesCreadas: unit.createdClasses ?? 0,
       oaDisponibles: 0,
       ejes: []
     };
+  }
+
+  unitClassProgressLabel(unidad: UnidadClase): string {
+    const created = unidad.clasesCreadas ?? 0;
+    const planned = unidad.clasesEstimadas ?? 0;
+
+    if (planned > 0) {
+      return `${created} / ${planned} clases creadas`;
+    }
+
+    return `${created} clase${created === 1 ? '' : 's'} creada${created === 1 ? '' : 's'}`;
   }
 
   private resolveSemesterLabel(unit: StudyProgramUnit): string {
@@ -2308,6 +2323,7 @@ export class PlanningsClassCreatePageComponent {
       numero: resolvedNumber,
       nombre: resolvedName,
       clasesEstimadas: 0,
+      clasesCreadas: 0,
       oaDisponibles: 0,
       ejes: []
     };

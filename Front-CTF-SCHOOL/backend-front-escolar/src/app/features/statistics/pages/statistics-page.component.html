@@ -1,0 +1,360 @@
+<app-teacher-modern-layout
+  title=""
+  activeItem="statistics"
+  dashboardRoute="/dashboard"
+  [userName]="user()?.nombre ?? 'Docente'"
+  userRole="Docente">
+  <main class="statistics-page">
+    <section class="statistics-header">
+      <div>
+        <h1>Estadísticas</h1>
+        <p>Consulta el rendimiento y las actividades por curso en una vista de solo lectura.</p>
+      </div>
+
+      <label class="filter-pill" aria-label="Periodo visualizado">
+        <mat-icon>calendar_today</mat-icon>
+        <select [ngModel]="selectedSemester()" (ngModelChange)="selectSemester($event)">
+          @for (option of semesterOptions; track option.value) {
+            <option [ngValue]="option.value">{{ option.label }}</option>
+          }
+        </select>
+        <mat-icon class="filter-pill__chevron">expand_more</mat-icon>
+      </label>
+    </section>
+
+    @if (hasData()) {
+    <section class="selection-panel">
+      <div class="selection-panel__section">
+        <div class="selection-group">
+          <span class="selection-group__label">Selecciona un nivel educativo</span>
+          <div class="level-grid">
+            @for (level of levels(); track trackByLevel($index, level)) {
+              <button
+                type="button"
+                [class]="'level-card level-card--' + level.level.tone"
+                [class.is-active]="selectedLevelId() === level.level.id"
+                (click)="selectLevel(level.level.id)">
+                <span [class]="'level-card__icon level-card__icon--' + level.level.tone">
+                  <mat-icon>{{ level.level.icon }}</mat-icon>
+                </span>
+                <span class="level-card__copy">
+                  <strong>{{ level.level.title }}</strong>
+                  <small>{{ level.level.subtitle }}</small>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="selection-panel__section selection-panel__section--courses">
+        <div class="selection-group selection-group--courses">
+          <span class="selection-group__label">Selecciona un curso</span>
+          <div class="course-strip-shell">
+            <button
+              type="button"
+              class="course-strip__nav"
+              aria-label="Cursos anteriores"
+              [disabled]="!canGoToPreviousCoursePage()"
+              (click)="goToPreviousCoursePage()">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+
+            <div class="course-strip">
+              @for (course of visibleCourses(); track trackByCourse($index, course)) {
+                <button
+                  type="button"
+                  class="course-chip"
+                  [class.is-active]="selectedCourseId() === course.id"
+                  (click)="selectCourse(course.id)">
+                  <span class="course-chip__icon">
+                    <mat-icon>groups</mat-icon>
+                  </span>
+                  <span class="course-chip__copy">
+                    <strong>{{ course.name }}</strong>
+                    <small>{{ course.students }} estudiantes</small>
+                  </span>
+                </button>
+              }
+            </div>
+
+            <button
+              type="button"
+              class="course-strip__nav"
+              aria-label="Ver mas cursos"
+              [disabled]="!canGoToNextCoursePage()"
+              (click)="goToNextCoursePage()">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="course-overview">
+      <div class="course-overview__head">
+        <div class="course-overview__identity">
+          <span class="course-overview__avatar">
+            <mat-icon>groups</mat-icon>
+          </span>
+
+          <div class="course-overview__copy">
+            <h2>{{ selectedCourse().name }}</h2>
+            <p>Docente: {{ selectedCourse().teacher }}</p>
+          </div>
+        </div>
+
+        <div class="course-overview__stats">
+          <article class="mini-stat">
+            <mat-icon>person_outline</mat-icon>
+            <div>
+              <strong>{{ selectedCourse().students }}</strong>
+              <span>Estudiantes</span>
+            </div>
+          </article>
+
+          <article class="mini-stat">
+            <mat-icon>calendar_month</mat-icon>
+            <div>
+              <strong>{{ selectedCourse().averageAttendance }}%</strong>
+              <span>Asistencia promedio</span>
+            </div>
+          </article>
+
+          <article class="mini-stat">
+            <mat-icon>star_outline</mat-icon>
+            <div>
+              <strong>{{ selectedCourse().averageGrade }}</strong>
+              <span>Promedio general</span>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <p class="course-overview__period">{{ periodRange().longLabel }}</p>
+    </section>
+
+    <section class="metrics-grid">
+      <article class="metric-card metric-card--attendance">
+        <header class="metric-card__header">
+          <div>
+            <h3>Asistencia</h3>
+            <p>Promedio del curso</p>
+            <small>{{ periodRange().shortLabel }}</small>
+          </div>
+        </header>
+
+        <div class="metric-card__hero">
+          <div>
+            <strong class="metric-card__value">{{ selectedCourse().averageAttendance }}%</strong>
+            <span
+              class="metric-card__delta"
+              [class.metric-card__delta--up]="isPositive(selectedCourse().attendanceDelta)"
+              [class.metric-card__delta--down]="!isPositive(selectedCourse().attendanceDelta)">
+              <mat-icon>{{ isPositive(selectedCourse().attendanceDelta) ? 'north_east' : 'south_east' }}</mat-icon>
+              {{ absoluteValue(selectedCourse().attendanceDelta) }}% {{ isPositive(selectedCourse().attendanceDelta) ? 'mas' : 'menos' }} que el periodo anterior
+            </span>
+          </div>
+
+          <div
+            class="attendance-ring"
+            [style.--attendance-value]="selectedCourse().averageAttendance">
+            <span>{{ selectedCourse().averageAttendance }}%</span>
+          </div>
+        </div>
+
+        <div class="legend-list">
+          @for (item of selectedCourse().attendanceBreakdown; track trackByLabel($index, item)) {
+            <div class="legend-row">
+              <span class="legend-row__label">
+                <i [class]="'tone-dot tone-dot--' + item.tone"></i>
+                {{ item.label }}
+              </span>
+              <strong>{{ item.value }}%</strong>
+            </div>
+          }
+        </div>
+
+        <div class="monthly-strip">
+          @for (point of attendanceMonthlyPoints(); track point.label) {
+            <div class="monthly-chip">
+              <span>{{ point.label }}</span>
+              <strong>{{ point.valueLabel }}</strong>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="metric-card metric-card--grades">
+        <header class="metric-card__header">
+          <div>
+            <h3>Notas</h3>
+            <p>Promedio general del curso</p>
+            <small>{{ periodRange().shortLabel }}</small>
+          </div>
+        </header>
+
+        <div class="metric-card__hero metric-card__hero--stacked">
+          <strong class="metric-card__value">{{ selectedCourse().averageGrade }}</strong>
+          <span
+            class="metric-card__delta"
+            [class.metric-card__delta--up]="isPositive(selectedCourse().gradeDelta)"
+            [class.metric-card__delta--down]="!isPositive(selectedCourse().gradeDelta)">
+            <mat-icon>{{ isPositive(selectedCourse().gradeDelta) ? 'north_east' : 'south_east' }}</mat-icon>
+            {{ absoluteValue(selectedCourse().gradeDelta) }} {{ isPositive(selectedCourse().gradeDelta) ? 'mas' : 'menos' }} que el periodo anterior
+          </span>
+        </div>
+
+        <div class="line-chart">
+          <div class="line-chart__grid"></div>
+          <svg viewBox="0 0 240 116" preserveAspectRatio="none" aria-hidden="true">
+            <polyline [attr.points]="gradeChartPoints()" />
+          </svg>
+        </div>
+
+        <div class="chart-labels">
+          @for (label of chartLabels(); track label) {
+            <span>{{ label }}</span>
+          }
+        </div>
+
+        <div class="monthly-strip monthly-strip--compact">
+          @for (point of gradeMonthlyPoints(); track point.label) {
+            <div class="monthly-chip monthly-chip--blue" [class.monthly-chip--empty]="!point.hasData">
+              <span>{{ point.label }}</span>
+              <strong>{{ point.valueLabel }}</strong>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="metric-card metric-card--planning">
+        <header class="metric-card__header">
+          <div>
+            <h3>Planificaciones</h3>
+            <p>Cumplimiento del plan</p>
+            <small>{{ periodRange().shortLabel }}</small>
+          </div>
+        </header>
+
+        <div class="metric-card__hero metric-card__hero--stacked">
+          <strong class="metric-card__value">{{ selectedCourse().planningProgress }}%</strong>
+          <span
+            class="metric-card__delta"
+            [class.metric-card__delta--up]="isPositive(selectedCourse().planningDelta)"
+            [class.metric-card__delta--down]="!isPositive(selectedCourse().planningDelta)">
+            <mat-icon>{{ isPositive(selectedCourse().planningDelta) ? 'north_east' : 'south_east' }}</mat-icon>
+            {{ absoluteValue(selectedCourse().planningDelta) }}% {{ isPositive(selectedCourse().planningDelta) ? 'mas' : 'menos' }} que el periodo anterior
+          </span>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-track__fill" [style.width.%]="selectedCourse().planningProgress"></div>
+        </div>
+
+        <div class="planning-summary">
+          @for (segment of planningSegments(); track trackByLabel($index, segment)) {
+            <div class="planning-summary__item">
+              <strong [class]="'planning-summary__value planning-summary__value--' + segment.tone">
+                {{ segment.value }}
+              </strong>
+              <span>{{ segment.label }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="monthly-strip monthly-strip--compact">
+          @for (point of planningMonthlyPoints(); track point.label) {
+            <div class="monthly-chip monthly-chip--purple">
+              <span>{{ point.label }}</span>
+              <strong>{{ point.valueLabel }}</strong>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="metric-card metric-card--annotations">
+        <header class="metric-card__header">
+          <div>
+            <h3>Anotaciones</h3>
+            <p>Total del curso</p>
+            <small>{{ periodRange().shortLabel }}</small>
+          </div>
+        </header>
+
+        <div class="metric-card__hero metric-card__hero--stacked">
+          <strong class="metric-card__value">{{ selectedCourse().annotations }}</strong>
+          <span
+            class="metric-card__delta"
+            [class.metric-card__delta--up]="isPositive(selectedCourse().annotationDelta)"
+            [class.metric-card__delta--down]="!isPositive(selectedCourse().annotationDelta)">
+            <mat-icon>{{ isPositive(selectedCourse().annotationDelta) ? 'north_east' : 'south_east' }}</mat-icon>
+            {{ absoluteValue(selectedCourse().annotationDelta) }} {{ isPositive(selectedCourse().annotationDelta) ? 'mas' : 'menos' }} que el periodo anterior
+          </span>
+        </div>
+
+        <div class="bar-chart">
+          @for (bar of annotationBarHeights(); track $index) {
+            <div class="bar-chart__column">
+              <span class="bar-chart__bar" [style.height.%]="bar"></span>
+            </div>
+          }
+        </div>
+
+        <div class="chart-labels">
+          @for (label of chartLabels(); track label) {
+            <span>{{ label }}</span>
+          }
+        </div>
+
+        <div class="monthly-strip monthly-strip--compact">
+          @for (point of annotationMonthlyPoints(); track point.label) {
+            <div class="monthly-chip monthly-chip--orange">
+              <span>{{ point.label }}</span>
+              <strong>{{ point.valueLabel }}</strong>
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+
+    <section class="highlights-card">
+      <header class="highlights-card__header">
+        <h3>Resumen adicional del curso</h3>
+      </header>
+
+      <div class="highlights-grid">
+        @for (highlight of courseHighlights(); track trackByLabel($index, highlight)) {
+          <article class="highlight-item">
+            <span [class]="'highlight-item__icon highlight-item__icon--' + highlight.tone">
+              <mat-icon>{{ highlight.icon }}</mat-icon>
+            </span>
+            <div>
+              <p>{{ highlight.label }}</p>
+              <strong>{{ highlight.value }}</strong>
+              <small>{{ highlight.supporting }}</small>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="info-banner">
+      <mat-icon>info</mat-icon>
+      <span>Los datos se actualizan diariamente a las 00:00 hrs.</span>
+    </section>
+    } @else {
+    <section class="empty-state">
+      <mat-icon>insights</mat-icon>
+      <div>
+        <h3>{{ isLoading() ? 'Cargando estadísticas' : 'Sin datos disponibles' }}</h3>
+        <p>
+          {{ isLoading()
+            ? 'Estamos consultando cursos, asistencia, notas y planificaciones del periodo actual.'
+            : 'No encontramos cursos con información suficiente para mostrar esta vista.' }}
+        </p>
+      </div>
+    </section>
+    }
+  </main>
+</app-teacher-modern-layout>

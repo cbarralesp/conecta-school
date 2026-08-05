@@ -283,6 +283,16 @@ export class StudentDashboardPageComponent implements OnDestroy {
   });
 
   readonly overviewSubjects = computed(() => this.subjectCards().slice(0, 5));
+  readonly latestMaterialSubject = computed(() => {
+    const subjectsWithDocuments = this.studentSubjects()
+      .filter((subject) => subject.totalDocuments > 0)
+      .sort((left, right) => right.totalDocuments - left.totalDocuments);
+
+    return subjectsWithDocuments[0] ?? null;
+  });
+  readonly totalSubjectDocuments = computed(() =>
+    this.studentSubjects().reduce((total, subject) => total + subject.totalDocuments, 0)
+  );
   readonly subjectBrowserCards = computed(() => {
     const query = this.studentSearch().trim().toLowerCase();
     const uniqueSubjects = new Map<number | string, StudentPortalSubject>();

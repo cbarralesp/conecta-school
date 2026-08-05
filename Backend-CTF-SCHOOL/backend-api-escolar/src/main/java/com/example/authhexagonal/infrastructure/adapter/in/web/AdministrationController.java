@@ -129,20 +129,22 @@ public class AdministrationController {
     public AdministrationAuditLogView getAuditLogs(
             @RequestParam(name = "type", required = false) String type,
             @RequestParam(name = "user", required = false) String user,
+            @RequestParam(name = "roleCode", required = false) String roleCode,
             @RequestParam(name = "dateStart", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateStart,
             @RequestParam(name = "dateEnd", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateEnd
     ) {
-        return manageAdministrationUseCase.getAuditLogs(type, user, dateStart, dateEnd);
+        return manageAdministrationUseCase.getAuditLogs(type, user, roleCode, dateStart, dateEnd);
     }
 
     @GetMapping("/audit-logs/export")
     public ResponseEntity<byte[]> exportAuditLogs(
             @RequestParam(name = "type", required = false) String type,
             @RequestParam(name = "user", required = false) String user,
+            @RequestParam(name = "roleCode", required = false) String roleCode,
             @RequestParam(name = "dateStart", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateStart,
             @RequestParam(name = "dateEnd", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateEnd
     ) {
-        byte[] body = manageAdministrationUseCase.exportAuditLogs(type, user, dateStart, dateEnd);
+        byte[] body = manageAdministrationUseCase.exportAuditLogs(type, user, roleCode, dateStart, dateEnd);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=auditoria-sistema.csv")
                 .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))

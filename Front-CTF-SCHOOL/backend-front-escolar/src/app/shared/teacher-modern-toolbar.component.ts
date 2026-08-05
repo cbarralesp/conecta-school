@@ -533,6 +533,7 @@ export class TeacherModernToolbarComponent {
     { label: 'Horario', description: 'Horario semanal por curso', route: '/dashboard/horario', icon: 'calendar_view_week', keywords: ['horario', 'bloques', 'recreo'] },
     { label: 'Asignaturas', description: 'Gestionar asignaturas', route: '/dashboard/asignaturas', icon: 'menu_book', keywords: ['asignatura', 'asignaturas', 'materias'] },
     { label: 'Actividades', description: 'Calendario de actividades', route: '/dashboard/actividades', icon: 'event_note', keywords: ['actividad', 'actividades', 'calendario'] },
+    { label: 'Estadisticas', description: 'Resumen visual del rendimiento por curso', route: '/dashboard/estadisticas', icon: 'query_stats', keywords: ['estadisticas', 'estadistica', 'metricas', 'rendimiento', 'resumen'] },
     { label: 'Contenido', description: 'Contenido pedagógico', route: '/dashboard/contenido', icon: 'folder', keywords: ['contenido', 'material', 'recursos'] },
     { label: 'Asistencia', description: 'Pase, resumen semanal y mensual', route: '/dashboard/asistencia', icon: 'fact_check', keywords: ['asistencia', 'pase', 'resumen semanal', 'resumen mensual'] },
     { label: 'Evaluaciones', description: 'Libro de notas e informes', route: '/dashboard/calificaciónes', icon: 'grading', keywords: ['evaluaciones', 'calificaciónes', 'notas', 'ficha estudiante', 'informe de notas'] },

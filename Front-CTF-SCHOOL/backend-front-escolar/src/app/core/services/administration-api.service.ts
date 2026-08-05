@@ -78,6 +78,7 @@ type UserFilter = {
 type AuditFilter = {
   type?: AdministrationAuditType | '';
   user?: string;
+  roleCode?: AdministrationRoleCode | '';
   dateStart?: string | Date | null;
   dateEnd?: string | Date | null;
 };
@@ -189,6 +190,9 @@ export class AdministrationApiService {
     if (filters?.user?.trim()) {
       params = params.set('user', filters.user.trim());
     }
+    if (filters?.roleCode) {
+      params = params.set('roleCode', filters.roleCode);
+    }
     const normalizedDateStart = this.normalizeDateFilter(filters?.dateStart);
     const normalizedDateEnd = this.normalizeDateFilter(filters?.dateEnd);
     if (normalizedDateStart) {
@@ -213,6 +217,13 @@ export class AdministrationApiService {
               label: normalizeDashboardText(option.label)
             }))
         ],
+        roleOptions: [
+          { value: '', label: 'Todos los tipos' },
+          ...view.roleOptions.map((option) => ({
+            value: option.value,
+            label: normalizeDashboardText(option.label)
+          }))
+        ],
         items: view.items.map((item) => this.normalizeAuditItem(item))
       }))
     );
@@ -225,6 +236,9 @@ export class AdministrationApiService {
     }
     if (filters?.user?.trim()) {
       params = params.set('user', filters.user.trim());
+    }
+    if (filters?.roleCode) {
+      params = params.set('roleCode', filters.roleCode);
     }
     const normalizedDateStart = this.normalizeDateFilter(filters?.dateStart);
     const normalizedDateEnd = this.normalizeDateFilter(filters?.dateEnd);

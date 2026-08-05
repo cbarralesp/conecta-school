@@ -7,7 +7,17 @@
       </div>
 
       <div class="page-header__actions">
-        <button type="button" class="btn-secondary" (click)="exportLogs()">
+        <label class="header-filter-field">
+          <span>Fecha inicio</span>
+          <input type="date" class="filter-control filter-control--header" [formControl]="filtersForm.controls.dateStart" />
+        </label>
+
+        <label class="header-filter-field">
+          <span>Fecha fin</span>
+          <input type="date" class="filter-control filter-control--header" [formControl]="filtersForm.controls.dateEnd" />
+        </label>
+
+        <button type="button" class="btn-secondary btn-export" (click)="exportLogs()">
           <mat-icon>download</mat-icon>
           Exportar CSV
         </button>
@@ -37,13 +47,12 @@
         </label>
 
         <label class="filter-field">
-          <span>Fecha inicio</span>
-          <input type="date" class="filter-control" formControlName="dateStart" />
-        </label>
-
-        <label class="filter-field">
-          <span>Fecha fin</span>
-          <input type="date" class="filter-control" formControlName="dateEnd" />
+          <span>Tipo de usuario</span>
+          <select class="filter-control" formControlName="roleCode">
+            @for (option of view()?.roleOptions ?? []; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
         </label>
 
         <div class="filters-actions">

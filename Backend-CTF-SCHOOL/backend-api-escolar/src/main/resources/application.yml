@@ -15,8 +15,8 @@ spring:
       - optional:file:C:/Users/Diegazzo/Desktop/Desarrollo/Backend-CTF-SCHOOL/backend-api-escolar/application-local.yml
   servlet:
     multipart:
-      max-file-size: 20MB
-      max-request-size: 25MB
+      max-file-size: ${APP_UPLOADS_MAX_FILE_SIZE:50MB}
+      max-request-size: ${APP_UPLOADS_MAX_REQUEST_SIZE:60MB}
   datasource:
     url: jdbc:postgresql://localhost:5432/sistema_escolar
     username: ${SPRING_DATASOURCE_USERNAME:postgres}

@@ -102,7 +102,8 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                       WHERE "ACTIVO" = TRUE) AS total_roles,
                     (SELECT COUNT(1)
                        FROM "ADMIN_USER_SETTINGS"
-                      WHERE "ULTIMO_ACCESO_AT"::date = CURRENT_DATE) AS today_access
+                      WHERE (("ULTIMO_ACCESO_AT" AT TIME ZONE 'UTC') AT TIME ZONE 'America/Santiago')::date
+                            = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date) AS today_access
                 """, (rs, rowNum) -> List.of(
                 new AdministrationMetric("Total usuarios", rs.getInt("total_users"), "brand"),
                 new AdministrationMetric("Activos", rs.getInt("active_users"), "success"),
@@ -594,8 +595,26 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     @Override
-    public List<AdministrationAuditLogItem> findAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd) {
+    public List<AdministrationAuditLogItem> findAuditLogs(String type, String user, String roleCode, LocalDate dateStart, LocalDate dateEnd) {
         List<Object> args = new ArrayList<>();
+        String resolvedStaffType = "UPPER(COALESCE(NULLIF(TRIM(prof.\"TIPO_PERSONAL\"), ''), 'DOCENTE'))";
+        String resolvedRoleCode = """
+                CASE
+                    WHEN UPPER(roles."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'ASISTENTE'
+                    ELSE UPPER(roles."CODIGO")
+                END
+                """.formatted(resolvedStaffType);
+        String resolvedRoleName = """
+                CASE
+                    WHEN UPPER(roles."CODIGO") = 'SECRETARIA' AND %s = 'ASISTENTE' THEN 'Asistente'
+                    ELSE COALESCE(roles."NOMBRE",
+                        CASE
+                            WHEN logs."USUARIO_ID" IS NULL THEN 'Sistema'
+                            ELSE 'Sin rol'
+                        END
+                    )
+                END
+                """.formatted(resolvedStaffType);
         StringBuilder sql = new StringBuilder("""
                 SELECT
                     logs."ID",
@@ -604,17 +623,15 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
                     logs."NOMBRE_USUARIO",
                     logs."ACCION",
                     logs."CONTEXTO",
-                    COALESCE(roles."NOMBRE",
-                        CASE
-                            WHEN logs."USUARIO_ID" IS NULL THEN 'Sistema'
-                            ELSE 'Sin rol'
-                        END
-                    ) AS "ROL_NOMBRE"
+                    %s AS "ROL_NOMBRE"
                 FROM "ADMIN_AUDIT_LOGS" logs
+                LEFT JOIN "USUARIOS" users ON users."ID" = logs."USUARIO_ID"
+                LEFT JOIN "PERSONAS" persons ON persons."ID" = users."PERSONA_ID"
+                LEFT JOIN "PROFESORES" prof ON prof."PERSONA_ID" = persons."ID"
                 LEFT JOIN "ADMIN_USER_SETTINGS" settings ON settings."USUARIO_ID" = logs."USUARIO_ID"
                 LEFT JOIN "ADMIN_ROLES" roles ON roles."ID" = settings."ROL_ID"
                 WHERE 1 = 1
-                """);
+                """.formatted(resolvedRoleName));
 
         if (normalize(type) != null) {
             sql.append(" AND logs.\"TIPO\" = ?");
@@ -623,6 +640,10 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         if (normalize(user) != null) {
             sql.append(" AND UPPER(logs.\"NOMBRE_USUARIO\") LIKE ?");
             args.add("%" + user.trim().toUpperCase() + "%");
+        }
+        if (normalize(roleCode) != null) {
+            sql.append(" AND ").append(resolvedRoleCode).append(" = ?");
+            args.add(roleCode.trim().toUpperCase(Locale.ROOT));
         }
         if (dateStart != null) {
             sql.append(" AND logs.\"OCURRIDO_AT\"::date >= ?");
@@ -1076,7 +1097,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
         if (lastAccessAt == null) {
             return "Sin acceso";
         }
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(DISPLAY_ZONE);
         if (lastAccessAt.toLocalDate().isEqual(today)) {
             return "Hoy " + lastAccessAt.format(DISPLAY_TIME_FORMATTER);
         }
@@ -1087,7 +1108,7 @@ public class AdministrationJdbcAdapter implements ManageAdministrationPort, Regi
     }
 
     private String buildRelativeDateLabel(LocalDateTime occurredAt) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(DISPLAY_ZONE);
         if (occurredAt.toLocalDate().isEqual(today)) {
             return "Hoy " + occurredAt.format(DISPLAY_TIME_FORMATTER);
         }

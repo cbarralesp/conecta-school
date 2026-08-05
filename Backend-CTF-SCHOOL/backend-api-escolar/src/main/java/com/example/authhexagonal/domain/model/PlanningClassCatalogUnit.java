@@ -11,6 +11,8 @@ public record PlanningClassCatalogUnit(
         String courseName,
         Integer schoolYear,
         Integer semester,
+        Integer plannedClasses,
+        Integer createdClasses,
         String status
 ) {
 }

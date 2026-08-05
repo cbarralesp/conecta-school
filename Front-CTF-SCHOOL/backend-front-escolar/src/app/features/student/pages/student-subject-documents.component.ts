@@ -179,7 +179,7 @@ export class StudentSubjectDocumentsComponent implements OnDestroy {
         const url = URL.createObjectURL(response.body);
         const link = window.document.createElement('a');
         link.href = url;
-        link.download = document.fileName;
+        link.download = this.resolveDownloadFileName(response, document.fileName);
         link.click();
         window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       },
@@ -199,6 +199,26 @@ export class StudentSubjectDocumentsComponent implements OnDestroy {
 
   trackDocument(_: number, document: StudentSubjectDocumentItem): number {
     return document.documentId;
+  }
+
+  private resolveDownloadFileName(response: { headers?: { get(name: string): string | null } }, fallback: string): string {
+    const disposition = response.headers?.get('content-disposition');
+    const headerFileName = disposition ? this.extractFileNameFromDisposition(disposition) : null;
+    return headerFileName || fallback || 'documento';
+  }
+
+  private extractFileNameFromDisposition(disposition: string): string | null {
+    const encodedMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if (encodedMatch?.[1]) {
+      try {
+        return decodeURIComponent(encodedMatch[1].replace(/"/g, '').trim());
+      } catch {
+        return encodedMatch[1].replace(/"/g, '').trim();
+      }
+    }
+
+    const plainMatch = disposition.match(/filename="?([^";]+)"?/i);
+    return plainMatch?.[1]?.trim() || null;
   }
 
   private loadSubjectDocuments(subjectId: number): void {

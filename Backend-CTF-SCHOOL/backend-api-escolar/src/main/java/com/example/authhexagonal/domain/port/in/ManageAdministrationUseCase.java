@@ -41,7 +41,7 @@ public interface ManageAdministrationUseCase {
 
     void saveAccessMatrix(AdministrationAccessMatrixUpdateCommand command, String actorUsername);
 
-    AdministrationAuditLogView getAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
+    AdministrationAuditLogView getAuditLogs(String type, String user, String roleCode, LocalDate dateStart, LocalDate dateEnd);
 
-    byte[] exportAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd);
+    byte[] exportAuditLogs(String type, String user, String roleCode, LocalDate dateStart, LocalDate dateEnd);
 }

@@ -340,7 +340,8 @@ export class TeacherModernSidebarComponent {
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
               { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACIONES', exact: true },
               { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
-              { key: 'student-life', label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' }
+              { key: 'student-life', label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' },
+              { key: 'statistics', label: 'Estadisticas', icon: 'query_stats', route: '/dashboard/estadisticas' }
             ])
           },
           {
@@ -384,7 +385,8 @@ export class TeacherModernSidebarComponent {
               { key: 'activities', label: 'Actividades', icon: 'event_note', route: '/dashboard/actividades', moduleCode: 'ACTIVIDADES' },
               { key: 'plannings', label: 'Planificaciones', icon: 'library_add_check', route: '/dashboard/planificaciones-nuevo', moduleCode: 'PLANIFICACIONES', exact: true },
               { key: 'content', label: 'Contenido', icon: 'folder_copy', route: '/dashboard/contenido', moduleCode: 'CONTENIDO' },
-              { key: 'student-life', label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' }
+              { key: 'student-life', label: 'Hoja de vida', icon: 'folder_shared', route: '/dashboard/hoja-vida', moduleCode: 'CALIFICACIONES' },
+              { key: 'statistics', label: 'Estadisticas', icon: 'query_stats', route: '/dashboard/estadisticas' }
             ])
           },
           {

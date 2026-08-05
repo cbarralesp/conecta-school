@@ -148,6 +148,8 @@ type ScheduleUnit = {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlanningsHomePageComponent {
+  private readonly maxDocumentSizeBytes = 50 * 1024 * 1024;
+  private readonly maxDocumentSizeLabel = '50 MB';
   private readonly authStateService = inject(AuthStateService);
   private readonly courseApiService = inject(CourseApiService);
   private readonly subjectApiService = inject(SubjectApiService);
@@ -454,12 +456,12 @@ export class PlanningsHomePageComponent {
 
   readonly selectedUnitClassProgress = computed(() => {
     const unit = this.selectedUnitDetail();
-    const plannedClasses = unit?.plannedClasses ?? 0;
+    const plannedClasses = unit ? this.unitPlannedClassesTarget(unit) : 0;
     if (!unit || plannedClasses <= 0) {
       return 0;
     }
 
-    return Math.min(Math.round((unit.classRows.length / plannedClasses) * 100), 100);
+    return Math.min(Math.round((this.unitCreatedClassesCount(unit) / plannedClasses) * 100), 100);
   });
 
   readonly selectedClassDetailProgress = computed(() => {
@@ -474,6 +476,15 @@ export class PlanningsHomePageComponent {
   readonly currentTabLabel = computed(() => {
     return this.tabs().find((tab) => tab.id === this.activeTab())?.label ?? this.pageTitleLabel();
   });
+
+  unitCreatedClassesCount(unit: PlanningUnitCard): number {
+    return Math.max(unit.classRows.length, unit.classes);
+  }
+
+  unitPlannedClassesTarget(unit: PlanningUnitCard): number {
+    return Math.max(unit.plannedClasses, this.unitCreatedClassesCount(unit));
+  }
+
   readonly previewUnitObjectives = computed<ClassPreviewObjective[]>(() => {
     const planningClass = this.selectedClassPreview();
     if (!planningClass) {
@@ -918,6 +929,11 @@ export class PlanningsHomePageComponent {
     const classId = this.pendingUploadClassId();
 
     if (!file || classId == null) {
+      return;
+    }
+
+    if (!this.acceptDocumentFile(file, input)) {
+      this.pendingUploadClassId.set(null);
       return;
     }
 
@@ -1837,8 +1853,24 @@ export class PlanningsHomePageComponent {
   }
 
   private showError(error: HttpErrorResponse, fallback: string): void {
-    this.snackBar.open(typeof error.error?.message === 'string' ? error.error.message : fallback, 'Cerrar', {
+    const message = error.status === 413
+      ? `El archivo supera el tamaño permitido (${this.maxDocumentSizeLabel}).`
+      : typeof error.error?.message === 'string' ? error.error.message : fallback;
+
+    this.snackBar.open(message, 'Cerrar', {
       duration: 3500
     });
+  }
+
+  private acceptDocumentFile(file: File, input: HTMLInputElement): boolean {
+    if (file.size <= this.maxDocumentSizeBytes) {
+      return true;
+    }
+
+    input.value = '';
+    this.snackBar.open(`El archivo supera el tamaño permitido (${this.maxDocumentSizeLabel}).`, 'Cerrar', {
+      duration: 4200
+    });
+    return false;
   }
 }

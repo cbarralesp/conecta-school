@@ -183,7 +183,7 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     }
 
     @Override
-    public AdministrationAuditLogView getAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd) {
+    public AdministrationAuditLogView getAuditLogs(String type, String user, String roleCode, LocalDate dateStart, LocalDate dateEnd) {
         return new AdministrationAuditLogView(
                 List.of(
                         new AdministrationOptionItem("", "Todas las acciones"),
@@ -195,13 +195,14 @@ public class AdministrationManagementService implements ManageAdministrationUseC
                         new AdministrationOptionItem("LOGOUT", "Cierre de sesion")
                 ),
                 buildUserOptions(),
-                manageAdministrationPort.findAuditLogs(type, user, dateStart, dateEnd)
+                buildRoleOptions(),
+                manageAdministrationPort.findAuditLogs(type, user, roleCode, dateStart, dateEnd)
         );
     }
 
     @Override
-    public byte[] exportAuditLogs(String type, String user, LocalDate dateStart, LocalDate dateEnd) {
-        List<AdministrationAuditLogItem> items = manageAdministrationPort.findAuditLogs(type, user, dateStart, dateEnd);
+    public byte[] exportAuditLogs(String type, String user, String roleCode, LocalDate dateStart, LocalDate dateEnd) {
+        List<AdministrationAuditLogItem> items = manageAdministrationPort.findAuditLogs(type, user, roleCode, dateStart, dateEnd);
         StringBuilder csv = new StringBuilder();
         csv.append("\"Fecha\",\"Usuario\",\"Rol\",\"Accion\",\"Contexto\"\n");
         for (AdministrationAuditLogItem item : items) {
@@ -217,6 +218,12 @@ public class AdministrationManagementService implements ManageAdministrationUseC
     private List<AdministrationOptionItem> buildUserOptions() {
         return manageAdministrationPort.findAuditUserOptions().stream()
                 .map(value -> new AdministrationOptionItem(value, value))
+                .toList();
+    }
+
+    private List<AdministrationOptionItem> buildRoleOptions() {
+        return manageAdministrationPort.findRoleOptions().stream()
+                .map(role -> new AdministrationOptionItem(role.code(), role.name()))
                 .toList();
     }
 

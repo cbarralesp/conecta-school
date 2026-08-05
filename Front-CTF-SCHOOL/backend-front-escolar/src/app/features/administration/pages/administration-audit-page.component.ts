@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AdministrationAuditLogItem, AdministrationAuditLogView, AdministrationAuditType } from '../../../core/models/administration.models';
+import { AdministrationAuditLogItem, AdministrationAuditLogView, AdministrationAuditType, AdministrationRoleCode } from '../../../core/models/administration.models';
 import { AdministrationApiService } from '../../../core/services/administration-api.service';
 import { AdministrationShellComponent } from '../components/administration-shell.component';
 import { SummaryMetricCardComponent } from '../../../shared/summary-metric-card.component';
@@ -38,6 +38,7 @@ export class AdministrationAuditPageComponent {
   readonly filtersForm = this.fb.nonNullable.group({
     type: ['' as '' | AdministrationAuditType],
     user: [''],
+    roleCode: ['' as '' | AdministrationRoleCode],
     dateStart: [''],
     dateEnd: ['']
   });
@@ -45,13 +46,13 @@ export class AdministrationAuditPageComponent {
   readonly summaryCards = computed(() => {
     const items = this.view()?.items ?? [];
     const today = items.filter((item) => item.occurredLabel.startsWith('Hoy')).length;
-    const warnings = items.filter((item) => this.statusMeta(item).toneClass === 'warning').length;
+    const failedAttempts = items.filter((item) => item.type === 'FAILED_ATTEMPT').length;
 
     return [
       { label: 'Eventos visibles', value: items.length, icon: 'shield', toneClass: 'sc-blue' },
       { label: 'Actividad hoy', value: today, icon: 'today', toneClass: 'sc-green' },
       { label: 'Usuarios en log', value: new Set(items.map((item) => item.userDisplay)).size, icon: 'groups', toneClass: 'sc-violet' },
-      { label: 'Alertas', value: warnings, icon: 'warning', toneClass: 'sc-amber' }
+      { label: 'Intentos fallidos', value: failedAttempts, icon: 'warning', toneClass: 'sc-amber' }
     ];
   });
   readonly pagedItems = computed(() => {
@@ -75,6 +76,7 @@ export class AdministrationAuditPageComponent {
     this.filtersForm.reset({
       type: '',
       user: '',
+      roleCode: '',
       dateStart: '',
       dateEnd: ''
     });
@@ -91,6 +93,7 @@ export class AdministrationAuditPageComponent {
     this.administrationApi.exportAuditLogs({
       type: this.filtersForm.controls.type.value,
       user: this.filtersForm.controls.user.value,
+      roleCode: this.filtersForm.controls.roleCode.value,
       dateStart: this.filtersForm.controls.dateStart.value || null,
       dateEnd: this.filtersForm.controls.dateEnd.value || null
     }).subscribe({
@@ -159,6 +162,7 @@ export class AdministrationAuditPageComponent {
     this.administrationApi.getAuditLogs({
       type: this.filtersForm.controls.type.value,
       user: this.filtersForm.controls.user.value,
+      roleCode: this.filtersForm.controls.roleCode.value,
       dateStart: this.filtersForm.controls.dateStart.value || null,
       dateEnd: this.filtersForm.controls.dateEnd.value || null
     }).subscribe({

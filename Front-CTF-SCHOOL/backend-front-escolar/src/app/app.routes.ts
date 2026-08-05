@@ -298,6 +298,15 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'dashboard/estadisticas',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: teacherOrAdmin, readOnly: true },
+    loadComponent: () =>
+      import('./features/statistics/pages/statistics-page.component').then(
+        (m) => m.StatisticsPageComponent
+      )
+  },
+  {
     path: 'dashboard/contenido',
     canActivate: [authGuard, roleGuard, moduleAccessGuard],
     data: { roles: teacherOrAdmin, moduleCode: 'CONTENIDO' },

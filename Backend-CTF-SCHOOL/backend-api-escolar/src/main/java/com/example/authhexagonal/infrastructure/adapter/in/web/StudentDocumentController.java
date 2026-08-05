@@ -53,8 +53,8 @@ public class StudentDocumentController {
         return ResponseEntity.ok()
                 .contentType(resolveMediaType(download.mimeType()))
                 .contentLength(download.content().length)
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
-                        .filename(resolveDownloadFileName(download.fileName()), StandardCharsets.UTF_8)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(resolveDownloadFileName(download.downloadFileName()), StandardCharsets.UTF_8)
                         .build()
                         .toString())
                 .body(resource);

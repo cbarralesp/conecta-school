@@ -42,22 +42,26 @@
     } @else {
       <section class="content-controls" aria-label="Filtros de contenido">
         <div class="education-tabs" role="group" aria-label="Nivel educativo">
-          <button
-            type="button"
-            class="education-tabs__button"
-            [class.is-active]="selectedEducationStage() === 'basic'"
-            (click)="setEducationStage('basic')">
-            <mat-icon>groups</mat-icon>
-            Educación Básica
-          </button>
-          <button
-            type="button"
-            class="education-tabs__button"
-            [class.is-active]="selectedEducationStage() === 'media'"
-            (click)="setEducationStage('media')">
-            <mat-icon>groups</mat-icon>
-            Educación Media
-          </button>
+          @if (hasBasicStage()) {
+            <button
+              type="button"
+              class="education-tabs__button"
+              [class.is-active]="selectedEducationStage() === 'basic'"
+              (click)="setEducationStage('basic')">
+              <mat-icon>groups</mat-icon>
+              Educación Básica
+            </button>
+          }
+          @if (hasMediaStage()) {
+            <button
+              type="button"
+              class="education-tabs__button"
+              [class.is-active]="selectedEducationStage() === 'media'"
+              (click)="setEducationStage('media')">
+              <mat-icon>groups</mat-icon>
+              Educación Media
+            </button>
+          }
         </div>
 
         <label class="content-select content-select--course">
@@ -154,7 +158,6 @@
               <mat-card appearance="outlined" class="content-card">
                 <button type="button" class="content-card__header" (click)="toggleUnit(unit.id)">
                   <div class="content-card__identity">
-                    <mat-icon class="content-card__toggle" [class.is-open]="unit.expanded">expand_more</mat-icon>
                     <div class="content-card__copy">
                       <h2>
                         <span
@@ -172,14 +175,17 @@
                     </div>
                   </div>
 
-                  <div class="content-card__progress">
-                    <span>{{ unit.progress }}% completado</span>
-                    <div class="content-card__progress-track">
-                      <div
-                        [class]="'content-card__progress-fill content-card__progress-fill--' + unit.color"
-                        [style.width.%]="unit.progress">
+                  <div class="content-card__actions">
+                    <div class="content-card__progress">
+                      <span>{{ unit.progress }}% completado</span>
+                      <div class="content-card__progress-track">
+                        <div
+                          [class]="'content-card__progress-fill content-card__progress-fill--' + unit.color"
+                          [style.width.%]="unit.progress">
+                        </div>
                       </div>
                     </div>
+                    <mat-icon class="content-card__toggle" [class.is-open]="unit.expanded">expand_more</mat-icon>
                   </div>
                 </button>
 

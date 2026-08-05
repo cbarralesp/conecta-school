@@ -194,6 +194,31 @@
             </section>
           </section>
 
+          @if (latestMaterialSubject(); as materialSubject) {
+            <section class="card overview-card overview-card--compact">
+              <div>
+                <div class="overview-mini-header">
+                  <span class="overview-mini-header__icon tone-blue"><mat-icon>upload_file</mat-icon></span>
+                  <h3 class="overview-mini-header__title">Material cargado</h3>
+                </div>
+                <div class="overview-activity-card">
+                  <strong>{{ materialSubject.subjectName }}</strong>
+                  <span>
+                  Tienes {{ materialSubject.totalDocuments }} documento(s) disponible(s)
+                  para revisar en esta asignatura.
+                  </span>
+                </div>
+              </div>
+              <button
+                mat-button
+                type="button"
+                (click)="openStudentRoute('/alumno/asignaturas/' + materialSubject.subjectId + '/documentos')">
+                Ver contenido
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </section>
+          }
+
           <section class="overview-bottom-grid">
             <section class="card overview-card overview-card--compact">
               <div class="overview-mini-header">
